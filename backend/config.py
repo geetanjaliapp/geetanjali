@@ -50,6 +50,7 @@ class Settings(BaseSettings):
     API_V1_PREFIX: str = "/api/v1"
     CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:5173"]
     API_KEY: str = "dev-api-key-12345"
+    ANALYZE_RATE_LIMIT: str = "10/hour"  # Rate limit for analyze endpoint
 
     # Frontend
     FRONTEND_URL: str = "http://localhost:5173"

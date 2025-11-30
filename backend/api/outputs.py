@@ -3,8 +3,10 @@
 import logging
 from typing import List
 from datetime import datetime
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 import uuid
 
 from db import get_db
@@ -12,6 +14,10 @@ from db.repositories.case_repository import CaseRepository
 from models.output import Output
 from api.schemas import OutputResponse
 from services.rag import get_rag_pipeline
+from config import settings
+
+# Rate limiter
+limiter = Limiter(key_func=get_remote_address)
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +25,9 @@ router = APIRouter(prefix="/api/v1")
 
 
 @router.post("/cases/{case_id}/analyze", response_model=OutputResponse, status_code=status.HTTP_201_CREATED)
+@limiter.limit(settings.ANALYZE_RATE_LIMIT)
 async def analyze_case(
+    request: Request,
     case_id: str,
     db: Session = Depends(get_db)
 ):

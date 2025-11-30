@@ -36,3 +36,4 @@ mypy==1.8.0
 # Utilities
 python-dotenv==1.0.0
 tenacity==8.2.3  # Retry logic for robustness
+slowapi==0.1.9  # Rate limiting
