@@ -21,6 +21,17 @@ def check_chroma_connection() -> bool:
         logger.error(f"ChromaDB health check failed: {e}")
         return False
 
+
+def check_ollama_connection() -> bool:
+    """Check if Ollama is accessible."""
+    try:
+        from services.llm import get_llm_service
+        llm_service = get_llm_service()
+        return llm_service.check_health()
+    except Exception as e:
+        logger.error(f"Ollama health check failed: {e}")
+        return False
+
 router = APIRouter()
 
 
@@ -64,7 +75,7 @@ async def readiness_check(db: Session = Depends(get_db)):
     checks = {
         "database": False,
         "chroma": False,
-        "ollama": False,  # Will implement in Phase 4
+        "ollama": False,
     }
 
     # Check database
@@ -79,8 +90,14 @@ async def readiness_check(db: Session = Depends(get_db)):
     except Exception as e:
         logger.error(f"ChromaDB health check failed: {e}")
 
+    # Check Ollama
+    try:
+        checks["ollama"] = check_ollama_connection()
+    except Exception as e:
+        logger.error(f"Ollama health check failed: {e}")
+
     # Overall status
-    all_ready = checks["database"] and checks["chroma"]
+    all_ready = checks["database"] and checks["chroma"] and checks["ollama"]
 
     return {
         "status": "ready" if all_ready else "not_ready",
