@@ -1,0 +1,54 @@
+{
+  "sources": [
+    {
+      "id": "gita-gita",
+      "name": "gita/gita Repository",
+      "url": "https://github.com/gita/gita",
+      "license": "Unlicense",
+      "license_url": "https://unlicense.org/",
+      "attribution_required": false,
+      "usage": "Primary verse data structure and canonical IDs",
+      "content_type": ["verse_structure", "canonical_ids"],
+      "format": "JSON",
+      "verified": true,
+      "last_verified": "2025-11-30"
+    },
+    {
+      "id": "vedicscriptures",
+      "name": "VedicScriptures Bhagavad Gita API",
+      "url": "https://github.com/vedicscriptures/bhagavad-gita-api",
+      "api_url": "https://vedicscriptures.github.io/",
+      "license": "MIT",
+      "license_url": "https://opensource.org/licenses/MIT",
+      "attribution_required": true,
+      "attribution_text": "Translations and commentaries from VedicScriptures (MIT License)",
+      "usage": "Translations, commentaries, and enrichment data",
+      "content_type": ["translations", "commentaries", "transliteration"],
+      "format": "JSON API",
+      "verified": true,
+      "last_verified": "2025-11-30"
+    },
+    {
+      "id": "ancient-sanskrit",
+      "name": "Ancient Sanskrit Bhagavad Gita Text",
+      "license": "Public Domain",
+      "attribution_required": false,
+      "usage": "Original Sanskrit verses (700 shlokas)",
+      "content_type": ["sanskrit_text"],
+      "date_range": "5th century BCE - 2nd century CE",
+      "verified": true,
+      "note": "Ancient religious text, public domain worldwide"
+    }
+  ],
+  "consulting_principles": {
+    "author": "Geetanjali Project",
+    "license": "MIT",
+    "usage": "Original work mapping verses to leadership consulting principles",
+    "note": "Based on scholarly interpretation of public domain source material"
+  },
+  "metadata": {
+    "version": "1.0.0",
+    "created_at": "2025-11-30T00:00:00Z",
+    "updated_at": "2025-11-30T00:00:00Z"
+  }
+}

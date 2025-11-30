@@ -1,0 +1,201 @@
+[
+  {
+    "canonical_id": "BG_2_47",
+    "chapter": 2,
+    "verse": 47,
+    "sanskrit": {
+      "iast": "karmaṇy-evādhikāras te, mā phaleṣu kadācana",
+      "source": "Ancient public domain text",
+      "license": "Public Domain"
+    },
+    "paraphrase": {
+      "en": "Act focused on duty, not fruits.",
+      "word_count": 6
+    },
+    "consulting_principles": [
+      "duty_focused_action",
+      "non_attachment_to_outcomes",
+      "ethical_duty_weighting"
+    ],
+    "metadata": {
+      "created_at": "2025-11-30T00:00:00Z",
+      "verified": true,
+      "priority": "high"
+    }
+  },
+  {
+    "canonical_id": "BG_3_19",
+    "chapter": 3,
+    "verse": 19,
+    "sanskrit": {
+      "iast": "tasmād asaktaḥ satataṁ kāryaṁ karma samācara",
+      "source": "Ancient public domain text",
+      "license": "Public Domain"
+    },
+    "paraphrase": {
+      "en": "Perform prescribed work without attachment.",
+      "word_count": 5
+    },
+    "consulting_principles": [
+      "consistent_duty_performance",
+      "process_over_impulsive_gains",
+      "detachment_from_results"
+    ],
+    "metadata": {
+      "created_at": "2025-11-30T00:00:00Z",
+      "verified": true,
+      "priority": "high"
+    }
+  },
+  {
+    "canonical_id": "BG_18_16",
+    "chapter": 18,
+    "verse": 16,
+    "sanskrit": {
+      "iast": "tatraivaṁ sati kartāram ātmānaṁ kevalaṁ tu yaḥ",
+      "source": "Ancient public domain text",
+      "license": "Public Domain"
+    },
+    "paraphrase": {
+      "en": "Knowledge, self-control, purity link to right action.",
+      "word_count": 8
+    },
+    "consulting_principles": [
+      "leader_self_control",
+      "clarity_in_decision_making",
+      "integrity",
+      "knowledge_based_action"
+    ],
+    "metadata": {
+      "created_at": "2025-11-30T00:00:00Z",
+      "verified": true,
+      "priority": "high"
+    }
+  },
+  {
+    "canonical_id": "BG_18_63",
+    "chapter": 18,
+    "verse": 63,
+    "sanskrit": {
+      "iast": "iti te jñānam ākhyātaṁ guhyād guhyataraṁ mayā",
+      "source": "Ancient public domain text",
+      "license": "Public Domain"
+    },
+    "paraphrase": {
+      "en": "Choose with knowledge and freedom after reflection.",
+      "word_count": 7
+    },
+    "consulting_principles": [
+      "informed_decision_making",
+      "autonomous_choice",
+      "reflective_leadership",
+      "knowledge_integration"
+    ],
+    "metadata": {
+      "created_at": "2025-11-30T00:00:00Z",
+      "verified": true,
+      "priority": "high"
+    }
+  },
+  {
+    "canonical_id": "BG_4_13",
+    "chapter": 4,
+    "verse": 13,
+    "sanskrit": {
+      "iast": "cātur-varṇyaṁ mayā sṛṣṭaṁ guṇa-karma-vibhāgaśaḥ",
+      "source": "Ancient public domain text",
+      "license": "Public Domain"
+    },
+    "paraphrase": {
+      "en": "Action according to nature and duty.",
+      "word_count": 6
+    },
+    "consulting_principles": [
+      "role_fit_for_leaders",
+      "task_alignment_with_nature",
+      "dharma_based_action",
+      "skillset_matching"
+    ],
+    "metadata": {
+      "created_at": "2025-11-30T00:00:00Z",
+      "verified": true,
+      "priority": "medium"
+    }
+  },
+  {
+    "canonical_id": "BG_12_15",
+    "chapter": 12,
+    "verse": 15,
+    "sanskrit": {
+      "iast": "yasmān nodvijate loko lokān nodvijate ca yaḥ",
+      "source": "Ancient public domain text",
+      "license": "Public Domain"
+    },
+    "paraphrase": {
+      "en": "Compassionate equilibrium in leadership.",
+      "word_count": 4
+    },
+    "consulting_principles": [
+      "compassion_as_leadership_value",
+      "harm_minimization",
+      "stakeholder_balance",
+      "emotional_equilibrium"
+    ],
+    "metadata": {
+      "created_at": "2025-11-30T00:00:00Z",
+      "verified": true,
+      "priority": "high"
+    }
+  },
+  {
+    "canonical_id": "BG_6_5",
+    "chapter": 6,
+    "verse": 5,
+    "sanskrit": {
+      "iast": "uddhared ātmanātmānaṁ nātmānam avasādayet",
+      "source": "Ancient public domain text",
+      "license": "Public Domain"
+    },
+    "paraphrase": {
+      "en": "Raise yourself by self-effort.",
+      "word_count": 5
+    },
+    "consulting_principles": [
+      "self_responsibility",
+      "example_setting_by_leaders",
+      "personal_accountability",
+      "self_improvement"
+    ],
+    "metadata": {
+      "created_at": "2025-11-30T00:00:00Z",
+      "verified": true,
+      "priority": "medium"
+    }
+  },
+  {
+    "canonical_id": "BG_16_1",
+    "chapter": 16,
+    "verse": 1,
+    "sanskrit": {
+      "iast": "abhayaṁ sattva-saṁśuddhir jñāna-yoga-vyavasthitiḥ",
+      "source": "Ancient public domain text",
+      "license": "Public Domain"
+    },
+    "paraphrase": {
+      "en": "Divine traits: fearlessness, purity, steadfastness.",
+      "word_count": 5
+    },
+    "consulting_principles": [
+      "ethical_character_traits",
+      "filter_actions_by_virtue",
+      "fearlessness_in_right_action",
+      "mental_purity"
+    ],
+    "metadata": {
+      "created_at": "2025-11-30T00:00:00Z",
+      "verified": true,
+      "priority": "high",
+      "note": "Represents beginning of divine vs demoniac traits section (16.1-3)"
+    }
+  }
+]
