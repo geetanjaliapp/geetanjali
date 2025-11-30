@@ -24,6 +24,9 @@ class Settings(BaseSettings):
     # Vector Database (ChromaDB)
     CHROMA_PERSIST_DIRECTORY: str = "./chroma_data"
     CHROMA_COLLECTION_NAME: str = "gita_verses"
+    CHROMA_MAX_RETRIES: int = 3
+    CHROMA_RETRY_MIN_WAIT: int = 1
+    CHROMA_RETRY_MAX_WAIT: int = 5
 
     # LLM (Ollama)
     OLLAMA_BASE_URL: str = "http://localhost:11434"

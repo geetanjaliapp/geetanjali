@@ -4,6 +4,13 @@ import logging
 from typing import List, Dict, Any, Optional
 import chromadb
 from chromadb.config import Settings as ChromaSettings
+from tenacity import (
+    retry,
+    stop_after_attempt,
+    wait_exponential,
+    retry_if_exception_type,
+    before_sleep_log
+)
 
 from config import settings
 from services.embeddings import get_embedding_service
@@ -67,6 +74,16 @@ class VectorStore:
 
         logger.debug(f"Added verse {canonical_id} to vector store")
 
+    @retry(
+        stop=stop_after_attempt(settings.CHROMA_MAX_RETRIES),
+        wait=wait_exponential(
+            min=settings.CHROMA_RETRY_MIN_WAIT,
+            max=settings.CHROMA_RETRY_MAX_WAIT
+        ),
+        retry=retry_if_exception_type((chromadb.errors.ChromaError, ConnectionError)),
+        before_sleep=before_sleep_log(logger, logging.WARNING),
+        reraise=True
+    )
     def add_verses_batch(
         self,
         canonical_ids: List[str],
@@ -82,6 +99,9 @@ class VectorStore:
             texts: List of verse texts
             metadatas: List of metadata dicts
             embeddings: Pre-computed embeddings (optional)
+
+        Raises:
+            ChromaError: If batch add fails after retries
         """
         # Generate embeddings if not provided
         if embeddings is None:
@@ -97,6 +117,16 @@ class VectorStore:
 
         logger.info(f"Added {len(canonical_ids)} verses to vector store")
 
+    @retry(
+        stop=stop_after_attempt(settings.CHROMA_MAX_RETRIES),
+        wait=wait_exponential(
+            min=settings.CHROMA_RETRY_MIN_WAIT,
+            max=settings.CHROMA_RETRY_MAX_WAIT
+        ),
+        retry=retry_if_exception_type((chromadb.errors.ChromaError, ConnectionError)),
+        before_sleep=before_sleep_log(logger, logging.WARNING),
+        reraise=True
+    )
     def search(
         self,
         query: str,
@@ -113,6 +143,9 @@ class VectorStore:
 
         Returns:
             Search results with ids, distances, documents, metadatas
+
+        Raises:
+            ChromaError: If search fails after retries
         """
         # Generate query embedding
         query_embedding = self.embedding_service.encode(query)
