@@ -44,7 +44,11 @@ class CaseBase(BaseModel):
     """Base case schema."""
 
     title: str = Field(..., max_length=500, description="Short problem title")
-    description: str = Field(..., description="Detailed problem statement")
+    description: str = Field(
+        ...,
+        max_length=10000,
+        description="Detailed problem statement (max 10,000 characters)"
+    )
     role: Optional[str] = Field(None, max_length=100, description="Requester's role")
     stakeholders: Optional[List[str]] = Field(None, description="Key affected parties")
     constraints: Optional[List[str]] = Field(None, description="Hard constraints")
