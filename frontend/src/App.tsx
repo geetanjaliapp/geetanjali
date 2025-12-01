@@ -18,6 +18,7 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/cases/new" element={<NewCase />} />
         <Route path="/cases/:id" element={<CaseView />} />
+        <Route path="/verses" element={<Verses />} />
 
         {/* Protected routes - require authentication */}
         <Route
@@ -25,14 +26,6 @@ function App() {
           element={
             <ProtectedRoute>
               <Consultations />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/verses"
-          element={
-            <ProtectedRoute>
-              <Verses />
             </ProtectedRoute>
           }
         />

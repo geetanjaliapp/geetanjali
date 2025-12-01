@@ -89,4 +89,26 @@ export const versesApi = {
     const response = await api.get(`/verses`, { params: { q: query } });
     return response.data;
   },
+
+  list: async (skip = 0, limit = 100, chapter?: number): Promise<Verse[]> => {
+    const params: any = { skip, limit };
+    if (chapter) params.chapter = chapter;
+    const response = await api.get(`/verses`, { params });
+    return response.data;
+  },
+
+  getDaily: async (): Promise<Verse> => {
+    const response = await api.get(`/verses/daily`);
+    return response.data;
+  },
+
+  getRandom: async (): Promise<Verse> => {
+    const response = await api.get(`/verses/random`);
+    return response.data;
+  },
+
+  get: async (canonicalId: string): Promise<Verse> => {
+    const response = await api.get(`/verses/${canonicalId}`);
+    return response.data;
+  },
 };

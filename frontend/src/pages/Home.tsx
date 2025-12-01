@@ -1,8 +1,9 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { checkHealth, casesApi } from '../lib/api';
-import type { HealthResponse, Case } from '../types';
+import { checkHealth, casesApi, versesApi } from '../lib/api';
+import type { HealthResponse, Case, Verse } from '../types';
 import { useAuth } from '../contexts/AuthContext';
+import VerseCard from '../components/VerseCard';
 
 export default function Home() {
   const [health, setHealth] = useState<HealthResponse | null>(null);
@@ -10,6 +11,8 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [recentCases, setRecentCases] = useState<Case[]>([]);
   const [casesLoading, setCasesLoading] = useState(true);
+  const [dailyVerse, setDailyVerse] = useState<Verse | null>(null);
+  const [verseLoading, setVerseLoading] = useState(true);
   const { user, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
@@ -28,6 +31,12 @@ export default function Home() {
     } else {
       setCasesLoading(false);
     }
+
+    // Load verse of the day
+    versesApi.getDaily()
+      .then(setDailyVerse)
+      .catch((err) => console.error('Failed to load verse:', err))
+      .finally(() => setVerseLoading(false));
   }, [isAuthenticated]);
 
   const handleLogout = async () => {
@@ -50,8 +59,15 @@ export default function Home() {
               <span className="text-2xl font-serif font-bold text-orange-600">Geetanjali</span>
             </Link>
             <div className="flex items-center space-x-4">
+              <Link
+                to="/verses"
+                className="text-gray-700 hover:text-orange-600 font-medium"
+              >
+                Browse Verses
+              </Link>
               {isAuthenticated ? (
                 <>
+                  <span className="text-gray-500">|</span>
                   <Link
                     to="/consultations"
                     className="text-gray-700 hover:text-orange-600 font-medium"
@@ -71,6 +87,7 @@ export default function Home() {
                 </>
               ) : (
                 <>
+                  <span className="text-gray-500">|</span>
                   <Link
                     to="/login"
                     className="text-gray-700 hover:text-orange-600 font-medium"
@@ -104,22 +121,25 @@ export default function Home() {
             </p>
           )}
 
-          {/* Backend Status */}
-          <div className="mb-12">
-            {loading && (
-              <div className="text-gray-500">Checking backend connection...</div>
-            )}
-            {error && (
-              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-                ⚠️ Backend connection error: {error}
+          {/* Backend Status - Only show errors */}
+          {error && (
+            <div className="mb-8 bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-lg max-w-2xl mx-auto">
+              <div className="flex items-start gap-3">
+                <span className="text-xl">⚠️</span>
+                <div>
+                  <p className="font-semibold mb-1">Service Unavailable</p>
+                  <p className="text-sm text-red-600">Unable to connect to the service. Please try again later.</p>
+                </div>
               </div>
-            )}
-            {health && (
-              <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded inline-block">
-                ✓ Backend connected: {health.service} ({health.environment})
-              </div>
-            )}
-          </div>
+            </div>
+          )}
+
+          {/* Verse of the Day */}
+          {!verseLoading && dailyVerse && (
+            <div className="mb-12 max-w-3xl mx-auto">
+              <VerseCard verse={dailyVerse} />
+            </div>
+          )}
 
           {/* CTA Button */}
           <div className="mb-12">

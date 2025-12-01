@@ -2,12 +2,15 @@
 
 import logging
 from typing import List, Optional
+from datetime import date
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 
 from db import get_db
 from db.repositories.verse_repository import VerseRepository
 from api.schemas import VerseResponse
+from models.verse import Verse
 
 logger = logging.getLogger(__name__)
 
@@ -55,6 +58,75 @@ async def search_verses(
 
     # Default: return all verses
     return repo.get_all(skip=skip, limit=limit)
+
+
+@router.get("/random", response_model=VerseResponse)
+async def get_random_verse(db: Session = Depends(get_db)):
+    """
+    Get a random verse from the Bhagavad Gita.
+
+    Args:
+        db: Database session
+
+    Returns:
+        Random verse
+
+    Raises:
+        HTTPException: If no verses found
+    """
+    verse = db.query(Verse).order_by(func.random()).first()
+
+    if not verse:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No verses found in database"
+        )
+
+    return verse
+
+
+@router.get("/daily", response_model=VerseResponse)
+async def get_verse_of_the_day(db: Session = Depends(get_db)):
+    """
+    Get deterministic verse of the day based on current date.
+
+    Uses day of year to deterministically select the same verse for a given day.
+    This ensures all users see the same "verse of the day".
+
+    Args:
+        db: Database session
+
+    Returns:
+        Verse of the day
+
+    Raises:
+        HTTPException: If no verses found
+    """
+    today = date.today()
+    day_of_year = today.timetuple().tm_yday
+
+    # Get total verse count
+    total_verses = db.query(func.count(Verse.id)).scalar()
+
+    if not total_verses or total_verses == 0:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No verses found in database"
+        )
+
+    # Use day of year modulo total verses to get deterministic index
+    verse_index = day_of_year % total_verses
+
+    verse = db.query(Verse).offset(verse_index).first()
+
+    if not verse:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Verse not found"
+        )
+
+    logger.info(f"Verse of the day ({today}): {verse.canonical_id}")
+    return verse
 
 
 @router.get("/{canonical_id}", response_model=VerseResponse)

@@ -17,10 +17,14 @@ export interface Verse {
   id: string;
   canonical_id: string; // e.g., BG_2_47
   chapter: number;
-  shloka: number;
-  sanskrit_text: string;
-  transliteration: string;
-  source: string;
+  verse: number;
+  sanskrit_iast?: string;
+  sanskrit_devanagari?: string;
+  paraphrase_en?: string;
+  consulting_principles?: string[];
+  source?: string;
+  license?: string;
+  created_at: string;
 }
 
 export interface Option {
