@@ -32,8 +32,8 @@ export default function Home() {
       setCasesLoading(false);
     }
 
-    // Load verse of the day
-    versesApi.getDaily()
+    // Load random verse
+    versesApi.getRandom()
       .then(setDailyVerse)
       .catch((err) => console.error('Failed to load verse:', err))
       .finally(() => setVerseLoading(false));

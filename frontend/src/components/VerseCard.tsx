@@ -11,7 +11,7 @@ export default function VerseCard({ verse, showExploreLink = true }: VerseCardPr
     <div className="bg-gradient-to-br from-orange-50 via-red-50 to-orange-100 rounded-2xl shadow-xl p-8 border-2 border-orange-200">
       <div className="mb-4">
         <h3 className="text-sm font-semibold text-orange-800 uppercase tracking-wide mb-2">
-          Verse of the Day
+          Featured Verse
         </h3>
         <p className="text-xs text-orange-600 font-medium">
           Chapter {verse.chapter}, Verse {verse.verse}
