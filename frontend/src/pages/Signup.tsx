@@ -54,6 +54,9 @@ export default function Signup() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-orange-50 to-white px-4">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
+          <Link to="/" className="inline-block mb-4 hover:opacity-80 transition-opacity">
+            <img src="/logo.svg" alt="Geetanjali" className="h-20 w-20 mx-auto" />
+          </Link>
           <h1 className="text-4xl font-serif font-bold text-orange-600">
             Geetanjali
           </h1>

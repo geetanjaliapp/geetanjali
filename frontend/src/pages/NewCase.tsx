@@ -100,8 +100,8 @@ export default function NewCase() {
       <div className="max-w-3xl mx-auto px-4">
         {/* Header */}
         <div className="mb-8 text-center">
-          <Link to="/" className="text-red-600 hover:text-red-700 mb-4 inline-block">
-            ← Back
+          <Link to="/" className="inline-block mb-4 hover:opacity-80 transition-opacity">
+            <img src="/logo.svg" alt="Geetanjali" className="h-16 w-16 mx-auto" />
           </Link>
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
             Seek Guidance
