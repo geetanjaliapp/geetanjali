@@ -1,7 +1,7 @@
 """Output management endpoints."""
 
 import logging
-from typing import List
+from typing import List, Optional
 from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
@@ -15,7 +15,7 @@ from db.repositories.message_repository import MessageRepository
 from models.output import Output
 from models.user import User
 from api.schemas import OutputResponse
-from api.middleware.auth import get_current_user, require_role
+from api.middleware.auth import get_current_user, get_optional_user, require_role
 from services.rag import get_rag_pipeline
 from config import settings
 
@@ -33,10 +33,10 @@ async def analyze_case(
     request: Request,
     case_id: str,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: Optional[User] = Depends(get_optional_user)
 ):
     """
-    Analyze a case using the RAG pipeline.
+    Analyze a case using the RAG pipeline (supports anonymous users).
 
     This endpoint:
     1. Retrieves the case from database
@@ -47,7 +47,7 @@ async def analyze_case(
     Args:
         case_id: Case ID to analyze
         db: Database session
-        current_user: Authenticated user
+        current_user: Authenticated user (optional)
 
     Returns:
         Generated output with consulting brief
@@ -55,7 +55,7 @@ async def analyze_case(
     Raises:
         HTTPException: If case not found or user doesn't have access, or RAG pipeline fails
     """
-    logger.info(f"Analyzing case: {case_id}")
+    logger.info(f"Analyzing case: {case_id} (anonymous={current_user is None})")
 
     # Get case and verify ownership
     case_repo = CaseRepository(db)
@@ -67,11 +67,13 @@ async def analyze_case(
             detail=f"Case {case_id} not found"
         )
 
-    if case.user_id != current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You don't have access to this case"
-        )
+    # Verify ownership if case belongs to a user
+    if case.user_id is not None:
+        if current_user is None or case.user_id != current_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You don't have access to this case"
+            )
 
     try:
         # Prepare case data for RAG pipeline
@@ -140,15 +142,15 @@ async def analyze_case(
 async def get_output(
     output_id: str,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: Optional[User] = Depends(get_optional_user)
 ):
     """
-    Get an output by ID.
+    Get an output by ID (supports anonymous users).
 
     Args:
         output_id: Output ID
         db: Database session
-        current_user: Authenticated user
+        current_user: Authenticated user (optional)
 
     Returns:
         Output details
@@ -168,11 +170,19 @@ async def get_output(
     case_repo = CaseRepository(db)
     case = case_repo.get(output.case_id)
 
-    if not case or case.user_id != current_user.id:
+    if not case:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You don't have access to this output"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Case not found for this output"
         )
+
+    # Verify ownership if case belongs to a user
+    if case.user_id is not None:
+        if current_user is None or case.user_id != current_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You don't have access to this output"
+            )
 
     return output
 
@@ -181,15 +191,15 @@ async def get_output(
 async def list_case_outputs(
     case_id: str,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: Optional[User] = Depends(get_optional_user)
 ):
     """
-    List all outputs for a case.
+    List all outputs for a case (supports anonymous users).
 
     Args:
         case_id: Case ID
         db: Database session
-        current_user: Authenticated user
+        current_user: Authenticated user (optional)
 
     Returns:
         List of outputs for the case
@@ -204,11 +214,13 @@ async def list_case_outputs(
             detail=f"Case {case_id} not found"
         )
 
-    if case.user_id != current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You don't have access to this case"
-        )
+    # Verify ownership if case belongs to a user
+    if case.user_id is not None:
+        if current_user is None or case.user_id != current_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You don't have access to this case"
+            )
 
     outputs = (
         db.query(Output)

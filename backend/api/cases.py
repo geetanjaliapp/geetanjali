@@ -9,9 +9,10 @@ from db import get_db
 from db.repositories.case_repository import CaseRepository
 from db.repositories.message_repository import MessageRepository
 from api.schemas import CaseCreate, CaseResponse
-from api.middleware.auth import get_current_user
+from api.middleware.auth import get_current_user, get_optional_user
 from models.case import Case
 from models.user import User
+from typing import Optional
 import uuid
 
 logger = logging.getLogger(__name__)
@@ -23,24 +24,24 @@ router = APIRouter(prefix="/api/v1/cases")
 async def create_case(
     case_data: CaseCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: Optional[User] = Depends(get_optional_user)
 ):
     """
-    Create a new ethical dilemma case.
+    Create a new ethical dilemma case (supports anonymous users).
 
     Args:
         case_data: Case details
         db: Database session
-        user_id: User ID (from auth)
+        current_user: User object if authenticated, None if anonymous
 
     Returns:
         Created case
     """
-    logger.info(f"Creating case: {case_data.title}")
+    logger.info(f"Creating case: {case_data.title} (anonymous={current_user is None})")
 
     case_dict = case_data.model_dump()
     case_dict["id"] = str(uuid.uuid4())
-    case_dict["user_id"] = current_user.id
+    case_dict["user_id"] = current_user.id if current_user else None
 
     repo = CaseRepository(db)
     case = repo.create(case_dict)
@@ -60,15 +61,15 @@ async def create_case(
 async def get_case(
     case_id: str,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: Optional[User] = Depends(get_optional_user)
 ):
     """
-    Get a case by ID.
+    Get a case by ID (supports anonymous and authenticated users).
 
     Args:
         case_id: Case ID
         db: Database session
-        current_user: Authenticated user
+        current_user: Authenticated user (optional)
 
     Returns:
         Case details
@@ -85,12 +86,13 @@ async def get_case(
             detail=f"Case {case_id} not found"
         )
 
-    # Verify ownership
-    if case.user_id != current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You don't have access to this case"
-        )
+    # Verify ownership if case belongs to a user
+    if case.user_id is not None:
+        if current_user is None or case.user_id != current_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You don't have access to this case"
+            )
 
     return case
 
