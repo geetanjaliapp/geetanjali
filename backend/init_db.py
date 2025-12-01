@@ -5,6 +5,7 @@ from sqlalchemy import text
 from db.connection import engine
 from models.case import Case
 from models.output import Output
+from models.message import Message
 from models.verse import Verse
 from models.base import Base
 

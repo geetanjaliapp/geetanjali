@@ -27,6 +27,7 @@ class Case(Base, TimestampMixin):
     # Relationships
     user = relationship("User", back_populates="cases")
     outputs = relationship("Output", back_populates="case", cascade="all, delete-orphan")
+    messages = relationship("Message", back_populates="case", cascade="all, delete-orphan", order_by="Message.created_at")
 
     def __repr__(self) -> str:
         return f"<Case(id={self.id}, title={self.title}, sensitivity={self.sensitivity})>"
