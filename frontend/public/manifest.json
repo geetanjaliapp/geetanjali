@@ -1,0 +1,25 @@
+{
+  "name": "Geetanjali - Ethical Guidance from the Bhagavad Gita",
+  "short_name": "Geetanjali",
+  "description": "Ethical leadership guidance and wisdom from the Bhagavad Gita for life's difficult decisions",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFF7ED",
+  "theme_color": "#EA580C",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "32x32",
+      "type": "image/svg+xml"
+    }
+  ],
+  "categories": ["education", "lifestyle", "productivity"],
+  "screenshots": []
+}
