@@ -31,7 +31,7 @@ class Settings(BaseSettings):
     # LLM (Ollama)
     OLLAMA_ENABLED: bool = True  # Set to False to disable Ollama dependency
     OLLAMA_BASE_URL: str = "http://localhost:11434"
-    OLLAMA_MODEL: str = "llama3.1:8b"
+    OLLAMA_MODEL: str = "llama3.2:3b"
     OLLAMA_TIMEOUT: int = 60
     OLLAMA_MAX_RETRIES: int = 3
     OLLAMA_RETRY_MIN_WAIT: int = 1

@@ -1,86 +1,95 @@
 version: '3.8'
 
 services:
-  # Backend API
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: geetanjali-backend
-    ports:
-      - "8000:8000"
-    environment:
-      - APP_ENV=development
-      - DATABASE_URL=postgresql://geetanjali:geetanjali_dev@postgres:5432/geetanjali
-      - CHROMA_PERSIST_DIRECTORY=/app/chroma_data
-      - OLLAMA_BASE_URL=http://ollama:11434
-      - LOG_LEVEL=INFO
-    volumes:
-      - ./backend:/app
-      - chroma-data:/app/chroma_data
-    depends_on:
-      postgres:
-        condition: service_healthy
-      ollama:
-        condition: service_started
-    networks:
-      - geetanjali-network
-    restart: unless-stopped
-
   # PostgreSQL Database
   postgres:
     image: postgres:15-alpine
     container_name: geetanjali-postgres
     environment:
-      - POSTGRES_USER=geetanjali
-      - POSTGRES_PASSWORD=geetanjali_dev
-      - POSTGRES_DB=geetanjali
+      POSTGRES_DB: ${POSTGRES_DB:-geetanjali}
+      POSTGRES_USER: ${POSTGRES_USER:-geetanjali}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-geetanjali_dev_pass}
     ports:
       - "5432:5432"
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U geetanjali"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-geetanjali}"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
       - geetanjali-network
-    restart: unless-stopped
 
-  # Ollama LLM Service
-  ollama:
-    image: ollama/ollama:latest
-    container_name: geetanjali-ollama
+  # ChromaDB Vector Store
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: geetanjali-chromadb
     ports:
-      - "11434:11434"
+      - "8001:8000"
     volumes:
-      - ollama-data:/root/.ollama
+      - chroma_data:/chroma/chroma
+    environment:
+      IS_PERSISTENT: "TRUE"
+      ANONYMIZED_TELEMETRY: "FALSE"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - geetanjali-network
+
+  # Backend API (Python/FastAPI)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: geetanjali-backend
+    environment:
+      # Database
+      DATABASE_URL: postgresql://${POSTGRES_USER:-geetanjali}:${POSTGRES_PASSWORD:-geetanjali_dev_pass}@postgres:5432/${POSTGRES_DB:-geetanjali}
+
+      # ChromaDB
+      CHROMA_HOST: chromadb
+      CHROMA_PORT: 8000
+
+      # Ollama (running on host)
+      OLLAMA_ENABLED: "true"
+      OLLAMA_BASE_URL: http://host.docker.internal:11434
+      OLLAMA_MODEL: llama3.2:3b
+
+      # API Settings
+      APP_ENV: ${APP_ENV:-development}
+      DEBUG: ${DEBUG:-true}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+
+      # CORS
+      CORS_ORIGINS: http://localhost,http://localhost:3000,http://localhost:5173,http://localhost:80
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - backend_chroma:/app/chroma_data
+    depends_on:
+      postgres:
+        condition: service_healthy
+      chromadb:
+        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - geetanjali-network
     restart: unless-stopped
-    # Pull model on startup
-    entrypoint: ["/bin/sh", "-c"]
-    command:
-      - |
-        ollama serve &
-        sleep 5
-        ollama pull llama3.1:8b
-        wait
 
-  # Frontend (development)
+  # Frontend (React/Vite)
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     container_name: geetanjali-frontend
     ports:
-      - "5173:5173"
-    environment:
-      - VITE_API_URL=http://localhost:8000
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
+      - "80:80"
     depends_on:
       - backend
     networks:
@@ -88,12 +97,9 @@ services:
     restart: unless-stopped
 
 volumes:
-  postgres-data:
-    driver: local
-  chroma-data:
-    driver: local
-  ollama-data:
-    driver: local
+  postgres_data:
+  chroma_data:
+  backend_chroma:
 
 networks:
   geetanjali-network:
