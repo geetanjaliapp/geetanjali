@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { casesApi, outputsApi } from '../lib/api';
 import type { Case, Output } from '../types';
-import ProvenancePanel from '../components/ProvenancePanel';
 import OptionTable from '../components/OptionTable';
 
 export default function CaseView() {
@@ -12,6 +11,8 @@ export default function CaseView() {
   const [loading, setLoading] = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [followUp, setFollowUp] = useState('');
+  const [showDetails, setShowDetails] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -112,40 +113,26 @@ export default function CaseView() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Question */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-semibold mb-4">Your Question</h2>
-              <p className="text-gray-700 whitespace-pre-wrap text-lg leading-relaxed">{caseData.description}</p>
-
-              {(caseData.stakeholders.length > 1 || caseData.stakeholders[0] !== 'self' ||
-                caseData.constraints.length > 0 || caseData.role !== 'Individual') && (
-                <div className="mt-6 pt-6 border-t border-gray-200">
-                  <h3 className="font-medium text-gray-700 text-sm mb-3">Context</h3>
-                  <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-                    {caseData.role !== 'Individual' && (
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">Role:</span>
-                        <span>{caseData.role}</span>
-                      </div>
-                    )}
-                    {(caseData.stakeholders.length > 1 || caseData.stakeholders[0] !== 'self') && (
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">Affects:</span>
-                        <span>{caseData.stakeholders.join(', ')}</span>
-                      </div>
-                    )}
-                    {caseData.constraints.length > 0 && (
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">Constraints:</span>
-                        <span>{caseData.constraints.join(', ')}</span>
-                      </div>
-                    )}
+        {/* Conversational Layout */}
+        <div className="max-w-4xl mx-auto">
+          <div className="space-y-6">
+            {/* Question Bubble (User) */}
+            <div className="flex justify-end">
+              <div className="bg-red-100 rounded-2xl rounded-tr-sm p-6 max-w-3xl">
+                <p className="text-gray-800 text-lg leading-relaxed whitespace-pre-wrap">{caseData.description}</p>
+                {(caseData.stakeholders.length > 1 || caseData.stakeholders[0] !== 'self' ||
+                  caseData.constraints.length > 0 || caseData.role !== 'Individual') && (
+                  <div className="mt-4 pt-4 border-t border-red-200">
+                    <div className="flex flex-wrap gap-3 text-sm text-gray-600">
+                      {caseData.role !== 'Individual' && <span className="bg-white px-2 py-1 rounded">👤 {caseData.role}</span>}
+                      {(caseData.stakeholders.length > 1 || caseData.stakeholders[0] !== 'self') &&
+                        <span className="bg-white px-2 py-1 rounded">👥 {caseData.stakeholders.join(', ')}</span>}
+                      {caseData.constraints.length > 0 &&
+                        <span className="bg-white px-2 py-1 rounded">⚠️ {caseData.constraints.join(', ')}</span>}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
 
             {/* Analysis Section */}
@@ -166,98 +153,135 @@ export default function CaseView() {
 
             {output && (
               <>
-                {/* Scholar Flag Warning */}
-                {output.scholar_flag && (
-                  <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
-                    <div className="flex items-center">
-                      <span className="text-yellow-800 font-medium">⚠️ Scholar Review Required</span>
+                {/* Response Bubble (Geetanjali) */}
+                <div className="flex justify-start">
+                  <div className="bg-white rounded-2xl rounded-tl-sm shadow-lg p-6 max-w-3xl">
+                    {/* Scholar Flag */}
+                    {output.scholar_flag && (
+                      <div className="mb-4 flex items-center gap-2 text-yellow-700 text-sm">
+                        <span>⚠️</span>
+                        <span>Low confidence - consider seeking expert guidance</span>
+                      </div>
+                    )}
+
+                    {/* Main Guidance */}
+                    <div className="prose prose-lg max-w-none">
+                      <p className="text-gray-800 leading-relaxed">{output.result_json.executive_summary}</p>
                     </div>
-                    <p className="text-yellow-700 text-sm mt-1">
-                      This case requires expert review before finalization due to high sensitivity or low confidence.
-                    </p>
-                  </div>
-                )}
 
-                {/* Guidance Summary */}
-                <div className="bg-white rounded-lg shadow-md p-6">
-                  <h2 className="text-xl font-semibold mb-4">Guidance</h2>
-                  <p className="text-gray-700 text-lg leading-relaxed">{output.result_json.executive_summary}</p>
-                  <div className="mt-4 flex items-center text-sm">
-                    <span className="text-gray-600">Confidence:</span>
-                    <div className="ml-2 flex-1 bg-gray-200 rounded-full h-2 max-w-xs">
-                      <div
-                        className={`h-2 rounded-full ${
-                          output.confidence >= 0.8
-                            ? 'bg-green-500'
-                            : output.confidence >= 0.6
-                            ? 'bg-yellow-500'
-                            : 'bg-red-500'
-                        }`}
-                        style={{ width: `${output.confidence * 100}%` }}
-                      />
+                    {/* Recommended Action */}
+                    {output.result_json.recommended_action && (
+                      <div className="mt-6 pt-6 border-t border-gray-200">
+                        <h3 className="font-semibold text-gray-900 mb-3">Recommended Path:</h3>
+                        {typeof output.result_json.recommended_action === 'string' ? (
+                          <p className="text-gray-700 leading-relaxed">{output.result_json.recommended_action}</p>
+                        ) : (
+                          <div className="space-y-2">
+                            {output.result_json.recommended_action.option && (
+                              <p className="text-gray-700">Consider Option {output.result_json.recommended_action.option}</p>
+                            )}
+                            {output.result_json.recommended_action.steps && output.result_json.recommended_action.steps.length > 0 && (
+                              <ol className="list-decimal list-inside space-y-1 text-gray-700 ml-2">
+                                {output.result_json.recommended_action.steps.map((step, i) => (
+                                  <li key={i}>{step}</li>
+                                ))}
+                              </ol>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Show Details Toggle */}
+                    <div className="mt-6">
+                      <button
+                        onClick={() => setShowDetails(!showDetails)}
+                        className="text-red-600 hover:text-red-700 text-sm font-medium flex items-center gap-1"
+                      >
+                        {showDetails ? '− Hide details' : '+ Show all paths & reflections'}
+                      </button>
                     </div>
-                    <span className="ml-2 text-gray-900 font-medium">
-                      {(output.confidence * 100).toFixed(0)}%
-                    </span>
-                  </div>
-                </div>
 
-                {/* Options */}
-                <div className="bg-white rounded-lg shadow-md p-6">
-                  <h2 className="text-xl font-semibold mb-4">Paths Forward</h2>
-                  <OptionTable options={output.result_json.options} />
-                </div>
-
-                {/* Recommended Action */}
-                <div className="bg-white rounded-lg shadow-md p-6">
-                  <h2 className="text-xl font-semibold mb-4">Recommended Path</h2>
-                  {typeof output.result_json.recommended_action === 'string' ? (
-                    <p className="text-gray-700 whitespace-pre-wrap text-lg leading-relaxed">
-                      {output.result_json.recommended_action}
-                    </p>
-                  ) : (
-                    <div className="space-y-4">
-                      {output.result_json.recommended_action.option && (
-                        <p className="text-gray-700">
-                          <span className="font-medium">Recommended:</span> Option {output.result_json.recommended_action.option}
-                        </p>
-                      )}
-                      {output.result_json.recommended_action.steps && output.result_json.recommended_action.steps.length > 0 && (
+                    {/* Detailed View (Collapsible) */}
+                    {showDetails && (
+                      <div className="mt-6 pt-6 border-t border-gray-200 space-y-6">
+                        {/* All Options */}
                         <div>
-                          <h3 className="font-medium text-gray-900 mb-2">Steps:</h3>
-                          <ol className="list-decimal list-inside space-y-1 text-gray-700">
-                            {output.result_json.recommended_action.steps.map((step, i) => (
-                              <li key={i}>{step}</li>
-                            ))}
-                          </ol>
+                          <h3 className="font-semibold text-gray-900 mb-4">All Paths to Consider:</h3>
+                          <OptionTable options={output.result_json.options} />
                         </div>
-                      )}
+
+                        {/* Reflection Prompts */}
+                        <div>
+                          <h3 className="font-semibold text-gray-900 mb-3">Questions to Reflect On:</h3>
+                          <ul className="space-y-2">
+                            {output.result_json.reflection_prompts.map((prompt, i) => (
+                              <li key={i} className="text-gray-700 flex gap-2">
+                                <span className="text-red-600 mt-1">•</span>
+                                <span>{prompt}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        {/* Sources */}
+                        {output.result_json.sources && output.result_json.sources.length > 0 && (
+                          <div>
+                            <h3 className="font-semibold text-gray-900 mb-3">Referenced Verses:</h3>
+                            <div className="space-y-3">
+                              {output.result_json.sources.map((source, i) => (
+                                <div key={i} className="text-sm">
+                                  <span className="font-mono text-red-600 font-medium">{source.canonical_id}</span>
+                                  <p className="text-gray-600 mt-1 italic">{source.paraphrase}</p>
+                                  {source.school && <span className="text-gray-500 text-xs">({source.school})</span>}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Confidence Badge */}
+                    <div className="mt-4 flex items-center gap-2 text-xs text-gray-500">
+                      <span>Confidence:</span>
+                      <div className="flex-1 bg-gray-200 rounded-full h-1.5 max-w-[100px]">
+                        <div
+                          className={`h-1.5 rounded-full ${
+                            output.confidence >= 0.8 ? 'bg-green-500' : output.confidence >= 0.6 ? 'bg-yellow-500' : 'bg-red-500'
+                          }`}
+                          style={{ width: `${output.confidence * 100}%` }}
+                        />
+                      </div>
+                      <span className="font-medium">{(output.confidence * 100).toFixed(0)}%</span>
                     </div>
-                  )}
+                  </div>
                 </div>
 
-                {/* Reflection Prompts */}
-                <div className="bg-white rounded-lg shadow-md p-6">
-                  <h2 className="text-xl font-semibold mb-4">Questions to Reflect On</h2>
-                  <ul className="space-y-3">
-                    {output.result_json.reflection_prompts.map((prompt, i) => (
-                      <li key={i} className="text-gray-700 text-base">
-                        <span className="font-medium text-red-600 mr-2">•</span> {prompt}
-                      </li>
-                    ))}
-                  </ul>
+                {/* Follow-up Input */}
+                <div className="mt-8 bg-white rounded-2xl shadow-lg p-6">
+                  <h3 className="font-semibold text-gray-900 mb-4">Continue the conversation</h3>
+                  <form onSubmit={(e) => { e.preventDefault(); /* TODO: handle follow-up */ }}>
+                    <textarea
+                      value={followUp}
+                      onChange={(e) => setFollowUp(e.target.value)}
+                      placeholder="Ask a follow-up question or share your thoughts..."
+                      rows={3}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
+                    />
+                    <div className="mt-3 flex justify-between items-center">
+                      <p className="text-sm text-gray-500">This will create a new consultation with context from this one</p>
+                      <button
+                        type="submit"
+                        disabled={!followUp.trim()}
+                        className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors font-medium"
+                      >
+                        Send
+                      </button>
+                    </div>
+                  </form>
                 </div>
               </>
-            )}
-          </div>
-
-          {/* Sidebar - Provenance */}
-          <div className="lg:col-span-1">
-            {output && (
-              <ProvenancePanel
-                sources={output.result_json.sources}
-                confidence={output.confidence}
-              />
             )}
           </div>
         </div>
