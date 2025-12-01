@@ -23,7 +23,7 @@ sources:
 enrichment:
   llm_tagging:
     enabled: true
-    model: "llama3.1:8b"
+    model: "llama3.2:3b"
     temperature: 0.1
     prompt_template: |
       You are analyzing a verse from the Bhagavad Gita for consulting principles relevant to ethical leadership.
@@ -47,7 +47,7 @@ enrichment:
   paraphrasing:
     enabled: true
     max_words: 25
-    model: "llama3.1:8b"
+    model: "llama3.2:3b"
     temperature: 0.3
     prompt_template: |
       Summarize this Bhagavad Gita verse translation in maximum {max_words} words.
