@@ -7,10 +7,12 @@ export default function NewCase() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
+    question: '',
+    context: '',
+    // Optional advanced fields with sensible defaults
     role: '',
     stakeholders: '',
     constraints: '',
@@ -23,28 +25,10 @@ export default function NewCase() {
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.title.trim()) {
-      newErrors.title = 'Title is required';
-    } else if (formData.title.length < 5) {
-      newErrors.title = 'Title must be at least 5 characters';
-    }
-
-    if (!formData.description.trim()) {
-      newErrors.description = 'Description is required';
-    } else if (formData.description.length < 20) {
-      newErrors.description = 'Description must be at least 20 characters';
-    }
-
-    if (!formData.role.trim()) {
-      newErrors.role = 'Role is required';
-    }
-
-    if (!formData.stakeholders.trim()) {
-      newErrors.stakeholders = 'At least one stakeholder is required';
-    }
-
-    if (!formData.constraints.trim()) {
-      newErrors.constraints = 'At least one constraint is required';
+    if (!formData.question.trim()) {
+      newErrors.question = 'Please describe your situation';
+    } else if (formData.question.length < 10) {
+      newErrors.question = 'Please provide more detail (at least 10 characters)';
     }
 
     setErrors(newErrors);
@@ -62,23 +46,31 @@ export default function NewCase() {
     setError(null);
 
     try {
-      // Parse comma-separated values into arrays
+      // Build description from question and context
+      let description = formData.question.trim();
+      if (formData.context.trim()) {
+        description += '\n\n' + formData.context.trim();
+      }
+
+      // Create case with smart defaults
       const caseData: Omit<Case, 'id' | 'created_at'> = {
-        title: formData.title.trim(),
-        description: formData.description.trim(),
-        role: formData.role.trim(),
-        stakeholders: formData.stakeholders.split(',').map(s => s.trim()).filter(Boolean),
-        constraints: formData.constraints.split(',').map(c => c.trim()).filter(Boolean),
+        title: formData.question.trim().slice(0, 100), // Use first 100 chars as title
+        description: description,
+        role: formData.role.trim() || 'Individual', // Default to Individual
+        stakeholders: formData.stakeholders
+          ? formData.stakeholders.split(',').map(s => s.trim()).filter(Boolean)
+          : ['self'], // Default stakeholder
+        constraints: formData.constraints
+          ? formData.constraints.split(',').map(c => c.trim()).filter(Boolean)
+          : [], // No constraints by default
         horizon: formData.horizon,
         sensitivity: formData.sensitivity,
       };
 
       const createdCase = await casesApi.create(caseData);
-
-      // Navigate to case view (we'll create this next)
       navigate(`/cases/${createdCase.id}`);
     } catch (err: any) {
-      setError(err.response?.data?.detail || err.message || 'Failed to create case');
+      setError(err.response?.data?.detail || err.message || 'Failed to submit question');
     } finally {
       setLoading(false);
     }
@@ -89,198 +81,181 @@ export default function NewCase() {
   ) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    // Clear error for this field
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-4xl mx-auto px-4">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 py-12">
+      <div className="max-w-3xl mx-auto px-4">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-8 text-center">
           <Link to="/" className="text-red-600 hover:text-red-700 mb-4 inline-block">
-            ← Back to Home
+            ← Back
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">Create New Case</h1>
-          <p className="text-gray-600 mt-2">
-            Describe your ethical leadership dilemma to receive guidance from the Bhagavad Gita.
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            Seek Guidance
+          </h1>
+          <p className="text-lg text-gray-600">
+            Describe your situation and receive wisdom from the Bhagavad Gita
           </p>
         </div>
 
         {/* Error Alert */}
         {error && (
-          <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+          <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
             <strong>Error:</strong> {error}
           </div>
         )}
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-8 space-y-6">
-          {/* Title */}
+        {/* Main Form */}
+        <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-xl p-8 space-y-6">
+          {/* Main Question */}
           <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
-              Title <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              id="title"
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${
-                errors.title ? 'border-red-500' : 'border-gray-300'
-              }`}
-              placeholder="e.g., Proposed restructuring vs phased approach"
-            />
-            {errors.title && <p className="mt-1 text-sm text-red-600">{errors.title}</p>}
-          </div>
-
-          {/* Description */}
-          <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-              Description <span className="text-red-500">*</span>
+            <label htmlFor="question" className="block text-lg font-medium text-gray-900 mb-3">
+              What situation are you facing?
             </label>
             <textarea
-              id="description"
-              name="description"
-              value={formData.description}
+              id="question"
+              name="question"
+              value={formData.question}
               onChange={handleChange}
-              rows={6}
-              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${
-                errors.description ? 'border-red-500' : 'border-gray-300'
+              rows={4}
+              className={`w-full px-4 py-3 text-lg border rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent ${
+                errors.question ? 'border-red-500' : 'border-gray-300'
               }`}
-              placeholder="Describe the ethical dilemma in detail (1-4 paragraphs)..."
+              placeholder="e.g., I'm torn between pursuing a promotion that requires relocating, or staying in my current role to care for aging parents..."
+              autoFocus
             />
-            {errors.description && <p className="mt-1 text-sm text-red-600">{errors.description}</p>}
+            {errors.question && <p className="mt-2 text-sm text-red-600">{errors.question}</p>}
+          </div>
+
+          {/* Optional Context */}
+          <div>
+            <label htmlFor="context" className="block text-base font-medium text-gray-700 mb-2">
+              Additional context <span className="text-gray-400">(optional)</span>
+            </label>
+            <textarea
+              id="context"
+              name="context"
+              value={formData.context}
+              onChange={handleChange}
+              rows={3}
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              placeholder="Add any relevant background, constraints, or considerations..."
+            />
             <p className="mt-1 text-sm text-gray-500">
-              Minimum 20 characters. Be specific about the situation, constraints, and trade-offs.
+              Share any details that might help provide better guidance
             </p>
           </div>
 
-          {/* Role */}
-          <div>
-            <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">
-              Your Role <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              id="role"
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${
-                errors.role ? 'border-red-500' : 'border-gray-300'
-              }`}
-              placeholder="e.g., Senior Manager, HR Director, Team Lead"
-            />
-            {errors.role && <p className="mt-1 text-sm text-red-600">{errors.role}</p>}
+          {/* Advanced Options Toggle */}
+          <div className="border-t pt-4">
+            <button
+              type="button"
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              className="text-sm text-red-600 hover:text-red-700 font-medium flex items-center"
+            >
+              {showAdvanced ? '− Hide' : '+ Show'} advanced options
+            </button>
           </div>
 
-          {/* Stakeholders */}
-          <div>
-            <label htmlFor="stakeholders" className="block text-sm font-medium text-gray-700 mb-2">
-              Stakeholders <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              id="stakeholders"
-              name="stakeholders"
-              value={formData.stakeholders}
-              onChange={handleChange}
-              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${
-                errors.stakeholders ? 'border-red-500' : 'border-gray-300'
-              }`}
-              placeholder="e.g., team members, senior leadership, customers"
-            />
-            {errors.stakeholders && <p className="mt-1 text-sm text-red-600">{errors.stakeholders}</p>}
-            <p className="mt-1 text-sm text-gray-500">
-              Comma-separated list of affected parties
-            </p>
-          </div>
+          {/* Advanced Options */}
+          {showAdvanced && (
+            <div className="space-y-4 pb-4 border-b">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Role */}
+                <div>
+                  <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
+                    Your role <span className="text-gray-400">(optional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="role"
+                    name="role"
+                    value={formData.role}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    placeholder="e.g., Manager, Parent, Student"
+                  />
+                </div>
 
-          {/* Constraints */}
-          <div>
-            <label htmlFor="constraints" className="block text-sm font-medium text-gray-700 mb-2">
-              Constraints <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              id="constraints"
-              name="constraints"
-              value={formData.constraints}
-              onChange={handleChange}
-              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${
-                errors.constraints ? 'border-red-500' : 'border-gray-300'
-              }`}
-              placeholder="e.g., budget limits, timeline pressure, legal requirements"
-            />
-            {errors.constraints && <p className="mt-1 text-sm text-red-600">{errors.constraints}</p>}
-            <p className="mt-1 text-sm text-gray-500">
-              Comma-separated list of limitations or requirements
-            </p>
-          </div>
+                {/* Time Horizon */}
+                <div>
+                  <label htmlFor="horizon" className="block text-sm font-medium text-gray-700 mb-1">
+                    Time frame
+                  </label>
+                  <select
+                    id="horizon"
+                    name="horizon"
+                    value={formData.horizon}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  >
+                    <option value="short">Immediate (days-months)</option>
+                    <option value="medium">Near term (months-year)</option>
+                    <option value="long">Long term (years)</option>
+                  </select>
+                </div>
+              </div>
 
-          {/* Horizon & Sensitivity Row */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Horizon */}
-            <div>
-              <label htmlFor="horizon" className="block text-sm font-medium text-gray-700 mb-2">
-                Time Horizon
-              </label>
-              <select
-                id="horizon"
-                name="horizon"
-                value={formData.horizon}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-              >
-                <option value="short">Short-term (0-6 months)</option>
-                <option value="medium">Medium-term (6-18 months)</option>
-                <option value="long">Long-term (18+ months)</option>
-              </select>
+              {/* Stakeholders */}
+              <div>
+                <label htmlFor="stakeholders" className="block text-sm font-medium text-gray-700 mb-1">
+                  Who is affected? <span className="text-gray-400">(optional)</span>
+                </label>
+                <input
+                  type="text"
+                  id="stakeholders"
+                  name="stakeholders"
+                  value={formData.stakeholders}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  placeholder="e.g., family, team, colleagues"
+                />
+              </div>
+
+              {/* Constraints */}
+              <div>
+                <label htmlFor="constraints" className="block text-sm font-medium text-gray-700 mb-1">
+                  Any constraints? <span className="text-gray-400">(optional)</span>
+                </label>
+                <input
+                  type="text"
+                  id="constraints"
+                  name="constraints"
+                  value={formData.constraints}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  placeholder="e.g., budget, time, health"
+                />
+              </div>
             </div>
+          )}
 
-            {/* Sensitivity */}
-            <div>
-              <label htmlFor="sensitivity" className="block text-sm font-medium text-gray-700 mb-2">
-                Sensitivity Level
-              </label>
-              <select
-                id="sensitivity"
-                name="sensitivity"
-                value={formData.sensitivity}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-              >
-                <option value="low">Low - Standard guidance</option>
-                <option value="medium">Medium - Careful review</option>
-                <option value="high">High - Scholar review required</option>
-              </select>
-              <p className="mt-1 text-sm text-gray-500">
-                High sensitivity cases require expert review before release
-              </p>
-            </div>
-          </div>
-
-          {/* Submit Buttons */}
-          <div className="flex justify-end space-x-4 pt-6 border-t">
+          {/* Submit Button */}
+          <div className="flex justify-end space-x-3 pt-2">
             <Link
               to="/"
-              className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+              className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-medium"
             >
               Cancel
             </Link>
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+              className="px-8 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium shadow-lg hover:shadow-xl"
             >
-              {loading ? 'Creating...' : 'Create Case & Analyze'}
+              {loading ? 'Seeking guidance...' : 'Get Guidance'}
             </button>
           </div>
         </form>
+
+        {/* Helper Text */}
+        <p className="text-center text-sm text-gray-500 mt-6">
+          Your question will be analyzed using wisdom from the Bhagavad Gita to provide thoughtful guidance.
+        </p>
       </div>
     </div>
   );
