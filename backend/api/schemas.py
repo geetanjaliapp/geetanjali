@@ -170,6 +170,31 @@ class OutputResponse(BaseModel):
 
 
 # ============================================================================
+# Message Schemas
+# ============================================================================
+
+
+class MessageCreate(BaseModel):
+    """Schema for creating a message."""
+
+    content: str = Field(..., max_length=10000, description="Message content")
+
+
+class MessageResponse(BaseModel):
+    """Schema for message response."""
+
+    id: str
+    case_id: str
+    role: str  # "user" or "assistant"
+    content: str
+    output_id: Optional[str] = None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+# ============================================================================
 # Health Check Schemas
 # ============================================================================
 
