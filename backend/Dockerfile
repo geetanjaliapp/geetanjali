@@ -18,8 +18,10 @@ RUN pip install --no-cache-dir --upgrade pip
 
 # LAYER 1: Heavy dependencies (rarely change, slow to install)
 # These are cached and only rebuilt when requirements-heavy.txt changes
+# Using CPU-only PyTorch from PyPI (avoids 1.5GB NVIDIA CUDA downloads)
 COPY requirements-heavy.txt .
 RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install torch==2.9.1 --index-url https://download.pytorch.org/whl/cpu && \
     pip install -r requirements-heavy.txt
 
 # LAYER 2: Light dependencies (change more often, fast to install)

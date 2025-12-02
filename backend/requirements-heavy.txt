@@ -1,7 +1,8 @@
 # Heavy dependencies - installed first for better caching
 # These rarely change and take longest to install
+# Note: torch CPU-only is installed separately in Dockerfile to avoid CUDA downloads
 
-# Embeddings (includes PyTorch ~2GB)
+# Embeddings (requires torch, installed in Dockerfile)
 sentence-transformers==2.3.1
 
 # Vector Database
