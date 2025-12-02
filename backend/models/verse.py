@@ -18,7 +18,8 @@ class Verse(Base, TimestampMixin):
     verse = Column(Integer, CheckConstraint("verse >= 1"), nullable=False)
     sanskrit_iast = Column(Text)
     sanskrit_devanagari = Column(Text)
-    paraphrase_en = Column(Text)
+    translation_en = Column(Text)  # Primary English translation (from source)
+    paraphrase_en = Column(Text)  # LLM-generated leadership summary
     consulting_principles = Column(JSON)  # Array of principle tags
     source = Column(String(255))
     license = Column(String(100))

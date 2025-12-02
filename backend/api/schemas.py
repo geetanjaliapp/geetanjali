@@ -125,7 +125,9 @@ class VerseBase(BaseModel):
     chapter: int = Field(..., ge=1, le=18, description="Chapter number (1-18)")
     verse: int = Field(..., ge=1, description="Verse number")
     sanskrit_iast: Optional[str] = Field(None, description="Sanskrit in IAST transliteration")
-    paraphrase_en: Optional[str] = Field(None, description="English paraphrase (≤25 words)")
+    sanskrit_devanagari: Optional[str] = Field(None, description="Sanskrit in Devanagari script")
+    translation_en: Optional[str] = Field(None, description="Primary English translation")
+    paraphrase_en: Optional[str] = Field(None, description="LLM-generated leadership summary")
     consulting_principles: Optional[List[str]] = Field(None, description="Leadership principles")
 
 
@@ -142,6 +144,29 @@ class VerseResponse(VerseBase):
     id: str
     source: Optional[str]
     license: Optional[str]
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+# ============================================================================
+# Translation Schemas
+# ============================================================================
+
+
+class TranslationResponse(BaseModel):
+    """Schema for translation response."""
+
+    id: str
+    verse_id: str
+    text: str
+    language: str = "en"
+    translator: Optional[str] = None
+    school: Optional[str] = None
+    source: Optional[str] = None
+    license: Optional[str] = None
+    year: Optional[int] = None
     created_at: datetime
 
     class Config:
