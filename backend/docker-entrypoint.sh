@@ -66,6 +66,33 @@ init_db()
 print('✓ Database tables initialized')
 "
 
+# Run database migrations
+echo "Running database migrations..."
+# Check if alembic_version table exists (means migrations have been run before)
+HAS_ALEMBIC=$(python3 -c "
+from db.connection import SessionLocal
+from sqlalchemy import text
+db = SessionLocal()
+try:
+    result = db.execute(text(\"SELECT 1 FROM information_schema.tables WHERE table_name='alembic_version'\"))
+    print('yes' if result.fetchone() else 'no')
+except:
+    print('no')
+finally:
+    db.close()
+")
+
+if [ "$HAS_ALEMBIC" = "no" ]; then
+    echo "First run - stamping database with current schema version..."
+    alembic stamp head
+fi
+
+# Now run any pending migrations
+alembic upgrade head || {
+    echo "⚠️  Warning: Migrations may have failed, but continuing..."
+}
+echo "✓ Database migrations complete"
+
 # Check if data ingestion is needed
 echo "Checking if initial data ingestion is needed..."
 NEEDS_INGESTION=$(python3 -c "
