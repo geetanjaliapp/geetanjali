@@ -5,11 +5,12 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from api.schemas import MessageCreate, MessageResponse
-from api.middleware.auth import get_current_user
+from api.middleware.auth import get_optional_user, get_session_id, user_can_access_resource
 from db.connection import get_db
 from db.repositories.message_repository import MessageRepository
 from db.repositories.case_repository import CaseRepository
 from models.user import User
+from typing import Optional
 
 router = APIRouter()
 
@@ -18,7 +19,8 @@ router = APIRouter()
 def get_case_messages(
     case_id: str,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: Optional[User] = Depends(get_optional_user),
+    session_id: Optional[str] = Depends(get_session_id)
 ):
     """
     Get all messages for a case, ordered chronologically.
@@ -35,7 +37,13 @@ def get_case_messages(
             detail=f"Case {case_id} not found"
         )
 
-    if case.user_id != current_user.id:
+    # Check access using session-based or user-based auth
+    if not user_can_access_resource(
+        resource_user_id=case.user_id,
+        resource_session_id=case.session_id,
+        current_user=current_user,
+        session_id=session_id
+    ):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You don't have access to this case"
@@ -53,7 +61,8 @@ def create_message(
     case_id: str,
     message: MessageCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: Optional[User] = Depends(get_optional_user),
+    session_id: Optional[str] = Depends(get_session_id)
 ):
     """
     Create a new user message (follow-up question) for a case.
@@ -70,7 +79,13 @@ def create_message(
             detail=f"Case {case_id} not found"
         )
 
-    if case.user_id != current_user.id:
+    # Check access using session-based or user-based auth
+    if not user_can_access_resource(
+        resource_user_id=case.user_id,
+        resource_session_id=case.session_id,
+        current_user=current_user,
+        session_id=session_id
+    ):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You don't have access to this case"

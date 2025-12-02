@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # PostgreSQL Database
   postgres:
@@ -23,7 +21,10 @@ services:
 
   # ChromaDB Vector Store
   chromadb:
-    image: chromadb/chroma:latest
+    build:
+      context: ./chromadb
+      dockerfile: Dockerfile
+    image: geetanjali-chromadb:latest
     container_name: geetanjali-chromadb
     ports:
       - "8001:8000"
@@ -32,11 +33,7 @@ services:
     environment:
       IS_PERSISTENT: "TRUE"
       ANONYMIZED_TELEMETRY: "FALSE"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      PERSIST_DIRECTORY: "/chroma/chroma"
     networks:
       - geetanjali-network
 
@@ -54,18 +51,28 @@ services:
       CHROMA_HOST: chromadb
       CHROMA_PORT: 8000
 
-      # Ollama (running on host)
-      OLLAMA_ENABLED: "true"
-      OLLAMA_BASE_URL: http://host.docker.internal:11434
-      OLLAMA_MODEL: llama3.2:3b
+      # LLM Configuration
+      LLM_PROVIDER: ${LLM_PROVIDER:-anthropic}  # anthropic or ollama
+      LLM_FALLBACK_ENABLED: ${LLM_FALLBACK_ENABLED:-true}
+      USE_MOCK_LLM: ${USE_MOCK_LLM:-true}  # MOCK MODE ENABLED for testing
+
+      # Anthropic (Claude)
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}  # Set in .env file
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-3-5-haiku-20241022}
+      ANTHROPIC_MAX_TOKENS: ${ANTHROPIC_MAX_TOKENS:-2048}
+      ANTHROPIC_TIMEOUT: ${ANTHROPIC_TIMEOUT:-30}
+
+      # Ollama (running on host - fallback)
+      OLLAMA_ENABLED: ${OLLAMA_ENABLED:-true}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.2:3b}
+      OLLAMA_TIMEOUT: ${OLLAMA_TIMEOUT:-120}
+      OLLAMA_MAX_TOKENS: ${OLLAMA_MAX_TOKENS:-512}
 
       # API Settings
       APP_ENV: ${APP_ENV:-development}
       DEBUG: ${DEBUG:-true}
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
-
-      # CORS
-      CORS_ORIGINS: http://localhost,http://localhost:3000,http://localhost:5173,http://localhost:80
     ports:
       - "8000:8000"
     volumes:
@@ -75,7 +82,7 @@ services:
       postgres:
         condition: service_healthy
       chromadb:
-        condition: service_healthy
+        condition: service_started
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
@@ -91,7 +98,8 @@ services:
     ports:
       - "80:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_started
     networks:
       - geetanjali-network
     restart: unless-stopped

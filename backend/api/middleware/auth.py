@@ -1,7 +1,7 @@
 """Authentication middleware for protecting routes."""
 
 from typing import Optional
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Header
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 
@@ -121,3 +121,56 @@ def require_role(required_role: str):
         return current_user
 
     return role_checker
+
+
+async def get_session_id(
+    x_session_id: Optional[str] = Header(None, alias="X-Session-ID")
+) -> Optional[str]:
+    """
+    Extract session ID from X-Session-ID header for anonymous users.
+
+    Args:
+        x_session_id: Session ID from header
+
+    Returns:
+        Session ID if present, None otherwise
+    """
+    return x_session_id
+
+
+def user_can_access_resource(
+    resource_user_id: Optional[str],
+    resource_session_id: Optional[str],
+    current_user: Optional[User],
+    session_id: Optional[str]
+) -> bool:
+    """
+    Check if a user/session can access a resource.
+
+    Access is granted if:
+    - Authenticated user owns the resource (user_id matches)
+    - Anonymous session owns the resource (session_id matches and resource has no user_id)
+
+    Args:
+        resource_user_id: The user_id of the resource owner
+        resource_session_id: The session_id of the resource owner (for anonymous)
+        current_user: Current authenticated user (or None)
+        session_id: Current session ID (or None)
+
+    Returns:
+        True if access is allowed, False otherwise
+    """
+    # Authenticated user access
+    if current_user and resource_user_id:
+        return current_user.id == resource_user_id
+
+    # Anonymous session access
+    if not current_user and not resource_user_id:
+        # Both anonymous - check session ID match
+        if session_id and resource_session_id:
+            return session_id == resource_session_id
+        # Backward compatibility: allow access if both have no session
+        if not session_id and not resource_session_id:
+            return True
+
+    return False
