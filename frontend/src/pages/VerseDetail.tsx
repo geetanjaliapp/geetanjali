@@ -14,6 +14,46 @@ const TRANSLATOR_PRIORITY: Record<string, number> = {
   'Shri Purohit Swami': 5,
 };
 
+// Principle taxonomy with labels and descriptions
+const PRINCIPLE_TAXONOMY: Record<string, { label: string; description: string }> = {
+  duty_focus: {
+    label: 'Duty-focused action',
+    description: 'Act based on dharma and responsibility, not on desired outcomes.',
+  },
+  detachment: {
+    label: 'Non-attachment to outcomes',
+    description: 'Emphasize process over results. Perform actions without attachment.',
+  },
+  self_control: {
+    label: 'Leader temperament',
+    description: 'Cultivate self-discipline, mental clarity, and personal integrity.',
+  },
+  informed_choice: {
+    label: 'Autonomous decision-making',
+    description: 'Make decisions with full knowledge and freedom.',
+  },
+  role_fit: {
+    label: 'Fit tasks to nature',
+    description: 'Match responsibilities to natural capabilities and strengths.',
+  },
+  compassion: {
+    label: 'Compassionate equilibrium',
+    description: 'Minimize harm and balance stakeholder needs with empathy.',
+  },
+  self_responsibility: {
+    label: 'Self-effort and example',
+    description: 'Lead through personal action and take responsibility for growth.',
+  },
+  ethical_character: {
+    label: 'Character traits',
+    description: 'Filter actions through virtuous qualities like truthfulness and courage.',
+  },
+  consistent_duty: {
+    label: 'Consistent performance',
+    description: 'Perform duties regularly. Avoid impulsive or erratic behavior.',
+  },
+};
+
 // Sort translations by priority
 function sortTranslations(translations: Translation[]): Translation[] {
   return [...translations].sort((a, b) => {
@@ -170,21 +210,31 @@ export default function VerseDetail() {
               </div>
             )}
 
-            {/* Consulting Principles */}
+            {/* Consulting Principles - Enhanced Cards */}
             {verse.consulting_principles && verse.consulting_principles.length > 0 && (
               <div>
-                <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
+                <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">
                   Consulting Principles
                 </h2>
-                <div className="flex flex-wrap gap-2">
-                  {verse.consulting_principles.map((principle, idx) => (
-                    <span
-                      key={idx}
-                      className="px-4 py-2 bg-orange-100 text-orange-800 text-sm font-medium rounded-full border border-orange-200"
-                    >
-                      {principle}
-                    </span>
-                  ))}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {verse.consulting_principles.map((principleId, idx) => {
+                    const principle = PRINCIPLE_TAXONOMY[principleId];
+                    return (
+                      <div
+                        key={idx}
+                        className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-4 border border-orange-200 hover:border-orange-300 hover:shadow-md transition-all"
+                      >
+                        <h3 className="font-semibold text-orange-800 mb-2">
+                          {principle?.label || principleId}
+                        </h3>
+                        {principle?.description && (
+                          <p className="text-sm text-gray-600 leading-relaxed">
+                            {principle.description}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
