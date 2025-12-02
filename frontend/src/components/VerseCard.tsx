@@ -3,73 +3,82 @@ import type { Verse } from '../types';
 
 interface VerseCardProps {
   verse: Verse;
-  showExploreLink?: boolean;
 }
 
-export default function VerseCard({ verse, showExploreLink = true }: VerseCardProps) {
+function formatVerseRef(verse: Verse): string {
+  return `${verse.chapter}.${verse.verse}`;
+}
+
+function getVerseLink(verse: Verse): string {
+  return `/verses?highlight=${verse.id}`;
+}
+
+/**
+ * Format Sanskrit text to display on two lines
+ * Splits on single danda (।) and adds proper spacing
+ */
+function formatSanskritLines(text: string): string[] {
+  if (!text) return [];
+
+  // Remove the verse number at the end (e.g., ।।2.52।। or ॥2.52॥)
+  const withoutVerseNum = text.replace(/[।॥]+\d+\.\d+[।॥]+\s*$/, '');
+
+  // Split on single danda followed by content (but not double danda)
+  const parts = withoutVerseNum.split(/।(?=[^।])/);
+
+  if (parts.length >= 2) {
+    // Format: first line ends with ।, second line ends with ॥
+    return [
+      parts[0].trim() + ' ।',
+      parts.slice(1).join('।').replace(/।+\s*$/, '').trim() + ' ॥'
+    ];
+  }
+
+  // If can't split, return as single line
+  return [text.trim()];
+}
+
+export function VerseCard({ verse }: VerseCardProps) {
+  const sanskritLines = formatSanskritLines(verse.sanskrit_devanagari || '');
+
   return (
-    <div className="bg-gradient-to-br from-orange-50 via-red-50 to-orange-100 rounded-2xl shadow-xl p-8 border-2 border-orange-200">
-      <div className="mb-4">
-        <h3 className="text-sm font-semibold text-orange-800 uppercase tracking-wide mb-2">
-          Featured Verse
-        </h3>
-        <p className="text-xs text-orange-600 font-medium">
-          Chapter {verse.chapter}, Verse {verse.verse}
-        </p>
-      </div>
+    <div className="relative">
+      {/* Main Card */}
+      <div className="bg-gradient-to-b from-orange-50 to-amber-50 rounded-xl p-8 border-2 border-amber-200/50 shadow-inner">
+        {/* Decorative Om - centered */}
+        <div className="text-center text-amber-400/50 text-3xl font-light mb-4">ॐ</div>
 
-      {/* Sanskrit Text */}
-      {verse.sanskrit_devanagari && (
-        <div className="mb-6">
-          <p className="text-2xl text-gray-800 font-serif leading-relaxed text-center">
-            {verse.sanskrit_devanagari}
-          </p>
-        </div>
-      )}
+        {/* Verses centered */}
+        <div>
+          {/* Sanskrit Text - two lines */}
+          {sanskritLines.length > 0 && (
+            <div className="text-xl md:text-2xl text-amber-800/60 font-serif text-center leading-relaxed tracking-wide mb-6">
+              {sanskritLines.map((line, idx) => (
+                <p key={idx} className="mb-1">{line}</p>
+              ))}
+            </div>
+          )}
 
-      {/* English Translation */}
-      {verse.paraphrase_en && (
-        <div className="mb-6">
-          <p className="text-lg text-gray-700 leading-relaxed text-center italic">
-            "{verse.paraphrase_en}"
-          </p>
-        </div>
-      )}
-
-      {/* Reference */}
-      <div className="flex items-center justify-between pt-4 border-t border-orange-200">
-        <p className="text-sm text-gray-600 font-medium">
-          — Bhagavad Gita {verse.canonical_id.replace('BG_', '').replace(/_/g, '.')}
-        </p>
-
-        {showExploreLink && (
-          <Link
-            to="/verses"
-            className="text-sm font-semibold text-orange-600 hover:text-orange-700 transition-colors"
-          >
-            Explore All Verses →
-          </Link>
-        )}
-      </div>
-
-      {/* Principles Tags */}
-      {verse.consulting_principles && verse.consulting_principles.length > 0 && (
-        <div className="mt-4 flex flex-wrap gap-2">
-          {verse.consulting_principles.slice(0, 3).map((principle, idx) => (
-            <span
-              key={idx}
-              className="px-3 py-1 bg-white text-orange-700 text-xs font-medium rounded-full border border-orange-200"
-            >
-              {principle}
-            </span>
-          ))}
-          {verse.consulting_principles.length > 3 && (
-            <span className="px-3 py-1 bg-white text-gray-500 text-xs font-medium rounded-full border border-gray-200">
-              +{verse.consulting_principles.length - 3} more
-            </span>
+          {/* English Translation (prefer translation_en, fallback to paraphrase_en) */}
+          {(verse.translation_en || verse.paraphrase_en) && (
+            <p className="text-lg text-gray-700 text-center leading-relaxed italic">
+              "{verse.translation_en || verse.paraphrase_en}"
+            </p>
           )}
         </div>
-      )}
+
+        {/* Citation Link - centered */}
+        <div className="text-center pt-6">
+          <Link
+            to={getVerseLink(verse)}
+            className="inline-block text-amber-600/70 hover:text-amber-700 transition-colors text-sm font-medium"
+          >
+            ॥ {formatVerseRef(verse)} ॥
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }
+
+export default VerseCard;

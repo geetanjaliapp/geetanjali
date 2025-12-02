@@ -20,7 +20,8 @@ export interface Verse {
   verse: number;
   sanskrit_iast?: string;
   sanskrit_devanagari?: string;
-  paraphrase_en?: string;
+  translation_en?: string; // Primary English translation (from source)
+  paraphrase_en?: string; // LLM-generated leadership summary
   consulting_principles?: string[];
   source?: string;
   license?: string;

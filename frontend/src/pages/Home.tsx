@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { checkHealth, casesApi, versesApi } from '../lib/api';
 import type { Case, Verse } from '../types';
 import { useAuth } from '../contexts/AuthContext';
-import VerseCard from '../components/VerseCard';
+import { VerseCard } from '../components/VerseCard';
 
 export default function Home() {
   const [error, setError] = useState<string | null>(null);
