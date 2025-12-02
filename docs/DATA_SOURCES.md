@@ -1,4 +1,4 @@
-# Data Sources - Bhagavad Gita Content
+# Data Sources - Bhagavad Geeta Content
 
 ## Primary Sources
 
@@ -6,7 +6,7 @@
 - **URL:** https://github.com/gita/gita
 - **License:** The Unlicense (Public Domain)
 - **Usage:** Core verse data structure
-- **Content:** Complete Bhagavad Gita (700 verses, 18 chapters)
+- **Content:** Complete Bhagavad Geeta (700 verses, 18 chapters)
 - **Format:** JSON
 - **Attribution:** Not required (Unlicense), but provided for transparency
 
@@ -23,7 +23,7 @@
 
 ## Ancient Sanskrit Text
 
-The original Bhagavad Gita verses (700 shlokas) are ancient public domain texts dating from approximately 5th century BCE to 2nd century CE. These are freely usable worldwide without copyright restrictions.
+The original Bhagavad Geeta verses (700 shlokas) are ancient public domain texts dating from approximately 5th century BCE to 2nd century CE. These are freely usable worldwide without copyright restrictions.
 
 ## Attribution
 

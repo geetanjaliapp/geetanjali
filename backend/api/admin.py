@@ -53,7 +53,7 @@ def get_status(db: Session = Depends(get_db)):
             message = "No data ingested yet. Use POST /api/v1/admin/ingest to load data."
         elif verse_count < 100:
             status = "incomplete"
-            message = f"Only {verse_count} verses found. Full Bhagavad Gita has 700 verses."
+            message = f"Only {verse_count} verses found. Full Bhagavad Geeta has 700 verses."
         else:
             status = "ready"
             message = f"Database contains {verse_count} verses."

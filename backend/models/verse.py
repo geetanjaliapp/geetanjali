@@ -8,7 +8,7 @@ from models.base import Base, TimestampMixin
 
 
 class Verse(Base, TimestampMixin):
-    """Bhagavad Gita verse model."""
+    """Bhagavad Geeta verse model."""
 
     __tablename__ = "verses"
 

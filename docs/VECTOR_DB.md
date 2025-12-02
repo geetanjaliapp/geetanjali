@@ -72,7 +72,7 @@ CHROMA_PERSIST_DIRECTORY=/app/chroma_data
 {
     "name": "gita_verses",
     "metadata": {
-        "description": "Bhagavad Gita verses for RAG retrieval"
+        "description": "Bhagavad Geeta verses for RAG retrieval"
     }
 }
 ```

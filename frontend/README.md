@@ -1,6 +1,6 @@
 # Geetanjali Frontend
 
-React application for Geetanjali - Ethical leadership guidance from the Bhagavad Gita.
+React application for Geetanjali - Ethical leadership guidance from the Bhagavad Geeta.
 
 ## Tech Stack
 

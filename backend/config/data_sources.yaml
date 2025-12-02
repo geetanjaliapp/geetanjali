@@ -7,7 +7,7 @@ sources:
       license: "Unlicense (Public Domain)"
       enabled: true
       priority: 1
-      description: "Complete Bhagavad Gita verses with Sanskrit Devanagari, transliteration, and word meanings from gita/gita repository"
+      description: "Complete Bhagavad Geeta verses with Sanskrit Devanagari, transliteration, and word meanings from gita/gita repository"
 
     - name: "Gita Verses JSON (Backup - jsdelivr CDN)"
       url: "https://cdn.jsdelivr.net/gh/gita/gita@main/data/verse.json"
@@ -63,7 +63,7 @@ enrichment:
     model: "llama3.2:3b"
     temperature: 0.1
     prompt_template: |
-      You are analyzing a verse from the Bhagavad Gita for consulting principles relevant to ethical leadership.
+      You are analyzing a verse from the Bhagavad Geeta for consulting principles relevant to ethical leadership.
 
       Verse translation:
       {verse_text}
@@ -87,7 +87,7 @@ enrichment:
     model: "llama3.2:3b"
     temperature: 0.3
     prompt_template: |
-      Summarize this Bhagavad Gita verse translation in maximum {max_words} words.
+      Summarize this Bhagavad Geeta verse translation in maximum {max_words} words.
       Focus on actionable wisdom for modern leaders and decision-makers.
 
       Verse:

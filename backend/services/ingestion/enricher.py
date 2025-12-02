@@ -85,7 +85,7 @@ class Enricher:
         principle_text = "\n".join(principle_list)
 
         # Build prompt
-        prompt = f"""You are analyzing a verse from the Bhagavad Gita for consulting principles relevant to ethical leadership.
+        prompt = f"""You are analyzing a verse from the Bhagavad Geeta for consulting principles relevant to ethical leadership.
 
 Verse translation:
 {verse_text}
@@ -169,7 +169,7 @@ Rules:
             logger.warning("Empty verse text provided for paraphrasing")
             return ""
 
-        prompt = f"""Summarize this Bhagavad Gita verse translation in maximum {max_words} words.
+        prompt = f"""Summarize this Bhagavad Geeta verse translation in maximum {max_words} words.
 Focus on actionable wisdom for modern leaders and decision-makers.
 
 Verse:

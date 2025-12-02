@@ -7,7 +7,7 @@
 
 ## Context
 
-Geetanjali is a greenfield RAG application that transforms Bhagavad Gita teachings into actionable ethical leadership guidance. We need to select technologies that:
+Geetanjali is a greenfield RAG application that transforms Bhagavad Geeta teachings into actionable ethical leadership guidance. We need to select technologies that:
 
 1. Support RAG pipeline (retrieval, embeddings, LLM integration)
 2. Enable local-first, free operation (privacy + cost)

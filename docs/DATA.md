@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the process of ingesting, validating, and managing Bhagavad Gita verse data in Geetanjali.
+This document describes the process of ingesting, validating, and managing Bhagavad Geeta verse data in Geetanjali.
 
 ## Data Sources
 
@@ -67,7 +67,7 @@ See [DATA_SOURCES.md](DATA_SOURCES.md) for detailed information about data sourc
 
 ### 2. Chapter Range
 - Must be integer between 1 and 18 (inclusive)
-- Bhagavad Gita has exactly 18 chapters
+- Bhagavad Geeta has exactly 18 chapters
 
 ### 3. Verse Number
 - Must be positive integer (≥ 1)

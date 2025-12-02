@@ -4,7 +4,7 @@ from typing import List, Dict, Any
 import json
 
 
-SYSTEM_PROMPT = """You are Geetanjali: an AI consulting aide that uses Bhagavad Gita principles to generate concise consulting briefs for leadership ethical decisions.
+SYSTEM_PROMPT = """You are Geetanjali: an AI consulting aide that uses Bhagavad Geeta principles to generate concise consulting briefs for leadership ethical decisions.
 
 Always produce:
 1. Executive summary (2-3 sentences)
@@ -89,7 +89,7 @@ def build_user_prompt(
             prompt_parts.append(f"- {constraint}\n")
 
     # Add retrieved verses
-    prompt_parts.append("\n# Relevant Bhagavad Gita Verses\n")
+    prompt_parts.append("\n# Relevant Bhagavad Geeta Verses\n")
     prompt_parts.append("\nUse these verses to inform your consulting brief:\n\n")
 
     for i, verse in enumerate(retrieved_verses, 1):
@@ -109,7 +109,7 @@ def build_user_prompt(
     prompt_parts.append(
         f"Provide a consulting brief for a {case_data.get('role', 'leader')} "
         "following the required JSON output format. "
-        f"Use up to {len(retrieved_verses)} Gita verses; "
+        f"Use up to {len(retrieved_verses)} Geeta verses; "
         "include canonical IDs and paraphrases with each recommendation.\n"
     )
 
@@ -126,7 +126,7 @@ FEW_SHOT_EXAMPLE = """
 
 # Example Output:
 {
-  "executive_summary": "This case involves a classic trade-off between short-term financial relief and long-term organizational health. The Gita teaches duty-focused action (BG 2.47) and compassionate equilibrium (BG 12.15), suggesting a balanced approach that minimizes harm while meeting obligations.",
+  "executive_summary": "This case involves a classic trade-off between short-term financial relief and long-term organizational health. The Geeta teaches duty-focused action (BG 2.47) and compassionate equilibrium (BG 12.15), suggesting a balanced approach that minimizes harm while meeting obligations.",
   "options": [
     {
       "title": "Option A: Immediate Restructuring (Layoffs)",
@@ -190,7 +190,7 @@ FEW_SHOT_EXAMPLE = """
 
 
 # Simplified prompts for Ollama fallback (reduced complexity for faster response)
-OLLAMA_SYSTEM_PROMPT = """You are an AI aide using Bhagavad Gita principles for ethical leadership guidance.
+OLLAMA_SYSTEM_PROMPT = """You are an AI aide using Bhagavad Geeta principles for ethical leadership guidance.
 
 Provide:
 1. Brief summary (1-2 sentences)
@@ -235,7 +235,7 @@ def build_ollama_prompt(
     ]
 
     # Add top 3 verses only
-    prompt_parts.append("\n# Gita Verses\n")
+    prompt_parts.append("\n# Geeta Verses\n")
     for i, verse in enumerate(retrieved_verses[:3], 1):
         metadata = verse.get('metadata', {})
         canonical_id = metadata.get('canonical_id', 'Unknown')
@@ -243,7 +243,7 @@ def build_ollama_prompt(
         prompt_parts.append(f"{i}. {canonical_id}: {paraphrase}\n")
 
     # Simplified task
-    prompt_parts.append("\n# Task\nProvide brief JSON consulting brief using Gita principles.\n")
+    prompt_parts.append("\n# Task\nProvide brief JSON consulting brief using Geeta principles.\n")
 
     return "".join(prompt_parts)
 
@@ -277,7 +277,7 @@ def post_process_ollama_response(raw_response: str, retrieved_verses: List[Dict[
 
     # Ensure all required fields exist
     if not data.get("executive_summary"):
-        data["executive_summary"] = "Ethical analysis based on Bhagavad Gita principles."
+        data["executive_summary"] = "Ethical analysis based on Bhagavad Geeta principles."
 
     # Ensure at least 2 options
     if not data.get("options") or len(data["options"]) < 2:

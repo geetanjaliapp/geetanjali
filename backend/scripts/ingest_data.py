@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 def main():
     """Main CLI entry point."""
     parser = argparse.ArgumentParser(
-        description="Ingest Bhagavad Gita verses from configured sources"
+        description="Ingest Bhagavad Geeta verses from configured sources"
     )
 
     parser.add_argument(

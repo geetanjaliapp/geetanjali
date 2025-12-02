@@ -1,5 +1,5 @@
 """
-HTML Parser for extracting Bhagavad Gita verses from web sources.
+HTML Parser for extracting Bhagavad Geeta verses from web sources.
 """
 
 import logging
@@ -45,7 +45,7 @@ class HTMLParser:
 
     def parse_sacred_texts(self, html: str, source_config: Dict) -> List[Dict]:
         """
-        Parse sacred-texts.com Bhagavad Gita format.
+        Parse sacred-texts.com Bhagavad Geeta format.
 
         The site has an index page with links to individual chapters.
         Each chapter page contains verses with Sanskrit and English text.

@@ -1,4 +1,4 @@
-# ADR-003: Data Sources Selection for Bhagavad Gita Content
+# ADR-003: Data Sources Selection for Bhagavad Geeta Content
 
 **Status:** Accepted
 **Date:** 2025-11-30
@@ -7,7 +7,7 @@
 
 ## Context
 
-Geetanjali requires authoritative Bhagavad Gita verse data including:
+Geetanjali requires authoritative Bhagavad Geeta verse data including:
 - Sanskrit text (Devanagari and/or IAST transliteration)
 - Short English paraphrases (≤25 words)
 - Translations from multiple scholars
@@ -191,7 +191,7 @@ We will use a **dual-source strategy**:
 ### In Code Comments
 ```python
 """
-Bhagavad Gita verse data:
+Bhagavad Geeta verse data:
 - Core structure: gita/gita (Unlicense)
 - Translations: VedicScriptures (MIT License)
 See /docs/DATA_SOURCES.md for details
@@ -210,7 +210,7 @@ See /docs/DATA_SOURCES.md for details
 ## Legal Review
 
 ### Ancient Text Copyright Status
-- Bhagavad Gita verses (5th c. BCE - 2nd c. CE) = Public domain worldwide
+- Bhagavad Geeta verses (5th c. BCE - 2nd c. CE) = Public domain worldwide
 - No copyright can exist on ancient religious texts
 - Translations/commentaries may have copyright
 

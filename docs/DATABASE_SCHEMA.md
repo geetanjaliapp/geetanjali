@@ -164,7 +164,7 @@ CREATE INDEX idx_outputs_confidence ON outputs(confidence);
 ---
 
 ### verses
-Stores Bhagavad Gita verses with Sanskrit text and metadata.
+Stores Bhagavad Geeta verses with Sanskrit text and metadata.
 
 ```sql
 CREATE TABLE verses (

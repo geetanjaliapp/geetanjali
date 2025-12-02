@@ -1,8 +1,8 @@
 # Geetanjali
 
-**Ethical leadership guidance from the Bhagavad Gita**
+**Ethical leadership guidance from the Bhagavad Geeta**
 
-Geetanjali is a RAG-powered consulting tool that transforms Bhagavad Gita teachings into defensible, actionable guidance for leadership ethical decisions in organizations.
+Geetanjali is a RAG-powered consulting tool that transforms Bhagavad Geeta teachings into defensible, actionable guidance for leadership ethical decisions in organizations.
 
 ## 🎯 Purpose
 
@@ -112,8 +112,8 @@ See `make help` for all available commands.
 
 ## 📝 License
 
-TBD - Under review for appropriate license given Bhagavad Gita source material.
+TBD - Under review for appropriate license given Bhagavad Geeta source material.
 
 ## 🙏 Acknowledgments
 
-Built on the timeless wisdom of the Bhagavad Gita, using public domain Sanskrit texts.
+Built on the timeless wisdom of the Bhagavad Geeta, using public domain Sanskrit texts.

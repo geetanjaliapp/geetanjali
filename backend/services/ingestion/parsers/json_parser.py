@@ -1,5 +1,5 @@
 """
-JSON Parser for extracting Bhagavad Gita verses from structured JSON sources.
+JSON Parser for extracting Bhagavad Geeta verses from structured JSON sources.
 """
 
 import json
@@ -308,7 +308,7 @@ class JSONParser:
         """
         Convert sequential verse_id to chapter and verse number.
 
-        Gita chapter verse counts:
+        Geeta chapter verse counts:
         Ch 1: 47, Ch 2: 72, Ch 3: 43, Ch 4: 42, Ch 5: 29, Ch 6: 47,
         Ch 7: 30, Ch 8: 28, Ch 9: 34, Ch 10: 42, Ch 11: 55, Ch 12: 20,
         Ch 13: 35, Ch 14: 27, Ch 15: 20, Ch 16: 24, Ch 17: 28, Ch 18: 78

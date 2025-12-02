@@ -2,7 +2,7 @@
 
 ## Overview
 
-Geetanjali API provides endpoints for managing ethical leadership cases and generating consulting briefs using Bhagavad Gita wisdom.
+Geetanjali API provides endpoints for managing ethical leadership cases and generating consulting briefs using Bhagavad Geeta wisdom.
 
 **Base URL:** `http://localhost:8000`
 **API Version:** v1
@@ -128,7 +128,7 @@ Analyze a case using the RAG pipeline.
 
 **Process:**
 1. Retrieve case from database
-2. Search for relevant Gita verses (vector similarity)
+2. Search for relevant Geeta verses (vector similarity)
 3. Generate consulting brief with LLM
 4. Validate output and set confidence score
 5. Save output to database

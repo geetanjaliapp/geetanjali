@@ -108,7 +108,7 @@ export default function NewCase() {
               Seek Guidance
             </h1>
             <p className="text-lg text-gray-600">
-              Describe your situation and receive wisdom from the Bhagavad Gita
+              Describe your situation and receive wisdom from the Bhagavad Geeta
             </p>
           </div>
 
@@ -264,7 +264,7 @@ export default function NewCase() {
 
           {/* Helper Text */}
           <p className="text-center text-sm text-gray-500 mt-6">
-            Your question will be analyzed using wisdom from the Bhagavad Gita to provide thoughtful guidance.
+            Your question will be analyzed using wisdom from the Bhagavad Geeta to provide thoughtful guidance.
           </p>
         </div>
       </div>

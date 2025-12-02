@@ -27,7 +27,7 @@ class MockLLMService:
         """Load response templates for different types of cases."""
         return {
             "default": json.dumps({
-                "executive_summary": "Your situation involves navigating complex ethical considerations. The Bhagavad Gita offers timeless wisdom on righteous action (dharma), detachment from outcomes, and maintaining equanimity in difficult circumstances. Three key perspectives emerge from the verses: performing your duty without attachment to results, acting with compassion while maintaining clarity, and seeking wisdom through self-reflection.",
+                "executive_summary": "Your situation involves navigating complex ethical considerations. The Bhagavad Geeta offers timeless wisdom on righteous action (dharma), detachment from outcomes, and maintaining equanimity in difficult circumstances. Three key perspectives emerge from the verses: performing your duty without attachment to results, acting with compassion while maintaining clarity, and seeking wisdom through self-reflection.",
                 "options": [
                     {
                         "title": "Option 1: Act According to Duty (Nishkama Karma)",
@@ -111,7 +111,7 @@ class MockLLMService:
                 "scholar_flag": False
             }),
             "leadership": json.dumps({
-                "executive_summary": "Your leadership challenge requires balancing competing interests while upholding dharma. The Gita emphasizes that true leadership comes from selfless service (seva), maintaining composure under pressure, and making decisions based on duty rather than personal gain. Leaders must act with both strength and compassion.",
+                "executive_summary": "Your leadership challenge requires balancing competing interests while upholding dharma. The Geeta emphasizes that true leadership comes from selfless service (seva), maintaining composure under pressure, and making decisions based on duty rather than personal gain. Leaders must act with both strength and compassion.",
                 "options": [
                     {
                         "title": "Option 1: Lead by Example (Lokasangraha)",

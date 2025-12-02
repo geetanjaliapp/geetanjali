@@ -63,7 +63,7 @@ export default function Home() {
             <img src="/logo.svg" alt="Geetanjali" className="h-24 w-24" />
           </div>
           <p className="text-xl text-gray-600 mb-4">
-            Ethical leadership guidance from the Bhagavad Gita
+            Ethical leadership guidance from the Bhagavad Geeta
           </p>
           {!isAuthenticated && (
             <p className="text-sm text-gray-500 mb-8">
@@ -151,7 +151,7 @@ export default function Home() {
             <div className="bg-white p-6 rounded-lg shadow-md">
               <h3 className="text-lg font-semibold mb-2">Grounded in Wisdom</h3>
               <p className="text-gray-600">
-                Every insight backed by verses from the Gita
+                Every insight backed by verses from the Geeta
               </p>
             </div>
           </div>

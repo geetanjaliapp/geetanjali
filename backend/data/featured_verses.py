@@ -1,5 +1,5 @@
 """
-Curated list of showcase-worthy Bhagavad Gita verses.
+Curated list of showcase-worthy Bhagavad Geeta verses.
 
 These verses are selected based on:
 - Universal recognition and frequent citation
@@ -7,10 +7,10 @@ These verses are selected based on:
 - Philosophical depth and practical wisdom
 
 Sources consulted:
-- 108 Important Bhagavad Gita Slokas (Prabhupada/ISKCON tradition)
+- 108 Important Bhagavad Geeta Slokas (Prabhupada/ISKCON tradition)
 - GitaWise.org 108 Important BG Verses
-- Shlokam.org Top 10 Verses / Essence of Gita
-- Leadership and management literature on Gita
+- Shlokam.org Top 10 Verses / Essence of Geeta
+- Leadership and management literature on Geeta
 - Scholarly consensus on essential verses
 
 Total: ~180 verses covering all 18 chapters

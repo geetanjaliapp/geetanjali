@@ -15,7 +15,7 @@
     },
     {
       "id": "vedicscriptures",
-      "name": "VedicScriptures Bhagavad Gita API",
+      "name": "VedicScriptures Bhagavad Geeta API",
       "url": "https://github.com/vedicscriptures/bhagavad-gita-api",
       "api_url": "https://vedicscriptures.github.io/",
       "license": "MIT",
@@ -30,7 +30,7 @@
     },
     {
       "id": "ancient-sanskrit",
-      "name": "Ancient Sanskrit Bhagavad Gita Text",
+      "name": "Ancient Sanskrit Bhagavad Geeta Text",
       "license": "Public Domain",
       "attribution_required": false,
       "usage": "Original Sanskrit verses (700 shlokas)",

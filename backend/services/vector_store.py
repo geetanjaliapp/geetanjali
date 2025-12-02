@@ -42,7 +42,7 @@ class VectorStore:
         # Get or create collection
         self.collection = self.client.get_or_create_collection(
             name=settings.CHROMA_COLLECTION_NAME,
-            metadata={"description": "Bhagavad Gita verses for RAG retrieval"}
+            metadata={"description": "Bhagavad Geeta verses for RAG retrieval"}
         )
 
         logger.info(f"ChromaDB collection '{settings.CHROMA_COLLECTION_NAME}' ready")
@@ -223,7 +223,7 @@ class VectorStore:
         self.client.delete_collection(settings.CHROMA_COLLECTION_NAME)
         self.collection = self.client.get_or_create_collection(
             name=settings.CHROMA_COLLECTION_NAME,
-            metadata={"description": "Bhagavad Gita verses for RAG retrieval"}
+            metadata={"description": "Bhagavad Geeta verses for RAG retrieval"}
         )
         logger.warning("Vector store reset - all verses deleted")
 

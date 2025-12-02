@@ -68,7 +68,7 @@ export default function ProvenancePanel({ sources, confidence }: ProvenancePanel
       {/* Attribution */}
       <div className="mt-6 pt-6 border-t text-xs text-gray-500">
         <p>
-          All verses from the Bhagavad Gita (public domain Sanskrit text).
+          All verses from the Bhagavad Geeta (public domain Sanskrit text).
           Interpretations based on traditional commentaries.
         </p>
       </div>

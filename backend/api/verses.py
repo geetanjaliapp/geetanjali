@@ -110,7 +110,7 @@ async def get_random_verse(
     db: Session = Depends(get_db)
 ):
     """
-    Get a random verse from the Bhagavad Gita.
+    Get a random verse from the Bhagavad Geeta.
 
     By default, returns only from curated "featured" verses (~180 showcase-worthy
     verses selected for their universal recognition and applicability).

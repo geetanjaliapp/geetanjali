@@ -266,5 +266,5 @@ class Validator:
             "total_verses": total_verses,
             "chapters_present": chapters,
             "chapter_counts": chapter_counts,
-            "expected_total": 700,  # Bhagavad Gita has 700 verses
+            "expected_total": 700,  # Bhagavad Geeta has 700 verses
         }
