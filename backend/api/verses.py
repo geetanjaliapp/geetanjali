@@ -17,10 +17,40 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1/verses")
 
 
+@router.get("/count")
+async def get_verses_count(
+    chapter: Optional[int] = Query(None, ge=1, le=18, description="Filter by chapter"),
+    featured: Optional[bool] = Query(None, description="Filter by featured status"),
+    db: Session = Depends(get_db)
+):
+    """
+    Get total count of verses matching filters.
+
+    Args:
+        chapter: Filter by chapter number
+        featured: Filter by featured status (true/false)
+        db: Database session
+
+    Returns:
+        Count of matching verses
+    """
+    query = db.query(func.count(Verse.id))
+
+    if chapter:
+        query = query.filter(Verse.chapter == chapter)
+
+    if featured is not None:
+        query = query.filter(Verse.is_featured == featured)
+
+    count = query.scalar()
+    return {"count": count}
+
+
 @router.get("", response_model=List[VerseResponse])
 async def search_verses(
     q: Optional[str] = Query(None, description="Search by canonical ID or principle"),
     chapter: Optional[int] = Query(None, ge=1, le=18, description="Filter by chapter"),
+    featured: Optional[bool] = Query(None, description="Filter by featured status"),
     principles: Optional[str] = Query(None, description="Comma-separated principle tags"),
     skip: int = 0,
     limit: int = 100,
@@ -32,13 +62,14 @@ async def search_verses(
     Args:
         q: Search query (canonical ID or principle)
         chapter: Filter by chapter number
+        featured: Filter by featured status (true/false)
         principles: Comma-separated consulting principles
         skip: Number of records to skip
         limit: Maximum number of records
         db: Database session
 
     Returns:
-        List of matching verses
+        List of matching verses sorted by chapter and verse number
     """
     repo = VerseRepository(db)
 
@@ -47,17 +78,27 @@ async def search_verses(
         verse = repo.get_by_canonical_id(q)
         return [verse] if verse else []
 
-    # Filter by chapter
-    if chapter:
-        return repo.get_by_chapter(chapter)
-
     # Search by principles
     if principles:
         principle_list = [p.strip() for p in principles.split(",")]
         return repo.search_by_principles(principle_list)
 
-    # Default: return all verses
-    return repo.get_all(skip=skip, limit=limit)
+    # Build query with filters
+    query = db.query(Verse)
+
+    # Filter by chapter
+    if chapter:
+        query = query.filter(Verse.chapter == chapter)
+
+    # Filter by featured status
+    if featured is not None:
+        query = query.filter(Verse.is_featured == featured)
+
+    # Always sort by chapter, then verse number
+    query = query.order_by(Verse.chapter, Verse.verse)
+
+    # Apply pagination
+    return query.offset(skip).limit(limit).all()
 
 
 @router.get("/random", response_model=VerseResponse)
