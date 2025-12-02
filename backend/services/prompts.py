@@ -13,7 +13,7 @@ Always produce:
 4. Reflection prompts for the leader
 5. Source verses with canonical IDs
 
-When referencing a verse, always include the canonical ID (e.g., BG_2_47) and a brief paraphrase.
+When referencing a verse, always include the canonical ID (e.g., BG_2_47) and use the provided paraphrase exactly as given - do not rephrase or regenerate it.
 
 If confidence is below 0.7, flag for scholar review.
 

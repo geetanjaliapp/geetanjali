@@ -178,6 +178,10 @@ class Persister:
         if verse.verse is not None:
             metadata["verse"] = verse.verse
 
+        # Add paraphrase for use in consultation prompts
+        if verse_data.get("paraphrase_en"):
+            metadata["paraphrase"] = verse_data["paraphrase_en"]
+
         # Add consulting principles as comma-separated string if present
         consulting_principles = verse_data.get("consulting_principles")
         if consulting_principles and isinstance(consulting_principles, list):
