@@ -106,6 +106,9 @@ data_cache/
 # IDE / EDITOR
 # ============================================================================
 
+# Claude Code
+.claude/
+
 # VSCode
 .vscode/
 *.code-workspace
