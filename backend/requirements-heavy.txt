@@ -1,0 +1,11 @@
+# Heavy dependencies - installed first for better caching
+# These rarely change and take longest to install
+
+# Embeddings (includes PyTorch ~2GB)
+sentence-transformers==2.3.1
+
+# Vector Database
+chromadb==0.4.22
+
+# NumPy compatibility (chromadb 0.4.x requires <2.0)
+numpy<2.0.0

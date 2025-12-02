@@ -1,4 +1,5 @@
-# Backend Dockerfile for Geetanjali
+# syntax=docker/dockerfile:1.4
+# Backend Dockerfile for Geetanjali - Optimized for fast rebuilds
 
 FROM python:3.10-slim
 
@@ -12,14 +13,21 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first for better layer caching
-COPY requirements.txt .
+# Upgrade pip first
+RUN pip install --no-cache-dir --upgrade pip
 
-# Install Python dependencies
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+# LAYER 1: Heavy dependencies (rarely change, slow to install)
+# These are cached and only rebuilt when requirements-heavy.txt changes
+COPY requirements-heavy.txt .
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install -r requirements-heavy.txt
 
-# Copy application code
+# LAYER 2: Light dependencies (change more often, fast to install)
+COPY requirements-light.txt .
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install -r requirements-light.txt
+
+# LAYER 3: Application code (changes most often, instant to copy)
 COPY . .
 
 # Create non-root user for security and set permissions
