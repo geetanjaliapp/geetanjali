@@ -1,18 +1,5 @@
 import { api } from '../lib/api';
-
-// Define types inline to avoid module caching issues
-interface Message {
-  id: string;
-  case_id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  output_id?: string;
-  created_at: string;
-}
-
-interface MessageCreate {
-  content: string;
-}
+import type { Message, MessageCreate } from '../types';
 
 export const messagesApi = {
   /**
