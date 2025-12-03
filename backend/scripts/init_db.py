@@ -14,6 +14,7 @@ from models.case import Case
 from models.message import Message
 from models.output import Output
 from models.refresh_token import RefreshToken
+from models.verse import Verse, Translation
 
 def init_database():
     """Create all database tables."""

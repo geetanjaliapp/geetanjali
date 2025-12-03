@@ -2,13 +2,18 @@
 """
 CLI script for manual data ingestion.
 
+This script fetches and stores verse data from configured sources.
+LLM enrichment is now a separate step - use the /api/v1/admin/enrich endpoint
+or call enrichment manually after ingestion.
+
 Usage:
     python scripts/ingest_data.py --all                    # Ingest all sources
     python scripts/ingest_data.py --type sanskrit          # Ingest specific type
     python scripts/ingest_data.py --dry-run                # Validate only
-    python scripts/ingest_data.py --no-enrich              # Skip LLM enrichment
     python scripts/ingest_data.py --force-refresh          # Bypass cache
     python scripts/ingest_data.py --status                 # Show pipeline status
+
+Note: --no-enrich flag is deprecated. Enrichment is now always separate.
 """
 
 import argparse
@@ -62,7 +67,7 @@ def main():
     parser.add_argument(
         "--no-enrich",
         action="store_true",
-        help="Skip LLM enrichment (faster, but no principles/paraphrases)"
+        help="[DEPRECATED] Enrichment is now always separate. This flag is ignored."
     )
 
     parser.add_argument(
@@ -114,14 +119,17 @@ def main():
         logger.info("=" * 80)
         logger.info(f"Source types: {source_types or 'all'}")
         logger.info(f"Dry run: {args.dry_run}")
-        logger.info(f"Enrichment: {not args.no_enrich}")
         logger.info(f"Force refresh: {args.force_refresh}")
+        logger.info("Note: LLM enrichment is separate - use /api/v1/admin/enrich after ingestion")
         logger.info("=" * 80)
+
+        if args.no_enrich:
+            logger.warning("--no-enrich flag is deprecated and ignored. Enrichment is always separate.")
 
         all_stats = pipeline.ingest_all_sources(
             source_types=source_types,
             force_refresh=args.force_refresh,
-            enrich=not args.no_enrich,
+            enrich=False,  # Always false - enrichment is now separate
             dry_run=args.dry_run
         )
 
