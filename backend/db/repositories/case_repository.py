@@ -75,3 +75,28 @@ class CaseRepository(BaseRepository[Case]):
             .limit(limit)
             .all()
         )
+
+    def migrate_session_to_user(self, session_id: str, user_id: str) -> int:
+        """
+        Migrate all anonymous session cases to a user account.
+
+        This is called when an anonymous user signs up or logs in,
+        transferring ownership of their session-based consultations.
+
+        Args:
+            session_id: The session ID to migrate from
+            user_id: The target user ID
+
+        Returns:
+            Number of cases migrated
+        """
+        count = (
+            self.db.query(Case)
+            .filter(Case.session_id == session_id, Case.user_id.is_(None))
+            .update({
+                "user_id": user_id,
+                "session_id": None  # Clear session ID after migration
+            })
+        )
+        self.db.commit()
+        return count

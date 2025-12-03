@@ -1,15 +1,23 @@
 import axios from 'axios';
 import type { AuthResponse, LoginRequest, SignupRequest, RefreshResponse, User } from '../types';
+import { getSessionId } from '../lib/session';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
 
-// Create a separate axios instance for auth endpoints (no interceptors needed for login/signup)
+// Create a separate axios instance for auth endpoints
 const authClient = axios.create({
   baseURL: `${API_BASE_URL}/api/v1/auth`,
   headers: {
     'Content-Type': 'application/json',
   },
   withCredentials: true, // Enable cookies for refresh token
+});
+
+// Add session ID to auth requests for anonymous case migration
+authClient.interceptors.request.use((config) => {
+  const sessionId = getSessionId();
+  config.headers['X-Session-ID'] = sessionId;
+  return config;
 });
 
 // In-memory token storage (more secure than localStorage for XSS attacks)

@@ -7,13 +7,15 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 from api.schemas import SignupRequest, LoginRequest, AuthResponse, RefreshResponse, UserResponse
-from api.middleware.auth import get_current_user
+from api.middleware.auth import get_current_user, get_session_id
 from db.connection import get_db
 from db.repositories.user_repository import UserRepository
 from db.repositories.refresh_token_repository import RefreshTokenRepository
+from db.repositories.case_repository import CaseRepository
 from models.user import User
 from utils.auth import hash_password, verify_password, validate_password_strength, validate_email
 from utils.jwt import create_access_token, create_refresh_token, hash_token
+from config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +30,8 @@ REFRESH_TOKEN_COOKIE_MAX_AGE = 90 * 24 * 60 * 60  # 90 days in seconds
 async def signup(
     signup_data: SignupRequest,
     response: Response,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    session_id: str = Depends(get_session_id)
 ):
     """
     Create a new user account.
@@ -80,6 +83,13 @@ async def signup(
         role="user"
     )
 
+    # Migrate any anonymous session cases to this user
+    if session_id:
+        case_repo = CaseRepository(db)
+        migrated_count = case_repo.migrate_session_to_user(session_id, user.id)
+        if migrated_count > 0:
+            logger.info(f"Migrated {migrated_count} anonymous consultations to user {user.id}")
+
     # Create refresh token
     refresh_token = create_refresh_token()
     token_repo = RefreshTokenRepository(db)
@@ -94,7 +104,7 @@ async def signup(
         value=refresh_token,
         max_age=REFRESH_TOKEN_COOKIE_MAX_AGE,
         httponly=True,
-        secure=False,  # Set to True in production with HTTPS
+        secure=settings.COOKIE_SECURE,
         samesite="lax"
     )
 
@@ -118,7 +128,8 @@ async def signup(
 async def login(
     login_data: LoginRequest,
     response: Response,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    session_id: str = Depends(get_session_id)
 ):
     """
     Authenticate user and return access token.
@@ -157,6 +168,13 @@ async def login(
     # Update last login timestamp
     user_repo.update(user.id, {"last_login": datetime.utcnow()})
 
+    # Migrate any anonymous session cases to this user (if they browsed before logging in)
+    if session_id:
+        case_repo = CaseRepository(db)
+        migrated_count = case_repo.migrate_session_to_user(session_id, user.id)
+        if migrated_count > 0:
+            logger.info(f"Migrated {migrated_count} anonymous consultations to user {user.id} on login")
+
     # Create refresh token
     refresh_token = create_refresh_token()
     token_repo = RefreshTokenRepository(db)
@@ -171,7 +189,7 @@ async def login(
         value=refresh_token,
         max_age=REFRESH_TOKEN_COOKIE_MAX_AGE,
         httponly=True,
-        secure=False,  # Set to True in production with HTTPS
+        secure=settings.COOKIE_SECURE,
         samesite="lax"
     )
 
@@ -255,7 +273,7 @@ async def refresh(
         value=new_refresh_token,
         max_age=REFRESH_TOKEN_COOKIE_MAX_AGE,
         httponly=True,
-        secure=False,  # Set to True in production
+        secure=settings.COOKIE_SECURE,
         samesite="lax"
     )
 
