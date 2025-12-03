@@ -40,7 +40,7 @@ echo "PostgreSQL is ready!"
 
 # Wait for ChromaDB to be ready (with timeout)
 echo "Waiting for ChromaDB..."
-CHROMA_URL="http://${CHROMA_HOST:-chromadb}:${CHROMA_PORT:-8000}/api/v1/heartbeat"
+CHROMA_URL="http://${CHROMA_HOST:-chromadb}:${CHROMA_PORT:-8000}/api/v2/heartbeat"
 RETRIES=15
 COUNT=0
 until curl -sf "$CHROMA_URL" > /dev/null 2>&1; do
@@ -58,11 +58,21 @@ if curl -sf "$CHROMA_URL" > /dev/null 2>&1; then
   echo "ChromaDB is ready!"
 fi
 
-# Initialize database tables
+# Initialize database tables (non-destructive - only creates missing tables)
 echo "Initializing database tables..."
 python3 -c "
-from init_db import init_db
-init_db()
+from db.connection import engine
+from models.base import Base
+# Import all models to register them with Base
+from models.user import User
+from models.case import Case
+from models.message import Message
+from models.output import Output
+from models.refresh_token import RefreshToken
+from models.verse import Verse, Translation
+
+# Create tables that don't exist (non-destructive)
+Base.metadata.create_all(bind=engine)
 print('✓ Database tables initialized')
 "
 
