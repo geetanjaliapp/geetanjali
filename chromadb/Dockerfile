@@ -9,8 +9,8 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Install ChromaDB 0.5.0 with NumPy <2.0 for compatibility
-RUN pip install --no-cache-dir "numpy<2.0" chromadb==0.5.0
+# Install ChromaDB 1.3.5
+RUN pip install --no-cache-dir chromadb==1.3.5
 
 # Expose port
 EXPOSE 8000
