@@ -6,7 +6,7 @@
 sentence-transformers==2.3.1
 
 # Vector Database
-chromadb==0.4.22
+chromadb==0.5.0
 
-# NumPy compatibility (chromadb 0.4.x requires <2.0)
-numpy<2.0.0
+# NumPy compatibility
+numpy>=1.24.0
