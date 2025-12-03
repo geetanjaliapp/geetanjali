@@ -54,7 +54,7 @@ rq==1.16.0  # Redis Queue for background tasks
 
 # Data Ingestion
 beautifulsoup4==4.12.3  # HTML parsing
-lxml==5.1.0  # XML/HTML parser
+lxml==6.0.2  # XML/HTML parser
 pyyaml==6.0.1  # YAML config loading
 indic-transliteration==2.3.44  # Sanskrit IAST transliteration
 requests==2.31.0  # HTTP client for fetching

@@ -45,7 +45,7 @@ rq==1.16.0
 
 # Data Ingestion
 beautifulsoup4==4.12.3
-lxml==5.1.0
+lxml==6.0.2
 pyyaml==6.0.1
 indic-transliteration==2.3.44
 requests==2.31.0
