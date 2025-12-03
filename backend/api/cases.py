@@ -1,19 +1,20 @@
 """Case management endpoints."""
 
 import logging
-from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status
+import uuid
+from typing import List, Optional
+
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from db import get_db
 from db.repositories.case_repository import CaseRepository
 from db.repositories.message_repository import MessageRepository
 from api.schemas import CaseCreate, CaseResponse
-from api.middleware.auth import get_current_user, get_optional_user, get_session_id, user_can_access_resource
+from api.middleware.auth import get_optional_user, get_session_id
+from api.dependencies import get_case_with_access
 from models.case import Case
 from models.user import User
-from typing import Optional
-import uuid
 
 logger = logging.getLogger(__name__)
 
@@ -64,20 +65,12 @@ async def create_case(
 
 
 @router.get("/{case_id}", response_model=CaseResponse)
-async def get_case(
-    case_id: str,
-    db: Session = Depends(get_db),
-    current_user: Optional[User] = Depends(get_optional_user),
-    session_id: Optional[str] = Depends(get_session_id)
-):
+async def get_case(case: Case = Depends(get_case_with_access)):
     """
     Get a case by ID (supports anonymous and authenticated users).
 
     Args:
-        case_id: Case ID
-        db: Database session
-        current_user: Authenticated user (optional)
-        session_id: Session ID from X-Session-ID header (for anonymous users)
+        case: Case object (validated by dependency)
 
     Returns:
         Case details
@@ -85,27 +78,6 @@ async def get_case(
     Raises:
         HTTPException: If case not found or user doesn't have access
     """
-    repo = CaseRepository(db)
-    case = repo.get(case_id)
-
-    if not case:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Case {case_id} not found"
-        )
-
-    # Check access using session-based or user-based auth
-    if not user_can_access_resource(
-        resource_user_id=case.user_id,
-        resource_session_id=case.session_id,
-        current_user=current_user,
-        session_id=session_id
-    ):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You don't have access to this case"
-        )
-
     return case
 
 

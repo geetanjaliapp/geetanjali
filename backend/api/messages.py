@@ -1,26 +1,23 @@
 """Message API endpoints for conversation threading."""
 
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status
+
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from api.schemas import MessageCreate, MessageResponse
-from api.middleware.auth import get_optional_user, get_session_id, user_can_access_resource
+from api.dependencies import get_case_with_access
 from db.connection import get_db
 from db.repositories.message_repository import MessageRepository
-from db.repositories.case_repository import CaseRepository
-from models.user import User
-from typing import Optional
+from models.case import Case
 
 router = APIRouter()
 
 
 @router.get("/cases/{case_id}/messages", response_model=List[MessageResponse])
 def get_case_messages(
-    case_id: str,
-    db: Session = Depends(get_db),
-    current_user: Optional[User] = Depends(get_optional_user),
-    session_id: Optional[str] = Depends(get_session_id)
+    case: Case = Depends(get_case_with_access),
+    db: Session = Depends(get_db)
 ):
     """
     Get all messages for a case, ordered chronologically.
@@ -28,41 +25,15 @@ def get_case_messages(
     Returns the conversation thread including both user questions
     and assistant responses.
     """
-    # Verify case exists and user has access
-    case_repo = CaseRepository(db)
-    case = case_repo.get(case_id)
-    if not case:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Case {case_id} not found"
-        )
-
-    # Check access using session-based or user-based auth
-    if not user_can_access_resource(
-        resource_user_id=case.user_id,
-        resource_session_id=case.session_id,
-        current_user=current_user,
-        session_id=session_id
-    ):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You don't have access to this case"
-        )
-
-    # Get all messages for the case
     message_repo = MessageRepository(db)
-    messages = message_repo.get_by_case(case_id)
-
-    return messages
+    return message_repo.get_by_case(case.id)
 
 
 @router.post("/cases/{case_id}/messages", response_model=MessageResponse, status_code=status.HTTP_201_CREATED)
 def create_message(
-    case_id: str,
     message: MessageCreate,
-    db: Session = Depends(get_db),
-    current_user: Optional[User] = Depends(get_optional_user),
-    session_id: Optional[str] = Depends(get_session_id)
+    case: Case = Depends(get_case_with_access),
+    db: Session = Depends(get_db)
 ):
     """
     Create a new user message (follow-up question) for a case.
@@ -70,32 +41,8 @@ def create_message(
     This adds a message to the conversation thread. The frontend
     should then trigger analysis to generate an assistant response.
     """
-    # Verify case exists and user has access
-    case_repo = CaseRepository(db)
-    case = case_repo.get(case_id)
-    if not case:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Case {case_id} not found"
-        )
-
-    # Check access using session-based or user-based auth
-    if not user_can_access_resource(
-        resource_user_id=case.user_id,
-        resource_session_id=case.session_id,
-        current_user=current_user,
-        session_id=session_id
-    ):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You don't have access to this case"
-        )
-
-    # Create user message
     message_repo = MessageRepository(db)
-    new_message = message_repo.create_user_message(
-        case_id=case_id,
+    return message_repo.create_user_message(
+        case_id=case.id,
         content=message.content
     )
-
-    return new_message
