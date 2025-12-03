@@ -112,6 +112,11 @@ class Settings(BaseSettings):
     # Frontend
     FRONTEND_URL: str = "http://localhost:5173"
 
+    # Email (Resend)
+    RESEND_API_KEY: Optional[str] = None  # Required for email sending
+    CONTACT_EMAIL_TO: str = "contact@geetanjaliapp.com"  # Recipient for contact form
+    CONTACT_EMAIL_FROM: str = "Geetanjali <noreply@geetanjaliapp.com>"  # Sender address
+
     @field_validator('CORS_ORIGINS', mode='before')
     @classmethod
     def parse_cors_origins(cls, v: Union[str, List[str]]) -> List[str]:

@@ -8,6 +8,7 @@ from models.output import Output
 from models.message import Message, MessageRole
 from models.verse import Verse, Commentary, Translation
 from models.feedback import Feedback
+from models.contact import ContactMessage, ContactType
 
 __all__ = [
     "Base",
@@ -21,4 +22,6 @@ __all__ = [
     "Commentary",
     "Translation",
     "Feedback",
+    "ContactMessage",
+    "ContactType",
 ]

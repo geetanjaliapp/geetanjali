@@ -116,6 +116,16 @@ export function Navbar({ showBack, backTo = '/', backLabel = 'Back' }: NavbarPro
             >
               Verses
             </Link>
+            <Link
+              to="/about"
+              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                isActive('/about')
+                  ? 'text-orange-600 bg-orange-50'
+                  : 'text-gray-700 hover:text-orange-600 hover:bg-gray-50'
+              }`}
+            >
+              About
+            </Link>
 
             {/* Auth section */}
             {isAuthenticated ? (

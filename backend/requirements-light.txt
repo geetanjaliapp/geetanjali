@@ -49,3 +49,6 @@ lxml==5.1.0
 pyyaml==6.0.1
 indic-transliteration==2.3.44
 requests==2.31.0
+
+# Email
+resend==2.5.0

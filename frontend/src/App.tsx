@@ -8,6 +8,7 @@ import Verses from './pages/Verses';
 import VerseDetail from './pages/VerseDetail';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import About from './pages/About';
 import NotFound from './pages/NotFound';
 
 function App() {
@@ -34,6 +35,7 @@ function App() {
         <Route path="/consultations" element={<Consultations />} />
         <Route path="/verses" element={<Verses />} />
         <Route path="/verses/:canonicalId" element={<VerseDetail />} />
+        <Route path="/about" element={<About />} />
 
         {/* 404 fallback */}
         <Route path="*" element={<NotFound />} />
