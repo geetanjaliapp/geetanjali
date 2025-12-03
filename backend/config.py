@@ -97,8 +97,10 @@ class Settings(BaseSettings):
         return v
 
     class Config:
-        env_file = ".env"
+        # Read from project root .env (one level up from backend/)
+        env_file = "../.env"
         case_sensitive = True
+        extra = "ignore"  # Ignore POSTGRES_*, VITE_* vars used by docker/frontend
 
 
 # Global settings instance
