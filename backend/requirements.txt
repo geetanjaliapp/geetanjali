@@ -45,7 +45,7 @@ bcrypt==4.0.1  # Pin compatible version (5.x has issues with passlib 1.7.4)
 
 # Utilities
 python-dotenv==1.0.0
-tenacity==8.2.3  # Retry logic for robustness
+tenacity==9.1.2  # Retry logic for robustness
 slowapi==0.1.9  # Rate limiting
 
 # Redis Cache & Task Queue

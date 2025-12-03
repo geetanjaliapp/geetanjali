@@ -36,7 +36,7 @@ bcrypt==4.0.1
 
 # Utilities
 python-dotenv==1.0.0
-tenacity==8.2.3
+tenacity==9.1.2
 slowapi==0.1.9
 
 # Redis Cache & Task Queue
