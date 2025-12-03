@@ -1,9 +1,13 @@
 """Application configuration."""
 
+import logging
 import os
+import warnings
 from typing import List, Union, Optional
-from pydantic import field_validator
+from pydantic import field_validator, model_validator
 from pydantic_settings import BaseSettings
+
+logger = logging.getLogger(__name__)
 
 
 class Settings(BaseSettings):
@@ -12,7 +16,7 @@ class Settings(BaseSettings):
     # Application
     APP_NAME: str = "Geetanjali"
     APP_ENV: str = "development"
-    DEBUG: bool = True
+    DEBUG: bool = False  # Safe default: False
     LOG_LEVEL: str = "INFO"
 
     # Database
@@ -95,6 +99,40 @@ class Settings(BaseSettings):
         if isinstance(v, str):
             return [origin.strip() for origin in v.split(',')]
         return v
+
+    @model_validator(mode='after')
+    def warn_insecure_defaults(self) -> 'Settings':
+        """Warn if using insecure default values in non-DEBUG mode."""
+        insecure_defaults = {
+            'JWT_SECRET': 'dev-secret-key-change-in-production-use-env-var',
+            'API_KEY': 'dev-api-key-12345',
+        }
+
+        for field, default_value in insecure_defaults.items():
+            current_value = getattr(self, field)
+            if current_value == default_value:
+                if self.DEBUG:
+                    logger.warning(
+                        f"SECURITY: {field} is using default value. "
+                        f"Set via environment variable for production."
+                    )
+                else:
+                    # In non-DEBUG mode, emit a stronger warning
+                    warnings.warn(
+                        f"SECURITY WARNING: {field} is using insecure default value! "
+                        f"Set {field} environment variable before deploying to production.",
+                        UserWarning,
+                        stacklevel=2
+                    )
+
+        # Warn if COOKIE_SECURE is False in non-DEBUG mode
+        if not self.COOKIE_SECURE and not self.DEBUG:
+            logger.warning(
+                "SECURITY: COOKIE_SECURE=False in non-DEBUG mode. "
+                "Set COOKIE_SECURE=True for HTTPS deployments."
+            )
+
+        return self
 
     class Config:
         # Read from project root .env (one level up from backend/)

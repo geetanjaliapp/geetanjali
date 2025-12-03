@@ -48,14 +48,17 @@ jobs:
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
       - name: Run type checking
-        run: mypy . --ignore-missing-imports || true
+        run: mypy . --ignore-missing-imports
+        continue-on-error: false
 
       - name: Run tests
         env:
           DATABASE_URL: postgresql://test:test@localhost:5432/geetanjali_test
-          JWT_SECRET_KEY: test-secret-key-for-ci
+          JWT_SECRET: test-secret-key-for-ci
+          API_KEY: test-api-key-for-ci
+          DEBUG: "true"
           APP_ENV: test
-        run: pytest --cov=. --cov-report=xml -v || true
+        run: pytest --cov=. --cov-report=xml -v
 
   frontend:
     name: Frontend Build
