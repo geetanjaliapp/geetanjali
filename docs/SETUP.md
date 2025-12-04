@@ -114,11 +114,75 @@ npm run build                 # Production build
 npm test                      # Run tests
 ```
 
+## Database Migrations
+
+Geetanjali uses Alembic for database migrations. The consolidated `001_initial_schema.py` contains the full schema.
+
+### Standard Operations
+
+```bash
+# Apply all pending migrations
+alembic upgrade head
+
+# Check current migration version
+alembic current
+
+# View migration history
+alembic history
+
+# Create a new migration (after model changes)
+alembic revision --autogenerate -m "description"
+```
+
+### For Existing Databases (Migration Consolidation)
+
+If you have an existing database and migrations were consolidated (e.g., 10 migrations merged into one), use `stamp` to mark the database as up-to-date without re-running migrations:
+
+```bash
+# Mark database at current revision (preserves existing data)
+alembic stamp 001
+
+# Verify
+alembic current
+# Should show: 001 (head)
+```
+
+**When to use stamp:**
+- After migration consolidation when your database already has the correct schema
+- When setting up migration tracking on an existing database
+- Never on a fresh database (use `upgrade head` instead)
+
+### Best Practices
+
+1. **Always backup before migrations** in production:
+   ```bash
+   pg_dump -h localhost -U geetanjali geetanjali > backup_$(date +%Y%m%d).sql
+   ```
+
+2. **Test migrations locally** before deploying:
+   ```bash
+   alembic upgrade head --sql  # Preview SQL without executing
+   ```
+
+3. **Downgrade cautiously** - some migrations are not reversible:
+   ```bash
+   alembic downgrade -1  # Rollback one migration
+   ```
+
 ## Troubleshooting
 
 **Port conflicts**: Change ports in `docker-compose.yml` or stop conflicting services.
 
 **Database connection**: Ensure PostgreSQL is running and `DATABASE_URL` is correct.
+
+**Migration version mismatch**: If alembic complains about missing revisions after consolidation:
+```bash
+# Check current DB revision
+alembic current
+
+# If stuck on old revision, stamp to new consolidated version
+alembic stamp 001
+```
 
 **Missing verses**: Run data ingestion:
 ```bash
