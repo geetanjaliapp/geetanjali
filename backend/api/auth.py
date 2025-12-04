@@ -33,17 +33,44 @@ from config import settings
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1/auth", tags=["authentication"])
-
-# Rate limiter for auth endpoints (stricter limits to prevent brute force)
 limiter = Limiter(key_func=get_remote_address)
 
-# Cookie settings for refresh token
 REFRESH_TOKEN_COOKIE_KEY = "refresh_token"
 
 
-def get_refresh_token_max_age() -> int:
-    """Calculate refresh token cookie max age from settings."""
-    return settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60
+def set_auth_cookies(response: Response, refresh_token: str) -> None:
+    """Set refresh token and CSRF cookies on response."""
+    max_age = settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60
+    response.set_cookie(
+        key=REFRESH_TOKEN_COOKIE_KEY,
+        value=refresh_token,
+        max_age=max_age,
+        httponly=True,
+        secure=settings.COOKIE_SECURE,
+        samesite="lax",
+    )
+    set_csrf_cookie(response, generate_csrf_token())
+
+
+def build_user_response(user: User) -> UserResponse:
+    """Build UserResponse from User model."""
+    return UserResponse(
+        id=user.id,
+        email=user.email,
+        name=user.name,
+        role=user.role,
+        org_id=user.org_id,
+        created_at=user.created_at,
+    )
+
+
+def build_auth_response(user: User, access_token: str) -> AuthResponse:
+    """Build AuthResponse with token and user profile."""
+    return AuthResponse(
+        access_token=access_token,
+        token_type="bearer",
+        user=build_user_response(user),
+    )
 
 
 @router.post(
@@ -111,42 +138,14 @@ async def signup(
                 f"Migrated {migrated_count} anonymous consultations to user {user.id}"
             )
 
-    # Create refresh token
+    # Create tokens and set cookies
     refresh_token = create_refresh_token()
-    token_repo = RefreshTokenRepository(db)
-    token_repo.create_for_user(user.id, refresh_token)
-
-    # Create access token
+    RefreshTokenRepository(db).create_for_user(user.id, refresh_token)
     access_token = create_access_token(user.id, user.role)
+    set_auth_cookies(response, refresh_token)
 
-    # Set refresh token as httpOnly cookie
-    response.set_cookie(
-        key=REFRESH_TOKEN_COOKIE_KEY,
-        value=refresh_token,
-        max_age=get_refresh_token_max_age(),
-        httponly=True,
-        secure=settings.COOKIE_SECURE,
-        samesite="lax",
-    )
-
-    # Set CSRF token cookie for double-submit protection
-    csrf_token = generate_csrf_token()
-    set_csrf_cookie(response, csrf_token)
-
-    logger.info(f"User created successfully: {user.id}")
-
-    return AuthResponse(
-        access_token=access_token,
-        token_type="bearer",
-        user=UserResponse(
-            id=user.id,
-            email=user.email,
-            name=user.name,
-            role=user.role,
-            org_id=user.org_id,
-            created_at=user.created_at,
-        ),
-    )
+    logger.info(f"User created: {user.id}")
+    return build_auth_response(user, access_token)
 
 
 @router.post("/login", response_model=AuthResponse)
@@ -202,42 +201,14 @@ async def login(
                 f"Migrated {migrated_count} anonymous consultations to user {user.id} on login"
             )
 
-    # Create refresh token
+    # Create tokens and set cookies
     refresh_token = create_refresh_token()
-    token_repo = RefreshTokenRepository(db)
-    token_repo.create_for_user(user.id, refresh_token)
-
-    # Create access token
+    RefreshTokenRepository(db).create_for_user(user.id, refresh_token)
     access_token = create_access_token(user.id, user.role)
+    set_auth_cookies(response, refresh_token)
 
-    # Set refresh token as httpOnly cookie
-    response.set_cookie(
-        key=REFRESH_TOKEN_COOKIE_KEY,
-        value=refresh_token,
-        max_age=get_refresh_token_max_age(),
-        httponly=True,
-        secure=settings.COOKIE_SECURE,
-        samesite="lax",
-    )
-
-    # Set CSRF token cookie for double-submit protection
-    csrf_token = generate_csrf_token()
-    set_csrf_cookie(response, csrf_token)
-
-    logger.info(f"User logged in successfully: {user.id}")
-
-    return AuthResponse(
-        access_token=access_token,
-        token_type="bearer",
-        user=UserResponse(
-            id=user.id,
-            email=user.email,
-            name=user.name,
-            role=user.role,
-            org_id=user.org_id,
-            created_at=user.created_at,
-        ),
-    )
+    logger.info(f"User logged in: {user.id}")
+    return build_auth_response(user, access_token)
 
 
 @router.post("/refresh", response_model=RefreshResponse)
@@ -284,24 +255,12 @@ async def refresh(request: Request, response: Response, db: Session = Depends(ge
             status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found"
         )
 
-    # Create new access token
+    # Rotate tokens (security best practice)
     access_token = create_access_token(user.id, user.role)
-
-    # Optional: Rotate refresh token (security best practice)
-    # Revoke old token and create new one
     token_repo.revoke_token(token_record.id)
     new_refresh_token = create_refresh_token()
     token_repo.create_for_user(user.id, new_refresh_token)
-
-    # Set new refresh token cookie
-    response.set_cookie(
-        key=REFRESH_TOKEN_COOKIE_KEY,
-        value=new_refresh_token,
-        max_age=get_refresh_token_max_age(),
-        httponly=True,
-        secure=settings.COOKIE_SECURE,
-        samesite="lax",
-    )
+    set_auth_cookies(response, new_refresh_token)
 
     logger.info(f"Token refreshed for user: {user.id}")
 
@@ -341,20 +300,5 @@ async def logout(request: Request, response: Response, db: Session = Depends(get
 
 @router.get("/me", response_model=UserResponse)
 async def get_current_user_profile(current_user: User = Depends(get_current_user)):
-    """
-    Get current authenticated user's profile.
-
-    Args:
-        current_user: Current authenticated user (from JWT)
-
-    Returns:
-        User profile
-    """
-    return UserResponse(
-        id=current_user.id,
-        email=current_user.email,
-        name=current_user.name,
-        role=current_user.role,
-        org_id=current_user.org_id,
-        created_at=current_user.created_at,
-    )
+    """Get current authenticated user's profile."""
+    return build_user_response(current_user)

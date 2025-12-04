@@ -109,9 +109,10 @@ async def submit_contact(
 
     except Exception as e:
         logger.error(f"Failed to submit contact form: {e}")
+        db.rollback()
         raise HTTPException(
             status_code=500,
-            detail="Failed to submit your message. Please try again later.",
+            detail="Unable to save message. Please try again.",
         )
 
 

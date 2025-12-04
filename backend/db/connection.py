@@ -7,20 +7,15 @@ from typing import Any, Generator
 
 from config import settings
 
-# Create engine with connection pooling
 is_sqlite = "sqlite" in settings.DATABASE_URL
 
 engine_kwargs: dict[str, Any] = {
     "echo": settings.DEBUG,
 }
 
-# Configure connection pooling (SQLite vs PostgreSQL)
 if is_sqlite:
-    # SQLite-specific configuration
     engine_kwargs["connect_args"] = {"check_same_thread": False}
-    # SQLite uses NullPool by default, which is appropriate for development
 else:
-    # PostgreSQL/production configuration
     engine_kwargs.update(
         {
             "pool_size": settings.DB_POOL_SIZE,
@@ -33,7 +28,6 @@ else:
 
 engine = create_engine(settings.DATABASE_URL, **engine_kwargs)
 
-# Create session factory
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 

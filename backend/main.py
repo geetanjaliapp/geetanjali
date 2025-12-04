@@ -18,13 +18,9 @@ from utils.exceptions import (
 from api import health, cases, verses, outputs, messages, auth, admin, contact
 from api.middleware.csrf import CSRFMiddleware
 
-# Setup logging
 logger = setup_logging()
-
-# Setup rate limiter
 limiter = Limiter(key_func=get_remote_address)
 
-# Create FastAPI app
 app = FastAPI(
     title=settings.APP_NAME,
     description="Ethical leadership guidance from the Bhagavad Geeta",
@@ -32,10 +28,7 @@ app = FastAPI(
     debug=settings.DEBUG,
 )
 
-# Add rate limiter state
 app.state.limiter = limiter
-
-# Configure CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
@@ -43,17 +36,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Add CSRF protection middleware (after CORS)
 app.add_middleware(CSRFMiddleware)
 
-# Register exception handlers
 app.add_exception_handler(GeetanjaliException, geetanjali_exception_handler)  # type: ignore[arg-type]
 app.add_exception_handler(RequestValidationError, validation_exception_handler)  # type: ignore[arg-type]
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore[arg-type]
 app.add_exception_handler(Exception, general_exception_handler)
 
-# Include routers
 app.include_router(health.router, tags=["Health"])
 app.include_router(auth.router, tags=["Authentication"])
 app.include_router(cases.router, tags=["Cases"])
