@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from models.verse import Verse, Translation
 from services.embeddings import get_embedding_service
 from services.vector_store import get_vector_store
+from services.cache import cache, verse_key
 
 logger = logging.getLogger(__name__)
 
@@ -137,9 +138,26 @@ class Persister:
 
         self.db.flush()
 
+        # Invalidate Redis cache for this verse
+        self._invalidate_verse_cache(existing_verse.canonical_id)
+
         logger.debug(f"Updated verse {existing_verse.canonical_id}")
 
         return existing_verse
+
+    def _invalidate_verse_cache(self, canonical_id: str):
+        """
+        Invalidate Redis cache for a verse.
+
+        Args:
+            canonical_id: Canonical verse ID (e.g., BG_2_47)
+        """
+        try:
+            cache.delete(verse_key(canonical_id))
+            logger.debug(f"Invalidated cache for verse {canonical_id}")
+        except Exception as e:
+            # Log but don't fail - cache invalidation is best-effort
+            logger.warning(f"Failed to invalidate cache for {canonical_id}: {e}")
 
     def _persist_embedding(self, verse: Verse, verse_data: Dict):
         """

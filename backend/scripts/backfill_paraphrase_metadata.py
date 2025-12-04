@@ -22,6 +22,7 @@ from db.connection import SessionLocal
 from models.verse import Verse
 from services.vector_store import get_vector_store
 from services.embeddings import get_embedding_service
+from services.cache import cache, verse_key
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -128,6 +129,9 @@ def backfill_paraphrase_metadata(dry_run: bool = False):
                     metadata=metadata,
                     embedding=embedding,  # type: ignore[arg-type]
                 )
+
+                # Invalidate Redis cache for this verse
+                cache.delete(verse_key(verse.canonical_id))
 
                 logger.info(f"Updated {verse.canonical_id}")
                 updated += 1
