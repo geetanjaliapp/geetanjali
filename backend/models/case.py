@@ -59,6 +59,13 @@ class Case(Base, TimestampMixin):
     status: Mapped[str] = mapped_column(
         String(20), default=CaseStatus.DRAFT.value, index=True
     )
+    # Public sharing
+    is_public: Mapped[bool] = mapped_column(
+        default=False, index=True
+    )  # When True, case is accessible via public link
+    public_slug: Mapped[Optional[str]] = mapped_column(
+        String(12), unique=True, nullable=True, index=True
+    )  # Short slug for public URL (e.g., "abc123xyz")
 
     # Relationships
     user = relationship("User", back_populates="cases")

@@ -1,6 +1,6 @@
 """Case repository for database operations."""
 
-from typing import List
+from typing import List, Optional
 from sqlalchemy.orm import Session
 
 from models.case import Case
@@ -106,3 +106,35 @@ class CaseRepository(BaseRepository[Case]):
         )
         self.db.commit()
         return count
+
+    def get_by_public_slug(self, slug: str) -> Optional[Case]:
+        """
+        Get a case by its public slug.
+
+        Args:
+            slug: The public slug (e.g., "abc123xyz")
+
+        Returns:
+            Case if found, None otherwise
+        """
+        return self.db.query(Case).filter(Case.public_slug == slug).first()
+
+    def get_public_cases(self, skip: int = 0, limit: int = 100) -> List[Case]:
+        """
+        Get all public cases.
+
+        Args:
+            skip: Number of records to skip
+            limit: Maximum number of records
+
+        Returns:
+            List of public cases
+        """
+        return (
+            self.db.query(Case)
+            .filter(Case.is_public == True)  # noqa: E712
+            .order_by(Case.created_at.desc())
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )

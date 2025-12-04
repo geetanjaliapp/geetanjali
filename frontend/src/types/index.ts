@@ -13,6 +13,8 @@ export interface Case {
   horizon: 'short' | 'medium' | 'long';
   sensitivity?: 'low' | 'medium' | 'high';
   status?: CaseStatus;
+  is_public?: boolean;
+  public_slug?: string | null;
   created_at?: string;
 }
 

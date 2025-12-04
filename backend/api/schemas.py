@@ -116,11 +116,21 @@ class CaseResponse(CaseBase):
         "draft",
         description="Processing status: draft/pending/processing/completed/failed",
     )
+    is_public: bool = Field(False, description="Whether case is publicly accessible")
+    public_slug: Optional[str] = Field(
+        None, description="Short slug for public URL when is_public=True"
+    )
     created_at: datetime
     updated_at: datetime
 
     class Config:
         from_attributes = True
+
+
+class CaseShareToggle(BaseModel):
+    """Schema for toggling case public visibility."""
+
+    is_public: bool = Field(..., description="Whether to make the case public")
 
 
 # ============================================================================

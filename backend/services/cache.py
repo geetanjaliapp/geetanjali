@@ -211,5 +211,20 @@ def user_profile_key(user_id: str) -> str:
     return f"user:{user_id}:profile"
 
 
+def public_case_key(slug: str) -> str:
+    """Build cache key for public case by slug."""
+    return f"public_case:{slug}"
+
+
+def public_case_messages_key(slug: str) -> str:
+    """Build cache key for public case messages."""
+    return f"public_case:{slug}:messages"
+
+
+def public_case_outputs_key(slug: str) -> str:
+    """Build cache key for public case outputs."""
+    return f"public_case:{slug}:outputs"
+
+
 # Convenience instance
 cache = CacheService()

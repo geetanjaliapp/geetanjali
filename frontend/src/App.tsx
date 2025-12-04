@@ -9,6 +9,7 @@ import VerseDetail from './pages/VerseDetail';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import About from './pages/About';
+import PublicCaseView from './pages/PublicCaseView';
 import NotFound from './pages/NotFound';
 
 function App() {
@@ -36,6 +37,9 @@ function App() {
         <Route path="/verses" element={<Verses />} />
         <Route path="/verses/:canonicalId" element={<VerseDetail />} />
         <Route path="/about" element={<About />} />
+
+        {/* Public shared consultation view */}
+        <Route path="/c/:slug" element={<PublicCaseView />} />
 
         {/* 404 fallback */}
         <Route path="*" element={<NotFound />} />

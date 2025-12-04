@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { Case, Output, Verse, Translation, HealthResponse, ScholarReviewRequest, Feedback, FeedbackCreate } from '../types';
+import type { Case, Output, Verse, Translation, HealthResponse, ScholarReviewRequest, Feedback, FeedbackCreate, Message } from '../types';
 import { tokenStorage, authApi } from '../api/auth';
 import { getSessionId } from './session';
 
@@ -136,6 +136,30 @@ export const casesApi = {
   // Async analyze - returns immediately, poll case status for completion
   analyzeAsync: async (id: string): Promise<Case> => {
     const response = await api.post(`/cases/${id}/analyze/async`);
+    return response.data;
+  },
+
+  // Toggle public sharing
+  toggleShare: async (id: string, isPublic: boolean): Promise<Case> => {
+    const response = await api.post(`/cases/${id}/share`, { is_public: isPublic });
+    return response.data;
+  },
+
+  // Get public case by slug (no auth required)
+  getPublic: async (slug: string): Promise<Case> => {
+    const response = await api.get(`/cases/public/${slug}`);
+    return response.data;
+  },
+
+  // Get public case messages (no auth required)
+  getPublicMessages: async (slug: string): Promise<Message[]> => {
+    const response = await api.get(`/cases/public/${slug}/messages`);
+    return response.data;
+  },
+
+  // Get public case outputs (no auth required)
+  getPublicOutputs: async (slug: string): Promise<Output[]> => {
+    const response = await api.get(`/cases/public/${slug}/outputs`);
     return response.data;
   },
 };
