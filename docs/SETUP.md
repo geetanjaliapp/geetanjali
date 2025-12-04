@@ -15,6 +15,9 @@ git clone https://github.com/geetanjaliapp/geetanjali.git
 cd geetanjali
 docker compose up -d
 
+# Pull LLM model (first time only, stored in volume)
+docker exec geetanjali-ollama ollama pull qwen2.5:3b
+
 # Verify services
 docker compose ps
 ```
@@ -23,6 +26,7 @@ Services start at:
 - Frontend: http://localhost
 - Backend: http://localhost:8000
 - API Docs: http://localhost:8000/docs
+- Ollama: http://localhost:11434
 
 First run automatically:
 - Creates database tables
@@ -60,10 +64,13 @@ npm run dev
 
 ### Dependencies
 
-Start PostgreSQL and Redis locally, or use Docker:
+Start PostgreSQL, Redis, ChromaDB, and Ollama locally, or use Docker:
 
 ```bash
-docker compose up -d postgres redis chromadb
+docker compose up -d postgres redis chromadb ollama
+
+# Pull LLM model
+docker exec geetanjali-ollama ollama pull qwen2.5:3b
 ```
 
 ## Environment Variables

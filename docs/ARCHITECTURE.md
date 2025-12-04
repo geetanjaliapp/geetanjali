@@ -16,27 +16,33 @@ User Query → Embedding → Vector Search → LLM Generation → Structured Out
 ## Components
 
 ```
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│   Frontend  │────▶│   Backend   │────▶│  PostgreSQL │
-│   (React)   │     │  (FastAPI)  │     │             │
-└─────────────┘     └──────┬──────┘     └─────────────┘
-                          │
-              ┌───────────┼───────────┐
-              ▼           ▼           ▼
-        ┌──────────┐ ┌─────────┐ ┌─────────┐
-        │ ChromaDB │ │  Redis  │ │   LLM   │
-        │ (vectors)│ │ (cache) │ │(Ollama) │
-        └──────────┘ └─────────┘ └─────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                        Docker Network                            │
+│                                                                  │
+│  ┌─────────────┐     ┌─────────────┐     ┌─────────────┐       │
+│  │   Frontend  │────▶│   Backend   │────▶│  PostgreSQL │       │
+│  │ (React/Nginx│     │  (FastAPI)  │     │   :5432     │       │
+│  │    :80)     │     │    :8000    │     └─────────────┘       │
+│  └─────────────┘     └──────┬──────┘                            │
+│                             │                                    │
+│               ┌─────────────┼─────────────┬──────────────┐      │
+│               ▼             ▼             ▼              ▼      │
+│         ┌──────────┐  ┌─────────┐  ┌─────────┐  ┌────────────┐ │
+│         │ ChromaDB │  │  Redis  │  │ Ollama  │  │   Worker   │ │
+│         │  :8000   │  │  :6379  │  │ :11434  │  │    (RQ)    │ │
+│         └──────────┘  └─────────┘  └─────────┘  └────────────┘ │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 | Component | Purpose |
 |-----------|---------|
 | Frontend | React SPA with verse browser, case submission, output display |
 | Backend | FastAPI handling auth, cases, RAG pipeline, verse management |
+| Worker | RQ background processor for async analysis jobs |
 | PostgreSQL | Cases, users, outputs, verses, feedback |
 | ChromaDB | Vector embeddings for semantic verse search |
-| Redis | Caching, session storage, rate limiting |
-| LLM | Ollama (local) or Anthropic Claude for text generation |
+| Redis | Caching, session storage, task queues, rate limiting |
+| Ollama | Local LLM inference (or Anthropic Claude API) |
 
 ## RAG Pipeline
 
@@ -105,20 +111,22 @@ Full OpenAPI docs at `/docs` when running.
 
 ## Deployment
 
-Docker Compose orchestrates all services:
+Docker Compose orchestrates all 7 services:
 
 ```yaml
 services:
-  frontend    # Nginx serving React build
-  backend     # FastAPI with Uvicorn
-  worker      # Background task processor
+  ollama      # LLM inference (pre-built image, models in volume)
   postgres    # Primary database
-  redis       # Cache and queues
+  redis       # Cache, queues, rate limiting
   chromadb    # Vector database
+  backend     # FastAPI with Uvicorn
+  worker      # RQ background task processor
+  frontend    # Nginx serving React build
 ```
 
 Production considerations:
 - Set `JWT_SECRET` and `API_KEY` to secure values
 - Enable `COOKIE_SECURE=True` for HTTPS
 - Configure `CORS_ORIGINS` for your domain
-- Use managed PostgreSQL and Redis for reliability
+- Pull LLM model: `docker exec geetanjali-ollama ollama pull qwen2.5:3b`
+- Use managed PostgreSQL and Redis for reliability at scale
