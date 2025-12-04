@@ -4,7 +4,7 @@ Validator service for ensuring data quality and compliance.
 
 import logging
 import re
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 from sqlalchemy.orm import Session
 
 from models.verse import Verse
@@ -248,7 +248,7 @@ class Validator:
 
         return True
 
-    def get_verse_by_canonical_id(self, canonical_id: str) -> Verse | None:
+    def get_verse_by_canonical_id(self, canonical_id: str) -> Optional[Verse]:
         """
         Retrieve existing verse by canonical ID.
 
