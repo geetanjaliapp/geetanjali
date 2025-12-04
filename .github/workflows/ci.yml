@@ -61,7 +61,7 @@ jobs:
         run: pytest --cov=. --cov-report=xml -v
 
   frontend:
-    name: Frontend Build
+    name: Frontend Tests & Build
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -82,6 +82,9 @@ jobs:
 
       - name: Run linting
         run: npm run lint
+
+      - name: Run tests
+        run: npm run test:run
 
       - name: Build
         run: npm run build
