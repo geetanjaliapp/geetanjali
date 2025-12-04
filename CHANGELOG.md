@@ -2,6 +2,31 @@
 
 All notable changes to Geetanjali are documented here.
 
+## [1.0.0] - 2025-12-04
+
+First production release of Geetanjali - ethical leadership guidance from the Bhagavad Geeta.
+
+### Features
+- **Case Analysis** - Submit ethical dilemmas, receive structured recommendations grounded in Geeta teachings
+- **Verse Browser** - Explore 701 verses across 18 chapters with Sanskrit, translations, and commentary
+- **RAG Pipeline** - Retrieval-augmented generation ensures responses cite actual scripture
+- **User Authentication** - JWT-based auth with session migration for anonymous users
+- **Contact Form** - Email integration via Resend for user feedback
+
+### Technical
+- FastAPI backend with PostgreSQL, Redis, and ChromaDB
+- React + TypeScript + Tailwind frontend
+- Docker Compose deployment with 8 services
+- 65 tests with 52% code coverage
+- Configurable LLM providers (Ollama, Anthropic Claude)
+
+### Security
+- CORS with environment-based origins
+- CSRF double-submit protection
+- Rate limiting on auth endpoints
+- Input validation on all API endpoints
+- Pre-commit hooks for secret detection
+
 ## [0.1.0] - 2025-12-03
 
 ### Added

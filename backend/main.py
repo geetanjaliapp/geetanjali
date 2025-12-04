@@ -24,7 +24,7 @@ limiter = Limiter(key_func=get_remote_address)
 app = FastAPI(
     title=settings.APP_NAME,
     description="Ethical leadership guidance from the Bhagavad Geeta",
-    version="0.1.0",
+    version="1.0.0",
     debug=settings.DEBUG,
 )
 
