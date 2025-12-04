@@ -9,6 +9,14 @@ import { errorMessages } from '../lib/errorMessages';
 import { ConsultationWaiting } from '../components/ConsultationWaiting';
 import { ConfirmModal } from '../components/ConfirmModal';
 import { groupMessagesIntoExchanges } from '../lib/messageGrouping';
+import {
+  CaseHeader,
+  OutputFeedback,
+  PathsSection,
+  StepsSection,
+  ReflectionsSection,
+  FollowUpInput,
+} from '../components/case';
 
 export default function CaseView() {
   const { id } = useParams<{ id: string }>();
@@ -44,6 +52,13 @@ export default function CaseView() {
   // Delete modal state
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
+  // Analysis completion indicator
+  const [showCompletionBanner, setShowCompletionBanner] = useState(false);
+  const [wasProcessing, setWasProcessing] = useState(false);
+
+  // Path selection for options
+  const [selectedOption, setSelectedOption] = useState(0);
+
   // Close share dropdown on escape key
   useEffect(() => {
     if (!showShareDropdown) return;
@@ -58,18 +73,15 @@ export default function CaseView() {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [showShareDropdown]);
 
-  // Path selection for options
-  const [selectedOption, setSelectedOption] = useState(0);
-
   // Status-based flags for action visibility
   const isProcessing = caseData?.status === 'pending' || caseData?.status === 'processing';
   const isFailed = caseData?.status === 'failed';
-  const isCompleted = caseData?.status === 'completed' || !caseData?.status; // treat no status as completed (legacy)
+  const isCompleted = caseData?.status === 'completed' || !caseData?.status;
 
   // Action visibility based on status
   const canSave = isCompleted && outputs.length > 0;
   const canShare = isCompleted && outputs.length > 0;
-  const canDelete = true; // Always allow delete
+  const canDelete = true;
   const canFollowUp = isCompleted;
 
   const loadCaseData = useCallback(async () => {
@@ -79,7 +91,6 @@ export default function CaseView() {
       const data = await casesApi.get(id);
       setCaseData(data);
 
-      // Expand sources for first output by default
       if (data.status === 'completed' || data.status === 'failed' || !data.status) {
         const messagesData = await messagesApi.list(id);
         setMessages(messagesData);
@@ -87,7 +98,6 @@ export default function CaseView() {
         const outputsData = await outputsApi.listByCaseId(id);
         setOutputs(outputsData);
 
-        // Expand first output's sources by default
         if (outputsData.length > 0) {
           setExpandedSources(new Set([outputsData[0].id]));
         }
@@ -106,6 +116,24 @@ export default function CaseView() {
   useEffect(() => {
     loadCaseData();
   }, [loadCaseData]);
+
+  // Track when case transitions from processing to completed
+  useEffect(() => {
+    if (isProcessing) {
+      setWasProcessing(true);
+    }
+  }, [isProcessing]);
+
+  // Show completion banner when analysis finishes
+  useEffect(() => {
+    if (wasProcessing && isCompleted && outputs.length > 0) {
+      setShowCompletionBanner(true);
+      setWasProcessing(false);
+      // Auto-hide banner after 5 seconds
+      const timer = setTimeout(() => setShowCompletionBanner(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [wasProcessing, isCompleted, outputs.length]);
 
   // Polling for processing status
   useEffect(() => {
@@ -131,7 +159,6 @@ export default function CaseView() {
   const handleRetry = async () => {
     if (!id || !caseData) return;
     try {
-      // If the case failed, reset it first via retry endpoint
       if (caseData.status === 'failed') {
         await casesApi.retry(id);
       }
@@ -144,9 +171,7 @@ export default function CaseView() {
     }
   };
 
-  const handleDeleteClick = () => {
-    setShowDeleteModal(true);
-  };
+  const handleDeleteClick = () => setShowDeleteModal(true);
 
   const handleDeleteConfirm = async () => {
     if (!id || !caseData) return;
@@ -162,9 +187,7 @@ export default function CaseView() {
   };
 
   const handleDeleteCancel = () => {
-    if (!deleteLoading) {
-      setShowDeleteModal(false);
-    }
+    if (!deleteLoading) setShowDeleteModal(false);
   };
 
   const toggleSources = (outputId: string) => {
@@ -181,27 +204,23 @@ export default function CaseView() {
 
     const current = feedbackGiven[outputId];
 
-    // If clicking thumbs down and not already down, expand for text input
     if (type === 'down' && current !== 'down') {
       setExpandedFeedback(outputId);
-      return; // Don't submit yet - wait for text input
+      return;
     }
 
-    // If clicking same feedback, toggle off
     if (current === type) {
       setFeedbackGiven(prev => ({ ...prev, [outputId]: null }));
       setExpandedFeedback(null);
       return;
     }
 
-    // Submit thumbs up immediately
     setFeedbackLoading(outputId);
     try {
       await outputsApi.submitFeedback(outputId, { rating: true });
       setFeedbackGiven(prev => ({ ...prev, [outputId]: 'up' }));
       setExpandedFeedback(null);
     } catch {
-      // Could be 409 if already submitted - treat as success
       setFeedbackGiven(prev => ({ ...prev, [outputId]: 'up' }));
     } finally {
       setFeedbackLoading(null);
@@ -218,7 +237,6 @@ export default function CaseView() {
       setFeedbackGiven(prev => ({ ...prev, [outputId]: 'down' }));
       setExpandedFeedback(null);
     } catch {
-      // Could be 409 if already submitted - treat as success
       setFeedbackGiven(prev => ({ ...prev, [outputId]: 'down' }));
     } finally {
       setFeedbackLoading(null);
@@ -228,6 +246,10 @@ export default function CaseView() {
   const handleCancelFeedback = (outputId: string) => {
     setExpandedFeedback(null);
     setFeedbackText(prev => ({ ...prev, [outputId]: '' }));
+  };
+
+  const handleFeedbackTextChange = (outputId: string, text: string) => {
+    setFeedbackText(prev => ({ ...prev, [outputId]: text }));
   };
 
   const handleFollowUpSubmit = async (e: React.FormEvent) => {
@@ -254,7 +276,6 @@ export default function CaseView() {
   const handleSave = () => {
     if (!caseData) return;
 
-    // Generate markdown content
     const markdown = `# ${caseData.title}
 
 *Consultation on ${caseData.created_at ? new Date(caseData.created_at).toLocaleDateString() : 'Unknown date'}*
@@ -300,10 +321,8 @@ ${messages.map(msg => {
       setCaseData(updated);
 
       if (newIsPublic) {
-        // Keep dropdown open so user can copy the link
-        setCopySuccess(false); // Reset copy state for new link
+        setCopySuccess(false);
       } else {
-        // Close dropdown when making private
         setShowShareDropdown(false);
       }
     } catch {
@@ -361,123 +380,48 @@ ${messages.map(msg => {
     <div className="min-h-screen bg-gradient-to-b from-amber-50 via-orange-50 to-red-50 flex flex-col">
       <Navbar />
 
-      {/* Header - Sticky */}
-      <div className="px-4 py-3 flex items-center justify-between border-b border-amber-200/50 bg-white/50 backdrop-blur-sm sticky top-0 z-10">
-        <Link to="/consultations" className="text-amber-700 hover:text-amber-800 text-sm flex items-center gap-1">
-          ← Back
-        </Link>
-        <div className="flex gap-2">
-          {/* Save - only for completed cases with content */}
-          {canSave && (
-            <button
-              onClick={handleSave}
-              className="text-xs px-3 py-1.5 bg-white rounded-lg shadow-sm text-gray-700 hover:bg-gray-50 border border-gray-200 flex items-center gap-1.5"
-            >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
-              Save
-            </button>
-          )}
-
-          {/* Delete - always available */}
-          {canDelete && (
-            <button
-              onClick={handleDeleteClick}
-              className="text-xs px-3 py-1.5 bg-white rounded-lg shadow-sm text-gray-400 hover:text-red-600 hover:bg-red-50 border border-gray-200 flex items-center gap-1.5"
-              title="Delete consultation"
-            >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
-              Delete
-            </button>
-          )}
-
-          {/* Share - only for completed cases with content */}
-          {canShare && (
-            <div className="relative">
-              <button
-                onClick={() => setShowShareDropdown(!showShareDropdown)}
-                className={`text-xs px-3 py-1.5 rounded-lg shadow-sm flex items-center gap-1.5 ${
-                  caseData.is_public
-                    ? 'bg-green-600 text-white hover:bg-green-700'
-                    : 'bg-amber-600 text-white hover:bg-amber-700'
-                }`}
-              >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                </svg>
-                {caseData.is_public ? 'Shared' : 'Share'}
-                <svg className={`w-3 h-3 transition-transform ${showShareDropdown ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-
-              {/* Share Dropdown */}
-              {showShareDropdown && (
-                <>
-                  {/* Backdrop to close dropdown */}
-                  <div className="fixed inset-0 z-10" onClick={() => setShowShareDropdown(false)} />
-                  <div className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-gray-200 z-20 p-4">
-                    {/* Visibility Toggle */}
-                    <div className="flex items-center justify-between mb-3">
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">Public sharing</div>
-                        <div className="text-xs text-gray-500">Anyone with link can view</div>
-                      </div>
-                      <button
-                        onClick={handleToggleShare}
-                        disabled={shareLoading}
-                        className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                          caseData.is_public ? 'bg-green-500' : 'bg-gray-200'
-                        } ${shareLoading ? 'opacity-50' : ''}`}
-                      >
-                        <span
-                          className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                            caseData.is_public ? 'translate-x-5' : 'translate-x-0'
-                          }`}
-                        />
-                      </button>
-                    </div>
-
-                    {/* Share Link (only when public) */}
-                    {caseData.is_public && caseData.public_slug && (
-                      <div className="pt-3 border-t border-gray-100">
-                        <div className="text-xs font-medium text-gray-700 mb-2">Share link</div>
-                        <div className="flex gap-2">
-                          <input
-                            type="text"
-                            readOnly
-                            value={`${window.location.origin}/c/${caseData.public_slug}`}
-                            className="flex-1 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-gray-50 text-gray-700 font-mono"
-                          />
-                          <button
-                            onClick={copyShareLink}
-                            className="px-3 py-1.5 bg-amber-600 text-white rounded-lg hover:bg-amber-700 text-xs font-medium"
-                          >
-                            {copySuccess ? 'Copied!' : 'Copy'}
-                          </button>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Private notice */}
-                    {!caseData.is_public && (
-                      <div className="text-xs text-gray-500 pt-2 border-t border-gray-100">
-                        Turn on to create a shareable link
-                      </div>
-                    )}
-                  </div>
-                </>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
+      <CaseHeader
+        caseData={caseData}
+        canSave={canSave}
+        canDelete={canDelete}
+        canShare={canShare}
+        shareLoading={shareLoading}
+        showShareDropdown={showShareDropdown}
+        copySuccess={copySuccess}
+        onSave={handleSave}
+        onDeleteClick={handleDeleteClick}
+        onToggleShareDropdown={() => setShowShareDropdown(!showShareDropdown)}
+        onToggleShare={handleToggleShare}
+        onCopyShareLink={copyShareLink}
+      />
 
       <div className="flex-1 py-6">
         <div className="max-w-2xl mx-auto px-4">
+          {/* Analysis Complete Banner */}
+          {showCompletionBanner && (
+            <div className="mb-6 bg-green-50 border border-green-200 rounded-xl px-4 py-3 flex items-center justify-between animate-in slide-in-from-top-2 duration-300">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-green-800 font-medium">Analysis Complete</p>
+                  <p className="text-green-600 text-sm">Your guidance is ready below</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowCompletionBanner(false)}
+                className="text-green-500 hover:text-green-700"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          )}
+
           {/* Error Alert */}
           {error && (
             <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
@@ -503,15 +447,8 @@ ${messages.map(msg => {
             </div>
           )}
 
-          {/* Processing state */}
-          {isProcessing && (
-            <div className="mb-8">
-              <ConsultationWaiting status={caseData.status as CaseStatus} onRetry={handleRetry} />
-            </div>
-          )}
-
-          {/* Failed state */}
-          {isFailed && (
+          {/* Processing/Failed state */}
+          {(isProcessing || isFailed) && (
             <div className="mb-8">
               <ConsultationWaiting status={caseData.status as CaseStatus} onRetry={handleRetry} />
             </div>
@@ -641,90 +578,17 @@ ${messages.map(msg => {
 
                         {/* Feedback row */}
                         {exchange.output && (
-                          <div className="mt-4 pt-3 border-t border-gray-100">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2 text-xs text-gray-500">
-                                <span>Confidence:</span>
-                                <div className="w-12 bg-gray-200 rounded-full h-1.5">
-                                  <div
-                                    className={`h-1.5 rounded-full ${
-                                      exchange.output.confidence >= 0.8 ? 'bg-green-500' :
-                                      exchange.output.confidence >= 0.6 ? 'bg-yellow-500' : 'bg-red-500'
-                                    }`}
-                                    style={{ width: `${exchange.output.confidence * 100}%` }}
-                                  />
-                                </div>
-                                <span className="font-medium">{(exchange.output.confidence * 100).toFixed(0)}%</span>
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <button
-                                  onClick={() => exchange.output && handleFeedback(exchange.output.id, 'up')}
-                                  disabled={feedbackLoading === exchange.output?.id}
-                                  className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
-                                    feedback === 'up'
-                                      ? 'bg-green-500 text-white'
-                                      : 'bg-gray-100 text-gray-400 hover:bg-green-100 hover:text-green-600'
-                                  }`}
-                                >
-                                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
-                                  </svg>
-                                </button>
-                                <button
-                                  onClick={() => exchange.output && handleFeedback(exchange.output.id, 'down')}
-                                  disabled={feedbackLoading === exchange.output?.id}
-                                  className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
-                                    feedback === 'down' || expandedFeedback === exchange.output?.id
-                                      ? 'bg-red-500 text-white'
-                                      : 'bg-gray-100 text-gray-400 hover:bg-red-100 hover:text-red-600'
-                                  }`}
-                                >
-                                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018a2 2 0 01.485.06l3.76.94m-7 10v5a2 2 0 002 2h.096c.5 0 .905-.405.905-.904 0-.715.211-1.413.608-2.008L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5" />
-                                  </svg>
-                                </button>
-                              </div>
-                            </div>
-
-                            {/* Expanded feedback text input */}
-                            {expandedFeedback === exchange.output?.id && (
-                              <div className="mt-3 animate-in slide-in-from-top-2 duration-200">
-                                <p className="text-xs text-gray-600 mb-2">What could be improved? (optional)</p>
-                                <textarea
-                                  value={feedbackText[exchange.output.id] || ''}
-                                  onChange={(e) => setFeedbackText(prev => ({
-                                    ...prev,
-                                    [exchange.output!.id]: e.target.value.slice(0, 280)
-                                  }))}
-                                  placeholder="Tell us what wasn't helpful..."
-                                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
-                                  rows={2}
-                                  maxLength={280}
-                                />
-                                <div className="flex items-center justify-between mt-2">
-                                  <span className="text-xs text-gray-400">
-                                    {(feedbackText[exchange.output.id] || '').length}/280
-                                  </span>
-                                  <div className="flex gap-2">
-                                    <button
-                                      onClick={() => handleCancelFeedback(exchange.output!.id)}
-                                      disabled={feedbackLoading === exchange.output?.id}
-                                      className="px-3 py-1.5 text-xs text-gray-600 hover:text-gray-800 disabled:opacity-50"
-                                    >
-                                      Cancel
-                                    </button>
-                                    <button
-                                      onClick={() => handleSubmitNegativeFeedback(exchange.output!.id)}
-                                      disabled={feedbackLoading === exchange.output?.id}
-                                      className="px-3 py-1.5 text-xs bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
-                                    >
-                                      {feedbackLoading === exchange.output?.id ? 'Sending...' : 'Submit'}
-                                    </button>
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-                          </div>
+                          <OutputFeedback
+                            output={exchange.output}
+                            feedback={feedback}
+                            feedbackLoading={feedbackLoading}
+                            expandedFeedback={expandedFeedback}
+                            feedbackText={feedbackText}
+                            onFeedback={handleFeedback}
+                            onSubmitNegativeFeedback={handleSubmitNegativeFeedback}
+                            onCancelFeedback={handleCancelFeedback}
+                            onFeedbackTextChange={handleFeedbackTextChange}
+                          />
                         )}
                       </div>
                     </div>
@@ -734,189 +598,44 @@ ${messages.map(msg => {
 
               {/* Paths/Options Section */}
               {firstOutput && firstOutput.result_json.options?.length > 0 && (
-                <div className="relative pl-10 pb-4">
-                  <div className="absolute left-0 w-7 h-7 rounded-full bg-red-100 border-2 border-red-300 flex items-center justify-center">
-                    <svg className="w-3.5 h-3.5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-                    </svg>
-                  </div>
-
-                  <button onClick={() => setShowPaths(!showPaths)} className="w-full text-left">
-                    <div className="flex items-center justify-between bg-white rounded-xl p-4 shadow-sm border border-red-100 hover:shadow-md transition-shadow">
-                      <div>
-                        <div className="text-xs font-semibold text-red-700 uppercase tracking-wide">
-                          Paths Before You
-                        </div>
-                        <p className="text-sm text-gray-600 mt-1">
-                          {firstOutput.result_json.options.length} approaches to consider
-                        </p>
-                      </div>
-                      <svg className={`w-5 h-5 text-gray-400 transition-transform ${showPaths ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </div>
-                  </button>
-
-                  {showPaths && (
-                    <div className="mt-3 space-y-3">
-                      {/* Path selector cards - equal width and height */}
-                      <div className="grid grid-cols-3 gap-2 items-stretch">
-                        {firstOutput.result_json.options.map((opt, idx) => (
-                          <button
-                            key={idx}
-                            onClick={() => setSelectedOption(idx)}
-                            className={`p-3 rounded-xl border-2 text-left transition-all h-full ${
-                              selectedOption === idx
-                                ? 'bg-red-50 border-red-400 shadow-md'
-                                : 'bg-white border-gray-200 hover:border-red-200'
-                            }`}
-                          >
-                            <div className={`text-xs font-semibold ${selectedOption === idx ? 'text-red-700' : 'text-gray-500'}`}>
-                              Path {idx + 1}
-                            </div>
-                            <div className={`text-sm font-medium mt-1 leading-snug ${selectedOption === idx ? 'text-red-900' : 'text-gray-700'}`}>
-                              {opt.title.replace(' Approach', '')}
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-
-                      <div className="bg-white rounded-xl shadow-sm p-4 border border-red-100">
-                        <h4 className="font-semibold text-gray-900">
-                          {firstOutput.result_json.options[selectedOption].title}
-                        </h4>
-                        <div className="grid grid-cols-2 gap-4 mt-4">
-                          <div>
-                            <div className="text-xs font-semibold text-green-700 mb-1">Benefits</div>
-                            {firstOutput.result_json.options[selectedOption].pros.map((pro, i) => (
-                              <div key={i} className="text-sm text-gray-700 flex items-start gap-1 mb-0.5">
-                                <span className="text-green-500 mt-0.5 text-xs">+</span> {pro}
-                              </div>
-                            ))}
-                          </div>
-                          <div>
-                            <div className="text-xs font-semibold text-amber-700 mb-1">Consider</div>
-                            {firstOutput.result_json.options[selectedOption].cons.map((con, i) => (
-                              <div key={i} className="text-sm text-gray-700 flex items-start gap-1 mb-0.5">
-                                <span className="text-amber-500 mt-0.5 text-xs">-</span> {con}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                <PathsSection
+                  options={firstOutput.result_json.options}
+                  selectedOption={selectedOption}
+                  showPaths={showPaths}
+                  onToggle={() => setShowPaths(!showPaths)}
+                  onSelectOption={setSelectedOption}
+                />
               )}
 
               {/* Recommended Steps */}
               {firstOutput && typeof firstOutput.result_json.recommended_action === 'object' &&
                (firstOutput.result_json.recommended_action.steps?.length ?? 0) > 0 && (
-                <div className="relative pl-10 pb-4">
-                  <div className="absolute left-0 w-7 h-7 rounded-full bg-green-100 border-2 border-green-300 flex items-center justify-center">
-                    <svg className="w-3.5 h-3.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-
-                  <button onClick={() => setShowSteps(!showSteps)} className="w-full text-left">
-                    <div className="flex items-center justify-between bg-white rounded-xl p-4 shadow-sm border border-green-100 hover:shadow-md transition-shadow">
-                      <div>
-                        <div className="text-xs font-semibold text-green-700 uppercase tracking-wide">
-                          Recommended Steps
-                        </div>
-                        <p className="text-sm text-gray-600 mt-1">
-                          {(firstOutput.result_json.recommended_action as { steps: string[] }).steps.length} actionable steps
-                        </p>
-                      </div>
-                      <svg className={`w-5 h-5 text-gray-400 transition-transform ${showSteps ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </div>
-                  </button>
-
-                  {showSteps && (
-                    <div className="mt-3 bg-white rounded-xl shadow-sm p-4 border border-green-100">
-                      <div className="space-y-3">
-                        {(firstOutput.result_json.recommended_action as { steps: string[] }).steps.map((step, idx) => (
-                          <div key={idx} className="flex items-start gap-3">
-                            <div className="w-6 h-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center flex-shrink-0 text-xs font-medium">
-                              {idx + 1}
-                            </div>
-                            <p className="text-sm text-gray-700 pt-0.5">{step}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
+                <StepsSection
+                  steps={(firstOutput.result_json.recommended_action as { steps: string[] }).steps}
+                  showSteps={showSteps}
+                  onToggle={() => setShowSteps(!showSteps)}
+                />
               )}
 
               {/* Reflection Prompts */}
               {firstOutput && firstOutput.result_json.reflection_prompts?.length > 0 && (
-                <div className="relative pl-10 pb-6">
-                  <div className="absolute left-0 w-7 h-7 rounded-full bg-purple-100 border-2 border-purple-300 flex items-center justify-center">
-                    <svg className="w-3.5 h-3.5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                    </svg>
-                  </div>
-
-                  <button onClick={() => setShowReflections(!showReflections)} className="w-full text-left">
-                    <div className="flex items-center justify-between bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 shadow-sm border border-purple-100 hover:shadow-md transition-shadow">
-                      <div>
-                        <div className="text-xs font-semibold text-purple-700 uppercase tracking-wide">
-                          Questions for Reflection
-                        </div>
-                        <p className="text-sm text-gray-600 mt-1">
-                          {firstOutput.result_json.reflection_prompts.length} prompts for deeper insight
-                        </p>
-                      </div>
-                      <svg className={`w-5 h-5 text-gray-400 transition-transform ${showReflections ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </div>
-                  </button>
-
-                  {showReflections && (
-                    <div className="mt-3 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-100">
-                      <ul className="space-y-3">
-                        {firstOutput.result_json.reflection_prompts.map((prompt, idx) => (
-                          <li key={idx} className="flex items-start gap-2 text-gray-700">
-                            <span className="text-purple-400 mt-1">◆</span>
-                            <span className="text-sm italic">{prompt}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
+                <ReflectionsSection
+                  prompts={firstOutput.result_json.reflection_prompts}
+                  showReflections={showReflections}
+                  onToggle={() => setShowReflections(!showReflections)}
+                />
               )}
             </div>
           )}
 
           {/* Follow-up Input */}
           {canFollowUp && (
-            <div className="mt-4 bg-white rounded-xl shadow-md p-4">
-              <form onSubmit={handleFollowUpSubmit}>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="text"
-                    value={followUp}
-                    onChange={(e) => setFollowUp(e.target.value)}
-                    placeholder="Ask a follow-up question..."
-                    className="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    disabled={submittingFollowUp}
-                  />
-                  <button
-                    type="submit"
-                    disabled={!followUp.trim() || submittingFollowUp}
-                    className="px-4 py-3 bg-orange-600 text-white rounded-xl hover:bg-orange-700 transition-colors font-medium text-sm disabled:bg-gray-300 disabled:cursor-not-allowed"
-                  >
-                    {submittingFollowUp ? '...' : 'Ask'}
-                  </button>
-                </div>
-              </form>
-            </div>
+            <FollowUpInput
+              value={followUp}
+              submitting={submittingFollowUp}
+              onChange={setFollowUp}
+              onSubmit={handleFollowUpSubmit}
+            />
           )}
         </div>
       </div>
