@@ -1,4 +1,22 @@
 services:
+  # Ollama LLM (pre-built image, models persist in volume)
+  ollama:
+    image: ollama/ollama:latest
+    container_name: geetanjali-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:11434/api/tags || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - geetanjali-network
+    restart: unless-stopped
+
   # PostgreSQL Database
   postgres:
     image: postgres:15-alpine
@@ -67,7 +85,7 @@ services:
       CHROMA_HOST: chromadb
       CHROMA_PORT: 8000
       REDIS_URL: redis://redis:6379/0
-      OLLAMA_BASE_URL: http://host.docker.internal:11434
+      OLLAMA_BASE_URL: http://ollama:11434
 
       # Secrets from .env (no defaults - required for production)
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
@@ -88,8 +106,8 @@ services:
         condition: service_healthy
       chromadb:
         condition: service_started
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      ollama:
+        condition: service_healthy
     networks:
       - geetanjali-network
     restart: unless-stopped
@@ -107,7 +125,7 @@ services:
       CHROMA_HOST: chromadb
       CHROMA_PORT: 8000
       REDIS_URL: redis://redis:6379/0
-      OLLAMA_BASE_URL: http://host.docker.internal:11434
+      OLLAMA_BASE_URL: http://ollama:11434
 
       # Secrets from .env (no defaults - required for production)
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
@@ -125,8 +143,8 @@ services:
         condition: service_healthy
       chromadb:
         condition: service_started
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      ollama:
+        condition: service_healthy
     networks:
       - geetanjali-network
     restart: unless-stopped
@@ -147,6 +165,7 @@ services:
     restart: unless-stopped
 
 volumes:
+  ollama_models:
   postgres_data:
   redis_data:
   chroma_data:
