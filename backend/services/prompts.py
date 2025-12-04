@@ -282,7 +282,7 @@ def post_process_ollama_response(
         if json_match:
             try:
                 data = json.loads(json_match.group())
-            except:
+            except (json.JSONDecodeError, ValueError):
                 data = {}
         else:
             data = {}

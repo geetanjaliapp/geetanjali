@@ -1,12 +1,19 @@
 """Application configuration."""
 
 import logging
+import sys
 import warnings
 from typing import List, Union, Optional
 from pydantic import field_validator, model_validator
 from pydantic_settings import BaseSettings
 
 logger = logging.getLogger(__name__)
+
+
+class ProductionConfigError(Exception):
+    """Raised when production configuration is invalid."""
+
+    pass
 
 
 class Settings(BaseSettings):
@@ -203,6 +210,140 @@ class Settings(BaseSettings):
                 "Set COOKIE_SECURE=True for HTTPS deployments."
             )
 
+        return self
+
+    @model_validator(mode="after")
+    def validate_production_config(self) -> "Settings":
+        """Validate configuration for production environment.
+
+        In production (APP_ENV=production), the application will refuse to start
+        if critical security settings are misconfigured. This fail-fast approach
+        ensures deployment issues are caught immediately rather than at runtime.
+        """
+        if self.APP_ENV != "production":
+            return self
+
+        errors: list[str] = []
+
+        # ========================================
+        # CRITICAL: Secrets must not use defaults
+        # ========================================
+        insecure_defaults = {
+            "JWT_SECRET": "dev-secret-key-change-in-production-use-env-var",
+            "API_KEY": "dev-api-key-12345",
+        }
+
+        for field, default_value in insecure_defaults.items():
+            if getattr(self, field) == default_value:
+                errors.append(
+                    f"{field} is using insecure default value. "
+                    f"Set {field} environment variable."
+                )
+
+        # ========================================
+        # LLM provider validation
+        # ========================================
+        # Ollama and mock are valid self-contained providers - no external API needed
+        # Anthropic requires API key when used as primary or fallback
+        valid_providers = {"ollama", "anthropic", "mock"}
+
+        if self.LLM_PROVIDER not in valid_providers:
+            errors.append(
+                f"LLM_PROVIDER={self.LLM_PROVIDER} is not valid. "
+                f"Use one of: {', '.join(valid_providers)}"
+            )
+
+        # Only require Anthropic key if it's the configured provider
+        if self.LLM_PROVIDER == "anthropic" and not self.ANTHROPIC_API_KEY:
+            errors.append(
+                "LLM_PROVIDER=anthropic but ANTHROPIC_API_KEY is not set. "
+                "Set ANTHROPIC_API_KEY or use LLM_PROVIDER=ollama."
+            )
+
+        # Warn if Anthropic is fallback but key is missing (degraded fallback)
+        is_anthropic_fallback = self.LLM_FALLBACK_PROVIDER == "anthropic"
+        if is_anthropic_fallback and self.LLM_FALLBACK_ENABLED and not self.ANTHROPIC_API_KEY:
+            logger.warning(
+                "PRODUCTION: LLM_FALLBACK_PROVIDER=anthropic but ANTHROPIC_API_KEY not set. "
+                "Fallback to Anthropic will not work."
+            )
+
+        # Info log for self-contained providers (not warnings - they're valid choices)
+        if self.LLM_PROVIDER == "ollama":
+            logger.info("PRODUCTION: Using Ollama as primary LLM provider.")
+        if self.LLM_PROVIDER == "mock":
+            logger.info("PRODUCTION: Using mock LLM provider (for testing only).")
+
+        # ========================================
+        # SECURITY: Cookie and transport settings
+        # ========================================
+        if not self.COOKIE_SECURE:
+            errors.append(
+                "COOKIE_SECURE=False in production. "
+                "Set COOKIE_SECURE=True (requires HTTPS)."
+            )
+
+        # ========================================
+        # SECURITY: DEBUG must be disabled
+        # ========================================
+        if self.DEBUG:
+            errors.append(
+                "DEBUG=True in production. "
+                "Set DEBUG=False for production deployments."
+            )
+
+        # ========================================
+        # SECURITY: CORS origins validation
+        # ========================================
+        localhost_origins = [
+            o for o in self.CORS_ORIGINS
+            if "localhost" in o or "127.0.0.1" in o
+        ]
+        if localhost_origins and len(self.CORS_ORIGINS) == len(localhost_origins):
+            errors.append(
+                "CORS_ORIGINS only contains localhost addresses. "
+                "Set CORS_ORIGINS to your production domain(s)."
+            )
+
+        # ========================================
+        # OPTIONAL: Recommended services
+        # ========================================
+        if not self.REDIS_URL:
+            logger.warning(
+                "PRODUCTION: REDIS_URL not set. Caching will be disabled. "
+                "Redis is recommended for production performance."
+            )
+
+        if not self.RESEND_API_KEY:
+            logger.warning(
+                "PRODUCTION: RESEND_API_KEY not set. Email notifications disabled."
+            )
+
+        # ========================================
+        # FAIL FAST: Exit if critical errors found
+        # ========================================
+        if errors:
+            error_msg = (
+                "\n" + "=" * 60 + "\n"
+                "PRODUCTION CONFIGURATION ERROR\n"
+                "=" * 60 + "\n"
+                "The application cannot start due to configuration issues:\n\n"
+            )
+            for i, error in enumerate(errors, 1):
+                error_msg += f"  {i}. {error}\n"
+            error_msg += (
+                "\n" + "=" * 60 + "\n"
+                "Fix these issues before deploying to production.\n"
+                "Set APP_ENV=development to bypass these checks.\n"
+                "=" * 60 + "\n"
+            )
+
+            # Log the error and exit
+            logger.critical(error_msg)
+            print(error_msg, file=sys.stderr)
+            raise ProductionConfigError(error_msg)
+
+        logger.info("Production configuration validated successfully.")
         return self
 
     class Config:

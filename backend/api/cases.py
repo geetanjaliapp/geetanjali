@@ -4,7 +4,7 @@ import logging
 import secrets
 import string
 import uuid
-from typing import List, Optional
+from typing import Any, Callable, List, Optional, TypeVar
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
@@ -14,7 +14,7 @@ from db.repositories.case_repository import CaseRepository
 from db.repositories.message_repository import MessageRepository
 from db.repositories.output_repository import OutputRepository
 from api.schemas import CaseCreate, CaseResponse, CaseShareToggle, MessageResponse, OutputResponse
-from api.middleware.auth import get_optional_user, get_session_id, get_current_user
+from api.middleware.auth import get_optional_user, get_session_id
 from api.dependencies import get_case_with_access
 from models.case import Case
 from models.user import User
@@ -32,11 +32,75 @@ PUBLIC_CASE_REDIS_TTL = 3600
 # HTTP Cache-Control TTL (5 minutes - cannot be invalidated, keep short)
 PUBLIC_CASE_HTTP_TTL = 300
 
+T = TypeVar("T")
+
 
 def generate_public_slug(length: int = 10) -> str:
     """Generate a random URL-safe slug for public sharing."""
     alphabet = string.ascii_lowercase + string.digits
     return ''.join(secrets.choice(alphabet) for _ in range(length))
+
+
+def get_public_case_or_404(slug: str, db: Session) -> Case:
+    """
+    Fetch a public case by slug or raise 404.
+
+    Args:
+        slug: Public slug
+        db: Database session
+
+    Returns:
+        Case if found and public
+
+    Raises:
+        HTTPException: If case not found or not public
+    """
+    repo = CaseRepository(db)
+    case = repo.get_by_public_slug(slug)
+
+    if not case or not case.is_public:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Case not found or not publicly accessible",
+        )
+    return case
+
+
+def cached_public_response(
+    cache_key: str,
+    response: Response,
+    fetch_fn: Callable[[], T],
+    serialize_fn: Callable[[T], Any],
+) -> Any:
+    """
+    Generic cache-or-fetch pattern for public case endpoints.
+
+    Args:
+        cache_key: Redis cache key
+        response: FastAPI response for headers
+        fetch_fn: Function to fetch data on cache miss
+        serialize_fn: Function to serialize data for caching
+
+    Returns:
+        Cached data or freshly fetched data
+    """
+    # Try cache first
+    cached = cache.get(cache_key)
+    if cached is not None:
+        response.headers["Cache-Control"] = f"public, max-age={PUBLIC_CASE_HTTP_TTL}"
+        response.headers["X-Cache"] = "HIT"
+        return cached
+
+    # Cache miss - fetch and cache
+    data = fetch_fn()
+    serialized = serialize_fn(data)
+    cache.set(cache_key, serialized, PUBLIC_CASE_REDIS_TTL)
+
+    response.headers["Cache-Control"] = f"public, max-age={PUBLIC_CASE_HTTP_TTL}"
+    response.headers["X-Cache"] = "MISS"
+
+    return data
+
 
 router = APIRouter(prefix="/api/v1/cases")
 
@@ -241,7 +305,7 @@ async def toggle_case_sharing(
     """
     repo = CaseRepository(db)
 
-    update_data = {"is_public": share_data.is_public}
+    update_data: dict[str, Any] = {"is_public": share_data.is_public}
 
     # Generate slug when making public (if not already set)
     if share_data.is_public and not case.public_slug:
@@ -261,17 +325,21 @@ async def toggle_case_sharing(
 
     # Update case
     updated_case = repo.update(case_id, update_data)
+    if not updated_case:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Case not found after update",
+        )
     logger.info(
         f"Case {case_id} sharing toggled: is_public={share_data.is_public}, slug={updated_case.public_slug}"
     )
 
     # Invalidate cache when toggling share (especially when making private)
     if updated_case.public_slug:
-        slug = updated_case.public_slug
-        cache.delete(public_case_key(slug))
-        cache.delete(public_case_messages_key(slug))
-        cache.delete(public_case_outputs_key(slug))
-        logger.debug(f"Invalidated cache for public case slug: {slug}")
+        cache.delete(public_case_key(updated_case.public_slug))
+        cache.delete(public_case_messages_key(updated_case.public_slug))
+        cache.delete(public_case_outputs_key(updated_case.public_slug))
+        logger.debug(f"Invalidated cache for public case slug: {updated_case.public_slug}")
 
     return updated_case
 
@@ -291,44 +359,13 @@ async def get_public_case(
     Get a publicly shared case by its slug.
 
     No authentication required. Cached in Redis (1 hour) and HTTP (5 minutes).
-
-    Args:
-        slug: Public slug (e.g., "abc123xyz")
-        response: FastAPI response for headers
-        db: Database session
-
-    Returns:
-        Case details (if public)
-
-    Raises:
-        HTTPException: If case not found or not public
     """
-    # Try Redis cache first
-    cache_key = public_case_key(slug)
-    cached = cache.get(cache_key)
-    if cached:
-        response.headers["Cache-Control"] = f"public, max-age={PUBLIC_CASE_HTTP_TTL}"
-        response.headers["X-Cache"] = "HIT"
-        return cached
-
-    # Cache miss - fetch from DB
-    repo = CaseRepository(db)
-    case = repo.get_by_public_slug(slug)
-
-    if not case or not case.is_public:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Case not found or not publicly accessible",
-        )
-
-    # Cache in Redis
-    case_dict = CaseResponse.model_validate(case).model_dump(mode="json")
-    cache.set(cache_key, case_dict, PUBLIC_CASE_REDIS_TTL)
-
-    response.headers["Cache-Control"] = f"public, max-age={PUBLIC_CASE_HTTP_TTL}"
-    response.headers["X-Cache"] = "MISS"
-
-    return case
+    return cached_public_response(
+        cache_key=public_case_key(slug),
+        response=response,
+        fetch_fn=lambda: get_public_case_or_404(slug, db),
+        serialize_fn=lambda c: CaseResponse.model_validate(c).model_dump(mode="json"),
+    )
 
 
 @router.get("/public/{slug}/messages", response_model=List[MessageResponse])
@@ -341,47 +378,17 @@ async def get_public_case_messages(
     Get messages for a publicly shared case.
 
     No authentication required. Cached in Redis (1 hour) and HTTP (5 minutes).
-
-    Args:
-        slug: Public slug
-        response: FastAPI response for headers
-        db: Database session
-
-    Returns:
-        List of messages
-
-    Raises:
-        HTTPException: If case not found or not public
     """
-    # Try Redis cache first
-    cache_key = public_case_messages_key(slug)
-    cached = cache.get(cache_key)
-    if cached:
-        response.headers["Cache-Control"] = f"public, max-age={PUBLIC_CASE_HTTP_TTL}"
-        response.headers["X-Cache"] = "HIT"
-        return cached
+    def fetch_messages():
+        case = get_public_case_or_404(slug, db)
+        return MessageRepository(db).get_by_case(case.id)
 
-    # Cache miss - fetch from DB
-    case_repo = CaseRepository(db)
-    case = case_repo.get_by_public_slug(slug)
-
-    if not case or not case.is_public:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Case not found or not publicly accessible",
-        )
-
-    message_repo = MessageRepository(db)
-    messages = message_repo.get_by_case(case.id)
-
-    # Cache in Redis
-    messages_list = [MessageResponse.model_validate(m).model_dump(mode="json") for m in messages]
-    cache.set(cache_key, messages_list, PUBLIC_CASE_REDIS_TTL)
-
-    response.headers["Cache-Control"] = f"public, max-age={PUBLIC_CASE_HTTP_TTL}"
-    response.headers["X-Cache"] = "MISS"
-
-    return messages
+    return cached_public_response(
+        cache_key=public_case_messages_key(slug),
+        response=response,
+        fetch_fn=fetch_messages,
+        serialize_fn=lambda msgs: [MessageResponse.model_validate(m).model_dump(mode="json") for m in msgs],
+    )
 
 
 @router.get("/public/{slug}/outputs", response_model=List[OutputResponse])
@@ -394,44 +401,14 @@ async def get_public_case_outputs(
     Get outputs for a publicly shared case.
 
     No authentication required. Cached in Redis (1 hour) and HTTP (5 minutes).
-
-    Args:
-        slug: Public slug
-        response: FastAPI response for headers
-        db: Database session
-
-    Returns:
-        List of outputs
-
-    Raises:
-        HTTPException: If case not found or not public
     """
-    # Try Redis cache first
-    cache_key = public_case_outputs_key(slug)
-    cached = cache.get(cache_key)
-    if cached:
-        response.headers["Cache-Control"] = f"public, max-age={PUBLIC_CASE_HTTP_TTL}"
-        response.headers["X-Cache"] = "HIT"
-        return cached
+    def fetch_outputs():
+        case = get_public_case_or_404(slug, db)
+        return OutputRepository(db).get_by_case_id(case.id)
 
-    # Cache miss - fetch from DB
-    case_repo = CaseRepository(db)
-    case = case_repo.get_by_public_slug(slug)
-
-    if not case or not case.is_public:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Case not found or not publicly accessible",
-        )
-
-    output_repo = OutputRepository(db)
-    outputs = output_repo.get_by_case_id(case.id)
-
-    # Cache in Redis
-    outputs_list = [OutputResponse.model_validate(o).model_dump(mode="json") for o in outputs]
-    cache.set(cache_key, outputs_list, PUBLIC_CASE_REDIS_TTL)
-
-    response.headers["Cache-Control"] = f"public, max-age={PUBLIC_CASE_HTTP_TTL}"
-    response.headers["X-Cache"] = "MISS"
-
-    return outputs
+    return cached_public_response(
+        cache_key=public_case_outputs_key(slug),
+        response=response,
+        fetch_fn=fetch_outputs,
+        serialize_fn=lambda outs: [OutputResponse.model_validate(o).model_dump(mode="json") for o in outs],
+    )
