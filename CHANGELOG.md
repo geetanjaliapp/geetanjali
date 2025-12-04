@@ -11,6 +11,8 @@ First production release of Geetanjali - ethical leadership guidance from the Bh
 - **Verse Browser** - Explore 701 verses across 18 chapters with Sanskrit, translations, and commentary
 - **RAG Pipeline** - Retrieval-augmented generation ensures responses cite actual scripture
 - **User Authentication** - JWT-based auth with session migration for anonymous users
+- **Public Sharing** - Share consultations via public links with caching
+- **Feedback System** - Thumbs up/down with optional text feedback on responses
 - **Contact Form** - Email integration via Resend for user feedback
 
 ### Technical
@@ -19,6 +21,7 @@ First production release of Geetanjali - ethical leadership guidance from the Bh
 - Docker Compose deployment with 8 services
 - 65 tests with 52% code coverage
 - Configurable LLM providers (Ollama, Anthropic Claude)
+- Two-layer caching (Redis + HTTP Cache-Control)
 
 ### Security
 - CORS with environment-based origins
@@ -26,6 +29,7 @@ First production release of Geetanjali - ethical leadership guidance from the Bh
 - Rate limiting on auth endpoints
 - Input validation on all API endpoints
 - Pre-commit hooks for secret detection
+- Soft delete for data recovery
 
 ## [0.1.0] - 2025-12-03
 

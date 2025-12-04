@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { casesApi } from '../lib/api';
 import type { Case, Message, Output } from '../types';
 import { Navbar } from '../components/Navbar';
+import { groupMessagesIntoExchanges } from '../lib/messageGrouping';
 
 /**
  * Public view of a shared consultation.
@@ -61,44 +62,11 @@ export default function PublicCaseView() {
     });
   };
 
-  // Group messages into exchanges (user question + assistant response)
-  // Handles duplicate assistant messages from retries by taking the latest one per user message
-  const getOutput = (outputId?: string) => outputs.find(o => o.id === outputId);
-
-  type Exchange = {
-    user: Message;
-    assistant: Message;
-    output: Output | undefined;
-  };
-
-  const exchanges: Exchange[] = [];
-  const userMessages = messages.filter(m => m.role === 'user');
-  const assistantMessages = messages.filter(m => m.role === 'assistant');
-
-  userMessages.forEach((userMsg, idx) => {
-    // Find assistant messages that come after this user message but before the next user message
-    const nextUserMsg = userMessages[idx + 1];
-    const relevantAssistants = assistantMessages.filter(a => {
-      const afterUser = new Date(a.created_at) > new Date(userMsg.created_at);
-      const beforeNextUser = !nextUserMsg || new Date(a.created_at) < new Date(nextUserMsg.created_at);
-      return afterUser && beforeNextUser;
-    });
-
-    // Take the latest assistant message (handles retries)
-    const latestAssistant = relevantAssistants.length > 0
-      ? relevantAssistants.reduce((latest, curr) =>
-          new Date(curr.created_at) > new Date(latest.created_at) ? curr : latest
-        )
-      : null;
-
-    if (latestAssistant) {
-      exchanges.push({
-        user: userMsg,
-        assistant: latestAssistant,
-        output: getOutput(latestAssistant.output_id),
-      });
-    }
-  });
+  // Group messages into exchanges using shared utility
+  const exchanges = useMemo(
+    () => groupMessagesIntoExchanges(messages, outputs),
+    [messages, outputs]
+  );
 
   const firstOutput = outputs.length > 0 ? outputs[outputs.length - 1] : null;
 

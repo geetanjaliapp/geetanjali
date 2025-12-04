@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { casesApi, outputsApi } from '../lib/api';
 import { messagesApi } from '../api/messages';
@@ -8,6 +8,7 @@ import { Navbar } from '../components/Navbar';
 import { errorMessages } from '../lib/errorMessages';
 import { ConsultationWaiting } from '../components/ConsultationWaiting';
 import { ConfirmModal } from '../components/ConfirmModal';
+import { groupMessagesIntoExchanges } from '../lib/messageGrouping';
 
 export default function CaseView() {
   const { id } = useParams<{ id: string }>();
@@ -320,44 +321,11 @@ ${messages.map(msg => {
     setTimeout(() => setCopySuccess(false), 2000);
   };
 
-  // Group messages into exchanges (user question + assistant response)
-  // Handles duplicate assistant messages from retries by taking the latest one per user message
-  const getOutput = (outputId?: string) => outputs.find(o => o.id === outputId);
-
-  type Exchange = {
-    user: Message;
-    assistant: Message;
-    output: Output | undefined;
-  };
-
-  const exchanges: Exchange[] = [];
-  const userMessages = messages.filter(m => m.role === 'user');
-  const assistantMessages = messages.filter(m => m.role === 'assistant');
-
-  userMessages.forEach((userMsg, idx) => {
-    // Find assistant messages that come after this user message but before the next user message
-    const nextUserMsg = userMessages[idx + 1];
-    const relevantAssistants = assistantMessages.filter(a => {
-      const afterUser = new Date(a.created_at) > new Date(userMsg.created_at);
-      const beforeNextUser = !nextUserMsg || new Date(a.created_at) < new Date(nextUserMsg.created_at);
-      return afterUser && beforeNextUser;
-    });
-
-    // Take the latest assistant message (handles retries)
-    const latestAssistant = relevantAssistants.length > 0
-      ? relevantAssistants.reduce((latest, curr) =>
-          new Date(curr.created_at) > new Date(latest.created_at) ? curr : latest
-        )
-      : null;
-
-    if (latestAssistant) {
-      exchanges.push({
-        user: userMsg,
-        assistant: latestAssistant,
-        output: getOutput(latestAssistant.output_id),
-      });
-    }
-  });
+  // Group messages into exchanges using shared utility
+  const exchanges = useMemo(
+    () => groupMessagesIntoExchanges(messages, outputs),
+    [messages, outputs]
+  );
 
   // Get first output for paths/steps/reflections
   const firstOutput = outputs.length > 0 ? outputs[outputs.length - 1] : null;
