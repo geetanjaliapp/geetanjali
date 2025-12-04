@@ -10,7 +10,7 @@ def case_with_message(client):
     case_data = {
         "title": "Message Test Case",
         "description": "Initial description for message testing",
-        "sensitivity": "low"
+        "sensitivity": "low",
     }
     response = client.post("/api/v1/cases", json=case_data)
     return response.json()
@@ -53,8 +53,7 @@ def test_get_messages_after_follow_up(client, case_with_message):
 
     # Add a follow-up message
     client.post(
-        f"/api/v1/cases/{case_id}/messages",
-        json={"content": "Follow-up question"}
+        f"/api/v1/cases/{case_id}/messages", json={"content": "Follow-up question"}
     )
 
     # Get all messages
@@ -72,8 +71,7 @@ def test_get_messages_after_follow_up(client, case_with_message):
 def test_create_message_invalid_case(client):
     """Test creating message for non-existent case."""
     response = client.post(
-        "/api/v1/cases/nonexistent-id/messages",
-        json={"content": "Test message"}
+        "/api/v1/cases/nonexistent-id/messages", json={"content": "Test message"}
     )
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
@@ -92,7 +90,7 @@ def test_create_message_with_content(client, case_with_message):
 
     response = client.post(
         f"/api/v1/cases/{case_id}/messages",
-        json={"content": "A valid follow-up question"}
+        json={"content": "A valid follow-up question"},
     )
 
     # Should succeed
@@ -107,8 +105,7 @@ def test_messages_ordered_chronologically(client, case_with_message):
     # Add multiple messages
     for i in range(3):
         client.post(
-            f"/api/v1/cases/{case_id}/messages",
-            json={"content": f"Message {i}"}
+            f"/api/v1/cases/{case_id}/messages", json={"content": f"Message {i}"}
         )
 
     response = client.get(f"/api/v1/cases/{case_id}/messages")

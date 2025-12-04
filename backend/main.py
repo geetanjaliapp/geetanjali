@@ -1,7 +1,6 @@
 """Main FastAPI application."""
 
-import logging
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -14,7 +13,7 @@ from utils.exceptions import (
     GeetanjaliException,
     geetanjali_exception_handler,
     validation_exception_handler,
-    general_exception_handler
+    general_exception_handler,
 )
 from api import health, cases, verses, outputs, messages, auth, admin, contact
 from api.middleware.csrf import CSRFMiddleware
@@ -72,6 +71,7 @@ async def startup_event():
     """Run on application startup."""
     logger.info("Preloading embedding model at startup...")
     from services.embeddings import get_embedding_service
+
     get_embedding_service()  # Preload the model
     logger.info("Application startup complete")
 

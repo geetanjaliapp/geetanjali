@@ -9,7 +9,7 @@ from tenacity import (
     stop_after_attempt,
     wait_exponential,
     retry_if_exception_type,
-    before_sleep_log
+    before_sleep_log,
 )
 
 from config import settings
@@ -25,24 +25,27 @@ class VectorStore:
         """Initialize ChromaDB client and collection."""
         # Use HTTP client if CHROMA_HOST is set (for Docker/remote), otherwise local
         if settings.CHROMA_HOST:
-            logger.info(f"Initializing ChromaDB HTTP client: {settings.CHROMA_HOST}:{settings.CHROMA_PORT}")
+            logger.info(
+                f"Initializing ChromaDB HTTP client: {settings.CHROMA_HOST}:{settings.CHROMA_PORT}"
+            )
             self.client = chromadb.HttpClient(
-                host=settings.CHROMA_HOST,
-                port=settings.CHROMA_PORT
+                host=settings.CHROMA_HOST, port=settings.CHROMA_PORT
             )
         else:
-            logger.info(f"Initializing ChromaDB local client at: {settings.CHROMA_PERSIST_DIRECTORY}")
+            logger.info(
+                f"Initializing ChromaDB local client at: {settings.CHROMA_PERSIST_DIRECTORY}"
+            )
             self.client = chromadb.Client(
                 ChromaSettings(
                     persist_directory=settings.CHROMA_PERSIST_DIRECTORY,
-                    anonymized_telemetry=False
+                    anonymized_telemetry=False,
                 )
             )
 
         # Get or create collection
         self.collection = self.client.get_or_create_collection(
             name=settings.CHROMA_COLLECTION_NAME,
-            metadata={"description": "Bhagavad Geeta verses for RAG retrieval"}
+            metadata={"description": "Bhagavad Geeta verses for RAG retrieval"},
         )
 
         logger.info(f"ChromaDB collection '{settings.CHROMA_COLLECTION_NAME}' ready")
@@ -55,7 +58,7 @@ class VectorStore:
         canonical_id: str,
         text: str,
         metadata: Dict[str, Any],
-        embedding: Optional[List[float]] = None
+        embedding: Optional[List[float]] = None,
     ):
         """
         Add a verse to the vector store.
@@ -75,7 +78,7 @@ class VectorStore:
             ids=[canonical_id],
             embeddings=[embedding],
             documents=[text],
-            metadatas=[metadata]
+            metadatas=[metadata],
         )
 
         logger.debug(f"Added verse {canonical_id} to vector store")
@@ -83,19 +86,18 @@ class VectorStore:
     @retry(
         stop=stop_after_attempt(settings.CHROMA_MAX_RETRIES),
         wait=wait_exponential(
-            min=settings.CHROMA_RETRY_MIN_WAIT,
-            max=settings.CHROMA_RETRY_MAX_WAIT
+            min=settings.CHROMA_RETRY_MIN_WAIT, max=settings.CHROMA_RETRY_MAX_WAIT
         ),
         retry=retry_if_exception_type((chromadb.errors.ChromaError, ConnectionError)),
         before_sleep=before_sleep_log(logger, logging.WARNING),
-        reraise=True
+        reraise=True,
     )
     def add_verses_batch(
         self,
         canonical_ids: List[str],
         texts: List[str],
         metadatas: List[Dict[str, Any]],
-        embeddings: Optional[List[List[float]]] = None
+        embeddings: Optional[List[List[float]]] = None,
     ):
         """
         Add multiple verses in batch.
@@ -118,7 +120,7 @@ class VectorStore:
             ids=canonical_ids,
             embeddings=embeddings,
             documents=texts,
-            metadatas=metadatas
+            metadatas=metadatas,
         )
 
         logger.info(f"Added {len(canonical_ids)} verses to vector store")
@@ -126,18 +128,14 @@ class VectorStore:
     @retry(
         stop=stop_after_attempt(settings.CHROMA_MAX_RETRIES),
         wait=wait_exponential(
-            min=settings.CHROMA_RETRY_MIN_WAIT,
-            max=settings.CHROMA_RETRY_MAX_WAIT
+            min=settings.CHROMA_RETRY_MIN_WAIT, max=settings.CHROMA_RETRY_MAX_WAIT
         ),
         retry=retry_if_exception_type((chromadb.errors.ChromaError, ConnectionError)),
         before_sleep=before_sleep_log(logger, logging.WARNING),
-        reraise=True
+        reraise=True,
     )
     def search(
-        self,
-        query: str,
-        top_k: int = 5,
-        where: Optional[Dict[str, Any]] = None
+        self, query: str, top_k: int = 5, where: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         """
         Search for similar verses using vector similarity.
@@ -158,18 +156,18 @@ class VectorStore:
 
         # Search
         results = self.collection.query(
-            query_embeddings=[query_embedding],
-            n_results=top_k,
-            where=where
+            query_embeddings=[query_embedding], n_results=top_k, where=where
         )
 
-        logger.debug(f"Vector search for '{query[:50]}...' returned {len(results['ids'][0])} results")
+        logger.debug(
+            f"Vector search for '{query[:50]}...' returned {len(results['ids'][0])} results"
+        )
 
         return {
             "ids": results["ids"][0],
             "distances": results["distances"][0],
             "documents": results["documents"][0],
-            "metadatas": results["metadatas"][0]
+            "metadatas": results["metadatas"][0],
         }
 
     def get_by_id(self, canonical_id: str) -> Optional[Dict[str, Any]]:
@@ -188,7 +186,7 @@ class VectorStore:
                 return {
                     "id": result["ids"][0],
                     "document": result["documents"][0],
-                    "metadata": result["metadatas"][0]
+                    "metadata": result["metadatas"][0],
                 }
         except Exception as e:
             logger.error(f"Error getting verse {canonical_id}: {e}")
@@ -223,7 +221,7 @@ class VectorStore:
         self.client.delete_collection(settings.CHROMA_COLLECTION_NAME)
         self.collection = self.client.get_or_create_collection(
             name=settings.CHROMA_COLLECTION_NAME,
-            metadata={"description": "Bhagavad Geeta verses for RAG retrieval"}
+            metadata={"description": "Bhagavad Geeta verses for RAG retrieval"},
         )
         logger.warning("Vector store reset - all verses deleted")
 

@@ -35,7 +35,12 @@ class VerseRepository(BaseRepository[Verse]):
         Returns:
             List of verses
         """
-        return self.db.query(Verse).filter(Verse.chapter == chapter).order_by(Verse.verse).all()
+        return (
+            self.db.query(Verse)
+            .filter(Verse.chapter == chapter)
+            .order_by(Verse.verse)
+            .all()
+        )
 
     def search_by_principles(self, principles: List[str]) -> List[Verse]:
         """
@@ -81,6 +86,7 @@ class VerseRepository(BaseRepository[Verse]):
             Verse with translations or None if not found
         """
         from sqlalchemy.orm import joinedload
+
         return (
             self.db.query(Verse)
             .options(joinedload(Verse.translations))
@@ -99,6 +105,7 @@ class VerseRepository(BaseRepository[Verse]):
             List of verses with translations
         """
         from sqlalchemy.orm import joinedload
+
         return (
             self.db.query(Verse)
             .options(joinedload(Verse.translations))

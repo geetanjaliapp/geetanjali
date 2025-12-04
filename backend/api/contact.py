@@ -18,6 +18,7 @@ router = APIRouter(prefix="/api/v1/contact")
 
 class ContactTypeEnum(str, Enum):
     """Contact message types for API schema."""
+
     feedback = "feedback"
     question = "question"
     bug_report = "bug_report"
@@ -31,8 +32,7 @@ class ContactRequest(BaseModel):
     name: str = Field(..., min_length=1, max_length=100, description="Sender's name")
     email: EmailStr = Field(..., description="Sender's email address")
     message_type: ContactTypeEnum = Field(
-        default=ContactTypeEnum.feedback,
-        description="Type of message"
+        default=ContactTypeEnum.feedback, description="Type of message"
     )
     subject: Optional[str] = Field(
         None, max_length=200, description="Optional subject line"
@@ -54,7 +54,7 @@ class ContactResponse(BaseModel):
 async def submit_contact(
     request: ContactRequest,
     background_tasks: BackgroundTasks,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     Submit a contact form message.
@@ -81,7 +81,7 @@ async def submit_contact(
             message_type=db_message_type,
             subject=request.subject,
             message=request.message,
-            email_sent=False
+            email_sent=False,
         )
 
         db.add(contact)
@@ -98,20 +98,20 @@ async def submit_contact(
             email=request.email,
             message_type=request.message_type.value,
             subject=request.subject,
-            message=request.message
+            message=request.message,
         )
 
         return ContactResponse(
             success=True,
             message="Thank you for your message! We'll get back to you soon.",
-            id=contact.id
+            id=contact.id,
         )
 
     except Exception as e:
         logger.error(f"Failed to submit contact form: {e}")
         raise HTTPException(
             status_code=500,
-            detail="Failed to submit your message. Please try again later."
+            detail="Failed to submit your message. Please try again later.",
         )
 
 
@@ -121,7 +121,7 @@ def send_contact_email_task(
     email: str,
     message_type: str,
     subject: Optional[str],
-    message: str
+    message: str,
 ):
     """
     Background task to send contact email and update database.
@@ -142,15 +142,15 @@ def send_contact_email_task(
         email=email,
         message_type=message_type,
         subject=subject,
-        message=message
+        message=message,
     )
 
     # Update database record
     db = SessionLocal()
     try:
-        contact = db.query(ContactMessage).filter(
-            ContactMessage.id == contact_id
-        ).first()
+        contact = (
+            db.query(ContactMessage).filter(ContactMessage.id == contact_id).first()
+        )
 
         if contact:
             contact.email_sent = email_sent

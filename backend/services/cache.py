@@ -41,11 +41,12 @@ def get_redis_client():
     if _redis_client is None:
         try:
             import redis
+
             _redis_client = redis.from_url(
                 settings.REDIS_URL,
                 decode_responses=True,
                 socket_timeout=2,
-                socket_connect_timeout=2
+                socket_connect_timeout=2,
             )
             # Test connection
             _redis_client.ping()
@@ -194,7 +195,7 @@ def verse_list_key(
     chapter: Optional[int] = None,
     featured: Optional[bool] = None,
     skip: int = 0,
-    limit: int = 100
+    limit: int = 100,
 ) -> str:
     """Build cache key for verse list queries."""
     return f"verses:ch{chapter}:feat{featured}:s{skip}:l{limit}"

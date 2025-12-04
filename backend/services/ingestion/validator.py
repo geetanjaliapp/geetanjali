@@ -63,7 +63,9 @@ class Validator:
         canonical_id = data.get("canonical_id")
         if canonical_id:
             if not re.match(r"^BG_\d{1,2}_\d{1,3}$", canonical_id):
-                errors.append(f"Invalid canonical_id format: {canonical_id} (expected: BG_chapter_verse)")
+                errors.append(
+                    f"Invalid canonical_id format: {canonical_id} (expected: BG_chapter_verse)"
+                )
 
         # Chapter range validation (1-18)
         chapter = data.get("chapter")
@@ -71,7 +73,9 @@ class Validator:
             try:
                 chapter_num = int(chapter)
                 if not (1 <= chapter_num <= 18):
-                    errors.append(f"Chapter must be between 1 and 18, got: {chapter_num}")
+                    errors.append(
+                        f"Chapter must be between 1 and 18, got: {chapter_num}"
+                    )
             except (ValueError, TypeError):
                 errors.append(f"Chapter must be an integer, got: {chapter}")
 
@@ -100,22 +104,30 @@ class Validator:
             # Translation data must have translation_en or translations array
             has_content = data.get("translation_en") or data.get("translations")
             if not has_content:
-                errors.append("Translation data must have translation_en or translations array")
+                errors.append(
+                    "Translation data must have translation_en or translations array"
+                )
         else:
             # Regular verse data needs sanskrit or paraphrase
-            has_content = any([
-                data.get("sanskrit_devanagari"),
-                data.get("sanskrit_iast"),
-                data.get("translation_text"),
-                data.get("paraphrase_en"),
-            ])
+            has_content = any(
+                [
+                    data.get("sanskrit_devanagari"),
+                    data.get("sanskrit_iast"),
+                    data.get("translation_text"),
+                    data.get("paraphrase_en"),
+                ]
+            )
             if not has_content:
-                errors.append("Verse must have at least one text field (sanskrit/translation/paraphrase)")
+                errors.append(
+                    "Verse must have at least one text field (sanskrit/translation/paraphrase)"
+                )
 
         # License validation
         license = data.get("license")
         if license and license not in self.ALLOWED_LICENSES:
-            logger.warning(f"License '{license}' not in allowed list: {self.ALLOWED_LICENSES}")
+            logger.warning(
+                f"License '{license}' not in allowed list: {self.ALLOWED_LICENSES}"
+            )
             # Not an error, just a warning
 
         is_valid = len(errors) == 0
@@ -196,7 +208,9 @@ class Validator:
         license = source_config.get("license")
 
         if not license:
-            logger.error(f"Source '{source_config.get('name')}' has no license specified")
+            logger.error(
+                f"Source '{source_config.get('name')}' has no license specified"
+            )
             return False
 
         if license not in self.ALLOWED_LICENSES:

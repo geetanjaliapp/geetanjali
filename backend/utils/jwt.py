@@ -26,9 +26,11 @@ def create_access_token(user_id: str, role: str) -> str:
         "role": role,
         "exp": expire,
         "iat": datetime.utcnow(),
-        "type": "access"
+        "type": "access",
     }
-    return str(jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM))
+    return str(
+        jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
+    )
 
 
 def create_refresh_token() -> str:
@@ -66,9 +68,7 @@ def decode_access_token(token: str) -> Optional[dict]:
     """
     try:
         payload = jwt.decode(
-            token,
-            settings.JWT_SECRET,
-            algorithms=[settings.JWT_ALGORITHM]
+            token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM]
         )
 
         # Verify token type
@@ -82,11 +82,7 @@ def decode_access_token(token: str) -> Optional[dict]:
         if user_id is None:
             return None
 
-        return {
-            "user_id": user_id,
-            "role": role or "user",
-            "exp": payload.get("exp")
-        }
+        return {"user_id": user_id, "role": role or "user", "exp": payload.get("exp")}
 
     except JWTError:
         return None

@@ -12,12 +12,10 @@ def session_case(client):
     case_data = {
         "title": "Session Case",
         "description": "This case belongs to an anonymous session",
-        "sensitivity": "low"
+        "sensitivity": "low",
     }
     response = client.post(
-        "/api/v1/cases",
-        json=case_data,
-        headers={"X-Session-ID": session_id}
+        "/api/v1/cases", json=case_data, headers={"X-Session-ID": session_id}
     )
     return {"case": response.json(), "session_id": session_id}
 
@@ -28,8 +26,7 @@ def test_session_user_can_access_own_case(client, session_case):
     session_id = session_case["session_id"]
 
     response = client.get(
-        f"/api/v1/cases/{case['id']}",
-        headers={"X-Session-ID": session_id}
+        f"/api/v1/cases/{case['id']}", headers={"X-Session-ID": session_id}
     )
 
     assert response.status_code == status.HTTP_200_OK
@@ -42,8 +39,7 @@ def test_different_session_cannot_access_case(client, session_case):
 
     # Try with different session ID
     response = client.get(
-        f"/api/v1/cases/{case['id']}",
-        headers={"X-Session-ID": str(uuid.uuid4())}
+        f"/api/v1/cases/{case['id']}", headers={"X-Session-ID": str(uuid.uuid4())}
     )
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
@@ -62,8 +58,7 @@ def test_case_not_found_returns_404(client):
     """Test that non-existent case returns 404."""
     session_id = str(uuid.uuid4())
     response = client.get(
-        f"/api/v1/cases/{uuid.uuid4()}",
-        headers={"X-Session-ID": session_id}
+        f"/api/v1/cases/{uuid.uuid4()}", headers={"X-Session-ID": session_id}
     )
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
@@ -76,15 +71,13 @@ def test_messages_access_follows_case_access(client, session_case):
 
     # Session owner can access messages
     response = client.get(
-        f"/api/v1/cases/{case_id}/messages",
-        headers={"X-Session-ID": session_id}
+        f"/api/v1/cases/{case_id}/messages", headers={"X-Session-ID": session_id}
     )
     assert response.status_code == status.HTTP_200_OK
 
     # Different session cannot
     response = client.get(
-        f"/api/v1/cases/{case_id}/messages",
-        headers={"X-Session-ID": str(uuid.uuid4())}
+        f"/api/v1/cases/{case_id}/messages", headers={"X-Session-ID": str(uuid.uuid4())}
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
@@ -96,8 +89,7 @@ def test_outputs_access_for_session_case(client, session_case):
 
     # Session owner can access outputs
     response = client.get(
-        f"/api/v1/cases/{case_id}/outputs",
-        headers={"X-Session-ID": session_id}
+        f"/api/v1/cases/{case_id}/outputs", headers={"X-Session-ID": session_id}
     )
     assert response.status_code == status.HTTP_200_OK
 
@@ -119,7 +111,7 @@ def test_list_cases_filters_by_session(client):
     client.post(
         "/api/v1/cases",
         json={"title": "Other Session", "description": "Test", "sensitivity": "low"},
-        headers=other_headers
+        headers=other_headers,
     )
 
     # List cases for first session

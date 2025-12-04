@@ -34,18 +34,22 @@ class Fetcher:
         self.cache_dir.mkdir(parents=True, exist_ok=True)
 
         self.session = requests.Session()
-        self.session.headers.update({
-            "User-Agent": "Geetanjali/1.0 (Educational Research Bot; +https://github.com/geetanjali)"
-        })
+        self.session.headers.update(
+            {
+                "User-Agent": "Geetanjali/1.0 (Educational Research Bot; +https://github.com/geetanjali)"
+            }
+        )
 
         logger.info(f"Fetcher initialized with cache dir: {self.cache_dir}")
 
     @retry(
         stop=stop_after_attempt(3),
         wait=wait_exponential(multiplier=1, min=2, max=10),
-        reraise=True
+        reraise=True,
     )
-    def fetch_url(self, url: str, cache_ttl: int = 86400, force_refresh: bool = False) -> str:
+    def fetch_url(
+        self, url: str, cache_ttl: int = 86400, force_refresh: bool = False
+    ) -> str:
         """
         Fetch content from URL with caching and retry logic.
 

@@ -82,7 +82,7 @@ class RefreshTokenRepository(BaseRepository):
         """
         count = (
             self.db.query(RefreshToken)
-            .filter(RefreshToken.user_id == user_id, RefreshToken.revoked == False)
+            .filter(RefreshToken.user_id == user_id, RefreshToken.revoked.is_(False))
             .update({"revoked": True})
         )
         self.db.commit()

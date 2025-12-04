@@ -16,8 +16,7 @@ router = APIRouter()
 
 @router.get("/cases/{case_id}/messages", response_model=List[MessageResponse])
 def get_case_messages(
-    case: Case = Depends(get_case_with_access),
-    db: Session = Depends(get_db)
+    case: Case = Depends(get_case_with_access), db: Session = Depends(get_db)
 ):
     """
     Get all messages for a case, ordered chronologically.
@@ -29,11 +28,15 @@ def get_case_messages(
     return message_repo.get_by_case(case.id)
 
 
-@router.post("/cases/{case_id}/messages", response_model=MessageResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/cases/{case_id}/messages",
+    response_model=MessageResponse,
+    status_code=status.HTTP_201_CREATED,
+)
 def create_message(
     message: MessageCreate,
     case: Case = Depends(get_case_with_access),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     Create a new user message (follow-up question) for a case.
@@ -42,7 +45,4 @@ def create_message(
     should then trigger analysis to generate an assistant response.
     """
     message_repo = MessageRepository(db)
-    return message_repo.create_user_message(
-        case_id=case.id,
-        content=message.content
-    )
+    return message_repo.create_user_message(case_id=case.id, content=message.content)

@@ -1,7 +1,6 @@
 """Application configuration."""
 
 import logging
-import os
 import warnings
 from typing import List, Union, Optional
 from pydantic import field_validator, model_validator
@@ -20,7 +19,9 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = "INFO"
 
     # Database
-    DATABASE_URL: str = "postgresql://geetanjali:geetanjali_dev_pass@localhost:5432/geetanjali"
+    DATABASE_URL: str = (
+        "postgresql://geetanjali:geetanjali_dev_pass@localhost:5432/geetanjali"
+    )
     DB_POOL_SIZE: int = 5
     DB_MAX_OVERFLOW: int = 10
     DB_POOL_RECYCLE: int = 3600
@@ -43,7 +44,9 @@ class Settings(BaseSettings):
 
     # Anthropic (Claude)
     ANTHROPIC_API_KEY: Optional[str] = None  # Required for Anthropic
-    ANTHROPIC_MODEL: str = "claude-haiku-4-5-20251001"  # Haiku 4.5 - fast, cost-effective
+    ANTHROPIC_MODEL: str = (
+        "claude-haiku-4-5-20251001"  # Haiku 4.5 - fast, cost-effective
+    )
     ANTHROPIC_MAX_TOKENS: int = 2048
     ANTHROPIC_TIMEOUT: int = 30
 
@@ -75,15 +78,19 @@ class Settings(BaseSettings):
         "http://localhost:5173",
         "http://127.0.0.1",
         "http://127.0.0.1:3000",
-        "http://127.0.0.1:5173"
+        "http://127.0.0.1:5173",
     ]
     API_KEY: str = "dev-api-key-12345"
     ANALYZE_RATE_LIMIT: str = "10/hour"  # Rate limit for analyze endpoint
 
     # Authentication / JWT
-    JWT_SECRET: str = "dev-secret-key-change-in-production-use-env-var"  # MUST be set via env var in production
+    JWT_SECRET: str = (
+        "dev-secret-key-change-in-production-use-env-var"  # MUST be set via env var in production
+    )
     JWT_ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60  # 60 minutes - short-lived, auto-refreshed by frontend
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = (
+        60  # 60 minutes - short-lived, auto-refreshed by frontend
+    )
     REFRESH_TOKEN_EXPIRE_DAYS: int = 90  # 90 days - long-lived for convenience
 
     # Cookie Security
@@ -114,13 +121,23 @@ class Settings(BaseSettings):
 
     # Email (Resend)
     RESEND_API_KEY: Optional[str] = None  # Required for email sending
-    CONTACT_EMAIL_TO: str = "viks@vnykmshr.com"  # Recipient for contact form (registered in Resend)
-    CONTACT_EMAIL_FROM: str = "Geetanjali <onboarding@resend.dev>"  # Use resend.dev for testing until domain verified
+    CONTACT_EMAIL_TO: str = (
+        "viks@vnykmshr.com"  # Recipient for contact form (registered in Resend)
+    )
+    CONTACT_EMAIL_FROM: str = (
+        "Geetanjali <onboarding@resend.dev>"  # Use resend.dev for testing until domain verified
+    )
 
     @field_validator(
-        'APP_ENV', 'LOG_LEVEL', 'LLM_PROVIDER', 'ANTHROPIC_MODEL', 'OLLAMA_MODEL',
-        'OLLAMA_BASE_URL', 'ANTHROPIC_API_KEY', 'RESEND_API_KEY',
-        mode='before'
+        "APP_ENV",
+        "LOG_LEVEL",
+        "LLM_PROVIDER",
+        "ANTHROPIC_MODEL",
+        "OLLAMA_MODEL",
+        "OLLAMA_BASE_URL",
+        "ANTHROPIC_API_KEY",
+        "RESEND_API_KEY",
+        mode="before",
     )
     @classmethod
     def empty_string_to_none(cls, v: Optional[str]) -> Optional[str]:
@@ -129,36 +146,36 @@ class Settings(BaseSettings):
         Docker Compose passes empty strings for ${VAR:-} when unset.
         This ensures config.py defaults are used instead.
         """
-        if v == '':
+        if v == "":
             return None
         return v
 
-    @field_validator('DEBUG', 'USE_MOCK_LLM', mode='before')
+    @field_validator("DEBUG", "USE_MOCK_LLM", mode="before")
     @classmethod
     def empty_string_to_false(cls, v) -> bool:
         """Convert empty strings to False for boolean fields."""
-        if v == '' or v is None:
+        if v == "" or v is None:
             return False
         if isinstance(v, bool):
             return v
         if isinstance(v, str):
-            return v.lower() in ('true', '1', 'yes')
+            return v.lower() in ("true", "1", "yes")
         return bool(v)
 
-    @field_validator('CORS_ORIGINS', mode='before')
+    @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
     def parse_cors_origins(cls, v: Union[str, List[str]]) -> List[str]:
         """Parse CORS_ORIGINS from comma-separated string or list."""
         if isinstance(v, str):
-            return [origin.strip() for origin in v.split(',')]
+            return [origin.strip() for origin in v.split(",")]
         return v
 
-    @model_validator(mode='after')
-    def warn_insecure_defaults(self) -> 'Settings':
+    @model_validator(mode="after")
+    def warn_insecure_defaults(self) -> "Settings":
         """Warn if using insecure default values in non-DEBUG mode."""
         insecure_defaults = {
-            'JWT_SECRET': 'dev-secret-key-change-in-production-use-env-var',
-            'API_KEY': 'dev-api-key-12345',
+            "JWT_SECRET": "dev-secret-key-change-in-production-use-env-var",
+            "API_KEY": "dev-api-key-12345",
         }
 
         for field, default_value in insecure_defaults.items():
@@ -175,7 +192,7 @@ class Settings(BaseSettings):
                         f"SECURITY WARNING: {field} is using insecure default value! "
                         f"Set {field} environment variable before deploying to production.",
                         UserWarning,
-                        stacklevel=2
+                        stacklevel=2,
                     )
 
         # Warn if COOKIE_SECURE is False in non-DEBUG mode

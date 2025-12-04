@@ -45,15 +45,17 @@ class CSRFMiddleware(BaseHTTPMiddleware):
 
         # Skip if no CSRF cookie exists (user hasn't logged in yet)
         from config import settings
+
         if settings.CSRF_TOKEN_COOKIE_KEY not in request.cookies:
             return await call_next(request)
 
         # Validate CSRF token
         if not validate_csrf(request):
-            logger.warning(f"CSRF validation failed for {request.method} {request.url.path}")
+            logger.warning(
+                f"CSRF validation failed for {request.method} {request.url.path}"
+            )
             raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="CSRF validation failed"
+                status_code=status.HTTP_403_FORBIDDEN, detail="CSRF validation failed"
             )
 
         return await call_next(request)

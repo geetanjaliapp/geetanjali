@@ -53,8 +53,7 @@ Output ONLY valid JSON matching this structure:
 
 
 def build_user_prompt(
-    case_data: Dict[str, Any],
-    retrieved_verses: List[Dict[str, Any]]
+    case_data: Dict[str, Any], retrieved_verses: List[Dict[str, Any]]
 ) -> str:
     """
     Build user prompt for RAG pipeline.
@@ -78,12 +77,12 @@ def build_user_prompt(
     ]
 
     # Add stakeholders
-    stakeholders = case_data.get('stakeholders', [])
+    stakeholders = case_data.get("stakeholders", [])
     if stakeholders:
         prompt_parts.append(f"\n**Stakeholders:** {', '.join(stakeholders)}\n")
 
     # Add constraints
-    constraints = case_data.get('constraints', [])
+    constraints = case_data.get("constraints", [])
     if constraints:
         prompt_parts.append("\n**Constraints:**\n")
         for constraint in constraints:
@@ -94,12 +93,12 @@ def build_user_prompt(
     prompt_parts.append("\nUse these verses to inform your consulting brief:\n\n")
 
     for i, verse in enumerate(retrieved_verses, 1):
-        metadata = verse.get('metadata', {})
-        canonical_id = metadata.get('canonical_id', 'Unknown')
-        paraphrase = metadata.get('paraphrase', 'N/A')
-        translation = metadata.get('translation_en', '')
-        principles = metadata.get('principles', '')
-        translations = metadata.get('translations', [])
+        metadata = verse.get("metadata", {})
+        canonical_id = metadata.get("canonical_id", "Unknown")
+        paraphrase = metadata.get("paraphrase", "N/A")
+        translation = metadata.get("translation_en", "")
+        principles = metadata.get("principles", "")
+        translations = metadata.get("translations", [])
 
         prompt_parts.append(f"**Verse {i}: {canonical_id}**\n")
         prompt_parts.append(f"Paraphrase: {paraphrase}\n")
@@ -107,8 +106,8 @@ def build_user_prompt(
             prompt_parts.append(f"Translation: {translation}\n")
         if translations:
             for t in translations[:2]:  # Include up to 2 additional translations
-                translator = t.get('translator', 'Unknown')
-                text = t.get('text', '')
+                translator = t.get("translator", "Unknown")
+                text = t.get("text", "")
                 if text:
                     prompt_parts.append(f"  - {translator}: {text}\n")
         if principles:
@@ -219,8 +218,7 @@ Use verse IDs like BG_2_47. Output ONLY valid JSON."""
 
 
 def build_ollama_prompt(
-    case_data: Dict[str, Any],
-    retrieved_verses: List[Dict[str, Any]]
+    case_data: Dict[str, Any], retrieved_verses: List[Dict[str, Any]]
 ) -> str:
     """
     Build simplified prompt for Ollama fallback.
@@ -243,21 +241,25 @@ def build_ollama_prompt(
     # Add top 3 verses only
     prompt_parts.append("\n# Geeta Verses\n")
     for i, verse in enumerate(retrieved_verses[:3], 1):
-        metadata = verse.get('metadata', {})
-        canonical_id = metadata.get('canonical_id', 'Unknown')
-        paraphrase = metadata.get('paraphrase', 'N/A')
-        translation = metadata.get('translation_en', '')
+        metadata = verse.get("metadata", {})
+        canonical_id = metadata.get("canonical_id", "Unknown")
+        paraphrase = metadata.get("paraphrase", "N/A")
+        translation = metadata.get("translation_en", "")
         prompt_parts.append(f"{i}. {canonical_id}: {paraphrase}\n")
         if translation:
             prompt_parts.append(f"   Translation: {translation}\n")
 
     # Simplified task
-    prompt_parts.append("\n# Task\nProvide brief JSON consulting brief using Geeta principles.\n")
+    prompt_parts.append(
+        "\n# Task\nProvide brief JSON consulting brief using Geeta principles.\n"
+    )
 
     return "".join(prompt_parts)
 
 
-def post_process_ollama_response(raw_response: str, retrieved_verses: List[Dict[str, Any]]) -> Dict[str, Any]:
+def post_process_ollama_response(
+    raw_response: str, retrieved_verses: List[Dict[str, Any]]
+) -> Dict[str, Any]:
     """
     Post-process Ollama response to ensure it matches expected format.
 
@@ -275,7 +277,8 @@ def post_process_ollama_response(raw_response: str, retrieved_verses: List[Dict[
     except json.JSONDecodeError:
         # Extract JSON from response if wrapped in text
         import re
-        json_match = re.search(r'\{.*\}', raw_response, re.DOTALL)
+
+        json_match = re.search(r"\{.*\}", raw_response, re.DOTALL)
         if json_match:
             try:
                 data = json.loads(json_match.group())
@@ -286,7 +289,9 @@ def post_process_ollama_response(raw_response: str, retrieved_verses: List[Dict[
 
     # Ensure all required fields exist
     if not data.get("executive_summary"):
-        data["executive_summary"] = "Ethical analysis based on Bhagavad Geeta principles."
+        data["executive_summary"] = (
+            "Ethical analysis based on Bhagavad Geeta principles."
+        )
 
     # Ensure at least 2 options
     if not data.get("options") or len(data["options"]) < 2:
@@ -296,15 +301,23 @@ def post_process_ollama_response(raw_response: str, retrieved_verses: List[Dict[
                 "description": "Approach based on duty and principles",
                 "pros": ["Aligns with dharma", "Long-term oriented"],
                 "cons": ["May be challenging"],
-                "sources": [retrieved_verses[0]["metadata"]["canonical_id"]] if retrieved_verses else ["BG_2_47"]
+                "sources": (
+                    [retrieved_verses[0]["metadata"]["canonical_id"]]
+                    if retrieved_verses
+                    else ["BG_2_47"]
+                ),
             },
             {
                 "title": "Option 2",
                 "description": "Alternative balanced approach",
                 "pros": ["Pragmatic", "Considers stakeholders"],
                 "cons": ["Requires careful execution"],
-                "sources": [retrieved_verses[1]["metadata"]["canonical_id"]] if len(retrieved_verses) > 1 else ["BG_3_19"]
-            }
+                "sources": (
+                    [retrieved_verses[1]["metadata"]["canonical_id"]]
+                    if len(retrieved_verses) > 1
+                    else ["BG_3_19"]
+                ),
+            },
         ]
 
     # Ensure recommended action exists
@@ -314,16 +327,20 @@ def post_process_ollama_response(raw_response: str, retrieved_verses: List[Dict[
             "steps": [
                 "Reflect on duties and principles",
                 "Consider stakeholder impact",
-                "Act with detachment from outcomes"
+                "Act with detachment from outcomes",
             ],
-            "sources": [retrieved_verses[0]["metadata"]["canonical_id"]] if retrieved_verses else ["BG_2_47"]
+            "sources": (
+                [retrieved_verses[0]["metadata"]["canonical_id"]]
+                if retrieved_verses
+                else ["BG_2_47"]
+            ),
         }
 
     # Ensure reflection prompts
     if not data.get("reflection_prompts"):
         data["reflection_prompts"] = [
             "What is my duty in this situation?",
-            "How can I act with integrity?"
+            "How can I act with integrity?",
         ]
 
     # Ensure sources
@@ -332,7 +349,7 @@ def post_process_ollama_response(raw_response: str, retrieved_verses: List[Dict[
             {
                 "canonical_id": v["metadata"].get("canonical_id", "BG_Unknown"),
                 "paraphrase": v["metadata"].get("paraphrase", "N/A"),
-                "relevance": 0.7
+                "relevance": 0.7,
             }
             for v in retrieved_verses[:3]
         ]
@@ -342,4 +359,3 @@ def post_process_ollama_response(raw_response: str, retrieved_verses: List[Dict[
     data.setdefault("scholar_flag", True)  # Flag fallback responses for review
 
     return dict(data)
-

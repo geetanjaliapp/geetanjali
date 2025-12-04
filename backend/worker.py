@@ -6,7 +6,6 @@ This starts a worker that processes background analysis jobs.
 The worker will automatically reconnect if Redis connection is lost.
 """
 
-import logging
 import sys
 
 from config import settings
@@ -39,9 +38,7 @@ def run_worker():
         queues = [Queue(settings.RQ_QUEUE_NAME, connection=redis_conn)]
 
         worker = Worker(
-            queues,
-            connection=redis_conn,
-            name=f"geetanjali-worker-{settings.APP_ENV}"
+            queues, connection=redis_conn, name=f"geetanjali-worker-{settings.APP_ENV}"
         )
 
         logger.info(f"Starting worker for queue: {settings.RQ_QUEUE_NAME}")

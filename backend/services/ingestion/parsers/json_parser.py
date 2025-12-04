@@ -58,7 +58,9 @@ class JSONParser:
                 verse = self._parse_single_verse(data, source_config)
                 return [verse] if verse else []
         else:
-            logger.warning(f"Unknown JSON structure for source: {source_config.get('name')}")
+            logger.warning(
+                f"Unknown JSON structure for source: {source_config.get('name')}"
+            )
             return []
 
     def _parse_verse_array(self, verses: List, source_config: Dict) -> List[Dict]:
@@ -98,7 +100,9 @@ class JSONParser:
         all_verses = []
 
         for chapter_data in chapters:
-            chapter_num = chapter_data.get("chapter") or chapter_data.get("chapter_number")
+            chapter_num = chapter_data.get("chapter") or chapter_data.get(
+                "chapter_number"
+            )
             verses = chapter_data.get("verses", [])
 
             for verse_data in verses:
@@ -113,7 +117,9 @@ class JSONParser:
         logger.info(f"Parsed {len(all_verses)} verses from chapters format")
         return all_verses
 
-    def _parse_single_verse(self, verse_data: Dict, source_config: Dict) -> Optional[Dict]:
+    def _parse_single_verse(
+        self, verse_data: Dict, source_config: Dict
+    ) -> Optional[Dict]:
         """
         Parse a single verse dictionary and standardize fields.
 
@@ -125,8 +131,12 @@ class JSONParser:
             Standardized verse dictionary or None if invalid
         """
         # Extract chapter and verse numbers (required)
-        chapter = self._extract_number(verse_data, ["chapter", "chapter_number", "adhyaya"])
-        verse_num = self._extract_number(verse_data, ["verse", "verse_number", "shloka", "sloka"])
+        chapter = self._extract_number(
+            verse_data, ["chapter", "chapter_number", "adhyaya"]
+        )
+        verse_num = self._extract_number(
+            verse_data, ["verse", "verse_number", "shloka", "sloka"]
+        )
 
         if not chapter or not verse_num:
             logger.warning(f"Missing chapter/verse number in: {verse_data}")
@@ -137,29 +147,33 @@ class JSONParser:
 
         # Extract text fields (flexible field names)
         # Support gita/gita format: "text" field contains Sanskrit Devanagari
-        sanskrit_devanagari = self._extract_text(verse_data, [
-            "sanskrit_devanagari", "text", "sanskrit", "devanagari", "text_sanskrit"
-        ])
+        sanskrit_devanagari = self._extract_text(
+            verse_data,
+            ["sanskrit_devanagari", "text", "sanskrit", "devanagari", "text_sanskrit"],
+        )
 
-        sanskrit_iast = self._extract_text(verse_data, [
-            "sanskrit_iast", "transliteration", "iast", "romanized"
-        ])
+        sanskrit_iast = self._extract_text(
+            verse_data, ["sanskrit_iast", "transliteration", "iast", "romanized"]
+        )
 
-        translation = self._extract_text(verse_data, [
-            "translation", "translation_text", "english", "meaning", "text_english"
-        ])
+        translation = self._extract_text(
+            verse_data,
+            ["translation", "translation_text", "english", "meaning", "text_english"],
+        )
 
-        paraphrase = self._extract_text(verse_data, [
-            "paraphrase", "paraphrase_en", "summary", "brief"
-        ])
+        paraphrase = self._extract_text(
+            verse_data, ["paraphrase", "paraphrase_en", "summary", "brief"]
+        )
 
         # Extract word meanings (gita/gita specific field)
-        word_meanings = self._extract_text(verse_data, [
-            "word_meanings", "word_meaning", "pada_artha"
-        ])
+        word_meanings = self._extract_text(
+            verse_data, ["word_meanings", "word_meaning", "pada_artha"]
+        )
 
         # Extract metadata
-        consulting_principles = verse_data.get("consulting_principles") or verse_data.get("principles")
+        consulting_principles = verse_data.get(
+            "consulting_principles"
+        ) or verse_data.get("principles")
 
         # Build standardized verse dict
         verse = {
@@ -217,7 +231,9 @@ class JSONParser:
                 return str(value).strip()
         return ""
 
-    def _parse_translations_array(self, translations: List, source_config: Dict) -> List[Dict]:
+    def _parse_translations_array(
+        self, translations: List, source_config: Dict
+    ) -> List[Dict]:
         """
         Parse array of translation objects from gita/gita translation.json format.
 
@@ -236,7 +252,9 @@ class JSONParser:
 
         # Filter to English only and group by verse_id
         by_verse = defaultdict(list)
-        default_translator = source_config.get("default_translator", "Swami Gambirananda")
+        default_translator = source_config.get(
+            "default_translator", "Swami Gambirananda"
+        )
 
         # Build translator priority and school mapping
         translator_priority = {}
@@ -254,15 +272,17 @@ class JSONParser:
                 continue
 
             translator_name = t.get("authorName", "")
-            by_verse[verse_id].append({
-                "text": t.get("description", "").strip(),
-                "translator": translator_name,
-                "school": translator_school.get(translator_name, ""),
-                "priority": translator_priority.get(translator_name, 99),
-                "author_id": t.get("author_id"),
-                "source": source_config.get("url", ""),
-                "license": source_config.get("license", ""),
-            })
+            by_verse[verse_id].append(
+                {
+                    "text": t.get("description", "").strip(),
+                    "translator": translator_name,
+                    "school": translator_school.get(translator_name, ""),
+                    "priority": translator_priority.get(translator_name, 99),
+                    "author_id": t.get("author_id"),
+                    "source": source_config.get("url", ""),
+                    "license": source_config.get("license", ""),
+                }
+            )
 
         # Build output: one entry per verse with all translations
         parsed = []
@@ -290,18 +310,22 @@ class JSONParser:
             if not default_text and trans_list:
                 default_text = trans_list[0]["text"]
 
-            parsed.append({
-                "canonical_id": canonical_id,
-                "chapter": chapter,
-                "verse": verse_num,
-                "translation_en": default_text,  # Primary translation for verse table
-                "translations": trans_list,  # All translations (sorted by priority) for translations table
-                "source": source_config.get("url", ""),
-                "license": source_config.get("license", ""),
-                "_is_translation_data": True,  # Flag for pipeline to handle differently
-            })
+            parsed.append(
+                {
+                    "canonical_id": canonical_id,
+                    "chapter": chapter,
+                    "verse": verse_num,
+                    "translation_en": default_text,  # Primary translation for verse table
+                    "translations": trans_list,  # All translations (sorted by priority) for translations table
+                    "source": source_config.get("url", ""),
+                    "license": source_config.get("license", ""),
+                    "_is_translation_data": True,  # Flag for pipeline to handle differently
+                }
+            )
 
-        logger.info(f"Parsed translations for {len(parsed)} verses from {len(translations)} records")
+        logger.info(
+            f"Parsed translations for {len(parsed)} verses from {len(translations)} records"
+        )
         return parsed
 
     def _verse_id_to_chapter_verse(self, verse_id: int) -> tuple:
@@ -319,7 +343,26 @@ class JSONParser:
         Returns:
             Tuple of (chapter, verse) or (None, None) if invalid
         """
-        chapter_sizes = [47, 72, 43, 42, 29, 47, 30, 28, 34, 42, 55, 20, 35, 27, 20, 24, 28, 78]
+        chapter_sizes = [
+            47,
+            72,
+            43,
+            42,
+            29,
+            47,
+            30,
+            28,
+            34,
+            42,
+            55,
+            20,
+            35,
+            27,
+            20,
+            24,
+            28,
+            78,
+        ]
 
         if verse_id < 1 or verse_id > 701:
             return None, None

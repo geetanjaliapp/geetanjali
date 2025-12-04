@@ -19,7 +19,7 @@ def set_csrf_cookie(response: Response, token: str) -> None:
         max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
         httponly=False,  # JS must be able to read it
         secure=settings.COOKIE_SECURE,
-        samesite="lax"
+        samesite="lax",
     )
 
 

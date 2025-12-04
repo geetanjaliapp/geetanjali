@@ -7,13 +7,16 @@ from datetime import datetime
 
 class Base(DeclarativeBase):
     """Base class for all models."""
+
     pass
 
 
 class TimestampMixin:
     """Mixin to add created_at and updated_at timestamps."""
 
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.utcnow, nullable=False
+    )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
     )

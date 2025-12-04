@@ -4,13 +4,13 @@ from utils.auth import (
     hash_password,
     verify_password,
     validate_password_strength,
-    validate_email
+    validate_email,
 )
 from utils.jwt import (
     create_access_token,
     create_refresh_token,
     decode_access_token,
-    hash_token
+    hash_token,
 )
 
 

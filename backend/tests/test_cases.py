@@ -12,7 +12,7 @@ def test_create_case(client):
         "stakeholders": ["team", "senior leadership", "customers"],
         "constraints": ["headcount budget: -25%", "quarterly earnings pressure"],
         "horizon": "12 months",
-        "sensitivity": "high"
+        "sensitivity": "high",
     }
 
     response = client.post("/api/v1/cases", json=case_data)
@@ -31,7 +31,7 @@ def test_get_case(client):
     case_data = {
         "title": "Test Case",
         "description": "Test description",
-        "sensitivity": "low"
+        "sensitivity": "low",
     }
     create_response = client.post("/api/v1/cases", json=case_data)
     case_id = create_response.json()["id"]
@@ -55,6 +55,7 @@ def test_get_case_not_found(client):
 def test_list_cases(client):
     """Test listing cases for a session user."""
     import uuid
+
     session_id = str(uuid.uuid4())
     headers = {"X-Session-ID": session_id}
 
@@ -63,7 +64,7 @@ def test_list_cases(client):
         case_data = {
             "title": f"Test Case {i}",
             "description": f"Description {i}",
-            "sensitivity": "low"
+            "sensitivity": "low",
         }
         client.post("/api/v1/cases", json=case_data, headers=headers)
 
@@ -78,9 +79,7 @@ def test_list_cases(client):
 def test_create_case_validation(client):
     """Test case creation with invalid data."""
     # Missing required field
-    invalid_case = {
-        "description": "Only description, no title"
-    }
+    invalid_case = {"description": "Only description, no title"}
 
     response = client.post("/api/v1/cases", json=invalid_case)
 

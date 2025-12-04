@@ -40,10 +40,11 @@ def backfill_paraphrase_metadata(dry_run: bool = False):
 
     try:
         # Get all verses with paraphrase_en
-        verses_with_paraphrase = db.query(Verse).filter(
-            Verse.paraphrase_en.isnot(None),
-            Verse.paraphrase_en != ""
-        ).all()
+        verses_with_paraphrase = (
+            db.query(Verse)
+            .filter(Verse.paraphrase_en.isnot(None), Verse.paraphrase_en != "")
+            .all()
+        )
 
         logger.info(f"Found {len(verses_with_paraphrase)} verses with paraphrase_en")
 
@@ -57,20 +58,32 @@ def backfill_paraphrase_metadata(dry_run: bool = False):
                 existing = vector_store.get_by_id(verse.canonical_id)
 
                 if not existing or not existing.get("ids"):
-                    logger.warning(f"Verse {verse.canonical_id} not found in vector store, skipping")
+                    logger.warning(
+                        f"Verse {verse.canonical_id} not found in vector store, skipping"
+                    )
                     skipped += 1
                     continue
 
                 # Check if paraphrase already in metadata
-                current_metadata = existing.get("metadatas", [{}])[0] if existing.get("metadatas") else {}
+                current_metadata = (
+                    existing.get("metadatas", [{}])[0]
+                    if existing.get("metadatas")
+                    else {}
+                )
                 if current_metadata.get("paraphrase") == verse.paraphrase_en:
-                    logger.debug(f"Verse {verse.canonical_id} already has paraphrase in metadata, skipping")
+                    logger.debug(
+                        f"Verse {verse.canonical_id} already has paraphrase in metadata, skipping"
+                    )
                     skipped += 1
                     continue
 
                 if dry_run:
-                    paraphrase_preview = verse.paraphrase_en[:50] if verse.paraphrase_en else ""
-                    logger.info(f"[DRY RUN] Would update {verse.canonical_id} with paraphrase: {paraphrase_preview}...")
+                    paraphrase_preview = (
+                        verse.paraphrase_en[:50] if verse.paraphrase_en else ""
+                    )
+                    logger.info(
+                        f"[DRY RUN] Would update {verse.canonical_id} with paraphrase: {paraphrase_preview}..."
+                    )
                     updated += 1
                     continue
 
@@ -98,7 +111,9 @@ def backfill_paraphrase_metadata(dry_run: bool = False):
                 combined_text = " ".join(text_parts)
 
                 if not combined_text.strip():
-                    logger.warning(f"No text for embedding: {verse.canonical_id}, skipping")
+                    logger.warning(
+                        f"No text for embedding: {verse.canonical_id}, skipping"
+                    )
                     skipped += 1
                     continue
 
@@ -111,7 +126,7 @@ def backfill_paraphrase_metadata(dry_run: bool = False):
                     canonical_id=verse.canonical_id,
                     text=combined_text,
                     metadata=metadata,
-                    embedding=embedding  # type: ignore[arg-type]
+                    embedding=embedding,  # type: ignore[arg-type]
                 )
 
                 logger.info(f"Updated {verse.canonical_id}")
@@ -127,7 +142,9 @@ def backfill_paraphrase_metadata(dry_run: bool = False):
         logger.info(f"  Errors:  {errors}")
 
         if dry_run:
-            logger.info("\n[DRY RUN] No changes were made. Run without --dry-run to apply changes.")
+            logger.info(
+                "\n[DRY RUN] No changes were made. Run without --dry-run to apply changes."
+            )
 
     finally:
         db.close()
@@ -140,7 +157,7 @@ def main():
     parser.add_argument(
         "--dry-run",
         action="store_true",
-        help="Only report what would be done without making changes"
+        help="Only report what would be done without making changes",
     )
     args = parser.parse_args()
 

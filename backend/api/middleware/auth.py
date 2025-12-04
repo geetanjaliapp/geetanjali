@@ -16,7 +16,7 @@ security = HTTPBearer()
 
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ) -> User:
     """
     Dependency to get the current authenticated user from JWT token.
@@ -65,8 +65,10 @@ async def get_current_user(
 
 
 async def get_optional_user(
-    credentials: Optional[HTTPAuthorizationCredentials] = Depends(HTTPBearer(auto_error=False)),
-    db: Session = Depends(get_db)
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(
+        HTTPBearer(auto_error=False)
+    ),
+    db: Session = Depends(get_db),
 ) -> Optional[User]:
     """
     Dependency to optionally get the current user (doesn't raise error if no token).
@@ -115,11 +117,12 @@ def require_role(required_role: str):
         def scholar_endpoint(user: User = Depends(require_role("scholar"))):
             ...
     """
+
     async def role_checker(current_user: User = Depends(get_current_user)) -> User:
         if current_user.role != required_role:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Requires role: {required_role}"
+                detail=f"Requires role: {required_role}",
             )
         return current_user
 
@@ -145,7 +148,7 @@ def user_can_access_resource(
     resource_user_id: Optional[str],
     resource_session_id: Optional[str],
     current_user: Optional[User],
-    session_id: Optional[str]
+    session_id: Optional[str],
 ) -> bool:
     """
     Check if a user/session can access a resource.

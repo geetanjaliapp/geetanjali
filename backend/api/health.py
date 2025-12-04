@@ -32,6 +32,7 @@ def check_chroma_connection(timeout: int = 2) -> bool:
             signal.alarm(timeout)
 
             from services.vector_store import get_vector_store
+
             vector_store = get_vector_store()
             vector_store.count()  # Simple operation to verify connection
 
@@ -40,6 +41,7 @@ def check_chroma_connection(timeout: int = 2) -> bool:
         except AttributeError:
             # SIGALRM not available (Windows), do basic check without timeout
             from services.vector_store import get_vector_store
+
             vector_store = get_vector_store()
             vector_store.count()
             return True
@@ -73,6 +75,7 @@ def check_ollama_connection(timeout: int = 2) -> bool:
             signal.alarm(timeout)
 
             from services.llm import get_llm_service
+
             llm_service = get_llm_service()
             result = llm_service.check_health()
 
@@ -81,6 +84,7 @@ def check_ollama_connection(timeout: int = 2) -> bool:
         except AttributeError:
             # SIGALRM not available (Windows), do basic check without timeout
             from services.llm import get_llm_service
+
             llm_service = get_llm_service()
             return llm_service.check_health()
     except TimeoutError:
@@ -89,6 +93,7 @@ def check_ollama_connection(timeout: int = 2) -> bool:
     except Exception as e:
         logger.error(f"Ollama health check failed: {e}")
         return False
+
 
 router = APIRouter()
 

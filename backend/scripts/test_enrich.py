@@ -20,8 +20,7 @@ from services.ingestion.enricher import Enricher
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 
 logger = logging.getLogger(__name__)
@@ -29,8 +28,12 @@ logger = logging.getLogger(__name__)
 
 def main():
     parser = argparse.ArgumentParser(description="Test enrichment on limited verses")
-    parser.add_argument("--limit", type=int, default=2, help="Number of verses to enrich")
-    parser.add_argument("--verse-id", type=str, help="Specific canonical_id to enrich (e.g., BG_2_47)")
+    parser.add_argument(
+        "--limit", type=int, default=2, help="Number of verses to enrich"
+    )
+    parser.add_argument(
+        "--verse-id", type=str, help="Specific canonical_id to enrich (e.g., BG_2_47)"
+    )
     args = parser.parse_args()
 
     db = SessionLocal()
@@ -48,9 +51,12 @@ def main():
                 return 1
         else:
             # Get verses that need enrichment (empty paraphrase)
-            verses = db.query(Verse).filter(
-                (Verse.paraphrase_en.is_(None)) | (Verse.paraphrase_en == "")
-            ).limit(args.limit).all()
+            verses = (
+                db.query(Verse)
+                .filter((Verse.paraphrase_en.is_(None)) | (Verse.paraphrase_en == ""))
+                .limit(args.limit)
+                .all()
+            )
 
         if not verses:
             logger.info("No verses need enrichment")
@@ -75,7 +81,7 @@ def main():
                 verse_data,
                 extract_principles=True,
                 generate_paraphrase=True,
-                transliterate=False  # Already have IAST
+                transliterate=False,  # Already have IAST
             )
 
             # Show results

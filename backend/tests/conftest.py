@@ -1,16 +1,18 @@
 """Pytest configuration and fixtures."""
 
-import os
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from main import app
 from db import get_db
+
 # Import all models to register them with Base.metadata
-from models import Base, User, RefreshToken, Case, Output, Message, Verse
+# These imports are required to register models with SQLAlchemy Base.metadata
+from models import Base  # noqa: F401
+from models import User, RefreshToken, Case, Output, Message, Verse  # noqa: F401
 
 # Use in-memory SQLite with StaticPool for single connection across threads
 TEST_DATABASE_URL = "sqlite:///:memory:"

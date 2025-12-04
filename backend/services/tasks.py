@@ -49,9 +49,7 @@ def get_queue():
             from rq import Queue
 
             redis_conn = Redis.from_url(
-                settings.REDIS_URL,
-                socket_timeout=2,
-                socket_connect_timeout=2
+                settings.REDIS_URL, socket_timeout=2, socket_connect_timeout=2
             )
             # Test connection
             redis_conn.ping()
@@ -59,7 +57,7 @@ def get_queue():
             _queue = Queue(
                 name=settings.RQ_QUEUE_NAME,
                 connection=redis_conn,
-                default_timeout=settings.RQ_JOB_TIMEOUT
+                default_timeout=settings.RQ_JOB_TIMEOUT,
             )
             _rq_available = True
             logger.info(f"RQ queue '{settings.RQ_QUEUE_NAME}' connected successfully")
@@ -79,10 +77,7 @@ def reset_queue_connection():
 
 
 def enqueue_task(
-    func: Callable,
-    *args,
-    retry_delays: Optional[List[int]] = None,
-    **kwargs
+    func: Callable, *args, retry_delays: Optional[List[int]] = None, **kwargs
 ) -> Optional[str]:
     """
     Enqueue a task to RQ with retry support.
@@ -107,12 +102,7 @@ def enqueue_task(
         delays = retry_delays or _parse_retry_delays()
         retry = Retry(max=len(delays), interval=delays) if delays else None
 
-        job = queue.enqueue(
-            func,
-            *args,
-            retry=retry,
-            **kwargs
-        )
+        job = queue.enqueue(func, *args, retry=retry, **kwargs)
         logger.info(f"Enqueued task {func.__name__} with job ID: {job.id}")
         return str(job.id) if job.id else None
 
@@ -142,6 +132,7 @@ def get_job_status(job_id: str) -> Optional[str]:
 
     try:
         from rq.job import Job
+
         job = Job.fetch(job_id, connection=queue.connection)
         status = job.get_status()
         return str(status) if status else None

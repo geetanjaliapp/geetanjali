@@ -21,7 +21,7 @@ from api.schemas import OutputResponse, CaseResponse, FeedbackCreate, FeedbackRe
 from api.middleware.auth import get_optional_user, require_role, get_session_id
 from api.dependencies import get_case_with_access
 from services.rag import get_rag_pipeline
-from services.tasks import enqueue_task, is_rq_available
+from services.tasks import enqueue_task
 from models.feedback import Feedback
 from config import settings
 
@@ -46,11 +46,7 @@ def _build_case_data(case: Case) -> dict:
     }
 
 
-def _create_output_from_result(
-    case_id: str,
-    result: dict,
-    db: Session
-) -> Output:
+def _create_output_from_result(case_id: str, result: dict, db: Session) -> Output:
     """Create and persist an Output record from RAG result."""
     output = Output(
         id=str(uuid.uuid4()),
@@ -59,24 +55,21 @@ def _create_output_from_result(
         executive_summary=result.get("executive_summary", ""),
         confidence=result.get("confidence", 0.0),
         scholar_flag=result.get("scholar_flag", False),
-        created_at=datetime.utcnow()
+        created_at=datetime.utcnow(),
     )
     db.add(output)
     return output
 
 
 def _create_assistant_message(
-    case_id: str,
-    output: Output,
-    result: dict,
-    db: Session
+    case_id: str, output: Output, result: dict, db: Session
 ) -> None:
     """Create assistant message linked to output."""
     message_repo = MessageRepository(db)
     message_repo.create_assistant_message(
         case_id=case_id,
         content=result.get("executive_summary", ""),
-        output_id=output.id
+        output_id=output.id,
     )
 
 
@@ -115,7 +108,9 @@ def run_analysis_background(case_id: str, case_data: dict):
         # Create assistant message using helper
         _create_assistant_message(case_id, output, result, db)
 
-        logger.info(f"[Background] Analysis complete. Output ID: {output.id}, Confidence: {output.confidence}")
+        logger.info(
+            f"[Background] Analysis complete. Output ID: {output.id}, Confidence: {output.confidence}"
+        )
 
     except Exception as e:
         logger.error(f"[Background] Analysis failed for case {case_id}: {e}")
@@ -130,13 +125,17 @@ def run_analysis_background(case_id: str, case_data: dict):
         db.close()
 
 
-@router.post("/cases/{case_id}/analyze/async", response_model=CaseResponse, status_code=status.HTTP_202_ACCEPTED)
+@router.post(
+    "/cases/{case_id}/analyze/async",
+    response_model=CaseResponse,
+    status_code=status.HTTP_202_ACCEPTED,
+)
 @limiter.limit(settings.ANALYZE_RATE_LIMIT)
 async def analyze_case_async(
     request: Request,
     background_tasks: BackgroundTasks,
     case: Case = Depends(get_case_with_access),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     Start async analysis of a case using the RAG pipeline.
@@ -179,12 +178,16 @@ async def analyze_case_async(
     return case
 
 
-@router.post("/cases/{case_id}/analyze", response_model=OutputResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/cases/{case_id}/analyze",
+    response_model=OutputResponse,
+    status_code=status.HTTP_201_CREATED,
+)
 @limiter.limit(settings.ANALYZE_RATE_LIMIT)
 async def analyze_case(
     request: Request,
     case: Case = Depends(get_case_with_access),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     Analyze a case using the RAG pipeline (synchronous, supports anonymous users).
@@ -221,7 +224,9 @@ async def analyze_case(
             # Create assistant message
             _create_assistant_message(case.id, output, result, db)
 
-            logger.info(f"Analysis complete. Output ID: {output.id}, Confidence: {output.confidence}")
+            logger.info(
+                f"Analysis complete. Output ID: {output.id}, Confidence: {output.confidence}"
+            )
             return output
 
         except SQLAlchemyError as db_error:
@@ -229,7 +234,7 @@ async def analyze_case(
             logger.error(f"Database error saving output for case {case.id}: {db_error}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Unable to save your consultation. Please try again."
+                detail="Unable to save your consultation. Please try again.",
             )
 
     except HTTPException:
@@ -238,7 +243,7 @@ async def analyze_case(
         logger.error(f"Analysis failed for case {case.id}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Unable to complete your consultation right now. Please try again later."
+            detail="Unable to complete your consultation right now. Please try again later.",
         )
 
 
@@ -246,7 +251,7 @@ async def analyze_case(
 async def get_output(
     output_id: str,
     db: Session = Depends(get_db),
-    current_user: Optional[User] = Depends(get_optional_user)
+    current_user: Optional[User] = Depends(get_optional_user),
 ):
     """
     Get an output by ID (supports anonymous users).
@@ -267,7 +272,7 @@ async def get_output(
     if not output:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Output {output_id} not found"
+            detail=f"Output {output_id} not found",
         )
 
     # Verify ownership via case
@@ -277,7 +282,7 @@ async def get_output(
     if not case:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Case not found for this output"
+            detail="Case not found for this output",
         )
 
     # Verify ownership if case belongs to a user
@@ -285,7 +290,7 @@ async def get_output(
         if current_user is None or case.user_id != current_user.id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="You don't have access to this output"
+                detail="You don't have access to this output",
             )
 
     return output
@@ -295,7 +300,7 @@ async def get_output(
 async def list_case_outputs(
     case_id: str,
     db: Session = Depends(get_db),
-    current_user: Optional[User] = Depends(get_optional_user)
+    current_user: Optional[User] = Depends(get_optional_user),
 ):
     """
     List all outputs for a case (supports anonymous users).
@@ -314,8 +319,7 @@ async def list_case_outputs(
 
     if not case:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Case {case_id} not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"Case {case_id} not found"
         )
 
     # Verify ownership if case belongs to a user
@@ -323,7 +327,7 @@ async def list_case_outputs(
         if current_user is None or case.user_id != current_user.id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="You don't have access to this case"
+                detail="You don't have access to this case",
             )
 
     outputs = (
@@ -341,7 +345,7 @@ async def submit_scholar_review(
     output_id: str,
     approved: bool,
     db: Session = Depends(get_db),
-    scholar_user: User = Depends(require_role("scholar"))
+    scholar_user: User = Depends(require_role("scholar")),
 ):
     """
     Submit scholar review for an output.
@@ -363,7 +367,7 @@ async def submit_scholar_review(
     if not output:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Output {output_id} not found"
+            detail=f"Output {output_id} not found",
         )
 
     try:
@@ -384,20 +388,26 @@ async def submit_scholar_review(
 
     except Exception as db_error:
         db.rollback()
-        logger.error(f"Database error updating scholar review for output {output_id}: {db_error}")
+        logger.error(
+            f"Database error updating scholar review for output {output_id}: {db_error}"
+        )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to update review status"
+            detail="Failed to update review status",
         )
 
 
-@router.post("/outputs/{output_id}/feedback", response_model=FeedbackResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/outputs/{output_id}/feedback",
+    response_model=FeedbackResponse,
+    status_code=status.HTTP_201_CREATED,
+)
 async def submit_feedback(
     output_id: str,
     feedback_data: FeedbackCreate,
     db: Session = Depends(get_db),
     current_user: Optional[User] = Depends(get_optional_user),
-    session_id: Optional[str] = Depends(get_session_id)
+    session_id: Optional[str] = Depends(get_session_id),
 ):
     """
     Submit feedback (thumbs up/down + optional comment) for an output.
@@ -423,14 +433,14 @@ async def submit_feedback(
     if not output:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Output {output_id} not found"
+            detail=f"Output {output_id} not found",
         )
 
     # Need either user or session
     if not current_user and not session_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Authentication or session required to submit feedback"
+            detail="Authentication or session required to submit feedback",
         )
 
     # Check for existing feedback
@@ -439,14 +449,13 @@ async def submit_feedback(
         existing = existing_query.filter(Feedback.user_id == current_user.id).first()
     else:
         existing = existing_query.filter(
-            Feedback.session_id == session_id,
-            Feedback.user_id.is_(None)
+            Feedback.session_id == session_id, Feedback.user_id.is_(None)
         ).first()
 
     if existing:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Feedback already submitted for this output"
+            detail="Feedback already submitted for this output",
         )
 
     # Create feedback
@@ -456,7 +465,7 @@ async def submit_feedback(
         session_id=session_id if not current_user else None,
         rating=feedback_data.rating,
         comment=feedback_data.comment,
-        created_at=datetime.utcnow()
+        created_at=datetime.utcnow(),
     )
 
     db.add(feedback)

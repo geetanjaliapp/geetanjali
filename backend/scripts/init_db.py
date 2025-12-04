@@ -6,15 +6,16 @@ from pathlib import Path
 # Add parent directory to path so we can import from backend
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from sqlalchemy import create_engine
-from config import settings
-from models.base import Base
-from models.user import User
-from models.case import Case
-from models.message import Message
-from models.output import Output
-from models.refresh_token import RefreshToken
-from models.verse import Verse, Translation
+from sqlalchemy import create_engine  # noqa: E402
+from config import settings  # noqa: E402
+from models.base import Base  # noqa: E402
+from models.user import User  # noqa: E402, F401
+from models.case import Case  # noqa: E402, F401
+from models.message import Message  # noqa: E402, F401
+from models.output import Output  # noqa: E402, F401
+from models.refresh_token import RefreshToken  # noqa: E402, F401
+from models.verse import Verse, Translation  # noqa: E402, F401
+
 
 def init_database():
     """Create all database tables."""
@@ -33,6 +34,7 @@ def init_database():
 
     print("✅ Database initialized successfully!")
     print(f"Tables created: {list(Base.metadata.tables.keys())}")
+
 
 if __name__ == "__main__":
     init_database()

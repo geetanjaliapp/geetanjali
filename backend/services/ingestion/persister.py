@@ -34,11 +34,7 @@ class Persister:
 
         logger.info("Persister initialized")
 
-    def persist_verse(
-        self,
-        verse_data: Dict,
-        update_existing: bool = True
-    ) -> Verse:
+    def persist_verse(self, verse_data: Dict, update_existing: bool = True) -> Verse:
         """
         Persist a single verse to database and vector store.
 
@@ -55,7 +51,9 @@ class Persister:
         canonical_id = verse_data["canonical_id"]
 
         # Check if verse already exists
-        existing_verse = self.db.query(Verse).filter_by(canonical_id=canonical_id).first()
+        existing_verse = (
+            self.db.query(Verse).filter_by(canonical_id=canonical_id).first()
+        )
 
         if existing_verse:
             if update_existing:
@@ -94,7 +92,7 @@ class Persister:
             paraphrase_en=verse_data.get("paraphrase_en", ""),
             consulting_principles=verse_data.get("consulting_principles"),
             source=verse_data.get("source", ""),
-            license=verse_data.get("license", "")
+            license=verse_data.get("license", ""),
         )
 
         self.db.add(verse)
@@ -201,7 +199,7 @@ class Persister:
                 canonical_id=verse.canonical_id,
                 text=combined_text,
                 metadata=metadata,
-                embedding=embedding  # type: ignore[arg-type]
+                embedding=embedding,  # type: ignore[arg-type]
             )
 
             logger.debug(f"Persisted embedding for {verse.canonical_id}")
@@ -210,11 +208,7 @@ class Persister:
             logger.error(f"Failed to persist embedding for {verse.canonical_id}: {e}")
             # Don't fail the whole operation if embedding fails
 
-    def persist_translation(
-        self,
-        verse_id: str,
-        translation_data: Dict
-    ) -> Translation:
+    def persist_translation(self, verse_id: str, translation_data: Dict) -> Translation:
         """
         Persist a translation for a verse.
 
@@ -234,7 +228,7 @@ class Persister:
             school=translation_data.get("school", ""),
             source=translation_data.get("source", ""),
             license=translation_data.get("license", ""),
-            year=translation_data.get("year")
+            year=translation_data.get("year"),
         )
 
         self.db.add(translation)
@@ -245,9 +239,7 @@ class Persister:
         return translation
 
     def persist_batch(
-        self,
-        verses_data: List[Dict],
-        batch_size: int = 50
+        self, verses_data: List[Dict], batch_size: int = 50
     ) -> Dict[str, int]:
         """
         Persist multiple verses in batches with transaction handling.
@@ -265,19 +257,23 @@ class Persister:
         logger.info(f"Persisting {total} verses in batches of {batch_size}")
 
         for i in range(0, total, batch_size):
-            batch = verses_data[i:i + batch_size]
+            batch = verses_data[i : i + batch_size]
 
             try:
                 for verse_data in batch:
                     try:
                         # Check if exists
                         canonical_id = verse_data["canonical_id"]
-                        existing = self.db.query(Verse).filter_by(
-                            canonical_id=canonical_id
-                        ).first()
+                        existing = (
+                            self.db.query(Verse)
+                            .filter_by(canonical_id=canonical_id)
+                            .first()
+                        )
 
                         # Check if this is translation-only data
-                        is_translation_data = verse_data.get("_is_translation_data", False)
+                        is_translation_data = verse_data.get(
+                            "_is_translation_data", False
+                        )
 
                         if existing:
                             self._update_verse(existing, verse_data)
@@ -311,18 +307,21 @@ class Persister:
                                 "license": verse_data.get("license"),
                             }
                             self.persist_translation(
-                                verse_instance.id,
-                                translation_data
+                                verse_instance.id, translation_data
                             )
 
                         # Handle multiple translations array (from translation.json)
                         if verse_data.get("translations"):
                             for trans in verse_data["translations"]:
                                 # Check if this translation already exists
-                                existing_trans = self.db.query(Translation).filter_by(
-                                    verse_id=verse_instance.id,
-                                    translator=trans.get("translator", "")
-                                ).first()
+                                existing_trans = (
+                                    self.db.query(Translation)
+                                    .filter_by(
+                                        verse_id=verse_instance.id,
+                                        translator=trans.get("translator", ""),
+                                    )
+                                    .first()
+                                )
 
                                 if not existing_trans:
                                     translation_data = {
@@ -333,17 +332,20 @@ class Persister:
                                         "license": trans.get("license", ""),
                                     }
                                     self.persist_translation(
-                                        verse_instance.id,
-                                        translation_data
+                                        verse_instance.id, translation_data
                                     )
 
                     except Exception as e:
-                        logger.error(f"Failed to persist verse {verse_data.get('canonical_id')}: {e}")
+                        logger.error(
+                            f"Failed to persist verse {verse_data.get('canonical_id')}: {e}"
+                        )
                         stats["errors"] += 1
 
                 # Commit batch
                 self.db.commit()
-                logger.info(f"Committed batch {i // batch_size + 1}: {i + len(batch)}/{total}")
+                logger.info(
+                    f"Committed batch {i // batch_size + 1}: {i + len(batch)}/{total}"
+                )
 
             except Exception as e:
                 logger.error(f"Batch commit failed: {e}")
@@ -366,5 +368,5 @@ class Persister:
         return {
             "database_verses": db_count,
             "vector_store_verses": vector_count,
-            "sync_status": "OK" if db_count == vector_count else "OUT_OF_SYNC"
+            "sync_status": "OK" if db_count == vector_count else "OUT_OF_SYNC",
         }

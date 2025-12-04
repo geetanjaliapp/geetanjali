@@ -17,23 +17,22 @@ def _get_resend():
     if _resend_client is None:
         try:
             import resend
+
             if settings.RESEND_API_KEY:
                 resend.api_key = settings.RESEND_API_KEY
                 _resend_client = resend
                 logger.info("Resend email client initialized")
             else:
-                logger.warning("RESEND_API_KEY not configured - emails will not be sent")
+                logger.warning(
+                    "RESEND_API_KEY not configured - emails will not be sent"
+                )
         except ImportError:
             logger.warning("Resend library not installed - emails will not be sent")
     return _resend_client
 
 
 def send_contact_email(
-    name: str,
-    email: str,
-    message_type: str,
-    subject: Optional[str],
-    message: str
+    name: str, email: str, message_type: str, subject: Optional[str], message: str
 ) -> bool:
     """
     Send contact form message via email.

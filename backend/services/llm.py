@@ -1,7 +1,6 @@
 """Hybrid LLM service with Anthropic Claude primary and Ollama fallback."""
 
 import logging
-import json
 import httpx
 from typing import Dict, Any, Optional
 from enum import Enum
@@ -10,11 +9,12 @@ from tenacity import (
     stop_after_attempt,
     wait_exponential,
     retry_if_exception_type,
-    before_sleep_log
+    before_sleep_log,
 )
 
 try:
     from anthropic import Anthropic, AnthropicError, APITimeoutError, APIConnectionError
+
     ANTHROPIC_AVAILABLE = True
 except ImportError:
     ANTHROPIC_AVAILABLE = False
@@ -27,6 +27,7 @@ logger = logging.getLogger(__name__)
 
 class LLMProvider(str, Enum):
     """LLM provider types."""
+
     ANTHROPIC = "anthropic"
     OLLAMA = "ollama"
 
@@ -47,7 +48,9 @@ class LLMService:
 
         if self.use_mock:
             self.mock_service = MockLLMService()
-            logger.info("LLM Service initialized with MOCK provider (fast testing mode)")
+            logger.info(
+                "LLM Service initialized with MOCK provider (fast testing mode)"
+            )
             return
 
         self.primary_provider = LLMProvider(settings.LLM_PROVIDER.lower())
@@ -59,7 +62,9 @@ class LLMService:
             self.anthropic_client = Anthropic(api_key=settings.ANTHROPIC_API_KEY)
             logger.info(f"Anthropic client initialized: {settings.ANTHROPIC_MODEL}")
         elif self.primary_provider == LLMProvider.ANTHROPIC:
-            logger.warning("Anthropic selected as primary but API key not set or SDK not installed")
+            logger.warning(
+                "Anthropic selected as primary but API key not set or SDK not installed"
+            )
 
         # Ollama configuration
         self.ollama_enabled = settings.OLLAMA_ENABLED
@@ -103,7 +108,7 @@ class LLMService:
         prompt: str,
         system_prompt: Optional[str] = None,
         temperature: float = 0.7,
-        max_tokens: Optional[int] = None
+        max_tokens: Optional[int] = None,
     ) -> Dict[str, Any]:
         """Generate response using Anthropic Claude."""
         if not self.anthropic_client:
@@ -119,10 +124,8 @@ class LLMService:
                 max_tokens=max_tokens,
                 temperature=temperature,
                 system=system_prompt or "",
-                messages=[
-                    {"role": "user", "content": prompt}
-                ],
-                timeout=settings.ANTHROPIC_TIMEOUT
+                messages=[{"role": "user", "content": prompt}],
+                timeout=settings.ANTHROPIC_TIMEOUT,
             )
 
             response_text = response.content[0].text
@@ -150,19 +153,18 @@ class LLMService:
     @retry(
         stop=stop_after_attempt(settings.OLLAMA_MAX_RETRIES),
         wait=wait_exponential(
-            min=settings.OLLAMA_RETRY_MIN_WAIT,
-            max=settings.OLLAMA_RETRY_MAX_WAIT
+            min=settings.OLLAMA_RETRY_MIN_WAIT, max=settings.OLLAMA_RETRY_MAX_WAIT
         ),
         retry=retry_if_exception_type((httpx.TimeoutException, httpx.ConnectError)),
         before_sleep=before_sleep_log(logger, logging.WARNING),
-        reraise=True
+        reraise=True,
     )
     def _make_ollama_request(self, payload: Dict[str, Any]) -> Dict[str, Any]:
         """Make Ollama request with retry logic."""
         response = httpx.post(
             f"{self.ollama_base_url}/api/generate",
             json=payload,
-            timeout=settings.OLLAMA_TIMEOUT
+            timeout=settings.OLLAMA_TIMEOUT,
         )
         response.raise_for_status()
         return dict(response.json())
@@ -173,7 +175,7 @@ class LLMService:
         system_prompt: Optional[str] = None,
         temperature: float = 0.7,
         max_tokens: Optional[int] = None,
-        simplified: bool = False
+        simplified: bool = False,
     ) -> Dict[str, Any]:
         """
         Generate response using Ollama.
@@ -184,7 +186,9 @@ class LLMService:
         if not self.ollama_enabled:
             raise Exception("Ollama not enabled")
 
-        logger.debug(f"Calling Ollama ({self.ollama_model}) with {len(prompt)} char prompt")
+        logger.debug(
+            f"Calling Ollama ({self.ollama_model}) with {len(prompt)} char prompt"
+        )
 
         # Use limited tokens for fallback mode
         if simplified and not max_tokens:
@@ -197,7 +201,7 @@ class LLMService:
             "format": "json",  # OPTIMIZATION: Force JSON output mode
             "options": {
                 "temperature": 0.3,  # OPTIMIZATION: Lower temp for deterministic JSON
-            }
+            },
         }
 
         if system_prompt:
@@ -220,7 +224,9 @@ class LLMService:
             }
 
         except httpx.TimeoutException as e:
-            logger.error(f"Ollama timeout after {settings.OLLAMA_MAX_RETRIES} retries: {e}")
+            logger.error(
+                f"Ollama timeout after {settings.OLLAMA_MAX_RETRIES} retries: {e}"
+            )
             raise Exception("Ollama request timed out")
         except Exception as e:
             logger.error(f"Ollama error: {e}")
@@ -233,7 +239,7 @@ class LLMService:
         temperature: float = 0.7,
         max_tokens: Optional[int] = None,
         fallback_prompt: Optional[str] = None,
-        fallback_system: Optional[str] = None
+        fallback_system: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Generate text using primary LLM with fallback.
@@ -251,19 +257,31 @@ class LLMService:
         """
         # Use mock if enabled
         if self.use_mock:
-            return dict(self.mock_service.generate(
-                prompt, system_prompt, temperature, max_tokens,
-                fallback_prompt, fallback_system
-            ))
+            return dict(
+                self.mock_service.generate(
+                    prompt,
+                    system_prompt,
+                    temperature,
+                    max_tokens,
+                    fallback_prompt,
+                    fallback_system,
+                )
+            )
 
         # Try primary provider
         try:
             if self.primary_provider == LLMProvider.ANTHROPIC:
-                return self._generate_anthropic(prompt, system_prompt, temperature, max_tokens)
+                return self._generate_anthropic(
+                    prompt, system_prompt, temperature, max_tokens
+                )
             elif self.primary_provider == LLMProvider.OLLAMA:
-                return self._generate_ollama(prompt, system_prompt, temperature, max_tokens)
+                return self._generate_ollama(
+                    prompt, system_prompt, temperature, max_tokens
+                )
         except Exception as e:
-            logger.warning(f"Primary provider {self.primary_provider.value} failed: {e}")
+            logger.warning(
+                f"Primary provider {self.primary_provider.value} failed: {e}"
+            )
 
             # Try fallback if enabled
             if self.fallback_enabled:
@@ -276,17 +294,25 @@ class LLMService:
                     if self.primary_provider == LLMProvider.ANTHROPIC:
                         # Fallback to Ollama with simplified prompt
                         return self._generate_ollama(
-                            fb_prompt, fb_system, temperature, max_tokens, simplified=True
+                            fb_prompt,
+                            fb_system,
+                            temperature,
+                            max_tokens,
+                            simplified=True,
                         )
                     elif self.primary_provider == LLMProvider.OLLAMA:
                         # Fallback to Anthropic if available
                         if self.anthropic_client:
-                            return self._generate_anthropic(fb_prompt, fb_system, temperature, max_tokens)
+                            return self._generate_anthropic(
+                                fb_prompt, fb_system, temperature, max_tokens
+                            )
                         else:
                             raise Exception("No fallback provider available")
                 except Exception as fallback_error:
                     logger.error(f"Fallback provider also failed: {fallback_error}")
-                    raise Exception(f"All LLM providers failed. Primary: {e}, Fallback: {fallback_error}")
+                    raise Exception(
+                        f"All LLM providers failed. Primary: {e}, Fallback: {fallback_error}"
+                    )
             else:
                 raise
 
@@ -298,7 +324,7 @@ class LLMService:
         system_prompt: Optional[str] = None,
         temperature: float = 0.3,
         fallback_prompt: Optional[str] = None,
-        fallback_system: Optional[str] = None
+        fallback_system: Optional[str] = None,
     ) -> str:
         """
         Generate JSON response from LLM.
@@ -320,14 +346,18 @@ class LLMService:
         )
 
         full_system = (system_prompt or "") + json_instruction
-        fb_system = (fallback_system or "") + json_instruction if fallback_system else full_system
+        fb_system = (
+            (fallback_system or "") + json_instruction
+            if fallback_system
+            else full_system
+        )
 
         result = self.generate(
             prompt=prompt,
             system_prompt=full_system,
             temperature=temperature,
             fallback_prompt=fallback_prompt,
-            fallback_system=fb_system
+            fallback_system=fb_system,
         )
 
         return str(result["response"])

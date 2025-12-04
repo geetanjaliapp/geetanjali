@@ -28,17 +28,16 @@ def verify_admin_api_key(x_api_key: str = Header(..., alias="X-API-Key")):
     Uses constant-time comparison to prevent timing attacks.
     """
     if not secrets.compare_digest(x_api_key, settings.API_KEY):
-        raise HTTPException(
-            status_code=401,
-            detail="Invalid or missing API key"
-        )
+        raise HTTPException(status_code=401, detail="Invalid or missing API key")
     return True
 
 
 class IngestionRequest(BaseModel):
     """Request model for data ingestion."""
 
-    source_type: Optional[str] = None  # sanskrit, translations, commentaries, or None for all
+    source_type: Optional[str] = (
+        None  # sanskrit, translations, commentaries, or None for all
+    )
     force_refresh: bool = False
 
 
@@ -70,10 +69,14 @@ def get_status(db: Session = Depends(get_db)):
 
         if verse_count == 0:
             status = "empty"
-            message = "No data ingested yet. Use POST /api/v1/admin/ingest to load data."
+            message = (
+                "No data ingested yet. Use POST /api/v1/admin/ingest to load data."
+            )
         elif verse_count < 100:
             status = "incomplete"
-            message = f"Only {verse_count} verses found. Full Bhagavad Geeta has 700 verses."
+            message = (
+                f"Only {verse_count} verses found. Full Bhagavad Geeta has 700 verses."
+            )
         else:
             status = "ready"
             message = f"Database contains {verse_count} verses."
@@ -82,7 +85,7 @@ def get_status(db: Session = Depends(get_db)):
             status=status,
             message=message,
             verse_count=verse_count,
-            ingestion_running=_ingestion_running
+            ingestion_running=_ingestion_running,
         )
 
     except Exception as e:
@@ -95,7 +98,7 @@ def trigger_ingestion(
     request: IngestionRequest,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
-    _: bool = Depends(verify_admin_api_key)
+    _: bool = Depends(verify_admin_api_key),
 ):
     """
     Trigger data ingestion manually.
@@ -126,7 +129,7 @@ def trigger_ingestion(
         if _ingestion_running:
             raise HTTPException(
                 status_code=409,
-                detail="Ingestion is already running. Please wait for it to complete."
+                detail="Ingestion is already running. Please wait for it to complete.",
             )
         _ingestion_running = True
 
@@ -137,14 +140,14 @@ def trigger_ingestion(
         background_tasks.add_task(
             run_ingestion_task,
             source_type=request.source_type,
-            force_refresh=request.force_refresh
+            force_refresh=request.force_refresh,
         )
 
         return IngestionStatus(
             status="queued",
             message="Ingestion queued and running in background. Check /api/v1/admin/status for progress.",
             verse_count=verse_count,
-            ingestion_running=True
+            ingestion_running=True,
         )
 
     except HTTPException:
@@ -157,10 +160,7 @@ def trigger_ingestion(
         raise HTTPException(status_code=500, detail="Failed to queue ingestion")
 
 
-def run_ingestion_task(
-    source_type: Optional[str] = None,
-    force_refresh: bool = False
-):
+def run_ingestion_task(source_type: Optional[str] = None, force_refresh: bool = False):
     """
     Background task to run data ingestion.
 
@@ -188,7 +188,7 @@ def run_ingestion_task(
             source_types=source_types,
             force_refresh=force_refresh,
             enrich=False,
-            dry_run=False
+            dry_run=False,
         )
 
         # Log results
@@ -245,9 +245,11 @@ def sync_featured_verses(db: Session) -> dict:
     not_found = []
 
     for canonical_id in featured_ids:
-        result = db.query(Verse).filter(
-            Verse.canonical_id == canonical_id
-        ).update({"is_featured": True})
+        result = (
+            db.query(Verse)
+            .filter(Verse.canonical_id == canonical_id)
+            .update({"is_featured": True})
+        )
 
         if result > 0:
             synced += 1
@@ -257,7 +259,9 @@ def sync_featured_verses(db: Session) -> dict:
     db.commit()
 
     if not_found:
-        logger.warning(f"Featured verses not found in DB: {not_found[:10]}{'...' if len(not_found) > 10 else ''}")
+        logger.warning(
+            f"Featured verses not found in DB: {not_found[:10]}{'...' if len(not_found) > 10 else ''}"
+        )
 
     logger.info(f"Synced {synced}/{len(featured_ids)} featured verses")
 
@@ -265,14 +269,13 @@ def sync_featured_verses(db: Session) -> dict:
         "total_featured": len(featured_ids),
         "synced": synced,
         "not_found": len(not_found),
-        "not_found_ids": not_found
+        "not_found_ids": not_found,
     }
 
 
 @router.post("/sync-featured", response_model=SyncFeaturedResponse)
 def trigger_sync_featured(
-    db: Session = Depends(get_db),
-    _: bool = Depends(verify_admin_api_key)
+    db: Session = Depends(get_db), _: bool = Depends(verify_admin_api_key)
 ):
     """
     Sync featured verses from curated list to database.
@@ -291,7 +294,7 @@ def trigger_sync_featured(
             message=f"Synced {stats['synced']} of {stats['total_featured']} featured verses.",
             total_featured=stats["total_featured"],
             synced=stats["synced"],
-            not_found=stats["not_found"]
+            not_found=stats["not_found"],
         )
 
     except Exception as e:
@@ -322,7 +325,7 @@ def enrich_verses(
     request: EnrichRequest,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
-    _: bool = Depends(verify_admin_api_key)
+    _: bool = Depends(verify_admin_api_key),
 ):
     """
     Enrich database verses with LLM-generated content.
@@ -347,7 +350,7 @@ def enrich_verses(
         if _ingestion_running:
             raise HTTPException(
                 status_code=409,
-                detail="Ingestion/enrichment is already running. Please wait."
+                detail="Ingestion/enrichment is already running. Please wait.",
             )
         _ingestion_running = True
 
@@ -356,7 +359,8 @@ def enrich_verses(
         query = db.query(Verse).filter(Verse.translation_en.isnot(None))
         if not request.force:
             query = query.filter(
-                (Verse.paraphrase_en.is_(None)) | (Verse.consulting_principles.is_(None))
+                (Verse.paraphrase_en.is_(None))
+                | (Verse.consulting_principles.is_(None))
             )
 
         if request.limit > 0:
@@ -366,9 +370,7 @@ def enrich_verses(
 
         # Queue enrichment in background
         background_tasks.add_task(
-            run_enrich_task,
-            limit=request.limit,
-            force=request.force
+            run_enrich_task, limit=request.limit, force=request.force
         )
 
         return EnrichResponse(
@@ -377,7 +379,7 @@ def enrich_verses(
             total_verses=total_to_enrich,
             enriched=0,
             skipped=0,
-            errors=0
+            errors=0,
         )
 
     except HTTPException:
@@ -420,7 +422,8 @@ def run_enrich_task(limit: int = 0, force: bool = False):
         query = db.query(Verse).filter(Verse.translation_en.isnot(None))
         if not force:
             query = query.filter(
-                (Verse.paraphrase_en.is_(None)) | (Verse.consulting_principles.is_(None))
+                (Verse.paraphrase_en.is_(None))
+                | (Verse.consulting_principles.is_(None))
             )
 
         if limit > 0:
@@ -439,7 +442,9 @@ def run_enrich_task(limit: int = 0, force: bool = False):
                     "sanskrit_devanagari": verse.sanskrit_devanagari,
                     "sanskrit_iast": verse.sanskrit_iast,
                     "paraphrase_en": verse.paraphrase_en if not force else None,
-                    "consulting_principles": verse.consulting_principles if not force else None,
+                    "consulting_principles": (
+                        verse.consulting_principles if not force else None
+                    ),
                 }
 
                 # Run enrichment
@@ -447,12 +452,15 @@ def run_enrich_task(limit: int = 0, force: bool = False):
                     verse_dict,
                     extract_principles=True,
                     generate_paraphrase=True,
-                    transliterate=True
+                    transliterate=True,
                 )
 
                 # Update database
                 updated = False
-                if enriched.get("paraphrase_en") and enriched["paraphrase_en"] != verse.paraphrase_en:
+                if (
+                    enriched.get("paraphrase_en")
+                    and enriched["paraphrase_en"] != verse.paraphrase_en
+                ):
                     verse.paraphrase_en = enriched["paraphrase_en"]
                     updated = True
                 if enriched.get("consulting_principles"):

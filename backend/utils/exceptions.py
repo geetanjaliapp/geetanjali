@@ -11,7 +11,9 @@ logger = logging.getLogger(__name__)
 class GeetanjaliException(Exception):
     """Base exception for Geetanjali errors."""
 
-    def __init__(self, message: str, status_code: int = status.HTTP_500_INTERNAL_SERVER_ERROR):
+    def __init__(
+        self, message: str, status_code: int = status.HTTP_500_INTERNAL_SERVER_ERROR
+    ):
         self.message = message
         self.status_code = status_code
         super().__init__(self.message)
@@ -38,7 +40,9 @@ class LLMError(GeetanjaliException):
         super().__init__(message, status_code=status.HTTP_503_SERVICE_UNAVAILABLE)
 
 
-async def geetanjali_exception_handler(request: Request, exc: GeetanjaliException) -> JSONResponse:
+async def geetanjali_exception_handler(
+    request: Request, exc: GeetanjaliException
+) -> JSONResponse:
     """Handle Geetanjali custom exceptions."""
     logger.error(f"GeetanjaliException: {exc.message}")
 
@@ -47,12 +51,14 @@ async def geetanjali_exception_handler(request: Request, exc: GeetanjaliExceptio
         content={
             "error": exc.__class__.__name__,
             "message": exc.message,
-            "path": str(request.url)
-        }
+            "path": str(request.url),
+        },
     )
 
 
-async def validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
+async def validation_exception_handler(
+    request: Request, exc: RequestValidationError
+) -> JSONResponse:
     """Handle request validation errors."""
     logger.warning(f"Validation error: {exc.errors()}")
 
@@ -61,8 +67,8 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         content={
             "error": "ValidationError",
             "message": "Request validation failed",
-            "details": exc.errors()
-        }
+            "details": exc.errors(),
+        },
     )
 
 
@@ -75,6 +81,6 @@ async def general_exception_handler(request: Request, exc: Exception) -> JSONRes
         content={
             "error": "InternalServerError",
             "message": "An unexpected error occurred",
-            "path": str(request.url)
-        }
+            "path": str(request.url),
+        },
     )

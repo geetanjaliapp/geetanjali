@@ -21,13 +21,15 @@ if is_sqlite:
     # SQLite uses NullPool by default, which is appropriate for development
 else:
     # PostgreSQL/production configuration
-    engine_kwargs.update({
-        "pool_size": settings.DB_POOL_SIZE,
-        "max_overflow": settings.DB_MAX_OVERFLOW,
-        "pool_recycle": settings.DB_POOL_RECYCLE,
-        "pool_pre_ping": settings.DB_POOL_PRE_PING,
-        "connect_args": {"connect_timeout": 10},
-    })
+    engine_kwargs.update(
+        {
+            "pool_size": settings.DB_POOL_SIZE,
+            "max_overflow": settings.DB_MAX_OVERFLOW,
+            "pool_recycle": settings.DB_POOL_RECYCLE,
+            "pool_pre_ping": settings.DB_POOL_PRE_PING,
+            "connect_args": {"connect_timeout": 10},
+        }
+    )
 
 engine = create_engine(settings.DATABASE_URL, **engine_kwargs)
 

@@ -1,4 +1,5 @@
 """Alembic environment configuration."""
+
 import os
 import sys
 from logging.config import fileConfig
@@ -17,14 +18,23 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 # Import all models for autogenerate support
-from models.base import Base
-from models import User, Case, Output, Verse, Commentary, Translation
+from models.base import Base  # noqa: E402
+from models import (  # noqa: E402, F401
+    User,
+    Case,
+    Output,
+    Verse,
+    Commentary,
+    Translation,
+)
 
 target_metadata = Base.metadata
+
 
 def get_url():
     """Get database URL from environment or default to SQLite."""
     return os.getenv("DATABASE_URL", "sqlite:///./geetanjali.db")
+
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode."""
@@ -38,6 +48,7 @@ def run_migrations_offline() -> None:
 
     with context.begin_transaction():
         context.run_migrations()
+
 
 def run_migrations_online() -> None:
     """Run migrations in 'online' mode."""
@@ -53,13 +64,11 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection,
-            target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()
+
 
 if context.is_offline_mode():
     run_migrations_offline()

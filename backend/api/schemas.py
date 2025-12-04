@@ -45,7 +45,9 @@ class SignupRequest(BaseModel):
 
     email: EmailStr = Field(..., description="User email address")
     name: str = Field(..., min_length=1, max_length=255, description="User full name")
-    password: str = Field(..., min_length=8, description="Password (minimum 8 characters)")
+    password: str = Field(
+        ..., min_length=8, description="Password (minimum 8 characters)"
+    )
 
 
 class LoginRequest(BaseModel):
@@ -82,16 +84,20 @@ class CaseBase(BaseModel):
     description: str = Field(
         ...,
         max_length=10000,
-        description="Detailed problem statement (max 10,000 characters)"
+        description="Detailed problem statement (max 10,000 characters)",
     )
     role: Optional[str] = Field(None, max_length=100, description="Requester's role")
     stakeholders: Optional[List[str]] = Field(None, description="Key affected parties")
     constraints: Optional[List[str]] = Field(None, description="Hard constraints")
     horizon: Optional[str] = Field(None, description="Time horizon: short/medium/long")
     sensitivity: str = Field("low", description="Sensitivity level: low/medium/high")
-    attachments: Optional[Dict[str, Any]] = Field(None, description="Optional supporting docs")
+    attachments: Optional[Dict[str, Any]] = Field(
+        None, description="Optional supporting docs"
+    )
     locale: str = Field("en", description="Language/locale preference")
-    session_id: Optional[str] = Field(None, description="Session ID for anonymous users")
+    session_id: Optional[str] = Field(
+        None, description="Session ID for anonymous users"
+    )
 
 
 class CaseCreate(CaseBase):
@@ -106,7 +112,10 @@ class CaseResponse(CaseBase):
     id: str
     user_id: Optional[str]
     session_id: Optional[str]
-    status: str = Field("draft", description="Processing status: draft/pending/processing/completed/failed")
+    status: str = Field(
+        "draft",
+        description="Processing status: draft/pending/processing/completed/failed",
+    )
     created_at: datetime
     updated_at: datetime
 
@@ -122,14 +131,26 @@ class CaseResponse(CaseBase):
 class VerseBase(BaseModel):
     """Base verse schema."""
 
-    canonical_id: str = Field(..., pattern=r"^BG_\d+_\d+$", description="Format: BG_chapter_verse")
+    canonical_id: str = Field(
+        ..., pattern=r"^BG_\d+_\d+$", description="Format: BG_chapter_verse"
+    )
     chapter: int = Field(..., ge=1, le=18, description="Chapter number (1-18)")
     verse: int = Field(..., ge=1, description="Verse number")
-    sanskrit_iast: Optional[str] = Field(None, description="Sanskrit in IAST transliteration")
-    sanskrit_devanagari: Optional[str] = Field(None, description="Sanskrit in Devanagari script")
-    translation_en: Optional[str] = Field(None, description="Primary English translation")
-    paraphrase_en: Optional[str] = Field(None, description="LLM-generated leadership summary")
-    consulting_principles: Optional[List[str]] = Field(None, description="Leadership principles")
+    sanskrit_iast: Optional[str] = Field(
+        None, description="Sanskrit in IAST transliteration"
+    )
+    sanskrit_devanagari: Optional[str] = Field(
+        None, description="Sanskrit in Devanagari script"
+    )
+    translation_en: Optional[str] = Field(
+        None, description="Primary English translation"
+    )
+    paraphrase_en: Optional[str] = Field(
+        None, description="LLM-generated leadership summary"
+    )
+    consulting_principles: Optional[List[str]] = Field(
+        None, description="Leadership principles"
+    )
 
 
 class VerseCreate(VerseBase):
@@ -267,9 +288,7 @@ class FeedbackCreate(BaseModel):
 
     rating: bool = Field(..., description="True for thumbs up, False for thumbs down")
     comment: Optional[str] = Field(
-        None,
-        max_length=280,
-        description="Optional comment (max 280 characters)"
+        None, max_length=280, description="Optional comment (max 280 characters)"
     )
 
 

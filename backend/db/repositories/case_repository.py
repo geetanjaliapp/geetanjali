@@ -34,7 +34,9 @@ class CaseRepository(BaseRepository[Case]):
             .all()
         )
 
-    def get_by_session(self, session_id: str, skip: int = 0, limit: int = 100) -> List[Case]:
+    def get_by_session(
+        self, session_id: str, skip: int = 0, limit: int = 100
+    ) -> List[Case]:
         """
         Get all cases for an anonymous session.
 
@@ -55,7 +57,9 @@ class CaseRepository(BaseRepository[Case]):
             .all()
         )
 
-    def get_by_sensitivity(self, sensitivity: str, skip: int = 0, limit: int = 100) -> List[Case]:
+    def get_by_sensitivity(
+        self, sensitivity: str, skip: int = 0, limit: int = 100
+    ) -> List[Case]:
         """
         Get cases by sensitivity level.
 
@@ -93,10 +97,12 @@ class CaseRepository(BaseRepository[Case]):
         count = (
             self.db.query(Case)
             .filter(Case.session_id == session_id, Case.user_id.is_(None))
-            .update({
-                "user_id": user_id,
-                "session_id": None  # Clear session ID after migration
-            })
+            .update(
+                {
+                    "user_id": user_id,
+                    "session_id": None,  # Clear session ID after migration
+                }
+            )
         )
         self.db.commit()
         return count

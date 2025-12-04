@@ -16,9 +16,13 @@ class EmbeddingService:
         """Initialize the embedding model."""
         logger.info(f"Loading embedding model: {settings.EMBEDDING_MODEL}")
         self.model = SentenceTransformer(settings.EMBEDDING_MODEL)
-        logger.info(f"Embedding model loaded. Dimension: {settings.EMBEDDING_DIMENSION}")
+        logger.info(
+            f"Embedding model loaded. Dimension: {settings.EMBEDDING_DIMENSION}"
+        )
 
-    def encode(self, text: Union[str, List[str]]) -> Union[List[float], List[List[float]]]:
+    def encode(
+        self, text: Union[str, List[str]]
+    ) -> Union[List[float], List[List[float]]]:
         """
         Generate embeddings for text.
 

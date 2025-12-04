@@ -6,7 +6,11 @@ from sqlalchemy.orm import Session
 
 from db.connection import get_db
 from db.repositories.case_repository import CaseRepository
-from api.middleware.auth import get_optional_user, get_session_id, user_can_access_resource
+from api.middleware.auth import (
+    get_optional_user,
+    get_session_id,
+    user_can_access_resource,
+)
 from models.case import Case
 from models.user import User
 
@@ -34,7 +38,7 @@ class CaseAccessDep:
         case_id: str,
         db: Session = Depends(get_db),
         current_user: Optional[User] = Depends(get_optional_user),
-        session_id: Optional[str] = Depends(get_session_id)
+        session_id: Optional[str] = Depends(get_session_id),
     ) -> Case:
         """
         Retrieve case and validate access.
@@ -56,7 +60,7 @@ class CaseAccessDep:
         if self.require_auth and current_user is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Authentication required"
+                detail="Authentication required",
             )
 
         repo = CaseRepository(db)
@@ -65,18 +69,18 @@ class CaseAccessDep:
         if not case:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Case {case_id} not found"
+                detail=f"Case {case_id} not found",
             )
 
         if not user_can_access_resource(
             resource_user_id=case.user_id,
             resource_session_id=case.session_id,
             current_user=current_user,
-            session_id=session_id
+            session_id=session_id,
         ):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="You don't have access to this case"
+                detail="You don't have access to this case",
             )
 
         return case

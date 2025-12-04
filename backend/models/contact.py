@@ -12,6 +12,7 @@ from models.base import Base
 
 class ContactType(str, Enum):
     """Type of contact message."""
+
     FEEDBACK = "feedback"
     QUESTION = "question"
     BUG_REPORT = "bug_report"

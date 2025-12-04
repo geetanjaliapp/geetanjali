@@ -30,11 +30,8 @@ from services.ingestion.pipeline import IngestionPipeline
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler('ingestion.log')
-    ]
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler(), logging.FileHandler("ingestion.log")],
 )
 
 logger = logging.getLogger(__name__)
@@ -47,45 +44,41 @@ def main():
     )
 
     parser.add_argument(
-        "--all",
-        action="store_true",
-        help="Ingest from all enabled sources"
+        "--all", action="store_true", help="Ingest from all enabled sources"
     )
 
     parser.add_argument(
         "--type",
         choices=["sanskrit", "translations", "commentaries"],
-        help="Ingest specific source type only"
+        help="Ingest specific source type only",
     )
 
     parser.add_argument(
         "--dry-run",
         action="store_true",
-        help="Validate data without persisting to database"
+        help="Validate data without persisting to database",
     )
 
     parser.add_argument(
         "--no-enrich",
         action="store_true",
-        help="[DEPRECATED] Enrichment is now always separate. This flag is ignored."
+        help="[DEPRECATED] Enrichment is now always separate. This flag is ignored.",
     )
 
     parser.add_argument(
         "--force-refresh",
         action="store_true",
-        help="Bypass cache and fetch fresh data from sources"
+        help="Bypass cache and fetch fresh data from sources",
     )
 
     parser.add_argument(
-        "--status",
-        action="store_true",
-        help="Show pipeline status and exit"
+        "--status", action="store_true", help="Show pipeline status and exit"
     )
 
     parser.add_argument(
         "--config",
         default="./config/data_sources.yaml",
-        help="Path to data sources configuration file"
+        help="Path to data sources configuration file",
     )
 
     args = parser.parse_args()
@@ -120,17 +113,21 @@ def main():
         logger.info(f"Source types: {source_types or 'all'}")
         logger.info(f"Dry run: {args.dry_run}")
         logger.info(f"Force refresh: {args.force_refresh}")
-        logger.info("Note: LLM enrichment is separate - use /api/v1/admin/enrich after ingestion")
+        logger.info(
+            "Note: LLM enrichment is separate - use /api/v1/admin/enrich after ingestion"
+        )
         logger.info("=" * 80)
 
         if args.no_enrich:
-            logger.warning("--no-enrich flag is deprecated and ignored. Enrichment is always separate.")
+            logger.warning(
+                "--no-enrich flag is deprecated and ignored. Enrichment is always separate."
+            )
 
         all_stats = pipeline.ingest_all_sources(
             source_types=source_types,
             force_refresh=args.force_refresh,
             enrich=False,  # Always false - enrichment is now separate
-            dry_run=args.dry_run
+            dry_run=args.dry_run,
         )
 
         # Print results

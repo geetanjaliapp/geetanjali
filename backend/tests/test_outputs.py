@@ -1,7 +1,6 @@
 """Tests for output/analysis endpoints."""
 
 import pytest
-from unittest.mock import patch, MagicMock
 from fastapi import status
 import uuid
 
@@ -17,12 +16,10 @@ def case_for_analysis(client):
         "stakeholders": ["team", "client"],
         "constraints": ["budget", "deadline"],
         "horizon": "short",
-        "sensitivity": "medium"
+        "sensitivity": "medium",
     }
     response = client.post(
-        "/api/v1/cases",
-        json=case_data,
-        headers={"X-Session-ID": session_id}
+        "/api/v1/cases", json=case_data, headers={"X-Session-ID": session_id}
     )
     return {"case": response.json(), "session_id": session_id}
 
@@ -37,7 +34,7 @@ def mock_rag_result():
                 "title": "Prioritize Speed",
                 "pros": ["Meet deadline"],
                 "cons": ["Technical debt"],
-                "verses": ["BG_2_47"]
+                "verses": ["BG_2_47"],
             }
         ],
         "recommended_action": {"option": 1, "steps": ["Act now"]},
@@ -45,7 +42,7 @@ def mock_rag_result():
         "sources": [{"canonical_id": "BG_2_47", "paraphrase": "Focus on duty."}],
         "confidence": 0.85,
         "scholar_flag": False,
-        "suggested_title": "Speed vs Quality"
+        "suggested_title": "Speed vs Quality",
     }
 
 
@@ -73,8 +70,7 @@ def test_list_outputs_empty(client, case_for_analysis):
     session_id = case_for_analysis["session_id"]
 
     response = client.get(
-        f"/api/v1/cases/{case_id}/outputs",
-        headers={"X-Session-ID": session_id}
+        f"/api/v1/cases/{case_id}/outputs", headers={"X-Session-ID": session_id}
     )
 
     assert response.status_code == status.HTTP_200_OK
@@ -87,8 +83,7 @@ def test_analyze_async_returns_202(client, case_for_analysis):
     session_id = case_for_analysis["session_id"]
 
     response = client.post(
-        f"/api/v1/cases/{case_id}/analyze/async",
-        headers={"X-Session-ID": session_id}
+        f"/api/v1/cases/{case_id}/analyze/async", headers={"X-Session-ID": session_id}
     )
 
     # May be rate limited
@@ -108,7 +103,6 @@ def test_outputs_accessible_for_session_case(client, case_for_analysis):
 
     # Session owner can access
     response = client.get(
-        f"/api/v1/cases/{case_id}/outputs",
-        headers={"X-Session-ID": session_id}
+        f"/api/v1/cases/{case_id}/outputs", headers={"X-Session-ID": session_id}
     )
     assert response.status_code == status.HTTP_200_OK

@@ -5,7 +5,7 @@ Pipeline orchestrator for coordinating the data ingestion flow.
 import logging
 import yaml
 from pathlib import Path
-from typing import Dict, List, Optional, Union, Protocol
+from typing import Dict, List, Optional, Protocol
 from sqlalchemy.orm import Session
 
 from services.ingestion.fetcher import Fetcher
@@ -20,8 +20,8 @@ logger = logging.getLogger(__name__)
 
 class Parser(Protocol):
     """Protocol for parser interface."""
-    def parse(self, raw_data: str, source_config: Dict) -> List[Dict]:
-        ...
+
+    def parse(self, raw_data: str, source_config: Dict) -> List[Dict]: ...
 
 
 class IngestionPipeline:
@@ -87,7 +87,7 @@ class IngestionPipeline:
         source_config: Dict,
         force_refresh: bool = False,
         enrich: bool = True,
-        dry_run: bool = False
+        dry_run: bool = False,
     ) -> Dict[str, int]:
         """
         Ingest data from a single source.
@@ -133,10 +133,14 @@ class IngestionPipeline:
 
             # Stage 4: Enrich (optional, can be slow with LLM)
             # Skip enrichment for translation-only data (it already has human translations)
-            is_translation_source = source_config.get("json_type") == "gita_translations"
+            is_translation_source = (
+                source_config.get("json_type") == "gita_translations"
+            )
 
             if is_translation_source:
-                logger.info("Skipping enrichment for translation source (translations don't need LLM enrichment)")
+                logger.info(
+                    "Skipping enrichment for translation source (translations don't need LLM enrichment)"
+                )
                 enriched_data = valid_data
             elif enrich:
                 enriched_data = self._enrich_stage(valid_data, source_config)
@@ -146,7 +150,9 @@ class IngestionPipeline:
 
             # Stage 5: Persist (skip in dry run)
             if dry_run:
-                logger.info(f"Dry run complete: {len(enriched_data)} items ready to persist")
+                logger.info(
+                    f"Dry run complete: {len(enriched_data)} items ready to persist"
+                )
                 stats["created"] = len(enriched_data)
             else:
                 persist_stats = self._persist_stage(enriched_data)
@@ -212,9 +218,17 @@ class IngestionPipeline:
 
             # If HTML parser returned empty list, check if this is an index page
             # with chapter links that need to be fetched separately
-            if not parsed and format_type == "html" and hasattr(parser, 'get_chapter_urls'):
-                logger.info("No verses found in main page, checking for chapter links...")
-                chapter_urls = parser.get_chapter_urls(raw_data, source_config.get("url", ""))
+            if (
+                not parsed
+                and format_type == "html"
+                and hasattr(parser, "get_chapter_urls")
+            ):
+                logger.info(
+                    "No verses found in main page, checking for chapter links..."
+                )
+                chapter_urls = parser.get_chapter_urls(
+                    raw_data, source_config.get("url", "")
+                )
 
                 if chapter_urls:
                     logger.info(f"Found {len(chapter_urls)} chapter pages to fetch")
@@ -228,24 +242,38 @@ class IngestionPipeline:
                             chapter_config["url"] = chapter_url
 
                             # Fetch chapter page
-                            chapter_data = self._fetch_stage(chapter_config, force_refresh=False)
+                            chapter_data = self._fetch_stage(
+                                chapter_config, force_refresh=False
+                            )
                             if not chapter_data:
-                                logger.warning(f"Failed to fetch chapter: {chapter_url}")
+                                logger.warning(
+                                    f"Failed to fetch chapter: {chapter_url}"
+                                )
                                 continue
 
                             # Parse chapter page
-                            chapter_verses = list(parser.parse(chapter_data, chapter_config))
+                            chapter_verses = list(
+                                parser.parse(chapter_data, chapter_config)
+                            )
                             if chapter_verses:
-                                logger.info(f"Parsed {len(chapter_verses)} verses from chapter")
+                                logger.info(
+                                    f"Parsed {len(chapter_verses)} verses from chapter"
+                                )
                                 all_verses.extend(chapter_verses)
                             else:
-                                logger.warning(f"No verses found in chapter: {chapter_url}")
+                                logger.warning(
+                                    f"No verses found in chapter: {chapter_url}"
+                                )
 
                         except Exception as e:
-                            logger.error(f"Failed to process chapter {chapter_url}: {e}")
+                            logger.error(
+                                f"Failed to process chapter {chapter_url}: {e}"
+                            )
                             continue
 
-                    logger.info(f"Total verses parsed from all chapters: {len(all_verses)}")
+                    logger.info(
+                        f"Total verses parsed from all chapters: {len(all_verses)}"
+                    )
                     return all_verses
 
             return parsed
@@ -253,7 +281,9 @@ class IngestionPipeline:
             logger.error(f"Parse failed: {e}")
             return []
 
-    def _validate_stage(self, parsed_data: List[Dict], source_config: Dict) -> List[Dict]:
+    def _validate_stage(
+        self, parsed_data: List[Dict], source_config: Dict
+    ) -> List[Dict]:
         """
         Stage 3: Validate parsed data.
 
@@ -276,7 +306,9 @@ class IngestionPipeline:
             if is_valid:
                 # Check canonical ID consistency
                 if not self.validator.check_canonical_id_consistency(item):
-                    logger.warning(f"Canonical ID inconsistency: {item.get('canonical_id')}")
+                    logger.warning(
+                        f"Canonical ID inconsistency: {item.get('canonical_id')}"
+                    )
 
                 valid_items.append(item)
             else:
@@ -300,14 +332,16 @@ class IngestionPipeline:
         # Check if enrichment is enabled in config
         llm_enabled = enrichment_config.get("llm_tagging", {}).get("enabled", True)
         para_enabled = enrichment_config.get("paraphrasing", {}).get("enabled", True)
-        trans_enabled = enrichment_config.get("transliteration", {}).get("enabled", True)
+        trans_enabled = enrichment_config.get("transliteration", {}).get(
+            "enabled", True
+        )
 
         try:
             enriched = self.enricher.enrich_batch(
                 valid_data,
                 extract_principles=llm_enabled,
                 generate_paraphrase=para_enabled,
-                transliterate=trans_enabled
+                transliterate=trans_enabled,
             )
             return enriched
         except Exception as e:
@@ -337,7 +371,7 @@ class IngestionPipeline:
         force_refresh: bool = False,
         enrich: bool = True,
         dry_run: bool = False,
-        use_fallback: bool = True
+        use_fallback: bool = True,
     ) -> Dict[str, Dict]:
         """
         Ingest data from all configured sources with fallback support.
@@ -377,7 +411,9 @@ class IngestionPipeline:
             enabled_sources = [s for s in sources if s.get("enabled", True)]
             enabled_sources.sort(key=lambda x: x.get("priority", 999))
 
-            logger.info(f"Found {len(enabled_sources)} enabled sources for {source_type}")
+            logger.info(
+                f"Found {len(enabled_sources)} enabled sources for {source_type}"
+            )
 
             if not enabled_sources:
                 logger.warning(f"No enabled sources for type: {source_type}")
@@ -391,7 +427,9 @@ class IngestionPipeline:
                 is_fallback = idx > 0 and use_fallback
 
                 if is_fallback:
-                    logger.info(f"Trying fallback source {idx + 1}/{len(enabled_sources)}: {source_name}")
+                    logger.info(
+                        f"Trying fallback source {idx + 1}/{len(enabled_sources)}: {source_name}"
+                    )
                 else:
                     logger.info(f"Processing primary source: {source_name}")
 
@@ -400,7 +438,7 @@ class IngestionPipeline:
                         source,
                         force_refresh=force_refresh,
                         enrich=enrich,
-                        dry_run=dry_run
+                        dry_run=dry_run,
                     )
 
                     all_stats[source_name] = stats
@@ -410,12 +448,16 @@ class IngestionPipeline:
                     has_errors = stats.get("errors", 0) > 0
 
                     if total_items > 0:
-                        logger.info(f"Successfully ingested {total_items} items from {source_name}")
+                        logger.info(
+                            f"Successfully ingested {total_items} items from {source_name}"
+                        )
                         source_group_succeeded = True
 
                         # If successful and not forcing all sources, break (don't try fallbacks)
                         if not is_fallback:
-                            logger.info(f"Primary source succeeded, skipping {len(enabled_sources) - 1} fallback sources")
+                            logger.info(
+                                f"Primary source succeeded, skipping {len(enabled_sources) - 1} fallback sources"
+                            )
                             break
                     elif has_errors:
                         logger.warning(f"Source {source_name} failed with errors")
@@ -425,18 +467,28 @@ class IngestionPipeline:
                         logger.warning(f"No data retrieved from {source_name}")
 
                 except Exception as e:
-                    logger.error(f"Exception during ingestion from {source_name}: {e}", exc_info=True)
-                    all_stats[source_name] = {"created": 0, "updated": 0, "errors": 1, "skipped": 0}
+                    logger.error(
+                        f"Exception during ingestion from {source_name}: {e}",
+                        exc_info=True,
+                    )
+                    all_stats[source_name] = {
+                        "created": 0,
+                        "updated": 0,
+                        "errors": 1,
+                        "skipped": 0,
+                    }
 
                     # Try next source if fallback is enabled
                     if use_fallback and idx < len(enabled_sources) - 1:
-                        logger.info(f"Attempting next fallback source...")
+                        logger.info("Attempting next fallback source...")
                         continue
                     else:
                         break
 
             if not source_group_succeeded:
-                logger.error(f"Failed to ingest any data for source type: {source_type}")
+                logger.error(
+                    f"Failed to ingest any data for source type: {source_type}"
+                )
 
         # Summary
         total_created = sum(s.get("created", 0) for s in all_stats.values())

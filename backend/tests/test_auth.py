@@ -9,7 +9,7 @@ def test_signup_success(client):
     signup_data = {
         "email": "test@example.com",
         "name": "Test User",
-        "password": "SecurePass123!"
+        "password": "SecurePass123!",
     }
 
     response = client.post("/api/v1/auth/signup", json=signup_data)
@@ -28,7 +28,7 @@ def test_signup_duplicate_email(client):
     signup_data = {
         "email": "duplicate@example.com",
         "name": "First User",
-        "password": "SecurePass123!"
+        "password": "SecurePass123!",
     }
 
     # First signup
@@ -48,27 +48,29 @@ def test_signup_invalid_email(client):
     signup_data = {
         "email": "not-an-email",
         "name": "Test User",
-        "password": "SecurePass123!"
+        "password": "SecurePass123!",
     }
 
     response = client.post("/api/v1/auth/signup", json=signup_data)
 
     # May return 400 or 422 depending on validation layer
-    assert response.status_code in [status.HTTP_400_BAD_REQUEST, status.HTTP_422_UNPROCESSABLE_ENTITY]
+    assert response.status_code in [
+        status.HTTP_400_BAD_REQUEST,
+        status.HTTP_422_UNPROCESSABLE_ENTITY,
+    ]
 
 
 def test_signup_weak_password(client):
     """Test signup with weak password."""
-    signup_data = {
-        "email": "test@example.com",
-        "name": "Test User",
-        "password": "weak"
-    }
+    signup_data = {"email": "test@example.com", "name": "Test User", "password": "weak"}
 
     response = client.post("/api/v1/auth/signup", json=signup_data)
 
     # May return 400 or 422 depending on validation layer
-    assert response.status_code in [status.HTTP_400_BAD_REQUEST, status.HTTP_422_UNPROCESSABLE_ENTITY]
+    assert response.status_code in [
+        status.HTTP_400_BAD_REQUEST,
+        status.HTTP_422_UNPROCESSABLE_ENTITY,
+    ]
 
 
 def test_login_success(client):
@@ -77,15 +79,12 @@ def test_login_success(client):
     signup_data = {
         "email": "login@example.com",
         "name": "Login User",
-        "password": "SecurePass123!"
+        "password": "SecurePass123!",
     }
     client.post("/api/v1/auth/signup", json=signup_data)
 
     # Then login
-    login_data = {
-        "email": "login@example.com",
-        "password": "SecurePass123!"
-    }
+    login_data = {"email": "login@example.com", "password": "SecurePass123!"}
     response = client.post("/api/v1/auth/login", json=login_data)
 
     assert response.status_code == status.HTTP_200_OK
@@ -97,10 +96,7 @@ def test_login_success(client):
 
 def test_login_invalid_credentials(client):
     """Test login with invalid credentials."""
-    login_data = {
-        "email": "nonexistent@example.com",
-        "password": "WrongPassword123!"
-    }
+    login_data = {"email": "nonexistent@example.com", "password": "WrongPassword123!"}
 
     response = client.post("/api/v1/auth/login", json=login_data)
 
@@ -113,15 +109,12 @@ def test_login_wrong_password(client):
     signup_data = {
         "email": "wrongpass@example.com",
         "name": "Test User",
-        "password": "CorrectPass123!"
+        "password": "CorrectPass123!",
     }
     client.post("/api/v1/auth/signup", json=signup_data)
 
     # Try login with wrong password
-    login_data = {
-        "email": "wrongpass@example.com",
-        "password": "WrongPassword123!"
-    }
+    login_data = {"email": "wrongpass@example.com", "password": "WrongPassword123!"}
     response = client.post("/api/v1/auth/login", json=login_data)
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
@@ -133,7 +126,7 @@ def test_get_current_user(client):
     signup_data = {
         "email": "profile@example.com",
         "name": "Profile User",
-        "password": "SecurePass123!"
+        "password": "SecurePass123!",
     }
     signup_response = client.post("/api/v1/auth/signup", json=signup_data)
     data = signup_response.json()
@@ -145,8 +138,7 @@ def test_get_current_user(client):
 
     # Get profile with token
     response = client.get(
-        "/api/v1/auth/me",
-        headers={"Authorization": f"Bearer {token}"}
+        "/api/v1/auth/me", headers={"Authorization": f"Bearer {token}"}
     )
 
     assert response.status_code == status.HTTP_200_OK
@@ -165,8 +157,7 @@ def test_get_current_user_no_token(client):
 def test_get_current_user_invalid_token(client):
     """Test getting current user with invalid token."""
     response = client.get(
-        "/api/v1/auth/me",
-        headers={"Authorization": "Bearer invalid-token"}
+        "/api/v1/auth/me", headers={"Authorization": "Bearer invalid-token"}
     )
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
@@ -178,9 +169,9 @@ def test_logout(client):
     signup_data = {
         "email": "logout@example.com",
         "name": "Logout User",
-        "password": "SecurePass123!"
+        "password": "SecurePass123!",
     }
-    signup_response = client.post("/api/v1/auth/signup", json=signup_data)
+    client.post("/api/v1/auth/signup", json=signup_data)
 
     # Logout
     response = client.post("/api/v1/auth/logout")
@@ -194,7 +185,7 @@ def test_refresh_token(client):
     signup_data = {
         "email": "refresh@example.com",
         "name": "Refresh User",
-        "password": "SecurePass123!"
+        "password": "SecurePass123!",
     }
     client.post("/api/v1/auth/signup", json=signup_data)
 

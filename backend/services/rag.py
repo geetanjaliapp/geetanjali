@@ -12,7 +12,7 @@ from services.prompts import (
     build_user_prompt,
     OLLAMA_SYSTEM_PROMPT,
     build_ollama_prompt,
-    post_process_ollama_response
+    post_process_ollama_response,
 )
 from db import SessionLocal
 from db.repositories.verse_repository import VerseRepository
@@ -31,9 +31,7 @@ class RAGPipeline:
         logger.info("RAG Pipeline initialized")
 
     def retrieve_verses(
-        self,
-        query: str,
-        top_k: Optional[int] = None
+        self, query: str, top_k: Optional[int] = None
     ) -> List[Dict[str, Any]]:
         """
         Retrieve relevant verses using vector similarity.
@@ -60,8 +58,9 @@ class RAGPipeline:
                 "canonical_id": results["ids"][i],
                 "document": results["documents"][i],
                 "distance": results["distances"][i],
-                "relevance": 1.0 - results["distances"][i],  # Convert distance to relevance
-                "metadata": results["metadatas"][i]
+                "relevance": 1.0
+                - results["distances"][i],  # Convert distance to relevance
+                "metadata": results["metadatas"][i],
             }
             verses.append(verse)
 
@@ -70,8 +69,7 @@ class RAGPipeline:
         return verses
 
     def enrich_verses_with_translations(
-        self,
-        verses: List[Dict[str, Any]]
+        self, verses: List[Dict[str, Any]]
     ) -> List[Dict[str, Any]]:
         """
         Enrich retrieved verses with translations from the database.
@@ -86,7 +84,10 @@ class RAGPipeline:
             return verses
 
         # Get canonical IDs
-        canonical_ids = [v.get('canonical_id') or v.get('metadata', {}).get('canonical_id') for v in verses]
+        canonical_ids = [
+            v.get("canonical_id") or v.get("metadata", {}).get("canonical_id")
+            for v in verses
+        ]
         canonical_ids = [cid for cid in canonical_ids if cid]
 
         if not canonical_ids:
@@ -103,26 +104,30 @@ class RAGPipeline:
 
             # Enrich each retrieved verse
             for verse in verses:
-                cid = verse.get('canonical_id') or verse.get('metadata', {}).get('canonical_id')
+                cid = verse.get("canonical_id") or verse.get("metadata", {}).get(
+                    "canonical_id"
+                )
                 if cid and cid in verse_lookup:
                     db_verse = verse_lookup[cid]
 
                     # Add translations to metadata
-                    if 'metadata' not in verse:
-                        verse['metadata'] = {}
+                    if "metadata" not in verse:
+                        verse["metadata"] = {}
 
                     # Get primary translation from verse table
-                    verse['metadata']['translation_en'] = db_verse.translation_en
+                    verse["metadata"]["translation_en"] = db_verse.translation_en
 
                     # Get additional translations from translations table
                     if db_verse.translations:
-                        verse['metadata']['translations'] = [
+                        verse["metadata"]["translations"] = [
                             {
-                                'text': t.text,
-                                'translator': t.translator,
-                                'school': t.school
+                                "text": t.text,
+                                "translator": t.translator,
+                                "school": t.school,
                             }
-                            for t in db_verse.translations[:3]  # Limit to 3 translations
+                            for t in db_verse.translations[
+                                :3
+                            ]  # Limit to 3 translations
                         ]
 
             logger.debug(f"Enriched {len(verses)} verses with translations")
@@ -135,9 +140,7 @@ class RAGPipeline:
             db.close()
 
     def construct_context(
-        self,
-        case_data: Dict[str, Any],
-        retrieved_verses: List[Dict[str, Any]]
+        self, case_data: Dict[str, Any], retrieved_verses: List[Dict[str, Any]]
     ) -> str:
         """
         Construct prompt context from case and retrieved verses.
@@ -163,7 +166,7 @@ class RAGPipeline:
         temperature: float = 0.7,
         fallback_prompt: Optional[str] = None,
         fallback_system: Optional[str] = None,
-        retrieved_verses: Optional[List[Dict[str, Any]]] = None
+        retrieved_verses: Optional[List[Dict[str, Any]]] = None,
     ) -> Dict[str, Any]:
         """
         Generate consulting brief using LLM.
@@ -189,7 +192,7 @@ class RAGPipeline:
             system_prompt=SYSTEM_PROMPT,
             temperature=temperature,
             fallback_prompt=fallback_prompt,
-            fallback_system=fallback_system
+            fallback_system=fallback_system,
         )
 
         response_text = result["response"]
@@ -250,7 +253,7 @@ class RAGPipeline:
             "recommended_action",
             "reflection_prompts",
             "sources",
-            "confidence"
+            "confidence",
         ]
 
         for field in required_fields:
@@ -280,9 +283,7 @@ class RAGPipeline:
         return output
 
     def _create_fallback_response(
-        self,
-        case_data: Dict[str, Any],
-        error_message: str
+        self, case_data: Dict[str, Any], error_message: str
     ) -> Dict[str, Any]:
         """
         Create fallback response when pipeline fails.
@@ -307,22 +308,22 @@ class RAGPipeline:
                     "description": "Give yourself space to contemplate this situation before acting.",
                     "pros": ["Clarity through reflection", "Avoid hasty decisions"],
                     "cons": ["Delayed action", "Prolonged uncertainty"],
-                    "sources": []
+                    "sources": [],
                 },
                 {
                     "title": "Seek Trusted Counsel",
                     "description": "Discuss your situation with someone you trust - a mentor, friend, or family member.",
                     "pros": ["Fresh perspective", "Emotional support"],
                     "cons": ["May take time to arrange", "Opinions may vary"],
-                    "sources": []
+                    "sources": [],
                 },
                 {
                     "title": "Study the Verses Directly",
                     "description": "Explore the Bhagavad Geeta verses related to your situation for timeless wisdom.",
                     "pros": ["Direct access to wisdom", "Personal interpretation"],
                     "cons": ["Requires contemplation", "May need guidance"],
-                    "sources": []
-                }
+                    "sources": [],
+                },
             ],
             "recommended_action": {
                 "option": 3,
@@ -330,25 +331,23 @@ class RAGPipeline:
                     "Browse the verses suggested for your situation",
                     "Read the translations and paraphrases carefully",
                     "Reflect on how the teachings apply to your circumstances",
-                    "Return later to try your consultation again"
+                    "Return later to try your consultation again",
                 ],
-                "sources": []
+                "sources": [],
             },
             "reflection_prompts": [
                 "What are my core values in this situation?",
                 "Who will be affected by my decision?",
-                "What would I advise someone else in this situation?"
+                "What would I advise someone else in this situation?",
             ],
             "sources": [],
             "confidence": 0.1,
             "scholar_flag": True,
-            "_internal_error": error_message  # Keep for logging, not displayed to user
+            "_internal_error": error_message,  # Keep for logging, not displayed to user
         }
 
     def run(
-        self,
-        case_data: Dict[str, Any],
-        top_k: Optional[int] = None
+        self, case_data: Dict[str, Any], top_k: Optional[int] = None
     ) -> Dict[str, Any]:
         """
         Run complete RAG pipeline with graceful degradation.
@@ -378,7 +377,9 @@ class RAGPipeline:
                 logger.warning("No verses retrieved - continuing with empty context")
             else:
                 # Enrich verses with translations from database
-                retrieved_verses = self.enrich_verses_with_translations(retrieved_verses)
+                retrieved_verses = self.enrich_verses_with_translations(
+                    retrieved_verses
+                )
 
         except Exception as e:
             logger.error(f"Verse retrieval failed: {e} - continuing without verses")
@@ -391,7 +392,9 @@ class RAGPipeline:
             fallback_prompt = build_ollama_prompt(case_data, retrieved_verses)
         except Exception as e:
             logger.error(f"Context construction failed: {e}")
-            return self._create_fallback_response(case_data, "Failed to construct prompt")
+            return self._create_fallback_response(
+                case_data, "Failed to construct prompt"
+            )
 
         # Step 3: Generate brief with LLM (with fallback)
         try:
@@ -399,7 +402,7 @@ class RAGPipeline:
                 prompt,
                 fallback_prompt=fallback_prompt,
                 fallback_system=OLLAMA_SYSTEM_PROMPT,
-                retrieved_verses=retrieved_verses
+                retrieved_verses=retrieved_verses,
             )
         except Exception as e:
             logger.error(f"LLM generation failed: {e}")
@@ -411,7 +414,9 @@ class RAGPipeline:
 
             # Mark as degraded if no verses were retrieved
             if not retrieved_verses:
-                validated_output["confidence"] = min(validated_output.get("confidence", 0.5), 0.5)
+                validated_output["confidence"] = min(
+                    validated_output.get("confidence", 0.5), 0.5
+                )
                 validated_output["scholar_flag"] = True
                 validated_output["warning"] = "Generated without verse retrieval"
 

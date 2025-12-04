@@ -37,7 +37,9 @@ class UserRepository(BaseRepository):
         """
         return self.db.query(User).filter(User.email == email).first() is not None
 
-    def create_user(self, email: str, name: str, password_hash: str, role: str = "user") -> User:
+    def create_user(
+        self, email: str, name: str, password_hash: str, role: str = "user"
+    ) -> User:
         """
         Create a new user with hashed password.
 

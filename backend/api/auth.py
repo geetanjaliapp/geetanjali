@@ -7,15 +7,26 @@ from sqlalchemy.orm import Session
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
-from api.schemas import SignupRequest, LoginRequest, AuthResponse, RefreshResponse, UserResponse
+from api.schemas import (
+    SignupRequest,
+    LoginRequest,
+    AuthResponse,
+    RefreshResponse,
+    UserResponse,
+)
 from api.middleware.auth import get_current_user, get_session_id
 from db.connection import get_db
 from db.repositories.user_repository import UserRepository
 from db.repositories.refresh_token_repository import RefreshTokenRepository
 from db.repositories.case_repository import CaseRepository
 from models.user import User
-from utils.auth import hash_password, verify_password, validate_password_strength, validate_email
-from utils.jwt import create_access_token, create_refresh_token, hash_token
+from utils.auth import (
+    hash_password,
+    verify_password,
+    validate_password_strength,
+    validate_email,
+)
+from utils.jwt import create_access_token, create_refresh_token
 from utils.csrf import generate_csrf_token, set_csrf_cookie
 from config import settings
 
@@ -35,14 +46,16 @@ def get_refresh_token_max_age() -> int:
     return settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60
 
 
-@router.post("/signup", response_model=AuthResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/signup", response_model=AuthResponse, status_code=status.HTTP_201_CREATED
+)
 @limiter.limit("5/minute")
 async def signup(
     request: Request,
     signup_data: SignupRequest,
     response: Response,
     db: Session = Depends(get_db),
-    session_id: str = Depends(get_session_id)
+    session_id: str = Depends(get_session_id),
 ):
     """
     Create a new user account.
@@ -63,24 +76,19 @@ async def signup(
     # Validate email format
     if not validate_email(signup_data.email):
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid email format"
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid email format"
         )
 
     # Validate password strength
     is_valid, error_msg = validate_password_strength(signup_data.password)
     if not is_valid:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=error_msg
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=error_msg)
 
     # Check if email already exists
     user_repo = UserRepository(db)
     if user_repo.email_exists(signup_data.email):
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Email already registered"
+            status_code=status.HTTP_409_CONFLICT, detail="Email already registered"
         )
 
     # Hash password
@@ -91,7 +99,7 @@ async def signup(
         email=signup_data.email,
         name=signup_data.name,
         password_hash=password_hash,
-        role="user"
+        role="user",
     )
 
     # Migrate any anonymous session cases to this user
@@ -99,7 +107,9 @@ async def signup(
         case_repo = CaseRepository(db)
         migrated_count = case_repo.migrate_session_to_user(session_id, user.id)
         if migrated_count > 0:
-            logger.info(f"Migrated {migrated_count} anonymous consultations to user {user.id}")
+            logger.info(
+                f"Migrated {migrated_count} anonymous consultations to user {user.id}"
+            )
 
     # Create refresh token
     refresh_token = create_refresh_token()
@@ -116,7 +126,7 @@ async def signup(
         max_age=get_refresh_token_max_age(),
         httponly=True,
         secure=settings.COOKIE_SECURE,
-        samesite="lax"
+        samesite="lax",
     )
 
     # Set CSRF token cookie for double-submit protection
@@ -134,8 +144,8 @@ async def signup(
             name=user.name,
             role=user.role,
             org_id=user.org_id,
-            created_at=user.created_at
-        )
+            created_at=user.created_at,
+        ),
     )
 
 
@@ -146,7 +156,7 @@ async def login(
     login_data: LoginRequest,
     response: Response,
     db: Session = Depends(get_db),
-    session_id: str = Depends(get_session_id)
+    session_id: str = Depends(get_session_id),
 ):
     """
     Authenticate user and return access token.
@@ -170,16 +180,14 @@ async def login(
 
     if not user or not user.password_hash:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid email or password"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password"
         )
 
     # Verify password
     if not verify_password(login_data.password, user.password_hash):
         logger.warning(f"Failed login attempt for: {login_data.email}")
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid email or password"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password"
         )
 
     # Update last login timestamp
@@ -190,7 +198,9 @@ async def login(
         case_repo = CaseRepository(db)
         migrated_count = case_repo.migrate_session_to_user(session_id, user.id)
         if migrated_count > 0:
-            logger.info(f"Migrated {migrated_count} anonymous consultations to user {user.id} on login")
+            logger.info(
+                f"Migrated {migrated_count} anonymous consultations to user {user.id} on login"
+            )
 
     # Create refresh token
     refresh_token = create_refresh_token()
@@ -207,7 +217,7 @@ async def login(
         max_age=get_refresh_token_max_age(),
         httponly=True,
         secure=settings.COOKIE_SECURE,
-        samesite="lax"
+        samesite="lax",
     )
 
     # Set CSRF token cookie for double-submit protection
@@ -225,18 +235,14 @@ async def login(
             name=user.name,
             role=user.role,
             org_id=user.org_id,
-            created_at=user.created_at
-        )
+            created_at=user.created_at,
+        ),
     )
 
 
 @router.post("/refresh", response_model=RefreshResponse)
 @limiter.limit("30/minute")
-async def refresh(
-    request: Request,
-    response: Response,
-    db: Session = Depends(get_db)
-):
+async def refresh(request: Request, response: Response, db: Session = Depends(get_db)):
     """
     Refresh access token using refresh token from cookie.
 
@@ -256,8 +262,7 @@ async def refresh(
 
     if not refresh_token:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Refresh token not found"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Refresh token not found"
         )
 
     # Validate refresh token
@@ -267,7 +272,7 @@ async def refresh(
     if not token_record or not token_record.is_valid():
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired refresh token"
+            detail="Invalid or expired refresh token",
         )
 
     # Get user
@@ -276,8 +281,7 @@ async def refresh(
 
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not found"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found"
         )
 
     # Create new access token
@@ -296,23 +300,16 @@ async def refresh(
         max_age=get_refresh_token_max_age(),
         httponly=True,
         secure=settings.COOKIE_SECURE,
-        samesite="lax"
+        samesite="lax",
     )
 
     logger.info(f"Token refreshed for user: {user.id}")
 
-    return RefreshResponse(
-        access_token=access_token,
-        token_type="bearer"
-    )
+    return RefreshResponse(access_token=access_token, token_type="bearer")
 
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
-async def logout(
-    request: Request,
-    response: Response,
-    db: Session = Depends(get_db)
-):
+async def logout(request: Request, response: Response, db: Session = Depends(get_db)):
     """
     Logout user by revoking refresh token.
 
@@ -343,9 +340,7 @@ async def logout(
 
 
 @router.get("/me", response_model=UserResponse)
-async def get_current_user_profile(
-    current_user: User = Depends(get_current_user)
-):
+async def get_current_user_profile(current_user: User = Depends(get_current_user)):
     """
     Get current authenticated user's profile.
 
@@ -361,5 +356,5 @@ async def get_current_user_profile(
         name=current_user.name,
         role=current_user.role,
         org_id=current_user.org_id,
-        created_at=current_user.created_at
+        created_at=current_user.created_at,
     )

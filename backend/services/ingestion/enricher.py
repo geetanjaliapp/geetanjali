@@ -5,7 +5,7 @@ Enricher service for enhancing verse data using LLM and transliteration.
 import json
 import logging
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 from services.llm import get_llm_service
 
@@ -28,7 +28,9 @@ class Enricher:
         self.llm = get_llm_service()
         self.principle_taxonomy = self._load_principles()
 
-        logger.info(f"Enricher initialized with {len(self.principle_taxonomy)} principles")
+        logger.info(
+            f"Enricher initialized with {len(self.principle_taxonomy)} principles"
+        )
 
     def _load_principles(self) -> Dict:
         """
@@ -53,9 +55,7 @@ class Enricher:
             return {}
 
     def extract_principles(
-        self,
-        verse_text: str,
-        temperature: float = 0.1
+        self, verse_text: str, temperature: float = 0.1
     ) -> List[str]:
         """
         Extract consulting principles from verse using LLM.
@@ -106,8 +106,7 @@ Rules:
         try:
             # Call LLM with low temperature for consistency
             response_text = self.llm.generate_json(
-                prompt=prompt,
-                temperature=temperature
+                prompt=prompt, temperature=temperature
             )
 
             # Parse JSON response
@@ -127,17 +126,16 @@ Rules:
             principles = result.get("principles", [])
 
             # Validate principle IDs
-            valid_principles = [
-                p for p in principles
-                if p in self.principle_taxonomy
-            ]
+            valid_principles = [p for p in principles if p in self.principle_taxonomy]
 
             if len(valid_principles) != len(principles):
                 logger.warning(
                     f"Filtered invalid principles: {set(principles) - set(valid_principles)}"
                 )
 
-            logger.debug(f"Extracted {len(valid_principles)} principles: {valid_principles}")
+            logger.debug(
+                f"Extracted {len(valid_principles)} principles: {valid_principles}"
+            )
             return valid_principles
 
         except json.JSONDecodeError as e:
@@ -149,10 +147,7 @@ Rules:
             return []
 
     def generate_paraphrase(
-        self,
-        verse_text: str,
-        max_words: int = 25,
-        temperature: float = 0.3
+        self, verse_text: str, max_words: int = 25, temperature: float = 0.3
     ) -> str:
         """
         Generate short paraphrase for UI display.
@@ -179,9 +174,7 @@ Provide a concise, leadership-focused summary:"""
 
         try:
             result = self.llm.generate(
-                prompt=prompt,
-                temperature=temperature,
-                max_tokens=100
+                prompt=prompt, temperature=temperature, max_tokens=100
             )
 
             paraphrase = result["response"].strip()
@@ -219,9 +212,7 @@ Provide a concise, leadership-focused summary:"""
             from indic_transliteration import sanscript
 
             iast = sanscript.transliterate(
-                devanagari,
-                sanscript.DEVANAGARI,
-                sanscript.IAST
+                devanagari, sanscript.DEVANAGARI, sanscript.IAST
             )
 
             logger.debug(f"Transliterated {len(devanagari)} chars to IAST")
@@ -239,7 +230,7 @@ Provide a concise, leadership-focused summary:"""
         verse_data: Dict,
         extract_principles: bool = True,
         generate_paraphrase: bool = True,
-        transliterate: bool = True
+        transliterate: bool = True,
     ) -> Dict:
         """
         Apply all enrichments to a verse.
@@ -258,14 +249,18 @@ Provide a concise, leadership-focused summary:"""
         # Extract principles from translation
         # Check both translation_text (parser output) and translation_en (DB field)
         if extract_principles and not enriched.get("consulting_principles"):
-            translation = enriched.get("translation_text") or enriched.get("translation_en", "")
+            translation = enriched.get("translation_text") or enriched.get(
+                "translation_en", ""
+            )
             if translation:
                 principles = self.extract_principles(translation)
                 enriched["consulting_principles"] = principles
 
         # Generate paraphrase
         if generate_paraphrase and not enriched.get("paraphrase_en"):
-            translation = enriched.get("translation_text") or enriched.get("translation_en", "")
+            translation = enriched.get("translation_text") or enriched.get(
+                "translation_en", ""
+            )
             if translation:
                 paraphrase = self.generate_paraphrase(translation)
                 enriched["paraphrase_en"] = paraphrase
@@ -279,11 +274,7 @@ Provide a concise, leadership-focused summary:"""
 
         return enriched
 
-    def enrich_batch(
-        self,
-        verses: List[Dict],
-        **kwargs
-    ) -> List[Dict]:
+    def enrich_batch(self, verses: List[Dict], **kwargs) -> List[Dict]:
         """
         Enrich multiple verses in batch.
 
@@ -308,5 +299,7 @@ Provide a concise, leadership-focused summary:"""
                 logger.error(f"Failed to enrich verse {verse.get('canonical_id')}: {e}")
                 enriched_verses.append(verse)  # Keep original on error
 
-        logger.info(f"Batch enrichment complete: {len(enriched_verses)}/{len(verses)} verses")
+        logger.info(
+            f"Batch enrichment complete: {len(enriched_verses)}/{len(verses)} verses"
+        )
         return enriched_verses

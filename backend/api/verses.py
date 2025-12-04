@@ -23,7 +23,7 @@ router = APIRouter(prefix="/api/v1/verses")
 async def get_verses_count(
     chapter: Optional[int] = Query(None, ge=1, le=18, description="Filter by chapter"),
     featured: Optional[bool] = Query(None, description="Filter by featured status"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     Get total count of verses matching filters.
@@ -53,10 +53,12 @@ async def search_verses(
     q: Optional[str] = Query(None, description="Search by canonical ID or principle"),
     chapter: Optional[int] = Query(None, ge=1, le=18, description="Filter by chapter"),
     featured: Optional[bool] = Query(None, description="Filter by featured status"),
-    principles: Optional[str] = Query(None, description="Comma-separated principle tags"),
+    principles: Optional[str] = Query(
+        None, description="Comma-separated principle tags"
+    ),
     skip: int = 0,
     limit: int = 100,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     Search and filter verses.
@@ -106,10 +108,9 @@ async def search_verses(
 @router.get("/random", response_model=VerseResponse)
 async def get_random_verse(
     featured_only: bool = Query(
-        True,
-        description="If true, only return from curated showcase-worthy verses"
+        True, description="If true, only return from curated showcase-worthy verses"
     ),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     Get a random verse from the Bhagavad Geeta.
@@ -132,7 +133,7 @@ async def get_random_verse(
     query = db.query(Verse)
 
     if featured_only:
-        query = query.filter(Verse.is_featured == True)
+        query = query.filter(Verse.is_featured.is_(True))
 
     verse = query.order_by(func.random()).first()
 
@@ -144,8 +145,7 @@ async def get_random_verse(
 
     if not verse:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No verses found in database"
+            status_code=status.HTTP_404_NOT_FOUND, detail="No verses found in database"
         )
 
     return verse
@@ -180,16 +180,19 @@ async def get_verse_of_the_day(db: Session = Depends(get_db)):
     day_of_year = today.timetuple().tm_yday
 
     # Get featured verses count first, fallback to all if none featured
-    featured_count = db.query(func.count(Verse.id)).filter(
-        Verse.is_featured == True
-    ).scalar()
+    featured_count = (
+        db.query(func.count(Verse.id)).filter(Verse.is_featured.is_(True)).scalar()
+    )
 
     if featured_count and featured_count > 0:
         # Use featured verses only
         verse_index = day_of_year % featured_count
-        verse = db.query(Verse).filter(
-            Verse.is_featured == True
-        ).offset(verse_index).first()
+        verse = (
+            db.query(Verse)
+            .filter(Verse.is_featured.is_(True))
+            .offset(verse_index)
+            .first()
+        )
     else:
         # Fallback to all verses if no featured ones
         total_verses = db.query(func.count(Verse.id)).scalar()
@@ -197,7 +200,7 @@ async def get_verse_of_the_day(db: Session = Depends(get_db)):
         if not total_verses or total_verses == 0:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="No verses found in database"
+                detail="No verses found in database",
             )
 
         verse_index = day_of_year % total_verses
@@ -205,8 +208,7 @@ async def get_verse_of_the_day(db: Session = Depends(get_db)):
 
     if not verse:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Verse not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Verse not found"
         )
 
     # Cache until midnight UTC
@@ -219,10 +221,7 @@ async def get_verse_of_the_day(db: Session = Depends(get_db)):
 
 
 @router.get("/{canonical_id}", response_model=VerseResponse)
-async def get_verse(
-    canonical_id: str,
-    db: Session = Depends(get_db)
-):
+async def get_verse(canonical_id: str, db: Session = Depends(get_db)):
     """
     Get a verse by canonical ID.
 
@@ -249,7 +248,7 @@ async def get_verse(
     if not verse:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Verse {canonical_id} not found"
+            detail=f"Verse {canonical_id} not found",
         )
 
     # Cache the result
@@ -260,10 +259,7 @@ async def get_verse(
 
 
 @router.get("/{canonical_id}/translations", response_model=List[TranslationResponse])
-async def get_verse_translations(
-    canonical_id: str,
-    db: Session = Depends(get_db)
-):
+async def get_verse_translations(canonical_id: str, db: Session = Depends(get_db)):
     """
     Get all translations for a verse by canonical ID.
 
@@ -284,13 +280,16 @@ async def get_verse_translations(
     if not verse:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Verse {canonical_id} not found"
+            detail=f"Verse {canonical_id} not found",
         )
 
     # Get all translations for this verse
-    translations = db.query(Translation).filter(
-        Translation.verse_id == verse.id
-    ).order_by(Translation.translator).all()
+    translations = (
+        db.query(Translation)
+        .filter(Translation.verse_id == verse.id)
+        .order_by(Translation.translator)
+        .all()
+    )
 
     logger.info(f"Found {len(translations)} translations for {canonical_id}")
 

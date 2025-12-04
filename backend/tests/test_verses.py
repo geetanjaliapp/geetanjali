@@ -18,7 +18,7 @@ def sample_verse(db_session):
         paraphrase_en="Act focused on duty, not fruits.",
         consulting_principles=["duty_focused_action", "non_attachment_to_outcomes"],
         source="gita/gita",
-        license="Unlicense"
+        license="Unlicense",
     )
     db_session.add(verse)
     db_session.commit()

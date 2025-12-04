@@ -57,13 +57,13 @@ class HTMLParser:
         Returns:
             List of verse dictionaries
         """
-        soup = BeautifulSoup(html, 'lxml')
+        soup = BeautifulSoup(html, "lxml")
         verses = []
 
         logger.info("Parsing sacred-texts.com format")
 
         # Check if this is the index page with chapter links
-        chapter_links = soup.find_all('a', href=re.compile(r'bg\d+\.htm'))
+        chapter_links = soup.find_all("a", href=re.compile(r"bg\d+\.htm"))
 
         if chapter_links:
             # This is the index page - we need to fetch individual chapters
@@ -117,23 +117,27 @@ class HTMLParser:
             Chapter number or None
         """
         # Try to extract from URL pattern like "bg12.htm"
-        url_match = re.search(r'bg(\d+)\.htm', url)
+        url_match = re.search(r"bg(\d+)\.htm", url)
         if url_match:
             return int(url_match.group(1))
 
         # Try to extract from page title
-        title = soup.find('title')
+        title = soup.find("title")
         if title:
             title_text = title.get_text()
             # Look for patterns like "Chapter 2" or "Adhyaya 2"
-            title_match = re.search(r'(?:Chapter|Adhyaya)\s+(\d+)', title_text, re.IGNORECASE)
+            title_match = re.search(
+                r"(?:Chapter|Adhyaya)\s+(\d+)", title_text, re.IGNORECASE
+            )
             if title_match:
                 return int(title_match.group(1))
 
         # Try to find in h1, h2 tags
-        for heading in soup.find_all(['h1', 'h2', 'h3']):
+        for heading in soup.find_all(["h1", "h2", "h3"]):
             heading_text = heading.get_text()
-            heading_match = re.search(r'(?:Chapter|Adhyaya)\s+(\d+)', heading_text, re.IGNORECASE)
+            heading_match = re.search(
+                r"(?:Chapter|Adhyaya)\s+(\d+)", heading_text, re.IGNORECASE
+            )
             if heading_match:
                 return int(heading_match.group(1))
 
@@ -153,7 +157,7 @@ class HTMLParser:
 
         # Strategy 1: Look for verse numbers followed by text
         # Pattern: "47." or "47:" followed by Sanskrit and English
-        all_paragraphs = soup.find_all('p')
+        all_paragraphs = soup.find_all("p")
 
         current_verse_num = None
         current_sanskrit = None
@@ -163,23 +167,25 @@ class HTMLParser:
             text = p.get_text().strip()
 
             # Check if this paragraph starts with a verse number
-            verse_num_match = re.match(r'^(\d+)[\.\:\)]', text)
+            verse_num_match = re.match(r"^(\d+)[\.\:\)]", text)
 
             if verse_num_match:
                 # Save previous verse if exists
                 if current_verse_num and (current_sanskrit or current_translation):
-                    verses.append((
-                        current_verse_num,
-                        {
-                            "sanskrit": current_sanskrit or "",
-                            "translation": current_translation or ""
-                        }
-                    ))
+                    verses.append(
+                        (
+                            current_verse_num,
+                            {
+                                "sanskrit": current_sanskrit or "",
+                                "translation": current_translation or "",
+                            },
+                        )
+                    )
 
                 # Start new verse
                 current_verse_num = int(verse_num_match.group(1))
                 # Remove the verse number from text
-                remaining_text = text[verse_num_match.end():].strip()
+                remaining_text = text[verse_num_match.end() :].strip()
 
                 # Check if this line contains Devanagari (simple heuristic)
                 if self._contains_devanagari(remaining_text):
@@ -204,13 +210,15 @@ class HTMLParser:
 
         # Add the last verse
         if current_verse_num and (current_sanskrit or current_translation):
-            verses.append((
-                current_verse_num,
-                {
-                    "sanskrit": current_sanskrit or "",
-                    "translation": current_translation or ""
-                }
-            ))
+            verses.append(
+                (
+                    current_verse_num,
+                    {
+                        "sanskrit": current_sanskrit or "",
+                        "translation": current_translation or "",
+                    },
+                )
+            )
 
         return verses
 
@@ -225,7 +233,7 @@ class HTMLParser:
             True if Devanagari characters found
         """
         # Devanagari Unicode range: U+0900 to U+097F
-        devanagari_pattern = re.compile(r'[\u0900-\u097F]')
+        devanagari_pattern = re.compile(r"[\u0900-\u097F]")
         return bool(devanagari_pattern.search(text))
 
     def get_chapter_urls(self, index_html: str, base_url: str) -> List[str]:
@@ -239,19 +247,19 @@ class HTMLParser:
         Returns:
             List of full chapter URLs
         """
-        soup = BeautifulSoup(index_html, 'lxml')
-        chapter_links = soup.find_all('a', href=re.compile(r'bg\d+\.htm'))
+        soup = BeautifulSoup(index_html, "lxml")
+        chapter_links = soup.find_all("a", href=re.compile(r"bg\d+\.htm"))
 
         urls: list[str] = []
         for link in chapter_links:
-            href = link.get('href')
+            href = link.get("href")
             if href and isinstance(href, str):
                 # Make absolute URL
-                if href.startswith('http'):
+                if href.startswith("http"):
                     full_url = href
                 else:
                     # Remove filename from base_url and append href
-                    base = base_url.rsplit('/', 1)[0] if '/' in base_url else base_url
+                    base = base_url.rsplit("/", 1)[0] if "/" in base_url else base_url
                     full_url = f"{base}/{href}"
 
                 urls.append(full_url)

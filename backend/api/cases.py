@@ -26,7 +26,7 @@ async def create_case(
     case_data: CaseCreate,
     db: Session = Depends(get_db),
     current_user: Optional[User] = Depends(get_optional_user),
-    session_id: Optional[str] = Depends(get_session_id)
+    session_id: Optional[str] = Depends(get_session_id),
 ):
     """
     Create a new ethical dilemma case (supports anonymous users).
@@ -40,7 +40,9 @@ async def create_case(
     Returns:
         Created case
     """
-    logger.info(f"Creating case: {case_data.title} (anonymous={current_user is None}, session_id={session_id})")
+    logger.info(
+        f"Creating case: {case_data.title} (anonymous={current_user is None}, session_id={session_id})"
+    )
 
     case_dict = case_data.model_dump()
     case_dict["id"] = str(uuid.uuid4())
@@ -55,10 +57,7 @@ async def create_case(
 
     # Create initial user message with the case description
     message_repo = MessageRepository(db)
-    message_repo.create_user_message(
-        case_id=case.id,
-        content=case_data.description
-    )
+    message_repo.create_user_message(case_id=case.id, content=case_data.description)
 
     logger.info(f"Case created: {case.id}")
     return case
@@ -87,7 +86,7 @@ async def list_cases(
     limit: int = 100,
     db: Session = Depends(get_db),
     current_user: Optional[User] = Depends(get_optional_user),
-    session_id: Optional[str] = Depends(get_session_id)
+    session_id: Optional[str] = Depends(get_session_id),
 ):
     """
     List cases for the user (supports anonymous and authenticated users).
