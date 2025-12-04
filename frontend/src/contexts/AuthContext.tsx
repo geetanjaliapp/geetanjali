@@ -31,18 +31,32 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // On mount, check if we have a valid token and fetch user
+  // On mount, check if we have a valid session (via refresh token cookie)
   useEffect(() => {
     const initAuth = async () => {
       const token = tokenStorage.getToken();
       if (token) {
+        // We have an in-memory token, try to use it
         try {
           const currentUser = await authApi.getCurrentUser();
           setUser(currentUser);
+          setLoading(false);
+          return;
         } catch {
-          // Token invalid or expired, clear it
+          // Token invalid or expired, clear it and try refresh
           tokenStorage.clearToken();
         }
+      }
+
+      // No in-memory token (or it was invalid), try to refresh from httpOnly cookie
+      // This handles page refresh where in-memory token is lost but cookie persists
+      try {
+        await authApi.refresh();
+        const currentUser = await authApi.getCurrentUser();
+        setUser(currentUser);
+      } catch {
+        // No valid refresh token cookie, user needs to log in
+        tokenStorage.clearToken();
       }
       setLoading(false);
     };

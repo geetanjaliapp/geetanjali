@@ -31,7 +31,7 @@ export default function Consultations() {
   const [error, setError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
   const handleRetry = async (e: React.MouseEvent, caseId: string) => {
@@ -80,11 +80,15 @@ export default function Consultations() {
   };
 
   useEffect(() => {
+    // Wait for auth to complete before fetching cases
+    // This ensures token refresh happens first after page reload
+    if (authLoading) return;
+
     casesApi.list(0, 100)
       .then(setCases)
       .catch((err) => setError(errorMessages.caseLoad(err)))
       .finally(() => setLoading(false));
-  }, []);
+  }, [authLoading]);
 
   if (loading) {
     return (

@@ -48,6 +48,7 @@ def set_auth_cookies(response: Response, refresh_token: str) -> None:
         httponly=True,
         secure=settings.COOKIE_SECURE,
         samesite="lax",
+        path="/",  # Ensure cookie is sent for all paths
     )
     set_csrf_cookie(response, generate_csrf_token())
 
@@ -292,8 +293,8 @@ async def logout(request: Request, response: Response, db: Session = Depends(get
             token_repo.revoke_token(token_record.id)
             logger.info(f"User logged out: {token_record.user_id}")
 
-    # Clear refresh token cookie
-    response.delete_cookie(key=REFRESH_TOKEN_COOKIE_KEY)
+    # Clear refresh token cookie (path must match set_cookie)
+    response.delete_cookie(key=REFRESH_TOKEN_COOKIE_KEY, path="/")
 
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
