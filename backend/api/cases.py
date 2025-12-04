@@ -372,7 +372,7 @@ async def get_public_case_messages(
         )
 
     message_repo = MessageRepository(db)
-    messages = message_repo.get_by_case_id(case.id)
+    messages = message_repo.get_by_case(case.id)
 
     # Cache in Redis
     messages_list = [MessageResponse.model_validate(m).model_dump(mode="json") for m in messages]
