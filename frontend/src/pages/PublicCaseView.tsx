@@ -61,7 +61,8 @@ export default function PublicCaseView() {
     });
   };
 
-  // Group messages into exchanges
+  // Group messages into exchanges (user question + assistant response)
+  // Handles duplicate assistant messages from retries by taking the latest one per user message
   const getOutput = (outputId?: string) => outputs.find(o => o.id === outputId);
 
   type Exchange = {
@@ -71,15 +72,33 @@ export default function PublicCaseView() {
   };
 
   const exchanges: Exchange[] = [];
-  for (let i = 0; i < messages.length; i += 2) {
-    if (messages[i] && messages[i + 1]) {
+  const userMessages = messages.filter(m => m.role === 'user');
+  const assistantMessages = messages.filter(m => m.role === 'assistant');
+
+  userMessages.forEach((userMsg, idx) => {
+    // Find assistant messages that come after this user message but before the next user message
+    const nextUserMsg = userMessages[idx + 1];
+    const relevantAssistants = assistantMessages.filter(a => {
+      const afterUser = new Date(a.created_at) > new Date(userMsg.created_at);
+      const beforeNextUser = !nextUserMsg || new Date(a.created_at) < new Date(nextUserMsg.created_at);
+      return afterUser && beforeNextUser;
+    });
+
+    // Take the latest assistant message (handles retries)
+    const latestAssistant = relevantAssistants.length > 0
+      ? relevantAssistants.reduce((latest, curr) =>
+          new Date(curr.created_at) > new Date(latest.created_at) ? curr : latest
+        )
+      : null;
+
+    if (latestAssistant) {
       exchanges.push({
-        user: messages[i],
-        assistant: messages[i + 1],
-        output: getOutput(messages[i + 1].output_id),
+        user: userMsg,
+        assistant: latestAssistant,
+        output: getOutput(latestAssistant.output_id),
       });
     }
-  }
+  });
 
   const firstOutput = outputs.length > 0 ? outputs[outputs.length - 1] : null;
 
@@ -286,12 +305,13 @@ export default function PublicCaseView() {
 
                 {showPaths && (
                   <div className="mt-3 space-y-3">
-                    <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1">
+                    {/* Path selector cards - equal width and height */}
+                    <div className="grid grid-cols-3 gap-2 items-stretch">
                       {firstOutput.result_json.options.map((opt, idx) => (
                         <button
                           key={idx}
                           onClick={() => setSelectedOption(idx)}
-                          className={`flex-shrink-0 w-28 p-3 rounded-xl border-2 text-left transition-all ${
+                          className={`p-3 rounded-xl border-2 text-left transition-all h-full ${
                             selectedOption === idx
                               ? 'bg-red-50 border-red-400 shadow-md'
                               : 'bg-white border-gray-200 hover:border-red-200'
@@ -300,7 +320,7 @@ export default function PublicCaseView() {
                           <div className={`text-xs font-semibold ${selectedOption === idx ? 'text-red-700' : 'text-gray-500'}`}>
                             Path {idx + 1}
                           </div>
-                          <div className={`text-sm font-medium mt-1 leading-tight ${selectedOption === idx ? 'text-red-900' : 'text-gray-700'}`}>
+                          <div className={`text-sm font-medium mt-1 leading-snug ${selectedOption === idx ? 'text-red-900' : 'text-gray-700'}`}>
                             {opt.title.replace(' Approach', '')}
                           </div>
                         </button>

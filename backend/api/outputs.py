@@ -90,6 +90,19 @@ def run_analysis_background(case_id: str, case_data: dict):
         case.status = CaseStatus.PROCESSING.value
         db.commit()
 
+        # Clean up orphaned assistant messages from previous failed attempts
+        # Find the last user message and delete any assistant messages after it
+        message_repo = MessageRepository(db)
+        last_user_msg = message_repo.get_last_user_message(case_id)
+        if last_user_msg:
+            deleted = message_repo.delete_assistant_messages_after(
+                case_id, last_user_msg.created_at
+            )
+            if deleted > 0:
+                logger.info(
+                    f"[Background] Cleaned up {deleted} orphaned assistant message(s) for case {case_id}"
+                )
+
         # Run RAG pipeline
         rag_pipeline = get_rag_pipeline()
         result = rag_pipeline.run(case_data)
@@ -204,6 +217,18 @@ async def analyze_case(
     logger.info(f"Analyzing case: {case.id}")
 
     try:
+        # Clean up orphaned assistant messages from previous failed attempts
+        message_repo = MessageRepository(db)
+        last_user_msg = message_repo.get_last_user_message(case.id)
+        if last_user_msg:
+            deleted = message_repo.delete_assistant_messages_after(
+                case.id, last_user_msg.created_at
+            )
+            if deleted > 0:
+                logger.info(
+                    f"Cleaned up {deleted} orphaned assistant message(s) for case {case.id}"
+                )
+
         # Build case data and run RAG pipeline
         case_data = _build_case_data(case)
         rag_pipeline = get_rag_pipeline()

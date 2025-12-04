@@ -91,3 +91,29 @@ class MessageRepository(BaseRepository):
             .order_by(Message.created_at.desc())
             .first()
         )
+
+    def delete_assistant_messages_after(
+        self, case_id: str, after_timestamp: datetime
+    ) -> int:
+        """
+        Delete all assistant messages for a case created after the given timestamp.
+        Used during retry to clean up orphaned/duplicate assistant messages.
+
+        Args:
+            case_id: Case ID
+            after_timestamp: Delete messages created after this time
+
+        Returns:
+            Number of deleted messages
+        """
+        deleted = (
+            self.db.query(Message)
+            .filter(
+                Message.case_id == case_id,
+                Message.role == MessageRole.ASSISTANT,
+                Message.created_at > after_timestamp,
+            )
+            .delete(synchronize_session=False)
+        )
+        self.db.commit()
+        return deleted
