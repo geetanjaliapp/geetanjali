@@ -49,8 +49,8 @@ flowchart TB
     end
 
     subgraph LLM["LLM Layer"]
-        Primary[Anthropic Claude]
-        Fallback[Ollama Local]
+        Primary[Ollama qwen2.5:3b]
+        Fallback[Anthropic Claude]
     end
 
     UI --> Cases
@@ -76,8 +76,8 @@ flowchart TB
 | PostgreSQL | Cases, users, outputs, verses with translations |
 | ChromaDB | 384-dimensional verse embeddings for semantic search |
 | Redis | Response caching, session storage, rate limiting |
-| Anthropic Claude | Primary LLM for structured JSON generation |
-| Ollama | Local fallback when Claude unavailable |
+| Ollama (qwen2.5:3b) | Primary LLM for structured JSON generation |
+| Anthropic Claude | Optional cloud fallback for higher quality output |
 
 ## The RAG Pipeline
 
@@ -252,40 +252,41 @@ def validate_output(self, output: Dict) -> Dict:
 flowchart TD
     Request[Generate Request] --> Primary{Primary Provider}
 
+    Primary -->|Ollama| OllamaP[Ollama qwen2.5:3b]
     Primary -->|Anthropic| Claude[Claude API]
-    Primary -->|Ollama| OllamaP[Ollama Primary]
 
-    Claude -->|Success| Response[JSON Response]
-    Claude -->|Failure| Fallback{Fallback Enabled?}
+    OllamaP -->|Success| Response[JSON Response]
+    OllamaP -->|Failure| Fallback{Fallback Enabled?}
 
-    OllamaP -->|Success| Response
-    OllamaP -->|Failure| Fallback
+    Claude -->|Success| Response
+    Claude -->|Failure| Fallback
 
     Fallback -->|Yes| Secondary[Secondary Provider]
     Fallback -->|No| Error[Return Error]
 
-    Secondary -->|Ollama| OllamaF[Ollama Fallback]
     Secondary -->|Anthropic| ClaudeF[Claude Fallback]
+    Secondary -->|Ollama| OllamaF[Ollama Fallback]
 
-    OllamaF --> PostProcess[Post-Process Response]
     ClaudeF --> Response
+    OllamaF --> PostProcess[Post-Process Response]
 
     PostProcess --> Response
 ```
 
 ### Why Hybrid LLM
 
-1. **Anthropic Claude** (Primary)
-   - High-quality structured output
-   - Reliable JSON generation
-   - Fast response times
-
-2. **Ollama** (Fallback)
+1. **Ollama (qwen2.5:3b)** (Primary)
    - Runs locally, no API costs
    - Works offline
-   - Simplified prompt for faster inference
+   - Full Docker deployment
+   - Good balance of quality and speed
 
-The fallback uses a simplified prompt optimized for smaller models:
+2. **Anthropic Claude** (Optional Fallback)
+   - Higher quality structured output
+   - Reliable JSON generation
+   - Requires API key
+
+The Ollama prompt is optimized for smaller models:
 
 ```python
 OLLAMA_SYSTEM_PROMPT = """You are an ethical leadership consultant.
@@ -484,9 +485,9 @@ curl -X POST http://localhost:8000/api/v1/cases \
 |-----------|---------|
 | Embedding (per query) | ~15ms |
 | Vector search (top-5) | ~25ms |
-| LLM generation (Claude) | 2-4s |
-| LLM generation (Ollama fallback) | 8-15s |
-| Total pipeline | 3-5s typical |
+| LLM generation (Ollama qwen2.5:3b) | 8-15s |
+| LLM generation (Claude fallback) | 2-4s |
+| Total pipeline | 10-20s typical |
 
 ## Conclusion
 

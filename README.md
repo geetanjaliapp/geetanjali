@@ -29,10 +29,10 @@ The system uses retrieval-augmented generation (RAG) to ground responses in actu
 |-----------|------------|
 | Backend | FastAPI (Python 3.10+) |
 | Frontend | React + TypeScript + Tailwind |
-| Database | PostgreSQL |
+| Database | PostgreSQL 15 |
 | Vector DB | ChromaDB |
-| Cache | Redis |
-| LLM | Ollama (Llama 3.1 8B) or Anthropic Claude |
+| Cache | Redis 7 |
+| LLM | Ollama (qwen2.5:3b) or Anthropic Claude |
 | Embeddings | sentence-transformers/all-MiniLM-L6-v2 |
 
 ## Quick Start
@@ -45,6 +45,9 @@ cd geetanjali
 
 # Start all services
 docker compose up -d
+
+# Pull LLM model (first time only, stored in volume)
+docker exec geetanjali-ollama ollama pull qwen2.5:3b
 
 # Check status
 docker compose ps
@@ -140,6 +143,7 @@ Full API documentation at `/docs` when running.
 - [Setup Guide](docs/SETUP.md) - Local development, Docker, environment
 - [Architecture](docs/ARCHITECTURE.md) - System design, RAG pipeline, components
 - [Data Sources](docs/DATA.md) - Geeta content, licensing, ingestion
+- [Technical Blog](docs/TECHNICAL_BLOG.md) - Deep dive into the RAG system design
 
 ## License
 
