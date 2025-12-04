@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 interface NavbarProps {
@@ -14,6 +14,7 @@ interface NavbarProps {
 export function Navbar({ showBack, backTo = '/', backLabel = 'Back' }: NavbarProps) {
   const { user, logout, isAuthenticated } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -23,8 +24,10 @@ export function Navbar({ showBack, backTo = '/', backLabel = 'Back' }: NavbarPro
     try {
       setIsDropdownOpen(false);
       await logout();
+      navigate('/');
     } catch {
       // Silent fail - logout UI state already cleared
+      navigate('/');
     }
   };
 
