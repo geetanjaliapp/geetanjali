@@ -27,7 +27,7 @@ anthropic==0.75.0  # Anthropic Claude API
 
 # Testing
 pytest==9.0.1
-pytest-asyncio==0.23.3
+pytest-asyncio==0.24.0
 pytest-cov==4.1.0
 
 # Code Quality
@@ -41,7 +41,7 @@ types-redis==4.6.0.11  # Type stubs for redis
 # Authentication
 python-jose[cryptography]==3.5.0  # JWT tokens
 passlib[bcrypt]==1.7.4  # Password hashing
-bcrypt==5.0.0  # Pin compatible version (5.x has issues with passlib 1.7.4)
+bcrypt==4.3.0  # pinned due to passlib 1.7.4 incompatibility with bcrypt 5.0.0
 
 # Utilities
 python-dotenv==1.2.1
