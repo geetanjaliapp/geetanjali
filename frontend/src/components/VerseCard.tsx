@@ -17,6 +17,7 @@ function getVerseLink(verse: Verse): string {
  * Format Sanskrit text to display with proper line breaks
  * - Separates speaker intros (श्री भगवानुवाच, धृतराष्ट्र उवाच, etc.) on their own line
  * - Splits verse content on single danda (।) and adds proper spacing
+ * - Uses alternating danda pattern: single (।), double (॥), single (।), double (॥)
  */
 function formatSanskritLines(text: string): string[] {
   if (!text) return [];
@@ -29,6 +30,8 @@ function formatSanskritLines(text: string): string[] {
 
   const result: string[] = [];
 
+  let verseLineIndex = 0;
+
   // Process each line
   for (const line of lines) {
     // Check if this line contains speaker intro (contains वाच - said/spoke)
@@ -39,17 +42,24 @@ function formatSanskritLines(text: string): string[] {
       // This is verse content, split on danda
       const parts = line.split(/।(?=[^।])/);
 
+      // Alternate between single (।) and double (॥) danda for each verse line
+      // Odd verse lines (1st, 3rd, etc.) get single danda
+      // Even verse lines (2nd, 4th, etc.) get double danda
+      const isEvenLine = (verseLineIndex + 1) % 2 === 0;
+      const endDanda = isEvenLine ? ' ॥' : ' ।';
+
       if (parts.length >= 2) {
-        // Multiple clauses in this line, add each with danda
+        // Multiple clauses in this line
         for (let i = 0; i < parts.length - 1; i++) {
           result.push(parts[i].trim() + ' ।');
         }
-        // Last part ends with double danda (॥) to mark verse end
-        result.push(parts[parts.length - 1].replace(/।+\s*$/, '').trim() + ' ॥');
+        result.push(parts[parts.length - 1].replace(/।+\s*$/, '').trim() + endDanda);
       } else {
-        // Single clause, add as-is with double danda at end
-        result.push(line.replace(/।+\s*$/, '').trim() + ' ॥');
+        // Single clause
+        result.push(line.replace(/।+\s*$/, '').trim() + endDanda);
       }
+
+      verseLineIndex++;
     }
   }
 
@@ -76,7 +86,7 @@ export function VerseCard({ verse }: VerseCardProps) {
                 const isSpeakerIntro = line.includes('वाच');
 
                 return (
-                  <p key={idx} className={`${isSpeakerIntro ? 'text-amber-700/80 font-medium mb-2' : 'mb-1'}`}>
+                  <p key={idx} className={`${isSpeakerIntro ? 'text-lg text-amber-600/60 mb-2' : 'mb-1'}`}>
                     {line}
                   </p>
                 );

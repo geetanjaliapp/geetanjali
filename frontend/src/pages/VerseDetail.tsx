@@ -63,6 +63,59 @@ function sortTranslations(translations: Translation[]): Translation[] {
   });
 }
 
+/**
+ * Format Sanskrit text to display with proper line breaks
+ * - Separates speaker intros (श्री भगवानुवाच, धृतराष्ट्र उवाच, etc.) on their own line
+ * - Splits verse content on single danda (।) and adds proper spacing
+ * - Uses alternating danda pattern: single (।), double (॥), single (।), double (॥)
+ */
+function formatSanskritLines(text: string): string[] {
+  if (!text) return [];
+
+  // Remove the verse number at the end (e.g., ।।2.52।। or ॥2.52॥)
+  const withoutVerseNum = text.replace(/[।॥]+\d+\.\d+[।॥]+\s*$/, '');
+
+  // Split by newlines to detect speaker intro lines
+  const lines = withoutVerseNum.split('\n').map(l => l.trim()).filter(l => l);
+
+  const result: string[] = [];
+
+  let verseLineIndex = 0;
+
+  // Process each line
+  for (const line of lines) {
+    // Check if this line contains speaker intro (contains वाच - said/spoke)
+    if (line.includes('वाच')) {
+      // This is a speaker intro line, add it as-is
+      result.push(line);
+    } else {
+      // This is verse content, split on danda
+      const parts = line.split(/।(?=[^।])/);
+
+      // Alternate between single (।) and double (॥) danda for each verse line
+      // Odd verse lines (1st, 3rd, etc.) get single danda
+      // Even verse lines (2nd, 4th, etc.) get double danda
+      const isEvenLine = (verseLineIndex + 1) % 2 === 0;
+      const endDanda = isEvenLine ? ' ॥' : ' ।';
+
+      if (parts.length >= 2) {
+        // Multiple clauses in this line
+        for (let i = 0; i < parts.length - 1; i++) {
+          result.push(parts[i].trim() + ' ।');
+        }
+        result.push(parts[parts.length - 1].replace(/।+\s*$/, '').trim() + endDanda);
+      } else {
+        // Single clause
+        result.push(line.replace(/।+\s*$/, '').trim() + endDanda);
+      }
+
+      verseLineIndex++;
+    }
+  }
+
+  return result.length > 0 ? result : [text.trim()];
+}
+
 
 export default function VerseDetail() {
   const { canonicalId } = useParams<{ canonicalId: string }>();
@@ -152,13 +205,25 @@ export default function VerseDetail() {
 
             {/* Sanskrit Devanagari */}
             {verse.sanskrit_devanagari && (
-              <div className="mb-6">
-                <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                  Sanskrit
-                </h2>
-                <p className="text-2xl text-gray-800 font-serif leading-relaxed">
-                  {verse.sanskrit_devanagari}
-                </p>
+              <div className="mb-6 bg-gradient-to-b from-orange-50 to-amber-50 rounded-xl p-8 border-2 border-amber-200/50 shadow-inner">
+                {/* Decorative Om */}
+                <div className="text-center text-amber-400/50 text-3xl font-light mb-4">ॐ</div>
+                <div className="text-2xl text-amber-800/60 font-serif leading-relaxed text-center tracking-wide">
+                  {formatSanskritLines(verse.sanskrit_devanagari).map((line, idx) => {
+                    // Check if this is a speaker intro line (contains वाच)
+                    const isSpeakerIntro = line.includes('वाच');
+
+                    return (
+                      <p key={idx} className={`${isSpeakerIntro ? 'text-lg text-amber-600/60 mb-3' : 'mb-1'}`}>
+                        {line}
+                      </p>
+                    );
+                  })}
+                </div>
+                {/* Decorative Verse Reference - closure */}
+                <div className="text-center text-amber-600/70 text-sm font-medium mt-4">
+                  ॥ {verse.chapter}.{verse.verse} ॥
+                </div>
               </div>
             )}
 

@@ -19,10 +19,11 @@ sources:
       description: "Backup source via CDN for redundancy"
 
   translations:
-    - name: "Gita Translations JSON (Primary)"
+    - name: "Gita Translations JSON - English (Primary)"
       url: "https://raw.githubusercontent.com/gita/gita/main/data/translation.json"
       format: "json"
       json_type: "gita_translations"
+      language: "english"
       license: "Unlicense (Public Domain)"
       enabled: true
       priority: 1
@@ -45,6 +46,22 @@ sources:
           school: "Poetic/Literary"
           priority: 5
       description: "English translations from 5 scholars with priority ordering"
+
+    - name: "Gita Translations JSON - Hindi"
+      url: "https://raw.githubusercontent.com/gita/gita/main/data/translation.json"
+      format: "json"
+      json_type: "gita_translations"
+      language: "hindi"
+      license: "Unlicense (Public Domain)"
+      enabled: true
+      priority: 2
+      default_translator: "Swami Tejomayananda"
+      # Priority order for Hindi translations (1 = highest)
+      translator_priority:
+        - name: "Swami Tejomayananda"
+          school: "Chinmaya Mission"
+          priority: 1
+      description: "Hindi translations from multiple scholars, Swami Tejomayananda preferred"
 
     - name: "Edwin Arnold 1885 - The Song Celestial"
       url: "https://www.sacred-texts.com/hin/gita/index.htm"

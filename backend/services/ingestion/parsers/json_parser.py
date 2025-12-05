@@ -240,17 +240,22 @@ class JSONParser:
         Format: [{"authorName": "...", "description": "...", "lang": "english", "verse_id": 1, ...}, ...]
 
         Groups translations by verse and returns structured data for ingestion.
+        Supports filtering by specific languages via source_config.
 
         Args:
             translations: List of translation dictionaries
-            source_config: Source configuration
+            source_config: Source configuration (can include "language" field to filter)
 
         Returns:
             List of translation dictionaries grouped by verse
         """
         from collections import defaultdict
 
-        # Filter to English only and group by verse_id
+        # Determine which language to filter by
+        # If not specified in source config, default to 'english' for backward compatibility
+        target_language = source_config.get("language", "english")
+
+        # Group by verse_id, filtered by target language
         by_verse = defaultdict(list)
         default_translator = source_config.get(
             "default_translator", "Swami Gambirananda"
@@ -264,7 +269,8 @@ class JSONParser:
             translator_school[tp["name"]] = tp.get("school", "")
 
         for t in translations:
-            if t.get("lang") != "english":
+            # Filter by target language
+            if t.get("lang") != target_language:
                 continue
 
             verse_id = t.get("verse_id")
@@ -275,6 +281,7 @@ class JSONParser:
             by_verse[verse_id].append(
                 {
                     "text": t.get("description", "").strip(),
+                    "language": target_language,
                     "translator": translator_name,
                     "school": translator_school.get(translator_name, ""),
                     "priority": translator_priority.get(translator_name, 99),
