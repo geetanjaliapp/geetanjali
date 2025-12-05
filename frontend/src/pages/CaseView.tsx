@@ -306,13 +306,15 @@ ${messages.map(msg => {
     // Add Paths Before You (Options)
     if (firstOutput?.result_json.options?.length > 0) {
       markdown += `\n## Paths Before You\n\n`;
-      firstOutput.result_json.options.forEach((option, idx) => {
+      firstOutput.result_json.options.forEach((option: any, idx: number) => {
         markdown += `### Path ${idx + 1}: ${option.title}\n\n`;
-        markdown += `${option.description}\n\n`;
+        if (option.description) {
+          markdown += `${option.description}\n\n`;
+        }
 
         if (option.pros?.length) {
           markdown += `**Strengths:**\n`;
-          option.pros.forEach(pro => {
+          option.pros.forEach((pro: string) => {
             markdown += `- ${pro}\n`;
           });
           markdown += '\n';
@@ -320,7 +322,7 @@ ${messages.map(msg => {
 
         if (option.cons?.length) {
           markdown += `**Considerations:**\n`;
-          option.cons.forEach(con => {
+          option.cons.forEach((con: string) => {
             markdown += `- ${con}\n`;
           });
           markdown += '\n';
@@ -334,14 +336,15 @@ ${messages.map(msg => {
     }
 
     // Add Recommended Steps
-    if (firstOutput?.result_json.recommended_action?.steps?.length > 0) {
+    if (firstOutput && typeof firstOutput.result_json.recommended_action === 'object' && firstOutput.result_json.recommended_action?.steps?.length > 0) {
       markdown += `\n## Recommended Steps\n\n`;
-      firstOutput.result_json.recommended_action.steps.forEach((step, idx) => {
+      const recommendedAction = firstOutput.result_json.recommended_action as any;
+      recommendedAction.steps.forEach((step: string, idx: number) => {
         markdown += `${idx + 1}. ${step}\n`;
       });
 
-      if (firstOutput.result_json.recommended_action.sources?.length) {
-        markdown += `\n**Supporting Verses:** ${firstOutput.result_json.recommended_action.sources.join(', ')}\n`;
+      if (recommendedAction.sources?.length) {
+        markdown += `\n**Supporting Verses:** ${recommendedAction.sources.join(', ')}\n`;
       }
       markdown += `\n---\n`;
     }
@@ -349,7 +352,7 @@ ${messages.map(msg => {
     // Add Reflection Prompts
     if (firstOutput?.result_json.reflection_prompts?.length > 0) {
       markdown += `\n## Reflection Prompts\n\nTake time to reflect on these questions:\n\n`;
-      firstOutput.result_json.reflection_prompts.forEach((prompt, idx) => {
+      firstOutput.result_json.reflection_prompts.forEach((prompt: string, idx: number) => {
         markdown += `${idx + 1}. ${prompt}\n`;
       });
       markdown += `\n---\n`;

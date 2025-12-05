@@ -36,8 +36,10 @@ export interface Verse {
 
 export interface Option {
   title: string;
+  description?: string;
   pros: string[];
   cons: string[];
+  sources?: string[]; // canonical_ids of related verses
   verses?: string[]; // canonical_ids (optional - may be missing in fallback responses)
 }
 
