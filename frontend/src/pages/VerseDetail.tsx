@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { versesApi } from '../lib/api';
+import { formatSanskritLines, isSpeakerIntro } from '../lib/sanskritFormatter';
 import type { Verse, Translation } from '../types';
 import { Navbar } from '../components/Navbar';
 import { errorMessages } from '../lib/errorMessages';
@@ -61,59 +62,6 @@ function sortTranslations(translations: Translation[]): Translation[] {
     const priorityB = b.translator ? (TRANSLATOR_PRIORITY[b.translator] || 99) : 99;
     return priorityA - priorityB;
   });
-}
-
-/**
- * Format Sanskrit text to display with proper line breaks
- * - Separates speaker intros (श्री भगवानुवाच, धृतराष्ट्र उवाच, etc.) on their own line
- * - Splits verse content on single danda (।) and adds proper spacing
- * - Uses alternating danda pattern: single (।), double (॥), single (।), double (॥)
- */
-function formatSanskritLines(text: string): string[] {
-  if (!text) return [];
-
-  // Remove the verse number at the end (e.g., ।।2.52।। or ॥2.52॥)
-  const withoutVerseNum = text.replace(/[।॥]+\d+\.\d+[।॥]+\s*$/, '');
-
-  // Split by newlines to detect speaker intro lines
-  const lines = withoutVerseNum.split('\n').map(l => l.trim()).filter(l => l);
-
-  const result: string[] = [];
-
-  let verseLineIndex = 0;
-
-  // Process each line
-  for (const line of lines) {
-    // Check if this line contains speaker intro (contains वाच - said/spoke)
-    if (line.includes('वाच')) {
-      // This is a speaker intro line, add it as-is
-      result.push(line);
-    } else {
-      // This is verse content, split on danda
-      const parts = line.split(/।(?=[^।])/);
-
-      // Alternate between single (।) and double (॥) danda for each verse line
-      // Odd verse lines (1st, 3rd, etc.) get single danda
-      // Even verse lines (2nd, 4th, etc.) get double danda
-      const isEvenLine = (verseLineIndex + 1) % 2 === 0;
-      const endDanda = isEvenLine ? ' ॥' : ' ।';
-
-      if (parts.length >= 2) {
-        // Multiple clauses in this line
-        for (let i = 0; i < parts.length - 1; i++) {
-          result.push(parts[i].trim() + ' ।');
-        }
-        result.push(parts[parts.length - 1].replace(/।+\s*$/, '').trim() + endDanda);
-      } else {
-        // Single clause
-        result.push(line.replace(/।+\s*$/, '').trim() + endDanda);
-      }
-
-      verseLineIndex++;
-    }
-  }
-
-  return result.length > 0 ? result : [text.trim()];
 }
 
 
@@ -207,14 +155,11 @@ export default function VerseDetail() {
               <div className="mb-8 text-center pt-4">
                 <div className="text-4xl text-amber-400/50 mb-6 font-light">ॐ</div>
                 <div className="text-3xl md:text-4xl font-serif text-amber-900/70 leading-relaxed tracking-wide mb-6">
-                  {formatSanskritLines(verse.sanskrit_devanagari).map((line, idx) => {
-                    const isSpeakerIntro = line.includes('वाच');
-                    return (
-                      <p key={idx} className={`${isSpeakerIntro ? 'text-2xl text-amber-700/60 mb-4' : 'mb-2'}`}>
-                        {line}
-                      </p>
-                    );
-                  })}
+                  {formatSanskritLines(verse.sanskrit_devanagari).map((line, idx) => (
+                    <p key={idx} className={`${isSpeakerIntro(line) ? 'text-2xl text-amber-700/60 mb-4' : 'mb-2'}`}>
+                      {line}
+                    </p>
+                  ))}
                 </div>
                 <div className="text-amber-600/70 text-lg font-serif">॥ {verse.chapter}.{verse.verse} ॥</div>
               </div>
