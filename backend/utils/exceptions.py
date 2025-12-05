@@ -1,9 +1,11 @@
 """Custom exceptions and error handlers."""
 
 import logging
-from fastapi import Request, status
+from contextlib import contextmanager
+from fastapi import Request, status, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
+from sqlalchemy.exc import SQLAlchemyError, OperationalError
 
 logger = logging.getLogger(__name__)
 
@@ -84,3 +86,36 @@ async def general_exception_handler(request: Request, exc: Exception) -> JSONRes
             "path": str(request.url),
         },
     )
+
+
+@contextmanager
+def handle_service_error(operation: str, level: str = "error"):
+    """
+    Context manager for consistent service error handling.
+
+    Args:
+        operation: Description of the operation (e.g., "Analyze case 123")
+        level: Logging level for unexpected errors ("error" or "warning")
+
+    Usage:
+        with handle_service_error("Analyze case 123"):
+            # your code here
+            pass
+    """
+    try:
+        yield
+    except (OperationalError, SQLAlchemyError) as e:
+        logger.warning(f"{operation} failed: database error - {type(e).__name__}")
+        raise
+    except ValueError as e:
+        logger.warning(f"{operation} failed: invalid input - {e}")
+        raise
+    except HTTPException:
+        # Re-raise HTTP exceptions without logging (already handled)
+        raise
+    except Exception as e:
+        if level == "warning":
+            logger.warning(f"{operation} failed: {type(e).__name__}: {e}")
+        else:
+            logger.error(f"{operation} failed: {type(e).__name__}: {e}", exc_info=True)
+        raise
