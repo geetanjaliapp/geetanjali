@@ -15,7 +15,7 @@ from db import get_db
 from db.repositories.case_repository import CaseRepository
 from db.repositories.message_repository import MessageRepository
 from db.repositories.output_repository import OutputRepository
-from api.schemas import CaseCreate, CaseResponse, CaseShareToggle, MessageResponse, OutputResponse
+from api.schemas import CaseCreate, CaseResponse, CaseShareToggle, MessageResponse, OutputResponse, PaginatedResponse
 from api.middleware.auth import get_optional_user, get_session_id
 from api.dependencies import get_case_with_access
 from models.case import Case
@@ -169,7 +169,7 @@ async def get_case(case: Case = Depends(get_case_with_access)):
     return case
 
 
-@router.get("", response_model=List[CaseResponse])
+@router.get("", response_model=PaginatedResponse[CaseResponse])
 async def list_cases(
     skip: int = 0,
     limit: int = 100,
@@ -188,21 +188,25 @@ async def list_cases(
         session_id: Session ID from X-Session-ID header (for anonymous users)
 
     Returns:
-        List of cases
+        Paginated list of cases with metadata
     """
     repo = CaseRepository(db)
 
     if current_user:
         # Authenticated user: get their cases
         cases = repo.get_by_user(current_user.id, skip=skip, limit=limit)
+        total = db.query(Case).filter(Case.user_id == current_user.id, Case.is_deleted == False).count()
     elif session_id:
         # Anonymous user: get session-based cases
         cases = repo.get_by_session(session_id, skip=skip, limit=limit)
+        total = db.query(Case).filter(Case.session_id == session_id, Case.is_deleted == False).count()
     else:
         # No auth and no session - return empty
         cases = []
+        total = 0
 
-    return cases
+    page = skip // limit + 1
+    return PaginatedResponse.create(cases, total, page, limit)
 
 
 @router.delete("/{case_id}", status_code=status.HTTP_204_NO_CONTENT)

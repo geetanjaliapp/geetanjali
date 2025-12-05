@@ -55,10 +55,13 @@ async def add_security_headers(request: Request, call_next):
 @app.middleware("http")
 async def add_correlation_id(request: Request, call_next):
     """Add correlation ID for request tracing."""
-    correlation_id = request.headers.get("x-request-id", str(uuid.uuid4()))
-    request.state.correlation_id = correlation_id
+    from utils.logging import correlation_id as correlation_id_var
+
+    cid = request.headers.get("x-request-id", str(uuid.uuid4()))
+    request.state.correlation_id = cid
+    correlation_id_var.set(cid)  # Set in logging context
     response = await call_next(request)
-    response.headers["x-request-id"] = correlation_id
+    response.headers["x-request-id"] = cid
     return response
 
 app.add_exception_handler(GeetanjaliException, geetanjali_exception_handler)  # type: ignore[arg-type]

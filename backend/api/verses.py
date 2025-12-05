@@ -11,7 +11,7 @@ from slowapi.util import get_remote_address
 
 from db import get_db
 from db.repositories.verse_repository import VerseRepository
-from api.schemas import VerseResponse, TranslationResponse
+from api.schemas import VerseResponse, TranslationResponse, PaginatedResponse
 from models.verse import Verse, Translation
 from services.cache import cache, verse_key, daily_verse_key, calculate_midnight_ttl
 from config import settings
@@ -53,7 +53,7 @@ async def get_verses_count(
     return {"count": count}
 
 
-@router.get("", response_model=List[VerseResponse])
+@router.get("", response_model=PaginatedResponse[VerseResponse])
 @limiter.limit("60/minute")
 async def search_verses(
     request: Request,
@@ -80,19 +80,25 @@ async def search_verses(
         db: Database session
 
     Returns:
-        List of matching verses sorted by chapter and verse number
+        Paginated list of matching verses sorted by chapter and verse number
     """
     repo = VerseRepository(db)
 
     # Search by canonical ID if query looks like one
     if q and q.startswith("BG_"):
         verse = repo.get_by_canonical_id(q)
-        return [verse] if verse else []
+        verses = [verse] if verse else []
+        total = len(verses)
+        page = 1
+        return PaginatedResponse.create(verses, total, page, limit)
 
     # Search by principles
     if principles:
         principle_list = [p.strip() for p in principles.split(",")]
-        return repo.search_by_principles(principle_list)
+        verses = repo.search_by_principles(principle_list)
+        total = len(verses)
+        page = 1
+        return PaginatedResponse.create(verses, total, page, limit)
 
     # Build query with filters
     query = db.query(Verse)
@@ -108,8 +114,14 @@ async def search_verses(
     # Always sort by chapter, then verse number
     query = query.order_by(Verse.chapter, Verse.verse)
 
+    # Get total count before pagination
+    total = query.count()
+
     # Apply pagination
-    return query.offset(skip).limit(limit).all()
+    verses = query.offset(skip).limit(limit).all()
+    page = skip // limit + 1
+
+    return PaginatedResponse.create(verses, total, page, limit)
 
 
 @router.get("/random", response_model=VerseResponse)

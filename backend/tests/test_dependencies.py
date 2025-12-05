@@ -117,7 +117,8 @@ def test_list_cases_filters_by_session(client):
     # List cases for first session
     response = client.get("/api/v1/cases", headers=headers)
 
-    cases = response.json()
+    data = response.json()
+    cases = data["data"]
     assert len(cases) >= 1
     assert all(c["title"] != "Other Session" for c in cases)
 
@@ -127,4 +128,5 @@ def test_list_cases_no_auth_returns_empty(client):
     response = client.get("/api/v1/cases")
 
     assert response.status_code == status.HTTP_200_OK
-    assert response.json() == []
+    data = response.json()
+    assert data["data"] == []

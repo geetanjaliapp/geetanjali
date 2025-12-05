@@ -17,7 +17,7 @@ from db.repositories.message_repository import MessageRepository
 from models.output import Output
 from models.case import Case, CaseStatus
 from models.user import User
-from api.schemas import OutputResponse, CaseResponse, FeedbackCreate, FeedbackResponse
+from api.schemas import OutputResponse, CaseResponse, FeedbackCreate, FeedbackResponse, PaginatedResponse
 from api.middleware.auth import get_optional_user, require_role, get_session_id
 from api.dependencies import get_case_with_access
 from services.rag import get_rag_pipeline
@@ -73,11 +73,19 @@ def _create_assistant_message(
     )
 
 
-def run_analysis_background(case_id: str, case_data: dict):
+def run_analysis_background(case_id: str, case_data: dict, request_correlation_id: str = "background"):
     """
     Background task to run RAG analysis.
     Uses a new database session since background tasks run outside request context.
+
+    Args:
+        case_id: Case ID to analyze
+        case_data: Case data for RAG pipeline
+        request_correlation_id: Correlation ID from original request
     """
+    from utils.logging import correlation_id as correlation_id_var
+
+    correlation_id_var.set(request_correlation_id)  # Set correlation ID for this task
     db = SessionLocal()
     try:
         logger.info(f"[Background] Starting analysis for case {case_id}")
@@ -178,14 +186,17 @@ async def analyze_case_async(
     # Build case data
     case_data = _build_case_data(case)
 
+    # Get correlation ID from request state (if available)
+    request_correlation_id = getattr(request.state, 'correlation_id', 'background')
+
     # Try RQ first, fallback to BackgroundTasks
-    job_id = enqueue_task(run_analysis_background, case.id, case_data)
+    job_id = enqueue_task(run_analysis_background, case.id, case_data, request_correlation_id)
 
     if job_id:
         logger.info(f"Analysis queued via RQ (job: {job_id}) for case {case.id}")
     else:
         # Fallback to FastAPI BackgroundTasks
-        background_tasks.add_task(run_analysis_background, case.id, case_data)
+        background_tasks.add_task(run_analysis_background, case.id, case_data, request_correlation_id)
         logger.info(f"Analysis queued via BackgroundTasks for case {case.id}")
 
     return case
@@ -321,22 +332,26 @@ async def get_output(
     return output
 
 
-@router.get("/cases/{case_id}/outputs", response_model=List[OutputResponse])
+@router.get("/cases/{case_id}/outputs", response_model=PaginatedResponse[OutputResponse])
 async def list_case_outputs(
     case_id: str,
+    skip: int = 0,
+    limit: int = 10,
     db: Session = Depends(get_db),
     current_user: Optional[User] = Depends(get_optional_user),
 ):
     """
-    List all outputs for a case (supports anonymous users).
+    List outputs for a case with pagination (supports anonymous users).
 
     Args:
         case_id: Case ID
+        skip: Number of records to skip
+        limit: Maximum number of records
         db: Database session
         current_user: Authenticated user (optional)
 
     Returns:
-        List of outputs for the case
+        Paginated list of outputs for the case
     """
     # Verify case ownership
     case_repo = CaseRepository(db)
@@ -355,14 +370,21 @@ async def list_case_outputs(
                 detail="You don't have access to this case",
             )
 
+    # Get total count
+    total = db.query(Output).filter(Output.case_id == case_id).count()
+
+    # Get paginated results
     outputs = (
         db.query(Output)
         .filter(Output.case_id == case_id)
         .order_by(Output.created_at.desc())
+        .offset(skip)
+        .limit(limit)
         .all()
     )
 
-    return outputs
+    page = skip // limit + 1
+    return PaginatedResponse.create(outputs, total, page, limit)
 
 
 @router.post("/outputs/{output_id}/scholar-review", response_model=OutputResponse)
