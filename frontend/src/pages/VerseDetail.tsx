@@ -123,6 +123,7 @@ export default function VerseDetail() {
   const [translations, setTranslations] = useState<Translation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showAllTranslations, setShowAllTranslations] = useState(false);
 
   useEffect(() => {
     if (!canonicalId) return;
@@ -180,120 +181,136 @@ export default function VerseDetail() {
     );
   }
 
+  // Separate Hindi and English translations
+  const hindiTranslations = translations.filter(
+    t => t.language === 'hindi' || t.translator === 'Swami Tejomayananda'
+  );
+  const englishTranslations = translations.filter(
+    t => t.language === 'en' || t.language === 'english' || (t.language && !t.language.includes('hindi'))
+  );
+  const primaryHindi = hindiTranslations[0];
+  const primaryEnglish =englishTranslations.find(t => t.translator === 'Swami Gambirananda') || englishTranslations[0];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex flex-col">
       <Navbar />
       <div className="flex-1 py-8">
-        <div className="max-w-4xl mx-auto px-4">
+        <div className="max-w-5xl mx-auto px-4">
           {/* Back Link */}
           <div className="mb-6">
-            <Link to="/verses" className="text-red-600 hover:text-red-700 font-medium">
+            <Link to="/verses" className="text-red-600 hover:text-red-700 font-medium text-sm">
               ← Back to Verses
             </Link>
           </div>
 
-          {/* Verse Header */}
-          <div className="bg-white rounded-2xl shadow-lg p-8 mb-6">
-            <div className="flex items-baseline gap-4 mb-6">
-              <h1 className="text-3xl font-bold text-gray-900">
+          {/* Main Spotlight Section */}
+          <div className="bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 rounded-3xl shadow-2xl p-12 mb-8 border border-amber-200/50">
+            {/* Verse Header */}
+            <div className="text-center mb-8">
+              <div className="inline-block text-xs font-semibold text-amber-700 uppercase tracking-wider bg-amber-100/60 px-4 py-1 rounded-full mb-4">
+                Bhagavad Geeta Verse
+              </div>
+              <h1 className="text-4xl md:text-5xl font-bold text-amber-900 mb-2">
                 {formatVerseId(verse.canonical_id)}
               </h1>
-              <span className="text-lg text-orange-600 font-medium">
+              <p className="text-lg text-amber-700/70 font-serif">
                 Chapter {verse.chapter}, Verse {verse.verse}
-              </span>
+              </p>
             </div>
 
-            {/* Sanskrit Devanagari */}
+            {/* Sanskrit Spotlight */}
             {verse.sanskrit_devanagari && (
-              <div className="mb-6 bg-gradient-to-b from-orange-50 to-amber-50 rounded-xl p-8 border-2 border-amber-200/50 shadow-inner">
-                {/* Decorative Om */}
-                <div className="text-center text-amber-400/50 text-3xl font-light mb-4">ॐ</div>
-                <div className="text-2xl text-amber-800/60 font-serif leading-relaxed text-center tracking-wide">
+              <div className="mb-8 text-center">
+                <div className="text-4xl text-amber-400/50 mb-6 font-light">ॐ</div>
+                <div className="text-3xl md:text-4xl font-serif text-amber-900/70 leading-relaxed tracking-wide mb-6">
                   {formatSanskritLines(verse.sanskrit_devanagari).map((line, idx) => {
-                    // Check if this is a speaker intro line (contains वाच)
                     const isSpeakerIntro = line.includes('वाच');
-
                     return (
-                      <p key={idx} className={`${isSpeakerIntro ? 'text-lg text-amber-600/60 mb-3' : 'mb-1'}`}>
+                      <p key={idx} className={`${isSpeakerIntro ? 'text-2xl text-amber-700/60 mb-4' : 'mb-2'}`}>
                         {line}
                       </p>
                     );
                   })}
                 </div>
-                {/* Decorative Verse Reference - closure */}
-                <div className="text-center text-amber-600/70 text-sm font-medium mt-4">
-                  ॥ {verse.chapter}.{verse.verse} ॥
-                </div>
+                <div className="text-amber-600/70 text-lg font-serif">॥ {verse.chapter}.{verse.verse} ॥</div>
               </div>
             )}
 
-            {/* Sanskrit IAST (Romanized) */}
-            {verse.sanskrit_iast && (
-              <div className="mb-6">
-                <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                  Romanized (IAST)
-                </h2>
-                <p className="text-lg text-gray-700 italic leading-relaxed">
-                  {verse.sanskrit_iast}
-                </p>
-              </div>
-            )}
+            {/* Divider */}
+            <div className="flex justify-center items-center gap-4 my-8">
+              <div className="flex-1 h-px bg-gradient-to-r from-transparent to-amber-300/50" />
+              <span className="text-amber-400/50 text-xl">।</span>
+              <div className="flex-1 h-px bg-gradient-to-l from-transparent to-amber-300/50" />
+            </div>
 
-            {/* Primary Translation */}
-            {verse.translation_en && (
-              <div className="mb-6 bg-orange-50 rounded-xl p-6 border border-orange-100">
-                <h2 className="text-sm font-semibold text-orange-700 uppercase tracking-wide mb-2">
-                  Translation
-                </h2>
-                <p className="text-lg text-gray-800 leading-relaxed">
-                  {verse.translation_en}
-                </p>
-                {verse.source && (
-                  <p className="text-sm text-gray-500 mt-3">
-                    <a
-                      href={verse.source}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-orange-600 hover:text-orange-700 hover:underline"
-                    >
-                      View source
-                    </a>
+            {/* Primary Translations */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+              {/* Hindi Translation */}
+              {primaryHindi && (
+                <div>
+                  <p className="text-xs font-semibold text-amber-700/70 uppercase tracking-widest mb-3">
+                    हिंदी अनुवाद
                   </p>
-                )}
-              </div>
-            )}
+                  <p className="text-xl text-gray-800 leading-relaxed italic">
+                    "{primaryHindi.text}"
+                  </p>
+                  {primaryHindi.translator && (
+                    <p className="text-sm text-gray-600 mt-3">
+                      — {primaryHindi.translator}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* English Translation */}
+              {primaryEnglish && (
+                <div>
+                  <p className="text-xs font-semibold text-amber-700/70 uppercase tracking-widest mb-3">
+                    English Translation
+                  </p>
+                  <p className="text-xl text-gray-800 leading-relaxed italic">
+                    "{primaryEnglish.text}"
+                  </p>
+                  {primaryEnglish.translator && (
+                    <p className="text-sm text-gray-600 mt-3">
+                      — {primaryEnglish.translator}
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
 
             {/* Paraphrase / Leadership Summary */}
             {verse.paraphrase_en && (
-              <div className="mb-6 bg-red-50 rounded-xl p-6 border border-red-100">
-                <h2 className="text-sm font-semibold text-red-700 uppercase tracking-wide mb-2">
+              <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-amber-100/50 mb-8">
+                <p className="text-xs font-semibold text-red-700/70 uppercase tracking-widest mb-3">
                   Leadership Insight
-                </h2>
-                <p className="text-lg text-gray-800 leading-relaxed italic">
+                </p>
+                <p className="text-xl text-gray-800 leading-relaxed italic">
                   "{verse.paraphrase_en}"
                 </p>
               </div>
             )}
 
-            {/* Consulting Principles - Enhanced Cards */}
+            {/* Consulting Principles */}
             {verse.consulting_principles && verse.consulting_principles.length > 0 && (
               <div>
-                <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">
+                <p className="text-xs font-semibold text-amber-700/70 uppercase tracking-widest mb-4">
                   Consulting Principles
-                </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {verse.consulting_principles.map((principleId, idx) => {
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {verse.consulting_principles.map((principleId) => {
                     const principle = PRINCIPLE_TAXONOMY[principleId];
                     return (
                       <div
-                        key={idx}
-                        className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-4 border border-orange-200 hover:border-orange-300 hover:shadow-md transition-all"
+                        key={principleId}
+                        className="bg-white/60 backdrop-blur-sm rounded-lg p-4 border border-orange-100/50 hover:border-orange-200 hover:bg-white/80 transition-all"
                       >
-                        <h3 className="font-semibold text-orange-800 mb-2">
+                        <h3 className="font-semibold text-orange-800 text-sm mb-1">
                           {principle?.label || principleId}
                         </h3>
                         {principle?.description && (
-                          <p className="text-sm text-gray-600 leading-relaxed">
+                          <p className="text-xs text-gray-600 leading-relaxed">
                             {principle.description}
                           </p>
                         )}
@@ -305,52 +322,45 @@ export default function VerseDetail() {
             )}
           </div>
 
-          {/* Translations Section */}
+          {/* Translations Section - Collapsible */}
           {translations.length > 0 && (
-            <div className="bg-white rounded-2xl shadow-lg p-8">
-              <h2 className="text-xl font-bold text-gray-900 mb-6">
-                Translations ({translations.length})
-              </h2>
-              <div className="space-y-8">
-                {translations.map((translation, index) => (
-                  <div
-                    key={translation.id}
-                    className="border-l-4 border-orange-400 pl-6 py-3"
-                  >
-                    {/* Translation text - more prominent */}
-                    <p className="text-lg text-gray-800 leading-relaxed mb-4">
-                      {translation.text}
-                    </p>
-                    {/* Translator info */}
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-                      {translation.translator && (
-                        <span className="font-medium text-gray-700">
-                          — {translation.translator}
-                        </span>
-                      )}
-                      {translation.school && (
-                        <span className="text-gray-500">
-                          {translation.school}
-                        </span>
-                      )}
-                      {translation.source && (
-                        <a
-                          href={translation.source}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-orange-600 hover:text-orange-700 hover:underline"
-                        >
-                          Source
-                        </a>
+            <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
+              <button
+                onClick={() => setShowAllTranslations(!showAllTranslations)}
+                className="w-full flex items-center justify-between hover:opacity-70 transition-opacity"
+              >
+                <h2 className="text-xl font-bold text-gray-900">
+                  All Translations ({translations.length})
+                </h2>
+                <span className={`text-2xl text-amber-600 transition-transform ${showAllTranslations ? 'rotate-180' : ''}`}>
+                  ▼
+                </span>
+              </button>
+
+              {showAllTranslations && (
+                <div className="mt-6 space-y-8">
+                  {translations.map((translation, index) => (
+                    <div key={translation.id}>
+                      <div className="border-l-4 border-amber-300 pl-6 py-3">
+                        <p className="text-lg text-gray-800 leading-relaxed mb-3">
+                          "{translation.text}"
+                        </p>
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-600">
+                          {translation.translator && (
+                            <span className="font-medium">— {translation.translator}</span>
+                          )}
+                          {translation.school && (
+                            <span>{translation.school}</span>
+                          )}
+                        </div>
+                      </div>
+                      {index < translations.length - 1 && (
+                        <div className="mt-6 border-b border-gray-100" />
                       )}
                     </div>
-                    {/* Subtle divider between translations (except last) */}
-                    {index < translations.length - 1 && (
-                      <div className="mt-6 border-b border-gray-100" />
-                    )}
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
