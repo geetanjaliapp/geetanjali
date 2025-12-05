@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { formatSanskritLines, isSpeakerIntro } from '../lib/sanskritFormatter';
 import type { Verse } from '../types';
 
 export interface VerseCardProps {
@@ -17,89 +18,6 @@ function getVerseLink(verse: Verse): string {
   return `/verses/${verse.canonical_id}`;
 }
 
-/**
- * Format Sanskrit text to display with proper line breaks
- * - Separates speaker intros (श्री भगवानुवाच, धृतराष्ट्र उवाच, etc.) on their own line
- * - Splits verse content on single danda (।) and adds proper spacing
- * - Uses alternating danda pattern: single (।), double (॥), single (।), double (॥)
- * - For compact mode: preserve natural formatting with danda marks
- */
-function formatSanskritLines(text: string, compactMode: boolean = false): string[] {
-  if (!text) return [];
-
-  // Remove the verse number at the end (e.g., ।।2.52।। or ॥2.52॥)
-  const withoutVerseNum = text.replace(/[।॥]+\d+\.\d+[।॥]+\s*$/, '');
-
-  // Split by newlines to detect speaker intro lines
-  const lines = withoutVerseNum.split('\n').map(l => l.trim()).filter(l => l);
-
-  if (compactMode) {
-    // For compact mode: preserve natural verse formatting with danda marks
-    const result: string[] = [];
-    let verseLineIndex = 0;
-
-    for (const line of lines) {
-      if (line.includes('वाच')) {
-        // Skip speaker intros
-        continue;
-      }
-
-      // Split on danda marks
-      const parts = line.split(/।/).filter(p => p.trim());
-
-      if (parts.length === 0) continue;
-
-      // Alternate between single (।) and double (॥) danda
-      const isEvenLine = (verseLineIndex + 1) % 2 === 0;
-
-      for (let i = 0; i < parts.length; i++) {
-        let formattedPart = parts[i].trim();
-
-        // Add appropriate danda
-        if (i < parts.length - 1) {
-          formattedPart += ' |';
-        } else {
-          formattedPart += isEvenLine ? ' ॥' : ' ।';
-        }
-
-        result.push(formattedPart);
-      }
-
-      verseLineIndex++;
-    }
-
-    return result.length > 0 ? result : [text.trim()];
-  }
-
-  // Detail mode: original formatting logic
-  const result: string[] = [];
-  let verseLineIndex = 0;
-
-  for (const line of lines) {
-    if (line.includes('वाच')) {
-      result.push(line);
-    } else {
-      const parts = line.split(/।(?=[^।])/);
-
-      const isEvenLine = (verseLineIndex + 1) % 2 === 0;
-      const endDanda = isEvenLine ? ' ॥' : ' ।';
-
-      if (parts.length >= 2) {
-        for (let i = 0; i < parts.length - 1; i++) {
-          result.push(parts[i].trim() + ' ।');
-        }
-        result.push(parts[parts.length - 1].replace(/।+\s*$/, '').trim() + endDanda);
-      } else {
-        result.push(line.replace(/।+\s*$/, '').trim() + endDanda);
-      }
-
-      verseLineIndex++;
-    }
-  }
-
-  return result.length > 0 ? result : [text.trim()];
-}
-
 export function VerseCard({
   verse,
   displayMode = 'detail',
@@ -108,7 +26,10 @@ export function VerseCard({
   showTranslation = true,
 }: VerseCardProps) {
   const isCompact = displayMode === 'compact';
-  const sanskritLines = formatSanskritLines(verse.sanskrit_devanagari || '', isCompact);
+  const sanskritLines = formatSanskritLines(verse.sanskrit_devanagari || '', {
+    mode: isCompact ? 'compact' : 'detail',
+    includeSpeakerIntro: showSpeaker,
+  });
 
   // Compact mode: filter out speaker intros for cleaner display
   let displayLines = showSpeaker ? sanskritLines : sanskritLines.filter(line => !line.includes('वाच'));
@@ -163,7 +84,6 @@ export function VerseCard({
               : 'text-xl md:text-2xl text-amber-800/60 font-serif text-center leading-relaxed tracking-wide mb-6'
             }`}>
               {displayLines.map((line, idx) => {
-                const isSpeakerIntro = line.includes('वाच');
                 const isEmpty = line === '';
 
                 return (
@@ -171,7 +91,7 @@ export function VerseCard({
                     key={idx}
                     className={`${isCompact
                       ? isEmpty ? 'h-4' : 'mb-1'
-                      : isSpeakerIntro ? 'text-lg text-amber-600/60 mb-2' : 'mb-1'
+                      : isSpeakerIntro(line) ? 'text-lg text-amber-600/60 mb-2' : 'mb-1'
                     }`}
                   >
                     {!isEmpty && line}

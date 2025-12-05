@@ -1,57 +1,6 @@
 import { Link } from 'react-router-dom';
+import { formatSanskritLines } from '../lib/sanskritFormatter';
 import type { Verse } from '../types';
-
-/**
- * Format Sanskrit text with proper line breaks and danda marks
- * - Removes verse number metadata
- * - Splits on danda marks with proper formatting
- * - Uses alternating danda pattern (। and ॥)
- * - Filters out speaker intros (वाच)
- */
-function formatSanskritLines(text: string): string[] {
-  if (!text) return [];
-
-  // Remove the verse number at the end (e.g., ।।2.52।। or ॥2.52॥)
-  const withoutVerseNum = text.replace(/[।॥]+\d+\.\d+[।॥]+\s*$/, '');
-
-  // Split by newlines to detect speaker intro lines
-  const lines = withoutVerseNum.split('\n').map(l => l.trim()).filter(l => l);
-
-  const result: string[] = [];
-  let verseLineIndex = 0;
-
-  for (const line of lines) {
-    // Skip speaker intro lines (contains वाच - said/spoke)
-    if (line.includes('वाच')) {
-      continue;
-    }
-
-    // Split on danda mark boundaries
-    const parts = line.split(/।/).filter(p => p.trim());
-
-    if (parts.length === 0) continue;
-
-    // Alternate between single (।) and double (॥) danda
-    const isEvenLine = (verseLineIndex + 1) % 2 === 0;
-
-    for (let i = 0; i < parts.length; i++) {
-      let formattedPart = parts[i].trim();
-
-      // Add appropriate danda
-      if (i < parts.length - 1) {
-        formattedPart += ' |';
-      } else {
-        formattedPart += isEvenLine ? ' ॥' : ' ।';
-      }
-
-      result.push(formattedPart);
-    }
-
-    verseLineIndex++;
-  }
-
-  return result.length > 0 ? result : [text.trim()];
-}
 
 interface FeaturedVerseProps {
   verse: Verse;
@@ -77,7 +26,9 @@ export function FeaturedVerse({ verse, loading = false }: FeaturedVerseProps) {
   }
 
   const verseRef = `${verse.chapter}.${verse.verse}`;
-  const sanskritLines = formatSanskritLines(verse.sanskrit_devanagari || '');
+  const sanskritLines = formatSanskritLines(verse.sanskrit_devanagari || '', {
+    mode: 'compact',
+  });
 
   return (
     <Link

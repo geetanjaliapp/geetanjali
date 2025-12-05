@@ -2,25 +2,52 @@
  * Sanskrit text formatting utilities for displaying Devanagari verses
  */
 
+export interface SanskritFormatterOptions {
+  /**
+   * Mode of formatting
+   * - 'detail': Full formatting with speaker intros included (for VerseDetail, NotFound)
+   * - 'compact': Compact formatting skipping speaker intros, using | for internal separators (for VerseCard, FeaturedVerse)
+   * @default 'detail'
+   */
+  mode?: 'detail' | 'compact';
+
+  /**
+   * Whether to include speaker intro lines
+   * @default true for 'detail' mode, false for 'compact' mode
+   */
+  includeSpeakerIntro?: boolean;
+}
+
 /**
  * Format Sanskrit text to display with proper line breaks
  * - Removes verse number at the end
- * - Splits verse on danda marks and formats with alternating | and ||
- * - Separates speaker intros on their own line with special styling
+ * - Splits verse on danda marks and formats appropriately
+ * - Handles speaker intros based on options
  *
  * @param text - Raw Sanskrit text in Devanagari script
+ * @param options - Formatting options (mode, includeSpeakerIntro)
  * @returns Array of formatted lines, each representing a clause or line of verse
  *
- * @example
- * const lines = formatSanskritLines(verse.sanskrit_devanagari);
- * lines.forEach(line => console.log(line));
- * // Output:
+ * @example Detail mode (with speaker intros):
+ * const lines = formatSanskritLines(verse.sanskrit_devanagari, { mode: 'detail' });
  * // "श्रीभगवानुवाच"
  * // "हतो वा प्राप्यसि स्वर्गं जित्वा वा भोक्ष्यसे महीम् ।"
- * // "तस्मादुत्तिष्ठ कौन्तेय युद्धाय कृतनिश्चयः ॥"
+ *
+ * @example Compact mode (skips speaker intros):
+ * const lines = formatSanskritLines(verse.sanskrit_devanagari, { mode: 'compact' });
+ * // "हतो वा प्राप्यसि स्वर्गं |"
+ * // "जित्वा वा भोक्ष्यसे महीम् ॥"
  */
-export function formatSanskritLines(text: string): string[] {
+export function formatSanskritLines(
+  text: string,
+  options: SanskritFormatterOptions = {}
+): string[] {
   if (!text) return [];
+
+  const { mode = 'detail', includeSpeakerIntro } = options;
+
+  // Determine if we include speaker intros
+  const shouldIncludeSpeaker = includeSpeakerIntro ?? (mode === 'detail');
 
   // Remove the verse number at the end (e.g., ।।2.52।। or ॥2.52॥)
   const withoutVerseNum = text.replace(/[।॥]+\d+\.\d+[।॥]+\s*$/, '');
@@ -29,22 +56,23 @@ export function formatSanskritLines(text: string): string[] {
   const lines = withoutVerseNum.split('\n').map(l => l.trim()).filter(l => l);
 
   const result: string[] = [];
-
   let verseLineIndex = 0;
 
   // Process each line
   for (const line of lines) {
     // Check if this line contains speaker intro (contains वाच - said/spoke)
     if (line.includes('वाच')) {
-      // This is a speaker intro line, add it as-is
-      result.push(line);
-    } else {
-      // This is verse content, split on danda
-      const parts = line.split(/।(?=[^।])/);
+      if (shouldIncludeSpeaker) {
+        // Include speaker intro as-is
+        result.push(line);
+      }
+      // Otherwise skip it
+      continue;
+    }
 
-      // Alternate between single (।) and double (॥) danda for each verse line
-      // Odd verse lines (1st, 3rd, etc.) get single danda
-      // Even verse lines (2nd, 4th, etc.) get double danda
+    if (mode === 'detail') {
+      // Detail mode: full formatting with alternating दण्ड
+      const parts = line.split(/।(?=[^।])/);
       const isEvenLine = (verseLineIndex + 1) % 2 === 0;
       const endDanda = isEvenLine ? ' ॥' : ' ।';
 
@@ -58,9 +86,29 @@ export function formatSanskritLines(text: string): string[] {
         // Single clause
         result.push(line.replace(/।+\s*$/, '').trim() + endDanda);
       }
+    } else {
+      // Compact mode: split on danda, use | for internal separators
+      const parts = line.split(/।/).filter(p => p.trim());
 
-      verseLineIndex++;
+      if (parts.length === 0) continue;
+
+      const isEvenLine = (verseLineIndex + 1) % 2 === 0;
+
+      for (let i = 0; i < parts.length; i++) {
+        let formattedPart = parts[i].trim();
+
+        // Add appropriate danda
+        if (i < parts.length - 1) {
+          formattedPart += ' |';
+        } else {
+          formattedPart += isEvenLine ? ' ॥' : ' ।';
+        }
+
+        result.push(formattedPart);
+      }
     }
+
+    verseLineIndex++;
   }
 
   return result.length > 0 ? result : [text.trim()];
