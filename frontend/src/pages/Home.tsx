@@ -1,15 +1,16 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { checkHealth, casesApi, versesApi } from '../lib/api';
-import type { Case, Verse } from '../types';
+import type { Case, Verse, Translation } from '../types';
 import { useAuth } from '../contexts/AuthContext';
-import { VerseCard } from '../components/VerseCard';
+import { FeaturedVerse } from '../components/FeaturedVerse';
 import { Navbar } from '../components/Navbar';
 
 export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [recentCases, setRecentCases] = useState<Case[]>([]);
   const [dailyVerse, setDailyVerse] = useState<Verse | null>(null);
+  const [translations, setTranslations] = useState<Translation[]>([]);
   const [verseLoading, setVerseLoading] = useState(true);
   const { isAuthenticated } = useAuth();
 
@@ -38,12 +39,20 @@ export default function Home() {
     return () => { cancelled = true; };
   }, [isAuthenticated]);
 
-  // Load random verse on mount
+  // Load random verse and its translations on mount
   useEffect(() => {
     let cancelled = false;
     versesApi.getRandom()
       .then((data) => {
-        if (!cancelled) setDailyVerse(data);
+        if (!cancelled) {
+          setDailyVerse(data);
+          // Also fetch translations for this verse
+          return versesApi.getTranslations(data.canonical_id)
+            .then((trans) => {
+              if (!cancelled) setTranslations(trans);
+            })
+            .catch(() => { /* Silent fail - translations just won't show */ });
+        }
       })
       .catch(() => { /* Silent fail - verse section just won't show */ })
       .finally(() => {
@@ -84,12 +93,14 @@ export default function Home() {
             </div>
           )}
 
-          {/* Verse of the Day */}
-          {!verseLoading && dailyVerse && (
-            <div className="mb-12 max-w-3xl mx-auto">
-              <VerseCard verse={dailyVerse} />
-            </div>
-          )}
+          {/* Featured Verse of the Day */}
+          <div className="mb-12">
+            <FeaturedVerse
+              verse={dailyVerse!}
+              translations={translations}
+              loading={verseLoading}
+            />
+          </div>
 
           {/* CTA Button */}
           <div className="mb-12">
