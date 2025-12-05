@@ -7,7 +7,7 @@ from models.case import Case
 from db.repositories.base import BaseRepository
 
 
-class CaseRepository(BaseRepository[Case]):
+class CaseRepository(BaseRepository[Case]):  # type: ignore[type-var]
     """Repository for case operations."""
 
     def __init__(self, db: Session):

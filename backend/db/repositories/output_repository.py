@@ -7,7 +7,7 @@ from models.output import Output
 from db.repositories.base import BaseRepository
 
 
-class OutputRepository(BaseRepository[Output]):
+class OutputRepository(BaseRepository[Output]):  # type: ignore[type-var]
     """Repository for output operations."""
 
     def __init__(self, db: Session):

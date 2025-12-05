@@ -9,7 +9,7 @@ from models.verse import Verse
 from db.repositories.base import BaseRepository
 
 
-class VerseRepository(BaseRepository[Verse]):
+class VerseRepository(BaseRepository[Verse]):  # type: ignore[type-var]
     """Repository for verse operations."""
 
     def __init__(self, db: Session):

@@ -37,7 +37,7 @@ class BaseRepository(Generic[ModelType]):
         Returns:
             Record or None if not found
         """
-        return self.db.query(self.model).filter(self.model.id == id).first()
+        return self.db.query(self.model).filter(self.model.id == id).first()  # type: ignore[arg-type]
 
     def get_all(self, skip: int = 0, limit: int = 100) -> List[ModelType]:
         """
