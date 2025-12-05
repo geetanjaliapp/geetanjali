@@ -84,10 +84,22 @@ logger.info(f"Starting {settings.APP_NAME} in {settings.APP_ENV} mode")
 @app.on_event("startup")
 async def startup_event():
     """Run on application startup."""
-    logger.info("Initializing vector store (loads embedding model)...")
-    from services.vector_store import get_vector_store
+    import asyncio
+    from concurrent.futures import ThreadPoolExecutor
 
-    get_vector_store()  # Initialize vector store and embedding function
+    def load_vector_store_sync():
+        """Load vector store synchronously in a thread."""
+        try:
+            logger.info("Pre-loading vector store in background (loads embedding model)...")
+            from services.vector_store import get_vector_store
+            get_vector_store()  # Initialize vector store
+            logger.info("Vector store pre-loaded successfully")
+        except Exception as e:
+            logger.error(f"Failed to pre-load vector store: {e} (will load on first request)")
+
+    # Run blocking I/O in a thread pool to avoid blocking event loop
+    loop = asyncio.get_event_loop()
+    loop.run_in_executor(None, load_vector_store_sync)
     logger.info("Application startup complete")
 
 
