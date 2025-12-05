@@ -300,8 +300,8 @@ export default function Verses() {
                 {hasMore && ' (scroll for more)'}
               </div>
 
-              {/* Verse Grid - Compact Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {/* Verse Grid - Compact Cards with consistent heights */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 auto-rows-fr">
                 {verses.map((verse) => (
                   <Link
                     key={verse.id}
@@ -313,7 +313,7 @@ export default function Verses() {
                       displayMode="compact"
                       showSpeaker={false}
                       showCitation={true}
-                      showTranslation={true}
+                      showTranslation={false}
                     />
                   </Link>
                 ))}

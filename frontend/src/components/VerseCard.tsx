@@ -22,7 +22,7 @@ function getVerseLink(verse: Verse): string {
  * - Separates speaker intros (श्री भगवानुवाच, धृतराष्ट्र उवाच, etc.) on their own line
  * - Splits verse content on single danda (।) and adds proper spacing
  * - Uses alternating danda pattern: single (।), double (॥), single (।), double (॥)
- * - For compact mode: normalize spacing and preserve full text
+ * - For compact mode: merge lines to ensure max 2 lines for consistent card heights
  */
 function formatSanskritLines(text: string, compactMode: boolean = false): string[] {
   if (!text) return [];
@@ -34,24 +34,46 @@ function formatSanskritLines(text: string, compactMode: boolean = false): string
   const lines = withoutVerseNum.split('\n').map(l => l.trim()).filter(l => l);
 
   if (compactMode) {
-    // For compact mode: normalize whitespace, keep full text, split on danda for cleaner display
+    // For compact mode: merge lines to ensure consistent 2-line display
     const result: string[] = [];
-    let verseLineIndex = 0;
+    let currentLine = '';
+    let lineCount = 0;
 
     for (const line of lines) {
       if (line.includes('वाच')) {
-        result.push(line);
-      } else {
-        // Split on danda but keep full text in each line
-        const parts = line.split(/।/).filter(p => p.trim());
-        if (parts.length > 0) {
-          // Join parts with proper spacing
-          const cleanedLine = parts.map(p => p.trim()).join(' | ');
-          result.push(cleanedLine);
+        // Speaker intro - add as separate line if we have current content
+        if (currentLine.trim()) {
+          result.push(currentLine.trim());
+          currentLine = '';
+          lineCount++;
         }
-        verseLineIndex++;
+        continue; // Skip speaker intros
+      }
+
+      // Clean danda marks for joining
+      const cleanedLine = line.replace(/[।॥]/g, '').trim();
+
+      if (lineCount < 2) {
+        if (currentLine) {
+          currentLine += ' ' + cleanedLine;
+        } else {
+          currentLine = cleanedLine;
+        }
+
+        // Check if we should move to next line (aim for ~2 lines max)
+        if (currentLine.length > 80 && lineCount === 0) {
+          result.push(currentLine);
+          currentLine = '';
+          lineCount++;
+        }
       }
     }
+
+    // Add any remaining content
+    if (currentLine.trim()) {
+      result.push(currentLine.trim());
+    }
+
     return result.length > 0 ? result : [text.trim()];
   }
 
@@ -101,23 +123,23 @@ export function VerseCard({
     <div className="relative">
       {/* Main Card */}
       <div className={`${isCompact
-        ? 'bg-white rounded-lg p-4 border border-gray-100 shadow-sm hover:shadow-md transition-shadow'
+        ? 'bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 rounded-xl p-6 border border-amber-200/50 shadow-md hover:shadow-lg hover:border-amber-300 transition-all h-full flex flex-col'
         : 'bg-gradient-to-b from-orange-50 to-amber-50 rounded-xl p-8 border-2 border-amber-200/50 shadow-inner'
       }`}>
-        {/* Decorative Om - centered (both modes for visual consistency) */}
+        {/* Decorative Om - centered */}
         <div className={`text-center mb-4 ${isCompact
-          ? 'text-xl text-gray-300/60'
+          ? 'text-2xl text-amber-400/50 font-light'
           : 'text-3xl text-amber-400/50 font-light'
         }`}>
           ॐ
         </div>
 
-        {/* Verses centered */}
-        <div>
+        {/* Verses centered - flex-grow to ensure consistent heights */}
+        <div className={`flex-grow flex flex-col justify-center ${isCompact ? '' : ''}`}>
           {/* Sanskrit Text */}
           {displayLines.length > 0 && (
             <div className={`${isCompact
-              ? 'text-sm text-gray-700 font-serif text-center leading-relaxed mb-3'
+              ? 'text-sm text-amber-900 font-serif text-center leading-relaxed mb-3'
               : 'text-xl md:text-2xl text-amber-800/60 font-serif text-center leading-relaxed tracking-wide mb-6'
             }`}>
               {displayLines.map((line, idx) => {
@@ -148,11 +170,11 @@ export function VerseCard({
 
         {/* Citation Link - centered */}
         {showCitation && (
-          <div className={`text-center ${isCompact ? 'pt-2' : 'pt-6'}`}>
+          <div className={`text-center ${isCompact ? 'pt-3' : 'pt-6'}`}>
             <Link
               to={getVerseLink(verse)}
               className={`inline-block transition-colors ${isCompact
-                ? 'text-gray-400 hover:text-gray-600 text-xs font-medium'
+                ? 'text-amber-700/70 hover:text-amber-900 text-xs font-medium'
                 : 'text-amber-600/70 hover:text-amber-700 text-sm font-medium'
               }`}
             >
