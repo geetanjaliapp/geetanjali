@@ -327,11 +327,13 @@ class Persister:
                         if verse_data.get("translations"):
                             for trans in verse_data["translations"]:
                                 # Check if this translation already exists
+                                # Must check both translator AND language to allow same translator in different languages
                                 existing_trans = (
                                     self.db.query(Translation)
                                     .filter_by(
                                         verse_id=verse_instance.id,
                                         translator=trans.get("translator", ""),
+                                        language=trans.get("language", "en"),
                                     )
                                     .first()
                                 )
