@@ -13,6 +13,7 @@
 // Root-level components
 export { Navbar } from './Navbar';
 export { PageLayout } from './PageLayout';
+export { ErrorBoundary } from './ErrorBoundary';
 export { VerseCard } from './VerseCard';
 export { FeaturedVerse } from './FeaturedVerse';
 export { ConfirmModal } from './ConfirmModal';
@@ -26,4 +27,6 @@ export {
   ReflectionsSection,
   OutputFeedback,
   FollowUpInput,
+  CaseTimeline,
+  CaseExchange,
 } from './case';

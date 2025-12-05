@@ -4,3 +4,5 @@ export { PathsSection } from './PathsSection';
 export { StepsSection } from './StepsSection';
 export { ReflectionsSection } from './ReflectionsSection';
 export { FollowUpInput } from './FollowUpInput';
+export { CaseTimeline } from './CaseTimeline';
+export { CaseExchange } from './CaseExchange';

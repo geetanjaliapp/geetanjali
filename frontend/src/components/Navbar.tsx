@@ -68,12 +68,14 @@ export function Navbar({ showBack, backTo = '/', backLabel = 'Back' }: NavbarPro
             <Link
               to={backTo}
               className="flex items-center gap-2 text-gray-600 hover:text-orange-600 transition-colors"
+              aria-label={backLabel}
             >
               <svg
                 className="w-5 h-5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"
@@ -137,6 +139,8 @@ export function Navbar({ showBack, backTo = '/', backLabel = 'Back' }: NavbarPro
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                   className="flex items-center gap-2 px-2 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+                  aria-label="Open user menu"
+                  aria-expanded={isDropdownOpen}
                 >
                   {/* Avatar with initials */}
                   <div className="w-7 h-7 rounded-full bg-orange-600 text-white flex items-center justify-center text-xs font-medium">
@@ -152,6 +156,7 @@ export function Navbar({ showBack, backTo = '/', backLabel = 'Back' }: NavbarPro
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
+                    aria-hidden="true"
                   >
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
