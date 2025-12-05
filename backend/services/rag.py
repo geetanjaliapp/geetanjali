@@ -2,6 +2,7 @@
 
 import logging
 import json
+import re
 from typing import Dict, Any, List, Optional
 
 from config import settings
@@ -18,6 +19,183 @@ from db import SessionLocal
 from db.repositories.verse_repository import VerseRepository
 
 logger = logging.getLogger(__name__)
+
+
+def _extract_json_from_text(response_text: str) -> dict:
+    """
+    Robustly extract JSON from LLM response.
+
+    Handles:
+    - Direct JSON
+    - Markdown code blocks (```json ... ```)
+    - JSON wrapped in explanation text
+    - Multiple JSON objects (returns first valid)
+
+    Args:
+        response_text: Raw LLM response text
+
+    Returns:
+        Parsed JSON dict
+
+    Raises:
+        ValueError: If no valid JSON can be extracted
+    """
+    # Strategy 1: Try direct JSON parse (LLM followed instructions perfectly)
+    try:
+        return json.loads(response_text)
+    except json.JSONDecodeError:
+        pass
+
+    # Strategy 2: Extract from markdown code block
+    # Try ```json variant first, then generic ```
+    for pattern in [r'```(?:json)?\s*\n(.*?)\n```', r'```(.*?)```']:
+        matches = re.finditer(pattern, response_text, re.DOTALL)
+        for match in matches:
+            json_text = match.group(1).strip()
+            try:
+                return json.loads(json_text)
+            except json.JSONDecodeError as e:
+                logger.debug(
+                    f"Markdown block parse failed at pos {e.pos}: "
+                    f"{json_text[max(0,e.pos-30):e.pos+30]}"
+                )
+                continue
+
+    # Strategy 3: Find first { and try to extract complete JSON
+    # This handles: "analysis: {... proper json ...}" pattern
+    # Use json.JSONDecoder.raw_decode() to find the complete object
+    for start_idx in range(len(response_text)):
+        if response_text[start_idx] == '{':
+            try:
+                decoder = json.JSONDecoder()
+                parsed, end_idx = decoder.raw_decode(response_text, start_idx)
+                logger.debug(f"Extracted JSON from position {start_idx}")
+                return parsed
+            except json.JSONDecodeError:
+                continue
+
+    # Failed all strategies
+    logger.error(
+        f"Could not extract JSON from response. First 500 chars: {response_text[:500]}"
+    )
+    raise ValueError("No valid JSON found in LLM response")
+
+
+def _validate_canonical_id(canonical_id: str) -> bool:
+    """
+    Validate that canonical_id follows BG_X_Y format.
+
+    Args:
+        canonical_id: The ID to validate
+
+    Returns:
+        True if valid format, False otherwise
+    """
+    if not isinstance(canonical_id, str):
+        return False
+    # Valid format: BG_<chapter>_<verse> where chapter and verse are integers
+    import re
+    return bool(re.match(r'^BG_\d+_\d+$', canonical_id))
+
+
+def _validate_relevance(relevance: Any) -> bool:
+    """
+    Validate that relevance is a number between 0.0 and 1.0.
+
+    Args:
+        relevance: The value to validate
+
+    Returns:
+        True if valid, False otherwise
+    """
+    if not isinstance(relevance, (int, float)):
+        return False
+    return 0.0 <= relevance <= 1.0
+
+
+def _validate_source_reference(source_id: str, available_sources: List[Dict[str, Any]]) -> bool:
+    """
+    Validate that a source reference (in options) cites a verse that exists in sources.
+
+    Args:
+        source_id: Canonical ID referenced in option
+        available_sources: List of full source objects with metadata
+
+    Returns:
+        True if the reference is valid, False otherwise
+    """
+    if not isinstance(source_id, str):
+        return False
+    source_canonical_ids = [s.get("canonical_id") for s in available_sources if s]
+    return source_id in source_canonical_ids
+
+
+def _validate_option_structure(option: Dict[str, Any]) -> tuple[bool, str]:
+    """
+    Validate a single option has correct structure and types.
+
+    Args:
+        option: Option object to validate
+
+    Returns:
+        Tuple of (is_valid, error_message)
+    """
+    if not isinstance(option, dict):
+        return False, "Option is not a dict"
+
+    # Check required fields exist and have correct types
+    if not isinstance(option.get("title"), str) or len(str(option.get("title", "")).strip()) == 0:
+        return False, "Option missing or empty title"
+
+    if not isinstance(option.get("description"), str) or len(str(option.get("description", "")).strip()) == 0:
+        return False, "Option missing or empty description"
+
+    if not isinstance(option.get("pros"), list):
+        return False, "Option pros not a list"
+
+    if not isinstance(option.get("cons"), list):
+        return False, "Option cons not a list"
+
+    if not isinstance(option.get("sources"), list):
+        return False, "Option sources not a list"
+
+    # Validate each source in sources array is a string (canonical_id reference)
+    for source in option.get("sources", []):
+        if not isinstance(source, str):
+            return False, f"Option source not a string: {source}"
+
+    return True, ""
+
+
+def _validate_source_object_structure(source: Dict[str, Any]) -> tuple[bool, str]:
+    """
+    Validate a source object in the root sources array has correct structure.
+
+    Args:
+        source: Source object to validate
+
+    Returns:
+        Tuple of (is_valid, error_message)
+    """
+    if not isinstance(source, dict):
+        return False, "Source is not a dict"
+
+    # Check canonical_id
+    if not isinstance(source.get("canonical_id"), str):
+        return False, "Source missing or invalid canonical_id"
+
+    if not _validate_canonical_id(source.get("canonical_id")):
+        return False, f"Source canonical_id invalid format: {source.get('canonical_id')}"
+
+    # Check paraphrase
+    if not isinstance(source.get("paraphrase"), str) or len(str(source.get("paraphrase", "")).strip()) == 0:
+        return False, "Source missing or empty paraphrase"
+
+    # Check relevance
+    if not _validate_relevance(source.get("relevance")):
+        return False, f"Source invalid relevance: {source.get('relevance')}"
+
+    return True, ""
 
 
 class RAGPipeline:
@@ -200,41 +378,35 @@ class RAGPipeline:
         response_text = result["response"]
         provider = result.get("provider", "unknown")
 
-        # Parse JSON
+        # Parse JSON with robust extraction
         try:
-            # Try to extract JSON if wrapped in markdown code blocks
-            if "```json" in response_text:
-                start = response_text.find("```json") + 7
-                end = response_text.find("```", start)
-                response_text = response_text[start:end].strip()
-            elif "```" in response_text:
-                start = response_text.find("```") + 3
-                end = response_text.find("```", start)
-                response_text = response_text[start:end].strip()
+            parsed_result = _extract_json_from_text(response_text)
+            logger.info(f"Successfully parsed JSON response from {provider}")
+            return parsed_result  # type: ignore[no-any-return]
 
-            result = json.loads(response_text)
-            logger.info("Successfully parsed JSON response")
+        except ValueError as extraction_error:
+            logger.error(f"JSON extraction failed: {extraction_error}")
+            logger.debug(f"Response text (first 500 chars): {response_text[:500]}")
 
-            # Post-process if using Ollama (fallback mode)
-            if provider == "ollama" and retrieved_verses:
-                logger.info("Post-processing Ollama response")
-                result = post_process_ollama_response(response_text, retrieved_verses)
-
-            return result  # type: ignore[no-any-return]
-
-        except json.JSONDecodeError as e:
-            logger.error(f"Failed to parse LLM JSON response: {e}")
-            logger.error(f"Response parsing failed, length: {len(response_text)} chars")
-
-            # If Ollama, try post-processing the raw text
-            if provider == "ollama" and retrieved_verses:
-                logger.warning("Attempting Ollama post-processing on malformed JSON")
+            # Apply post-processing fallback for all providers if verses available
+            # This is our graceful degradation layer - fill gaps intelligently
+            if retrieved_verses:
+                logger.warning(
+                    f"Attempting post-processing fallback for {provider} response"
+                )
                 try:
-                    return post_process_ollama_response(response_text, retrieved_verses)
+                    fallback_result = post_process_ollama_response(
+                        response_text, retrieved_verses
+                    )
+                    logger.info("Post-processing fallback succeeded")
+                    return fallback_result  # type: ignore[no-any-return]
                 except Exception as pp_error:
-                    logger.error(f"Post-processing also failed: {pp_error}")
+                    logger.error(f"Post-processing fallback also failed: {pp_error}")
+                    raise Exception(
+                        f"LLM returned invalid JSON and post-processing failed: {pp_error}"
+                    )
 
-            raise Exception("LLM returned invalid JSON")
+            raise Exception("LLM returned invalid JSON and no verses available for fallback")
 
     def validate_output(self, output: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -402,6 +574,98 @@ class RAGPipeline:
                 ]
                 output["scholar_flag"] = True
                 output["confidence"] = 0.4  # Very low confidence for completely generated options
+
+        # Comprehensive field type validation
+        # Validate executive_summary is a non-empty string
+        if not isinstance(output.get("executive_summary"), str) or len(str(output.get("executive_summary", "")).strip()) == 0:
+            logger.warning("Invalid or missing executive_summary, using default")
+            output["executive_summary"] = "Ethical analysis based on Bhagavad Geeta principles."
+
+        # Validate reflection_prompts is a non-empty list
+        if not isinstance(output.get("reflection_prompts"), list) or len(output.get("reflection_prompts", [])) == 0:
+            logger.warning("Invalid or missing reflection_prompts, using defaults")
+            output["reflection_prompts"] = [
+                "What is my duty in this situation?",
+                "How can I act with integrity?",
+            ]
+
+        # Validate recommended_action structure
+        recommended_action = output.get("recommended_action", {})
+        if not isinstance(recommended_action, dict):
+            logger.warning("Invalid recommended_action structure, using default")
+            recommended_action = {
+                "option": 1,
+                "steps": ["Reflect on the situation", "Consider all perspectives", "Act with clarity"],
+                "sources": [],
+            }
+        else:
+            # Validate option field is valid integer
+            if not isinstance(recommended_action.get("option"), int) or recommended_action.get("option") not in [1, 2, 3]:
+                logger.warning(f"Invalid recommended_action.option: {recommended_action.get('option')}, defaulting to 1")
+                recommended_action["option"] = 1
+
+            # Validate steps is a non-empty list
+            if not isinstance(recommended_action.get("steps"), list) or len(recommended_action.get("steps", [])) == 0:
+                logger.warning("Invalid or missing recommended_action.steps")
+                recommended_action["steps"] = ["Reflect on the situation", "Consider all perspectives", "Act with clarity"]
+
+            # Validate sources is a list (can be empty)
+            if not isinstance(recommended_action.get("sources"), list):
+                logger.warning("Invalid recommended_action.sources, setting to empty list")
+                recommended_action["sources"] = []
+
+        output["recommended_action"] = recommended_action
+
+        # Validate each option structure
+        for i, option in enumerate(output.get("options", [])):
+            is_valid, error_msg = _validate_option_structure(option)
+            if not is_valid:
+                logger.warning(f"Option {i} validation failed: {error_msg}")
+                # Minimum fix to keep option viable
+                if "title" not in option or not isinstance(option.get("title"), str):
+                    option["title"] = f"Option {i + 1}"
+                if "description" not in option or not isinstance(option.get("description"), str):
+                    option["description"] = "An alternative approach"
+                if "pros" not in option or not isinstance(option.get("pros"), list):
+                    option["pros"] = []
+                if "cons" not in option or not isinstance(option.get("cons"), list):
+                    option["cons"] = []
+                if "sources" not in option or not isinstance(option.get("sources"), list):
+                    option["sources"] = []
+
+        # Validate sources array
+        sources_array = output.get("sources", [])
+        if not isinstance(sources_array, list):
+            logger.warning("Sources field is not a list, setting to empty")
+            output["sources"] = []
+            sources_array = []
+        else:
+            # Validate each source object structure
+            valid_sources = []
+            for i, source in enumerate(sources_array):
+                is_valid, error_msg = _validate_source_object_structure(source)
+                if not is_valid:
+                    logger.warning(f"Source {i} validation failed: {error_msg}, skipping")
+                    continue
+                valid_sources.append(source)
+
+            if len(valid_sources) < len(sources_array):
+                logger.warning(
+                    f"Removed {len(sources_array) - len(valid_sources)} invalid sources "
+                    f"({len(valid_sources)} valid sources remain)"
+                )
+                output["sources"] = valid_sources
+
+        # Validate source references in options (optional: check if option sources cite actual sources)
+        if sources_array:
+            source_ids = _validate_source_reference  # For logging
+            for option_idx, option in enumerate(output.get("options", [])):
+                for source_ref in option.get("sources", []):
+                    if not _validate_source_reference(source_ref, sources_array):
+                        logger.warning(
+                            f"Option {option_idx} references undefined source {source_ref}. "
+                            f"Available sources: {[s.get('canonical_id') for s in sources_array]}"
+                        )
 
         # Validate confidence is numeric and in range
         confidence = output.get("confidence", 0.5)

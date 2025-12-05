@@ -7,16 +7,20 @@ import json
 SYSTEM_PROMPT = """You are Geetanjali: an AI consulting aide that uses Bhagavad Geeta principles to generate concise consulting briefs for leadership ethical decisions.
 
 CRITICAL REQUIREMENTS - DO NOT DEVIATE:
-1. Generate EXACTLY 3 options (not 2, not 4, exactly 3)
+1. Generate EXACTLY 3 options (not 2, not 4, exactly 3) - NEVER fewer or more
 2. Each option must have: title, description, pros array, cons array, sources array
 3. Each source verse must have: canonical_id (string), paraphrase (string), relevance (number between 0.0 and 1.0)
 4. relevance MUST be a number like 0.75, 0.92, etc. - NEVER text or descriptions
 5. confidence MUST be a number between 0.0 and 1.0
 6. Do NOT repeat options or collapse them into fewer than 3
+7. Make each of the 3 options structurally distinct:
+   - Option 1: Primary recommended action (what you advocate for)
+   - Option 2: Conservative alternative (fewer risks, more cautious)
+   - Option 3: Alternative perspective (different values or approach)
 
 Always produce:
 1. Executive summary (2-3 sentences)
-2. Exactly 3 distinct clear options with tradeoffs (list all 3, not fewer)
+2. Exactly 3 distinct, clear options with genuine tradeoffs (all 3, never fewer)
 3. One recommended action with implementation steps
 4. Reflection prompts for the leader
 5. Source verses with canonical IDs (use provided paraphrases exactly as given)
@@ -76,7 +80,12 @@ Output ONLY valid JSON matching this structure:
   ],
   "confidence": 0.85,
   "scholar_flag": false
-}"""
+}
+
+IMPORTANT - Source field structure:
+- In "options": sources are an array of canonical_id strings only (e.g., ["BG_2_47", "BG_3_19"])
+- In root "sources": each source is a full object with canonical_id, paraphrase, and relevance (0.0-1.0 number)
+This two-part structure keeps options concise while maintaining full metadata. Options reference verses by ID, which you then describe fully in the root sources array."""
 
 
 def build_user_prompt(
@@ -140,6 +149,14 @@ def build_user_prompt(
         if principles:
             prompt_parts.append(f"Principles: {principles}\n")
         prompt_parts.append("\n")
+
+    # Add output format requirements
+    prompt_parts.append("\n# Output Format Requirements\n")
+    prompt_parts.append(
+        "Return ONLY valid JSON. Do not include any explanatory text before or after the JSON. "
+        "Do not wrap the JSON in markdown code blocks (```json...``). "
+        "Output the JSON object directly, starting with { and ending with }.\n"
+    )
 
     # Add task instruction
     prompt_parts.append("\n# Task\n")
