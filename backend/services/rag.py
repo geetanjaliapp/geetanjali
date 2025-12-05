@@ -376,11 +376,17 @@ class RAGPipeline:
 
         response_text = result["response"]
         provider = result.get("provider", "unknown")
+        model = result.get("model", "unknown")
 
         # Parse JSON with robust extraction
         try:
             parsed_result = _extract_json_from_text(response_text)
-            logger.info(f"Successfully parsed JSON response from {provider}")
+            # Add LLM attribution metadata
+            parsed_result["llm_attribution"] = {
+                "provider": provider,
+                "model": model,
+            }
+            logger.info(f"Successfully parsed JSON response from {provider} ({model})")
             return parsed_result  # type: ignore[no-any-return]
 
         except ValueError as extraction_error:
