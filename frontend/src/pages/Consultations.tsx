@@ -143,7 +143,7 @@ export default function Consultations() {
         {/* Consultations List */}
         {cases.length === 0 ? (
           <div className="bg-white rounded-2xl shadow-xl p-12 text-center">
-            <div className="text-5xl mb-4">🪷</div>
+            <img src="/logo.svg" alt="Geetanjali" className="h-20 w-20 mx-auto mb-6" />
             <p className="text-gray-600 mb-6">You haven't asked any questions yet.</p>
             <Link
               to="/cases/new"
