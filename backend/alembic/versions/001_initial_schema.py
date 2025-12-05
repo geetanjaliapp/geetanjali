@@ -216,13 +216,16 @@ def upgrade() -> None:
     # =========================================================================
     # MESSAGES - Conversation threading
     # =========================================================================
+    # Create messagerole enum if it doesn't exist
+    op.execute("CREATE TYPE IF NOT EXISTS messagerole AS ENUM ('user', 'assistant')")
+
     op.create_table(
         "messages",
         # Identity
         sa.Column("id", sa.String(36), primary_key=True),
         sa.Column("case_id", sa.String(36), sa.ForeignKey("cases.id", ondelete="CASCADE"), nullable=False),
         # Content
-        sa.Column("role", sa.Enum("user", "assistant", name="messagerole"), nullable=False),
+        sa.Column("role", sa.Enum("user", "assistant", name="messagerole", create_type=False), nullable=False),
         sa.Column("content", sa.Text(), nullable=False),
         sa.Column("output_id", sa.String(36), sa.ForeignKey("outputs.id", ondelete="SET NULL"), nullable=True),
         # Timestamps
@@ -256,6 +259,9 @@ def upgrade() -> None:
     # =========================================================================
     # CONTACT_MESSAGES - Contact form submissions
     # =========================================================================
+    # Create contacttype enum if it doesn't exist
+    op.execute("CREATE TYPE IF NOT EXISTS contacttype AS ENUM ('feedback', 'question', 'bug_report', 'feature_request', 'other')")
+
     op.create_table(
         "contact_messages",
         # Identity
@@ -264,7 +270,7 @@ def upgrade() -> None:
         sa.Column("name", sa.String(100), nullable=False),
         sa.Column("email", sa.String(255), nullable=False),
         # Content
-        sa.Column("message_type", sa.Enum("feedback", "question", "bug_report", "feature_request", "other", name="contacttype"), nullable=False),
+        sa.Column("message_type", sa.Enum("feedback", "question", "bug_report", "feature_request", "other", name="contacttype", create_type=False), nullable=False),
         sa.Column("subject", sa.String(200), nullable=True),
         sa.Column("message", sa.Text(), nullable=False),
         # Status
