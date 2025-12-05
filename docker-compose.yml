@@ -8,9 +8,9 @@ services:
     volumes:
       - ollama_models:/root/.ollama
     environment:
-      # Keep model loaded for 24 hours (default is 5 minutes)
-      # Use "1h" for 1 hour, "24h" for 1 day, or "-1" for forever
-      OLLAMA_KEEP_ALIVE: "24h"
+      # Keep model loaded indefinitely to prevent 404 errors
+      # Use "1h" for 1 hour, "24h" for 1 day, or "-1" for forever (never unload)
+      OLLAMA_KEEP_ALIVE: "-1"
     healthcheck:
       test: ["CMD", "ollama", "list"]
       interval: 30s
