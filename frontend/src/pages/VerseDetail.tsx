@@ -138,7 +138,7 @@ export default function VerseDetail() {
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {verse.consulting_principles.map((principleId) => {
-                    const principle = PRINCIPLE_TAXONOMY[principleId];
+                    const principle = PRINCIPLE_TAXONOMY[principleId as keyof typeof PRINCIPLE_TAXONOMY];
                     return (
                       <div
                         key={principleId}
