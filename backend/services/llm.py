@@ -69,10 +69,17 @@ class LLMService:
                 "Anthropic selected as primary but API key not set or SDK not installed"
             )
 
-        # Ollama configuration
+        # Ollama configuration with persistent HTTP client
         self.ollama_enabled = settings.OLLAMA_ENABLED
         self.ollama_base_url = settings.OLLAMA_BASE_URL
         self.ollama_model = settings.OLLAMA_MODEL
+
+        # Create persistent HTTP client for Ollama with connection pooling
+        self.ollama_client = httpx.Client(
+            base_url=self.ollama_base_url,
+            timeout=settings.OLLAMA_TIMEOUT,
+            limits=httpx.Limits(max_connections=10, max_keepalive_connections=5),
+        )
 
         logger.info(
             f"LLM Service initialized - Primary: {self.primary_provider.value}, "
@@ -100,7 +107,7 @@ class LLMService:
         if not self.ollama_enabled:
             return False
         try:
-            response = httpx.get(f"{self.ollama_base_url}/api/tags", timeout=5)
+            response = self.ollama_client.get("/api/tags", timeout=5)
             return response.status_code == 200
         except Exception as e:
             logger.error(f"Ollama health check failed: {e}")
@@ -163,12 +170,8 @@ class LLMService:
         reraise=True,
     )
     def _make_ollama_request(self, payload: Dict[str, Any]) -> Dict[str, Any]:
-        """Make Ollama request with retry logic."""
-        response = httpx.post(
-            f"{self.ollama_base_url}/api/generate",
-            json=payload,
-            timeout=settings.OLLAMA_TIMEOUT,
-        )
+        """Make Ollama request with retry logic using persistent client."""
+        response = self.ollama_client.post("/api/generate", json=payload)
         response.raise_for_status()
         return dict(response.json())
 
