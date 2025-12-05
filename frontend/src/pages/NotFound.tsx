@@ -27,9 +27,6 @@ export default function NotFound() {
       <Navbar />
       <div className="flex items-center justify-center" style={{ minHeight: 'calc(100vh - 64px)' }}>
         <div className="text-center max-w-2xl px-4">
-          {/* Om Symbol */}
-          <div className="text-5xl text-amber-400/50 mb-6 font-light">ॐ</div>
-
           {/* Logo */}
           <img src="/logo.svg" alt="Geetanjali" className="h-24 w-24 mx-auto mb-8" />
 
@@ -42,9 +39,12 @@ export default function NotFound() {
               to={`/verses/${verse.canonical_id}`}
               className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 border border-amber-200/50 mb-8 hover:bg-white/90 hover:border-amber-300/70 transition-all shadow-lg hover:shadow-xl block cursor-pointer"
             >
+              {/* Om Symbol */}
+              <div className="text-4xl text-amber-400/50 mb-4 font-light">ॐ</div>
+
               {/* Sanskrit */}
               {verse.sanskrit_devanagari && (
-                <div className="mb-6 text-center">
+                <div className="mb-4 text-center">
                   <div className="text-2xl md:text-3xl font-serif text-amber-900 leading-relaxed tracking-wide mb-2">
                     {verse.sanskrit_devanagari.split('\n')[0]}
                   </div>
@@ -56,27 +56,22 @@ export default function NotFound() {
 
               {/* English paraphrase */}
               {verse.paraphrase_en && (
-                <p className="text-base md:text-lg text-gray-800 leading-relaxed italic mb-4">
+                <p className="text-base md:text-lg text-gray-800 leading-relaxed italic">
                   "{verse.paraphrase_en}"
                 </p>
               )}
-
-              {/* CTA hint */}
-              <p className="text-sm text-amber-700 font-medium">
-                Click to read the full verse →
-              </p>
             </Link>
           ) : (
             <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 border border-amber-200/50 mb-8">
               <p className="text-base text-gray-700 italic">
-                Sometimes uncertainty is where wisdom begins. The Geeta teaches that being lost is the first step to being found.
+                Being lost is where wisdom begins.
               </p>
             </div>
           )}
 
           {/* Philosophical Message */}
-          <p className="text-base md:text-lg text-gray-800 leading-relaxed mb-8 max-w-xl mx-auto">
-            Just as Arjuna stood uncertain on the battlefield, you too can find clarity. The page you seek may not exist here, but the wisdom you need awaits elsewhere.
+          <p className="text-base text-gray-700 leading-relaxed mb-8 max-w-xl mx-auto">
+            Uncertainty is the first step toward clarity.
           </p>
 
           {/* CTA Button */}
