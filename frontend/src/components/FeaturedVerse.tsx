@@ -29,14 +29,6 @@ interface FeaturedVerseProps {
 }
 
 export function FeaturedVerse({ verse, translations = [], loading = false }: FeaturedVerseProps) {
-
-  // Get Hindi and English translations
-  const hindiTranslations = translations.filter(t => t.language === 'hindi' || t.translator === 'Swami Tejomayananda');
-  const englishTranslations = translations.filter(t => t.language === 'en' || t.language === 'english');
-
-  const primaryHindi = hindiTranslations.length > 0 ? hindiTranslations[0].text : '';
-  const primaryEnglish = verse.translation_en || englishTranslations.find(t => t.translator === 'Swami Gambirananda')?.text || englishTranslations[0]?.text || '';
-
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto">
@@ -53,6 +45,13 @@ export function FeaturedVerse({ verse, translations = [], loading = false }: Fea
   if (!verse) {
     return null;
   }
+
+  // Get Hindi and English translations
+  const hindiTranslations = translations.filter(t => t.language === 'hindi' || t.translator === 'Swami Tejomayananda');
+  const englishTranslations = translations.filter(t => t.language === 'en' || t.language === 'english');
+
+  const primaryHindi = hindiTranslations.length > 0 ? hindiTranslations[0].text : '';
+  const primaryEnglish = verse.translation_en || englishTranslations.find(t => t.translator === 'Swami Gambirananda')?.text || englishTranslations[0]?.text || '';
 
   const verseRef = `${verse.chapter}.${verse.verse}`;
 
