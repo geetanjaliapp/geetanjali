@@ -224,7 +224,7 @@ class RAGPipeline:
 
         except json.JSONDecodeError as e:
             logger.error(f"Failed to parse LLM JSON response: {e}")
-            logger.error(f"Response text: {response_text[:500]}")
+            logger.error(f"Response parsing failed, length: {len(response_text)} chars")
 
             # If Ollama, try post-processing the raw text
             if provider == "ollama" and retrieved_verses:

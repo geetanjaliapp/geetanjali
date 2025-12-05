@@ -99,7 +99,7 @@ async def signup(
     Raises:
         HTTPException: 400 if validation fails, 409 if email already exists
     """
-    logger.info(f"Signup attempt for email: {signup_data.email}")
+    logger.info("Signup attempt")
 
     # Validate email format
     if not validate_email(signup_data.email):
@@ -172,7 +172,7 @@ async def login(
     Raises:
         HTTPException: 401 if credentials are invalid
     """
-    logger.info(f"Login attempt for email: {login_data.email}")
+    logger.info("Login attempt")
 
     # Fetch user by email
     user_repo = UserRepository(db)
@@ -185,7 +185,7 @@ async def login(
 
     # Verify password
     if not verify_password(login_data.password, user.password_hash):
-        logger.warning(f"Failed login attempt for: {login_data.email}")
+        logger.warning("Failed login attempt")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password"
         )
