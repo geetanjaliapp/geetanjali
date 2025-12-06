@@ -336,8 +336,17 @@ ${messages.map(msg => {
 ---
 `;
 
+    // Add Guidance Summary section header if any summary sections exist
+    const hasPaths = firstOutput && firstOutput.result_json.options?.length > 0;
+    const hasSteps = firstOutput && typeof firstOutput.result_json.recommended_action === 'object' && (firstOutput.result_json.recommended_action as { steps?: string[] })?.steps?.length;
+    const hasReflections = firstOutput && firstOutput.result_json.reflection_prompts?.length > 0;
+
+    if (hasPaths || hasSteps || hasReflections) {
+      markdown += `\n# Guidance Summary\n\n*Key insights from your consultation*\n\n---\n`;
+    }
+
     // Add Paths Before You (Options)
-    if (firstOutput && firstOutput.result_json.options?.length > 0) {
+    if (hasPaths) {
       markdown += `\n## Paths Before You\n\n`;
       firstOutput.result_json.options.forEach((option: Option, idx: number) => {
         markdown += `### Path ${idx + 1}: ${option.title}\n\n`;
@@ -369,7 +378,7 @@ ${messages.map(msg => {
     }
 
     // Add Recommended Steps
-    if (firstOutput && typeof firstOutput.result_json.recommended_action === 'object' && (firstOutput.result_json.recommended_action as { steps?: string[] })?.steps?.length) {
+    if (hasSteps) {
       markdown += `\n## Recommended Steps\n\n`;
       const recommendedAction = firstOutput.result_json.recommended_action as { steps?: string[]; sources?: string[] };
       (recommendedAction.steps ?? []).forEach((step: string, idx: number) => {
@@ -383,7 +392,7 @@ ${messages.map(msg => {
     }
 
     // Add Reflection Prompts
-    if (firstOutput && firstOutput.result_json.reflection_prompts?.length > 0) {
+    if (hasReflections) {
       markdown += `\n## Reflection Prompts\n\nTake time to reflect on these questions:\n\n`;
       firstOutput.result_json.reflection_prompts.forEach((prompt: string, idx: number) => {
         markdown += `${idx + 1}. ${prompt}\n`;
