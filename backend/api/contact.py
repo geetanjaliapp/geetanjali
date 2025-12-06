@@ -1,11 +1,13 @@
 """Contact form API endpoint."""
 
 import logging
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Request
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
 from enum import Enum
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 from db.connection import get_db
 from models.contact import ContactMessage, ContactType
@@ -13,6 +15,7 @@ from services.email import send_contact_email
 
 logger = logging.getLogger(__name__)
 
+limiter = Limiter(key_func=get_remote_address)
 router = APIRouter(prefix="/api/v1/contact")
 
 
@@ -51,7 +54,9 @@ class ContactResponse(BaseModel):
 
 
 @router.post("", response_model=ContactResponse)
+@limiter.limit("3/hour")
 async def submit_contact(
+    request_obj: Request,
     request: ContactRequest,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),

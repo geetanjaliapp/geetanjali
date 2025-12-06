@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { casesApi } from '../lib/api';
 import type { Case, CaseStatus } from '../types';
@@ -6,6 +6,8 @@ import { Navbar } from '../components/Navbar';
 import { errorMessages } from '../lib/errorMessages';
 import { useAuth } from '../contexts/AuthContext';
 import { ConfirmModal } from '../components/ConfirmModal';
+
+const CASES_PER_PAGE = 10;
 
 // Status badge component
 function StatusBadge({ status }: { status?: CaseStatus }) {
@@ -28,6 +30,8 @@ function StatusBadge({ status }: { status?: CaseStatus }) {
 export default function Consultations() {
   const [cases, setCases] = useState<Case[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);
@@ -81,11 +85,30 @@ export default function Consultations() {
   useEffect(() => {
     if (authLoading) return;
 
-    casesApi.list(0, 100)
-      .then(setCases)
+    casesApi.list(0, CASES_PER_PAGE)
+      .then((data) => {
+        setCases(data);
+        setHasMore(data.length === CASES_PER_PAGE);
+      })
       .catch((err) => setError(errorMessages.caseLoad(err)))
       .finally(() => setLoading(false));
   }, [authLoading]);
+
+  const loadMore = useCallback(async () => {
+    if (loadingMore) return;
+    setLoadingMore(true);
+    setError(null);
+
+    try {
+      const data = await casesApi.list(cases.length, CASES_PER_PAGE);
+      setCases(prev => [...prev, ...data]);
+      setHasMore(data.length === CASES_PER_PAGE);
+    } catch (err) {
+      setError(errorMessages.caseLoad(err));
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [cases.length, loadingMore]);
 
   if (loading) {
     return (
@@ -153,74 +176,99 @@ export default function Consultations() {
               </Link>
             </div>
           ) : (
-            <div className="space-y-3 sm:space-y-4">
-              {cases.map((case_) => (
-                <div
-                  key={case_.id}
-                  className="bg-white rounded-lg sm:rounded-xl shadow-md hover:shadow-lg transition-all border border-gray-100 hover:border-red-200 overflow-hidden"
-                >
-                  <Link to={`/cases/${case_.id}`} className="block p-4 sm:p-5 lg:p-6">
-                    <div className="flex justify-between items-start mb-2 sm:mb-3 gap-2">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 sm:gap-3 mb-1 flex-wrap">
-                          <h2 className="text-base sm:text-lg font-semibold text-gray-900 truncate">{case_.title}</h2>
-                          <StatusBadge status={case_.status} />
+            <>
+              <div className="space-y-3 sm:space-y-4">
+                {cases.map((case_) => (
+                  <div
+                    key={case_.id}
+                    className="bg-white rounded-lg sm:rounded-xl shadow-md hover:shadow-lg transition-all border border-gray-100 hover:border-red-200 overflow-hidden"
+                  >
+                    <Link to={`/cases/${case_.id}`} className="block p-4 sm:p-5 lg:p-6">
+                      <div className="flex justify-between items-start mb-2 sm:mb-3 gap-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 sm:gap-3 mb-1 flex-wrap">
+                            <h2 className="text-base sm:text-lg font-semibold text-gray-900 truncate">{case_.title}</h2>
+                            <StatusBadge status={case_.status} />
+                          </div>
+                          <p className="text-xs sm:text-sm text-gray-400">
+                            {new Date(case_.created_at || '').toLocaleDateString('en-US', {
+                              weekday: 'short',
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric'
+                            })}
+                          </p>
                         </div>
-                        <p className="text-xs sm:text-sm text-gray-400">
-                          {new Date(case_.created_at || '').toLocaleDateString('en-US', {
-                            weekday: 'short',
-                            month: 'short',
-                            day: 'numeric',
-                            year: 'numeric'
-                          })}
-                        </p>
-                      </div>
-                      {/* Action buttons */}
-                      <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
-                        {case_.status === 'failed' && (
+                        {/* Action buttons */}
+                        <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+                          {case_.status === 'failed' && (
+                            <button
+                              onClick={(e) => handleRetry(e, case_.id)}
+                              disabled={actionLoading === case_.id}
+                              className="px-2 sm:px-3 py-1 text-xs font-medium text-amber-700 bg-amber-100 hover:bg-amber-200 rounded-full transition-colors disabled:opacity-50"
+                              title="Retry analysis"
+                            >
+                              {actionLoading === case_.id ? '...' : 'Retry'}
+                            </button>
+                          )}
                           <button
-                            onClick={(e) => handleRetry(e, case_.id)}
+                            onClick={(e) => handleDeleteClick(e, case_.id, case_.title)}
                             disabled={actionLoading === case_.id}
-                            className="px-2 sm:px-3 py-1 text-xs font-medium text-amber-700 bg-amber-100 hover:bg-amber-200 rounded-full transition-colors disabled:opacity-50"
-                            title="Retry analysis"
+                            className="p-1.5 sm:p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors disabled:opacity-50"
+                            title="Delete consultation"
                           >
-                            {actionLoading === case_.id ? '...' : 'Retry'}
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
                           </button>
-                        )}
-                        <button
-                          onClick={(e) => handleDeleteClick(e, case_.id, case_.title)}
-                          disabled={actionLoading === case_.id}
-                          className="p-1.5 sm:p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors disabled:opacity-50"
-                          title="Delete consultation"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                        </button>
+                        </div>
                       </div>
-                    </div>
-                    <p className="text-gray-600 text-xs sm:text-sm line-clamp-2 mb-2 sm:mb-3">{case_.description}</p>
-                    <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                      {case_.role && case_.role !== 'Individual' && (
-                        <span className="px-2 py-0.5 text-xs bg-gray-100 text-gray-600 rounded">
-                          👤 {case_.role}
-                        </span>
-                      )}
-                      {case_.stakeholders && case_.stakeholders.length > 0 && case_.stakeholders[0] !== 'self' && (
-                        <span className="px-2 py-0.5 text-xs bg-gray-100 text-gray-600 rounded">
-                          👥 {case_.stakeholders.join(', ')}
-                        </span>
-                      )}
-                      {case_.horizon && (
-                        <span className="px-2 py-0.5 text-xs bg-gray-100 text-gray-600 rounded">
-                          ⏱️ {case_.horizon} term
-                        </span>
-                      )}
-                    </div>
-                  </Link>
+                      <p className="text-gray-600 text-xs sm:text-sm line-clamp-2 mb-2 sm:mb-3">{case_.description}</p>
+                      <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                        {case_.role && case_.role !== 'Individual' && (
+                          <span className="px-2 py-0.5 text-xs bg-gray-100 text-gray-600 rounded">
+                            👤 {case_.role}
+                          </span>
+                        )}
+                        {case_.stakeholders && case_.stakeholders.length > 0 && case_.stakeholders[0] !== 'self' && (
+                          <span className="px-2 py-0.5 text-xs bg-gray-100 text-gray-600 rounded">
+                            👥 {case_.stakeholders.join(', ')}
+                          </span>
+                        )}
+                        {case_.horizon && (
+                          <span className="px-2 py-0.5 text-xs bg-gray-100 text-gray-600 rounded">
+                            ⏱️ {case_.horizon} term
+                          </span>
+                        )}
+                      </div>
+                    </Link>
+                  </div>
+                ))}
+              </div>
+
+              {/* Load More Button */}
+              {hasMore && (
+                <div className="flex justify-center mt-6 sm:mt-8">
+                  <button
+                    onClick={loadMore}
+                    disabled={loadingMore}
+                    className="px-6 py-3 bg-white border border-gray-300 rounded-xl text-gray-700 font-medium hover:bg-gray-50 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
+                  >
+                    {loadingMore ? (
+                      <span className="flex items-center gap-2">
+                        <svg className="animate-spin h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        </svg>
+                        Loading...
+                      </span>
+                    ) : (
+                      'Load More'
+                    )}
+                  </button>
                 </div>
-              ))}
-            </div>
+              )}
+            </>
           )}
         </div>
       </div>

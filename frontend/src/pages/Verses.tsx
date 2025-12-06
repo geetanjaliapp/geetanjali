@@ -1,12 +1,12 @@
 import { Link, useSearchParams } from 'react-router-dom';
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { versesApi } from '../lib/api';
 import type { Verse } from '../types';
 import { Navbar } from '../components/Navbar';
 import { VerseCard } from '../components/VerseCard';
 import { errorMessages } from '../lib/errorMessages';
 
-const VERSES_PER_PAGE = 24;
+const VERSES_PER_PAGE = 20;
 
 // Filter modes: 'featured' shows curated verses, 'all' shows all 701 verses
 type FilterMode = 'featured' | 'all' | number; // number = specific chapter
@@ -19,8 +19,6 @@ export default function Verses() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
-  const observerTarget = useRef<HTMLDivElement>(null);
-  const loadingMoreRef = useRef(false); // Sync ref to prevent race conditions
 
   // Parse initial filter from URL
   const getInitialFilter = (): FilterMode => {
@@ -89,9 +87,7 @@ export default function Verses() {
   }, [loadVerses, loadCount]);
 
   const loadMore = useCallback(async () => {
-    // Use ref to prevent race conditions (state updates are async)
-    if (loadingMoreRef.current) return;
-    loadingMoreRef.current = true;
+    if (loadingMore) return;
     setLoadingMore(true);
     setError(null);
 
@@ -99,15 +95,7 @@ export default function Verses() {
       const chapter = typeof filterMode === 'number' ? filterMode : undefined;
       const featured = filterMode === 'featured' ? true : undefined;
 
-      // Get current length synchronously via callback
-      const currentLength = await new Promise<number>(resolve => {
-        setVerses(prev => {
-          resolve(prev.length);
-          return prev;
-        });
-      });
-
-      const data = await versesApi.list(currentLength, VERSES_PER_PAGE, chapter, featured);
+      const data = await versesApi.list(verses.length, VERSES_PER_PAGE, chapter, featured);
 
       // Deduplicate when adding new verses
       setVerses(prev => {
@@ -119,28 +107,9 @@ export default function Verses() {
     } catch (err) {
       setError(errorMessages.verseLoad(err));
     } finally {
-      loadingMoreRef.current = false;
       setLoadingMore(false);
     }
-  }, [filterMode]);
-
-  const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
-    const target = entries[0];
-    if (target.isIntersecting && hasMore && !loadingMore && !loading) {
-      loadMore();
-    }
-  }, [hasMore, loadingMore, loading, loadMore]);
-
-  useEffect(() => {
-    const option = {
-      root: null,
-      rootMargin: '100px',
-      threshold: 0,
-    };
-    const observer = new IntersectionObserver(handleObserver, option);
-    if (observerTarget.current) observer.observe(observerTarget.current);
-    return () => observer.disconnect();
-  }, [handleObserver]);
+  }, [filterMode, verses.length, loadingMore]);
 
   const handleFilterSelect = (filter: FilterMode) => {
     setFilterMode(filter);
@@ -277,7 +246,6 @@ export default function Verses() {
               {/* Results Count */}
               <div className="mb-3 sm:mb-4 text-xs sm:text-sm text-gray-600">
                 Showing {verses.length}{totalCount ? ` of ${totalCount}` : ''} {getFilterDescription()}verse{(totalCount || verses.length) !== 1 ? 's' : ''}
-                {hasMore && <span className="hidden sm:inline"> (scroll for more)</span>}
               </div>
 
               {/* Verse Grid */}
@@ -299,19 +267,33 @@ export default function Verses() {
                 ))}
               </div>
 
-              {/* Infinite Scroll Trigger */}
-              <div ref={observerTarget} className="h-10 mt-4 sm:mt-6">
-                {loadingMore && (
-                  <div className="flex justify-center items-center py-4">
-                    <div className="text-gray-500 text-sm sm:text-base">Loading more verses...</div>
-                  </div>
-                )}
-              </div>
+              {/* Load More Button */}
+              {hasMore && (
+                <div className="flex justify-center mt-6 sm:mt-8">
+                  <button
+                    onClick={loadMore}
+                    disabled={loadingMore}
+                    className="px-6 py-3 bg-white border border-gray-300 rounded-xl text-gray-700 font-medium hover:bg-gray-50 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
+                  >
+                    {loadingMore ? (
+                      <span className="flex items-center gap-2">
+                        <svg className="animate-spin h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        </svg>
+                        Loading...
+                      </span>
+                    ) : (
+                      'Load More'
+                    )}
+                  </button>
+                </div>
+              )}
 
               {/* End of Results */}
               {!hasMore && verses.length > 0 && (
                 <div className="text-center py-6 sm:py-8 text-gray-400 text-xs sm:text-sm">
-                  End of verses
+                  All verses loaded
                 </div>
               )}
             </>
