@@ -138,11 +138,13 @@ services:
 
       # Secrets from .env (no defaults - required for production)
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
       JWT_SECRET: ${JWT_SECRET:-}
       API_KEY: ${API_KEY:-}
 
       # Optional .env overrides (config.py has defaults)
       APP_ENV: ${APP_ENV:-}
+      DEBUG: ${DEBUG:-}
       LOG_LEVEL: ${LOG_LEVEL:-}
       USE_MOCK_LLM: ${USE_MOCK_LLM:-}
       LLM_PROVIDER: ${LLM_PROVIDER:-}
