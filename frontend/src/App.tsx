@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
+import { FloatingActionButton } from './components';
 import Home from './pages/Home';
 import NewCase from './pages/NewCase';
 import CaseView from './pages/CaseView';
@@ -26,6 +27,7 @@ function App() {
 
   return (
     <Router>
+      <FloatingActionButton />
       <Routes>
         {/* Public routes - accessible to everyone */}
         <Route path="/" element={<Home />} />

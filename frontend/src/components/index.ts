@@ -18,6 +18,7 @@ export { VerseCard } from './VerseCard';
 export { FeaturedVerse } from './FeaturedVerse';
 export { ConfirmModal } from './ConfirmModal';
 export { ConsultationWaiting } from './ConsultationWaiting';
+export { FloatingActionButton } from './FloatingActionButton';
 
 // Case-related components
 export {
