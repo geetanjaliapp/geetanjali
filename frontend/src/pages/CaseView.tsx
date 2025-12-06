@@ -339,7 +339,7 @@ ${messages.map(msg => {
     if (firstOutput && typeof firstOutput.result_json.recommended_action === 'object' && (firstOutput.result_json.recommended_action as { steps?: string[] })?.steps?.length) {
       markdown += `\n## Recommended Steps\n\n`;
       const recommendedAction = firstOutput.result_json.recommended_action as { steps?: string[]; sources?: string[] };
-      recommendedAction.steps.forEach((step: string, idx: number) => {
+      (recommendedAction.steps ?? []).forEach((step: string, idx: number) => {
         markdown += `${idx + 1}. ${step}\n`;
       });
 

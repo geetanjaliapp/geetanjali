@@ -220,7 +220,9 @@ class TestRAGPipelineUnit:
                 incomplete_output = {"executive_summary": "Test"}
                 validated = pipeline.validate_output(incomplete_output)
 
-        assert validated["confidence"] == 0.5
+        # When all options are missing (num_options == 0), confidence is set to 0.4
+        # (lower confidence for completely generated default options)
+        assert validated["confidence"] == 0.4
         assert validated["scholar_flag"] is True
 
 

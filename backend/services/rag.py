@@ -478,6 +478,9 @@ class RAGPipeline:
             output["scholar_flag"] = True
             output["confidence"] = max(output.get("confidence", 0.5) - 0.15, 0.3)  # Penalize confidence
 
+            # Get source verses for use in option generation
+            base_verses = output.get("sources", [])
+
             # If we have some valid options, try to intelligently fill missing ones
             if num_options > 0 and num_options < 3:
                 # Validate existing options have required fields
@@ -494,7 +497,6 @@ class RAGPipeline:
                         option["sources"] = []
 
                 # Generate missing options using available context
-                base_verses = output.get("sources", [])
                 verse_ids = [v.get("canonical_id", f"BG_{i}_{i}") for i, v in enumerate(base_verses[:3], 1)]
 
                 while len(options) < 3:
