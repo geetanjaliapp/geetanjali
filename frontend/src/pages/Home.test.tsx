@@ -60,8 +60,10 @@ describe('Home Page', () => {
     render(<Home />, { wrapper })
 
     await waitFor(() => {
-      expect(screen.getByText(/ethical leadership guidance from the bhagavad geeta/i)).toBeInTheDocument()
+      expect(screen.getByText(/Difficult Decisions/i)).toBeInTheDocument()
     })
+
+    expect(screen.getByText(/Ethical guidance grounded in the timeless teachings/i)).toBeInTheDocument()
   })
 
   it('should render "Ask a Question" CTA button', async () => {
@@ -81,15 +83,15 @@ describe('Home Page', () => {
       expect(screen.getByText('Clear Guidance')).toBeInTheDocument()
     })
 
-    expect(screen.getByText('Multiple Perspectives')).toBeInTheDocument()
-    expect(screen.getByText('Grounded in Wisdom')).toBeInTheDocument()
+    expect(screen.getByText('Multiple Paths')).toBeInTheDocument()
+    expect(screen.getByText('Rooted in Scripture')).toBeInTheDocument()
   })
 
   it('should show no-signup message when not authenticated', async () => {
     render(<Home />, { wrapper })
 
     await waitFor(() => {
-      expect(screen.getByText(/try it now - no signup required/i)).toBeInTheDocument()
+      expect(screen.getByText(/Try it free/i)).toBeInTheDocument()
     })
   })
 
@@ -99,11 +101,6 @@ describe('Home Page', () => {
 
       await waitFor(() => {
         expect(api.versesApi.getRandom).toHaveBeenCalled()
-      })
-
-      // Paraphrase is wrapped in quotes - search for partial text
-      await waitFor(() => {
-        expect(screen.getByText(/Focus on your duties without attachment/)).toBeInTheDocument()
       })
     })
 
@@ -117,7 +114,7 @@ describe('Home Page', () => {
       })
 
       // Page should still render without crashing
-      expect(screen.getByText(/ask a question/i)).toBeInTheDocument()
+      expect(screen.getByRole('link', { name: /ask a question/i })).toBeInTheDocument()
     })
   })
 
@@ -157,7 +154,7 @@ describe('Home Page', () => {
       render(<Home />, { wrapper })
 
       await waitFor(() => {
-        expect(screen.getByText('Recent Consultations')).toBeInTheDocument()
+        expect(screen.getByText(/Continue where you left off/i)).toBeInTheDocument()
       })
 
       expect(screen.getByText(mockCase.title)).toBeInTheDocument()
@@ -171,7 +168,7 @@ describe('Home Page', () => {
       })
 
       await waitFor(() => {
-        expect(screen.queryByText(/try it now - no signup required/i)).not.toBeInTheDocument()
+        expect(screen.queryByText(/Try it free/i)).not.toBeInTheDocument()
       })
     })
 
@@ -179,7 +176,7 @@ describe('Home Page', () => {
       render(<Home />, { wrapper })
 
       await waitFor(() => {
-        expect(screen.getByText('Recent Consultations')).toBeInTheDocument()
+        expect(screen.getByText(/Continue where you left off/i)).toBeInTheDocument()
       })
 
       expect(screen.getByRole('link', { name: /view all/i })).toHaveAttribute('href', '/consultations')

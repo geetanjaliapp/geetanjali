@@ -27,29 +27,30 @@ describe('CaseHeader', () => {
   it('should render back link', () => {
     renderWithRouter(<CaseHeader {...defaultProps} />)
 
-    const backLink = screen.getByText('← Back')
+    // Back link contains "←" and a span with "Back" (hidden on mobile)
+    const backLink = screen.getByRole('link', { name: /back/i })
     expect(backLink).toBeInTheDocument()
-    expect(backLink.closest('a')).toHaveAttribute('href', '/consultations')
+    expect(backLink).toHaveAttribute('href', '/consultations')
   })
 
   describe('Save button', () => {
     it('should render save button when canSave is true', () => {
       renderWithRouter(<CaseHeader {...defaultProps} />)
 
-      expect(screen.getByText('Save')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /save/i })).toBeInTheDocument()
     })
 
     it('should not render save button when canSave is false', () => {
       renderWithRouter(<CaseHeader {...defaultProps} canSave={false} />)
 
-      expect(screen.queryByText('Save')).not.toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: /save/i })).not.toBeInTheDocument()
     })
 
     it('should call onSave when clicked', () => {
       const onSave = vi.fn()
       renderWithRouter(<CaseHeader {...defaultProps} onSave={onSave} />)
 
-      fireEvent.click(screen.getByText('Save'))
+      fireEvent.click(screen.getByRole('button', { name: /save/i }))
       expect(onSave).toHaveBeenCalledTimes(1)
     })
   })
@@ -58,20 +59,20 @@ describe('CaseHeader', () => {
     it('should render delete button when canDelete is true', () => {
       renderWithRouter(<CaseHeader {...defaultProps} />)
 
-      expect(screen.getByText('Delete')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /delete/i })).toBeInTheDocument()
     })
 
     it('should not render delete button when canDelete is false', () => {
       renderWithRouter(<CaseHeader {...defaultProps} canDelete={false} />)
 
-      expect(screen.queryByText('Delete')).not.toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: /delete/i })).not.toBeInTheDocument()
     })
 
     it('should call onDeleteClick when clicked', () => {
       const onDeleteClick = vi.fn()
       renderWithRouter(<CaseHeader {...defaultProps} onDeleteClick={onDeleteClick} />)
 
-      fireEvent.click(screen.getByText('Delete'))
+      fireEvent.click(screen.getByRole('button', { name: /delete/i }))
       expect(onDeleteClick).toHaveBeenCalledTimes(1)
     })
   })
@@ -80,28 +81,28 @@ describe('CaseHeader', () => {
     it('should render share button when canShare is true', () => {
       renderWithRouter(<CaseHeader {...defaultProps} />)
 
-      expect(screen.getByText('Share')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /share/i })).toBeInTheDocument()
     })
 
     it('should not render share button when canShare is false', () => {
       renderWithRouter(<CaseHeader {...defaultProps} canShare={false} />)
 
-      expect(screen.queryByText('Share')).not.toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: /share/i })).not.toBeInTheDocument()
     })
 
-    it('should show "Shared" text when case is public', () => {
+    it('should show "Sharing is enabled" aria-label when case is public', () => {
       renderWithRouter(
         <CaseHeader {...defaultProps} caseData={{ ...mockCase, is_public: true }} />
       )
 
-      expect(screen.getByText('Shared')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /sharing is enabled/i })).toBeInTheDocument()
     })
 
     it('should call onToggleShareDropdown when clicked', () => {
       const onToggleShareDropdown = vi.fn()
       renderWithRouter(<CaseHeader {...defaultProps} onToggleShareDropdown={onToggleShareDropdown} />)
 
-      fireEvent.click(screen.getByText('Share'))
+      fireEvent.click(screen.getByRole('button', { name: /share/i }))
       expect(onToggleShareDropdown).toHaveBeenCalledTimes(1)
     })
   })

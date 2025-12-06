@@ -152,7 +152,8 @@ describe('Login Page', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Signing in...')).toBeInTheDocument()
-      expect(screen.getByRole('button')).toBeDisabled()
+      // Query for the submit button specifically by its loading text
+      expect(screen.getByRole('button', { name: /signing in/i })).toBeDisabled()
     })
   })
 })
