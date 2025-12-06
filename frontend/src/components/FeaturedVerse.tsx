@@ -11,10 +11,10 @@ export function FeaturedVerse({ verse, loading = false }: FeaturedVerseProps) {
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto">
-        <div className="bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 rounded-2xl p-12 border border-amber-200/50 shadow-xl">
+        <div className="bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 rounded-xl sm:rounded-2xl p-6 sm:p-8 lg:p-12 border border-amber-200/50 shadow-xl">
           <div className="text-center space-y-4">
-            <div className="h-8 bg-gray-200 rounded animate-pulse w-24 mx-auto" />
-            <div className="h-32 bg-gray-200 rounded animate-pulse" />
+            <div className="h-6 sm:h-8 bg-gray-200 rounded animate-pulse w-20 sm:w-24 mx-auto" />
+            <div className="h-24 sm:h-32 bg-gray-200 rounded animate-pulse" />
           </div>
         </div>
       </div>
@@ -36,25 +36,21 @@ export function FeaturedVerse({ verse, loading = false }: FeaturedVerseProps) {
       className="block max-w-4xl mx-auto"
     >
       {/* Main Featured Verse Container - Clickable */}
-      <div className="bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 rounded-2xl p-12 border border-amber-200/50 shadow-xl hover:shadow-2xl hover:border-amber-300 transition-all cursor-pointer">
+      <div className="bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 rounded-xl sm:rounded-2xl p-6 sm:p-8 lg:p-12 border border-amber-200/50 shadow-xl hover:shadow-2xl hover:border-amber-300 transition-all cursor-pointer">
         {/* Sanskrit Devanagari - Spotlight */}
         {verse.sanskrit_devanagari && (
-          <div className="text-center mb-8">
-            <div className="text-4xl text-amber-400/50 mb-6 font-light">ॐ</div>
-            <div className="text-2xl md:text-3xl font-serif text-amber-900 leading-relaxed tracking-wide mb-6 space-y-1">
+          <div className="text-center mb-4 sm:mb-6 lg:mb-8">
+            <div className="text-3xl sm:text-4xl text-amber-400/50 mb-3 sm:mb-4 lg:mb-6 font-light">ॐ</div>
+            <div className="text-lg sm:text-2xl md:text-3xl font-serif text-amber-900 leading-relaxed tracking-wide mb-3 sm:mb-4 lg:mb-6 space-y-1">
               {sanskritLines.map((line, idx) => (
                 <p key={idx} className="mb-0">
                   {line}
                 </p>
               ))}
             </div>
-            <Link
-              to={`/verses/${verse.canonical_id}`}
-              onClick={(e) => e.preventDefault()}
-              className="text-amber-700/70 font-serif text-lg hover:text-amber-900 transition-colors"
-            >
+            <span className="text-amber-700/70 font-serif text-lg">
               ॥ {verseRef} ॥
-            </Link>
+            </span>
           </div>
         )}
 
