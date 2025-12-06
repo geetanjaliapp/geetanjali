@@ -16,6 +16,7 @@ import {
   StepsSection,
   ReflectionsSection,
   FollowUpInput,
+  FollowUpThinking,
 } from '../components/case';
 
 export default function CaseView() {
@@ -29,6 +30,7 @@ export default function CaseView() {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [followUp, setFollowUp] = useState('');
+  const [pendingFollowUp, setPendingFollowUp] = useState<string | null>(null);
   const [showSignupPrompt, setShowSignupPrompt] = useState(false);
   const { isAuthenticated } = useAuth();
 
@@ -82,7 +84,11 @@ export default function CaseView() {
   const canSave = isCompleted && outputs.length > 0;
   const canShare = isCompleted && outputs.length > 0;
   const canDelete = true;
-  const canFollowUp = isCompleted;
+
+  // Follow-up input visibility: show when completed OR during follow-up processing (has outputs)
+  const showFollowUpInput = isCompleted || (isProcessing && outputs.length > 0);
+  // Follow-up is being processed (for inline thinking indicator)
+  const isFollowUpProcessing = isProcessing && outputs.length > 0;
 
   const loadCaseData = useCallback(async () => {
     if (!id) return;
@@ -97,6 +103,9 @@ export default function CaseView() {
 
         const outputsData = await outputsApi.listByCaseId(id);
         setOutputs(outputsData);
+
+        // Clear pending follow-up when analysis completes
+        setPendingFollowUp(null);
 
         if (outputsData.length > 0) {
           setExpandedSources(new Set([outputsData[0].id]));
@@ -256,17 +265,28 @@ export default function CaseView() {
     e.preventDefault();
     if (!id || !followUp.trim()) return;
 
+    const messageContent = followUp.trim();
     setSubmittingFollowUp(true);
     setError(null);
 
     try {
-      await messagesApi.create(id, { content: followUp.trim() });
-      const newOutput = await casesApi.analyze(id);
-      const messagesData = await messagesApi.list(id);
-      setMessages(messagesData);
-      setOutputs(prev => [newOutput, ...prev]);
+      // Store the pending message for display
+      setPendingFollowUp(messageContent);
       setFollowUp('');
+
+      // Create the user message
+      await messagesApi.create(id, { content: messageContent });
+
+      // Trigger async analysis (returns immediately, sets case to PROCESSING)
+      await casesApi.analyzeAsync(id);
+
+      // Refresh case data to get the new status (will trigger polling)
+      const data = await casesApi.get(id);
+      setCaseData(data);
     } catch (err) {
+      // On error, restore the message and clear pending state
+      setFollowUp(messageContent);
+      setPendingFollowUp(null);
       setError(errorMessages.caseAnalyze(err));
     } finally {
       setSubmittingFollowUp(false);
@@ -505,15 +525,15 @@ ${messages.map(msg => {
             </div>
           )}
 
-          {/* Processing/Failed state */}
-          {(isProcessing || isFailed) && (
+          {/* Processing/Failed state - only show for initial case (no outputs yet) */}
+          {(isProcessing || isFailed) && outputs.length === 0 && (
             <div className="mb-8">
               <ConsultationWaiting status={caseData.status as CaseStatus} onRetry={handleRetry} />
             </div>
           )}
 
           {/* Main Content - Timeline */}
-          {isCompleted && (
+          {(isCompleted || isFollowUpProcessing) && (
             <div className="relative">
               {/* Vertical Line */}
               <div className="absolute left-2.5 sm:left-3 top-6 bottom-0 w-0.5 bg-gradient-to-b from-amber-300 via-orange-300 to-red-300" />
@@ -654,6 +674,11 @@ ${messages.map(msg => {
                 );
               })}
 
+              {/* Follow-up thinking indicator */}
+              {isFollowUpProcessing && pendingFollowUp && (
+                <FollowUpThinking pendingMessage={pendingFollowUp} />
+              )}
+
               {/* Paths/Options Section */}
               {firstOutput && firstOutput.result_json.options?.length > 0 && (
                 <PathsSection
@@ -687,10 +712,11 @@ ${messages.map(msg => {
           )}
 
           {/* Follow-up Input */}
-          {canFollowUp && (
+          {showFollowUpInput && (
             <FollowUpInput
               value={followUp}
               submitting={submittingFollowUp}
+              disabled={isFollowUpProcessing}
               onChange={setFollowUp}
               onSubmit={handleFollowUpSubmit}
             />
