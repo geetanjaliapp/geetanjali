@@ -126,26 +126,26 @@ export default function Home() {
 
           {/* Recent Consultations */}
           {!casesLoading && recentCases.length > 0 && (
-            <div className="mb-8 sm:mb-10 max-w-3xl mx-auto">
-              <div className="flex justify-between items-center mb-3 sm:mb-4">
-                <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Continue where you left off</h2>
+            <div className="mb-8 sm:mb-10 max-w-2xl mx-auto">
+              <div className="flex justify-between items-center mb-3">
+                <h2 className="text-base sm:text-lg font-semibold text-gray-900">Continue where you left off</h2>
                 <Link to="/consultations" className="text-red-600 hover:text-red-700 font-medium text-sm">
                   View all →
                 </Link>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="space-y-2">
                 {recentCases.map((case_) => (
                   <Link
                     key={case_.id}
                     to={`/cases/${case_.id}`}
-                    className="block p-3 sm:p-4 bg-white rounded-xl border border-gray-200 hover:border-red-300 hover:shadow-md transition-all group"
+                    className="flex items-center justify-between gap-4 p-3 bg-white rounded-lg border border-gray-200 hover:border-red-300 hover:bg-red-50/50 transition-all group"
                   >
-                    <h3 className="font-medium text-gray-900 text-sm sm:text-base line-clamp-2 group-hover:text-red-700 transition-colors">
+                    <h3 className="font-medium text-gray-900 text-sm sm:text-base truncate group-hover:text-red-700 transition-colors">
                       {case_.title}
                     </h3>
-                    <p className="text-xs text-gray-400 mt-2">
+                    <span className="text-xs text-gray-400 flex-shrink-0">
                       {new Date(case_.created_at || '').toLocaleDateString()}
-                    </p>
+                    </span>
                   </Link>
                 ))}
               </div>
