@@ -3,8 +3,7 @@ services:
   ollama:
     image: ollama/ollama:latest
     container_name: geetanjali-ollama
-    ports:
-      - "11434:11434"
+    # No external port - only accessible within Docker network
     volumes:
       - ollama_models:/root/.ollama
     environment:
@@ -29,8 +28,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-geetanjali}
       POSTGRES_USER: ${POSTGRES_USER:-geetanjali}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-geetanjali_dev_pass}
-    ports:
-      - "5432:5432"
+    # No external port - only accessible within Docker network
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -45,8 +43,7 @@ services:
   redis:
     image: redis:7-alpine
     container_name: geetanjali-redis
-    ports:
-      - "6379:6379"
+    # No external port - only accessible within Docker network
     command: redis-server --save "" --appendonly no
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -64,8 +61,7 @@ services:
       dockerfile: Dockerfile
     image: geetanjali-chromadb:latest
     container_name: geetanjali-chromadb
-    ports:
-      - "8001:8000"
+    # No external port - only accessible within Docker network
     volumes:
       - chroma_data:/chroma/chroma
     environment:
@@ -90,8 +86,7 @@ services:
       CHROMA_PORT: 8000
       REDIS_URL: redis://redis:6379/0
       OLLAMA_BASE_URL: http://ollama:11434
-    ports:
-      - "8000:8000"
+    # No external port - nginx proxies via Docker network (http://backend:8000)
     volumes:
       - ./backend:/app
       - backend_chroma:/app/chroma_data

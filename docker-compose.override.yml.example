@@ -1,0 +1,26 @@
+# Local development overrides - exposes ports for direct access
+# This file is automatically loaded by docker-compose alongside docker-compose.yml
+# For production, rename/remove this file or use: docker compose -f docker-compose.yml up
+#
+# To use production config only: docker compose -f docker-compose.yml up -d
+
+services:
+  ollama:
+    ports:
+      - "127.0.0.1:11434:11434"
+
+  postgres:
+    ports:
+      - "127.0.0.1:5432:5432"
+
+  redis:
+    ports:
+      - "127.0.0.1:6379:6379"
+
+  chromadb:
+    ports:
+      - "127.0.0.1:8001:8000"
+
+  backend:
+    ports:
+      - "127.0.0.1:8000:8000"
