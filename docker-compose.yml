@@ -51,18 +51,15 @@ services:
     container_name: geetanjali-redis
     # No external port - only accessible within Docker network
     command: redis-server --save "" --appendonly no --requirepass ${REDIS_PASSWORD:-redis_dev_pass}
-    # Security hardening (Redis needs SETUID/SETGID to switch to redis user)
+    # Security hardening (minimal caps needed for user switch and ownership)
     cap_drop:
       - ALL
     cap_add:
       - SETUID
       - SETGID
+      - CHOWN
     security_opt:
       - no-new-privileges:true
-    read_only: true
-    tmpfs:
-      - /tmp:size=64m,mode=1777
-      - /data:size=128m,mode=755
     healthcheck:
       test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-redis_dev_pass}", "ping"]
       interval: 10s
