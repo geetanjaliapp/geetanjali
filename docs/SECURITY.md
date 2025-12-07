@@ -8,8 +8,9 @@ This document describes the security measures implemented for the Geetanjali app
 2. [Docker Container Security](#docker-container-security)
 3. [Network Security](#network-security)
 4. [Application Security](#application-security)
-5. [Security Checklist](#security-checklist)
-6. [Incident Response](#incident-response)
+5. [Secrets Management (SOPS + age)](#secrets-management-sops--age)
+6. [Security Checklist](#security-checklist)
+7. [Incident Response](#incident-response)
 
 ---
 
@@ -219,6 +220,84 @@ COOKIE_SECURE=true  # Requires HTTPS
 
 ---
 
+## Secrets Management (SOPS + age)
+
+Production secrets are encrypted using [SOPS](https://github.com/getsops/sops) with [age](https://age-encryption.org/) encryption. This allows secrets to be safely committed to git while remaining encrypted.
+
+### How It Works
+
+1. **`.env.enc`** - Encrypted secrets file (safe to commit to git)
+2. **`.sops.yaml`** - SOPS configuration with public key
+3. **`~/.config/sops/age/keys.txt`** - Private key (never commit!)
+
+The deploy script automatically decrypts `.env.enc` to `.env` on the server during deployment.
+
+### Quick Reference
+
+```bash
+# View decrypted secrets (for debugging)
+make secrets-view
+
+# Edit encrypted secrets (opens in vim)
+make secrets-edit
+
+# Re-encrypt after editing .env.prod.backup
+make secrets-encrypt
+```
+
+### Editing Secrets
+
+**Option 1: Direct Edit (Recommended)**
+```bash
+make secrets-edit
+# Opens encrypted file in vim, saves encrypted
+```
+
+**Option 2: Manual Workflow**
+```bash
+# 1. Decrypt to temporary file
+sops --decrypt --input-type dotenv --output-type dotenv .env.enc > .env.tmp
+
+# 2. Edit the file
+vim .env.tmp
+
+# 3. Re-encrypt
+sops --encrypt --input-type dotenv --output-type dotenv --output .env.enc .env.tmp
+
+# 4. Clean up and commit
+rm .env.tmp
+git add .env.enc && git commit -m "chore: update secrets"
+```
+
+### Key Locations
+
+| Location | Purpose |
+|----------|---------|
+| Local: `~/.config/sops/age/keys.txt` | Private key for encryption/decryption |
+| Server: `/home/gitam/.config/sops/age/keys.txt` | Private key for decryption |
+| Repo: `.env.enc` | Encrypted secrets (safe to commit) |
+| Repo: `.sops.yaml` | SOPS config with public key |
+
+### Emergency: Lost Private Key
+
+If the private key is lost, you'll need to:
+1. Generate a new key pair: `age-keygen -o ~/.config/sops/age/keys.txt`
+2. Update `.sops.yaml` with the new public key
+3. Re-encrypt all secrets from the plaintext backup
+4. Copy new private key to server
+
+**Important:** Keep a secure backup of the private key outside of git!
+
+### Adding a New Secret
+
+1. Run `make secrets-edit`
+2. Add the new key=value line
+3. Save and quit (:wq)
+4. Commit: `git add .env.enc && git commit -m "chore: add NEW_SECRET"`
+5. Deploy: `make deploy`
+
+---
+
 ## Security Checklist
 
 ### Pre-Deployment
@@ -250,6 +329,8 @@ COOKIE_SECURE=true  # Requires HTTPS
 - [ ] no-new-privileges:true on all containers
 - [ ] Non-root users in custom Dockerfiles
 - [ ] .env file not committed to git
+- [ ] Secrets encrypted with SOPS (.env.enc)
+- [ ] Private key backed up securely (not in git)
 
 ---
 
