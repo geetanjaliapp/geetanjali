@@ -7,9 +7,9 @@
 
 Ethical leadership guidance from the Bhagavad Geeta.
 
-**[Live Demo](https://geetanjaliapp.com)** | [API Docs](https://geetanjaliapp.com/api/docs)
+**[Live Demo](https://geetanjaliapp.com)**
 
-![Geetanjali Demo](docs/screenshots/demo.gif)
+![Geetanjali Architecture](docs/screenshots/infographic-architecture.png)
 
 Geetanjali is a RAG-powered tool that transforms Bhagavad Geeta teachings into actionable guidance for ethical decisions in organizations.
 
