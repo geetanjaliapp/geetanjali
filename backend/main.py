@@ -114,7 +114,7 @@ async def root():
     """Root endpoint."""
     return {
         "name": settings.APP_NAME,
-        "version": "0.1.0",
+        "version": "1.0.0",
         "status": "running",
         "environment": settings.APP_ENV,
         "docs": "/docs",

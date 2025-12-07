@@ -14,7 +14,7 @@ We aim to respond within 48 hours.
 
 | Version | Supported |
 |---------|-----------|
-| 0.1.x   | Yes       |
+| 1.0.x   | Yes       |
 
 ## Security Measures
 
@@ -29,6 +29,6 @@ We aim to respond within 48 hours.
 ## Environment Variables
 
 Never commit secrets. See `.env.example` for required variables:
-- `JWT_SECRET_KEY` - JWT signing key
+- `JWT_SECRET` - JWT signing key
 - `DATABASE_URL` - Database connection
 - `API_KEY` - Admin API key

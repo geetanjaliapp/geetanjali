@@ -664,9 +664,8 @@ class RAGPipeline:
                 )
                 output["sources"] = valid_sources
 
-        # Validate source references in options (optional: check if option sources cite actual sources)
+        # Validate source references in options (check if option sources cite actual sources)
         if sources_array:
-            source_ids = _validate_source_reference  # For logging
             for option_idx, option in enumerate(output.get("options", [])):
                 for source_ref in option.get("sources", []):
                     if not _validate_source_reference(source_ref, sources_array):
