@@ -2,19 +2,27 @@
 # Geetanjali Server Maintenance Script
 # Runs via cron on the server for automated maintenance
 #
-# Installation (run once on server):
-#   sudo cp /opt/geetanjali/scripts/maintenance.sh /usr/local/bin/geetanjali-maintenance
-#   sudo chmod +x /usr/local/bin/geetanjali-maintenance
-#   sudo crontab -e
-#   # Add: 0 3 * * * /usr/local/bin/geetanjali-maintenance daily >> /var/log/geetanjali-maintenance.log 2>&1
-#   # Add: 0 4 * * 0 /usr/local/bin/geetanjali-maintenance weekly >> /var/log/geetanjali-maintenance.log 2>&1
+# Required environment variables (set in crontab or wrapper script):
+#   DEPLOY_DIR        - App directory
+#   DEPLOY_BACKUP_DIR - Backup directory
+#
+# Installation:
+#   1. Create wrapper script that sets env vars and calls this script
+#   2. Add to crontab:
+#      0 3 * * * /path/to/wrapper.sh daily >> /var/log/geetanjali-maintenance.log 2>&1
+#      0 4 * * 0 /path/to/wrapper.sh weekly >> /var/log/geetanjali-maintenance.log 2>&1
 
 set -e
 
+# Validate required environment variables
+if [[ -z "${DEPLOY_DIR}" ]] || [[ -z "${DEPLOY_BACKUP_DIR}" ]]; then
+    echo "Error: DEPLOY_DIR and DEPLOY_BACKUP_DIR must be set"
+    exit 1
+fi
+
 # Configuration
-APP_DIR="/opt/geetanjali"
-BACKUP_DIR="/opt/backups/geetanjali"
-LOG_FILE="/var/log/geetanjali-maintenance.log"
+APP_DIR="${DEPLOY_DIR}"
+BACKUP_DIR="${DEPLOY_BACKUP_DIR}"
 ALERT_ENDPOINT="http://localhost:8000/api/v1/admin/alert"
 
 # Thresholds
@@ -23,7 +31,7 @@ SSL_WARN_DAYS=14
 
 # Load environment variables for alerts
 if [[ -f "${APP_DIR}/.env" ]]; then
-    export $(grep -E '^(RESEND_API_KEY|CONTACT_EMAIL_TO)=' "${APP_DIR}/.env" | xargs)
+    export $(grep -E '^(RESEND_API_KEY|CONTACT_EMAIL_TO|API_KEY)=' "${APP_DIR}/.env" | xargs)
 fi
 
 # -----------------------------------------------------------------------------
@@ -37,27 +45,39 @@ log() {
 send_alert() {
     local subject="$1"
     local message="$2"
+    local alert_sent=false
 
-    # Try backend alert endpoint first
-    curl -s -X POST "${ALERT_ENDPOINT}" \
-        -H "Content-Type: application/json" \
-        -d "{\"subject\": \"${subject}\", \"message\": \"${message}\"}" \
-        2>/dev/null || true
+    # Try backend alert endpoint first (requires API_KEY)
+    if [[ -n "$API_KEY" ]]; then
+        if curl -sf -X POST "${ALERT_ENDPOINT}" \
+            -H "Content-Type: application/json" \
+            -H "X-API-Key: ${API_KEY}" \
+            -d "{\"subject\": \"${subject}\", \"message\": \"${message}\"}" \
+            2>/dev/null; then
+            alert_sent=true
+        fi
+    fi
 
     # Fallback: use Resend API directly if configured
-    if [[ -n "$RESEND_API_KEY" && -n "$CONTACT_EMAIL_TO" ]]; then
-        curl -s -X POST "https://api.resend.com/emails" \
+    if [[ "$alert_sent" != "true" ]] && [[ -n "$RESEND_API_KEY" && -n "$CONTACT_EMAIL_TO" ]]; then
+        if curl -sf -X POST "https://api.resend.com/emails" \
             -H "Authorization: Bearer ${RESEND_API_KEY}" \
             -H "Content-Type: application/json" \
             -d "{
-                \"from\": \"Geetanjali Alerts <alerts@geetanjaliapp.com>\",
+                \"from\": \"Geetanjali Alerts <noreply@geetanjaliapp.com>\",
                 \"to\": \"${CONTACT_EMAIL_TO}\",
                 \"subject\": \"[Geetanjali] ${subject}\",
                 \"text\": \"${message}\"
-            }" 2>/dev/null || true
+            }" 2>/dev/null; then
+            alert_sent=true
+        fi
     fi
 
-    log "ALERT: ${subject}"
+    if [[ "$alert_sent" == "true" ]]; then
+        log "ALERT SENT: ${subject}"
+    else
+        log "ALERT FAILED (no delivery method available): ${subject}"
+    fi
 }
 
 # -----------------------------------------------------------------------------
@@ -173,12 +193,12 @@ task_security_check() {
     BANNED_COUNT=$(fail2ban-client status sshd 2>/dev/null | grep "Currently banned" | awk '{print $NF}' || echo "0")
     log "Currently banned IPs: ${BANNED_COUNT}"
 
-    # Check for failed SSH attempts in last 24h
-    FAILED_SSH=$(grep "Failed password" /var/log/auth.log 2>/dev/null | grep "$(date +%b\ %d)" | wc -l || echo "0")
-    log "Failed SSH attempts today: ${FAILED_SSH}"
+    # Check for failed SSH attempts in last 24h using journalctl (more reliable than grepping auth.log)
+    FAILED_SSH=$(journalctl -u ssh --since "24 hours ago" 2>/dev/null | grep -c "Failed password" || echo "0")
+    log "Failed SSH attempts (last 24h): ${FAILED_SSH}"
 
     if [[ ${FAILED_SSH} -gt 100 ]]; then
-        send_alert "High SSH Attack Volume" "Detected ${FAILED_SSH} failed SSH attempts today.\n\nCurrently banned IPs: ${BANNED_COUNT}\n\nfail2ban is active."
+        send_alert "High SSH Attack Volume" "Detected ${FAILED_SSH} failed SSH attempts in last 24h.\n\nCurrently banned IPs: ${BANNED_COUNT}\n\nfail2ban is active."
     fi
 }
 

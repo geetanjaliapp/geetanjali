@@ -104,13 +104,18 @@ shell-postgres: ## Open shell in Postgres container
 deploy: ## Deploy to production
 	./scripts/deploy.sh
 
-rollback: ## Rollback to previous deployment
-	@echo "Rolling back to previous images..."
-	ssh gitam@64.227.133.142 "cd /opt/geetanjali && \
+rollback: ## Rollback to previous deployment (uses .env.local or env vars)
+	@if [ -f .env.local ]; then . .env.local; fi; \
+	if [ -z "$$DEPLOY_HOST" ] || [ -z "$$DEPLOY_DIR" ]; then \
+		echo "Error: DEPLOY_HOST and DEPLOY_DIR must be set (in .env.local or environment)"; \
+		exit 1; \
+	fi; \
+	echo "Rolling back to previous images..."; \
+	ssh $$DEPLOY_HOST "cd $$DEPLOY_DIR && \
 		docker tag geetanjali-backend:rollback geetanjali-backend:latest && \
 		docker tag geetanjali-frontend:rollback geetanjali-frontend:latest && \
-		docker compose up -d backend frontend"
-	@echo "Rollback complete. Verify at https://geetanjaliapp.com"
+		docker compose up -d backend frontend"; \
+	echo "Rollback complete."
 
 docker-clean: ## Clean Docker build cache and unused images locally
 	docker builder prune -f
@@ -124,8 +129,9 @@ secrets-edit: ## Edit encrypted secrets (.env.enc)
 secrets-view: ## View decrypted secrets (for debugging)
 	@sops --decrypt --input-type dotenv --output-type dotenv .env.enc
 
-secrets-encrypt: ## Re-encrypt .env.prod.backup to .env.enc
-	@sops --encrypt --input-type dotenv --output-type dotenv --output .env.enc .env.prod.backup
+secrets-encrypt: ## Encrypt a plaintext .env file to .env.enc (usage: make secrets-encrypt SRC=.env.local)
+	@if [ -z "$(SRC)" ]; then echo "Error: Specify source file with SRC=<file>"; exit 1; fi
+	@sops --encrypt --input-type dotenv --output-type dotenv --output .env.enc $(SRC)
 	@echo "✅ Secrets encrypted to .env.enc"
 
 # Quick Start

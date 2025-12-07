@@ -1,15 +1,39 @@
 #!/bin/bash
 # Geetanjali Production Deployment Script
 # Usage: ./scripts/deploy.sh
+#
+# Required environment variables (set in .env.local or export manually):
+#   DEPLOY_HOST     - SSH host (e.g., user@host or alias from ~/.ssh/config)
+#   DEPLOY_DIR      - Remote app directory
+#   DEPLOY_AGE_KEY  - Path to age private key on remote server
 
 set -e
 
+# Load local environment if present (gitignored)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [[ -f "${SCRIPT_DIR}/../.env.local" ]]; then
+    # shellcheck source=/dev/null
+    source "${SCRIPT_DIR}/../.env.local"
+fi
+
+# Validate required environment variables
+missing_vars=()
+[[ -z "${DEPLOY_HOST}" ]] && missing_vars+=("DEPLOY_HOST")
+[[ -z "${DEPLOY_DIR}" ]] && missing_vars+=("DEPLOY_DIR")
+[[ -z "${DEPLOY_AGE_KEY}" ]] && missing_vars+=("DEPLOY_AGE_KEY")
+
+if [[ ${#missing_vars[@]} -gt 0 ]]; then
+    echo "Error: Missing required environment variables: ${missing_vars[*]}"
+    echo ""
+    echo "Required:"
+    echo "  DEPLOY_HOST     - SSH host (e.g., user@host)"
+    echo "  DEPLOY_DIR      - Remote app directory"
+    echo "  DEPLOY_AGE_KEY  - Path to age private key on server"
+    exit 1
+fi
+
 # Configuration
-REMOTE_USER="gitam"
-REMOTE_HOST="64.227.133.142"
-REMOTE_DIR="/opt/geetanjali"
-SSH_CMD="ssh ${REMOTE_USER}@${REMOTE_HOST}"
-AGE_KEY_FILE="/home/gitam/.config/sops/age/keys.txt"
+SSH_CMD="ssh ${DEPLOY_HOST}"
 
 # Colors
 RED='\033[0;31m'
@@ -41,25 +65,25 @@ git push origin main || error "Failed to push to origin"
 
 # Step 3: Pull on remote
 log "Pulling changes on server..."
-$SSH_CMD "cd ${REMOTE_DIR} && git pull origin main" || error "Failed to pull on server"
+$SSH_CMD "cd ${DEPLOY_DIR} && git pull origin main" || error "Failed to pull on server"
 
 # Step 4: Decrypt .env file using SOPS + age
 log "Decrypting .env file..."
-$SSH_CMD "cd ${REMOTE_DIR} && \
-    SOPS_AGE_KEY_FILE=${AGE_KEY_FILE} sops --decrypt --input-type dotenv --output-type dotenv .env.enc > .env.new && \
-    mv .env.new .env" || error "Failed to decrypt .env file"
+$SSH_CMD "cd ${DEPLOY_DIR} && \
+    SOPS_AGE_KEY_FILE=${DEPLOY_AGE_KEY} sops --decrypt --input-type dotenv --output-type dotenv --output .env.tmp .env.enc && \
+    mv .env.tmp .env" || error "Failed to decrypt .env file"
 info "Secrets decrypted successfully"
 
 # Step 5: Tag current images for rollback (before rebuild)
 log "Tagging current images for rollback..."
-$SSH_CMD "cd ${REMOTE_DIR} && \
+$SSH_CMD "cd ${DEPLOY_DIR} && \
     docker tag geetanjali-backend:latest geetanjali-backend:rollback 2>/dev/null || true && \
     docker tag geetanjali-frontend:latest geetanjali-frontend:rollback 2>/dev/null || true && \
     docker tag geetanjali-chromadb:latest geetanjali-chromadb:rollback 2>/dev/null || true"
 
 # Step 6: Rebuild and restart containers
 log "Rebuilding and restarting containers..."
-$SSH_CMD "cd ${REMOTE_DIR} && docker compose build && docker compose up -d" || error "Failed to restart containers"
+$SSH_CMD "cd ${DEPLOY_DIR} && docker compose build && docker compose up -d" || error "Failed to restart containers"
 
 # Step 7: Wait for health checks
 log "Waiting for services to become healthy..."
@@ -69,8 +93,8 @@ sleep 15
 log "Service status:"
 $SSH_CMD "docker ps --format 'table {{.Names}}\t{{.Status}}'"
 
-# Step 9: Health check
-HEALTH_STATUS=$($SSH_CMD "curl -s -o /dev/null -w '%{http_code}' http://localhost:8000/health")
+# Step 9: Health check (via docker exec since port not exposed)
+HEALTH_STATUS=$($SSH_CMD "docker exec geetanjali-backend curl -s -o /dev/null -w '%{http_code}' http://localhost:8000/health 2>/dev/null" || echo "000")
 if [[ "$HEALTH_STATUS" == "200" ]]; then
     echo ""
     log "Health check: ${GREEN}PASSED${NC}"

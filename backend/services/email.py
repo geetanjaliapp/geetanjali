@@ -1,4 +1,4 @@
-"""Email service using Resend for sending contact form messages."""
+"""Email service using Resend for sending emails."""
 
 import logging
 from typing import Optional
@@ -29,6 +29,46 @@ def _get_resend():
         except ImportError:
             logger.warning("Resend library not installed - emails will not be sent")
     return _resend_client
+
+
+def send_alert_email(subject: str, message: str) -> bool:
+    """
+    Send an alert/notification email to the configured admin.
+
+    Used by maintenance scripts and monitoring systems.
+
+    Args:
+        subject: Alert subject
+        message: Alert message body
+
+    Returns:
+        True if email sent successfully, False otherwise
+    """
+    resend = _get_resend()
+
+    if not resend:
+        logger.warning("Email service not available - alert not sent")
+        return False
+
+    if not settings.CONTACT_EMAIL_TO or not settings.CONTACT_EMAIL_FROM:
+        logger.warning("Email configuration incomplete - alert not sent")
+        return False
+
+    try:
+        params = {
+            "from": settings.CONTACT_EMAIL_FROM,
+            "to": [settings.CONTACT_EMAIL_TO],
+            "subject": f"[Geetanjali Alert] {subject}",
+            "text": message,
+        }
+
+        response = resend.Emails.send(params)
+        logger.info(f"Alert email sent: {response.get('id', 'unknown')}")
+        return True
+
+    except Exception as e:
+        logger.error(f"Failed to send alert email: {e}")
+        return False
 
 
 def send_contact_email(

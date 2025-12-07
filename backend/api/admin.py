@@ -11,6 +11,7 @@ from pydantic import BaseModel
 from db.connection import get_db
 from models import Verse
 from services.ingestion.pipeline import IngestionPipeline
+from services.email import send_alert_email
 from data.featured_verses import get_featured_verse_ids
 from config import settings
 
@@ -509,3 +510,55 @@ def run_enrich_task(limit: int = 0, force: bool = False):
         db.close()
         with _ingestion_lock:
             _ingestion_running = False
+
+
+class AlertRequest(BaseModel):
+    """Request model for sending alerts."""
+
+    subject: str
+    message: str
+
+
+class AlertResponse(BaseModel):
+    """Response model for alert status."""
+
+    status: str
+    message: str
+
+
+@router.post("/alert", response_model=AlertResponse)
+def send_alert(
+    request: AlertRequest,
+    _: bool = Depends(verify_admin_api_key),
+):
+    """
+    Send an alert email to the configured admin.
+
+    Used by maintenance scripts and monitoring systems to notify
+    about issues like disk space, failed backups, etc.
+
+    Requires X-API-Key header for authentication.
+
+    Args:
+        request: Alert subject and message
+
+    Returns:
+        Status of the alert delivery
+    """
+    try:
+        success = send_alert_email(request.subject, request.message)
+
+        if success:
+            return AlertResponse(
+                status="sent",
+                message="Alert email sent successfully",
+            )
+        else:
+            return AlertResponse(
+                status="failed",
+                message="Alert could not be sent - check email configuration",
+            )
+
+    except Exception as e:
+        logger.error(f"Failed to send alert: {e}")
+        raise HTTPException(status_code=500, detail="Failed to send alert")
