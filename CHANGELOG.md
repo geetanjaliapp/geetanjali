@@ -2,6 +2,45 @@
 
 All notable changes to Geetanjali are documented here.
 
+## [1.1.0] - 2025-12-07
+
+Post-launch improvements focusing on UX, performance, and robustness.
+
+### Features
+- **Mobile-First Redesign** - Responsive navigation with hamburger menu, floating action button
+- **Enhanced Verse Browser** - Custom chapter dropdown, infinite scroll, Back to Top button
+- **Hindi Translations** - Added Hindi translations from gita/gita repository
+- **Load More Pagination** - Replaced infinite scroll with explicit Load More for consultations
+- **LLM Robustness** - Three-layer defense architecture for handling incomplete LLM responses
+- **Async Follow-ups** - Background processing with inline thinking indicator
+- **Guidance Export** - Markdown export with Guidance Summary header
+
+### Improvements
+- Redesigned homepage with enhanced feature cards
+- Sticky navbar on scroll
+- Sanskrit verse formatting with proper danda marks
+- Verse detail page with spotlight layout
+- Featured verse component for homepage
+
+### Technical
+- Rate limiting on analysis endpoint (10/hour)
+- Correlation ID logging for request tracing
+- Connection pooling for Ollama HTTP client
+- Centralized embedding in ChromaDB
+- Consolidated database migrations
+
+### Fixes
+- Favicon redirect (favicon.ico → favicon.svg)
+- Prevent horizontal scrolling on mobile
+- Fix N+1 query in verse retrieval
+- Suppress 401 errors for anonymous users
+- Proper null guards for TypeScript types
+
+### Documentation
+- Updated docs for accuracy and consistency
+- Fixed Node.js version (18+ → 20+)
+- Corrected ingestion command paths
+
 ## [1.0.0] - 2025-12-04
 
 First production release of Geetanjali - ethical leadership guidance from the Bhagavad Geeta.
