@@ -1,0 +1,7 @@
+# SOPS configuration for Geetanjali
+# Encrypts .env files using age encryption
+
+creation_rules:
+  # Match any .env file (input or output)
+  - path_regex: \.env.*$
+    age: age1xdr3ehx05jnfz8jaw6maqmyq3h7m2z5ju3ma7w62e9mntmmrss0qfe7vlr

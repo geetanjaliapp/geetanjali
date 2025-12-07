@@ -79,6 +79,11 @@ coverage/
 .env.development.local
 .env.test.local
 .env.production.local
+.env.prod.backup
+
+# SOPS encrypted files (safe to commit - contains encrypted secrets)
+!.env.enc
+!.sops.yaml
 
 # Certificates and keys
 *.pem

@@ -9,6 +9,7 @@ REMOTE_USER="gitam"
 REMOTE_HOST="64.227.133.142"
 REMOTE_DIR="/opt/geetanjali"
 SSH_CMD="ssh ${REMOTE_USER}@${REMOTE_HOST}"
+AGE_KEY_FILE="/home/gitam/.config/sops/age/keys.txt"
 
 # Colors
 RED='\033[0;31m'
@@ -42,26 +43,33 @@ git push origin main || error "Failed to push to origin"
 log "Pulling changes on server..."
 $SSH_CMD "cd ${REMOTE_DIR} && git pull origin main" || error "Failed to pull on server"
 
-# Step 4: Tag current images for rollback (before rebuild)
+# Step 4: Decrypt .env file using SOPS + age
+log "Decrypting .env file..."
+$SSH_CMD "cd ${REMOTE_DIR} && \
+    SOPS_AGE_KEY_FILE=${AGE_KEY_FILE} sops --decrypt --input-type dotenv --output-type dotenv .env.enc > .env.new && \
+    mv .env.new .env" || error "Failed to decrypt .env file"
+info "Secrets decrypted successfully"
+
+# Step 5: Tag current images for rollback (before rebuild)
 log "Tagging current images for rollback..."
 $SSH_CMD "cd ${REMOTE_DIR} && \
     docker tag geetanjali-backend:latest geetanjali-backend:rollback 2>/dev/null || true && \
     docker tag geetanjali-frontend:latest geetanjali-frontend:rollback 2>/dev/null || true && \
     docker tag geetanjali-chromadb:latest geetanjali-chromadb:rollback 2>/dev/null || true"
 
-# Step 5: Rebuild and restart containers
+# Step 6: Rebuild and restart containers
 log "Rebuilding and restarting containers..."
 $SSH_CMD "cd ${REMOTE_DIR} && docker compose build && docker compose up -d" || error "Failed to restart containers"
 
-# Step 6: Wait for health checks
+# Step 7: Wait for health checks
 log "Waiting for services to become healthy..."
 sleep 15
 
-# Step 7: Verify deployment
+# Step 8: Verify deployment
 log "Service status:"
 $SSH_CMD "docker ps --format 'table {{.Names}}\t{{.Status}}'"
 
-# Step 8: Health check
+# Step 9: Health check
 HEALTH_STATUS=$($SSH_CMD "curl -s -o /dev/null -w '%{http_code}' http://localhost:8000/health")
 if [[ "$HEALTH_STATUS" == "200" ]]; then
     echo ""

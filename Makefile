@@ -117,6 +117,17 @@ docker-clean: ## Clean Docker build cache and unused images locally
 	docker image prune -f
 	@echo "✅ Docker cleanup complete"
 
+# Secrets Management (SOPS + age)
+secrets-edit: ## Edit encrypted secrets (.env.enc)
+	@EDITOR=vim sops .env.enc
+
+secrets-view: ## View decrypted secrets (for debugging)
+	@sops --decrypt --input-type dotenv --output-type dotenv .env.enc
+
+secrets-encrypt: ## Re-encrypt .env.prod.backup to .env.enc
+	@sops --encrypt --input-type dotenv --output-type dotenv --output .env.enc .env.prod.backup
+	@echo "✅ Secrets encrypted to .env.enc"
+
 # Quick Start
 init: build up db-migrate ## Initialize project (build, start, migrate)
 	@echo "✅ Project initialized successfully!"
