@@ -355,7 +355,7 @@ async def list_case_outputs(
 
     if not case:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"Case {case_id} not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Case not found"
         )
 
     # Verify ownership if case belongs to a user

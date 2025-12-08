@@ -69,7 +69,7 @@ class CaseAccessDep:
         if not case:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Case {case_id} not found",
+                detail="Case not found",
             )
 
         if not user_can_access_resource(

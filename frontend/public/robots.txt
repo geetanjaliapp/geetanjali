@@ -1,0 +1,9 @@
+# Geetanjali - Ethical leadership guidance from the Bhagavad Geeta
+# https://geetanjaliapp.com
+
+User-agent: *
+Allow: /
+Disallow: /api/
+
+# Sitemap
+Sitemap: https://geetanjaliapp.com/sitemap.xml

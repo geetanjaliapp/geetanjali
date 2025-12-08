@@ -63,8 +63,8 @@ async def search_verses(
     principles: Optional[str] = Query(
         None, description="Comma-separated principle tags"
     ),
-    skip: int = 0,
-    limit: int = 100,
+    skip: int = Query(default=0, ge=0, description="Number of records to skip"),
+    limit: int = Query(default=20, ge=1, le=50, description="Maximum number of records (1-50)"),
     db: Session = Depends(get_db),
 ):
     """
