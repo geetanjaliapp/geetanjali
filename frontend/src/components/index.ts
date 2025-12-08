@@ -19,6 +19,7 @@ export { FeaturedVerse } from './FeaturedVerse';
 export { ConfirmModal } from './ConfirmModal';
 export { ConsultationWaiting } from './ConsultationWaiting';
 export { FloatingActionButton } from './FloatingActionButton';
+export { ContentNotFound } from './ContentNotFound';
 
 // Case-related components
 export {

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { casesApi } from '../lib/api';
 import type { Case, Message, Output } from '../types';
-import { Navbar } from '../components/Navbar';
+import { Navbar, ContentNotFound } from '../components';
 import { groupMessagesIntoExchanges } from '../lib/messageGrouping';
 
 /**
@@ -86,16 +86,7 @@ export default function PublicCaseView() {
       <div className="min-h-screen bg-gradient-to-b from-amber-50 via-orange-50 to-red-50 flex flex-col overflow-x-hidden">
         <Navbar />
         <div className="flex-1 flex items-center justify-center">
-          <div className="text-center max-w-md px-4">
-            <div className="text-6xl mb-4">🔒</div>
-            <h1 className="text-xl font-semibold text-gray-900 mb-2">Consultation Not Available</h1>
-            <p className="text-gray-600 mb-6">
-              {error || 'This consultation is private or does not exist.'}
-            </p>
-            <Link to="/" className="text-orange-600 hover:text-orange-700 font-medium">
-              ← Go to Home
-            </Link>
-          </div>
+          <ContentNotFound variant="shared" />
         </div>
       </div>
     );

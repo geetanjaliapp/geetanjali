@@ -4,10 +4,8 @@ import { casesApi, outputsApi } from '../lib/api';
 import { messagesApi } from '../api/messages';
 import type { Case, Message, Output, CaseStatus, Option } from '../types';
 import { useAuth } from '../contexts/AuthContext';
-import { Navbar } from '../components/Navbar';
+import { Navbar, ConsultationWaiting, ConfirmModal, ContentNotFound } from '../components';
 import { errorMessages } from '../lib/errorMessages';
-import { ConsultationWaiting } from '../components/ConsultationWaiting';
-import { ConfirmModal } from '../components/ConfirmModal';
 import { groupMessagesIntoExchanges } from '../lib/messageGrouping';
 import {
   CaseHeader,
@@ -465,12 +463,7 @@ ${messages.map(msg => {
       <div className="min-h-screen bg-gradient-to-b from-amber-50 via-orange-50 to-red-50 flex flex-col">
         <Navbar />
         <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <p className="text-gray-600 mb-4">Consultation not found</p>
-            <Link to="/" className="text-red-600 hover:text-red-700">
-              ← Back to Home
-            </Link>
-          </div>
+          <ContentNotFound variant="case" isAuthenticated={isAuthenticated} />
         </div>
       </div>
     );

@@ -5,7 +5,7 @@ import { formatSanskritLines, isSpeakerIntro } from '../lib/sanskritFormatter';
 import { PRINCIPLE_TAXONOMY } from '../constants/principles';
 import { getTranslatorPriority } from '../constants/translators';
 import type { Verse, Translation } from '../types';
-import { Navbar } from '../components/Navbar';
+import { Navbar, ContentNotFound } from '../components';
 import { errorMessages } from '../lib/errorMessages';
 
 // Sort translations by priority
@@ -69,15 +69,7 @@ export default function VerseDetail() {
       <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex flex-col">
         <Navbar />
         <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <p className="text-gray-600 mb-4">{error || 'Verse not found'}</p>
-            <button
-              onClick={() => navigate(-1)}
-              className="text-red-600 hover:text-red-700"
-            >
-              ← Go Back
-            </button>
-          </div>
+          <ContentNotFound variant="verse" />
         </div>
       </div>
     );
