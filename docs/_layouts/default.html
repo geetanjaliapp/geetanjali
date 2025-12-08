@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="{{ site.lang | default: 'en-US' }}">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+{% seo %}
+    <link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
+    {% include head-custom.html %}
+  </head>
+  <body>
+    <nav class="site-nav" role="banner">
+      <div class="nav-content">
+        <a href="{{ '/' | relative_url }}" class="brand">
+          <img src="{{ '/logo.svg' | relative_url }}" alt="" class="brand-logo">
+          <span class="brand-name">Geetanjali</span>
+        </a>
+        <div class="nav-links">
+          <a href="https://geetanjaliapp.com" class="nav-link">App</a>
+          {% if site.github.is_project_page %}
+            <a href="{{ site.github.repository_url }}" class="nav-link">GitHub</a>
+          {% endif %}
+        </div>
+      </div>
+    </nav>
+
+    <main id="content" class="main-content" role="main">
+      {{ content }}
+
+      <footer class="site-footer">
+      </footer>
+    </main>
+
+    <!-- Mermaid.js for diagram rendering -->
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: 'neutral',
+        securityLevel: 'loose',
+        flowchart: {
+          useMaxWidth: true,
+          htmlLabels: true
+        }
+      });
+
+      // Find all mermaid code blocks and render them
+      document.querySelectorAll('pre code.language-mermaid').forEach((block, index) => {
+        const pre = block.parentElement;
+        const container = document.createElement('div');
+        container.className = 'mermaid';
+        container.textContent = block.textContent;
+        pre.parentNode.replaceChild(container, pre);
+      });
+
+      // Render all mermaid diagrams
+      await mermaid.run();
+    </script>
+
+    <style>
+      /* Match frontend styling - color palette */
+      :root {
+        --gray-50: #f9fafb;
+        --gray-100: #f3f4f6;
+        --gray-200: #e5e7eb;
+        --gray-300: #d1d5db;
+        --gray-500: #6b7280;
+        --gray-600: #4b5563;
+        --gray-700: #374151;
+        --gray-900: #111827;
+        --orange-50: #fff7ed;
+        --orange-600: #ea580c;
+        --orange-700: #c2410c;
+      }
+
+      /* Override cayman defaults with frontend fonts */
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        color: var(--gray-900);
+        background-color: var(--gray-50);
+      }
+
+      /* Navbar - matches frontend */
+      .site-nav {
+        background: white;
+        box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        border-bottom: 1px solid var(--gray-200);
+        height: 3.5rem;
+        position: sticky;
+        top: 0;
+        z-index: 40;
+      }
+      @media (min-width: 640px) {
+        .site-nav {
+          height: 4rem;
+        }
+      }
+      .nav-content {
+        max-width: 80rem;
+        margin: 0 auto;
+        padding: 0 1rem;
+        height: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      @media (min-width: 640px) {
+        .nav-content {
+          padding: 0 1.5rem;
+        }
+      }
+
+      /* Brand logo + name */
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        transition: opacity 0.15s;
+      }
+      @media (min-width: 640px) {
+        .brand {
+          gap: 0.75rem;
+        }
+      }
+      .brand:hover {
+        opacity: 0.8;
+      }
+      .brand-logo {
+        height: 2rem;
+        width: 2rem;
+      }
+      @media (min-width: 640px) {
+        .brand-logo {
+          height: 2.5rem;
+          width: 2.5rem;
+        }
+      }
+      .brand-name {
+        font-family: Georgia, 'Times New Roman', serif;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--orange-600);
+      }
+      @media (min-width: 640px) {
+        .brand-name {
+          font-size: 1.5rem;
+        }
+      }
+
+      /* Nav links */
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+      }
+      .nav-link {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--gray-700);
+        text-decoration: none;
+        border-radius: 0.375rem;
+        transition: all 0.15s;
+      }
+      .nav-link:hover {
+        color: var(--orange-600);
+        background-color: var(--gray-50);
+      }
+
+      /* Main content */
+      .main-content {
+        padding-top: 2.5rem;
+        background-color: var(--gray-50);
+      }
+      .main-content h1 {
+        color: var(--gray-900);
+        font-weight: 700;
+      }
+      .main-content h2 {
+        color: var(--gray-900);
+        font-weight: 600;
+        border-bottom: 1px solid var(--gray-200);
+        padding-bottom: 0.5rem;
+      }
+      .main-content h3, .main-content h4 {
+        color: var(--gray-700);
+      }
+      .main-content a {
+        color: var(--orange-600);
+      }
+      .main-content a:hover {
+        color: var(--orange-700);
+        text-decoration: underline;
+      }
+
+      /* Code blocks */
+      .main-content pre {
+        background-color: var(--gray-100);
+        border: 1px solid var(--gray-200);
+        border-radius: 0.375rem;
+      }
+      .main-content code {
+        background-color: var(--gray-100);
+        color: var(--gray-700);
+        font-size: 0.875em;
+        padding: 0.125rem 0.25rem;
+        border-radius: 0.25rem;
+      }
+      .main-content pre code {
+        background: transparent;
+        padding: 0;
+      }
+
+      /* Tables */
+      .main-content table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+      .main-content table th {
+        background-color: var(--gray-100);
+        font-weight: 600;
+        text-align: left;
+      }
+      .main-content table th,
+      .main-content table td {
+        border: 1px solid var(--gray-200);
+        padding: 0.75rem;
+      }
+      .main-content table tr:hover {
+        background-color: var(--gray-50);
+      }
+
+      /* Mermaid diagrams */
+      .mermaid {
+        text-align: center;
+        margin: 2em 0;
+        background: white;
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        border: 1px solid var(--gray-200);
+      }
+      .mermaid svg {
+        max-width: 100%;
+        height: auto;
+      }
+
+      /* Blockquotes */
+      .main-content blockquote {
+        border-left: 4px solid var(--orange-600);
+        background-color: white;
+        padding: 1rem 1.5rem;
+        margin: 1.5rem 0;
+        color: var(--gray-700);
+      }
+
+      /* Horizontal rules */
+      .main-content hr {
+        border: none;
+        border-top: 1px solid var(--gray-200);
+        margin: 2rem 0;
+      }
+    </style>
+  </body>
+</html>

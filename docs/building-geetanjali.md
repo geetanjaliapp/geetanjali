@@ -1,3 +1,9 @@
+---
+layout: default
+title: Building Geetanjali - A RAG System for Ethical Decision Support
+description: How we built a RAG system that grounds ethical guidance in the Bhagavad Geeta. Architecture, LLM strategy, deployment, and design decisions.
+---
+
 # Building Geetanjali: A RAG System for Ethical Decision Support
 
 ## The Problem
@@ -21,6 +27,78 @@ A naive approach would fine-tune an LLM on Geeta content. RAG avoids this becaus
 - Citations matter; RAG naturally preserves source attribution
 - The corpus is small (701 verses); fine-tuning would likely overfit
 
+## Usage Example
+
+### API Request
+
+```bash
+curl -X POST http://localhost:8000/api/v1/cases \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Whistleblowing dilemma",
+    "description": "I discovered financial irregularities at my company.
+                    Reporting internally has failed. Do I go public?",
+    "role": "Senior Manager",
+    "stakeholders": ["employees", "shareholders", "regulators"],
+    "constraints": ["NDA", "career risk"]
+  }'
+```
+
+### API Response (Simplified)
+
+```json
+{
+  "executive_summary": "This case presents a classic tension between
+                        loyalty and truth-telling...",
+  "options": [
+    {
+      "title": "Internal Escalation",
+      "description": "Escalate to board audit committee...",
+      "sources": ["BG_18_63"]
+    },
+    {
+      "title": "External Disclosure",
+      "description": "Report to regulators...",
+      "sources": ["BG_2_47"]
+    },
+    {
+      "title": "Document and Wait",
+      "description": "Preserve evidence, continue internal advocacy...",
+      "sources": ["BG_3_19"]
+    }
+  ],
+  "recommended_action": {
+    "option": 1,
+    "steps": [
+      "Request audit committee meeting",
+      "Present documented evidence",
+      "Set timeline for response"
+    ]
+  },
+  "sources": [
+    {
+      "canonical_id": "BG_18_63",
+      "paraphrase": "Choose with knowledge and freedom after reflection.",
+      "relevance": 0.92
+    }
+  ],
+  "confidence": 0.84
+}
+```
+
+## When to Use Geetanjali
+
+**Good fit:**
+- Leadership ethical dilemmas requiring structured analysis
+- Situations where traditional wisdom provides perspective
+- Decisions benefiting from multiple options with tradeoffs
+- Cases where citation and transparency matter
+
+**Not a good fit:**
+- Legal or medical decisions (requires professional advice)
+- Situations requiring real-time or emergency response
+- Contexts where Bhagavad Geeta framework doesn't apply
+
 ## Architecture
 
 ```mermaid
@@ -29,10 +107,19 @@ flowchart TB
         UI[React Frontend]
     end
 
+    subgraph Edge["Nginx"]
+        Proxy[Reverse Proxy]
+        Static[Static Assets]
+    end
+
     subgraph API["FastAPI Backend"]
         Cases["/api/v1/cases"]
         Analysis["/api/v1/cases/{id}/analyze"]
         Verses["/api/v1/verses"]
+    end
+
+    subgraph Worker["Background Worker"]
+        Async[Async Analysis]
     end
 
     subgraph RAG["RAG Pipeline"]
@@ -45,20 +132,21 @@ flowchart TB
     subgraph Storage
         PG[(PostgreSQL)]
         Chroma[(ChromaDB)]
-        Redis[(Redis Cache)]
+        Redis[(Redis)]
     end
 
-    subgraph LLM["LLM Layer"]
-        Primary[Ollama qwen2.5:3b]
-        Fallback[Anthropic Claude]
+    subgraph LLM["LLM Layer (configurable)"]
+        Ollama[Ollama - local]
+        Claude[Anthropic Claude]
     end
 
-    UI --> Cases
-    UI --> Analysis
-    UI --> Verses
+    UI --> Proxy
+    Proxy --> API
+    Proxy --> Static
 
     Cases --> PG
-    Analysis --> RAG
+    Analysis --> Worker
+    Worker --> RAG
     Verses --> PG
 
     Embed --> Chroma
@@ -66,18 +154,19 @@ flowchart TB
     Generate --> LLM
 
     RAG --> PG
-    RAG --> Redis
+    Redis --> API
 ```
 
 ### Component Responsibilities
 
 | Component | Purpose |
 |-----------|---------|
+| Nginx | Reverse proxy, TLS termination, static assets, rate limiting |
 | PostgreSQL | Cases, users, outputs, verses with translations |
 | ChromaDB | 384-dimensional verse embeddings for semantic search |
-| Redis | Response caching, session storage, rate limiting |
-| Ollama (qwen2.5:3b) | Primary LLM for structured JSON generation |
-| Anthropic Claude | Optional cloud fallback for higher quality output |
+| Redis | Response caching, session storage, rate limit state |
+| Ollama | Local LLM for self-hosted deployments |
+| Anthropic Claude | Cloud LLM option when local resources are limited |
 
 ## The RAG Pipeline
 
@@ -250,47 +339,51 @@ def validate_output(self, output: Dict) -> Dict:
 
 ```mermaid
 flowchart TD
-    Request[Generate Request] --> Primary{Primary Provider}
+    Request[Generate Request] --> Config{LLM_PROVIDER}
 
-    Primary -->|Ollama| OllamaP[Ollama qwen2.5:3b]
-    Primary -->|Anthropic| Claude[Claude API]
+    Config -->|ollama| Ollama[Local Ollama]
+    Config -->|anthropic| Claude[Anthropic Claude]
 
-    OllamaP -->|Success| Response[JSON Response]
-    OllamaP -->|Failure| Fallback{Fallback Enabled?}
+    Ollama -->|Success| PostProcess[Post-Process JSON]
+    Ollama -->|Failure| Fallback{Fallback?}
 
-    Claude -->|Success| Response
+    Claude -->|Success| Response[JSON Response]
     Claude -->|Failure| Fallback
 
-    Fallback -->|Yes| Secondary[Secondary Provider]
-    Fallback -->|No| Error[Return Error]
+    Fallback -->|Enabled| Secondary[Fallback Provider]
+    Fallback -->|Disabled| Error[Return Error]
 
-    Secondary -->|Anthropic| ClaudeF[Claude Fallback]
-    Secondary -->|Ollama| OllamaF[Ollama Fallback]
-
-    ClaudeF --> Response
-    OllamaF --> PostProcess[Post-Process Response]
-
+    Secondary --> Response
     PostProcess --> Response
 ```
 
-### Why Hybrid LLM
+### Local-First Design
 
-1. **Ollama (qwen2.5:3b)** (Primary)
+The system is designed to run entirely self-hosted:
+
+1. **Ollama** (Default)
    - Runs locally, no API costs
    - Works offline
    - Full Docker deployment
-   - Good balance of quality and speed
+   - Prompt optimized for smaller models
 
-2. **Anthropic Claude** (Optional Fallback)
+2. **Anthropic Claude** (Alternative)
    - Higher quality structured output
-   - Reliable JSON generation
-   - Requires API key
+   - Faster response times
+   - Useful when local GPU resources are limited
+
+Configuration via environment:
+```bash
+LLM_PROVIDER=ollama           # or "anthropic"
+LLM_FALLBACK_PROVIDER=anthropic
+LLM_FALLBACK_ENABLED=true
+```
 
 The Ollama prompt is optimized for smaller models:
 
 ```python
 OLLAMA_SYSTEM_PROMPT = """You are an ethical leadership consultant.
-Output JSON with: executive_summary, options (2), recommended_action,
+Output JSON with: executive_summary, options (3), recommended_action,
 reflection_prompts (2), sources, confidence, scholar_flag.
 Use verse IDs like BG_2_47. Output ONLY valid JSON."""
 ```
@@ -354,21 +447,7 @@ This captures both the original language's semantic content and accessible inter
 
 ## Key Design Decisions
 
-### 1. Structured Output Over Free Text
-
-The system outputs JSON with explicit fields rather than prose. This enables:
-- Programmatic consumption (API clients, integrations)
-- Consistent UI rendering
-- Validation and quality checks
-
-### 2. Confidence Scoring
-
-Every output includes a confidence score. Low confidence triggers:
-- `scholar_flag: true` for human review
-- Warning in UI
-- Logging for quality analysis
-
-### 3. Session-Based Anonymous Access
+### Session-Based Anonymous Access
 
 Anonymous users can create cases using session IDs:
 
@@ -385,7 +464,7 @@ async def create_case(
 
 This lowers friction for first-time users while allowing authenticated users to build persistent history.
 
-### 4. Graceful Degradation
+### Graceful Degradation
 
 The pipeline never fails completely:
 
@@ -407,94 +486,66 @@ def run(self, case_data: Dict, top_k: int = None) -> Dict:
     return self.validate_output(output)
 ```
 
-## Usage Example
+## Operations
 
-### API Request
+### Deployment
 
-```bash
-curl -X POST http://localhost:8000/api/v1/cases \
-  -H "Content-Type: application/json" \
-  -d '{
-    "title": "Whistleblowing dilemma",
-    "description": "I discovered financial irregularities at my company.
-                    Reporting internally has failed. Do I go public?",
-    "role": "Senior Manager",
-    "stakeholders": ["employees", "shareholders", "regulators"],
-    "constraints": ["NDA", "career risk"]
-  }'
+Docker Compose orchestrates seven containers:
+
+```
+nginx (frontend)     → reverse proxy, static assets, TLS
+backend (FastAPI)    → API server
+worker (RQ)          → async RAG processing
+postgres             → relational data
+redis                → cache, rate limits, job queue
+chromadb             → vector store
+ollama               → local LLM (optional)
 ```
 
-### API Response (Simplified)
+Key deployment features:
+- Single `docker compose up` brings up entire stack
+- Background worker handles long-running RAG jobs
+- Nginx serves static assets with aggressive caching (1 year for hashed files)
+- Rate limiting at both nginx and application layers
 
-```json
-{
-  "executive_summary": "This case presents a classic tension between
-                        loyalty and truth-telling...",
-  "options": [
-    {
-      "title": "Internal Escalation",
-      "description": "Escalate to board audit committee...",
-      "sources": ["BG_18_63"]
-    },
-    {
-      "title": "External Disclosure",
-      "description": "Report to regulators...",
-      "sources": ["BG_2_47"]
-    },
-    {
-      "title": "Document and Wait",
-      "description": "Preserve evidence, continue internal advocacy...",
-      "sources": ["BG_3_19"]
-    }
-  ],
-  "recommended_action": {
-    "option": 1,
-    "steps": [
-      "Request audit committee meeting",
-      "Present documented evidence",
-      "Set timeline for response"
-    ]
-  },
-  "sources": [
-    {
-      "canonical_id": "BG_18_63",
-      "paraphrase": "Choose with knowledge and freedom after reflection.",
-      "relevance": 0.92
-    }
-  ],
-  "confidence": 0.84
-}
-```
+### Security
 
-## When to Use Geetanjali
+Container hardening:
+- Non-root users in all containers
+- Minimal Linux capabilities (drop all, add only required)
+- Internal services not exposed to host network
+- Redis authentication enabled
 
-**Good fit:**
-- Leadership ethical dilemmas requiring structured analysis
-- Situations where traditional wisdom provides perspective
-- Decisions benefiting from multiple options with tradeoffs
-- Cases where citation and transparency matter
+Secrets management:
+- SOPS + age encryption for `.env` files
+- Encrypted secrets committed to git, decrypted at deploy time
+- No plaintext credentials in repository
 
-**Not a good fit:**
-- Legal or medical decisions (requires professional advice)
-- Situations requiring real-time or emergency response
-- Contexts where Bhagavad Geeta framework doesn't apply
+Application security:
+- CSRF protection on state-changing endpoints
+- Security headers (HSTS, CSP, X-Frame-Options)
+- Rate limiting (60 req/min per IP on most endpoints)
+- Session-based anonymous access (no PII required)
 
-## Performance Characteristics
+### Performance
 
 | Operation | Latency |
 |-----------|---------|
 | Embedding (per query) | ~15ms |
 | Vector search (top-5) | ~25ms |
-| LLM generation (Ollama qwen2.5:3b) | 8-15s |
-| LLM generation (Claude fallback) | 2-4s |
-| Total pipeline | 10-20s typical |
+| LLM generation (Ollama local) | 15-30s |
+| LLM generation (Anthropic Claude) | 2-5s |
+| Total pipeline (local) | 20-35s |
+| Total pipeline (cloud) | 3-8s |
+
+Load tested at 682 req/s on health endpoints, 60 req/min rate limit on API.
 
 ## Conclusion
 
-Geetanjali demonstrates that RAG can bring ancient wisdom into modern decision support. The key is treating scripture not as training data but as retrievable context, preserving attribution and enabling verification.
+Geetanjali demonstrates that RAG can bring ancient wisdom into modern decision support. The key is treating scripture not as training data but as retrievable context—preserving attribution and enabling verification.
 
-The architecture patterns here (hybrid LLM, graceful degradation, confidence scoring) apply broadly to any domain-specific RAG system where grounding and transparency matter.
+The architecture patterns here (local-first LLM, graceful degradation, confidence scoring) apply broadly to any domain-specific RAG system where grounding and transparency matter.
 
 ---
 
-*Geetanjali is open source under MIT license. Contributions welcome.*
+**Live:** [geetanjaliapp.com](https://geetanjaliapp.com) · **Source:** [GitHub](https://github.com/geetanjaliapp/geetanjali) · MIT License

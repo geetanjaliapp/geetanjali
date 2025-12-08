@@ -1,0 +1,27 @@
+theme: jekyll-theme-cayman
+title: Geetanjali Docs
+description: Documentation for Geetanjali - ethical leadership guidance from the Bhagavad Geeta
+show_downloads: false
+
+# SEO
+url: https://docs.geetanjaliapp.com
+baseurl: ""
+lang: en
+
+# Social / Open Graph defaults
+author: Geetanjali
+twitter:
+  card: summary
+social:
+  name: Geetanjali
+  links:
+    - https://github.com/geetanjaliapp/geetanjali
+
+# Default front matter
+defaults:
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: default
+      image: /logo.svg
