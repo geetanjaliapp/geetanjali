@@ -112,16 +112,24 @@ export function CaseHeader({
       {/* Compact share URL bar (when public) - right aligned */}
       {caseData.is_public && caseData.public_slug && (
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pb-2 flex justify-end">
-          <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-lg px-2.5 py-1.5">
-            <code className="text-xs text-green-700 font-mono truncate max-w-[200px] sm:max-w-none">
-              {window.location.host}/c/{caseData.public_slug}
-            </code>
-            <button
-              onClick={onCopyShareLink}
-              className="px-2 py-0.5 bg-green-600 text-white rounded text-xs font-medium hover:bg-green-700 transition-colors"
-            >
-              {copySuccess ? 'Copied!' : 'Copy'}
-            </button>
+          <div className="bg-green-50 border border-green-200 rounded-lg px-2.5 py-1.5">
+            <div className="flex items-center gap-2">
+              <code className="text-xs text-green-700 font-mono truncate max-w-[200px] sm:max-w-none">
+                {window.location.host}/c/{caseData.public_slug}
+              </code>
+              <button
+                onClick={onCopyShareLink}
+                className="px-2 py-0.5 bg-green-600 text-white rounded text-xs font-medium hover:bg-green-700 transition-colors"
+              >
+                {copySuccess ? 'Copied!' : 'Copy'}
+              </button>
+            </div>
+            <p className="text-[10px] text-green-600 mt-1 flex items-center gap-1">
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              Only people with this link can view
+            </p>
           </div>
         </div>
       )}
