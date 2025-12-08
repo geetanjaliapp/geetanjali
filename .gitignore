@@ -80,6 +80,7 @@ coverage/
 .env.test.local
 .env.production.local
 .env.prod.backup
+.env.temp
 
 # SOPS encrypted files (safe to commit - contains encrypted secrets)
 !.env.enc
