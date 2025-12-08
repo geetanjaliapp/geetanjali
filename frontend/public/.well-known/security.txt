@@ -1,0 +1,10 @@
+# Geetanjali Security Policy
+# https://securitytxt.org/
+
+Contact: mailto:security@geetanjaliapp.com
+Expires: 2026-12-31T23:59:59.000Z
+Preferred-Languages: en
+Canonical: https://geetanjaliapp.com/.well-known/security.txt
+
+# We appreciate responsible disclosure of security vulnerabilities.
+# Please allow reasonable time for us to address issues before public disclosure.
