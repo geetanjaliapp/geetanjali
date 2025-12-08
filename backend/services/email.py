@@ -172,3 +172,90 @@ Sent from Geetanjali Contact Form
     except Exception as e:
         logger.error(f"Failed to send contact email: {e}")
         return False
+
+
+def send_password_reset_email(email: str, reset_url: str) -> bool:
+    """
+    Send password reset email to user.
+
+    Args:
+        email: User's email address
+        reset_url: Full URL to reset password page with token
+
+    Returns:
+        True if email sent successfully, False otherwise
+    """
+    resend = _get_resend()
+
+    if not resend:
+        logger.warning("Email service not available - reset email not sent")
+        return False
+
+    if not settings.CONTACT_EMAIL_FROM:
+        logger.warning("CONTACT_EMAIL_FROM not configured - reset email not sent")
+        return False
+
+    # Build HTML email body
+    html_body = """
+    <div style="font-family: system-ui, -apple-system, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: linear-gradient(135deg, #f97316, #dc2626); padding: 20px; border-radius: 8px 8px 0 0;">
+            <h1 style="color: white; margin: 0; font-size: 24px;">Reset Your Password</h1>
+        </div>
+        <div style="background: #fff; padding: 24px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px;">
+            <p style="color: #374151; line-height: 1.6; margin: 0 0 16px 0;">
+                You requested to reset your password for your Geetanjali account.
+                Click the button below to set a new password.
+            </p>
+            <div style="text-align: center; margin: 24px 0;">
+                <a href="{reset_url}"
+                   style="display: inline-block; background: #f97316; color: white; padding: 12px 32px;
+                          text-decoration: none; border-radius: 8px; font-weight: 500;">
+                    Reset Password
+                </a>
+            </div>
+            <p style="color: #6b7280; font-size: 14px; line-height: 1.6; margin: 16px 0 0 0;">
+                This link will expire in 1 hour. If you didn't request this, you can safely ignore this email.
+            </p>
+            <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;">
+            <p style="color: #9ca3af; font-size: 12px; margin: 0;">
+                If the button doesn't work, copy and paste this link into your browser:<br>
+                <a href="{reset_url}" style="color: #f97316; word-break: break-all;">{reset_url}</a>
+            </p>
+        </div>
+        <div style="text-align: center; padding: 16px; color: #9ca3af; font-size: 12px;">
+            Geetanjali - Ethical Guidance from the Bhagavad Gita
+        </div>
+    </div>
+    """.format(reset_url=reset_url)
+
+    # Plain text version
+    text_body = f"""
+Reset Your Password
+
+You requested to reset your password for your Geetanjali account.
+
+Click this link to set a new password:
+{reset_url}
+
+This link will expire in 1 hour. If you didn't request this, you can safely ignore this email.
+
+---
+Geetanjali - Ethical Guidance from the Bhagavad Gita
+    """.strip()
+
+    try:
+        params = {
+            "from": settings.CONTACT_EMAIL_FROM,
+            "to": [email],
+            "subject": "Reset Your Geetanjali Password",
+            "html": html_body,
+            "text": text_body,
+        }
+
+        response = resend.Emails.send(params)
+        logger.info(f"Password reset email sent to {email}: {response.get('id', 'unknown')}")
+        return True
+
+    except Exception as e:
+        logger.error(f"Failed to send password reset email: {e}")
+        return False

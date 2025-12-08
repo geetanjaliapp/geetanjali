@@ -1,5 +1,6 @@
 """Repository for User model operations."""
 
+from datetime import datetime
 from typing import Optional
 from sqlalchemy.orm import Session
 
@@ -61,3 +62,19 @@ class UserRepository(BaseRepository):
         }
         result: User = self.create(user_data)  # type: ignore[assignment]
         return result
+
+    def get_users_with_valid_reset_tokens(self) -> list[User]:
+        """
+        Get all users with non-expired reset tokens.
+
+        Used for password reset token verification (must iterate and verify hash).
+
+        Returns:
+            List of users with valid (non-expired) reset tokens
+        """
+        return (
+            self.db.query(User)
+            .filter(User.reset_token_hash.isnot(None))
+            .filter(User.reset_token_expires > datetime.utcnow())
+            .all()
+        )

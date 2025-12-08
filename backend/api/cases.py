@@ -15,7 +15,7 @@ from db import get_db
 from db.repositories.case_repository import CaseRepository
 from db.repositories.message_repository import MessageRepository
 from db.repositories.output_repository import OutputRepository
-from api.schemas import CaseCreate, CaseResponse, CaseShareToggle, MessageResponse, OutputResponse
+from api.schemas import CaseCreate, CaseResponse, CaseShareToggle, ChatMessageResponse, OutputResponse
 from api.middleware.auth import get_optional_user, get_session_id
 from api.dependencies import get_case_with_access
 from models.case import Case
@@ -376,7 +376,7 @@ async def get_public_case(
     )
 
 
-@router.get("/public/{slug}/messages", response_model=List[MessageResponse])
+@router.get("/public/{slug}/messages", response_model=List[ChatMessageResponse])
 @limiter.limit("60/minute")
 async def get_public_case_messages(
     request: Request,
@@ -397,7 +397,7 @@ async def get_public_case_messages(
         cache_key=public_case_messages_key(slug),
         response=response,
         fetch_fn=fetch_messages,
-        serialize_fn=lambda msgs: [MessageResponse.model_validate(m).model_dump(mode="json") for m in msgs],
+        serialize_fn=lambda msgs: [ChatMessageResponse.model_validate(m).model_dump(mode="json") for m in msgs],
     )
 
 

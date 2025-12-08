@@ -74,6 +74,27 @@ class RefreshResponse(BaseModel):
     token_type: str = Field(default="bearer", description="Token type")
 
 
+class ForgotPasswordRequest(BaseModel):
+    """Schema for forgot password request."""
+
+    email: EmailStr = Field(..., description="User email address")
+
+
+class ResetPasswordRequest(BaseModel):
+    """Schema for reset password request."""
+
+    token: str = Field(..., description="Password reset token")
+    password: str = Field(
+        ..., min_length=8, description="New password (minimum 8 characters)"
+    )
+
+
+class MessageResponse(BaseModel):
+    """Generic message response schema."""
+
+    message: str = Field(..., description="Response message")
+
+
 # ============================================================================
 # Case Schemas
 # ============================================================================
@@ -277,8 +298,8 @@ class MessageCreate(BaseModel):
     content: str = Field(..., max_length=10000, description="Message content")
 
 
-class MessageResponse(BaseModel):
-    """Schema for message response."""
+class ChatMessageResponse(BaseModel):
+    """Schema for chat message response."""
 
     id: str
     case_id: str

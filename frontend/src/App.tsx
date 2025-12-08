@@ -15,6 +15,8 @@ const Verses = lazy(() => import('./pages/Verses'));
 const VerseDetail = lazy(() => import('./pages/VerseDetail'));
 const Login = lazy(() => import('./pages/Login'));
 const Signup = lazy(() => import('./pages/Signup'));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
+const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 const About = lazy(() => import('./pages/About'));
 const PublicCaseView = lazy(() => import('./pages/PublicCaseView'));
 
@@ -63,6 +65,8 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/cases/new" element={<NewCase />} />
             <Route path="/cases/:id" element={<CaseView />} />
             <Route path="/consultations" element={<Consultations />} />

@@ -157,4 +157,21 @@ export const authApi = {
     });
     return response.data;
   },
+
+  /**
+   * Request password reset email
+   * Always returns success to prevent email enumeration
+   */
+  forgotPassword: async (email: string): Promise<{ message: string }> => {
+    const response = await authClient.post<{ message: string }>('/forgot-password', { email });
+    return response.data;
+  },
+
+  /**
+   * Reset password using token from email
+   */
+  resetPassword: async (token: string, password: string): Promise<{ message: string }> => {
+    const response = await authClient.post<{ message: string }>('/reset-password', { token, password });
+    return response.data;
+  },
 };

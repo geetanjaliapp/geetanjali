@@ -5,7 +5,7 @@ from typing import List
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
-from api.schemas import MessageCreate, MessageResponse
+from api.schemas import MessageCreate, ChatMessageResponse
 from api.dependencies import get_case_with_access
 from db.connection import get_db
 from db.repositories.message_repository import MessageRepository
@@ -14,7 +14,7 @@ from models.case import Case
 router = APIRouter()
 
 
-@router.get("/cases/{case_id}/messages", response_model=List[MessageResponse])
+@router.get("/cases/{case_id}/messages", response_model=List[ChatMessageResponse])
 def get_case_messages(
     case: Case = Depends(get_case_with_access), db: Session = Depends(get_db)
 ):
@@ -30,7 +30,7 @@ def get_case_messages(
 
 @router.post(
     "/cases/{case_id}/messages",
-    response_model=MessageResponse,
+    response_model=ChatMessageResponse,
     status_code=status.HTTP_201_CREATED,
 )
 def create_message(

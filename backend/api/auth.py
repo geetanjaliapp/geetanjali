@@ -1,7 +1,8 @@
 """Authentication API endpoints."""
 
 import logging
-from datetime import datetime
+import secrets
+from datetime import datetime, timedelta
 from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
 from sqlalchemy.orm import Session
 from slowapi import Limiter
@@ -13,6 +14,9 @@ from api.schemas import (
     AuthResponse,
     RefreshResponse,
     UserResponse,
+    ForgotPasswordRequest,
+    ResetPasswordRequest,
+    MessageResponse,
 )
 from api.middleware.auth import get_current_user, get_session_id
 from db.connection import get_db
@@ -28,6 +32,7 @@ from utils.auth import (
 )
 from utils.jwt import create_access_token, create_refresh_token
 from utils.csrf import generate_csrf_token, set_csrf_cookie
+from services.email import send_password_reset_email
 from config import settings
 
 logger = logging.getLogger(__name__)
@@ -303,3 +308,124 @@ async def logout(request: Request, response: Response, db: Session = Depends(get
 async def get_current_user_profile(current_user: User = Depends(get_current_user)):
     """Get current authenticated user's profile."""
     return build_user_response(current_user)
+
+
+# Password reset token settings
+RESET_TOKEN_EXPIRE_HOURS = 1
+RESET_TOKEN_BYTES = 32
+
+
+@router.post("/forgot-password", response_model=MessageResponse)
+@limiter.limit("3/minute")
+async def forgot_password(
+    request: Request,
+    forgot_data: ForgotPasswordRequest,
+    db: Session = Depends(get_db),
+):
+    """
+    Request a password reset email.
+
+    Always returns success message to prevent email enumeration.
+
+    Args:
+        forgot_data: Email address to send reset link to
+        db: Database session
+
+    Returns:
+        Success message (always, for security)
+    """
+    logger.info(f"Password reset requested for: {forgot_data.email}")
+
+    # Always return same message to prevent email enumeration
+    success_message = "If an account exists with this email, you will receive a password reset link."
+
+    user_repo = UserRepository(db)
+    user = user_repo.get_by_email(forgot_data.email)
+
+    if not user:
+        # Don't reveal that user doesn't exist
+        logger.info("Password reset requested for non-existent email")
+        return MessageResponse(message=success_message)
+
+    # Generate secure reset token
+    reset_token = secrets.token_urlsafe(RESET_TOKEN_BYTES)
+    reset_token_hash = hash_password(reset_token)
+    reset_token_expires = datetime.utcnow() + timedelta(hours=RESET_TOKEN_EXPIRE_HOURS)
+
+    # Store hashed token in database
+    user_repo.update(user.id, {
+        "reset_token_hash": reset_token_hash,
+        "reset_token_expires": reset_token_expires,
+    })
+
+    # Build reset URL
+    reset_url = f"{settings.FRONTEND_URL}/reset-password?token={reset_token}"
+
+    # Send email (don't fail the request if email fails)
+    email_sent = send_password_reset_email(user.email, reset_url)
+    if not email_sent:
+        logger.warning(f"Failed to send password reset email to {user.email}")
+
+    return MessageResponse(message=success_message)
+
+
+@router.post("/reset-password", response_model=MessageResponse)
+@limiter.limit("5/minute")
+async def reset_password(
+    request: Request,
+    reset_data: ResetPasswordRequest,
+    db: Session = Depends(get_db),
+):
+    """
+    Reset password using token from email.
+
+    Args:
+        reset_data: Reset token and new password
+        db: Database session
+
+    Returns:
+        Success message
+
+    Raises:
+        HTTPException: 400 if token is invalid/expired or password invalid
+    """
+    logger.info("Password reset attempt")
+
+    # Validate password strength
+    is_valid, error_msg = validate_password_strength(reset_data.password)
+    if not is_valid:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=error_msg)
+
+    # Find user with matching reset token
+    user_repo = UserRepository(db)
+    users_with_tokens = user_repo.get_users_with_valid_reset_tokens()
+
+    # Iterate through users and verify token hash
+    matching_user = None
+    for user in users_with_tokens:
+        if verify_password(reset_data.token, user.reset_token_hash):
+            matching_user = user
+            break
+
+    if not matching_user:
+        logger.warning("Invalid or expired password reset token")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired reset link. Please request a new one."
+        )
+
+    user = matching_user
+
+    # Update password and clear reset token
+    new_password_hash = hash_password(reset_data.password)
+    user_repo.update(user.id, {
+        "password_hash": new_password_hash,
+        "reset_token_hash": None,
+        "reset_token_expires": None,
+    })
+
+    # Revoke all existing refresh tokens for security
+    RefreshTokenRepository(db).revoke_all_for_user(user.id)
+
+    logger.info(f"Password reset successful for user: {user.id}")
+    return MessageResponse(message="Your password has been reset successfully. Please sign in with your new password.")

@@ -73,6 +73,17 @@ describe('Login Page', () => {
     expect(signupLinks.some(link => link.getAttribute('href') === '/signup')).toBe(true)
   })
 
+  it('should have link to forgot password page', async () => {
+    render(<Login />, { wrapper })
+
+    await waitFor(() => {
+      expect(screen.getByText('Forgot password?')).toBeInTheDocument()
+    })
+
+    const forgotLink = screen.getByRole('link', { name: /forgot password/i })
+    expect(forgotLink).toHaveAttribute('href', '/forgot-password')
+  })
+
   it('should allow typing in form fields', async () => {
     const user = userEvent.setup()
     render(<Login />, { wrapper })

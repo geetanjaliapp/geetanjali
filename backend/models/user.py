@@ -30,6 +30,10 @@ class User(Base, TimestampMixin):
     )
     last_login: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
 
+    # Password Reset
+    reset_token_hash: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    reset_token_expires: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+
     # Authorization
     role: Mapped[str] = mapped_column(String(100), default="user")
     org_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
