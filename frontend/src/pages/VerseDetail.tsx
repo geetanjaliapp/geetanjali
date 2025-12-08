@@ -28,18 +28,26 @@ export default function VerseDetail() {
   const [error, setError] = useState<string | null>(null);
   const [showAllTranslations, setShowAllTranslations] = useState(true);
 
+  // Redirect to canonical uppercase URL if case doesn't match
+  const canonicalUppercase = canonicalId?.toUpperCase();
+  useEffect(() => {
+    if (canonicalId && canonicalId !== canonicalUppercase) {
+      navigate(`/verses/${canonicalUppercase}`, { replace: true });
+    }
+  }, [canonicalId, canonicalUppercase, navigate]);
+
   // Dynamic SEO based on verse data
   useSEO({
     title: verse ? `Bhagavad Gita ${verse.chapter}.${verse.verse}` : 'Verse',
     description: verse?.paraphrase_en
       ? `${verse.paraphrase_en.slice(0, 150)}...`
       : 'Explore this verse from the Bhagavad Gita with multiple translations and leadership insights.',
-    canonical: canonicalId ? `/verses/${canonicalId}` : '/verses',
+    canonical: canonicalUppercase ? `/verses/${canonicalUppercase}` : '/verses',
     ogType: 'article',
   });
 
   useEffect(() => {
-    if (!canonicalId) return;
+    if (!canonicalId || canonicalId !== canonicalUppercase) return;
 
     const loadVerseDetails = async () => {
       try {
@@ -62,7 +70,7 @@ export default function VerseDetail() {
     };
 
     loadVerseDetails();
-  }, [canonicalId]);
+  }, [canonicalId, canonicalUppercase]);
 
   if (loading) {
     return (
