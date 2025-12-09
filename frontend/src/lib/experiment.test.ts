@@ -5,6 +5,7 @@ import {
   getCurrentVariant,
   EXPERIMENTS,
   type ExperimentConfig,
+  type Variant,
 } from './experiment'
 
 // Mock the api module
@@ -23,7 +24,7 @@ describe('experiment utilities', () => {
   describe('getVariant', () => {
     const testExperiment: ExperimentConfig = {
       name: 'test_experiment',
-      variants: ['control', 'variant'],
+      variants: ['control', 'variant'] as Variant[],
       weights: [50, 50],
     }
 
@@ -72,7 +73,7 @@ describe('experiment utilities', () => {
     it('should allow new assignment after clearing', () => {
       const testExperiment: ExperimentConfig = {
         name: 'clear_test',
-        variants: ['control', 'variant'],
+        variants: ['control', 'variant'] as Variant[],
       }
 
       getVariant(testExperiment) // Assign initial variant
@@ -112,7 +113,7 @@ describe('experiment utilities', () => {
     it('should distribute variants according to weights (statistical test)', () => {
       const heavyControlExperiment: ExperimentConfig = {
         name: 'weighted_test',
-        variants: ['control', 'variant'],
+        variants: ['control', 'variant'] as Variant[],
         weights: [90, 10],
       }
 

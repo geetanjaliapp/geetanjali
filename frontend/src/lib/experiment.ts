@@ -13,8 +13,8 @@ export type Variant = 'control' | 'variant';
 
 export interface ExperimentConfig {
   name: string;
-  variants: Variant[];
-  weights?: number[]; // Default: equal distribution
+  variants: readonly Variant[];
+  weights?: readonly number[]; // Default: equal distribution
 }
 
 /**
