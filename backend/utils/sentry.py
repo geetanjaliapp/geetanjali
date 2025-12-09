@@ -8,7 +8,7 @@ Sentry is only initialized when SENTRY_DSN is configured.
 """
 
 import logging
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 from config import settings
 

@@ -1,8 +1,6 @@
 """Tests for metrics collector and Prometheus instrumentation."""
 
-import pytest
 from unittest.mock import MagicMock, patch
-from datetime import datetime, timedelta
 
 from services.metrics_collector import (
     collect_metrics,

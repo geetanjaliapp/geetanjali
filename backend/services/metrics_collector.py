@@ -60,7 +60,7 @@ def _collect_business_metrics() -> None:
         consultation_count = (
             db.query(func.count(Case.id))
             .filter(Case.status == "completed")
-            .filter(Case.is_deleted == False)
+            .filter(Case.is_deleted.is_(False))
             .scalar()
             or 0
         )
