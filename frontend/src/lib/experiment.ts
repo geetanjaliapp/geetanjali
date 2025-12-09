@@ -90,6 +90,15 @@ export function clearExperiment(experimentName: string): void {
   localStorage.removeItem(`${EXPERIMENT_PREFIX}${experimentName}`);
 }
 
+/**
+ * Get current variant without triggering assignment
+ * Returns null if not yet assigned
+ */
+export function getCurrentVariant(experimentName: string): Variant | null {
+  const storageKey = `${EXPERIMENT_PREFIX}${experimentName}`;
+  return localStorage.getItem(storageKey) as Variant | null;
+}
+
 // ============================================
 // Experiment Definitions
 // ============================================

@@ -19,6 +19,18 @@ vi.mock('../lib/api', () => ({
   },
 }))
 
+// Mock the experiment module to always return 'control' for deterministic tests
+vi.mock('../lib/experiment', () => ({
+  useHomepageCTAExperiment: () => ({
+    variant: 'control',
+    trackClick: vi.fn(),
+  }),
+  trackEvent: vi.fn(),
+  EXPERIMENTS: {
+    HOMEPAGE_CTA: { name: 'homepage_cta_v1', variants: ['control', 'variant'], weights: [50, 50] },
+  },
+}))
+
 // Mock the auth API
 vi.mock('../api/auth', () => ({
   authApi: {

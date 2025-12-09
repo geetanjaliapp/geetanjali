@@ -1,10 +1,20 @@
 import { Link, useLocation } from 'react-router-dom';
+import { trackEvent, EXPERIMENTS } from '../lib/experiment';
 
 interface FloatingActionButtonProps {
   /** Override the default destination */
   to?: string;
   /** Override the default label */
   label?: string;
+}
+
+/**
+ * Track FAB click for analytics
+ */
+function handleFabClick() {
+  trackEvent(EXPERIMENTS.HOMEPAGE_CTA.name, 'fab_click', {
+    source: 'mobile_fab',
+  });
 }
 
 /**
@@ -33,6 +43,7 @@ export function FloatingActionButton({
   return (
     <Link
       to={to}
+      onClick={handleFabClick}
       className="
         fixed bottom-6 right-6 z-40
         md:hidden

@@ -1,7 +1,8 @@
 """Experiment events API for A/B testing analytics."""
 
 import logging
-from fastapi import APIRouter, Depends, Request, HTTPException
+import secrets
+from fastapi import APIRouter, Depends, Request, HTTPException, Header
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
 from typing import Optional
@@ -12,11 +13,19 @@ from slowapi.util import get_remote_address
 from db.connection import get_db
 from models.experiment import ExperimentEvent
 from api.dependencies import get_session_id
+from config import settings
 
 logger = logging.getLogger(__name__)
 
 limiter = Limiter(key_func=get_remote_address)
 router = APIRouter(prefix="/api/v1/experiments")
+
+
+def verify_admin_api_key(x_api_key: str = Header(..., alias="X-API-Key")):
+    """Verify admin API key for protected endpoints."""
+    if not secrets.compare_digest(x_api_key, settings.API_KEY):
+        raise HTTPException(status_code=401, detail="Invalid or missing API key")
+    return True
 
 
 class ExperimentEventCreate(BaseModel):
@@ -38,7 +47,7 @@ class ExperimentEventResponse(BaseModel):
 @router.post("/events", response_model=ExperimentEventResponse)
 @limiter.limit("60/minute")
 async def track_event(
-    request_obj: Request,
+    request: Request,
     event_data: ExperimentEventCreate,
     db: Session = Depends(get_db),
     session_id: Optional[str] = Depends(get_session_id),
@@ -101,9 +110,10 @@ class ExperimentStats(BaseModel):
 @router.get("/stats/{experiment_name}")
 @limiter.limit("10/minute")
 async def get_experiment_stats(
-    request_obj: Request,
+    request: Request,
     experiment_name: str,
     db: Session = Depends(get_db),
+    _admin: bool = Depends(verify_admin_api_key),
 ):
     """
     Get basic statistics for an experiment.

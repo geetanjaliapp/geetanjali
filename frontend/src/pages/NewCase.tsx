@@ -5,7 +5,7 @@ import type { Case } from '../types';
 import { Navbar } from '../components/Navbar';
 import { errorMessages } from '../lib/errorMessages';
 import { useSEO } from '../hooks';
-import { trackEvent, EXPERIMENTS } from '../lib/experiment';
+import { trackEvent, EXPERIMENTS, getCurrentVariant } from '../lib/experiment';
 
 interface LocationState {
   prefill?: string;
@@ -115,7 +115,9 @@ export default function NewCase() {
       const createdCase = await casesApi.create(caseData);
 
       // Track conversion for A/B experiment
+      const variant = getCurrentVariant(EXPERIMENTS.HOMEPAGE_CTA.name);
       trackEvent(EXPERIMENTS.HOMEPAGE_CTA.name, 'case_created', {
+        variant,
         case_id: createdCase.id,
         had_prefill: !!prefill,
       });
