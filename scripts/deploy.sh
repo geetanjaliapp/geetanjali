@@ -74,11 +74,13 @@ $SSH_CMD "cd ${DEPLOY_DIR} && \
     mv .env.tmp .env" || error "Failed to decrypt .env file"
 info "Secrets decrypted successfully"
 
-# Step 4b: Process Grafana alerting templates
+# Step 4b: Process Grafana alerting templates (extract var with grep, avoiding shell quoting issues)
 log "Processing Grafana alert configuration..."
 $SSH_CMD "cd ${DEPLOY_DIR} && \
-    source .env && \
-    sed -i \"s/PLACEHOLDER_ALERT_EMAIL/\${GRAFANA_ALERT_EMAIL_TO}/g\" monitoring/grafana/provisioning/alerting/contactpoints.yml" || warn "Grafana alert config not processed (optional)"
+    ALERT_EMAIL=\$(grep '^GRAFANA_ALERT_EMAIL_TO=' .env | cut -d'=' -f2) && \
+    if [ -n \"\$ALERT_EMAIL\" ]; then \
+        sed -i \"s/PLACEHOLDER_ALERT_EMAIL/\$ALERT_EMAIL/g\" monitoring/grafana/provisioning/alerting/contactpoints.yml; \
+    fi" || warn "Grafana alert config not processed (optional)"
 
 # Step 5: Tag current images for rollback (before rebuild)
 log "Tagging current images for rollback..."
