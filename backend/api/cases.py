@@ -26,6 +26,10 @@ from services.cache import (
     public_case_messages_key,
     public_case_outputs_key,
 )
+from services.content_filter import (
+    validate_submission_content,
+    ContentPolicyError,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -129,7 +133,24 @@ async def create_case(
 
     Returns:
         Created case
+
+    Raises:
+        HTTPException 422: If content violates content policy (blocklist)
     """
+    # Layer 1: Pre-submission content filter (blocklist check)
+    # Rejects obvious violations before database write
+    try:
+        validate_submission_content(case_data.title, case_data.description)
+    except ContentPolicyError as e:
+        logger.warning(
+            f"Content policy violation at submission (type={e.violation_type.value})",
+            extra={"violation_type": e.violation_type.value},
+        )
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=e.message,
+        )
+
     logger.info(
         f"Creating case: {case_data.title} (anonymous={current_user is None}, session_id={session_id})"
     )

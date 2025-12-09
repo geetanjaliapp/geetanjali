@@ -79,6 +79,11 @@ class Settings(BaseSettings):
     RAG_CONFIDENCE_THRESHOLD: float = 0.7
     RAG_SCHOLAR_REVIEW_THRESHOLD: float = 0.6
 
+    # Content Moderation
+    CONTENT_FILTER_ENABLED: bool = True  # Master switch for all content filtering
+    CONTENT_FILTER_BLOCKLIST_ENABLED: bool = True  # Layer 1: Pre-submission blocklist
+    CONTENT_FILTER_LLM_REFUSAL_DETECTION: bool = True  # Layer 2: Detect LLM refusals
+
     # API
     API_V1_PREFIX: str = "/api/v1"
     CORS_ORIGINS: Union[str, List[str]] = [

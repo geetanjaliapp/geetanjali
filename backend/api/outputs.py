@@ -113,16 +113,22 @@ def run_analysis_background(case_id: str, case_data: dict, request_correlation_i
 
         # Run RAG pipeline
         rag_pipeline = get_rag_pipeline()
-        result = rag_pipeline.run(case_data)
+        result, is_policy_violation = rag_pipeline.run(case_data)
 
         # Create output using helper
         output = _create_output_from_result(case_id, result, db)
 
-        # Update case title if LLM provided one
-        if result.get("suggested_title"):
+        # Update case title if LLM provided one (not for policy violations)
+        if result.get("suggested_title") and not is_policy_violation:
             case.title = result["suggested_title"]
 
-        case.status = CaseStatus.COMPLETED.value
+        # Set appropriate status based on policy violation
+        if is_policy_violation:
+            case.status = CaseStatus.POLICY_VIOLATION.value
+            logger.warning(f"[Background] Case {case_id} flagged as policy violation")
+        else:
+            case.status = CaseStatus.COMPLETED.value
+
         db.commit()
         db.refresh(output)
 
@@ -243,17 +249,23 @@ async def analyze_case(
         # Build case data and run RAG pipeline
         case_data = _build_case_data(case)
         rag_pipeline = get_rag_pipeline()
-        result = rag_pipeline.run(case_data)
+        result, is_policy_violation = rag_pipeline.run(case_data)
 
         # Create output record
         try:
             output = _create_output_from_result(case.id, result, db)
 
-            # Update case title if LLM provided one
-            if result.get("suggested_title"):
+            # Update case title if LLM provided one (not for policy violations)
+            if result.get("suggested_title") and not is_policy_violation:
                 case.title = result["suggested_title"]
 
-            case.status = CaseStatus.COMPLETED.value
+            # Set appropriate status based on policy violation
+            if is_policy_violation:
+                case.status = CaseStatus.POLICY_VIOLATION.value
+                logger.warning(f"Case {case.id} flagged as policy violation")
+            else:
+                case.status = CaseStatus.COMPLETED.value
+
             db.commit()
             db.refresh(output)
 

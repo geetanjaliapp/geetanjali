@@ -3,7 +3,7 @@
 import logging
 import json
 import re
-from typing import Dict, Any, List, Optional, cast
+from typing import Dict, Any, List, Optional, Tuple, cast
 
 from config import settings
 from services.vector_store import get_vector_store
@@ -14,6 +14,10 @@ from services.prompts import (
     OLLAMA_SYSTEM_PROMPT,
     build_ollama_prompt,
     post_process_ollama_response,
+)
+from services.content_filter import (
+    detect_llm_refusal,
+    get_policy_violation_response,
 )
 from db import SessionLocal
 from db.repositories.verse_repository import VerseRepository
@@ -347,7 +351,7 @@ class RAGPipeline:
         fallback_prompt: Optional[str] = None,
         fallback_system: Optional[str] = None,
         retrieved_verses: Optional[List[Dict[str, Any]]] = None,
-    ) -> Dict[str, Any]:
+    ) -> Tuple[Dict[str, Any], bool]:
         """
         Generate consulting brief using LLM.
 
@@ -359,10 +363,10 @@ class RAGPipeline:
             retrieved_verses: Retrieved verses for post-processing
 
         Returns:
-            Parsed JSON response
+            Tuple of (parsed JSON response, is_policy_violation)
 
         Raises:
-            Exception: If LLM fails or returns invalid JSON
+            Exception: If LLM fails or returns invalid JSON (not due to refusal)
         """
         logger.info("Generating consulting brief with LLM")
 
@@ -379,6 +383,17 @@ class RAGPipeline:
         provider = result.get("provider", "unknown")
         model = result.get("model", "unknown")
 
+        # Check for LLM refusal BEFORE attempting JSON parse
+        # This detects when Claude refuses due to content policy
+        is_refusal, refusal_match = detect_llm_refusal(response_text)
+        if is_refusal:
+            logger.warning(
+                f"LLM refused to process content (provider={provider}, "
+                f"matched: '{refusal_match}')"
+            )
+            # Return policy violation response instead of generic fallback
+            return get_policy_violation_response(), True
+
         # Parse JSON with robust extraction
         try:
             parsed_result = _extract_json_from_text(response_text)
@@ -388,7 +403,7 @@ class RAGPipeline:
                 "model": model,
             }
             logger.info(f"Successfully parsed JSON response from {provider} ({model})")
-            return parsed_result  # type: ignore[no-any-return]
+            return parsed_result, False  # type: ignore[return-value]
 
         except ValueError as extraction_error:
             logger.error(f"JSON extraction failed: {extraction_error}")
@@ -405,7 +420,7 @@ class RAGPipeline:
                         response_text, retrieved_verses
                     )
                     logger.info("Post-processing fallback succeeded")
-                    return fallback_result  # type: ignore[no-any-return]
+                    return fallback_result, False  # type: ignore[return-value]
                 except Exception as pp_error:
                     logger.error(f"Post-processing fallback also failed: {pp_error}")
                     raise Exception(
@@ -786,7 +801,7 @@ class RAGPipeline:
 
     def run(
         self, case_data: Dict[str, Any], top_k: Optional[int] = None
-    ) -> Dict[str, Any]:
+    ) -> Tuple[Dict[str, Any], bool]:
         """
         Run complete RAG pipeline with graceful degradation.
 
@@ -795,16 +810,17 @@ class RAGPipeline:
             top_k: Number of verses to retrieve (optional)
 
         Returns:
-            Complete consulting brief (or fallback response)
+            Tuple of (consulting brief dict, is_policy_violation bool)
 
         Notes:
             - If verse retrieval fails, uses fallback with no sources
             - If LLM fails, returns fallback response
+            - If LLM refuses (policy violation), returns educational response
             - Always returns a valid response structure
         """
         logger.info(f"Running RAG pipeline for case: {case_data.get('title', 'N/A')}")
 
-        retrieved_verses = []
+        retrieved_verses: List[Dict[str, Any]] = []
 
         # Step 1: Retrieve relevant verses (with fallback)
         try:
@@ -832,19 +848,25 @@ class RAGPipeline:
             logger.error(f"Context construction failed: {e}")
             return self._create_fallback_response(
                 case_data, "Failed to construct prompt"
-            )
+            ), False
 
         # Step 3: Generate brief with LLM (with fallback)
         try:
-            output = self.generate_brief(
+            output, is_policy_violation = self.generate_brief(
                 prompt,
                 fallback_prompt=fallback_prompt,
                 fallback_system=OLLAMA_SYSTEM_PROMPT,
                 retrieved_verses=retrieved_verses,
             )
+
+            # If policy violation, return early with the educational response
+            if is_policy_violation:
+                logger.info("RAG pipeline completed with policy violation response")
+                return output, True
+
         except Exception as e:
             logger.error(f"LLM generation failed: {e}")
-            return self._create_fallback_response(case_data, "LLM unavailable")
+            return self._create_fallback_response(case_data, "LLM unavailable"), False
 
         # Step 4: Validate and enrich
         try:
@@ -859,7 +881,7 @@ class RAGPipeline:
                 validated_output["warning"] = "Generated without verse retrieval"
 
             logger.info("RAG pipeline completed successfully")
-            return validated_output
+            return validated_output, False
 
         except Exception as e:
             logger.error(f"Output validation failed: {e}")
@@ -867,7 +889,7 @@ class RAGPipeline:
             output["confidence"] = 0.3
             output["scholar_flag"] = True
             output["warning"] = "Output validation failed"
-            return output
+            return output, False
 
 
 # Global RAG pipeline instance

@@ -165,8 +165,9 @@ class TestRAGPipelineUnit:
         with patch("services.rag.get_vector_store", return_value=mock_vector_store):
             with patch("services.rag.get_llm_service", return_value=mock_llm_service):
                 pipeline = RAGPipeline()
-                result = pipeline.generate_brief("test prompt")
+                result, is_policy_violation = pipeline.generate_brief("test prompt")
 
+        assert is_policy_violation is False
         assert "executive_summary" in result
         assert "options" in result
         assert len(result["options"]) == 3
@@ -186,8 +187,9 @@ class TestRAGPipelineUnit:
         with patch("services.rag.get_vector_store", return_value=mock_vector_store):
             with patch("services.rag.get_llm_service", return_value=MarkdownLLM()):
                 pipeline = RAGPipeline()
-                result = pipeline.generate_brief("test prompt")
+                result, is_policy_violation = pipeline.generate_brief("test prompt")
 
+        assert is_policy_violation is False
         assert "executive_summary" in result
         assert result["confidence"] == 0.82
 
@@ -242,9 +244,10 @@ class TestRAGPipelineIntegration:
                     mock_session.return_value.close = Mock()
 
                     pipeline = RAGPipeline()
-                    result = pipeline.run(SAMPLE_CASE)
+                    result, is_policy_violation = pipeline.run(SAMPLE_CASE)
 
         # Verify result structure
+        assert is_policy_violation is False
         assert "executive_summary" in result
         assert "options" in result
         assert "recommended_action" in result
@@ -264,9 +267,10 @@ class TestRAGPipelineIntegration:
         with patch("services.rag.get_vector_store", return_value=FailingVectorStore()):
             with patch("services.rag.get_llm_service", return_value=mock_llm_service):
                 pipeline = RAGPipeline()
-                result = pipeline.run(SAMPLE_CASE)
+                result, is_policy_violation = pipeline.run(SAMPLE_CASE)
 
         # Should still return a valid response
+        assert is_policy_violation is False
         assert "executive_summary" in result
         # Should be flagged as degraded
         assert result.get("scholar_flag", False) is True or result.get("confidence", 1.0) <= 0.5
@@ -285,9 +289,10 @@ class TestRAGPipelineIntegration:
                     mock_session.return_value.close = Mock()
 
                     pipeline = RAGPipeline()
-                    result = pipeline.run(SAMPLE_CASE)
+                    result, is_policy_violation = pipeline.run(SAMPLE_CASE)
 
-        # Should return fallback response
+        # Should return fallback response (not policy violation, just failure)
+        assert is_policy_violation is False
         assert "executive_summary" in result
         assert result["scholar_flag"] is True
         assert result["confidence"] < 0.5
@@ -303,12 +308,58 @@ class TestRAGPipelineIntegration:
         with patch("services.rag.get_vector_store", return_value=EmptyVectorStore()):
             with patch("services.rag.get_llm_service", return_value=mock_llm_service):
                 pipeline = RAGPipeline()
-                result = pipeline.run(SAMPLE_CASE)
+                result, is_policy_violation = pipeline.run(SAMPLE_CASE)
 
-        # Should complete with warning
+        # Should complete with warning (not policy violation)
+        assert is_policy_violation is False
         assert "executive_summary" in result
         # Should flag low confidence
         assert result.get("warning") == "Generated without verse retrieval" or result["confidence"] <= 0.5
+
+
+class TestLLMRefusalDetection:
+    """Tests for LLM refusal detection (content policy violations)."""
+
+    def test_detects_llm_refusal_response(self, mock_vector_store):
+        """Test that LLM refusal is detected and returns policy violation response."""
+        from services.rag import RAGPipeline
+
+        class RefusingLLM:
+            def generate(self, **kwargs):
+                return {
+                    "response": "I can't assist with this request as it contains inappropriate content.",
+                    "provider": "mock",
+                }
+
+        with patch("services.rag.get_vector_store", return_value=mock_vector_store):
+            with patch("services.rag.get_llm_service", return_value=RefusingLLM()):
+                with patch("services.rag.SessionLocal") as mock_session:
+                    mock_session.return_value.close = Mock()
+                    pipeline = RAGPipeline()
+                    result, is_policy_violation = pipeline.run(SAMPLE_CASE)
+
+        # Should detect as policy violation
+        assert is_policy_violation is True
+        assert result.get("policy_violation") is True
+        assert result["confidence"] == 0.0
+        assert "executive_summary" in result
+
+    def test_normal_response_not_flagged_as_refusal(self, mock_vector_store, mock_llm_service):
+        """Test that normal responses are not flagged as refusals."""
+        from services.rag import RAGPipeline
+
+        with patch("services.rag.get_vector_store", return_value=mock_vector_store):
+            with patch("services.rag.get_llm_service", return_value=mock_llm_service):
+                with patch("services.rag.SessionLocal") as mock_session:
+                    mock_session.return_value.__enter__ = Mock(return_value=MagicMock())
+                    mock_session.return_value.__exit__ = Mock(return_value=None)
+                    mock_session.return_value.close = Mock()
+
+                    pipeline = RAGPipeline()
+                    result, is_policy_violation = pipeline.run(SAMPLE_CASE)
+
+        assert is_policy_violation is False
+        assert result.get("policy_violation") is not True
 
 
 class TestPromptConstruction:

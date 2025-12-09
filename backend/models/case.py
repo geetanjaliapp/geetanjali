@@ -17,6 +17,7 @@ class CaseStatus(str, enum.Enum):
     PROCESSING = "processing"
     COMPLETED = "completed"
     FAILED = "failed"
+    POLICY_VIOLATION = "policy_violation"
 
 
 class Case(Base, TimestampMixin):
