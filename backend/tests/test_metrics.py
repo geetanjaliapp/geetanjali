@@ -97,8 +97,10 @@ class TestMetricsCollector:
     @patch("services.metrics_collector.get_redis_client")
     @patch("services.metrics_collector.redis_connections")
     @patch("services.metrics_collector.redis_memory_usage_percent")
+    @patch("services.metrics_collector.queue_depth")
+    @patch("services.metrics_collector.worker_count")
     def test_collect_redis_metrics_sets_gauges(
-        self, mock_memory, mock_connections, mock_redis
+        self, mock_worker, mock_queue, mock_memory, mock_connections, mock_redis
     ):
         """Test that Redis metrics are properly collected."""
         mock_client = MagicMock()
@@ -108,17 +110,23 @@ class TestMetricsCollector:
             "used_memory": 1000000,
             "maxmemory": 10000000,
         }
+        mock_client.llen.return_value = 3
+        mock_client.smembers.return_value = {"worker1", "worker2"}
 
         _collect_redis_metrics()
 
         mock_connections.set.assert_called_once_with(5)
         mock_memory.set.assert_called_once_with(10.0)  # 10% usage
+        mock_queue.set.assert_called_once_with(3)
+        mock_worker.set.assert_called_once_with(2)
 
     @patch("services.metrics_collector.get_redis_client")
     @patch("services.metrics_collector.redis_connections")
     @patch("services.metrics_collector.redis_memory_usage_percent")
+    @patch("services.metrics_collector.queue_depth")
+    @patch("services.metrics_collector.worker_count")
     def test_collect_redis_metrics_handles_no_maxmemory(
-        self, mock_memory, mock_connections, mock_redis
+        self, mock_worker, mock_queue, mock_memory, mock_connections, mock_redis
     ):
         """Test Redis metrics when maxmemory is not set."""
         mock_client = MagicMock()
@@ -128,6 +136,8 @@ class TestMetricsCollector:
             "used_memory": 500000,
             "maxmemory": 0,
         }
+        mock_client.llen.return_value = 0
+        mock_client.smembers.return_value = set()
 
         _collect_redis_metrics()
 
@@ -137,8 +147,10 @@ class TestMetricsCollector:
     @patch("services.metrics_collector.get_redis_client")
     @patch("services.metrics_collector.redis_connections")
     @patch("services.metrics_collector.redis_memory_usage_percent")
+    @patch("services.metrics_collector.queue_depth")
+    @patch("services.metrics_collector.worker_count")
     def test_collect_redis_metrics_handles_unavailable_redis(
-        self, mock_memory, mock_connections, mock_redis
+        self, mock_worker, mock_queue, mock_memory, mock_connections, mock_redis
     ):
         """Test Redis metrics when Redis is unavailable."""
         mock_redis.return_value = None
@@ -147,12 +159,16 @@ class TestMetricsCollector:
 
         mock_connections.set.assert_called_once_with(0)
         mock_memory.set.assert_called_once_with(0)
+        mock_queue.set.assert_called_once_with(0)
+        mock_worker.set.assert_called_once_with(0)
 
     @patch("services.metrics_collector.get_redis_client")
     @patch("services.metrics_collector.redis_connections")
     @patch("services.metrics_collector.redis_memory_usage_percent")
+    @patch("services.metrics_collector.queue_depth")
+    @patch("services.metrics_collector.worker_count")
     def test_collect_redis_metrics_handles_exception(
-        self, mock_memory, mock_connections, mock_redis
+        self, mock_worker, mock_queue, mock_memory, mock_connections, mock_redis
     ):
         """Test Redis metrics when an exception occurs."""
         mock_client = MagicMock()
@@ -164,6 +180,8 @@ class TestMetricsCollector:
 
         mock_connections.set.assert_called_with(0)
         mock_memory.set.assert_called_with(0)
+        mock_queue.set.assert_called_with(0)
+        mock_worker.set.assert_called_with(0)
 
 
 class TestMetricsScheduler:

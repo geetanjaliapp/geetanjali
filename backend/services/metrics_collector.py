@@ -22,6 +22,8 @@ from utils.metrics import (
     active_users_24h,
     redis_connections,
     redis_memory_usage_percent,
+    queue_depth,
+    worker_count,
 )
 
 logger = logging.getLogger(__name__)
@@ -91,6 +93,8 @@ def _collect_redis_metrics() -> None:
     if not client:
         redis_connections.set(0)
         redis_memory_usage_percent.set(0)
+        queue_depth.set(0)
+        worker_count.set(0)
         return
 
     try:
@@ -110,11 +114,23 @@ def _collect_redis_metrics() -> None:
             # No maxmemory set, report 0
             redis_memory_usage_percent.set(0)
 
+        # RQ Queue depth (jobs waiting in default queue)
+        queue_len = client.llen("rq:queue:default") or 0
+        queue_depth.set(queue_len)
+
+        # RQ Worker count (active workers)
+        workers = client.smembers("rq:workers") or set()
+        active_workers = len(workers)
+        worker_count.set(active_workers)
+
         logger.debug(
             f"Redis metrics: connections={connected_clients}, "
-            f"memory_used={used_memory}, maxmemory={maxmemory}"
+            f"memory_used={used_memory}, maxmemory={maxmemory}, "
+            f"queue_depth={queue_len}, workers={active_workers}"
         )
     except Exception as e:
         logger.error(f"Failed to collect Redis metrics: {e}")
         redis_connections.set(0)
         redis_memory_usage_percent.set(0)
+        queue_depth.set(0)
+        worker_count.set(0)

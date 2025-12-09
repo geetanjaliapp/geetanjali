@@ -40,6 +40,17 @@ redis_memory_usage_percent = Gauge(
     "Redis memory usage as percentage of maxmemory",
 )
 
+# Worker/Queue Metrics
+queue_depth = Gauge(
+    "geetanjali_queue_depth",
+    "Number of jobs in the RQ queue",
+)
+
+worker_count = Gauge(
+    "geetanjali_worker_count",
+    "Number of active RQ workers",
+)
+
 # Error Metrics
 api_errors_total = Counter(
     "geetanjali_api_errors_total",
