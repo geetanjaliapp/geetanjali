@@ -193,5 +193,5 @@ Key test cases:
 
 ## Related
 
-- [Security Guide](SECURITY.md) - Infrastructure security
+- [Security Guide](security.md) - Infrastructure security
 - [Building Geetanjali](building-geetanjali.md) - Architecture overview

@@ -157,6 +157,14 @@ All environment variables with defaults. Only override what you need.
 | `SENTRY_DSN` | - | Sentry error tracking DSN |
 | `SENTRY_TRACES_SAMPLE_RATE` | 0.1 | Performance sampling rate (0-1) |
 
+### Sharing & Cache
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PUBLIC_CASE_EXPIRY_DAYS` | 90 | Days until shared links expire (0 = never) |
+| `CACHE_TTL_PUBLIC_CASE` | 3600 | Redis cache TTL for public cases (seconds) |
+| `CACHE_TTL_PUBLIC_CASE_HTTP` | 60 | HTTP cache header for public cases (seconds) |
+
 ### Email (Optional)
 
 | Variable | Default | Description |
