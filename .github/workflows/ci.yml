@@ -51,6 +51,17 @@ jobs:
         run: mypy . --ignore-missing-imports
         continue-on-error: false
 
+      - name: Security scan (bandit)
+        run: |
+          pip install bandit
+          bandit -r . -x ./tests,./alembic --severity-level medium -f txt
+
+      - name: Dependency vulnerability check (safety)
+        run: |
+          pip install safety
+          safety check --full-report || true
+        continue-on-error: true
+
       - name: Run tests
         env:
           DATABASE_URL: postgresql://test:test@localhost:5432/geetanjali_test
