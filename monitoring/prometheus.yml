@@ -12,11 +12,8 @@ scrape_configs:
       - targets: ['backend:8000']
     metrics_path: /metrics
 
-  # Worker metrics (if exposing metrics)
-  - job_name: 'worker'
-    static_configs:
-      - targets: ['worker:8000']
-    metrics_path: /metrics
+  # Note: Worker is an RQ job processor without HTTP server
+  # Worker health is monitored via Redis queue metrics from backend
 
   # Prometheus self-monitoring
   - job_name: 'prometheus'

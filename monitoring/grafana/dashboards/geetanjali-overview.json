@@ -665,14 +665,13 @@
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
-          "mappings": [
-            { "options": { "0": { "color": "red", "index": 1, "text": "DOWN" }, "1": { "color": "green", "index": 0, "text": "UP" } }, "type": "value" }
-          ],
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "red", "value": null },
-              { "color": "green", "value": 1 }
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 10 },
+              { "color": "red", "value": 50 }
             ]
           },
           "unit": "short"
@@ -681,8 +680,8 @@
       "gridPos": { "h": 4, "w": 6, "x": 18, "y": 28 },
       "id": 20,
       "options": {
-        "colorMode": "background",
-        "graphMode": "none",
+        "colorMode": "value",
+        "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
@@ -692,11 +691,11 @@
         },
         "textMode": "auto"
       },
-      "title": "Worker Health",
+      "title": "Queue Depth",
       "type": "stat",
       "targets": [
         {
-          "expr": "up{job=\"worker\"}",
+          "expr": "geetanjali_queue_depth",
           "refId": "A"
         }
       ]
