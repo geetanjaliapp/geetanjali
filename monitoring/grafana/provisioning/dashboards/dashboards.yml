@@ -1,0 +1,13 @@
+# Grafana Dashboard Provisioning
+# Auto-loads dashboards from the dashboards directory
+
+apiVersion: 1
+
+providers:
+  - name: 'Geetanjali'
+    folder: 'Geetanjali'
+    type: file
+    disableDeletion: true
+    updateIntervalSeconds: 30
+    options:
+      path: /var/lib/grafana/dashboards

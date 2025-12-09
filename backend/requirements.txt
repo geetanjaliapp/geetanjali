@@ -65,4 +65,9 @@ resend>=2.5.0  # Transactional email service
 
 # Monitoring
 sentry-sdk[fastapi]==2.29.1  # Error tracking and performance monitoring
+prometheus-fastapi-instrumentator==7.1.0  # FastAPI metrics instrumentation
+prometheus-client==0.22.1  # Prometheus client library
+
+# Scheduling
+apscheduler==3.10.4  # Background task scheduler for metrics collection
 

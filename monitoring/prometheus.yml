@@ -1,0 +1,24 @@
+# Prometheus Configuration for Geetanjali
+# Scrapes metrics from backend and worker services
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # Backend FastAPI metrics
+  - job_name: 'backend'
+    static_configs:
+      - targets: ['backend:8000']
+    metrics_path: /metrics
+
+  # Worker metrics (if exposing metrics)
+  - job_name: 'worker'
+    static_configs:
+      - targets: ['worker:8000']
+    metrics_path: /metrics
+
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']

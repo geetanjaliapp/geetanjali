@@ -8,9 +8,13 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
+from prometheus_fastapi_instrumentator import Instrumentator
+
 from config import settings
 from utils.logging import setup_logging
 from utils.sentry import init_sentry
+from utils.metrics_scheduler import start_metrics_scheduler, stop_metrics_scheduler
+from services.metrics_collector import collect_metrics
 
 # Initialize Sentry before anything else (captures startup errors)
 init_sentry(service_name="backend")
@@ -96,6 +100,9 @@ app.include_router(sitemap.router, tags=["SEO"])
 app.include_router(feed.router, tags=["SEO"])
 app.include_router(experiments.router, tags=["Experiments"])
 
+# Prometheus metrics instrumentation (excludes /metrics from instrumentation)
+Instrumentator().instrument(app).expose(app, include_in_schema=False)
+
 logger.info(f"Starting {settings.APP_NAME} in {settings.APP_ENV} mode")
 
 
@@ -117,12 +124,17 @@ async def startup_event():
     # Run blocking I/O in a thread pool to avoid blocking event loop
     loop = asyncio.get_event_loop()
     loop.run_in_executor(None, load_vector_store_sync)
+
+    # Start metrics scheduler (collects business metrics every 60s)
+    start_metrics_scheduler(collect_metrics, interval_seconds=60)
+
     logger.info("Application startup complete")
 
 
 @app.on_event("shutdown")
 async def shutdown_event():
     """Run on application shutdown."""
+    stop_metrics_scheduler()
     logger.info("Application shutdown")
 
 
