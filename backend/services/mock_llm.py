@@ -259,7 +259,7 @@ class MockLLMService:
 
         # Add slight variations to make responses feel less canned
         # This helps with testing different scenarios
-        prompt_hash = hashlib.md5(prompt.encode()).hexdigest()[:4]
+        prompt_hash = hashlib.md5(prompt.encode(), usedforsecurity=False).hexdigest()[:4]
 
         # Vary confidence slightly based on prompt hash
         base_confidence = response.get("confidence", 0.85)

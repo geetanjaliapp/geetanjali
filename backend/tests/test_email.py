@@ -1,6 +1,5 @@
 """Tests for email service."""
 
-import pytest
 from unittest.mock import patch, MagicMock
 
 
@@ -14,6 +13,7 @@ class TestEmailService:
 
             # Reset global client
             import services.email
+
             services.email._resend_client = None
 
             result = services.email._get_resend()

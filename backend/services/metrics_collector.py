@@ -82,9 +82,7 @@ def _collect_business_metrics() -> None:
         # Active users in last 24 hours
         yesterday = datetime.utcnow() - timedelta(hours=24)
         active_count = (
-            db.query(func.count(User.id))
-            .filter(User.last_login >= yesterday)
-            .scalar()
+            db.query(func.count(User.id)).filter(User.last_login >= yesterday).scalar()
             or 0
         )
         active_users_24h.set(active_count)
@@ -158,13 +156,15 @@ def _collect_postgres_metrics() -> None:
 
         # Active and idle connections from pg_stat_activity
         result = db.execute(
-            text("""
+            text(
+                """
                 SELECT
                     COUNT(*) FILTER (WHERE state = 'active') as active,
                     COUNT(*) FILTER (WHERE state = 'idle') as idle
                 FROM pg_stat_activity
                 WHERE datname = current_database()
-            """)
+            """
+            )
         ).fetchone()
 
         active_conns = result[0] if result else 0
@@ -196,10 +196,7 @@ def _collect_ollama_metrics() -> None:
     """Collect Ollama/LLM infrastructure metrics."""
     try:
         # Check Ollama health and get loaded models
-        response = httpx.get(
-            f"{settings.OLLAMA_BASE_URL}/api/tags",
-            timeout=5.0
-        )
+        response = httpx.get(f"{settings.OLLAMA_BASE_URL}/api/tags", timeout=5.0)
 
         if response.status_code == 200:
             ollama_up.set(1)
@@ -227,8 +224,7 @@ def _collect_chromadb_metrics() -> None:
 
         # Check ChromaDB heartbeat (using v2 API)
         response = httpx.get(
-            f"http://{chroma_host}:{chroma_port}/api/v2/heartbeat",
-            timeout=5.0
+            f"http://{chroma_host}:{chroma_port}/api/v2/heartbeat", timeout=5.0
         )
 
         if response.status_code == 200:
@@ -238,7 +234,7 @@ def _collect_chromadb_metrics() -> None:
             try:
                 collections_response = httpx.get(
                     f"http://{chroma_host}:{chroma_port}/api/v2/tenants/default_tenant/databases/default_database/collections",
-                    timeout=5.0
+                    timeout=5.0,
                 )
                 if collections_response.status_code == 200:
                     collections = collections_response.json()
@@ -247,9 +243,11 @@ def _collect_chromadb_metrics() -> None:
                         if coll.get("name") == settings.CHROMA_COLLECTION_NAME:
                             # Get collection count via API
                             coll_id = coll.get("id")
+                            base = f"http://{chroma_host}:{chroma_port}"
+                            path = f"/api/v2/tenants/default_tenant/databases/default_database/collections/{coll_id}/count"
                             count_response = httpx.get(
-                                f"http://{chroma_host}:{chroma_port}/api/v2/tenants/default_tenant/databases/default_database/collections/{coll_id}/count",
-                                timeout=5.0
+                                f"{base}{path}",
+                                timeout=5.0,
                             )
                             if count_response.status_code == 200:
                                 chromadb_collection_count.set(count_response.json())

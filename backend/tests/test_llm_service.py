@@ -1,7 +1,7 @@
 """Tests for LLM service."""
 
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 
 class TestLLMService:
@@ -110,6 +110,7 @@ class TestLLMService:
 
             # Reset singleton
             import services.llm
+
             services.llm._llm_service = None
 
             from services.llm import get_llm_service

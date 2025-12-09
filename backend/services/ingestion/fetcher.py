@@ -64,7 +64,7 @@ class Fetcher:
         Raises:
             requests.RequestException: If fetch fails after retries
         """
-        cache_key = hashlib.md5(url.encode()).hexdigest()
+        cache_key = hashlib.md5(url.encode(), usedforsecurity=False).hexdigest()
         cache_file = self.cache_dir / f"{cache_key}.cache"
 
         # Check cache unless force_refresh
@@ -129,7 +129,7 @@ class Fetcher:
             int: Number of cache files deleted
         """
         if url:
-            cache_key = hashlib.md5(url.encode()).hexdigest()
+            cache_key = hashlib.md5(url.encode(), usedforsecurity=False).hexdigest()
             cache_file = self.cache_dir / f"{cache_key}.cache"
             if cache_file.exists():
                 cache_file.unlink()

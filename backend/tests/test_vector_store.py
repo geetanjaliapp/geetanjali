@@ -1,7 +1,8 @@
 """Tests for vector store service."""
 
 import pytest
-from unittest.mock import patch, MagicMock
+import uuid
+from unittest.mock import patch
 
 
 class TestVectorStore:
@@ -9,12 +10,14 @@ class TestVectorStore:
 
     @pytest.fixture
     def mock_settings(self):
-        """Mock settings for tests."""
+        """Mock settings for tests with unique collection name."""
+        # Use unique collection name per test to avoid state isolation issues
+        collection_name = f"test_verses_{uuid.uuid4().hex[:8]}"
         with patch("services.vector_store.settings") as mock:
             mock.CHROMA_HOST = None  # Use local client
             mock.CHROMA_PORT = 8000
             mock.CHROMA_PERSIST_DIRECTORY = ":memory:"
-            mock.CHROMA_COLLECTION_NAME = "test_verses"
+            mock.CHROMA_COLLECTION_NAME = collection_name
             mock.EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
             mock.CHROMA_MAX_RETRIES = 3
             mock.CHROMA_RETRY_MIN_WAIT = 1
@@ -162,7 +165,7 @@ class TestVectorStore:
         store.add_verses_batch(
             canonical_ids=["BG_1", "BG_2", "BG_3"],
             texts=["One", "Two", "Three"],
-            metadatas=[{}, {}, {}],
+            metadatas=[{"index": 1}, {"index": 2}, {"index": 3}],
         )
 
         assert store.count() == 3
@@ -175,6 +178,7 @@ class TestVectorStore:
         """Test get_vector_store returns singleton."""
         # Reset singleton
         import services.vector_store
+
         services.vector_store._vector_store = None
 
         from services.vector_store import get_vector_store

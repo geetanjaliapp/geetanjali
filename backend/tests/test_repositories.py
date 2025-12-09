@@ -1,13 +1,11 @@
 """Tests for database repositories."""
 
-import pytest
 import uuid
 from datetime import datetime, timedelta
 
 from db.repositories.case_repository import CaseRepository
 from db.repositories.user_repository import UserRepository
 from models.case import Case, CaseStatus
-from models.user import User
 
 
 class TestCaseRepository:
@@ -42,7 +40,7 @@ class TestCaseRepository:
             "description": "Test description",
         }
 
-        created_case = repo.create(case_data)
+        repo.create(case_data)
         retrieved_case = repo.get(case_id)
 
         assert retrieved_case is not None
@@ -56,13 +54,15 @@ class TestCaseRepository:
         session_id = str(uuid.uuid4())
 
         # Create case for session
-        repo.create({
-            "id": str(uuid.uuid4()),
-            "title": "Session Case",
-            "description": "Test",
-            "session_id": session_id,
-            "user_id": None,
-        })
+        repo.create(
+            {
+                "id": str(uuid.uuid4()),
+                "title": "Session Case",
+                "description": "Test",
+                "session_id": session_id,
+                "user_id": None,
+            }
+        )
 
         cases = repo.get_by_session(session_id)
 
@@ -74,13 +74,15 @@ class TestCaseRepository:
         repo = CaseRepository(db_session)
 
         slug = "test123abc"
-        repo.create({
-            "id": str(uuid.uuid4()),
-            "title": "Public Case",
-            "description": "Test",
-            "public_slug": slug,
-            "is_public": True,
-        })
+        repo.create(
+            {
+                "id": str(uuid.uuid4()),
+                "title": "Public Case",
+                "description": "Test",
+                "public_slug": slug,
+                "is_public": True,
+            }
+        )
 
         case = repo.get_by_public_slug(slug)
 
@@ -93,12 +95,14 @@ class TestCaseRepository:
         repo = CaseRepository(db_session)
 
         case_id = str(uuid.uuid4())
-        repo.create({
-            "id": case_id,
-            "title": "To Delete",
-            "description": "Test",
-            "is_public": True,
-        })
+        repo.create(
+            {
+                "id": case_id,
+                "title": "To Delete",
+                "description": "Test",
+                "is_public": True,
+            }
+        )
 
         deleted_case = repo.soft_delete(case_id)
 
@@ -112,21 +116,26 @@ class TestCaseRepository:
 
         # Create user
         user_id = str(uuid.uuid4())
-        user_repo.create({
-            "id": user_id,
-            "email": "test@example.com",
-            "password_hash": "hash123",
-        })
+        user_repo.create(
+            {
+                "id": user_id,
+                "email": "test@example.com",
+                "name": "Test User",
+                "password_hash": "hash123",
+            }
+        )
 
         # Create session case
         session_id = str(uuid.uuid4())
-        case_repo.create({
-            "id": str(uuid.uuid4()),
-            "title": "Session Case",
-            "description": "Test",
-            "session_id": session_id,
-            "user_id": None,
-        })
+        case_repo.create(
+            {
+                "id": str(uuid.uuid4()),
+                "title": "Session Case",
+                "description": "Test",
+                "session_id": session_id,
+                "user_id": None,
+            }
+        )
 
         # Migrate
         count = case_repo.migrate_session_to_user(session_id, user_id)
@@ -178,6 +187,7 @@ class TestUserRepository:
         user_data = {
             "id": str(uuid.uuid4()),
             "email": "test@example.com",
+            "name": "Test User",
             "password_hash": "hashed_password_123",
         }
 
@@ -191,11 +201,14 @@ class TestUserRepository:
         repo = UserRepository(db_session)
 
         email = "unique@example.com"
-        repo.create({
-            "id": str(uuid.uuid4()),
-            "email": email,
-            "password_hash": "hash",
-        })
+        repo.create(
+            {
+                "id": str(uuid.uuid4()),
+                "email": email,
+                "name": "Unique User",
+                "password_hash": "hash",
+            }
+        )
 
         user = repo.get_by_email(email)
 
