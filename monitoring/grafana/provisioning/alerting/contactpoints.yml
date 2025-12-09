@@ -10,6 +10,6 @@ contactPoints:
       - uid: email-primary
         type: email
         settings:
-          addresses: $__env{GRAFANA_ALERT_EMAIL_TO}
+          addresses: viks@vnykmshr.com
           singleEmail: true
         disableResolveMessage: false
