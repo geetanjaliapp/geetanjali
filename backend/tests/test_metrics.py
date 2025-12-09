@@ -300,23 +300,37 @@ class TestMetricsCollector:
 class TestMetricsScheduler:
     """Tests for the metrics scheduler."""
 
-    @patch("utils.metrics_scheduler._scheduler")
-    def test_start_metrics_scheduler(self, mock_scheduler):
+    @patch("utils.metrics_scheduler.BackgroundScheduler")
+    def test_start_metrics_scheduler(self, mock_scheduler_class):
         """Test that scheduler starts correctly."""
-        from utils.metrics_scheduler import start_metrics_scheduler
+        import utils.metrics_scheduler as scheduler_module
+
+        # Reset module state
+        scheduler_module.scheduler = None
+
+        mock_scheduler_instance = MagicMock()
+        mock_scheduler_class.return_value = mock_scheduler_instance
 
         mock_func = MagicMock()
-        start_metrics_scheduler(mock_func, interval_seconds=60)
+        scheduler_module.start_metrics_scheduler(mock_func, interval_seconds=60)
 
-        # Scheduler should be started
-        mock_scheduler.start.assert_called_once()
+        # Scheduler should be created and started
+        mock_scheduler_class.assert_called_once()
+        mock_scheduler_instance.add_job.assert_called_once()
+        mock_scheduler_instance.start.assert_called_once()
 
-    @patch("utils.metrics_scheduler._scheduler")
-    def test_stop_metrics_scheduler(self, mock_scheduler):
+        # Cleanup
+        scheduler_module.scheduler = None
+
+    @patch("utils.metrics_scheduler.BackgroundScheduler")
+    def test_stop_metrics_scheduler(self, mock_scheduler_class):
         """Test that scheduler stops correctly."""
-        from utils.metrics_scheduler import stop_metrics_scheduler
+        import utils.metrics_scheduler as scheduler_module
 
-        mock_scheduler.running = True
-        stop_metrics_scheduler()
+        mock_scheduler_instance = MagicMock()
+        scheduler_module.scheduler = mock_scheduler_instance
 
-        mock_scheduler.shutdown.assert_called_once()
+        scheduler_module.stop_metrics_scheduler()
+
+        mock_scheduler_instance.shutdown.assert_called_once_with(wait=False)
+        assert scheduler_module.scheduler is None
