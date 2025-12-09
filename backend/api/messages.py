@@ -1,8 +1,9 @@
 """Message API endpoints for conversation threading."""
 
+import logging
 from typing import List
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from api.schemas import MessageCreate, ChatMessageResponse
@@ -10,6 +11,9 @@ from api.dependencies import get_case_with_access
 from db.connection import get_db
 from db.repositories.message_repository import MessageRepository
 from models.case import Case
+from services.content_filter import validate_submission_content, ContentPolicyError
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -43,6 +47,22 @@ def create_message(
 
     This adds a message to the conversation thread. The frontend
     should then trigger analysis to generate an assistant response.
+
+    Raises:
+        HTTPException 422: If content violates content policy (blocklist)
     """
+    # Layer 1: Pre-submission content filter for follow-up messages
+    try:
+        validate_submission_content("", message.content)
+    except ContentPolicyError as e:
+        logger.warning(
+            f"Content policy violation in follow-up message (type={e.violation_type.value})",
+            extra={"violation_type": e.violation_type.value, "case_id": case.id},
+        )
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=e.message,
+        )
+
     message_repo = MessageRepository(db)
     return message_repo.create_user_message(case_id=case.id, content=message.content)

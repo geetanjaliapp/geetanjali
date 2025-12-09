@@ -15,7 +15,7 @@ function StatusBadge({ status }: { status?: CaseStatus }) {
     return <span className="px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-700">Completed</span>;
   }
   if (status === 'policy_violation') {
-    return <span className="px-2 py-0.5 text-xs rounded-full bg-amber-100 text-amber-700">Completed</span>;
+    return <span className="px-2 py-0.5 text-xs rounded-full bg-amber-100 text-amber-700">Unable to Process</span>;
   }
   if (status === 'processing' || status === 'pending') {
     return (
@@ -230,7 +230,8 @@ export default function Consultations() {
               <div className="space-y-3 sm:space-y-4">
                 {cases.map((case_) => {
                   const isCompleted = !case_.status || case_.status === 'completed' || case_.status === 'policy_violation';
-                  const canShare = isCompleted;
+                  // Don't allow sharing policy_violation cases - educational responses aren't meant to be shared
+                  const canShare = isCompleted && case_.status !== 'policy_violation';
 
                   return (
                     <div

@@ -80,7 +80,9 @@ _EXPLICIT_VIOLENCE_PATTERNS = [
 _SPAM_PATTERNS = [
     r"(.)\1{10,}",  # Same character repeated 10+ times
     r"^[^a-zA-Z]{20,}$",  # 20+ chars with no letters (gibberish numbers/symbols)
+    r"[^a-zA-Z\s]{30,}",  # 30+ consecutive non-letter chars anywhere in text
     r"(https?://\S+\s*){5,}",  # 5+ URLs in sequence (link spam)
+    r"([a-zA-Z])\1{5,}",  # Same letter repeated 6+ times (aaaaaaa, bbbbbbb)
 ]
 
 # Compile all patterns for performance
@@ -170,6 +172,12 @@ _LLM_REFUSAL_PATTERNS = [
     r"not (?:able|willing|going) to (?:assist|help|provide|engage) with (?:this|that|such)",
     r"(?:outside|beyond) (?:my|the) (?:scope|boundaries|capabilities)",
     r"I (?:must|need to) (?:decline|refuse|respectfully decline)",
+    # Additional Claude-specific patterns
+    r"I apologize,? but I (?:can't|cannot|won't)",
+    r"I'm designed to (?:be helpful|assist),? (?:but|however) I (?:can't|cannot)",
+    r"I don't (?:feel comfortable|think I should) (?:assist|help|provide)",
+    r"(?:ethically|safely) (?:unable|cannot) to (?:assist|help|provide)",
+    r"not something I(?:'m able| can) (?:to )?(?:help|assist) with",
 ]
 
 _COMPILED_REFUSAL: List[Pattern[str]] = [

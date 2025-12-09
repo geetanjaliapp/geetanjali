@@ -114,3 +114,46 @@ def test_messages_ordered_chronologically(client, case_with_message):
     # Verify chronological order by created_at
     timestamps = [m["created_at"] for m in messages]
     assert timestamps == sorted(timestamps)
+
+
+def test_create_message_with_explicit_content_rejected(client, case_with_message):
+    """Test that explicit content in follow-up messages is rejected (Layer 1)."""
+    case_id = case_with_message["id"]
+
+    # Try to post explicit content in follow-up
+    response = client.post(
+        f"/api/v1/cases/{case_id}/messages",
+        json={"content": "How do I fuck up my career decisions?"},
+    )
+
+    # Should be rejected with 422
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+    assert "detail" in response.json()
+    # Should contain educational message
+    assert "Geetanjali" in response.json()["detail"]
+
+
+def test_create_message_with_violent_content_rejected(client, case_with_message):
+    """Test that violent content in follow-up messages is rejected."""
+    case_id = case_with_message["id"]
+
+    response = client.post(
+        f"/api/v1/cases/{case_id}/messages",
+        json={"content": "How do I kill someone who wronged me?"},
+    )
+
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+    assert "detail" in response.json()
+
+
+def test_create_message_with_spam_content_rejected(client, case_with_message):
+    """Test that spam/gibberish content in follow-up messages is rejected."""
+    case_id = case_with_message["id"]
+
+    # Very long repeated character sequence
+    response = client.post(
+        f"/api/v1/cases/{case_id}/messages",
+        json={"content": "a" * 50},  # 50 repeated characters
+    )
+
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY

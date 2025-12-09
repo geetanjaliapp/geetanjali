@@ -71,15 +71,18 @@ export default function CaseView() {
   // Status-based flags for action visibility
   const isProcessing = caseData?.status === 'pending' || caseData?.status === 'processing';
   const isFailed = caseData?.status === 'failed';
-  const isCompleted = caseData?.status === 'completed' || caseData?.status === 'policy_violation' || !caseData?.status;
+  const isPolicyViolation = caseData?.status === 'policy_violation';
+  const isCompleted = caseData?.status === 'completed' || isPolicyViolation || !caseData?.status;
 
   // Action visibility based on status
   const canSave = isCompleted && outputs.length > 0;
-  const canShare = isCompleted && outputs.length > 0;
+  // Don't allow sharing policy_violation cases - educational responses aren't meant to be shared
+  const canShare = isCompleted && outputs.length > 0 && !isPolicyViolation;
   const canDelete = true;
 
-  // Follow-up input visibility: show when completed OR during follow-up processing (has outputs)
-  const showFollowUpInput = isCompleted || (isProcessing && outputs.length > 0);
+  // Follow-up input visibility: show when completed (but not policy_violation) OR during follow-up processing
+  // Policy violations don't allow follow-ups since the case can't be processed further
+  const showFollowUpInput = (isCompleted && !isPolicyViolation) || (isProcessing && outputs.length > 0);
   // Follow-up is being processed (for inline thinking indicator)
   const isFollowUpProcessing = isProcessing && outputs.length > 0;
 
@@ -308,8 +311,17 @@ export default function CaseView() {
     let markdown = `# ${caseData.title}
 
 *Consultation on ${caseData.created_at ? new Date(caseData.created_at).toLocaleDateString() : 'Unknown date'}*
+`;
 
----
+    // Add policy violation notice if applicable
+    if (isPolicyViolation) {
+      markdown += `
+> **Note:** This consultation could not be processed as submitted. The response below contains suggestions for rephrasing your question to receive guidance from the Bhagavad Geeta.
+
+`;
+    }
+
+    markdown += `---
 
 ${messages.map(msg => {
   if (msg.role === 'user') {
@@ -487,21 +499,37 @@ ${messages.map(msg => {
         <div className="max-w-2xl mx-auto px-3 sm:px-4">
           {/* Analysis Complete Banner */}
           {showCompletionBanner && (
-            <div className="mb-6 bg-green-50 border border-green-200 rounded-xl px-4 py-3 flex items-center justify-between animate-in slide-in-from-top-2 duration-300">
+            <div className={`mb-6 rounded-xl px-4 py-3 flex items-center justify-between animate-in slide-in-from-top-2 duration-300 ${
+              isPolicyViolation
+                ? 'bg-amber-50 border border-amber-200'
+                : 'bg-green-50 border border-green-200'
+            }`}>
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                  isPolicyViolation ? 'bg-amber-500' : 'bg-green-500'
+                }`}>
+                  {isPolicyViolation ? (
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  ) : (
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
                 </div>
                 <div>
-                  <p className="text-green-800 font-medium">Analysis Complete</p>
-                  <p className="text-green-600 text-sm">Your guidance is ready below</p>
+                  <p className={isPolicyViolation ? 'text-amber-800 font-medium' : 'text-green-800 font-medium'}>
+                    {isPolicyViolation ? 'Unable to Provide Guidance' : 'Analysis Complete'}
+                  </p>
+                  <p className={isPolicyViolation ? 'text-amber-600 text-sm' : 'text-green-600 text-sm'}>
+                    {isPolicyViolation ? 'See suggestions below for rephrasing your question' : 'Your guidance is ready below'}
+                  </p>
                 </div>
               </div>
               <button
                 onClick={() => setShowCompletionBanner(false)}
-                className="text-green-500 hover:text-green-700"
+                className={isPolicyViolation ? 'text-amber-500 hover:text-amber-700' : 'text-green-500 hover:text-green-700'}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
