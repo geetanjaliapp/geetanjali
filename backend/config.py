@@ -138,6 +138,10 @@ class Settings(BaseSettings):
     CONTACT_EMAIL_TO: Optional[str] = None  # Recipient for contact form - MUST set in .env
     CONTACT_EMAIL_FROM: Optional[str] = None  # Sender address - MUST set in .env (use verified domain)
 
+    # Monitoring (Sentry)
+    SENTRY_DSN: Optional[str] = None  # Set in .env to enable error tracking
+    SENTRY_TRACES_SAMPLE_RATE: float = 0.1  # 10% of requests for performance monitoring
+
     @field_validator(
         # Only apply to truly Optional fields (can be None)
         "ANTHROPIC_API_KEY",
@@ -146,6 +150,7 @@ class Settings(BaseSettings):
         "CONTACT_EMAIL_FROM",
         "REDIS_URL",
         "CHROMA_HOST",
+        "SENTRY_DSN",
         mode="before",
     )
     @classmethod

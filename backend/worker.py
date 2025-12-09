@@ -10,6 +10,10 @@ import sys
 
 from config import settings
 from utils.logging import setup_logging
+from utils.sentry import init_sentry
+
+# Initialize Sentry before anything else (captures startup errors)
+init_sentry(service_name="worker")
 
 # Setup logging
 logger = setup_logging()

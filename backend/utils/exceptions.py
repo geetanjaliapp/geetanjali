@@ -7,6 +7,8 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from sqlalchemy.exc import SQLAlchemyError, OperationalError
 
+from utils.sentry import capture_exception as sentry_capture
+
 logger = logging.getLogger(__name__)
 
 
@@ -77,6 +79,14 @@ async def validation_exception_handler(
 async def general_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     """Handle unexpected exceptions."""
     logger.error(f"Unexpected error: {exc}", exc_info=True)
+
+    # Capture to Sentry with request context
+    sentry_capture(
+        exc,
+        path=str(request.url),
+        method=request.method,
+        correlation_id=getattr(request.state, "correlation_id", None),
+    )
 
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

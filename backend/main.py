@@ -10,6 +10,10 @@ from slowapi.errors import RateLimitExceeded
 
 from config import settings
 from utils.logging import setup_logging
+from utils.sentry import init_sentry
+
+# Initialize Sentry before anything else (captures startup errors)
+init_sentry(service_name="backend")
 from utils.exceptions import (
     GeetanjaliException,
     geetanjali_exception_handler,
@@ -25,7 +29,7 @@ limiter = Limiter(key_func=get_remote_address)
 app = FastAPI(
     title=settings.APP_NAME,
     description="Ethical leadership guidance from the Bhagavad Geeta",
-    version="1.1.0",
+    version="1.4.0",
     debug=settings.DEBUG,
 )
 

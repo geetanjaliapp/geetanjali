@@ -63,3 +63,6 @@ urllib3>=2.5.0  # CVE-2025-50181, CVE-2025-50182 fix
 # Email
 resend>=2.5.0  # Transactional email service
 
+# Monitoring
+sentry-sdk[fastapi]==2.29.1  # Error tracking and performance monitoring
+
