@@ -36,7 +36,7 @@ flake8==7.3.0
 mypy==1.19.0
 types-requests==2.32.4.20250913  # Type stubs for requests
 types-PyYAML==6.0.12.12  # Type stubs for PyYAML
-types-redis==4.6.0.11  # Type stubs for redis
+types-redis==4.6.0.20241004  # Type stubs for redis
 
 # Authentication
 python-jose[cryptography]==3.5.0  # JWT tokens
