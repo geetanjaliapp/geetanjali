@@ -10,6 +10,6 @@ contactPoints:
       - uid: email-primary
         type: email
         settings:
-          addresses: ${GRAFANA_ALERT_EMAIL_TO}
+          addresses: $__env{GRAFANA_ALERT_EMAIL_TO}
           singleEmail: true
         disableResolveMessage: false
