@@ -1,5 +1,9 @@
 services:
   # Ollama LLM (pre-built image, models persist in volume)
+  # Note: Ollama currently requires root for model management and GPU access.
+  # The official ollama/ollama image stores models in /root/.ollama.
+  # Running as non-root would require custom image with different OLLAMA_MODELS path.
+  # Risk mitigated by: internal-only network, no-new-privileges, read-only models.
   ollama:
     image: ollama/ollama:0.13.2
     container_name: geetanjali-ollama
@@ -10,7 +14,13 @@ services:
       # Keep model loaded indefinitely to prevent 404 errors
       # Use "1h" for 1 hour, "24h" for 1 day, or "-1" for forever (never unload)
       OLLAMA_KEEP_ALIVE: "-1"
-    # Security hardening
+    # Security hardening - limit capabilities even though running as root
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETUID
+      - SETGID
     security_opt:
       - no-new-privileges:true
     # Resource limits (Ollama needs more memory for LLM inference)
@@ -31,6 +41,8 @@ services:
     restart: unless-stopped
 
   # PostgreSQL Database
+  # Note: postgres:alpine entrypoint runs as root for initial setup, then drops to 'postgres' user (UID 70)
+  # The actual database process runs as non-root. Using user: directive breaks initialization.
   postgres:
     image: postgres:15-alpine
     container_name: geetanjali-postgres
@@ -41,7 +53,17 @@ services:
     # No external port - only accessible within Docker network
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    # Security hardening (PostgreSQL runs as non-root 'postgres' user by default)
+    # Security hardening
+    # Note: Cannot use user: directive as entrypoint requires root for initdb
+    # The postgres process itself runs as 'postgres' user after initialization
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETUID
+      - SETGID
+      - FOWNER
+      - DAC_READ_SEARCH
     security_opt:
       - no-new-privileges:true
     # Resource limits
@@ -64,15 +86,13 @@ services:
   redis:
     image: redis:7-alpine
     container_name: geetanjali-redis
+    # Run as redis user (UID 999 in redis:7-alpine)
+    user: "999:999"
     # No external port - only accessible within Docker network
     command: redis-server --save "" --appendonly no --requirepass ${REDIS_PASSWORD:-redis_dev_pass}
-    # Security hardening (minimal caps needed for user switch and ownership)
+    # Security hardening - drop all capabilities (no user switch needed when running as non-root)
     cap_drop:
       - ALL
-    cap_add:
-      - SETUID
-      - SETGID
-      - CHOWN
     security_opt:
       - no-new-privileges:true
     # Resource limits

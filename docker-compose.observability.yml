@@ -4,9 +4,12 @@
 version: '3.8'
 
 services:
+  # Prometheus runs as 'nobody' (UID 65534) by default - safe
   prometheus:
     image: prom/prometheus:v2.47.0
     container_name: geetanjali-prometheus
+    # Run as nobody user (default in prom/prometheus)
+    user: "65534:65534"
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
@@ -15,6 +18,11 @@ services:
       - '--storage.tsdb.path=/prometheus'
       - '--storage.tsdb.retention.time=15d'
       - '--web.enable-lifecycle'
+    # Security hardening
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     networks:
       - geetanjali-network
     restart: unless-stopped
@@ -25,9 +33,18 @@ services:
       retries: 3
       start_period: 30s
 
+  # Grafana runs as UID 472 (grafana user) by default
+  # GID 0 (root group) is intentional in official image for OpenShift compatibility
   grafana:
     image: grafana/grafana:10.2.0
     container_name: geetanjali-grafana
+    # Explicitly set grafana user (UID 472)
+    user: "472:472"
+    # Security hardening
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     environment:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
