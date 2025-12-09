@@ -134,10 +134,19 @@ secrets-encrypt: ## Encrypt a plaintext .env file to .env.enc (usage: make secre
 	@sops --encrypt --input-type dotenv --output-type dotenv --output .env.enc $(SRC)
 	@echo "✅ Secrets encrypted to .env.enc"
 
-secrets-add: ## Add a key-value to .env.enc (usage: make secrets-add KEY=FOO VAL=bar)
+secrets-add: ## Add/update a key-value in .env.enc (usage: make secrets-add KEY=FOO VAL=bar)
 	@if [ -z "$(KEY)" ] || [ -z "$(VAL)" ]; then echo "Error: Specify KEY and VAL"; exit 1; fi
-	@sops --set '["$(KEY)"] "$(VAL)"' .env.enc
-	@echo "✅ Added $(KEY) to .env.enc"
+	@sops --decrypt --input-type dotenv --output-type dotenv .env.enc > .env.tmp && \
+	if grep -q "^$(KEY)=" .env.tmp; then \
+		sed -i '' "s|^$(KEY)=.*|$(KEY)=$(VAL)|" .env.tmp; \
+		echo "Updated existing $(KEY)"; \
+	else \
+		echo "$(KEY)=$(VAL)" >> .env.tmp; \
+		echo "Added new $(KEY)"; \
+	fi && \
+	sops --encrypt --input-type dotenv --output-type dotenv --output .env.enc .env.tmp && \
+	rm -f .env.tmp && \
+	echo "✅ $(KEY) saved to .env.enc"
 
 # Quick Start
 init: build up db-migrate ## Initialize project (build, start, migrate)
