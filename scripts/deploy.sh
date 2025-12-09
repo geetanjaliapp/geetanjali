@@ -98,9 +98,23 @@ info "Deploying version: ${APP_VERSION}"
 log "Rebuilding and restarting containers..."
 $SSH_CMD "cd ${DEPLOY_DIR} && APP_VERSION=${APP_VERSION} docker compose build && APP_VERSION=${APP_VERSION} docker compose up -d" || error "Failed to restart containers"
 
-# Step 7: Wait for health checks
+# Step 7: Wait for health checks with polling
 log "Waiting for services to become healthy..."
-sleep 15
+MAX_ATTEMPTS=30
+ATTEMPT=0
+while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+    ATTEMPT=$((ATTEMPT + 1))
+    HEALTH_CODE=$($SSH_CMD "docker exec geetanjali-backend curl -s -o /dev/null -w '%{http_code}' http://localhost:8000/health 2>/dev/null" || echo "000")
+    if [ "$HEALTH_CODE" = "200" ]; then
+        info "Backend healthy after $ATTEMPT attempts"
+        break
+    fi
+    if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
+        warn "Health check timed out after $MAX_ATTEMPTS attempts"
+        break
+    fi
+    sleep 2
+done
 
 # Step 8: Verify deployment
 log "Service status:"

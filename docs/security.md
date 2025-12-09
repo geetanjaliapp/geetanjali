@@ -409,6 +409,107 @@ docker compose up -d
 
 ---
 
+## Backup and Restore Procedures
+
+### Automated Backups
+
+PostgreSQL backups are automated via cron and stored locally:
+
+```bash
+# Backup location
+/var/backups/geetanjali/
+
+# Backup schedule (configured in server crontab)
+# Daily at 2 AM: Full database backup
+# Weekly on Sunday: Full backup with 4-week retention
+```
+
+### Manual Backup
+
+```bash
+# Create immediate backup
+docker exec geetanjali-postgres pg_dump -U geetanjali geetanjali > backup_$(date +%Y%m%d_%H%M%S).sql
+
+# Backup with compression
+docker exec geetanjali-postgres pg_dump -U geetanjali geetanjali | gzip > backup_$(date +%Y%m%d).sql.gz
+```
+
+### Restore Procedures
+
+**⚠️ Warning:** Restoring will overwrite all current data. Always verify the backup file first.
+
+#### Step 1: Verify Backup File
+
+```bash
+# Check file size and header
+ls -lh backup_file.sql
+head -50 backup_file.sql
+
+# For compressed backups
+zcat backup_file.sql.gz | head -50
+```
+
+#### Step 2: Stop Application Services
+
+```bash
+# Stop services that write to the database
+docker compose stop backend worker
+```
+
+#### Step 3: Restore Database
+
+```bash
+# Drop and recreate database
+docker exec -it geetanjali-postgres psql -U geetanjali -c "DROP DATABASE IF EXISTS geetanjali;"
+docker exec -it geetanjali-postgres psql -U geetanjali -c "CREATE DATABASE geetanjali;"
+
+# Restore from backup
+cat backup_file.sql | docker exec -i geetanjali-postgres psql -U geetanjali geetanjali
+
+# For compressed backups
+zcat backup_file.sql.gz | docker exec -i geetanjali-postgres psql -U geetanjali geetanjali
+```
+
+#### Step 4: Restart Services
+
+```bash
+docker compose up -d backend worker
+```
+
+#### Step 5: Verify Restore
+
+```bash
+# Check database health
+docker exec geetanjali-backend curl -s http://localhost:8000/health
+
+# Verify record counts
+docker exec geetanjali-postgres psql -U geetanjali -c "SELECT COUNT(*) FROM cases;"
+docker exec geetanjali-postgres psql -U geetanjali -c "SELECT COUNT(*) FROM users;"
+```
+
+### Vector Store (ChromaDB) Backup
+
+ChromaDB data is stored in a Docker volume and persists automatically:
+
+```bash
+# Backup ChromaDB volume
+docker run --rm -v geetanjali_chroma_data:/data -v $(pwd):/backup alpine tar czf /backup/chroma_backup.tar.gz /data
+
+# Restore ChromaDB volume
+docker compose stop chromadb
+docker run --rm -v geetanjali_chroma_data:/data -v $(pwd):/backup alpine sh -c "rm -rf /data/* && tar xzf /backup/chroma_backup.tar.gz -C /"
+docker compose up -d chromadb
+```
+
+### Backup Checklist
+
+- [ ] Verify daily backup cron is running: `crontab -l`
+- [ ] Check backup directory space: `df -h /var/backups`
+- [ ] Test restore procedure quarterly (on staging)
+- [ ] Keep offsite backup copy (planned enhancement)
+
+---
+
 ## References
 
 - [Docker Security Best Practices](https://docs.docker.com/develop/security-best-practices/)

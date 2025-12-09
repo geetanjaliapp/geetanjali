@@ -13,6 +13,13 @@ services:
     # Security hardening
     security_opt:
       - no-new-privileges:true
+    # Resource limits (Ollama needs more memory for LLM inference)
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
     healthcheck:
       test: ["CMD", "ollama", "list"]
       interval: 30s
@@ -37,6 +44,13 @@ services:
     # Security hardening (PostgreSQL runs as non-root 'postgres' user by default)
     security_opt:
       - no-new-privileges:true
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-geetanjali}"]
       interval: 10s
@@ -44,6 +58,7 @@ services:
       retries: 5
     networks:
       - geetanjali-network
+    restart: always
 
   # Redis Cache (ephemeral - no persistence, purely a cache layer)
   redis:
@@ -60,6 +75,13 @@ services:
       - CHOWN
     security_opt:
       - no-new-privileges:true
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
     healthcheck:
       test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-redis_dev_pass}", "ping"]
       interval: 10s
@@ -88,8 +110,16 @@ services:
       - ALL
     security_opt:
       - no-new-privileges:true
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
     networks:
       - geetanjali-network
+    restart: unless-stopped
 
   # Backend API (Python/FastAPI)
   backend:
