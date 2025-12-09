@@ -49,7 +49,7 @@ tenacity==9.1.2  # Retry logic for robustness
 slowapi==0.1.9  # Rate limiting
 
 # Redis Cache & Task Queue
-redis==5.0.1
+redis==7.1.0
 rq==1.16.0  # Redis Queue for background tasks
 
 # Data Ingestion
