@@ -69,36 +69,19 @@ Services:
 
 ## Configuration
 
-Environment variables (set in `.env` or docker-compose):
+See [Setup Guide](docs/setup.md#configuration-reference) for all environment variables.
 
+Essential for production:
 ```bash
-# Required for production
 JWT_SECRET=your-secret-key
 API_KEY=your-api-key
-
-# LLM Provider
-LLM_PROVIDER=ollama                    # Primary: ollama, anthropic, or mock
-LLM_FALLBACK_PROVIDER=anthropic        # Fallback provider
-USE_MOCK_LLM=false                     # Set true for instant mock responses
-
-# Ollama (primary)
-OLLAMA_BASE_URL=http://ollama:11434
-OLLAMA_MODEL=qwen2.5:3b
-
-# Anthropic (fallback)
-ANTHROPIC_API_KEY=your-anthropic-key
-
-# Database
-DATABASE_URL=postgresql://user:pass@postgres:5432/geetanjali
-REDIS_URL=redis://redis:6379/0
-
-# Email (optional)
-RESEND_API_KEY=your-resend-key
+LLM_PROVIDER=ollama  # or anthropic
+COOKIE_SECURE=true
 ```
 
 ## Development
 
-See [Setup Guide](docs/SETUP.md) for detailed local development instructions.
+See [Setup Guide](docs/setup.md) for detailed local development instructions.
 
 ### Commands
 
@@ -122,28 +105,6 @@ pytest --cov=. --cov-report=term-missing
 npm test
 ```
 
-## Project Structure
-
-```
-geetanjali/
-├── backend/
-│   ├── api/          # FastAPI routes
-│   ├── models/       # SQLAlchemy models
-│   ├── services/     # RAG, LLM, embeddings
-│   └── alembic/      # Database migrations
-├── frontend/
-│   ├── src/
-│   │   ├── pages/    # React pages
-│   │   ├── components/
-│   │   └── api/      # API clients
-├── data/             # Verse data files
-├── CHANGELOG.md      # Release history
-└── docs/
-    ├── SETUP.md         # Development guide
-    ├── ARCHITECTURE.md  # System design
-    └── DATA.md          # Data sources
-```
-
 ## API
 
 Key endpoints:
@@ -161,10 +122,14 @@ Full API documentation at `/docs` when running.
 
 ## Documentation
 
-- [Setup Guide](docs/SETUP.md) - Local development, Docker, environment
-- [Architecture](docs/ARCHITECTURE.md) - System design, RAG pipeline, components
-- [Data Sources](docs/DATA.md) - Geeta content, licensing, ingestion
-- [Technical Blog](docs/TECHNICAL_BLOG.md) - Deep dive into the RAG system design
+**[docs.geetanjaliapp.com](https://docs.geetanjaliapp.com)**
+
+- [Setup Guide](docs/setup.md) - Local development, Docker, environment
+- [Architecture](docs/architecture.md) - System design, RAG pipeline, components
+- [Observability](docs/observability.md) - Monitoring, metrics, Grafana dashboards
+- [Security](docs/security.md) - Container hardening, secrets management
+- [Data Sources](docs/data.md) - Geeta content, licensing, ingestion
+- [Building Geetanjali](docs/building-geetanjali.md) - Deep dive into the RAG system design
 
 ## License
 

@@ -27,6 +27,19 @@ A naive approach would fine-tune an LLM on Geeta content. RAG avoids this becaus
 - Citations matter; RAG naturally preserves source attribution
 - The corpus is small (701 verses); fine-tuning would likely overfit
 
+## When to Use Geetanjali
+
+**Good fit:**
+- Leadership ethical dilemmas requiring structured analysis
+- Situations where traditional wisdom provides perspective
+- Decisions benefiting from multiple options with tradeoffs
+- Cases where citation and transparency matter
+
+**Not a good fit:**
+- Legal or medical decisions (requires professional advice)
+- Situations requiring real-time or emergency response
+- Contexts where Bhagavad Geeta framework doesn't apply
+
 ## Usage Example
 
 ### API Request
@@ -85,19 +98,6 @@ curl -X POST http://localhost:8000/api/v1/cases \
   "confidence": 0.84
 }
 ```
-
-## When to Use Geetanjali
-
-**Good fit:**
-- Leadership ethical dilemmas requiring structured analysis
-- Situations where traditional wisdom provides perspective
-- Decisions benefiting from multiple options with tradeoffs
-- Cases where citation and transparency matter
-
-**Not a good fit:**
-- Legal or medical decisions (requires professional advice)
-- Situations requiring real-time or emergency response
-- Contexts where Bhagavad Geeta framework doesn't apply
 
 ## Architecture
 
@@ -493,7 +493,7 @@ CONTENT_FILTER_BLOCKLIST_ENABLED=true    # Layer 1
 CONTENT_FILTER_LLM_REFUSAL_DETECTION=true # Layer 2
 ```
 
-See [Content Moderation](CONTENT-MODERATION.md) for pattern details and extending the blocklist.
+See [Content Moderation](content-moderation.md) for pattern details and extending the blocklist.
 
 ### Graceful Degradation
 
@@ -521,16 +521,21 @@ def run(self, case_data: Dict, top_k: int = None) -> Dict:
 
 ### Deployment
 
-Docker Compose orchestrates seven containers:
+Docker Compose orchestrates seven core containers plus optional observability:
 
 ```
+# Core services (docker-compose.yml)
 nginx (frontend)     → reverse proxy, static assets, TLS
 backend (FastAPI)    → API server
 worker (RQ)          → async RAG processing
 postgres             → relational data
 redis                → cache, rate limits, job queue
 chromadb             → vector store
-ollama               → local LLM (optional)
+ollama               → local LLM
+
+# Observability (docker-compose.observability.yml)
+prometheus           → metrics collection
+grafana              → dashboards, alerting
 ```
 
 Key deployment features:
@@ -558,6 +563,8 @@ Application security:
 - Rate limiting (60 req/min per IP on most endpoints)
 - Session-based anonymous access (no PII required)
 
+See [Security](security.md) for full hardening checklist and incident response procedures.
+
 ### Performance
 
 | Operation | Latency |
@@ -570,6 +577,44 @@ Application security:
 | Total pipeline (cloud) | 3-8s |
 
 Load tested at 682 req/s on health endpoints, 60 req/min rate limit on API.
+
+### Observability
+
+Prometheus + Grafana provide monitoring and alerting:
+
+```mermaid
+flowchart LR
+    subgraph Metrics Collection
+        Backend[Backend /metrics]
+        Collector[APScheduler 60s]
+    end
+
+    subgraph Monitoring Stack
+        Prometheus[(Prometheus)]
+        Grafana[Grafana Dashboards]
+    end
+
+    Collector -->|Update gauges| Backend
+    Prometheus -->|Scrape 15s| Backend
+    Prometheus --> Grafana
+    Grafana -->|Alerts| Email[Email via Resend]
+```
+
+**Business metrics** track consultations, active users, exports, and verse usage. **Infrastructure metrics** monitor PostgreSQL, Redis, Ollama, and ChromaDB health. **Queue metrics** show RQ job depth and worker count.
+
+Key metrics exposed at `/metrics`:
+- `geetanjali_consultations_total` - Completed consultations
+- `geetanjali_active_users_24h` - Users active in last 24 hours
+- `geetanjali_postgres_up` - Database availability
+- `geetanjali_ollama_up` - LLM availability
+- `geetanjali_queue_depth` - Background jobs waiting
+
+The observability stack is optional and deployed separately:
+```bash
+docker compose -f docker-compose.yml -f docker-compose.observability.yml up -d
+```
+
+See [Observability](observability.md) for full metric reference and alerting setup.
 
 ## Conclusion
 

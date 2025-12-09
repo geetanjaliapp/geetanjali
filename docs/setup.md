@@ -1,3 +1,9 @@
+---
+layout: default
+title: Setup Guide
+description: Local development environment setup, Docker configuration, and testing for Geetanjali.
+---
+
 # Development Setup
 
 Local development environment setup for Geetanjali.
@@ -75,23 +81,89 @@ docker exec geetanjali-ollama ollama pull qwen2.5:3b
 
 ## Environment Variables
 
-Create `.env` in project root:
+Create `.env` in project root. See Configuration Reference below for all options.
 
 ```bash
-# Database
+# Required
 DATABASE_URL=postgresql://geetanjali:geetanjali@localhost:5432/geetanjali
-
-# Redis
-REDIS_URL=redis://localhost:6379/0
-
-# LLM (choose one)
-OLLAMA_BASE_URL=http://localhost:11434
-ANTHROPIC_API_KEY=your-key
-
-# Security (required for production)
 JWT_SECRET=change-in-production
 API_KEY=change-in-production
+
+# LLM (choose provider)
+LLM_PROVIDER=ollama
+OLLAMA_BASE_URL=http://localhost:11434
+# Or: LLM_PROVIDER=anthropic + ANTHROPIC_API_KEY=your-key
+
+# Optional
+REDIS_URL=redis://localhost:6379/0
+SENTRY_DSN=your-sentry-dsn
 ```
+
+## Configuration Reference
+
+All environment variables with defaults. Only override what you need.
+
+### Core
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `APP_ENV` | development | Environment: development, production, test |
+| `DEBUG` | false | Enable debug mode (never in production) |
+| `LOG_LEVEL` | INFO | Logging level |
+
+### LLM Providers
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `LLM_PROVIDER` | anthropic | Primary: ollama, anthropic, or mock |
+| `LLM_FALLBACK_PROVIDER` | mock | Fallback provider |
+| `LLM_FALLBACK_ENABLED` | true | Enable automatic fallback |
+| `ANTHROPIC_API_KEY` | - | Required if using Anthropic |
+| `ANTHROPIC_MODEL` | claude-haiku-4-5-20251001 | Claude model |
+| `OLLAMA_BASE_URL` | http://localhost:11434 | Ollama server URL |
+| `OLLAMA_MODEL` | qwen2.5:3b | Ollama model |
+| `OLLAMA_TIMEOUT` | 300 | Timeout in seconds |
+
+### Database & Cache
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `DATABASE_URL` | postgresql://... | PostgreSQL connection string |
+| `DB_POOL_SIZE` | 5 | Connection pool size |
+| `REDIS_URL` | - | Redis URL (optional, enables caching) |
+| `REDIS_ENABLED` | true | Enable Redis caching |
+
+### RAG Pipeline
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `RAG_TOP_K_VERSES` | 5 | Verses to retrieve per query |
+| `RAG_CONFIDENCE_THRESHOLD` | 0.7 | Minimum confidence score |
+| `RAG_SCHOLAR_REVIEW_THRESHOLD` | 0.6 | Flag for human review below this |
+
+### Security
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `JWT_SECRET` | - | **Required**. Token signing key |
+| `API_KEY` | - | **Required**. API authentication |
+| `COOKIE_SECURE` | false | Set true for HTTPS (required in production) |
+| `CORS_ORIGINS` | localhost | Comma-separated allowed origins |
+
+### Monitoring
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `SENTRY_DSN` | - | Sentry error tracking DSN |
+| `SENTRY_TRACES_SAMPLE_RATE` | 0.1 | Performance sampling rate (0-1) |
+
+### Email (Optional)
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `RESEND_API_KEY` | - | Resend API key for email |
+| `CONTACT_EMAIL_TO` | - | Contact form recipient |
+| `CONTACT_EMAIL_FROM` | - | Sender address (verified domain) |
 
 ## Common Commands
 

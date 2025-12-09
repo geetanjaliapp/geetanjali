@@ -1,3 +1,9 @@
+---
+layout: default
+title: Data Sources
+description: Bhagavad Geeta content sources, licensing, and data ingestion for Geetanjali.
+---
+
 # Data
 
 Bhagavad Geeta content sources, licensing, and ingestion.

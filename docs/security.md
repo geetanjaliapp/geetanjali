@@ -1,3 +1,9 @@
+---
+layout: default
+title: Security
+description: Container hardening, secrets management, network security, and threat model for Geetanjali.
+---
+
 # Security Hardening Guide
 
 This document describes the security measures implemented for the Geetanjali application infrastructure.
@@ -274,7 +280,7 @@ git add .env.enc && git commit -m "chore: update secrets"
 | Location | Purpose |
 |----------|---------|
 | Local: `~/.config/sops/age/keys.txt` | Private key for encryption/decryption |
-| Server: `/home/gitam/.config/sops/age/keys.txt` | Private key for decryption |
+| Server: `~/.config/sops/age/keys.txt` | Private key for decryption |
 | Repo: `.env.enc` | Encrypted secrets (safe to commit) |
 | Repo: `.sops.yaml` | SOPS config with public key |
 

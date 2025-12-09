@@ -16,14 +16,15 @@ Ethical leadership guidance from the Bhagavad Geeta.
 
 ## Reference
 
-- [Architecture](ARCHITECTURE.md) — System design, components, data flow
-- [Security](SECURITY.md) — Container hardening, secrets management, threat model
-- [Content Moderation](CONTENT-MODERATION.md) — Two-layer content filtering, configuration, patterns
-- [Data Sources](DATA.md) — Bhagavad Geeta content, licensing, ingestion
+- [Architecture](architecture.md) — System design, components, data flow
+- [Observability](observability.md) — Monitoring, metrics, Grafana dashboards, alerting
+- [Security](security.md) — Container hardening, secrets management, threat model
+- [Content Moderation](content-moderation.md) — Two-layer content filtering, configuration, patterns
+- [Data Sources](data.md) — Bhagavad Geeta content, licensing, ingestion
 
 ## Development
 
-- [Setup Guide](SETUP.md) — Local development environment, Docker, testing
+- [Setup Guide](setup.md) — Local development environment, Docker, testing
 
 ---
 
