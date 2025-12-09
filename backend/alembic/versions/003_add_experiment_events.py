@@ -11,6 +11,7 @@ Adds:
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import inspect
 
 revision = "003"
 down_revision = "002"
@@ -19,6 +20,12 @@ depends_on = None
 
 
 def upgrade() -> None:
+    # Make migration idempotent - check if table already exists
+    conn = op.get_bind()
+    inspector = inspect(conn)
+    if "experiment_events" in inspector.get_table_names():
+        return  # Table already exists (created by Base.metadata.create_all)
+
     op.create_table(
         "experiment_events",
         sa.Column("id", sa.String(36), primary_key=True),

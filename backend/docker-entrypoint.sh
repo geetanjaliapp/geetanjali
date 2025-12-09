@@ -76,10 +76,13 @@ Base.metadata.create_all(bind=engine)
 print('✓ Database tables initialized')
 "
 
-# Run database migrations
-echo "Running database migrations..."
-# Check if alembic_version table exists (means migrations have been run before)
-HAS_ALEMBIC=$(python3 -c "
+# Run database migrations (only if not skipped - worker should skip)
+if [ "${SKIP_MIGRATIONS:-false}" = "true" ]; then
+    echo "Skipping database migrations (SKIP_MIGRATIONS=true)"
+else
+    echo "Running database migrations..."
+    # Check if alembic_version table exists (means migrations have been run before)
+    HAS_ALEMBIC=$(python3 -c "
 from db.connection import SessionLocal
 from sqlalchemy import text
 db = SessionLocal()
@@ -92,16 +95,17 @@ finally:
     db.close()
 ")
 
-if [ "$HAS_ALEMBIC" = "no" ]; then
-    echo "First run - stamping database with current schema version..."
-    alembic stamp head
-fi
+    if [ "$HAS_ALEMBIC" = "no" ]; then
+        echo "First run - stamping database with current schema version..."
+        alembic stamp head
+    fi
 
-# Now run any pending migrations
-alembic upgrade head || {
-    echo "⚠️  Warning: Migrations may have failed, but continuing..."
-}
-echo "✓ Database migrations complete"
+    # Now run any pending migrations
+    alembic upgrade head || {
+        echo "⚠️  Warning: Migrations may have failed, but continuing..."
+    }
+    echo "✓ Database migrations complete"
+fi
 
 # Check if data ingestion is needed
 echo "Checking if initial data ingestion is needed..."

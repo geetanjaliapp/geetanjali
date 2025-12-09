@@ -142,6 +142,8 @@ services:
       CHROMA_PORT: 8000
       REDIS_URL: redis://:${REDIS_PASSWORD:-redis_dev_pass}@redis:6379/0
       OLLAMA_BASE_URL: http://ollama:11434
+      # Skip migrations - backend service manages DB schema
+      SKIP_MIGRATIONS: "true"
     volumes:
       - ./backend:/app
     # Security hardening
