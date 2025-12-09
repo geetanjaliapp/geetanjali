@@ -62,4 +62,3 @@ volumes:
 
 networks:
   geetanjali-network:
-    external: true
