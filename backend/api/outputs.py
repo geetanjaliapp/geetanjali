@@ -8,8 +8,6 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status, Request, BackgroundTasks
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
-from slowapi import Limiter
-from slowapi.util import get_remote_address
 
 from db import get_db, SessionLocal
 from db.repositories.case_repository import CaseRepository
@@ -19,16 +17,14 @@ from models.case import Case, CaseStatus
 from models.user import User
 from api.schemas import OutputResponse, CaseResponse, FeedbackCreate, FeedbackResponse
 from api.middleware.auth import get_optional_user, require_role, get_session_id
-from api.dependencies import get_case_with_access
+from api.dependencies import get_case_with_access, limiter
+from api.errors import ERR_CASE_NOT_FOUND, ERR_CASE_ACCESS_DENIED
 from services.rag import get_rag_pipeline
 from services.tasks import enqueue_task
 from models.feedback import Feedback
 from config import settings
 
 logger = logging.getLogger(__name__)
-
-# Rate limiter
-limiter = Limiter(key_func=get_remote_address)
 
 router = APIRouter(prefix="/api/v1")
 
@@ -373,7 +369,7 @@ async def list_case_outputs(
 
     if not case:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Case not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail=ERR_CASE_NOT_FOUND
         )
 
     # Verify ownership if case belongs to a user
@@ -381,7 +377,7 @@ async def list_case_outputs(
         if current_user is None or case.user_id != current_user.id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="You don't have access to this case",
+                detail=ERR_CASE_ACCESS_DENIED,
             )
 
     outputs = (

@@ -11,21 +11,19 @@ import logging
 from xml.etree.ElementTree import Element, SubElement, tostring
 
 from fastapi import APIRouter, Depends, Request, Response
-from slowapi import Limiter
-from slowapi.util import get_remote_address
 from sqlalchemy.orm import Session
 
+from api.dependencies import limiter
+from config import settings
 from db.connection import get_db
 from models.verse import Verse
 from services.cache import cache
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
-limiter = Limiter(key_func=get_remote_address)
 
 # Cache settings
 SITEMAP_CACHE_KEY = "sitemap:xml"
-SITEMAP_CACHE_TTL = 3600  # 1 hour
 
 # Base URL for sitemap (production URL)
 BASE_URL = "https://geetanjaliapp.com"
@@ -110,7 +108,7 @@ async def get_sitemap(request: Request, db: Session = Depends(get_db)):
     sitemap_xml = build_sitemap_xml(verses)
 
     # Cache the result
-    cache.set(SITEMAP_CACHE_KEY, sitemap_xml, SITEMAP_CACHE_TTL)
+    cache.set(SITEMAP_CACHE_KEY, sitemap_xml, settings.CACHE_TTL_SITEMAP)
     logger.info(f"Sitemap generated: {len(verses)} verses")
 
     return Response(

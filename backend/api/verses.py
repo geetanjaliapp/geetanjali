@@ -7,9 +7,9 @@ from datetime import date
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Request
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from slowapi import Limiter
-from slowapi.util import get_remote_address
 
+from api.dependencies import limiter
+from api.errors import ERR_NO_VERSES_IN_DB
 from db import get_db
 from db.repositories.verse_repository import VerseRepository
 from api.schemas import VerseResponse, TranslationResponse
@@ -23,13 +23,9 @@ from services.cache import (
 )
 from config import settings
 
-# P2.3: Cache TTL for verse search results
-VERSE_SEARCH_CACHE_TTL = 3600  # 1 hour
-
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1/verses")
-limiter = Limiter(key_func=get_remote_address)
 
 
 @router.get("/count")
@@ -138,7 +134,7 @@ async def search_verses(
     cache.set(
         cache_key,
         [VerseResponse.model_validate(v).model_dump() for v in result],
-        VERSE_SEARCH_CACHE_TTL,
+        settings.CACHE_TTL_VERSE_LIST,
     )
 
     return result
@@ -186,7 +182,7 @@ async def get_random_verse(
 
     if not verses:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="No verses found in database"
+            status_code=status.HTTP_404_NOT_FOUND, detail=ERR_NO_VERSES_IN_DB
         )
 
     return random.choice(verses)
@@ -242,7 +238,7 @@ async def get_verse_of_the_day(request: Request, db: Session = Depends(get_db)):
         if not total_verses or total_verses == 0:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="No verses found in database",
+                detail=ERR_NO_VERSES_IN_DB,
             )
 
         verse_index = day_of_year % total_verses

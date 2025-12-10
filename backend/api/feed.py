@@ -11,21 +11,19 @@ from datetime import date, timedelta
 from xml.etree.ElementTree import Element, SubElement, tostring
 
 from fastapi import APIRouter, Depends, Request, Response
-from slowapi import Limiter
-from slowapi.util import get_remote_address
 from sqlalchemy.orm import Session
 
+from api.dependencies import limiter
+from config import settings
 from db.connection import get_db
 from models.verse import Verse
 from services.cache import cache
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
-limiter = Limiter(key_func=get_remote_address)
 
 # Cache settings
 FEED_CACHE_KEY = "feed:rss"
-FEED_CACHE_TTL = 3600  # 1 hour
 
 # Feed settings
 BASE_URL = "https://geetanjaliapp.com"
@@ -241,7 +239,7 @@ async def get_rss_feed(request: Request, db: Session = Depends(get_db)):
     feed_xml = build_rss_xml(daily_verses)
 
     # Cache the result
-    cache.set(FEED_CACHE_KEY, feed_xml, FEED_CACHE_TTL)
+    cache.set(FEED_CACHE_KEY, feed_xml, settings.CACHE_TTL_FEED)
     logger.info(f"RSS feed generated with {len(daily_verses)} items")
 
     return Response(

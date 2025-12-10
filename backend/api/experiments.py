@@ -1,31 +1,19 @@
 """Experiment events API for A/B testing analytics."""
 
 import logging
-import secrets
-from fastapi import APIRouter, Depends, Request, HTTPException, Header
+from fastapi import APIRouter, Depends, Request, HTTPException
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import datetime
-from slowapi import Limiter
-from slowapi.util import get_remote_address
 
+from api.dependencies import limiter, get_session_id, verify_admin_api_key
 from db.connection import get_db
 from models.experiment import ExperimentEvent
-from api.dependencies import get_session_id
-from config import settings
 
 logger = logging.getLogger(__name__)
 
-limiter = Limiter(key_func=get_remote_address)
 router = APIRouter(prefix="/api/v1/experiments")
-
-
-def verify_admin_api_key(x_api_key: str = Header(..., alias="X-API-Key")):
-    """Verify admin API key for protected endpoints."""
-    if not secrets.compare_digest(x_api_key, settings.API_KEY):
-        raise HTTPException(status_code=401, detail="Invalid or missing API key")
-    return True
 
 
 class ExperimentEventCreate(BaseModel):

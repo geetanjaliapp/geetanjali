@@ -1,11 +1,22 @@
 """FastAPI dependencies for common patterns across endpoints."""
 
+import secrets
 from typing import Optional
-from fastapi import Depends, HTTPException, status
+
+from fastapi import Depends, Header, HTTPException, status
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from sqlalchemy.orm import Session
 
+from config import settings
 from db.connection import get_db
 from db.repositories.case_repository import CaseRepository
+from api.errors import (
+    ERR_AUTH_REQUIRED,
+    ERR_CASE_NOT_FOUND,
+    ERR_CASE_ACCESS_DENIED,
+    ERR_INVALID_API_KEY,
+)
 from api.middleware.auth import (
     get_optional_user,
     get_session_id,
@@ -13,6 +24,31 @@ from api.middleware.auth import (
 )
 from models.case import Case
 from models.user import User
+
+# Public exports
+__all__ = [
+    "limiter",
+    "verify_admin_api_key",
+    "get_case_with_access",
+    "get_case_with_auth",
+    "get_session_id",  # Re-exported from api.middleware.auth
+]
+
+# Shared rate limiter instance for all API modules
+limiter = Limiter(key_func=get_remote_address)
+
+
+def verify_admin_api_key(x_api_key: str = Header(..., alias="X-API-Key")) -> bool:
+    """
+    Verify admin API key for protected endpoints.
+
+    This is a simple guard until proper admin user roles are implemented.
+    Requires X-API-Key header matching the configured API_KEY.
+    Uses constant-time comparison to prevent timing attacks.
+    """
+    if not secrets.compare_digest(x_api_key, settings.API_KEY):
+        raise HTTPException(status_code=401, detail=ERR_INVALID_API_KEY)
+    return True
 
 
 class CaseAccessDep:
@@ -60,7 +96,7 @@ class CaseAccessDep:
         if self.require_auth and current_user is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Authentication required",
+                detail=ERR_AUTH_REQUIRED,
             )
 
         repo = CaseRepository(db)
@@ -69,7 +105,7 @@ class CaseAccessDep:
         if not case:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="Case not found",
+                detail=ERR_CASE_NOT_FOUND,
             )
 
         if not user_can_access_resource(
@@ -80,7 +116,7 @@ class CaseAccessDep:
         ):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="You don't have access to this case",
+                detail=ERR_CASE_ACCESS_DENIED,
             )
 
         return case

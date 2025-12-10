@@ -9,8 +9,6 @@ from typing import Any, Callable, List, Optional, TypeVar
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from sqlalchemy.orm import Session
-from slowapi import Limiter
-from slowapi.util import get_remote_address
 
 from db import get_db
 from db.repositories.case_repository import CaseRepository
@@ -24,7 +22,7 @@ from api.schemas import (
     OutputResponse,
 )
 from api.middleware.auth import get_optional_user, get_session_id
-from api.dependencies import get_case_with_access
+from api.dependencies import get_case_with_access, limiter
 from models.case import Case
 from models.user import User
 from services.cache import (
@@ -126,7 +124,6 @@ def cached_public_response(
 
 
 router = APIRouter(prefix="/api/v1/cases")
-limiter = Limiter(key_func=get_remote_address)
 
 
 @router.post("", response_model=CaseResponse, status_code=status.HTTP_201_CREATED)

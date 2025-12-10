@@ -27,9 +27,6 @@ from db.repositories.verse_repository import VerseRepository
 
 logger = logging.getLogger(__name__)
 
-# P1.1: Cache TTL for RAG outputs (24 hours)
-RAG_CACHE_TTL = 86400
-
 
 def _extract_json_from_text(response_text: str) -> dict:
     """
@@ -987,7 +984,7 @@ class RAGPipeline:
                 validated_output["warning"] = "Generated without verse retrieval"
 
             # P1.1 FIX: Cache successful results
-            cache.set(cache_key, validated_output, RAG_CACHE_TTL)
+            cache.set(cache_key, validated_output, settings.CACHE_TTL_RAG_OUTPUT)
             logger.info(
                 f"RAG pipeline completed successfully, cached as {cache_key[:24]}"
             )

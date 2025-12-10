@@ -134,6 +134,9 @@ class Settings(BaseSettings):
     CACHE_TTL_PUBLIC_CASE_HTTP: int = (
         60  # 1 minute browser cache (short for fast revocation)
     )
+    CACHE_TTL_SITEMAP: int = 3600  # 1 hour
+    CACHE_TTL_FEED: int = 3600  # 1 hour
+    CACHE_TTL_RAG_OUTPUT: int = 86400  # 24 hours
 
     # Public case sharing
     PUBLIC_CASE_EXPIRY_DAYS: int = 90  # Days until public case links expire (0 = never)

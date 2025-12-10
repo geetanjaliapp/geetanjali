@@ -17,15 +17,13 @@ Flow:
 import logging
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
-from slowapi import Limiter
-from slowapi.util import get_remote_address
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
 
 from config import settings
 
 from api.schemas import FollowUpRequest, ChatMessageResponse
-from api.dependencies import get_case_with_access
+from api.dependencies import get_case_with_access, limiter
 from db.connection import get_db, SessionLocal
 from db.repositories.message_repository import MessageRepository
 from db.repositories.output_repository import OutputRepository
@@ -36,9 +34,6 @@ from services.tasks import enqueue_task
 from utils.exceptions import LLMError
 
 logger = logging.getLogger(__name__)
-
-# Rate limiter - follow-ups are lighter than full analysis, allow 3x more
-limiter = Limiter(key_func=get_remote_address)
 
 router = APIRouter()
 

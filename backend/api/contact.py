@@ -6,16 +6,14 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr, Field, field_validator
 from typing import Optional
 from enum import Enum
-from slowapi import Limiter
-from slowapi.util import get_remote_address
 
+from api.dependencies import limiter
 from db.connection import get_db
 from models.contact import ContactMessage, ContactType
 from services.email import send_contact_email
 
 logger = logging.getLogger(__name__)
 
-limiter = Limiter(key_func=get_remote_address)
 router = APIRouter(prefix="/api/v1/contact")
 
 

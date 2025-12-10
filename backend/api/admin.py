@@ -1,13 +1,13 @@
 """Admin endpoints for data management."""
 
 import logging
-import secrets
 import threading
 from typing import Optional
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Header
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 
+from api.dependencies import verify_admin_api_key
 from db.connection import get_db
 from models import Verse
 from services.ingestion.pipeline import IngestionPipeline
@@ -18,19 +18,6 @@ from config import settings
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1/admin")
-
-
-def verify_admin_api_key(x_api_key: str = Header(..., alias="X-API-Key")):
-    """
-    Verify admin API key for protected endpoints.
-
-    This is a simple guard until proper admin user roles are implemented.
-    Requires X-API-Key header matching the configured API_KEY.
-    Uses constant-time comparison to prevent timing attacks.
-    """
-    if not secrets.compare_digest(x_api_key, settings.API_KEY):
-        raise HTTPException(status_code=401, detail="Invalid or missing API key")
-    return True
 
 
 class IngestionRequest(BaseModel):

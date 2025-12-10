@@ -4,8 +4,7 @@ import uuid
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
-from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
+from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
 from prometheus_fastapi_instrumentator import Instrumentator
@@ -39,9 +38,9 @@ from api import (
     follow_up,
 )
 from api.middleware.csrf import CSRFMiddleware
+from api.dependencies import limiter
 
 logger = setup_logging()
-limiter = Limiter(key_func=get_remote_address)
 
 app = FastAPI(
     title=settings.APP_NAME,

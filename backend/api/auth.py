@@ -5,9 +5,9 @@ import secrets
 from datetime import datetime, timedelta
 from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
 from sqlalchemy.orm import Session
-from slowapi import Limiter
-from slowapi.util import get_remote_address
 
+from api.dependencies import limiter
+from api.errors import ERR_INVALID_CREDENTIALS
 from api.schemas import (
     SignupRequest,
     LoginRequest,
@@ -38,7 +38,6 @@ from config import settings
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1/auth", tags=["authentication"])
-limiter = Limiter(key_func=get_remote_address)
 
 REFRESH_TOKEN_COOKIE_KEY = "refresh_token"
 
@@ -185,14 +184,14 @@ async def login(
 
     if not user or not user.password_hash:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=ERR_INVALID_CREDENTIALS
         )
 
     # Verify password
     if not verify_password(login_data.password, user.password_hash):
         logger.warning("Failed login attempt")
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=ERR_INVALID_CREDENTIALS
         )
 
     # Update last login timestamp
