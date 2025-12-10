@@ -13,6 +13,19 @@ export default defineConfig({
   },
   // Load .env from project root (one level up from frontend/)
   envDir: '..',
+  // Proxy API requests to backend in development (mirrors nginx in production)
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+      },
+      '/health': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+      },
+    },
+  },
   test: {
     globals: true,
     environment: 'jsdom',
