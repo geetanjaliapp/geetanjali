@@ -16,10 +16,12 @@ Flow:
 
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from sqlalchemy.orm import Session
+
+from config import settings
 
 from api.schemas import FollowUpRequest, FollowUpResponse, LLMAttributionSchema
 from api.dependencies import get_case_with_access
@@ -32,6 +34,9 @@ from services.follow_up import get_follow_up_pipeline
 from utils.exceptions import LLMError
 
 logger = logging.getLogger(__name__)
+
+# Rate limiter - follow-ups are lighter than full analysis, allow 3x more
+limiter = Limiter(key_func=get_remote_address)
 
 router = APIRouter()
 
@@ -57,8 +62,10 @@ router = APIRouter()
     - Uses prior consultation context and verse references
     """,
 )
+@limiter.limit(settings.FOLLOW_UP_RATE_LIMIT)
 def submit_follow_up(
-    request: FollowUpRequest,
+    request: Request,
+    follow_up_data: FollowUpRequest,
     case: Case = Depends(get_case_with_access),
     db: Session = Depends(get_db),
 ) -> FollowUpResponse:
@@ -84,7 +91,7 @@ def submit_follow_up(
 
     # 2. Apply content filter to follow-up question
     try:
-        validate_submission_content("", request.content)
+        validate_submission_content("", follow_up_data.content)
     except ContentPolicyError as e:
         logger.warning(
             f"Content policy violation in follow-up (type={e.violation_type.value})",
@@ -117,7 +124,7 @@ def submit_follow_up(
             case_description=case.description,
             prior_output=prior_output,
             conversation=conversation,
-            follow_up_question=request.content,
+            follow_up_question=follow_up_data.content,
         )
     except LLMError as e:
         logger.error(f"Follow-up pipeline failed: {e}", extra={"case_id": case_id})
@@ -142,7 +149,7 @@ def submit_follow_up(
 
     # 7. Create both messages atomically (only after successful LLM response)
     user_message = message_repo.create_user_message(
-        case_id=case_id, content=request.content
+        case_id=case_id, content=follow_up_data.content
     )
     logger.info(f"Created user follow-up message: {user_message.id}")
 

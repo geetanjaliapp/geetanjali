@@ -102,6 +102,7 @@ class Settings(BaseSettings):
     ]
     API_KEY: str = "dev-api-key-12345"
     ANALYZE_RATE_LIMIT: str = "10/hour"  # Rate limit for analyze endpoint
+    FOLLOW_UP_RATE_LIMIT: str = "30/hour"  # Rate limit for follow-up endpoint (3x analyze)
 
     # Authentication / JWT
     JWT_SECRET: str = (
