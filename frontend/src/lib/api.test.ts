@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from "axios";
+import { describe, it, expect, vi } from "vitest";
+import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 
 /**
  * Tests for API client configuration and interceptors.
