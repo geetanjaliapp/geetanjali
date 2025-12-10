@@ -94,12 +94,10 @@ export default function CaseView() {
   const canShare = isCompleted && outputs.length > 0 && !isPolicyViolation;
   const canDelete = true;
 
-  // Follow-up input visibility: show when completed (but not policy_violation) OR during follow-up processing
+  // Follow-up input visibility: show when completed with at least one output (but not policy_violation)
   // Policy violations don't allow follow-ups since the case can't be processed further
   const showFollowUpInput =
-    (isCompleted && !isPolicyViolation) || (isProcessing && outputs.length > 0);
-  // Follow-up is being processed (for inline thinking indicator)
-  const isFollowUpProcessing = isProcessing && outputs.length > 0;
+    isCompleted && !isPolicyViolation && outputs.length > 0;
 
   const loadCaseData = useCallback(async () => {
     if (!id) return;
@@ -315,19 +313,20 @@ export default function CaseView() {
     setError(null);
 
     try {
-      // Store the pending message for display
+      // Store the pending message for display while waiting
       setPendingFollowUp(messageContent);
       setFollowUp("");
 
-      // Create the user message
-      await messagesApi.create(id, { content: messageContent });
+      // Submit follow-up and get immediate conversational response
+      // This is a lightweight endpoint that doesn't trigger full RAG
+      await messagesApi.followUp(id, { content: messageContent });
 
-      // Trigger async analysis (returns immediately, sets case to PROCESSING)
-      await casesApi.analyzeAsync(id);
+      // Refresh messages to get both user and assistant messages
+      const updatedMessages = await messagesApi.list(id);
+      setMessages(updatedMessages);
 
-      // Refresh case data to get the new status (will trigger polling)
-      const data = await casesApi.get(id);
-      setCaseData(data);
+      // Clear pending state since we got the response
+      setPendingFollowUp(null);
     } catch (err) {
       // On error, restore the message and clear pending state
       setFollowUp(messageContent);
@@ -708,7 +707,7 @@ ${messages
           )}
 
           {/* Main Content - Timeline */}
-          {(isCompleted || isFollowUpProcessing) && (
+          {isCompleted && (
             <div className="relative">
               {/* Vertical Line */}
               <div className="absolute left-2.5 sm:left-3 top-6 bottom-0 w-0.5 bg-gradient-to-b from-amber-300 via-orange-300 to-red-300" />
@@ -950,7 +949,7 @@ ${messages
               })}
 
               {/* Follow-up thinking indicator */}
-              {isFollowUpProcessing && pendingFollowUp && (
+              {submittingFollowUp && pendingFollowUp && (
                 <FollowUpThinking pendingMessage={pendingFollowUp} />
               )}
 
@@ -975,7 +974,7 @@ ${messages
                   <FollowUpInput
                     value={followUp}
                     submitting={submittingFollowUp}
-                    disabled={isFollowUpProcessing}
+                    disabled={submittingFollowUp}
                     onChange={setFollowUp}
                     onSubmit={handleFollowUpSubmit}
                   />

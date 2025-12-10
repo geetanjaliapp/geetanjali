@@ -1,4 +1,5 @@
 import type { FormEvent } from "react";
+import { Link } from "react-router-dom";
 
 interface FollowUpInputProps {
   value: string;
@@ -39,7 +40,7 @@ export function FollowUpInput({
             />
           </div>
           <span className="text-sm font-medium">
-            Analyzing your follow-up...
+            Thinking...
           </span>
         </div>
       )}
@@ -68,7 +69,7 @@ export function FollowUpInput({
             }`}
           >
             <span className="hidden sm:inline">
-              {submitting ? "Sending..." : disabled ? "Analyzing..." : "Ask"}
+              {submitting ? "Sending..." : disabled ? "Thinking..." : "Ask"}
             </span>
             <svg
               className={`w-4 h-4 sm:hidden ${disabled ? "animate-pulse" : ""}`}
@@ -86,6 +87,32 @@ export function FollowUpInput({
           </button>
         </div>
       </form>
+
+      {/* New Consultation link */}
+      <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
+        <p className="text-xs text-gray-500">
+          Need a fresh perspective with new options?
+        </p>
+        <Link
+          to="/"
+          className="text-xs text-orange-600 hover:text-orange-700 font-medium flex items-center gap-1"
+        >
+          <svg
+            className="w-3.5 h-3.5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 4v16m8-8H4"
+            />
+          </svg>
+          New Consultation
+        </Link>
+      </div>
     </div>
   );
 }

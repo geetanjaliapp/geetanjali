@@ -154,3 +154,23 @@ export interface FeedbackCreate {
   rating: boolean;
   comment?: string;
 }
+
+// Follow-up conversation types
+export interface FollowUpRequest {
+  content: string;
+}
+
+export interface LLMAttribution {
+  model: string;
+  provider: string;
+  input_tokens?: number;
+  output_tokens?: number;
+}
+
+export interface FollowUpResponse {
+  message_id: string;
+  content: string;
+  role: "assistant";
+  created_at: string;
+  llm_attribution?: LLMAttribution;
+}
