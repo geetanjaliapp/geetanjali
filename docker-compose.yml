@@ -100,11 +100,11 @@ services:
     tmpfs:
       - /data:mode=770,uid=999,gid=999
     # Resource limits
-    pids_limit: 64
     deploy:
       resources:
         limits:
           memory: 128M
+          pids: 64
         reservations:
           memory: 64M
     healthcheck:
@@ -136,11 +136,11 @@ services:
     security_opt:
       - no-new-privileges:true
     # Resource limits
-    pids_limit: 128
     deploy:
       resources:
         limits:
           memory: 1G
+          pids: 128
         reservations:
           memory: 512M
     networks:
@@ -171,8 +171,7 @@ services:
       - ALL
     security_opt:
       - no-new-privileges:true
-    # Resource limits
-    pids_limit: 256
+    # Resource limits (pids limit set in docker-compose.prod.yml)
     depends_on:
       postgres:
         condition: service_healthy
