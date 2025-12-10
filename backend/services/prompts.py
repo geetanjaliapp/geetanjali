@@ -230,8 +230,7 @@ FEW_SHOT_EXAMPLE = """
   },
   "reflection_prompts": [
     "How can I minimize harm to individuals while fulfilling my organizational duty?",
-    "What support systems can I create for those affected?",
-    "How will I maintain trust and morale through this transition?"
+    "What support systems can I create for those affected?"
   ],
   "sources": [
     {

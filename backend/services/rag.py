@@ -11,6 +11,7 @@ from services.vector_store import get_vector_store
 from services.llm import get_llm_service
 from services.prompts import (
     SYSTEM_PROMPT,
+    FEW_SHOT_EXAMPLE,
     build_user_prompt,
     OLLAMA_SYSTEM_PROMPT,
     build_ollama_prompt,
@@ -388,13 +389,24 @@ class RAGPipeline:
         """
         logger.info("Generating consulting brief with LLM")
 
+        # Build system prompt (optionally include few-shot example)
+        system_prompt = SYSTEM_PROMPT
+        if settings.LLM_USE_FEW_SHOTS:
+            system_prompt = f"{SYSTEM_PROMPT}\n\n{FEW_SHOT_EXAMPLE}"
+            logger.debug("Few-shot example included in system prompt")
+
+        # Build fallback system prompt (also with few-shot if enabled)
+        fallback_sys = fallback_system
+        if settings.LLM_USE_FEW_SHOTS and fallback_system:
+            fallback_sys = f"{fallback_system}\n\n{FEW_SHOT_EXAMPLE}"
+
         # Generate JSON response with fallback support
         result = self.llm_service.generate(
             prompt=prompt,
-            system_prompt=SYSTEM_PROMPT,
+            system_prompt=system_prompt,
             temperature=temperature,
             fallback_prompt=fallback_prompt,
-            fallback_system=fallback_system,
+            fallback_system=fallback_sys,
         )
 
         response_text = result["response"]
