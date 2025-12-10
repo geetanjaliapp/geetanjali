@@ -455,3 +455,106 @@ def post_process_ollama_response(
     data.setdefault("scholar_flag", True)  # Flag fallback responses for review
 
     return dict(data)
+
+
+# ============================================================================
+# Follow-up Conversation Prompts
+# ============================================================================
+# Used for conversational follow-ups after the initial consultation.
+# These prompts enable lightweight responses without full RAG regeneration.
+
+FOLLOW_UP_SYSTEM_PROMPT = """You are Geetanjali, continuing a consultation about an ethical leadership dilemma. The user has already received a detailed analysis with three options grounded in Bhagavad Geeta wisdom. They now have a follow-up question.
+
+Your role:
+1. Answer their specific question directly and concisely
+2. Reference the prior analysis when relevant (e.g., "As noted in Option 2...")
+3. Cite Bhagavad Geeta verses using format BG_X_Y when relevant
+4. Keep responses focused: typically 1-3 paragraphs
+5. Maintain the professional, balanced tone of the original consultation
+
+What NOT to do:
+- Don't regenerate the full 3-option brief
+- Don't introduce entirely new options
+- Don't provide legal, medical, or financial advice
+
+If the user wants completely different options or a fresh analysis, respond:
+"For a fresh analysis with different perspectives, please start a new consultation. I'm happy to continue discussing the current analysis if you have other questions."
+
+Format: Respond in markdown. Use **bold** for emphasis, verse references like BG_2_47, and bullet points where helpful."""
+
+
+def build_follow_up_prompt(
+    case_description: str,
+    prior_output: Dict[str, Any],
+    conversation: List[Dict[str, Any]],
+    follow_up_question: str,
+    max_conversation_messages: int = 8,
+) -> str:
+    """
+    Build prompt for follow-up conversation.
+
+    Args:
+        case_description: Original dilemma description
+        prior_output: The result_json from the most recent Output
+        conversation: List of messages [{"role": "user"|"assistant", "content": "..."}]
+        follow_up_question: The current follow-up question
+        max_conversation_messages: Rolling window size (default 8 = last 4 exchanges)
+
+    Returns:
+        Formatted prompt string for conversational follow-up
+    """
+    parts = []
+
+    # 1. Original dilemma context (brief)
+    parts.append("# Original Dilemma\n")
+    truncated_desc = case_description[:500]
+    if len(case_description) > 500:
+        truncated_desc += "..."
+    parts.append(f"{truncated_desc}\n\n")
+
+    # 2. Prior consultation summary
+    parts.append("# Prior Consultation Summary\n")
+    executive_summary = prior_output.get("executive_summary", "N/A")
+    parts.append(f"**Executive Summary:** {executive_summary}\n\n")
+
+    parts.append("**Options Provided:**\n")
+    options = prior_output.get("options", [])
+    for i, opt in enumerate(options, 1):
+        title = opt.get("title", f"Option {i}")
+        desc = opt.get("description", "")[:100]
+        if len(opt.get("description", "")) > 100:
+            desc += "..."
+        parts.append(f"{i}. **{title}**: {desc}\n")
+
+    rec = prior_output.get("recommended_action", {})
+    if isinstance(rec, dict):
+        rec_option = rec.get("option", 1)
+        parts.append(f"\n**Recommended:** Option {rec_option}\n\n")
+
+    # 3. Source verses available (from original consultation)
+    sources = prior_output.get("sources", [])
+    if sources:
+        parts.append("**Relevant Verses:**\n")
+        for src in sources[:5]:  # Max 5 verses
+            cid = src.get("canonical_id", "")
+            para = src.get("paraphrase", "")
+            parts.append(f"- {cid}: {para}\n")
+        parts.append("\n")
+
+    # 4. Recent conversation history (rolling window)
+    if conversation:
+        parts.append("# Recent Conversation\n")
+        # Take last N messages (rolling window)
+        recent = conversation[-max_conversation_messages:]
+        for msg in recent:
+            role = "User" if msg.get("role") == "user" else "Geetanjali"
+            content = msg.get("content", "")[:300]
+            if len(msg.get("content", "")) > 300:
+                content += "..."
+            parts.append(f"**{role}:** {content}\n\n")
+
+    # 5. Current question
+    parts.append("# Current Question\n")
+    parts.append(f"{follow_up_question}\n")
+
+    return "".join(parts)
