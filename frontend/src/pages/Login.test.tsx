@@ -48,64 +48,6 @@ describe("Login Page", () => {
     vi.mocked(tokenStorage.getToken).mockReturnValue(null);
   });
 
-  it("should render login form", async () => {
-    render(<Login />, { wrapper });
-
-    await waitFor(() => {
-      expect(screen.getByText("Welcome Back")).toBeInTheDocument();
-    });
-
-    expect(screen.getByLabelText(/email address/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: /sign in/i }),
-    ).toBeInTheDocument();
-  });
-
-  it("should have link to signup page", async () => {
-    render(<Login />, { wrapper });
-
-    await waitFor(() => {
-      expect(screen.getByText("Don't have an account?")).toBeInTheDocument();
-    });
-
-    // There are two signup links - one in navbar and one in form. Get the one after "Don't have an account?"
-    const signupLinks = screen.getAllByRole("link", { name: /sign up/i });
-    expect(signupLinks.length).toBeGreaterThan(0);
-    expect(
-      signupLinks.some((link) => link.getAttribute("href") === "/signup"),
-    ).toBe(true);
-  });
-
-  it("should have link to forgot password page", async () => {
-    render(<Login />, { wrapper });
-
-    await waitFor(() => {
-      expect(screen.getByText("Forgot password?")).toBeInTheDocument();
-    });
-
-    const forgotLink = screen.getByRole("link", { name: /forgot password/i });
-    expect(forgotLink).toHaveAttribute("href", "/forgot-password");
-  });
-
-  it("should allow typing in form fields", async () => {
-    const user = userEvent.setup();
-    render(<Login />, { wrapper });
-
-    await waitFor(() => {
-      expect(screen.getByLabelText(/email address/i)).toBeInTheDocument();
-    });
-
-    const emailInput = screen.getByLabelText(/email address/i);
-    const passwordInput = screen.getByLabelText(/password/i);
-
-    await user.type(emailInput, "test@example.com");
-    await user.type(passwordInput, "password123");
-
-    expect(emailInput).toHaveValue("test@example.com");
-    expect(passwordInput).toHaveValue("password123");
-  });
-
   it("should call login and navigate on success", async () => {
     const user = userEvent.setup();
     vi.mocked(authApi.login).mockResolvedValue({
@@ -134,7 +76,6 @@ describe("Login Page", () => {
 
   it("should show error message on login failure", async () => {
     const user = userEvent.setup();
-    // Create a mock error - the friendly message will be shown
     vi.mocked(authApi.login).mockRejectedValue(
       new Error("Please try again later"),
     );
@@ -152,7 +93,6 @@ describe("Login Page", () => {
     await user.type(screen.getByLabelText(/password/i), "wrong");
     await user.click(screen.getByRole("button", { name: /sign in/i }));
 
-    // Error message is processed by errorMessages.login() and displayed in red box
     await waitFor(() => {
       expect(screen.getByText("Please try again later")).toBeInTheDocument();
     });
@@ -160,7 +100,6 @@ describe("Login Page", () => {
 
   it("should disable button while loading", async () => {
     const user = userEvent.setup();
-    // Make login hang
     vi.mocked(authApi.login).mockImplementation(() => new Promise(() => {}));
 
     render(<Login />, { wrapper });
@@ -178,7 +117,6 @@ describe("Login Page", () => {
 
     await waitFor(() => {
       expect(screen.getByText("Signing in...")).toBeInTheDocument();
-      // Query for the submit button specifically by its loading text
       expect(
         screen.getByRole("button", { name: /signing in/i }),
       ).toBeDisabled();

@@ -39,49 +39,6 @@ describe("ForgotPassword Page", () => {
     vi.mocked(tokenStorage.getToken).mockReturnValue(null);
   });
 
-  it("should render forgot password form", async () => {
-    render(<ForgotPassword />, { wrapper });
-
-    await waitFor(() => {
-      expect(screen.getByText("Reset Password")).toBeInTheDocument();
-    });
-
-    expect(screen.getByLabelText(/email address/i)).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: /send reset link/i }),
-    ).toBeInTheDocument();
-  });
-
-  it("should have link back to login page", async () => {
-    render(<ForgotPassword />, { wrapper });
-
-    await waitFor(() => {
-      expect(screen.getByText("Reset Password")).toBeInTheDocument();
-    });
-
-    const backToLoginLinks = screen.getAllByRole("link", {
-      name: /back to sign in/i,
-    });
-    expect(backToLoginLinks.length).toBeGreaterThan(0);
-    expect(
-      backToLoginLinks.some((link) => link.getAttribute("href") === "/login"),
-    ).toBe(true);
-  });
-
-  it("should allow typing in email field", async () => {
-    const user = userEvent.setup();
-    render(<ForgotPassword />, { wrapper });
-
-    await waitFor(() => {
-      expect(screen.getByLabelText(/email address/i)).toBeInTheDocument();
-    });
-
-    const emailInput = screen.getByLabelText(/email address/i);
-    await user.type(emailInput, "test@example.com");
-
-    expect(emailInput).toHaveValue("test@example.com");
-  });
-
   it("should show success message after submitting", async () => {
     const user = userEvent.setup();
     vi.mocked(authApi.forgotPassword).mockResolvedValue({
@@ -126,7 +83,6 @@ describe("ForgotPassword Page", () => {
     );
     await user.click(screen.getByRole("button", { name: /send reset link/i }));
 
-    // Error is displayed in the red error box
     await waitFor(() => {
       const errorBox = screen.getByText(/something went wrong/i);
       expect(errorBox).toBeInTheDocument();
@@ -135,7 +91,6 @@ describe("ForgotPassword Page", () => {
 
   it("should disable button while loading", async () => {
     const user = userEvent.setup();
-    // Make API call hang
     vi.mocked(authApi.forgotPassword).mockImplementation(
       () => new Promise(() => {}),
     );

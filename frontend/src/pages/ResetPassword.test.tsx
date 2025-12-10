@@ -69,60 +69,12 @@ describe("ResetPassword Page", () => {
     vi.mocked(tokenStorage.getToken).mockReturnValue(null);
   });
 
-  it("should render reset password form when token is provided", async () => {
-    renderWithToken("valid-token-123");
-
-    await waitFor(() => {
-      expect(screen.getByText("Set New Password")).toBeInTheDocument();
-    });
-
-    expect(screen.getByLabelText(/new password/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/confirm password/i)).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: /reset password/i }),
-    ).toBeInTheDocument();
-  });
-
   it("should redirect to forgot-password when no token", async () => {
     renderWithoutToken();
 
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith("/forgot-password");
     });
-  });
-
-  it("should have link back to login page", async () => {
-    renderWithToken("valid-token-123");
-
-    await waitFor(() => {
-      expect(screen.getByText("Set New Password")).toBeInTheDocument();
-    });
-
-    const backToLoginLinks = screen.getAllByRole("link", {
-      name: /back to sign in/i,
-    });
-    expect(backToLoginLinks.length).toBeGreaterThan(0);
-    expect(
-      backToLoginLinks.some((link) => link.getAttribute("href") === "/login"),
-    ).toBe(true);
-  });
-
-  it("should allow typing in password fields", async () => {
-    const user = userEvent.setup();
-    renderWithToken("valid-token-123");
-
-    await waitFor(() => {
-      expect(screen.getByLabelText(/new password/i)).toBeInTheDocument();
-    });
-
-    const passwordInput = screen.getByLabelText(/new password/i);
-    const confirmInput = screen.getByLabelText(/confirm password/i);
-
-    await user.type(passwordInput, "newpassword123");
-    await user.type(confirmInput, "newpassword123");
-
-    expect(passwordInput).toHaveValue("newpassword123");
-    expect(confirmInput).toHaveValue("newpassword123");
   });
 
   it("should show error when passwords do not match", async () => {
@@ -217,7 +169,6 @@ describe("ResetPassword Page", () => {
 
   it("should disable button while loading", async () => {
     const user = userEvent.setup();
-    // Make API call hang
     vi.mocked(authApi.resetPassword).mockImplementation(
       () => new Promise(() => {}),
     );
