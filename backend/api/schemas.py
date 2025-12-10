@@ -313,6 +313,43 @@ class ChatMessageResponse(BaseModel):
 
 
 # ============================================================================
+# Follow-up Schemas
+# ============================================================================
+
+
+class FollowUpRequest(BaseModel):
+    """Schema for follow-up conversation request."""
+
+    content: str = Field(
+        ...,
+        min_length=1,
+        max_length=10000,
+        description="The follow-up question or message",
+    )
+
+
+class LLMAttributionSchema(BaseModel):
+    """Schema for LLM attribution metadata."""
+
+    model: str = Field(..., description="LLM model used")
+    provider: str = Field(..., description="LLM provider (anthropic/ollama)")
+    input_tokens: Optional[int] = Field(None, description="Input tokens used")
+    output_tokens: Optional[int] = Field(None, description="Output tokens generated")
+
+
+class FollowUpResponse(BaseModel):
+    """Schema for follow-up conversation response."""
+
+    message_id: str = Field(..., description="ID of the created message")
+    content: str = Field(..., description="Markdown response from assistant")
+    role: str = Field(default="assistant", description="Message role")
+    created_at: datetime = Field(..., description="Timestamp of response")
+    llm_attribution: Optional[LLMAttributionSchema] = Field(
+        None, description="LLM metadata (may be omitted)"
+    )
+
+
+# ============================================================================
 # Feedback Schemas
 # ============================================================================
 
