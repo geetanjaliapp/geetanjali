@@ -16,6 +16,7 @@ import logging
 from typing import Dict, Any, List, Optional
 from dataclasses import dataclass
 
+from config import settings
 from services.llm import get_llm_service
 from services.prompts import FOLLOW_UP_SYSTEM_PROMPT, build_follow_up_prompt
 
@@ -87,7 +88,7 @@ class FollowUpPipeline:
             prompt=prompt,
             system_prompt=FOLLOW_UP_SYSTEM_PROMPT,
             temperature=0.7,  # Slightly creative for natural conversation
-            max_tokens=1024,  # Reasonable limit for conversational response
+            max_tokens=settings.FOLLOW_UP_MAX_TOKENS,
             json_mode=False,  # Follow-ups use markdown prose, not JSON
         )
 

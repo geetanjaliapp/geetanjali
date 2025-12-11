@@ -87,6 +87,9 @@ class Settings(BaseSettings):
     RAG_CONFIDENCE_THRESHOLD: float = 0.7
     RAG_SCHOLAR_REVIEW_THRESHOLD: float = 0.6
 
+    # Follow-up Pipeline
+    FOLLOW_UP_MAX_TOKENS: int = 1024  # Token limit for conversational follow-ups
+
     # Content Moderation
     CONTENT_FILTER_ENABLED: bool = True  # Master switch for all content filtering
     CONTENT_FILTER_BLOCKLIST_ENABLED: bool = True  # Layer 1: Pre-submission blocklist
