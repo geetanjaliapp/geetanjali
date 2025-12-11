@@ -12,6 +12,7 @@ import {
   ContentNotFound,
 } from "../components";
 import { errorMessages } from "../lib/errorMessages";
+import { validateContent } from "../lib/contentFilter";
 import { groupMessagesIntoExchanges } from "../lib/messageGrouping";
 import { useSEO } from "../hooks";
 import {
@@ -314,6 +315,14 @@ export default function CaseView() {
     if (!id || !followUp.trim() || !caseData) return;
 
     const messageContent = followUp.trim();
+
+    // Client-side content validation (gibberish, abuse detection)
+    const contentCheck = validateContent(messageContent);
+    if (!contentCheck.valid) {
+      setError(contentCheck.reason || "Please check your input and try again.");
+      return;
+    }
+
     setSubmittingFollowUp(true);
     setError(null);
 

@@ -4,6 +4,7 @@ import { casesApi } from "../lib/api";
 import type { Case } from "../types";
 import { Navbar } from "../components/Navbar";
 import { errorMessages } from "../lib/errorMessages";
+import { validateContent } from "../lib/contentFilter";
 import { useSEO } from "../hooks";
 import { trackEvent, EXPERIMENTS, getCurrentVariant } from "../lib/experiment";
 
@@ -76,6 +77,13 @@ export default function NewCase() {
     } else if (formData.question.length < 10) {
       newErrors.question =
         "Please provide more detail (at least 10 characters)";
+    } else {
+      // Content validation (gibberish, abuse detection)
+      const combinedText = `${formData.question} ${formData.context}`.trim();
+      const contentCheck = validateContent(combinedText);
+      if (!contentCheck.valid && contentCheck.reason) {
+        newErrors.question = contentCheck.reason;
+      }
     }
 
     setErrors(newErrors);
