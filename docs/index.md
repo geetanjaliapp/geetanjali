@@ -20,7 +20,7 @@ Ethical leadership guidance from the Bhagavad Geeta.
 - [Operations Overview](operations-overview.md) — Consultation flows, processing states, async handling
 - [Observability](observability.md) — Monitoring, metrics, Grafana dashboards, alerting
 - [Security](security.md) — Container hardening, secrets management, threat model
-- [Content Moderation](content-moderation.md) — Two-layer content filtering, configuration, patterns
+- [Content Moderation](content-moderation.md) — Multi-layer filtering, abuse detection, configuration
 - [Data Sources](data.md) — Bhagavad Geeta content, licensing, ingestion
 
 ## Development

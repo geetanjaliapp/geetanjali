@@ -482,7 +482,7 @@ User Input → [Layer 1: Blocklist] → LLM → [Layer 2: Refusal Detection] →
 
 **Layer 1 (Pre-submission):** Regex blocklist catches explicit content before database write. Returns HTTP 422 with educational message suggesting how to rephrase.
 
-**Layer 2 (Post-LLM):** Detects when Claude refuses to process content (pattern matching on "I can't assist...", "This request contains..."). Returns a policy violation response with guidance on rephrasing.
+**Layer 2 (Post-LLM):** Detects when the LLM refuses to process content (pattern matching on "I can't assist...", "This request contains..."). Returns a policy violation response with guidance on rephrasing.
 
 Both layers use educational messaging—helping users understand what Geetanjali is designed for rather than punishing bad requests. No user content is logged; only violation types for monitoring.
 

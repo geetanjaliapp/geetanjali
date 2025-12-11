@@ -1,66 +1,87 @@
 ---
 layout: default
 title: Content Moderation
-description: Two-layer content moderation system for handling inappropriate content while maintaining focus on genuine ethical guidance.
+description: Multi-layer content moderation for handling inappropriate content while focusing on genuine ethical guidance.
 ---
 
 # Content Moderation
 
-Geetanjali implements a two-layer content moderation system designed to maintain focus on genuine ethical guidance while handling inappropriate content gracefully.
+Geetanjali implements multi-layer content moderation to maintain focus on genuine ethical guidance.
 
 ## Design Principles
 
-- **Educational, not punitive** - Violations return helpful guidance on how to rephrase
-- **Minimal blocklist** - Reduce false positives; only block obvious violations
-- **Privacy-first** - No user content is logged, only violation types
-- **Configurable** - Each layer can be enabled/disabled independently
+- **Educational, not punitive** - Violations return helpful guidance
+- **Minimal blocklist** - Reduce false positives; block only obvious violations
+- **Privacy-first** - No user content logged, only violation types
+- **Configurable** - Each layer independently toggleable
+- **Contextual** - Allow profanity in context ("he said it's bullshit"), block direct abuse ("f*ck you")
 
 ---
 
-## Two-Layer Defense
+## Defense Layers
 
 ```
-User Input → [Layer 1: Blocklist] → Database → LLM → [Layer 2: Refusal Detection] → Response
-                    ↓                                           ↓
-              HTTP 422 + Message                     Policy Violation Response
+User Input → [Frontend] → [Backend Blocklist] → Database → LLM → [Refusal Detection] → Response
+                 ↓               ↓                                       ↓
+            Instant UX       HTTP 422                        Policy Violation Response
 ```
 
-| Layer | When | Action | User Experience |
-|-------|------|--------|-----------------|
-| **Layer 1** | Pre-submission | Block before DB write | Immediate educational message |
-| **Layer 2** | Post-LLM | Detect LLM refusal | Policy violation response with guidance |
+| Layer | When | Purpose |
+|-------|------|---------|
+| **Frontend** | Client-side | Instant feedback, reduce API calls |
+| **Backend Blocklist** | Pre-DB write | Authoritative validation |
+| **LLM Refusal** | Post-LLM | Catch LLM safety refusals |
 
 ---
 
-## Layer 1: Pre-submission Blocklist
+## Backend Blocklist
 
-Catches obvious violations before content reaches the database. Applied to:
+Catches obvious violations before content reaches the database.
+
+**Applied to:**
 - Case creation (`POST /cases`)
 - Follow-up messages (`POST /cases/{id}/messages`)
+- Contact form (`POST /contact`)
 
 ### Violation Types
 
-| Type | Patterns | Examples |
-|------|----------|----------|
-| `explicit_sexual` | Explicit sexual acts, anatomy, pornography | - |
-| `explicit_violence` | Harm instructions, weapons, targeted violence | - |
-| `spam_gibberish` | Repeated characters, symbol spam, link spam | `aaaaaaaaaa`, `!!!!!!!!!` |
+| Type | Description | Example Blocked |
+|------|-------------|-----------------|
+| `explicit_sexual` | Sexual acts, anatomy, pornography | - |
+| `explicit_violence` | Harm instructions, targeted violence | - |
+| `profanity_abuse` | Direct abuse at reader/system | "f*ck you", "you're an idiot" |
+| `spam_gibberish` | Repeated chars, no recognizable words | `aaaaaaa`, `asdf asdf asdf` |
+
+**Note:** Contextual profanity is allowed. "My boss said this is bullshit" passes; "f*ck you" is blocked.
 
 ### Response
 
-```json
-{
-  "detail": "We couldn't process this submission. Geetanjali helps with genuine ethical dilemmas..."
-}
-```
+HTTP `422 Unprocessable Entity` with differentiated messages:
 
-HTTP Status: `422 Unprocessable Entity`
+| Violation | Message |
+|-----------|---------|
+| Spam/Gibberish | "Please enter a clear description..." |
+| Profanity/Abuse | "Please rephrase without direct offensive language..." |
+| Explicit | "We couldn't process this submission..." |
 
 ---
 
-## Layer 2: LLM Refusal Detection
+## Frontend Validation
 
-Detects when Claude or other LLMs refuse to process content due to their built-in safety guidelines. Runs after LLM generation, before JSON parsing.
+Client-side validation provides instant feedback before API calls. Uses the `obscenity` library for obfuscation detection (f4ck, sh1t).
+
+**Applied to:**
+- New case form
+- Follow-up input
+- Contact form
+
+Frontend validation mirrors backend logic but is for UX only—backend is authoritative.
+
+---
+
+## LLM Refusal Detection
+
+Detects when the LLM refuses to process content due to built-in safety guidelines. Runs after LLM generation, before JSON parsing.
 
 ### Detection Patterns
 
@@ -93,38 +114,27 @@ When refusal is detected, the case is marked `policy_violation` and returns an e
 
 ## Configuration
 
-Environment variables control moderation behavior:
-
 ```bash
-# Master switch (disables all filtering)
+# Master switch
 CONTENT_FILTER_ENABLED=true
 
-# Layer 1: Pre-submission blocklist
+# Backend blocklist (explicit, spam, gibberish)
 CONTENT_FILTER_BLOCKLIST_ENABLED=true
 
-# Layer 2: LLM refusal detection
+# Profanity/abuse detection (uses better-profanity library)
+CONTENT_FILTER_PROFANITY_ENABLED=true
+
+# LLM refusal detection
 CONTENT_FILTER_LLM_REFUSAL_DETECTION=true
 ```
 
-### Disable for Development
-
-```bash
-# Quick disable for testing
-CONTENT_FILTER_ENABLED=false
-```
-
-### Disable Layer 1 Only
-
-```bash
-# Trust LLM safety, skip blocklist
-CONTENT_FILTER_BLOCKLIST_ENABLED=false
-```
+Disable all for testing: `CONTENT_FILTER_ENABLED=false`
 
 ---
 
-## Frontend Handling
+## Policy Violation UI
 
-Policy violations are handled gracefully in the UI:
+When a policy violation occurs, the UI adapts:
 
 | Element | Normal Case | Policy Violation |
 |---------|-------------|------------------|
@@ -166,7 +176,10 @@ Content is never logged. Only metadata:
 ```python
 logger.warning(
     "Blocklist violation detected",
-    extra={"violation_type": ViolationType.EXPLICIT_SEXUAL.value}
+    extra={
+        "violation_type": "profanity_abuse",
+        "input_length": 42
+    }
 )
 ```
 

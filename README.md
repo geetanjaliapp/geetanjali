@@ -129,6 +129,7 @@ Full API documentation at `/docs` when running.
 - [Setup Guide](docs/setup.md) - Local development, Docker, environment
 - [Docker Configuration](docs/docker.md) - Compose files, deployment modes
 - [Architecture](docs/architecture.md) - System design, RAG pipeline, components
+- [Content Moderation](docs/content-moderation.md) - Multi-layer filtering, abuse detection
 - [Observability](docs/observability.md) - Monitoring, metrics, Grafana dashboards
 - [Security](docs/security.md) - Container hardening, secrets management
 - [Data Sources](docs/data.md) - Geeta content, licensing, ingestion
