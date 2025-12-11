@@ -274,10 +274,12 @@ class TestRAGPipelineIntegration:
             def search(self, query, top_k=5):
                 raise Exception("Vector store unavailable")
 
-        with patch("services.rag.get_vector_store", return_value=FailingVectorStore()):
-            with patch("services.rag.get_llm_service", return_value=mock_llm_service):
-                pipeline = RAGPipeline()
-                result, is_policy_violation = pipeline.run(SAMPLE_CASE)
+        # Bypass cache to ensure failure scenario is actually tested
+        with patch("services.rag.cache.get", return_value=None):
+            with patch("services.rag.get_vector_store", return_value=FailingVectorStore()):
+                with patch("services.rag.get_llm_service", return_value=mock_llm_service):
+                    pipeline = RAGPipeline()
+                    result, is_policy_violation = pipeline.run(SAMPLE_CASE)
 
         # Should still return a valid response
         assert is_policy_violation is False
@@ -296,13 +298,15 @@ class TestRAGPipelineIntegration:
             def generate(self, **kwargs):
                 raise Exception("LLM unavailable")
 
-        with patch("services.rag.get_vector_store", return_value=mock_vector_store):
-            with patch("services.rag.get_llm_service", return_value=FailingLLM()):
-                with patch("services.rag.SessionLocal") as mock_session:
-                    mock_session.return_value.close = Mock()
+        # Bypass cache to ensure failure scenario is actually tested
+        with patch("services.rag.cache.get", return_value=None):
+            with patch("services.rag.get_vector_store", return_value=mock_vector_store):
+                with patch("services.rag.get_llm_service", return_value=FailingLLM()):
+                    with patch("services.rag.SessionLocal") as mock_session:
+                        mock_session.return_value.close = Mock()
 
-                    pipeline = RAGPipeline()
-                    result, is_policy_violation = pipeline.run(SAMPLE_CASE)
+                        pipeline = RAGPipeline()
+                        result, is_policy_violation = pipeline.run(SAMPLE_CASE)
 
         # Should return fallback response (not policy violation, just failure)
         assert is_policy_violation is False
@@ -318,10 +322,12 @@ class TestRAGPipelineIntegration:
             def search(self, query, top_k=5):
                 return {"ids": [], "documents": [], "distances": [], "metadatas": []}
 
-        with patch("services.rag.get_vector_store", return_value=EmptyVectorStore()):
-            with patch("services.rag.get_llm_service", return_value=mock_llm_service):
-                pipeline = RAGPipeline()
-                result, is_policy_violation = pipeline.run(SAMPLE_CASE)
+        # Bypass cache to ensure empty verses scenario is actually tested
+        with patch("services.rag.cache.get", return_value=None):
+            with patch("services.rag.get_vector_store", return_value=EmptyVectorStore()):
+                with patch("services.rag.get_llm_service", return_value=mock_llm_service):
+                    pipeline = RAGPipeline()
+                    result, is_policy_violation = pipeline.run(SAMPLE_CASE)
 
         # Should complete with warning (not policy violation)
         assert is_policy_violation is False
@@ -347,12 +353,14 @@ class TestLLMRefusalDetection:
                     "provider": "mock",
                 }
 
-        with patch("services.rag.get_vector_store", return_value=mock_vector_store):
-            with patch("services.rag.get_llm_service", return_value=RefusingLLM()):
-                with patch("services.rag.SessionLocal") as mock_session:
-                    mock_session.return_value.close = Mock()
-                    pipeline = RAGPipeline()
-                    result, is_policy_violation = pipeline.run(SAMPLE_CASE)
+        # Bypass cache to ensure refusal scenario is actually tested
+        with patch("services.rag.cache.get", return_value=None):
+            with patch("services.rag.get_vector_store", return_value=mock_vector_store):
+                with patch("services.rag.get_llm_service", return_value=RefusingLLM()):
+                    with patch("services.rag.SessionLocal") as mock_session:
+                        mock_session.return_value.close = Mock()
+                        pipeline = RAGPipeline()
+                        result, is_policy_violation = pipeline.run(SAMPLE_CASE)
 
         # Should detect as policy violation
         assert is_policy_violation is True
