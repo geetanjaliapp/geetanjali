@@ -225,9 +225,10 @@ const COMMON_WORDS = new Set([
   "value",
 ]);
 
-// Thresholds matching backend
-const MIN_COMMON_WORD_RATIO = 0.25;
-const MIN_DISTINCT_COMMON_WORDS = 3;
+// Thresholds matching backend (content_filter.py:216-218)
+const MIN_COMMON_WORD_RATIO = 0.20; // At least 20% common words
+const MIN_DISTINCT_COMMON_WORDS = 2; // At least 2 distinct common words
+const SHORT_INPUT_WORD_CUTOFF = 6; // Short inputs only need 1 common word
 
 // ============================================================================
 // Direct Abuse Patterns
@@ -268,8 +269,9 @@ function isGibberish(text: string): boolean {
   const distinctCommonCount = foundCommon.size;
   const totalWords = words.length;
 
-  // Short inputs: need at least 1 common word
-  if (totalWords <= 3) {
+  // Short inputs (1-6 words): need at least 1 common word
+  // Allows natural follow-up questions like "What about option C?"
+  if (totalWords <= SHORT_INPUT_WORD_CUTOFF) {
     return distinctCommonCount < 1;
   }
 

@@ -51,7 +51,9 @@ class Settings(BaseSettings):
     # LLM Configuration
     # Primary LLM Provider: anthropic, ollama, or mock
     LLM_PROVIDER: str = "anthropic"  # Primary provider
-    LLM_USE_FEW_SHOTS: bool = False  # Include few-shot example in prompts (increases tokens)
+    LLM_USE_FEW_SHOTS: bool = (
+        False  # Include few-shot example in prompts (increases tokens)
+    )
     LLM_FALLBACK_PROVIDER: str = "mock"  # Fallback provider: anthropic, ollama, or mock
     LLM_FALLBACK_ENABLED: bool = True  # Enable fallback to secondary provider
     USE_MOCK_LLM: bool = False  # Use mock LLM for testing (overrides provider setting)
@@ -108,7 +110,9 @@ class Settings(BaseSettings):
     ]
     API_KEY: str = "dev-api-key-12345"
     ANALYZE_RATE_LIMIT: str = "10/hour"  # Rate limit for analyze endpoint
-    FOLLOW_UP_RATE_LIMIT: str = "30/hour"  # Rate limit for follow-up endpoint (3x analyze)
+    FOLLOW_UP_RATE_LIMIT: str = (
+        "30/hour"  # Rate limit for follow-up endpoint (3x analyze)
+    )
 
     # Authentication / JWT
     JWT_SECRET: str = (
@@ -152,6 +156,9 @@ class Settings(BaseSettings):
     RQ_QUEUE_NAME: str = "geetanjali"
     RQ_JOB_TIMEOUT: int = 300  # 5 minutes max per job
     RQ_RETRY_DELAYS: str = "30,120"  # Retry after 30s, then 2min (comma-separated)
+    STALE_PROCESSING_TIMEOUT: int = (
+        300  # 5 minutes - auto-fail cases stuck in PROCESSING
+    )
 
     # Frontend
     FRONTEND_URL: str = "http://localhost:5173"
