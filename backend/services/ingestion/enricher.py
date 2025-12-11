@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Dict, List
 
 from services.llm import get_llm_service
+from utils.json_parsing import extract_json_from_markdown
 
 logger = logging.getLogger(__name__)
 
@@ -149,20 +150,13 @@ Rules:
                 prompt=prompt, temperature=temperature
             )
 
-            # Parse JSON response
-            response_text = response_text.strip()
+            # Parse JSON response using shared utility
+            result = extract_json_from_markdown(response_text)
+            if result is None:
+                logger.error("Failed to parse LLM JSON response")
+                logger.debug(f"Response was: {response_text[:200]}")
+                return []
 
-            # Extract JSON if wrapped in markdown code blocks
-            if "```json" in response_text:
-                start = response_text.find("```json") + 7
-                end = response_text.find("```", start)
-                response_text = response_text[start:end].strip()
-            elif "```" in response_text:
-                start = response_text.find("```") + 3
-                end = response_text.find("```", start)
-                response_text = response_text[start:end].strip()
-
-            result = json.loads(response_text)
             principles = result.get("principles", [])
 
             # Validate principle IDs
@@ -178,10 +172,6 @@ Rules:
             )
             return valid_principles
 
-        except json.JSONDecodeError as e:
-            logger.error(f"Failed to parse LLM JSON response: {e}")
-            logger.debug(f"Response was: {response_text[:200]}")
-            return []
         except Exception as e:
             logger.error(f"Failed to extract principles: {e}")
             return []

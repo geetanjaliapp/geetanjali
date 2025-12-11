@@ -1,7 +1,9 @@
 """Prompt templates for LLM."""
 
-from typing import List, Dict, Any
 import json
+from typing import Any, Dict, List
+
+from utils.json_parsing import extract_json_from_markdown
 
 
 SYSTEM_PROMPT = """You are Geetanjali: an AI consulting aide that uses Bhagavad Geeta principles to generate concise consulting briefs for leadership ethical decisions.
@@ -339,20 +341,10 @@ def post_process_ollama_response(
     Returns:
         Processed and enriched response dict
     """
-    try:
-        data = json.loads(raw_response)
-    except json.JSONDecodeError:
-        # Extract JSON from response if wrapped in text
-        import re
-
-        json_match = re.search(r"\{.*\}", raw_response, re.DOTALL)
-        if json_match:
-            try:
-                data = json.loads(json_match.group())
-            except (json.JSONDecodeError, ValueError):
-                data = {}
-        else:
-            data = {}
+    # Extract JSON from response using shared utility
+    data = extract_json_from_markdown(raw_response)
+    if data is None:
+        data = {}
 
     # Normalize verse reference format: convert BG_X.Y to BG_X_Y
     def normalize_verse_id(verse_id: str) -> str:
