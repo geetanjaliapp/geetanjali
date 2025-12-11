@@ -171,12 +171,18 @@ export default function CaseView() {
     }
   }, [wasProcessing, isCompleted, outputs.length]);
 
-  // Polling for processing status
-  // P1.4 FIX: Use poll data directly instead of refetching everything
+  // Polling for processing status with exponential backoff
+  // LLM operations take 1-3 minutes, so aggressive polling is wasteful
+  // Start at 2s, increase to max 10s to reduce server load by ~60%
   useEffect(() => {
     if (!isProcessing || !id) return;
 
-    const pollInterval = setInterval(async () => {
+    let timeoutId: ReturnType<typeof setTimeout>;
+    let interval = 2000; // Start at 2 seconds
+    const maxInterval = 10000; // Cap at 10 seconds
+    const backoffFactor = 1.5;
+
+    const poll = async () => {
       try {
         const data = await casesApi.get(id);
         setCaseData(data);
@@ -186,9 +192,7 @@ export default function CaseView() {
           data.status === "failed" ||
           data.status === "policy_violation"
         ) {
-          clearInterval(pollInterval);
-          // P1.4 FIX: Only fetch messages and outputs, not case data again
-          // Case data was just fetched above - no need to refetch
+          // Terminal state - fetch final data and stop polling
           const [messagesData, outputsData] = await Promise.all([
             messagesApi.list(id),
             outputsApi.listByCaseId(id),
@@ -200,13 +204,22 @@ export default function CaseView() {
           if (outputsData.length > 0) {
             setExpandedSources(new Set([outputsData[0].id]));
           }
+          return; // Stop polling
         }
-      } catch {
-        // Silent fail - polling will retry
-      }
-    }, 3000);
 
-    return () => clearInterval(pollInterval);
+        // Increase interval with exponential backoff (capped)
+        interval = Math.min(interval * backoffFactor, maxInterval);
+        timeoutId = setTimeout(poll, interval);
+      } catch {
+        // On error, retry with same interval (don't back off on errors)
+        timeoutId = setTimeout(poll, interval);
+      }
+    };
+
+    // Start polling
+    timeoutId = setTimeout(poll, interval);
+
+    return () => clearTimeout(timeoutId);
   }, [isProcessing, id]);
 
   const handleRetry = async () => {
