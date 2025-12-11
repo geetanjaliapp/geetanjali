@@ -3,11 +3,11 @@ Validator service for ensuring data quality and compliance.
 """
 
 import logging
-import re
 from typing import Dict, List, Optional, Tuple
 from sqlalchemy.orm import Session
 
 from models.verse import Verse
+from utils.validation import validate_canonical_id_format
 
 logger = logging.getLogger(__name__)
 
@@ -50,11 +50,10 @@ class Validator:
 
     def _validate_canonical_id_format(self, canonical_id: Optional[str]) -> List[str]:
         """Validate canonical ID format (BG_chapter_verse)."""
-        if canonical_id and not re.match(r"^BG_\d{1,2}_\d{1,3}$", canonical_id):
-            return [
-                f"Invalid canonical_id format: {canonical_id} (expected: BG_chapter_verse)"
-            ]
-        return []
+        if not canonical_id:
+            return []  # Empty/None handled by required field validation
+        error = validate_canonical_id_format(canonical_id)
+        return [error] if error else []
 
     def _validate_chapter(self, chapter: Optional[int]) -> List[str]:
         """Validate chapter number is between 1-18."""
