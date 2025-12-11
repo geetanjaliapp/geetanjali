@@ -19,7 +19,8 @@ logger = logging.getLogger(__name__)
 # Add backend to path
 sys.path.insert(0, "/Users/vmx/workspace/github/geetanjaliapp/geetanjali/backend")
 
-from services.rag import _extract_json_from_text, RAGPipeline
+from services.rag import RAGPipeline
+from utils.json_parsing import extract_json_from_text
 
 # Real production output from database (case with 2 options instead of 3)
 PROD_OUTPUT_2_OPTIONS = """{
@@ -79,7 +80,7 @@ def test_production_output():
     print("-" * 80)
 
     try:
-        parsed = _extract_json_from_text(PROD_OUTPUT_2_OPTIONS)
+        parsed = extract_json_from_text(PROD_OUTPUT_2_OPTIONS)
         print(f"✅ JSON extraction successful")
         print(f"   - Title: {parsed.get('suggested_title')}")
         print(

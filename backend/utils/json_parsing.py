@@ -93,7 +93,9 @@ def extract_json_from_markdown(response_text: str) -> Optional[Dict[str, Any]]:
         end = response_text.find("```", start)
         if end > start:
             try:
-                return cast(Dict[str, Any], json.loads(response_text[start:end].strip()))
+                return cast(
+                    Dict[str, Any], json.loads(response_text[start:end].strip())
+                )
             except json.JSONDecodeError:
                 pass
 
@@ -103,7 +105,9 @@ def extract_json_from_markdown(response_text: str) -> Optional[Dict[str, Any]]:
         end = response_text.find("```", start)
         if end > start:
             try:
-                return cast(Dict[str, Any], json.loads(response_text[start:end].strip()))
+                return cast(
+                    Dict[str, Any], json.loads(response_text[start:end].strip())
+                )
             except json.JSONDecodeError:
                 pass
 

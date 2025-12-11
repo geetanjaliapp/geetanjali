@@ -13,7 +13,6 @@ from models import Verse
 from services.ingestion.pipeline import IngestionPipeline
 from services.email import send_alert_email
 from data.featured_verses import get_featured_verse_ids
-from config import settings
 
 logger = logging.getLogger(__name__)
 

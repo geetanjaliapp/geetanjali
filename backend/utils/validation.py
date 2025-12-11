@@ -58,5 +58,7 @@ def validate_canonical_id_format(canonical_id: str | None) -> str | None:
     if not canonical_id:
         return "Missing canonical_id"
     if not validate_canonical_id(canonical_id):
-        return f"Invalid canonical_id format: {canonical_id} (expected: BG_chapter_verse)"
+        return (
+            f"Invalid canonical_id format: {canonical_id} (expected: BG_chapter_verse)"
+        )
     return None

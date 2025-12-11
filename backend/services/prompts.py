@@ -1,7 +1,9 @@
 """Prompt templates for LLM."""
 
-import json
+import logging
 from typing import Any, Dict, List
+
+logger = logging.getLogger(__name__)
 
 from utils.json_parsing import extract_json_from_markdown
 
@@ -506,6 +508,10 @@ def build_follow_up_prompt(
     parts.append("# Original Dilemma\n")
     truncated_desc = case_description[:500]
     if len(case_description) > 500:
+        logger.info(
+            f"Follow-up prompt: truncating description from {len(case_description)} "
+            f"to 500 chars (dropped {len(case_description) - 500} chars)"
+        )
         truncated_desc += "..."
     parts.append(f"{truncated_desc}\n\n")
 

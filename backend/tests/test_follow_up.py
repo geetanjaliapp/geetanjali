@@ -27,7 +27,10 @@ class TestFollowUpPrompts:
             prior_output={
                 "executive_summary": "This is a career decision requiring wisdom.",
                 "options": [
-                    {"title": "Accept the offer", "description": "Take the new opportunity"},
+                    {
+                        "title": "Accept the offer",
+                        "description": "Take the new opportunity",
+                    },
                     {"title": "Stay put", "description": "Remain in current role"},
                     {"title": "Negotiate", "description": "Counter-offer"},
                 ],
@@ -77,7 +80,10 @@ class TestFollowUpPrompts:
         """Test that conversation is limited to rolling window."""
         # Create 12 messages (exceeds default 8) with unique identifiers
         conversation = [
-            {"role": "user" if i % 2 == 0 else "assistant", "content": f"UniqueMsg_{i:02d}_content"}
+            {
+                "role": "user" if i % 2 == 0 else "assistant",
+                "content": f"UniqueMsg_{i:02d}_content",
+            }
             for i in range(12)
         ]
 
@@ -131,7 +137,11 @@ class TestFollowUpPipeline:
             pipeline = FollowUpPipeline()
             result = pipeline.run(
                 case_description="Test case",
-                prior_output={"executive_summary": "Summary", "options": [], "sources": []},
+                prior_output={
+                    "executive_summary": "Summary",
+                    "options": [],
+                    "sources": [],
+                },
                 conversation=[],
                 follow_up_question="What about this?",
             )
@@ -212,10 +222,18 @@ def case_with_output(client, db_session):
                     "sources": ["BG_18_63"],
                 },
             ],
-            "recommended_action": {"option": 1, "steps": ["Reflect", "Decide", "Act"], "sources": ["BG_2_47"]},
+            "recommended_action": {
+                "option": 1,
+                "steps": ["Reflect", "Decide", "Act"],
+                "sources": ["BG_2_47"],
+            },
             "reflection_prompts": ["What is my dharma?"],
             "sources": [
-                {"canonical_id": "BG_2_47", "paraphrase": "Act without attachment to fruits", "relevance": 0.9},
+                {
+                    "canonical_id": "BG_2_47",
+                    "paraphrase": "Act without attachment to fruits",
+                    "relevance": 0.9,
+                },
             ],
             "confidence": 0.85,
             "scholar_flag": False,
@@ -329,9 +347,11 @@ def test_follow_up_creates_user_message(client, case_with_output, db_session):
     headers = {"X-Session-ID": session_id}
 
     # Count messages before
-    messages_before = db_session.query(Message).filter(Message.case_id == case_id).count()
+    messages_before = (
+        db_session.query(Message).filter(Message.case_id == case_id).count()
+    )
 
-    response = client.post(
+    _response = client.post(  # noqa: F841 - response unused, testing side effects
         f"/api/v1/cases/{case_id}/follow-up",
         json={"content": "My follow-up question"},
         headers=headers,
@@ -341,7 +361,9 @@ def test_follow_up_creates_user_message(client, case_with_output, db_session):
     db_session.expire_all()
 
     # Count messages after
-    messages_after = db_session.query(Message).filter(Message.case_id == case_id).count()
+    messages_after = (
+        db_session.query(Message).filter(Message.case_id == case_id).count()
+    )
 
     # Should have 1 more message (user message created immediately)
     # Assistant message is created in background task
@@ -388,7 +410,9 @@ def test_follow_up_empty_content_rejected(client, case_with_output):
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
 
-def test_follow_up_rejects_when_already_processing(client, case_with_output, db_session):
+def test_follow_up_rejects_when_already_processing(
+    client, case_with_output, db_session
+):
     """Test that follow-up returns 409 Conflict when case is already processing."""
     from models.case import Case, CaseStatus
 
