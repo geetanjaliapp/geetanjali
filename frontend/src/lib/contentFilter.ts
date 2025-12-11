@@ -240,8 +240,11 @@ const ABUSE_PATTERNS = [
   /\b(you|u|ur)\s*(suck|f+[uü*@4]+c*k|fck|fuk|stink)\b/i,
   // Direct insults
   /\b(you|u)\s+(are\s+)?(an?\s+)?(idiot|moron|stupid|dumb|retard)/i,
-  /\b(go\s+to\s+hell|die|kys|kill\s+yourself)\b/i,
-  /\b(stfu|gtfo|foad)\b/i,
+  /\b(go\s+to\s+hell|kys|kill\s+yourself)\b/i,
+  /\b(you\s+should\s+die|just\s+die|go\s+die)\b/i, // "die" only when directed at someone
+  /\b(stfu|gtfo|foad)\b/i, // Common abuse acronyms
+  // Slurs (always blocked, even in context) - match backend patterns
+  /\b(n+[i1*]+gg+[ae3*]+r?|f+[a@4]+gg*[o0]+t|r+[e3]+t+[a@4]+r+d)\b/i,
 ];
 
 // ============================================================================
@@ -279,6 +282,12 @@ function isGibberish(text: string): boolean {
 
 /**
  * Check if text contains direct abuse (not contextual profanity).
+ *
+ * Known limitation: The second-person check looks for profanity AND
+ * second-person pronouns anywhere in the text, not adjacency. This means
+ * "You told me he called it bullshit" could be blocked even though the
+ * profanity isn't directed at the reader. This is a design tradeoff favoring
+ * fewer false negatives over false positives. Backend validation is authoritative.
  */
 function containsAbuse(text: string): boolean {
   // Check direct abuse patterns first
@@ -289,12 +298,17 @@ function containsAbuse(text: string): boolean {
   }
 
   // Use obscenity matcher for obfuscated profanity
-  if (matcher.hasMatch(text)) {
-    // Found profanity - check if directed at reader
-    const secondPersonPattern = /\b(you|u|ur|yours?|yourself)\b/i;
-    if (secondPersonPattern.test(text)) {
-      return true;
+  try {
+    if (matcher.hasMatch(text)) {
+      // Found profanity - check if directed at reader
+      const secondPersonPattern = /\b(you|u|ur|yours?|yourself)\b/i;
+      if (secondPersonPattern.test(text)) {
+        return true;
+      }
     }
+  } catch {
+    // If obscenity matcher fails, fall through to backend validation
+    console.warn("Obscenity matcher error, deferring to backend");
   }
 
   return false;

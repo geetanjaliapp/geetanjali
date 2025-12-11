@@ -77,6 +77,34 @@ describe("contentFilter", () => {
       expect(result.valid).toBe(false);
     });
 
+    it("blocks slurs", () => {
+      const result = validateContent("you are a f4ggot");
+      expect(result.valid).toBe(false);
+    });
+
+    it("blocks 'go die'", () => {
+      const result = validateContent("go die loser");
+      expect(result.valid).toBe(false);
+    });
+
+    // === SHOULD ALLOW: Contextual profanity (not directed at reader) ===
+
+    it("allows quoted profanity describing situation", () => {
+      // Profanity is quoting what someone else said, not directed at reader
+      const result = validateContent(
+        "He said 'this project is bullshit' and I don't know how to respond"
+      );
+      expect(result.valid).toBe(true);
+    });
+
+    it("allows 'die' in philosophical context", () => {
+      // "die" as verb, not imperative abuse
+      const result = validateContent(
+        "I would rather die than compromise my principles"
+      );
+      expect(result.valid).toBe(true);
+    });
+
     // === SHOULD BLOCK: Gibberish ===
 
     it("blocks random characters", () => {
