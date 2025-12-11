@@ -1,6 +1,8 @@
 """FastAPI dependencies for common patterns across endpoints."""
 
+import logging
 import secrets
+from datetime import datetime, timedelta
 from typing import Optional
 
 from fastapi import Depends, Header, HTTPException, status
@@ -9,6 +11,8 @@ from slowapi.util import get_remote_address
 from sqlalchemy.orm import Session
 
 from config import settings
+
+logger = logging.getLogger(__name__)
 from db.connection import get_db
 from db.repositories.case_repository import CaseRepository
 from api.errors import (
@@ -24,7 +28,7 @@ from api.middleware.auth import (
     get_session_id,
     user_can_access_resource,
 )
-from models.case import Case
+from models.case import Case, CaseStatus
 from models.output import Output
 from models.user import User
 
@@ -122,6 +126,20 @@ class CaseAccessDep:
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=ERR_CASE_ACCESS_DENIED,
             )
+
+        # Auto-fail stale processing cases (stuck > STALE_PROCESSING_TIMEOUT)
+        if case.status == CaseStatus.PROCESSING:
+            timeout_seconds = settings.STALE_PROCESSING_TIMEOUT
+            # Use naive UTC to match database format (datetime.utcnow)
+            cutoff = datetime.utcnow() - timedelta(seconds=timeout_seconds)
+            # updated_at tracks when status changed to PROCESSING
+            if case.updated_at and case.updated_at < cutoff:
+                logger.warning(
+                    f"Auto-failing stale case {case.id}: processing for "
+                    f">{timeout_seconds}s (updated_at={case.updated_at})"
+                )
+                case.status = CaseStatus.FAILED
+                db.commit()
 
         return case
 

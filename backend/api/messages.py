@@ -3,11 +3,11 @@
 import logging
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
 from api.schemas import MessageCreate, ChatMessageResponse
-from api.dependencies import get_case_with_access
+from api.dependencies import get_case_with_access, limiter
 from db.connection import get_db
 from db.repositories.message_repository import MessageRepository
 from models.case import Case
@@ -19,8 +19,11 @@ router = APIRouter()
 
 
 @router.get("/cases/{case_id}/messages", response_model=List[ChatMessageResponse])
-def get_case_messages(
-    case: Case = Depends(get_case_with_access), db: Session = Depends(get_db)
+@limiter.limit("60/minute")
+async def get_case_messages(
+    request: Request,
+    case: Case = Depends(get_case_with_access),
+    db: Session = Depends(get_db),
 ):
     """
     Get all messages for a case, ordered chronologically.
@@ -37,7 +40,9 @@ def get_case_messages(
     response_model=ChatMessageResponse,
     status_code=status.HTTP_201_CREATED,
 )
-def create_message(
+@limiter.limit("10/minute")
+async def create_message(
+    request: Request,
     message: MessageCreate,
     case: Case = Depends(get_case_with_access),
     db: Session = Depends(get_db),

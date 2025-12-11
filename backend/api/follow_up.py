@@ -31,6 +31,7 @@ from models.case import Case, CaseStatus
 from services.content_filter import validate_submission_content, ContentPolicyError
 from services.follow_up import get_follow_up_pipeline
 from services.tasks import enqueue_task
+from services.cache import cache, public_case_messages_key
 from utils.exceptions import LLMError
 
 logger = logging.getLogger(__name__)
@@ -85,7 +86,10 @@ def run_follow_up_background(
 
         # Convert messages to conversation format (exclude the pending user message)
         conversation = [
-            {"role": msg.role.value if hasattr(msg.role, "value") else msg.role, "content": msg.content}
+            {
+                "role": msg.role.value if hasattr(msg.role, "value") else msg.role,
+                "content": msg.content,
+            }
             for msg in messages
             if msg.id != user_message_id  # Exclude the message we just created
         ]
@@ -100,19 +104,28 @@ def run_follow_up_background(
                 follow_up_question=follow_up_content,
             )
         except LLMError as e:
-            logger.error(f"[Background] Follow-up pipeline failed: {e}", extra={"case_id": case_id})
+            logger.error(
+                f"[Background] Follow-up pipeline failed: {e}",
+                extra={"case_id": case_id},
+            )
             case.status = CaseStatus.FAILED.value
             db.commit()
             return
         except Exception as e:
-            logger.error(f"[Background] Unexpected error in follow-up: {e}", extra={"case_id": case_id})
+            logger.error(
+                f"[Background] Unexpected error in follow-up: {e}",
+                extra={"case_id": case_id},
+            )
             case.status = CaseStatus.FAILED.value
             db.commit()
             return
 
         # Validate response
         if not result.content or not result.content.strip():
-            logger.error("[Background] Follow-up pipeline returned empty response", extra={"case_id": case_id})
+            logger.error(
+                "[Background] Follow-up pipeline returned empty response",
+                extra={"case_id": case_id},
+            )
             case.status = CaseStatus.FAILED.value
             db.commit()
             return
@@ -123,11 +136,20 @@ def run_follow_up_background(
             content=result.content,
             output_id=None,  # Follow-up responses don't have Output records
         )
-        logger.info(f"[Background] Created assistant follow-up message: {assistant_message.id}")
+        logger.info(
+            f"[Background] Created assistant follow-up message: {assistant_message.id}"
+        )
 
         # Update case status to completed
         case.status = CaseStatus.COMPLETED.value
         db.commit()
+
+        # Invalidate public case messages cache if case is public
+        if case.public_slug:
+            cache.delete(public_case_messages_key(case.public_slug))
+            logger.debug(
+                f"[Background] Invalidated public messages cache for case {case_id}"
+            )
 
         logger.info(
             f"[Background] Follow-up complete for case {case_id}",
@@ -135,14 +157,19 @@ def run_follow_up_background(
         )
 
     except (OperationalError, SQLAlchemyError) as e:
-        logger.error(f"[Background] Database error in follow-up: {e}", extra={"case_id": case_id})
+        logger.error(
+            f"[Background] Database error in follow-up: {e}", extra={"case_id": case_id}
+        )
         try:
             case = db.query(Case).filter(Case.id == case_id).first()
             if case:
                 case.status = CaseStatus.FAILED.value
                 db.commit()
-        except Exception:
-            pass
+        except Exception as nested_e:
+            logger.error(
+                f"[Background] Failed to mark case as FAILED after DB error: {nested_e}",
+                extra={"case_id": case_id},
+            )
     except Exception as e:
         logger.error(f"[Background] Unexpected error: {e}", extra={"case_id": case_id})
         try:
@@ -150,8 +177,11 @@ def run_follow_up_background(
             if case:
                 case.status = CaseStatus.FAILED.value
                 db.commit()
-        except Exception:
-            pass
+        except Exception as nested_e:
+            logger.error(
+                f"[Background] Failed to mark case as FAILED after error: {nested_e}",
+                extra={"case_id": case_id},
+            )
     finally:
         db.close()
 

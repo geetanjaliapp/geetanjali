@@ -19,6 +19,7 @@ from api.middleware.auth import get_optional_user, require_role, get_session_id
 from api.dependencies import get_case_with_access, get_output_with_access, limiter
 from services.rag import get_rag_pipeline
 from services.tasks import enqueue_task
+from services.cache import cache, public_case_outputs_key, public_case_messages_key
 from models.feedback import Feedback
 from config import settings
 
@@ -130,6 +131,12 @@ def run_analysis_background(
 
         # Create assistant message using helper
         _create_assistant_message(case_id, output, result, db)
+
+        # Invalidate public case cache if case is public
+        if case.public_slug:
+            cache.delete(public_case_outputs_key(case.public_slug))
+            cache.delete(public_case_messages_key(case.public_slug))
+            logger.debug(f"[Background] Invalidated public cache for case {case_id}")
 
         logger.info(
             f"[Background] Analysis complete. Output ID: {output.id}, Confidence: {output.confidence}"

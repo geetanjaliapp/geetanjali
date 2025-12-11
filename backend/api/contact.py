@@ -1,7 +1,7 @@
 """Contact form API endpoint."""
 
 import logging
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Request
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Request, status
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr, Field, field_validator
 from typing import Optional
@@ -11,7 +11,7 @@ from api.dependencies import limiter
 from db.connection import get_db
 from models.contact import ContactMessage, ContactType
 from services.email import send_contact_email
-from services.content_filter import check_blocklist, ViolationType
+from services.content_filter import validate_submission_content, ContentPolicyError
 
 logger = logging.getLogger(__name__)
 
@@ -85,25 +85,24 @@ async def submit_contact(
         Success status and message
     """
     # Content validation (spam, gibberish, abuse detection)
-    # Include name field - someone could put abuse there too
-    text_to_check = f"{request.name} {request.subject or ''} {request.message}"
-    content_result = check_blocklist(text_to_check)
-    if content_result.is_violation:
+    # Using subject as title, message as description - mirrors case submission pattern
+    try:
+        validate_submission_content(
+            title=request.subject or request.name,  # Use name if no subject
+            description=request.message,
+        )
+    except ContentPolicyError as e:
         logger.warning(
             "Contact form content violation",
             extra={
-                "violation_type": content_result.violation_type.value if content_result.violation_type else "unknown",
-                "input_length": len(text_to_check),
+                "violation_type": e.violation_type.value,
+                "input_length": len(request.message),
             },
         )
-        # Return user-friendly message based on violation type
-        if content_result.violation_type == ViolationType.SPAM_GIBBERISH:
-            detail = "Please enter a clear message. We couldn't understand your input."
-        elif content_result.violation_type == ViolationType.PROFANITY_ABUSE:
-            detail = "Please rephrase without direct offensive language."
-        else:
-            detail = "We couldn't process this message. Please rephrase and try again."
-        raise HTTPException(status_code=422, detail=detail)
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=e.message,
+        )
 
     try:
         # Convert API enum to model enum
