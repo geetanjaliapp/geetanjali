@@ -2,7 +2,6 @@
 
 import hashlib
 import logging
-import re
 from typing import Any, Dict, List, Optional, Tuple
 
 from config import settings
@@ -841,7 +840,9 @@ class RAGPipeline:
         # Policy violations return early at line ~944 before caching occurs,
         # so cache hits always have is_policy_violation=False.
         description = case_data.get("description", "")
-        cache_key = rag_output_key(hashlib.md5(description.encode(), usedforsecurity=False).hexdigest()[:16])
+        cache_key = rag_output_key(
+            hashlib.md5(description.encode(), usedforsecurity=False).hexdigest()[:16]
+        )
         cached_result = cache.get(cache_key)
         if cached_result:
             logger.info(f"RAG cache hit for key {cache_key[:24]}")

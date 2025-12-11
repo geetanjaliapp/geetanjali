@@ -121,9 +121,18 @@ def _filter_event(event: Any, _hint: Dict[str, Any]) -> Any:
         if "data" in request and isinstance(request["data"], dict):
             body = request["data"]
             sensitive_body_keys = [
-                "password", "new_password", "current_password",
-                "email", "phone", "address", "ssn", "credit_card",
-                "token", "secret", "api_key", "situation",  # situation may contain personal details
+                "password",
+                "new_password",
+                "current_password",
+                "email",
+                "phone",
+                "address",
+                "ssn",
+                "credit_card",
+                "token",
+                "secret",
+                "api_key",
+                "situation",  # situation may contain personal details
             ]
             for key in list(body.keys()):
                 if any(s in key.lower() for s in sensitive_body_keys):

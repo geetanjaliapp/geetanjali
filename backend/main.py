@@ -55,7 +55,13 @@ app.add_middleware(
     allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allow_headers=["Content-Type", "Authorization", "X-CSRF-Token", "X-Request-ID", "X-Session-ID"],
+    allow_headers=[
+        "Content-Type",
+        "Authorization",
+        "X-CSRF-Token",
+        "X-Request-ID",
+        "X-Session-ID",
+    ],
 )
 app.add_middleware(CSRFMiddleware)
 
@@ -73,13 +79,16 @@ async def add_security_headers(request: Request, call_next):
         response.headers["Strict-Transport-Security"] = (
             "max-age=31536000; includeSubDomains"
         )
+        # CSP for API responses - restrictive since backend serves JSON, not HTML
+        # Note: These headers mainly affect any HTML error pages, not JSON responses
         csp = (
-            "default-src 'self'; "
-            "script-src 'self' 'unsafe-inline'; "
-            "style-src 'self' 'unsafe-inline'; "
-            "img-src 'self' data: https:; "
-            "font-src 'self' data:; "
-            "connect-src 'self'"
+            "default-src 'none'; "
+            "script-src 'self'; "
+            "style-src 'self'; "
+            "img-src 'self' data:; "
+            "font-src 'self'; "
+            "connect-src 'self'; "
+            "frame-ancestors 'none'"
         )
         response.headers["Content-Security-Policy"] = csp
     return response
