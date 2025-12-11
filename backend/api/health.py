@@ -12,16 +12,18 @@ from config import settings
 logger = logging.getLogger(__name__)
 
 
-def check_chroma_connection(timeout: int = 2) -> bool:
+def check_chroma_connection(timeout: int | None = None) -> bool:
     """
     Check if ChromaDB is accessible.
 
     Args:
-        timeout: Maximum time to wait in seconds
+        timeout: Maximum time to wait in seconds (default from settings)
 
     Returns:
         True if accessible, False otherwise
     """
+    if timeout is None:
+        timeout = settings.HEALTH_CHECK_TIMEOUT
     try:
         import signal
 
@@ -61,16 +63,18 @@ def check_chroma_connection(timeout: int = 2) -> bool:
         return False
 
 
-def check_ollama_connection(timeout: int = 2) -> bool:
+def check_ollama_connection(timeout: int | None = None) -> bool:
     """
     Check if Ollama is accessible.
 
     Args:
-        timeout: Maximum time to wait in seconds
+        timeout: Maximum time to wait in seconds (default from settings)
 
     Returns:
         True if accessible, False otherwise
     """
+    if timeout is None:
+        timeout = settings.HEALTH_CHECK_TIMEOUT
     try:
         import signal
 

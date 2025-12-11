@@ -1,7 +1,6 @@
 """Application configuration."""
 
 import logging
-import sys
 import warnings
 from typing import List, Union, Optional
 from pydantic import field_validator, model_validator
@@ -74,6 +73,9 @@ class Settings(BaseSettings):
     OLLAMA_RETRY_MIN_WAIT: int = 1
     OLLAMA_RETRY_MAX_WAIT: int = 10
     OLLAMA_MAX_TOKENS: int = 1024  # Balanced token limit
+
+    # Health Check
+    HEALTH_CHECK_TIMEOUT: int = 2  # Seconds to wait for service health checks
 
     # Embeddings
     EMBEDDING_MODEL: str = "sentence-transformers/all-MiniLM-L6-v2"
@@ -376,7 +378,6 @@ class Settings(BaseSettings):
 
             # Log the error and exit
             logger.critical(error_msg)
-            print(error_msg, file=sys.stderr)
             raise ProductionConfigError(error_msg)
 
         logger.info("Production configuration validated successfully.")
