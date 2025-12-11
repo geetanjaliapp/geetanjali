@@ -116,7 +116,8 @@ _ABUSE_PATTERNS = [
     r"\b(you|u|ur)\s*(suck|f+[uü*@4]+c*k|fck|fuk|stink)\b",
     # Direct insults
     r"\b(you|u)\s+(are\s+)?(an?\s+)?(idiot|moron|stupid|dumb|retard)",
-    r"\b(go\s+to\s+hell|die|kys|kill\s+yourself)\b",
+    r"\b(go\s+to\s+hell|kys|kill\s+yourself)\b",
+    r"\b(you\s+should\s+die|just\s+die|go\s+die)\b",  # "die" only when directed at someone
     r"\b(stfu|gtfo|foad)\b",  # Common abuse acronyms
     # Slurs (always blocked, even in context)
     r"\b(n+[i1*]+gg+[ae3*]+r?|f+[a@4]+gg*[o0]+t|r+[e3]+t+[a@4]+r+d)\b",
@@ -136,6 +137,15 @@ def _check_profanity_abuse(text: str) -> bool:
 
     Uses pattern matching for direct abuse + better-profanity for
     obfuscation detection (f4ck, sh1t, etc.).
+
+    Known limitation: The second-person check looks for profanity AND
+    second-person pronouns anywhere in the text, not adjacency. This means
+    "You told me he called it bullshit" could be blocked even though the
+    profanity isn't directed at the reader. This is a design tradeoff:
+    - Fewer false negatives (real abuse gets through)
+    - More false positives (legitimate use blocked)
+    Given educational error messages and backend authority, we err on the
+    side of blocking. A proper fix would require more sophisticated NLP.
 
     Args:
         text: Input text to check

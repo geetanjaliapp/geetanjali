@@ -349,6 +349,18 @@ class TestProfanityAbuseDetection:
         result = check_blocklist(text)
         assert result.is_violation is False
 
+    def test_allows_die_in_philosophical_context(self):
+        """'die' as verb in philosophical context should pass."""
+        text = "I would rather die than compromise my principles"
+        result = check_blocklist(text)
+        assert result.is_violation is False
+
+    def test_blocks_directed_die(self):
+        """'die' when directed at someone should be blocked."""
+        result = check_blocklist("go die loser")
+        assert result.is_violation is True
+        assert result.violation_type == ViolationType.PROFANITY_ABUSE
+
 
 class TestDifferentiatedErrorMessages:
     """Tests for differentiated error messages by violation type."""
