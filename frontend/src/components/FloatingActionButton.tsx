@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
-import { trackEvent, EXPERIMENTS } from "../lib/experiment";
+import { useState, useEffect } from "react";
+import { trackEvent } from "../lib/experiment";
 
 interface FloatingActionButtonProps {
   /** Override the default destination */
@@ -12,7 +13,7 @@ interface FloatingActionButtonProps {
  * Track FAB click for analytics
  */
 function handleFabClick() {
-  trackEvent(EXPERIMENTS.HOMEPAGE_CTA.name, "fab_click", {
+  trackEvent("homepage", "fab_click", {
     source: "mobile_fab",
   });
 }
@@ -21,6 +22,7 @@ function handleFabClick() {
  * Floating Action Button for primary CTA ("Ask a Question")
  * - Visible on mobile only (hidden on desktop where CTA is in content)
  * - Hidden on pages where it's not relevant (NewCase, Login, Signup)
+ * - Hidden on homepage when inline CTA is visible (scroll-aware)
  * - Fixed position bottom-right with safe area padding
  */
 export function FloatingActionButton({
@@ -28,6 +30,31 @@ export function FloatingActionButton({
   label = "Ask",
 }: FloatingActionButtonProps) {
   const location = useLocation();
+  const isHomepage = location.pathname === "/";
+
+  // Track whether CTA is in viewport (only relevant on homepage)
+  const [ctaInView, setCtaInView] = useState(isHomepage);
+
+  // Scroll-aware: hide FAB when inline CTA is visible on homepage
+  useEffect(() => {
+    // Only apply scroll-awareness on homepage
+    if (!isHomepage) {
+      return;
+    }
+
+    const ctaElement = document.querySelector("[data-cta-primary]");
+    if (!ctaElement) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setCtaInView(entry.isIntersecting),
+      { threshold: 0.5 }
+    );
+    observer.observe(ctaElement);
+
+    return () => observer.disconnect();
+  }, [isHomepage]);
 
   // Hide FAB on certain pages where it's not appropriate
   const hiddenPaths = ["/cases/new", "/login", "/signup"];
@@ -36,7 +63,10 @@ export function FloatingActionButton({
   // Also hide if we're on a specific case view (to avoid clutter during reading)
   const isOnCaseView = location.pathname.match(/^\/cases\/[^/]+$/);
 
-  if (shouldHide || isOnCaseView) {
+  // Hide when inline CTA is visible on homepage
+  const hideOnHomepage = isHomepage && ctaInView;
+
+  if (shouldHide || isOnCaseView || hideOnHomepage) {
     return null;
   }
 
@@ -48,13 +78,13 @@ export function FloatingActionButton({
         fixed bottom-6 right-6 z-40
         md:hidden
         flex items-center gap-2
-        bg-gradient-to-r from-red-600 to-orange-600
-        hover:from-red-700 hover:to-orange-700
+        bg-gradient-to-r from-orange-500 to-orange-600
+        hover:from-orange-600 hover:to-orange-700
         text-white font-semibold
         pl-4 pr-5 py-3
         rounded-full
-        shadow-lg shadow-red-600/30
-        hover:shadow-xl hover:shadow-red-600/40
+        shadow-lg shadow-orange-600/30
+        hover:shadow-xl hover:shadow-orange-600/40
         transform hover:scale-105
         transition-all duration-200
         active:scale-95

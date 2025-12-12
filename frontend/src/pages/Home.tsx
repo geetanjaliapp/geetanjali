@@ -1,36 +1,34 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { checkHealth, casesApi, versesApi } from "../lib/api";
 import type { Case, Verse } from "../types";
 import { useAuth } from "../contexts/AuthContext";
 import { FeaturedVerse } from "../components/FeaturedVerse";
+import { ExampleConsultation } from "../components/ExampleConsultation";
+import { Footer } from "../components/Footer";
 import { Navbar } from "../components/Navbar";
 import { useSEO } from "../hooks";
-import { useHomepageCTAExperiment } from "../lib/experiment";
+import { trackEvent } from "../lib/experiment";
 
 export default function Home() {
   // SEO - uses defaults for homepage
   useSEO({ canonical: "/" });
-  const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
   const [recentCases, setRecentCases] = useState<Case[]>([]);
   const [dailyVerse, setDailyVerse] = useState<Verse | null>(null);
   const [verseLoading, setVerseLoading] = useState(true);
   const { isAuthenticated } = useAuth();
 
-  // A/B experiment for homepage CTA
-  const { variant, trackClick } = useHomepageCTAExperiment();
-  const [teaserQuestion, setTeaserQuestion] = useState("");
-
   // Cases loading state - only relevant when authenticated
   const [casesLoading, setCasesLoading] = useState(isAuthenticated);
 
-  // Handle teaser input submission (variant B)
-  const handleTeaserSubmit = () => {
-    if (teaserQuestion.trim()) {
-      trackClick();
-      navigate("/cases/new", { state: { prefill: teaserQuestion.trim() } });
-    }
+  // Simple analytics tracking (A/B test removed)
+  const handlePrimaryCTA = () => {
+    trackEvent("homepage", "cta_click", { type: "primary" });
+  };
+
+  const handleExploreCTA = () => {
+    trackEvent("homepage", "cta_click", { type: "explore" });
   };
 
   // Check backend health on mount
@@ -140,66 +138,49 @@ export default function Home() {
 
           {/* Featured Verse of the Day */}
           <div className="mb-6 sm:mb-8 lg:mb-10">
-            <FeaturedVerse verse={dailyVerse!} loading={verseLoading} />
+            <FeaturedVerse verse={dailyVerse} loading={verseLoading} />
           </div>
 
-          {/* CTA Section - A/B tested */}
-          <div className="hidden sm:flex flex-col items-center mb-6 lg:mb-8">
-            {variant === "control" ? (
-              /* Control: Standard CTA button */
-              <>
-                <Link
-                  to="/cases/new"
-                  onClick={trackClick}
-                  className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold px-8 py-3 sm:px-10 sm:py-4 rounded-xl transition-all shadow-lg hover:shadow-xl text-base sm:text-lg group"
-                >
-                  <span>Ask a Question</span>
-                  <svg
-                    className="w-5 h-5 transition-transform group-hover:translate-x-1"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13 7l5 5m0 0l-5 5m5-5H6"
-                    />
-                  </svg>
-                </Link>
-                <p className="text-xs text-gray-500 mt-2">
-                  Get personalized guidance in minutes
-                </p>
-              </>
-            ) : (
-              /* Variant: Teaser input */
-              <div className="w-full max-w-xl">
-                <label className="block text-sm font-medium text-gray-700 mb-2 text-left">
-                  What's weighing on your mind?
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={teaserQuestion}
-                    onChange={(e) => setTeaserQuestion(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleTeaserSubmit()}
-                    placeholder="Describe your situation..."
-                    className="w-full px-4 py-3 pr-24 text-base border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent shadow-sm"
-                  />
-                  <button
-                    onClick={handleTeaserSubmit}
-                    disabled={!teaserQuestion.trim()}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-1.5 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-                  >
-                    Continue
-                  </button>
-                </div>
-                <p className="text-xs text-gray-500 mt-2">
-                  You'll add more details on the next step
-                </p>
-              </div>
-            )}
+          {/* CTA Section - visible on all screen sizes */}
+          <div
+            className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-6 lg:mb-8"
+            data-cta-primary
+          >
+            <Link
+              to="/cases/new"
+              onClick={handlePrimaryCTA}
+              className="inline-flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold px-6 py-3 sm:px-8 sm:py-3.5 rounded-xl transition-all shadow-lg hover:shadow-xl text-base sm:text-lg group"
+            >
+              <span>Ask a Question</span>
+              <svg
+                className="w-5 h-5 transition-transform group-hover:translate-x-1"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 7l5 5m0 0l-5 5m5-5H6"
+                />
+              </svg>
+            </Link>
+            <Link
+              to="/verses"
+              onClick={handleExploreCTA}
+              className="inline-flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-700 font-medium px-6 py-3 sm:px-8 sm:py-3.5 rounded-xl transition-all border border-gray-300 hover:border-gray-400 text-base sm:text-lg"
+            >
+              <span>Explore Verses</span>
+            </Link>
+          </div>
+          <p className="text-xs sm:text-sm text-gray-500 mb-8 lg:mb-10">
+            Get personalized guidance in minutes
+          </p>
+
+          {/* Example Consultation */}
+          <div className="mb-8 sm:mb-10 lg:mb-12">
+            <ExampleConsultation />
           </div>
 
           {/* Recent Consultations */}
@@ -211,7 +192,7 @@ export default function Home() {
                 </h2>
                 <Link
                   to="/consultations"
-                  className="text-red-600 hover:text-red-700 font-medium text-sm flex-shrink-0"
+                  className="text-orange-600 hover:text-orange-700 font-medium text-sm flex-shrink-0"
                 >
                   View all →
                 </Link>
@@ -221,9 +202,9 @@ export default function Home() {
                   <Link
                     key={case_.id}
                     to={`/cases/${case_.id}`}
-                    className="flex items-center justify-between gap-4 p-3 bg-white rounded-lg border border-gray-200 hover:border-red-300 hover:bg-red-50/50 transition-all group"
+                    className="flex items-center justify-between gap-4 p-3 bg-white rounded-lg border border-gray-200 hover:border-orange-300 hover:bg-orange-50/50 transition-all group"
                   >
-                    <h3 className="font-medium text-gray-900 text-sm sm:text-base truncate group-hover:text-red-700 transition-colors min-w-0">
+                    <h3 className="font-medium text-gray-900 text-sm sm:text-base truncate group-hover:text-orange-700 transition-colors min-w-0">
                       {case_.title}
                     </h3>
                     <span className="text-xs text-gray-400 flex-shrink-0">
@@ -235,7 +216,7 @@ export default function Home() {
             </div>
           )}
 
-          {/* Feature Overview */}
+          {/* Feature Overview - Problem-oriented copy */}
           <div className="mt-4 sm:mt-6 grid grid-cols-3 gap-2 sm:gap-5 lg:gap-6 max-w-4xl mx-auto">
             <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-3 sm:p-6 rounded-xl border border-amber-100 text-center">
               <div className="w-10 h-10 sm:w-12 sm:h-12 bg-amber-100 rounded-lg flex items-center justify-center mb-2 sm:mb-4 mx-auto">
@@ -254,10 +235,11 @@ export default function Home() {
                 </svg>
               </div>
               <h3 className="text-xs sm:text-lg font-semibold text-gray-900 sm:mb-1.5">
-                Clear Guidance
+                <span className="sm:hidden">Navigate</span>
+                <span className="hidden sm:inline">Navigate Tough Choices</span>
               </h3>
               <p className="hidden sm:block text-gray-600 text-sm sm:text-base leading-relaxed">
-                Practical wisdom for navigating complex situations
+                Get clarity when the right path isn't obvious
               </p>
             </div>
             <div className="bg-gradient-to-br from-orange-50 to-red-50 p-3 sm:p-6 rounded-xl border border-orange-100 text-center">
@@ -277,10 +259,11 @@ export default function Home() {
                 </svg>
               </div>
               <h3 className="text-xs sm:text-lg font-semibold text-gray-900 sm:mb-1.5">
-                Multiple Paths
+                <span className="sm:hidden">Options</span>
+                <span className="hidden sm:inline">See All Your Options</span>
               </h3>
               <p className="hidden sm:block text-gray-600 text-sm sm:text-base leading-relaxed">
-                Explore different approaches with their trade-offs
+                Compare approaches with honest trade-offs
               </p>
             </div>
             <div className="bg-gradient-to-br from-red-50 to-rose-50 p-3 sm:p-6 rounded-xl border border-red-100 text-center">
@@ -300,15 +283,19 @@ export default function Home() {
                 </svg>
               </div>
               <h3 className="text-xs sm:text-lg font-semibold text-gray-900 sm:mb-1.5">
-                Rooted in Scripture
+                <span className="sm:hidden">Trusted</span>
+                <span className="hidden sm:inline">Wisdom You Can Trust</span>
               </h3>
               <p className="hidden sm:block text-gray-600 text-sm sm:text-base leading-relaxed">
-                Every insight backed by verses from the Geeta
+                Every recommendation cites its source
               </p>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <Footer />
 
       {/* Bottom padding for FAB on mobile */}
       <div className="h-20 sm:hidden" />
