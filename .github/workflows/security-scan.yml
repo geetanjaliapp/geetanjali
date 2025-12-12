@@ -57,7 +57,7 @@ jobs:
         uses: gensecaihq/Shai-Hulud-2.0-Detector@v2
         with:
           fail-on-critical: true
-          path: frontend
+          working-directory: frontend
 
       - name: Scan backend (Python deps check)
         run: |
@@ -78,8 +78,8 @@ jobs:
         uses: gensecaihq/Shai-Hulud-2.0-Detector@v2
         with:
           fail-on-critical: false
-          path: frontend
-          sarif-output: shai-hulud-results.sarif
+          working-directory: frontend
+          output-format: sarif
 
       - name: Upload SARIF to GitHub Security
         uses: github/codeql-action/upload-sarif@v3
