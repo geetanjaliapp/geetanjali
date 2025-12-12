@@ -8,7 +8,7 @@
  * - App shell caching for instant loads
  */
 
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 const STATIC_CACHE = `geetanjali-static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `geetanjali-dynamic-${CACHE_VERSION}`;
 const VERSE_CACHE = `geetanjali-verses-${CACHE_VERSION}`;

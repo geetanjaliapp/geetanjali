@@ -16,6 +16,7 @@ const authClient = axios.create({
     "Content-Type": "application/json",
   },
   withCredentials: true, // Enable cookies for refresh token
+  timeout: 10000, // 10 second timeout - prevents PWA hanging on flaky networks
   // Treat 401 as a valid response (not an error) to suppress console logging
   // This is expected for anonymous users who don't have a refresh token
   validateStatus: (status) => status !== 401 || true, // Accept all status codes

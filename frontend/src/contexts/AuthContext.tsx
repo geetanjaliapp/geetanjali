@@ -72,7 +72,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setLoading(false);
     };
 
-    initAuth();
+    // Safety timeout: ensure app renders even if auth hangs (PWA standalone mode edge cases)
+    const safetyTimeout = setTimeout(() => {
+      console.warn("[Auth] Safety timeout - proceeding as anonymous");
+      setLoading(false);
+    }, 15000);
+
+    initAuth().finally(() => clearTimeout(safetyTimeout));
   }, []);
 
   // P2.5 FIX: Wrap handlers in useCallback to prevent unnecessary re-renders
