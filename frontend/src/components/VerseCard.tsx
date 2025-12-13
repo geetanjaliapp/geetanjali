@@ -1,6 +1,7 @@
 import { memo, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { formatSanskritLines, isSpeakerIntro } from "../lib/sanskritFormatter";
+import { getPrincipleShortLabel } from "../constants/principles";
 import type { Verse } from "../types";
 
 export interface VerseCardProps {
@@ -9,6 +10,7 @@ export interface VerseCardProps {
   showSpeaker?: boolean;
   showCitation?: boolean;
   showTranslation?: boolean;
+  showTranslationPreview?: boolean; // For compact mode: truncated translation_en
 }
 
 function formatVerseRef(verse: Verse): string {
@@ -29,6 +31,7 @@ export const VerseCard = memo(function VerseCard({
   showSpeaker = true,
   showCitation = true,
   showTranslation = true,
+  showTranslationPreview = false,
 }: VerseCardProps) {
   const isCompact = displayMode === "compact";
 
@@ -44,8 +47,22 @@ export const VerseCard = memo(function VerseCard({
 
   // Compact mode: Sanskrit-only display for verse browsing
   if (isCompact) {
+    // Use translation_en for grid (literal), paraphrase_en reserved for detail page (curated)
+    const translationText = showTranslationPreview ? (verse.translation_en || "") : "";
+
     return (
-      <div className="bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 rounded-xl p-3 sm:p-4 border border-amber-200/50 shadow-sm hover:shadow-md hover:border-amber-300 transition-shadow duration-150">
+      <div className="relative bg-amber-50 rounded-xl p-3 sm:p-4 border border-amber-200 shadow-sm hover:shadow-md hover:border-amber-300 hover:-translate-y-0.5 transition-all duration-150">
+        {/* Featured Badge */}
+        {verse.is_featured && (
+          <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
+            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[10px] sm:text-xs font-medium">
+              <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+              </svg>
+            </span>
+          </div>
+        )}
+
         {/* Verse Reference */}
         <div className="text-amber-600 font-serif font-medium text-xs sm:text-sm mb-2 sm:mb-3">
           ॥ {formatVerseRef(verse)} ॥
@@ -59,6 +76,37 @@ export const VerseCard = memo(function VerseCard({
             </p>
           ))}
         </div>
+
+        {/* Translation preview (if enabled and available) */}
+        {showTranslationPreview && translationText && (
+          <>
+            {/* Subtle divider */}
+            <div className="my-2 sm:my-3 border-t border-amber-200/50" />
+            {/* Translation with CSS line-clamp */}
+            <p className="text-xs sm:text-sm text-gray-600 text-center leading-relaxed line-clamp-3">
+              "{translationText}"
+            </p>
+          </>
+        )}
+
+        {/* Principle Tags (max 2 + overflow indicator) */}
+        {verse.consulting_principles && verse.consulting_principles.length > 0 && (
+          <div className="mt-2 sm:mt-3 flex flex-wrap justify-center gap-1">
+            {verse.consulting_principles.slice(0, 2).map((principle) => (
+              <span
+                key={principle}
+                className="px-2 py-0.5 rounded-full bg-amber-100/70 text-amber-800 text-[10px] sm:text-xs font-medium"
+              >
+                {getPrincipleShortLabel(principle)}
+              </span>
+            ))}
+            {verse.consulting_principles.length > 2 && (
+              <span className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 text-[10px] sm:text-xs font-medium">
+                +{verse.consulting_principles.length - 2}
+              </span>
+            )}
+          </div>
+        )}
       </div>
     );
   }

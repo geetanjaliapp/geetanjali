@@ -35,6 +35,7 @@ export interface Verse {
   translation_en?: string; // Primary English translation (from source)
   paraphrase_en?: string; // LLM-generated leadership summary
   consulting_principles?: string[];
+  is_featured?: boolean; // Whether verse is in curated featured list
   source?: string;
   license?: string;
   created_at: string;
