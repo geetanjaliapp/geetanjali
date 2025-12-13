@@ -324,7 +324,7 @@ export default function About() {
               </p>
               <button
                 onClick={() => setSubmitStatus("idle")}
-                className="mt-4 text-green-600 hover:text-green-700 font-medium"
+                className="mt-4 text-green-600 hover:text-green-700 font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 rounded"
               >
                 Send another message
               </button>
@@ -447,7 +447,7 @@ export default function About() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full md:w-auto bg-orange-600 hover:bg-orange-700 disabled:bg-orange-400 text-white font-semibold px-8 py-3 rounded-lg transition-colors"
+                className="w-full md:w-auto bg-orange-600 hover:bg-orange-700 disabled:bg-orange-400 text-white font-semibold px-8 py-3 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
               >
                 {isSubmitting ? "Sending..." : "Send Message"}
               </button>

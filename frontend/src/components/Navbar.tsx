@@ -60,6 +60,19 @@ export function Navbar({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Close dropdowns on Escape key
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsDropdownOpen(false);
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, []);
+
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
     if (isMobileMenuOpen) {
@@ -111,7 +124,7 @@ export function Navbar({
               {!showBack && (
                 <button
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="md:hidden p-2 -ml-2 rounded-lg text-gray-600 hover:text-orange-600 hover:bg-gray-100 transition-colors"
+                  className="md:hidden p-2 -ml-2 rounded-lg text-gray-600 hover:text-orange-600 hover:bg-gray-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
                   aria-label="Toggle menu"
                   aria-expanded={isMobileMenuOpen}
                 >
@@ -210,7 +223,7 @@ export function Navbar({
                 >
                   <button
                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    className="flex items-center gap-2 px-2 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+                    className="flex items-center gap-2 px-2 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
                     aria-label="Open user menu"
                     aria-expanded={isDropdownOpen}
                   >
@@ -281,7 +294,7 @@ export function Navbar({
               <div className="md:hidden" ref={dropdownRef}>
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="p-1 rounded-full"
+                  className="p-1 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
                   aria-label="Open user menu"
                 >
                   <div className="w-8 h-8 rounded-full bg-orange-600 text-white flex items-center justify-center text-sm font-medium">

@@ -117,7 +117,7 @@ export default function VerseDetail() {
           <div className="mb-4 sm:mb-6">
             <button
               onClick={() => navigate(-1)}
-              className="text-orange-600 hover:text-orange-700 font-medium text-sm"
+              className="text-orange-600 hover:text-orange-700 font-medium text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 rounded"
             >
               ← Go Back
             </button>
@@ -246,7 +246,7 @@ export default function VerseDetail() {
                   onClick={() => setShowAllTranslations(!showAllTranslations)}
                   aria-label={showAllTranslations ? "Hide translations" : "Show translations"}
                   aria-pressed={showAllTranslations}
-                  className={`relative inline-flex h-7 sm:h-8 w-12 sm:w-14 items-center rounded-full transition-colors ${
+                  className={`relative inline-flex h-7 sm:h-8 w-12 sm:w-14 items-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 ${
                     showAllTranslations ? "bg-amber-600" : "bg-gray-300"
                   }`}
                 >

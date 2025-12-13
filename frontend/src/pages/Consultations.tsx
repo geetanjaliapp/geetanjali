@@ -311,7 +311,7 @@ export default function Consultations() {
                             <button
                               onClick={(e) => handleRetry(e, case_.id)}
                               disabled={actionLoading === case_.id}
-                              className="px-2 sm:px-3 py-1 text-xs font-medium text-amber-700 bg-amber-100 hover:bg-amber-200 rounded-full transition-colors disabled:opacity-50"
+                              className="px-2 sm:px-3 py-1 text-xs font-medium text-amber-700 bg-amber-100 hover:bg-amber-200 rounded-full transition-colors disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1"
                               title="Retry analysis"
                             >
                               {actionLoading === case_.id ? "..." : "Retry"}
@@ -352,7 +352,7 @@ export default function Consultations() {
                               </code>
                               <button
                                 onClick={(e) => handleCopyLink(e, case_)}
-                                className="px-2 py-0.5 bg-green-600 text-white rounded text-xs font-medium hover:bg-green-700 transition-colors"
+                                className="px-2 py-0.5 bg-green-600 text-white rounded text-xs font-medium hover:bg-green-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-1"
                               >
                                 {copySuccess === case_.id ? "Copied!" : "Copy"}
                               </button>
@@ -384,10 +384,10 @@ export default function Consultations() {
                           <button
                             onClick={(e) => handleToggleShare(e, case_)}
                             disabled={shareLoading === case_.id}
-                            className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors flex items-center gap-1.5 disabled:opacity-50 ${
+                            className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors flex items-center gap-1.5 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 ${
                               case_.is_public
-                                ? "text-green-700 bg-green-100 hover:bg-green-200"
-                                : "text-amber-700 bg-amber-100 hover:bg-amber-200"
+                                ? "text-green-700 bg-green-100 hover:bg-green-200 focus-visible:ring-green-500"
+                                : "text-amber-700 bg-amber-100 hover:bg-amber-200 focus-visible:ring-amber-500"
                             }`}
                             title={
                               case_.is_public
@@ -422,7 +422,7 @@ export default function Consultations() {
                             handleDeleteClick(e, case_.id, case_.title)
                           }
                           disabled={actionLoading === case_.id}
-                          className="px-3 py-1.5 text-xs font-medium text-gray-500 bg-white border border-gray-200 hover:text-red-600 hover:bg-red-50 hover:border-red-200 rounded-lg transition-colors flex items-center gap-1.5 disabled:opacity-50"
+                          className="px-3 py-1.5 text-xs font-medium text-gray-500 bg-white border border-gray-200 hover:text-red-600 hover:bg-red-50 hover:border-red-200 rounded-lg transition-colors flex items-center gap-1.5 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-1"
                           title="Delete consultation"
                         >
                           <svg
@@ -452,7 +452,7 @@ export default function Consultations() {
                   <button
                     onClick={loadMore}
                     disabled={loadingMore}
-                    className="px-6 py-3 bg-white border border-gray-300 rounded-xl text-gray-700 font-medium hover:bg-gray-50 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
+                    className="px-6 py-3 bg-white border border-gray-300 rounded-xl text-gray-700 font-medium hover:bg-gray-50 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
                   >
                     {loadingMore ? (
                       <span className="flex items-center gap-2">

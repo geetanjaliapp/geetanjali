@@ -289,7 +289,7 @@ export default function NewCase() {
               <button
                 type="button"
                 onClick={handlePersonalizationToggle}
-                className="text-sm text-orange-600 hover:text-orange-700 font-medium flex items-center gap-1"
+                className="text-sm text-orange-600 hover:text-orange-700 font-medium flex items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 rounded"
               >
                 <span>{showAdvanced ? "−" : "+"}</span>
                 <span>Personalize your guidance</span>
@@ -310,7 +310,7 @@ export default function NewCase() {
                         key={opt.value}
                         type="button"
                         onClick={() => toggleSelection(opt.value, setSelectedRoles)}
-                        className={`px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm rounded-full border transition-colors ${
+                        className={`px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm rounded-full border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 ${
                           selectedRoles.has(opt.value)
                             ? "bg-orange-100 border-orange-300 text-orange-700"
                             : "bg-amber-50/50 border-amber-200 text-gray-600 hover:bg-amber-100"
@@ -336,7 +336,7 @@ export default function NewCase() {
                         key={opt.value}
                         type="button"
                         onClick={() => toggleSelection(opt.value, setSelectedStakeholders)}
-                        className={`px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm rounded-full border transition-colors ${
+                        className={`px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm rounded-full border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 ${
                           selectedStakeholders.has(opt.value)
                             ? "bg-orange-100 border-orange-300 text-orange-700"
                             : "bg-amber-50/50 border-amber-200 text-gray-600 hover:bg-amber-100"
