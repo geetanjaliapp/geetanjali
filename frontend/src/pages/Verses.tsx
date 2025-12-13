@@ -11,6 +11,42 @@ import { PRINCIPLE_TAXONOMY, getPrincipleShortLabel } from "../constants/princip
 
 const VERSES_PER_PAGE = 20;
 
+// Skeleton card for loading state
+function VerseCardSkeleton() {
+  return (
+    <div className="bg-amber-50 rounded-xl p-3 sm:p-4 border border-amber-200 shadow-sm animate-pulse">
+      {/* Verse Reference skeleton */}
+      <div className="flex justify-center mb-2 sm:mb-3">
+        <div className="h-4 w-16 bg-amber-200/60 rounded" />
+      </div>
+
+      {/* Sanskrit lines skeleton */}
+      <div className="space-y-2 flex flex-col items-center">
+        <div className="h-4 w-4/5 bg-amber-200/50 rounded" />
+        <div className="h-4 w-3/4 bg-amber-200/50 rounded" />
+        <div className="h-4 w-4/5 bg-amber-200/50 rounded" />
+        <div className="h-4 w-2/3 bg-amber-200/50 rounded" />
+      </div>
+
+      {/* Divider skeleton */}
+      <div className="my-2 sm:my-3 border-t border-amber-200/30" />
+
+      {/* Translation skeleton */}
+      <div className="space-y-1.5 flex flex-col items-center">
+        <div className="h-3 w-11/12 bg-gray-200/60 rounded" />
+        <div className="h-3 w-4/5 bg-gray-200/60 rounded" />
+        <div className="h-3 w-3/4 bg-gray-200/60 rounded" />
+      </div>
+
+      {/* Tags skeleton */}
+      <div className="mt-2 sm:mt-3 flex justify-center gap-1">
+        <div className="h-5 w-14 bg-amber-100 rounded-full" />
+        <div className="h-5 w-12 bg-amber-100 rounded-full" />
+      </div>
+    </div>
+  );
+}
+
 // Back to Top button component
 function BackToTopButton() {
   const [visible, setVisible] = useState(false);
@@ -420,12 +456,12 @@ export default function Verses() {
             </div>
           )}
 
-          {/* Loading State */}
+          {/* Loading State - Skeleton Cards */}
           {loading && verses.length === 0 ? (
-            <div className="flex justify-center items-center py-16 sm:py-20">
-              <div className="text-gray-500 text-base sm:text-lg">
-                Loading verses...
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <VerseCardSkeleton key={i} />
+              ))}
             </div>
           ) : verses.length === 0 ? (
             <div className="text-center py-16 sm:py-20">
