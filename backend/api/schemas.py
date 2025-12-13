@@ -198,6 +198,7 @@ class VerseResponse(VerseBase):
     """Schema for verse response."""
 
     id: str
+    is_featured: bool = Field(default=False, description="Whether verse is featured")
     source: Optional[str]
     license: Optional[str]
     created_at: datetime
