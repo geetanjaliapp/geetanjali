@@ -208,7 +208,7 @@ export default function Verses() {
       </div>
 
       {/* Sticky Filter Bar - Below navbar */}
-      <div className="sticky top-14 sm:top-16 z-10 bg-white/95 backdrop-blur-sm shadow-sm border-b border-gray-200">
+      <div className="sticky top-14 sm:top-16 z-10 bg-amber-50/95 backdrop-blur-sm shadow-sm border-b border-amber-200/50">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-4">
           {/* Filter Pills - Responsive Layout */}
           <div className="flex gap-1.5 sm:gap-2 items-center">
@@ -278,9 +278,9 @@ export default function Verses() {
           {/* Topic Pills Row - with scroll fade indicators */}
           <div className="mt-3 sm:mt-4 relative">
             {/* Left fade */}
-            <div className="absolute left-0 top-0 bottom-1 w-6 bg-gradient-to-r from-white/95 to-transparent z-10 pointer-events-none sm:hidden" />
+            <div className="absolute left-0 top-0 bottom-1 w-6 bg-gradient-to-r from-amber-50/95 to-transparent z-10 pointer-events-none sm:hidden" />
             {/* Right fade */}
-            <div className="absolute right-0 top-0 bottom-1 w-6 bg-gradient-to-l from-white/95 to-transparent z-10 pointer-events-none sm:hidden" />
+            <div className="absolute right-0 top-0 bottom-1 w-6 bg-gradient-to-l from-amber-50/95 to-transparent z-10 pointer-events-none sm:hidden" />
 
             <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-1 -mx-3 px-3 sm:-mx-6 sm:px-6 scrollbar-hide">
               {principleIds.map((principleId) => (

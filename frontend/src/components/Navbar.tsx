@@ -102,7 +102,7 @@ export function Navbar({
 
   return (
     <>
-      <nav className="bg-white shadow-sm border-b border-gray-200 h-14 sm:h-16 flex-shrink-0 sticky top-0 z-40">
+      <nav className="bg-amber-50/90 backdrop-blur-sm shadow-sm border-b border-amber-200/50 h-14 sm:h-16 flex-shrink-0 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
           <div className="flex justify-between items-center h-full">
             {/* Left side */}

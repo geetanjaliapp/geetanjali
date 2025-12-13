@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
  */
 export function Footer() {
   return (
-    <footer className="border-t border-gray-200 bg-gray-50/80 py-4 mt-auto">
+    <footer className="border-t border-amber-200/50 bg-amber-50/50 py-4 mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Mobile: Stacked layout */}
         <div className="sm:hidden text-center space-y-3">
