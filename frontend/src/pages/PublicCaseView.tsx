@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { casesApi } from "../lib/api";
 import type { Case, Message, Output } from "../types";
-import { Navbar, ContentNotFound } from "../components";
+import { Navbar, ContentNotFound, Footer } from "../components";
 import { groupMessagesIntoExchanges } from "../lib/messageGrouping";
 import { useSEO } from "../hooks";
 
@@ -689,6 +689,9 @@ export default function PublicCaseView() {
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }

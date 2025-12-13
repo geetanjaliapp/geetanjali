@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback } from "react";
 import { versesApi } from "../lib/api";
 import type { Verse } from "../types";
 import { Navbar } from "../components/Navbar";
+import { Footer } from "../components/Footer";
 import { VerseCard } from "../components/VerseCard";
 import { errorMessages } from "../lib/errorMessages";
 import { useSEO } from "../hooks";
@@ -394,7 +395,10 @@ export default function Verses() {
       </div>
 
       {/* Bottom padding for FAB on mobile */}
-      <div className="h-20 sm:hidden" />
+      <div className="h-16 sm:hidden" />
+
+      {/* Footer */}
+      <Footer />
 
       {/* Back to Top Button */}
       <BackToTopButton />

@@ -12,6 +12,7 @@
 
 // Root-level components
 export { Navbar } from "./Navbar";
+export { Footer } from "./Footer";
 export { PageLayout } from "./PageLayout";
 export { ErrorBoundary } from "./ErrorBoundary";
 export { VerseCard } from "./VerseCard";

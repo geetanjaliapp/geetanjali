@@ -5,7 +5,7 @@ import { formatSanskritLines, isSpeakerIntro } from "../lib/sanskritFormatter";
 import { PRINCIPLE_TAXONOMY } from "../constants/principles";
 import { getTranslatorPriority } from "../constants/translators";
 import type { Verse, Translation } from "../types";
-import { Navbar, ContentNotFound } from "../components";
+import { Navbar, ContentNotFound, Footer } from "../components";
 import { errorMessages } from "../lib/errorMessages";
 import { useSEO } from "../hooks";
 
@@ -326,7 +326,10 @@ export default function VerseDetail() {
       </div>
 
       {/* Bottom padding for FAB on mobile */}
-      <div className="h-20 sm:hidden" />
+      <div className="h-16 sm:hidden" />
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }

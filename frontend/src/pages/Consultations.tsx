@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { casesApi } from "../lib/api";
 import type { Case, CaseStatus } from "../types";
-import { Navbar, ConfirmModal } from "../components";
+import { Navbar, ConfirmModal, Footer } from "../components";
 import { errorMessages } from "../lib/errorMessages";
 import { useAuth } from "../contexts/AuthContext";
 import { useSEO } from "../hooks";
@@ -489,7 +489,10 @@ export default function Consultations() {
       </div>
 
       {/* Bottom padding for FAB on mobile */}
-      <div className="h-20 sm:hidden" />
+      <div className="h-16 sm:hidden" />
+
+      {/* Footer */}
+      <Footer />
 
       {/* Delete Confirmation Modal */}
       <ConfirmModal
