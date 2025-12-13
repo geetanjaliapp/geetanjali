@@ -459,32 +459,52 @@ export default function Verses() {
                 ))}
               </div>
 
-              {/* Load More Button */}
-              {hasMore && (
-                <div className="flex justify-center mt-6 sm:mt-8">
+              {/* Load More / End of Results */}
+              <div className="mt-8 sm:mt-12">
+                {hasMore ? (
                   <button
                     onClick={loadMore}
                     disabled={loadingMore}
-                    className="px-6 py-3 bg-white border border-gray-300 rounded-xl text-gray-700 font-medium hover:bg-gray-50 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
+                    className="w-full group"
                   >
-                    {loadingMore ? (
-                      <span className="flex items-center gap-2">
-                        <SpinnerIcon className="h-4 w-4 text-gray-500" />
-                        Loading...
-                      </span>
-                    ) : (
-                      "Load More"
-                    )}
-                  </button>
-                </div>
-              )}
+                    <div className="flex items-center gap-4">
+                      {/* Left decorative line */}
+                      <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-300/50 to-amber-300/70" />
 
-              {/* End of Results */}
-              {!hasMore && verses.length > 0 && (
-                <div className="text-center py-6 sm:py-8 text-gray-400 text-xs sm:text-sm">
-                  All verses loaded
-                </div>
-              )}
+                      {/* Center content */}
+                      <div className={`flex flex-col items-center transition-all duration-300 ${loadingMore ? "scale-95 opacity-70" : "group-hover:scale-105"}`}>
+                        {loadingMore ? (
+                          <SpinnerIcon className="w-5 h-5 text-amber-500 mb-1" />
+                        ) : (
+                          <span className="text-amber-400/80 text-lg mb-0.5">॰</span>
+                        )}
+                        <span className="text-sm font-medium text-amber-700/80 group-hover:text-amber-800 transition-colors">
+                          {loadingMore ? "Loading" : "Continue"}
+                        </span>
+                        {!loadingMore && totalCount && (
+                          <span className="text-xs text-amber-600/50 mt-0.5">
+                            {totalCount - verses.length} more
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Right decorative line */}
+                      <div className="flex-1 h-px bg-gradient-to-l from-transparent via-amber-300/50 to-amber-300/70" />
+                    </div>
+                  </button>
+                ) : verses.length > 0 && (
+                  <div className="flex items-center gap-4">
+                    <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-200/40 to-amber-200/60" />
+                    <div className="flex flex-col items-center">
+                      <span className="text-amber-300/60 text-xl">ॐ</span>
+                      <span className="text-xs text-amber-600/40 mt-1">
+                        {verses.length} verses explored
+                      </span>
+                    </div>
+                    <div className="flex-1 h-px bg-gradient-to-l from-transparent via-amber-200/40 to-amber-200/60" />
+                  </div>
+                )}
+              </div>
             </>
           )}
         </div>
