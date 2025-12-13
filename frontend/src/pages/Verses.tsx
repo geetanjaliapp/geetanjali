@@ -458,6 +458,7 @@ export default function Verses() {
                       showCitation={true}
                       showTranslation={false}
                       showTranslationPreview={true}
+                      onPrincipleClick={handlePrincipleSelect}
                     />
                   </Link>
                 ))}

@@ -11,6 +11,7 @@ export interface VerseCardProps {
   showCitation?: boolean;
   showTranslation?: boolean;
   showTranslationPreview?: boolean; // For compact mode: truncated translation_en
+  onPrincipleClick?: (principle: string) => void; // Callback when a principle tag is clicked
 }
 
 function formatVerseRef(verse: Verse): string {
@@ -32,6 +33,7 @@ export const VerseCard = memo(function VerseCard({
   showCitation = true,
   showTranslation = true,
   showTranslationPreview = false,
+  onPrincipleClick,
 }: VerseCardProps) {
   const isCompact = displayMode === "compact";
 
@@ -93,12 +95,21 @@ export const VerseCard = memo(function VerseCard({
         {verse.consulting_principles && verse.consulting_principles.length > 0 && (
           <div className="mt-2 sm:mt-3 flex flex-wrap justify-center gap-1">
             {verse.consulting_principles.slice(0, 2).map((principle) => (
-              <span
+              <button
                 key={principle}
-                className="px-2 py-0.5 rounded-full bg-amber-100/70 text-amber-800 text-[10px] sm:text-xs font-medium"
+                onClick={(e) => {
+                  if (onPrincipleClick) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onPrincipleClick(principle);
+                  }
+                }}
+                className={`px-2 py-0.5 rounded-full bg-amber-100/70 text-amber-800 text-[10px] sm:text-xs font-medium ${
+                  onPrincipleClick ? "hover:bg-amber-200 cursor-pointer transition-colors" : ""
+                }`}
               >
                 {getPrincipleShortLabel(principle)}
-              </span>
+              </button>
             ))}
             {verse.consulting_principles.length > 2 && (
               <span className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 text-[10px] sm:text-xs font-medium">
