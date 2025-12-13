@@ -252,14 +252,6 @@ export default function Verses() {
     updateSearchParams(filterMode, principle);
   };
 
-  const getFilterDescription = () => {
-    const parts = [];
-    if (showFeatured) parts.push("featured");
-    if (selectedChapter) parts.push(`from Chapter ${selectedChapter}`);
-    if (selectedPrinciple) parts.push(`on ${getPrincipleShortLabel(selectedPrinciple)}`);
-    return parts.length > 0 ? parts.join(" ") + " " : "";
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex flex-col">
       <Navbar />
@@ -432,21 +424,29 @@ export default function Verses() {
                 </span>
               )}
 
-              {/* Clear all button */}
-              <button
-                onClick={() => {
-                  setFilterMode("featured");
-                  setSelectedPrinciple(null);
-                  updateSearchParams("featured", null);
-                }}
-                className="text-xs sm:text-sm text-amber-600 hover:text-amber-800 font-medium underline underline-offset-2 ml-auto"
-              >
-                Clear all
-              </button>
+              {/* Count + Clear all */}
+              <div className="flex items-center gap-2 ml-auto">
+                {totalCount !== null && (
+                  <span className="text-xs sm:text-sm text-amber-600/70">
+                    {totalCount} verse{totalCount !== 1 ? "s" : ""}
+                  </span>
+                )}
+                <button
+                  onClick={() => {
+                    setFilterMode("featured");
+                    setSelectedPrinciple(null);
+                    updateSearchParams("featured", null);
+                  }}
+                  className="text-xs sm:text-sm text-amber-600 hover:text-amber-800 font-medium underline underline-offset-2"
+                >
+                  Clear
+                </button>
+              </div>
             </div>
           ) : (
             <div className="text-xs sm:text-sm text-amber-600/70">
-              {showFeatured ? "Showing curated featured verses" : "Showing all 701 verses"}
+              {totalCount !== null ? `${totalCount} ` : ""}
+              {showFeatured ? "featured verses" : "verses"}
             </div>
           )}
         </div>
@@ -521,13 +521,6 @@ export default function Verses() {
             </div>
           ) : (
             <>
-              {/* Results Count */}
-              <div className="mb-3 sm:mb-4 text-xs sm:text-sm text-gray-600">
-                Showing {verses.length}
-                {totalCount ? ` of ${totalCount}` : ""} {getFilterDescription()}
-                verse{(totalCount || verses.length) !== 1 ? "s" : ""}
-              </div>
-
               {/* Verse Grid */}
               <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 transition-opacity duration-200 ${loading ? "opacity-50" : "opacity-100"}`}>
                 {verses.map((verse, index) => (
