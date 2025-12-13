@@ -350,6 +350,63 @@ export default function Verses() {
         </div>
       </div>
 
+      {/* Active Filter Banner - Shows when filters are applied */}
+      {(selectedChapter || selectedPrinciple) && (
+        <div className="bg-amber-50/80 border-b border-amber-100">
+          <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2 sm:py-2.5">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs sm:text-sm text-amber-700">Filtering by:</span>
+
+              {/* Chapter filter tag */}
+              {selectedChapter && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-100 text-orange-800 text-xs sm:text-sm font-medium">
+                  Chapter {selectedChapter}
+                  <button
+                    onClick={() => handleFilterSelect("featured")}
+                    className="ml-0.5 hover:bg-orange-200 rounded-full p-0.5 transition-colors"
+                    aria-label="Clear chapter filter"
+                  >
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </span>
+              )}
+
+              {/* Principle filter tag */}
+              {selectedPrinciple && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-xs sm:text-sm font-medium">
+                  {getPrincipleShortLabel(selectedPrinciple)}
+                  <button
+                    onClick={() => handlePrincipleSelect(null)}
+                    className="ml-0.5 hover:bg-amber-200 rounded-full p-0.5 transition-colors"
+                    aria-label="Clear topic filter"
+                  >
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </span>
+              )}
+
+              {/* Clear all button */}
+              {(selectedChapter || selectedPrinciple) && (
+                <button
+                  onClick={() => {
+                    setFilterMode("featured");
+                    setSelectedPrinciple(null);
+                    updateSearchParams("featured", null);
+                  }}
+                  className="text-xs sm:text-sm text-amber-600 hover:text-amber-800 font-medium underline underline-offset-2 ml-auto"
+                >
+                  Clear all
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Content */}
       <div className="flex-1 py-4 sm:py-6">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
