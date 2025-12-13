@@ -464,10 +464,51 @@ export default function Verses() {
               ))}
             </div>
           ) : verses.length === 0 ? (
-            <div className="text-center py-16 sm:py-20">
-              <p className="text-gray-500 text-base sm:text-lg">
-                No verses found
-              </p>
+            <div className="text-center py-12 sm:py-16">
+              <div className="max-w-md mx-auto">
+                {/* Decorative element */}
+                <div className="text-4xl sm:text-5xl text-amber-300/60 mb-4">
+                  ॐ
+                </div>
+
+                <h3 className="text-lg sm:text-xl font-serif text-gray-700 mb-2">
+                  No verses found
+                </h3>
+
+                <p className="text-sm sm:text-base text-gray-500 mb-6">
+                  {selectedPrinciple && selectedChapter ? (
+                    <>No verses in Chapter {selectedChapter} match the "{getPrincipleShortLabel(selectedPrinciple)}" principle.</>
+                  ) : selectedPrinciple ? (
+                    <>No verses found with the "{getPrincipleShortLabel(selectedPrinciple)}" principle in this selection.</>
+                  ) : selectedChapter ? (
+                    <>No featured verses found in Chapter {selectedChapter}.</>
+                  ) : (
+                    <>Try adjusting your filters to discover more verses.</>
+                  )}
+                </p>
+
+                {/* Action buttons */}
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center">
+                  {(selectedChapter || selectedPrinciple) && (
+                    <button
+                      onClick={() => {
+                        setFilterMode("featured");
+                        setSelectedPrinciple(null);
+                        updateSearchParams("featured", null);
+                      }}
+                      className="px-4 py-2 bg-amber-600 text-white rounded-lg text-sm font-medium hover:bg-amber-700 transition-colors"
+                    >
+                      Clear filters
+                    </button>
+                  )}
+                  <button
+                    onClick={() => handleFilterSelect("all")}
+                    className="px-4 py-2 bg-white text-gray-700 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 transition-colors"
+                  >
+                    Browse all 701 verses
+                  </button>
+                </div>
+              </div>
             </div>
           ) : (
             <>
