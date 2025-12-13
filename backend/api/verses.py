@@ -34,6 +34,7 @@ async def get_verses_count(
     request: Request,
     chapter: Optional[int] = Query(None, ge=1, le=18, description="Filter by chapter"),
     featured: Optional[bool] = Query(None, description="Filter by featured status"),
+    principles: Optional[str] = Query(None, description="Comma-separated principle tags"),
     db: Session = Depends(get_db),
 ):
     """
@@ -42,11 +43,16 @@ async def get_verses_count(
     Args:
         chapter: Filter by chapter number
         featured: Filter by featured status (true/false)
+        principles: Comma-separated consulting principles
         db: Database session
 
     Returns:
         Count of matching verses
     """
+    from sqlalchemy import or_
+    from sqlalchemy.dialects.postgresql import JSONB
+    from sqlalchemy import cast
+
     query = db.query(func.count(Verse.id))
 
     if chapter:
@@ -54,6 +60,14 @@ async def get_verses_count(
 
     if featured is not None:
         query = query.filter(Verse.is_featured == featured)
+
+    if principles:
+        principle_list = [p.strip() for p in principles.split(",")]
+        conditions = [
+            cast(Verse.consulting_principles, JSONB).contains([p]) for p in principle_list
+        ]
+        query = query.filter(Verse.consulting_principles.isnot(None))
+        query = query.filter(or_(*conditions))
 
     count = query.scalar()
     return {"count": count}
@@ -94,27 +108,26 @@ async def search_verses(
     """
     repo = VerseRepository(db)
 
+    from sqlalchemy import or_
+    from sqlalchemy.dialects.postgresql import JSONB
+    from sqlalchemy import cast
+
     # Search by canonical ID if query looks like one (not cached - specific lookups)
     if q and q.startswith("BG_"):
         verse = repo.get_by_canonical_id(q)
         return [verse] if verse else []
 
-    # Search by principles (not cached - less common)
-    if principles:
-        principle_list = [p.strip() for p in principles.split(",")]
-        return repo.search_by_principles(principle_list)
-
-    # P2.3 FIX: Cache filtered verse list queries
-    # These are the most common queries (verse browser, chapter navigation)
-    cache_key = verse_list_key(
-        chapter=chapter, featured=featured, skip=skip, limit=limit
-    )
-    cached_result = cache.get(cache_key)
-    if cached_result:
-        return cached_result
-
     # Build query with filters
     query = db.query(Verse)
+
+    # Filter by principles (with pagination support)
+    if principles:
+        principle_list = [p.strip() for p in principles.split(",")]
+        conditions = [
+            cast(Verse.consulting_principles, JSONB).contains([p]) for p in principle_list
+        ]
+        query = query.filter(Verse.consulting_principles.isnot(None))
+        query = query.filter(or_(*conditions))
 
     # Filter by chapter
     if chapter:
@@ -124,18 +137,29 @@ async def search_verses(
     if featured is not None:
         query = query.filter(Verse.is_featured == featured)
 
+    # Skip caching for principle queries (less common, more variations)
+    if not principles:
+        # P2.3 FIX: Cache filtered verse list queries
+        cache_key = verse_list_key(
+            chapter=chapter, featured=featured, skip=skip, limit=limit
+        )
+        cached_result = cache.get(cache_key)
+        if cached_result:
+            return cached_result
+
     # Always sort by chapter, then verse number
     query = query.order_by(Verse.chapter, Verse.verse)
 
     # Apply pagination
     result = query.offset(skip).limit(limit).all()
 
-    # Cache the result (convert to dicts for JSON serialization)
-    cache.set(
-        cache_key,
-        [VerseResponse.model_validate(v).model_dump() for v in result],
-        settings.CACHE_TTL_VERSE_LIST,
-    )
+    # Cache the result (only for non-principle queries)
+    if not principles:
+        cache.set(
+            cache_key,
+            [VerseResponse.model_validate(v).model_dump() for v in result],
+            settings.CACHE_TTL_VERSE_LIST,
+        )
 
     return result
 
