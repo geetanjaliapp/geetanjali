@@ -297,10 +297,7 @@ export default function Verses() {
               All
             </button>
 
-            {/* Spacer to push chapter dropdown to right */}
-            <div className="flex-1" />
-
-            {/* Chapter Dropdown - Right aligned */}
+            {/* Chapter Dropdown */}
             <div className="relative">
               <button
                 onClick={() => setShowChapterDropdown(!showChapterDropdown)}
@@ -335,7 +332,7 @@ export default function Verses() {
                     onClick={() => setShowChapterDropdown(false)}
                   />
                   {/* Panel */}
-                  <div className="absolute right-0 mt-2 p-3 bg-white rounded-xl shadow-xl border border-gray-200 z-20 w-64 sm:w-72">
+                  <div className="absolute left-0 mt-2 p-3 bg-white rounded-xl shadow-xl border border-gray-200 z-20 w-64 sm:w-72">
                     <div className="grid grid-cols-6 gap-2">
                       {Array.from({ length: 18 }, (_, i) => i + 1).map(
                         (chapter) => (
