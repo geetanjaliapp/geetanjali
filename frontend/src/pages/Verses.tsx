@@ -1,5 +1,5 @@
 import { Link, useSearchParams } from "react-router-dom";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { versesApi } from "../lib/api";
 import type { Verse } from "../types";
 import { Navbar } from "../components/Navbar";
@@ -9,7 +9,11 @@ import { errorMessages } from "../lib/errorMessages";
 import { useSEO } from "../hooks";
 import { PRINCIPLE_TAXONOMY, getPrincipleShortLabel } from "../constants/principles";
 
-const VERSES_PER_PAGE = 20;
+// Responsive page size: 16 for desktop (4x4 grid), 12 for mobile
+const getVersesPerPage = () => {
+  if (typeof window === "undefined") return 12;
+  return window.innerWidth >= 1024 ? 16 : 12;
+};
 
 // Skeleton card for loading state
 function VerseCardSkeleton() {
@@ -107,6 +111,9 @@ export default function Verses() {
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
 
+  // Responsive page size: 16 for desktop (4x4), 12 for mobile
+  const pageSize = useMemo(() => getVersesPerPage(), []);
+
   // Parse initial filter from URL
   const getInitialFilter = (): FilterMode => {
     const chapter = searchParams.get("chapter");
@@ -162,7 +169,7 @@ export default function Verses() {
 
         const data = await versesApi.list(
           skip ?? 0,
-          VERSES_PER_PAGE,
+          pageSize,
           chapter,
           featured,
           selectedPrinciple || undefined,
@@ -174,7 +181,7 @@ export default function Verses() {
           setVerses((prev) => [...prev, ...data]);
         }
 
-        setHasMore(data.length === VERSES_PER_PAGE);
+        setHasMore(data.length === pageSize);
       } catch (err) {
         setError(errorMessages.verseLoad(err));
       } finally {
@@ -182,7 +189,7 @@ export default function Verses() {
         setLoadingMore(false);
       }
     },
-    [filterMode, selectedPrinciple],
+    [filterMode, selectedPrinciple, pageSize],
   );
 
   useEffect(() => {
@@ -201,7 +208,7 @@ export default function Verses() {
 
       const data = await versesApi.list(
         verses.length,
-        VERSES_PER_PAGE,
+        pageSize,
         chapter,
         featured,
         selectedPrinciple || undefined,
@@ -213,13 +220,13 @@ export default function Verses() {
         const newVerses = data.filter((v) => !existingIds.has(v.id));
         return [...prev, ...newVerses];
       });
-      setHasMore(data.length === VERSES_PER_PAGE);
+      setHasMore(data.length === pageSize);
     } catch (err) {
       setError(errorMessages.verseLoad(err));
     } finally {
       setLoadingMore(false);
     }
-  }, [filterMode, selectedPrinciple, verses.length, loadingMore]);
+  }, [filterMode, selectedPrinciple, verses.length, loadingMore, pageSize]);
 
   const updateSearchParams = (filter: FilterMode, principle: string | null) => {
     const params: Record<string, string> = {};
