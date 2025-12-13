@@ -4,7 +4,9 @@ import { versesApi } from "../lib/api";
 import type { Verse } from "../types";
 import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
-import { VerseCard } from "../components/VerseCard";
+import { VerseCard, VerseCardSkeleton } from "../components/VerseCard";
+import { BackToTopButton } from "../components/BackToTopButton";
+import { CloseIcon, ChevronDownIcon, SpinnerIcon } from "../components/icons";
 import { errorMessages } from "../lib/errorMessages";
 import { useSEO } from "../hooks";
 import { PRINCIPLE_TAXONOMY, getPrincipleShortLabel } from "../constants/principles";
@@ -15,82 +17,18 @@ const getVersesPerPage = () => {
   return window.innerWidth >= 1024 ? 16 : 12;
 };
 
-// Skeleton card for loading state
-function VerseCardSkeleton() {
-  return (
-    <div className="bg-amber-50 rounded-xl p-3 sm:p-4 border border-amber-200 shadow-sm animate-pulse">
-      {/* Verse Reference skeleton */}
-      <div className="flex justify-center mb-2 sm:mb-3">
-        <div className="h-4 w-16 bg-amber-200/60 rounded" />
-      </div>
+// Shared grid layout classes
+const VERSE_GRID_CLASSES = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4";
 
-      {/* Sanskrit lines skeleton */}
-      <div className="space-y-2 flex flex-col items-center">
-        <div className="h-4 w-4/5 bg-amber-200/50 rounded" />
-        <div className="h-4 w-3/4 bg-amber-200/50 rounded" />
-        <div className="h-4 w-4/5 bg-amber-200/50 rounded" />
-        <div className="h-4 w-2/3 bg-amber-200/50 rounded" />
-      </div>
+// Animation timing constants
+const CARD_ANIMATION_DELAY_MS = 30;
+const CARD_ANIMATION_MAX_DELAY_MS = 300;
+const SKELETON_COUNT = 8;
 
-      {/* Divider skeleton */}
-      <div className="my-2 sm:my-3 border-t border-amber-200/30" />
-
-      {/* Translation skeleton */}
-      <div className="space-y-1.5 flex flex-col items-center">
-        <div className="h-3 w-11/12 bg-gray-200/60 rounded" />
-        <div className="h-3 w-4/5 bg-gray-200/60 rounded" />
-        <div className="h-3 w-3/4 bg-gray-200/60 rounded" />
-      </div>
-
-      {/* Tags skeleton */}
-      <div className="mt-2 sm:mt-3 flex justify-center gap-1">
-        <div className="h-5 w-14 bg-amber-100 rounded-full" />
-        <div className="h-5 w-12 bg-amber-100 rounded-full" />
-      </div>
-    </div>
-  );
-}
-
-// Back to Top button component
-function BackToTopButton() {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setVisible(window.scrollY > 400);
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  if (!visible) return null;
-
-  return (
-    <button
-      onClick={scrollToTop}
-      className="fixed bottom-6 right-6 z-40 w-12 h-12 bg-white border border-gray-300 rounded-full shadow-lg hover:shadow-xl hover:bg-gray-50 transition-all flex items-center justify-center"
-      aria-label="Back to top"
-    >
-      <svg
-        className="w-5 h-5 text-gray-600"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M5 10l7-7m0 0l7 7m-7-7v18"
-        />
-      </svg>
-    </button>
-  );
-}
+// Filter pill styling patterns
+const FILTER_PILL_BASE = "px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0";
+const FILTER_PILL_ACTIVE = "bg-orange-600 text-white shadow-md";
+const FILTER_PILL_INACTIVE = "bg-white text-gray-700 hover:bg-gray-100 border border-gray-300";
 
 // Filter modes: 'featured' shows curated verses, 'all' shows all 701 verses
 type FilterMode = "featured" | "all" | number; // number = specific chapter
@@ -277,22 +215,14 @@ export default function Verses() {
             {/* Featured */}
             <button
               onClick={() => handleFilterSelect("featured")}
-              className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
-                showFeatured
-                  ? "bg-orange-600 text-white shadow-md"
-                  : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-300"
-              }`}
+              className={`${FILTER_PILL_BASE} ${showFeatured ? FILTER_PILL_ACTIVE : FILTER_PILL_INACTIVE}`}
             >
               Featured
             </button>
             {/* All */}
             <button
               onClick={() => handleFilterSelect("all")}
-              className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
-                showAll
-                  ? "bg-orange-600 text-white shadow-md"
-                  : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-300"
-              }`}
+              className={`${FILTER_PILL_BASE} ${showAll ? FILTER_PILL_ACTIVE : FILTER_PILL_INACTIVE}`}
             >
               All
             </button>
@@ -301,26 +231,12 @@ export default function Verses() {
             <div className="relative">
               <button
                 onClick={() => setShowChapterDropdown(!showChapterDropdown)}
-                className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap flex items-center gap-1.5 ${
-                  selectedChapter
-                    ? "bg-orange-600 text-white shadow-md"
-                    : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-300"
-                }`}
+                className={`${FILTER_PILL_BASE} flex items-center gap-1.5 ${selectedChapter ? FILTER_PILL_ACTIVE : FILTER_PILL_INACTIVE}`}
               >
                 {selectedChapter ? `Chapter ${selectedChapter}` : "Chapter"}
-                <svg
+                <ChevronDownIcon
                   className={`w-4 h-4 transition-transform ${showChapterDropdown ? "rotate-180" : ""}`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
+                />
               </button>
 
               {/* Dropdown Panel */}
@@ -359,25 +275,32 @@ export default function Verses() {
             </div>
           </div>
 
-          {/* Topic Pills Row */}
-          <div className="mt-3 sm:mt-4 flex gap-1.5 sm:gap-2 overflow-x-auto pb-1 -mx-3 px-3 sm:-mx-6 sm:px-6 scrollbar-hide">
-            {principleIds.map((principleId) => (
-              <button
-                key={principleId}
-                onClick={() =>
-                  handlePrincipleSelect(
-                    selectedPrinciple === principleId ? null : principleId
-                  )
-                }
-                className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
-                  selectedPrinciple === principleId
-                    ? "bg-amber-600 text-white shadow-md"
-                    : "bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200"
-                }`}
-              >
-                {getPrincipleShortLabel(principleId)}
-              </button>
-            ))}
+          {/* Topic Pills Row - with scroll fade indicators */}
+          <div className="mt-3 sm:mt-4 relative">
+            {/* Left fade */}
+            <div className="absolute left-0 top-0 bottom-1 w-6 bg-gradient-to-r from-white/95 to-transparent z-10 pointer-events-none sm:hidden" />
+            {/* Right fade */}
+            <div className="absolute right-0 top-0 bottom-1 w-6 bg-gradient-to-l from-white/95 to-transparent z-10 pointer-events-none sm:hidden" />
+
+            <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-1 -mx-3 px-3 sm:-mx-6 sm:px-6 scrollbar-hide">
+              {principleIds.map((principleId) => (
+                <button
+                  key={principleId}
+                  onClick={() =>
+                    handlePrincipleSelect(
+                      selectedPrinciple === principleId ? null : principleId
+                    )
+                  }
+                  className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
+                    selectedPrinciple === principleId
+                      ? "bg-amber-600 text-white shadow-md"
+                      : "bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200"
+                  }`}
+                >
+                  {getPrincipleShortLabel(principleId)}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -398,9 +321,7 @@ export default function Verses() {
                     className="ml-0.5 hover:bg-orange-200 rounded-full p-0.5 transition-colors"
                     aria-label="Clear chapter filter"
                   >
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                    <CloseIcon />
                   </button>
                 </span>
               )}
@@ -414,9 +335,7 @@ export default function Verses() {
                     className="ml-0.5 hover:bg-amber-200 rounded-full p-0.5 transition-colors"
                     aria-label="Clear topic filter"
                   >
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                    <CloseIcon />
                   </button>
                 </span>
               )}
@@ -464,8 +383,8 @@ export default function Verses() {
 
           {/* Loading State - Skeleton Cards */}
           {loading && verses.length === 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
-              {Array.from({ length: 8 }).map((_, i) => (
+            <div className={VERSE_GRID_CLASSES}>
+              {Array.from({ length: SKELETON_COUNT }).map((_, i) => (
                 <VerseCardSkeleton key={i} />
               ))}
             </div>
@@ -519,13 +438,13 @@ export default function Verses() {
           ) : (
             <>
               {/* Verse Grid */}
-              <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 transition-opacity duration-200 ${loading ? "opacity-50" : "opacity-100"}`}>
+              <div className={`${VERSE_GRID_CLASSES} transition-opacity duration-200 ${loading ? "opacity-50" : "opacity-100"}`}>
                 {verses.map((verse, index) => (
                   <Link
                     key={verse.id}
                     to={`/verses/${verse.canonical_id}`}
                     className="transition-all hover:shadow-lg animate-fade-in"
-                    style={{ animationDelay: `${Math.min(index * 30, 300)}ms` }}
+                    style={{ animationDelay: `${Math.min(index * CARD_ANIMATION_DELAY_MS, CARD_ANIMATION_MAX_DELAY_MS)}ms` }}
                   >
                     <VerseCard
                       verse={verse}
@@ -550,25 +469,7 @@ export default function Verses() {
                   >
                     {loadingMore ? (
                       <span className="flex items-center gap-2">
-                        <svg
-                          className="animate-spin h-4 w-4 text-gray-500"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          />
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          />
-                        </svg>
+                        <SpinnerIcon className="h-4 w-4 text-gray-500" />
                         Loading...
                       </span>
                     ) : (
