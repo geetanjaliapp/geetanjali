@@ -52,6 +52,7 @@ export interface VerseCardProps {
   showTranslation?: boolean;
   showTranslationPreview?: boolean; // For compact mode: truncated translation_en
   onPrincipleClick?: (principle: string) => void; // Callback when a principle tag is clicked
+  linkTo?: string; // For compact mode: stretched link pattern (card navigates here, tags remain clickable)
 }
 
 function formatVerseRef(verse: Verse): string {
@@ -70,6 +71,7 @@ export const VerseCard = memo(function VerseCard({
   showTranslation = true,
   showTranslationPreview = false,
   onPrincipleClick,
+  linkTo,
 }: VerseCardProps) {
   const isCompact = displayMode === "compact";
 
@@ -90,44 +92,56 @@ export const VerseCard = memo(function VerseCard({
 
     return (
       <div className="relative bg-amber-50 rounded-xl p-3 sm:p-4 border border-amber-200 shadow-sm hover:shadow-md hover:border-amber-300 hover:-translate-y-0.5 transition-all duration-150">
-        {/* Featured Badge */}
-        {verse.is_featured && (
-          <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
-            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[10px] sm:text-xs font-medium">
-              <StarIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-            </span>
+        {/* Stretched link - covers entire card for navigation (accessibility pattern) */}
+        {linkTo && (
+          <Link
+            to={linkTo}
+            className="absolute inset-0 z-0 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
+            aria-label={`View verse ${formatVerseRef(verse)}`}
+          />
+        )}
+
+        {/* Card content - pointer-events-none so clicks pass through to stretched link */}
+        <div className={linkTo ? "relative z-10 pointer-events-none" : ""}>
+          {/* Featured Badge */}
+          {verse.is_featured && (
+            <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
+              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[10px] sm:text-xs font-medium">
+                <StarIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+              </span>
+            </div>
+          )}
+
+          {/* Verse Reference */}
+          <div className="text-amber-600 font-serif font-medium text-xs sm:text-sm mb-2 sm:mb-3">
+            ॥ {formatVerseRef(verse)} ॥
           </div>
-        )}
 
-        {/* Verse Reference */}
-        <div className="text-amber-600 font-serif font-medium text-xs sm:text-sm mb-2 sm:mb-3">
-          ॥ {formatVerseRef(verse)} ॥
+          {/* Full Sanskrit Verse */}
+          <div lang="sa" className="text-amber-900 font-serif text-sm sm:text-base leading-relaxed text-center">
+            {sanskritLines.map((line, idx) => (
+              <p key={idx} className="mb-0.5">
+                {line}
+              </p>
+            ))}
+          </div>
+
+          {/* Translation preview (if enabled and available) */}
+          {showTranslationPreview && translationText && (
+            <>
+              {/* Subtle divider */}
+              <div className="my-2 sm:my-3 border-t border-amber-200/50" />
+              {/* Translation with CSS line-clamp */}
+              <p className="text-xs sm:text-sm text-gray-600 text-center leading-relaxed line-clamp-3">
+                "{translationText}"
+              </p>
+            </>
+          )}
         </div>
 
-        {/* Full Sanskrit Verse */}
-        <div lang="sa" className="text-amber-900 font-serif text-sm sm:text-base leading-relaxed text-center">
-          {sanskritLines.map((line, idx) => (
-            <p key={idx} className="mb-0.5">
-              {line}
-            </p>
-          ))}
-        </div>
-
-        {/* Translation preview (if enabled and available) */}
-        {showTranslationPreview && translationText && (
-          <>
-            {/* Subtle divider */}
-            <div className="my-2 sm:my-3 border-t border-amber-200/50" />
-            {/* Translation with CSS line-clamp */}
-            <p className="text-xs sm:text-sm text-gray-600 text-center leading-relaxed line-clamp-3">
-              "{translationText}"
-            </p>
-          </>
-        )}
-
-        {/* Principle Tags (max 2 + overflow indicator) */}
+        {/* Principle Tags - pointer-events-auto so they're clickable above the stretched link */}
         {verse.consulting_principles && verse.consulting_principles.length > 0 && (
-          <div className="mt-2 sm:mt-3 flex flex-wrap justify-center gap-1">
+          <div className={`mt-2 sm:mt-3 flex flex-wrap justify-center gap-1 ${linkTo ? "relative z-10" : ""}`}>
             {verse.consulting_principles.slice(0, 2).map((principle) => (
               <button
                 key={principle}
@@ -138,7 +152,7 @@ export const VerseCard = memo(function VerseCard({
                     onPrincipleClick(principle);
                   }
                 }}
-                className={`px-2 py-0.5 rounded-full bg-amber-100/70 text-amber-800 text-[10px] sm:text-xs font-medium ${
+                className={`px-2 py-0.5 rounded-full bg-amber-100/70 text-amber-800 text-[10px] sm:text-xs font-medium pointer-events-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 ${
                   onPrincipleClick ? "hover:bg-amber-200 cursor-pointer transition-colors" : ""
                 }`}
               >

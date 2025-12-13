@@ -1,4 +1,4 @@
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { versesApi } from "../lib/api";
 import type { Verse } from "../types";
@@ -25,8 +25,8 @@ const CARD_ANIMATION_DELAY_MS = 30;
 const CARD_ANIMATION_MAX_DELAY_MS = 300;
 const SKELETON_COUNT = 8;
 
-// Filter pill styling patterns
-const FILTER_PILL_BASE = "px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0";
+// Filter pill styling patterns (focus-visible for keyboard-only focus rings)
+const FILTER_PILL_BASE = "px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2";
 const FILTER_PILL_ACTIVE = "bg-orange-600 text-white shadow-md";
 const FILTER_PILL_INACTIVE = "bg-white text-gray-700 hover:bg-gray-100 border border-gray-300";
 
@@ -134,6 +134,18 @@ export default function Verses() {
     loadVerses(true);
     loadCount();
   }, [loadVerses, loadCount]);
+
+  // Close chapter dropdown on Escape key
+  useEffect(() => {
+    if (!showChapterDropdown) return;
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setShowChapterDropdown(false);
+      }
+    };
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [showChapterDropdown]);
 
   const loadMore = useCallback(async () => {
     if (loadingMore) return;
@@ -440,10 +452,9 @@ export default function Verses() {
               {/* Verse Grid */}
               <div className={`${VERSE_GRID_CLASSES} transition-opacity duration-200 ${loading ? "opacity-50" : "opacity-100"}`}>
                 {verses.map((verse, index) => (
-                  <Link
+                  <div
                     key={verse.id}
-                    to={`/verses/${verse.canonical_id}`}
-                    className="transition-all hover:shadow-lg animate-fade-in"
+                    className="animate-fade-in"
                     style={{ animationDelay: `${Math.min(index * CARD_ANIMATION_DELAY_MS, CARD_ANIMATION_MAX_DELAY_MS)}ms` }}
                   >
                     <VerseCard
@@ -454,8 +465,9 @@ export default function Verses() {
                       showTranslation={false}
                       showTranslationPreview={true}
                       onPrincipleClick={handlePrincipleSelect}
+                      linkTo={`/verses/${verse.canonical_id}`}
                     />
-                  </Link>
+                  </div>
                 ))}
               </div>
 
