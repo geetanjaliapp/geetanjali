@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { versesApi } from "../lib/api";
 import { formatSanskritLines, isSpeakerIntro } from "../lib/sanskritFormatter";
 import { PRINCIPLE_TAXONOMY } from "../constants/principles";
@@ -185,33 +185,36 @@ export default function VerseDetail() {
               </div>
             )}
 
-            {/* Consulting Principles - Prominent */}
+            {/* Consulting Principles - Horizontal Scrollable Pills */}
             {verse.consulting_principles &&
               verse.consulting_principles.length > 0 && (
                 <div className="mb-4 sm:mb-6 lg:mb-8">
                   <p className="text-xs font-semibold text-amber-700/70 uppercase tracking-widest mb-3 sm:mb-4">
                     Consulting Principles
                   </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                  <div className="flex flex-wrap gap-2 sm:gap-3">
                     {verse.consulting_principles.map((principleId) => {
                       const principle =
                         PRINCIPLE_TAXONOMY[
                           principleId as keyof typeof PRINCIPLE_TAXONOMY
                         ];
                       return (
-                        <div
+                        <Link
                           key={principleId}
-                          className="bg-white/70 backdrop-blur-sm rounded-lg p-3 sm:p-4 lg:p-5 border border-orange-100/50 hover:border-orange-200 hover:bg-white/90 transition-all shadow-sm"
+                          to={`/verses?principles=${principleId}`}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2
+                                     bg-amber-100 text-amber-800 rounded-full text-sm sm:text-base
+                                     font-medium shadow-sm
+                                     hover:bg-amber-200 hover:shadow-md
+                                     active:bg-amber-300
+                                     transition-all duration-150
+                                     focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500
+                                     focus-visible:ring-offset-2"
+                          aria-label={`View all verses about ${principle?.label || principleId}`}
                         >
-                          <h3 className="font-semibold text-orange-800 text-sm sm:text-base mb-1 sm:mb-2">
-                            {principle?.label || principleId}
-                          </h3>
-                          {principle?.description && (
-                            <p className="text-xs sm:text-sm text-gray-700 leading-relaxed">
-                              {principle.description}
-                            </p>
-                          )}
-                        </div>
+                          <span>{principle?.shortLabel || principleId}</span>
+                          <span aria-hidden="true" className="text-amber-600">→</span>
+                        </Link>
                       );
                     })}
                   </div>
