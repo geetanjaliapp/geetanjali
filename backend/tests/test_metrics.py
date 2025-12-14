@@ -126,7 +126,7 @@ class TestMetricsCollector:
             "maxmemory": 10000000,
         }
         mock_client.llen.return_value = 3
-        mock_client.smembers.return_value = {"worker1", "worker2"}
+        mock_client.keys.return_value = ["rq:worker:worker1", "rq:worker:worker2"]
 
         _collect_redis_metrics()
 
@@ -152,7 +152,7 @@ class TestMetricsCollector:
             "maxmemory": 0,
         }
         mock_client.llen.return_value = 0
-        mock_client.smembers.return_value = set()
+        mock_client.keys.return_value = []
 
         _collect_redis_metrics()
 
