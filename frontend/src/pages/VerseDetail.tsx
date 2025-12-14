@@ -5,7 +5,7 @@ import { formatSanskritLines, isSpeakerIntro } from "../lib/sanskritFormatter";
 import { PRINCIPLE_TAXONOMY } from "../constants/principles";
 import { getTranslatorPriority } from "../constants/translators";
 import type { Verse, Translation } from "../types";
-import { Navbar, ContentNotFound, Footer } from "../components";
+import { Navbar, ContentNotFound, Footer, ChapterContextBar } from "../components";
 import { errorMessages } from "../lib/errorMessages";
 import { useSEO } from "../hooks";
 
@@ -113,15 +113,8 @@ export default function VerseDetail() {
       <Navbar />
       <div className="flex-1 py-4 sm:py-6 lg:py-8">
         <div className="max-w-5xl mx-auto px-3 sm:px-4 lg:px-6">
-          {/* Back Link */}
-          <div className="mb-4 sm:mb-6">
-            <button
-              onClick={() => navigate(-1)}
-              className="text-orange-600 hover:text-orange-700 font-medium text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 rounded"
-            >
-              ← Go Back
-            </button>
-          </div>
+          {/* Chapter Context Bar */}
+          <ChapterContextBar chapter={verse.chapter} verse={verse.verse} />
 
           {/* Main Spotlight Section */}
           <div className="bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 rounded-xl sm:rounded-2xl lg:rounded-3xl shadow-xl sm:shadow-2xl p-4 sm:p-8 lg:p-12 mb-4 sm:mb-6 lg:mb-8 border border-amber-200/50">

@@ -22,6 +22,7 @@ export { ConsultationWaiting } from "./ConsultationWaiting";
 export { FloatingActionButton } from "./FloatingActionButton";
 export { ContentNotFound } from "./ContentNotFound";
 export { SkipLink } from "./SkipLink";
+export { ChapterContextBar } from "./ChapterContextBar";
 
 // Case-related components
 export {
