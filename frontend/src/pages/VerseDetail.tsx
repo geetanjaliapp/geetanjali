@@ -132,9 +132,75 @@ export default function VerseDetail() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex flex-col">
         <Navbar />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-gray-600">Loading verse...</div>
+        <div className="flex-1 py-4 sm:py-6 lg:py-8">
+          <div className="max-w-5xl mx-auto px-3 sm:px-4 lg:px-6">
+            {/* Skeleton: Chapter Context Bar */}
+            <div className="flex items-center gap-3 mb-4 sm:mb-6 bg-white/80 rounded-lg sm:rounded-xl p-3 sm:p-4 shadow-sm">
+              <div className="w-8 h-8 bg-amber-200/50 rounded-full animate-pulse" />
+              <div className="flex-1">
+                <div className="h-4 bg-amber-200/50 rounded w-32 mb-2 animate-pulse" />
+                <div className="h-2 bg-amber-200/50 rounded w-full animate-pulse" />
+              </div>
+              <div className="h-4 bg-amber-200/50 rounded w-16 animate-pulse" />
+            </div>
+
+            {/* Skeleton: Main Spotlight Section */}
+            <div className="bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 rounded-xl sm:rounded-2xl lg:rounded-3xl shadow-xl sm:shadow-2xl p-4 sm:p-8 lg:p-12 mb-4 sm:mb-6 lg:mb-8 border border-amber-200/50">
+              {/* Sanskrit Skeleton */}
+              <div className="mb-4 sm:mb-6 lg:mb-8 text-center pt-2 sm:pt-4">
+                <div className="w-8 h-8 bg-amber-200/40 rounded-full mx-auto mb-4 animate-pulse" />
+                <div className="space-y-3 max-w-xl mx-auto">
+                  <div className="h-8 bg-amber-200/40 rounded animate-pulse" />
+                  <div className="h-8 bg-amber-200/40 rounded animate-pulse w-4/5 mx-auto" />
+                  <div className="h-8 bg-amber-200/40 rounded animate-pulse w-3/4 mx-auto" />
+                </div>
+                <div className="h-4 bg-amber-200/40 rounded w-20 mx-auto mt-4 animate-pulse" />
+              </div>
+
+              {/* Leadership Insight Skeleton */}
+              <div className="bg-white/70 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 border border-amber-100/50 mb-4 sm:mb-6 lg:mb-8">
+                <div className="h-3 bg-red-200/40 rounded w-32 mb-4 animate-pulse" />
+                <div className="space-y-2">
+                  <div className="h-5 bg-gray-200/60 rounded animate-pulse" />
+                  <div className="h-5 bg-gray-200/60 rounded animate-pulse w-5/6" />
+                  <div className="h-5 bg-gray-200/60 rounded animate-pulse w-4/5" />
+                </div>
+              </div>
+
+              {/* Principles Skeleton */}
+              <div className="mb-4 sm:mb-6 lg:mb-8">
+                <div className="h-3 bg-amber-200/40 rounded w-40 mb-4 animate-pulse" />
+                <div className="flex flex-wrap gap-2">
+                  <div className="h-8 bg-amber-200/40 rounded-full w-28 animate-pulse" />
+                  <div className="h-8 bg-amber-200/40 rounded-full w-32 animate-pulse" />
+                  <div className="h-8 bg-amber-200/40 rounded-full w-24 animate-pulse" />
+                </div>
+              </div>
+
+              {/* Divider */}
+              <div className="my-4 sm:my-6 h-px bg-gradient-to-r from-transparent via-amber-300/50 to-transparent" />
+
+              {/* Translations Skeleton */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+                <div>
+                  <div className="h-3 bg-amber-200/40 rounded w-24 mb-4 animate-pulse" />
+                  <div className="space-y-2">
+                    <div className="h-4 bg-gray-200/50 rounded animate-pulse" />
+                    <div className="h-4 bg-gray-200/50 rounded animate-pulse w-5/6" />
+                  </div>
+                </div>
+                <div>
+                  <div className="h-3 bg-amber-200/40 rounded w-28 mb-4 animate-pulse" />
+                  <div className="space-y-2">
+                    <div className="h-4 bg-gray-200/50 rounded animate-pulse" />
+                    <div className="h-4 bg-gray-200/50 rounded animate-pulse w-4/5" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+        <Footer />
       </div>
     );
   }
