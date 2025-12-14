@@ -125,12 +125,13 @@ def _collect_redis_metrics() -> None:
             # No maxmemory set, report 0
             redis_memory_usage_percent.set(0)
 
-        # RQ Queue depth (jobs waiting in default queue)
-        queue_len = client.llen("rq:queue:default") or 0
+        # RQ Queue depth (jobs waiting in geetanjali queue)
+        queue_len = client.llen("rq:queue:geetanjali") or 0
         queue_depth.set(queue_len)
 
         # RQ Worker count (active workers)
-        workers = client.smembers("rq:workers") or set()
+        # RQ 2.x uses individual keys rq:worker:<name> instead of rq:workers set
+        workers = client.keys("rq:worker:*") or []
         active_workers = len(workers)
         worker_count.set(active_workers)
 
