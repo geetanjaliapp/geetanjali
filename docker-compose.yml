@@ -202,8 +202,8 @@ services:
       SKIP_MIGRATIONS: "true"
     volumes:
       - ./backend:/app
-    ports:
-      - "8001:8001"  # Worker API (health, metrics, admin)
+    # No external port - only accessible within Docker network
+    # Prometheus scrapes via http://worker:8001/metrics
     # Security hardening
     cap_drop:
       - ALL
