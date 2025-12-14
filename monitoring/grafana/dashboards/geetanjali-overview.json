@@ -12,6 +12,199 @@
     {
       "collapsed": false,
       "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 99,
+      "title": "🟢 Service Health",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [
+            { "options": { "0": { "color": "red", "text": "DOWN" }, "1": { "color": "green", "text": "UP" } }, "type": "value" }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          }
+        }
+      },
+      "gridPos": { "h": 3, "w": 4, "x": 0, "y": 1 },
+      "id": 1,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "title": "Backend",
+      "type": "stat",
+      "targets": [{ "expr": "up{job=\"backend\"}", "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [
+            { "options": { "0": { "color": "red", "text": "DOWN" }, "1": { "color": "green", "text": "UP" } }, "type": "value" }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          }
+        }
+      },
+      "gridPos": { "h": 3, "w": 4, "x": 4, "y": 1 },
+      "id": 2,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "title": "Worker",
+      "type": "stat",
+      "targets": [{ "expr": "up{job=\"worker\"}", "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [
+            { "options": { "0": { "color": "red", "text": "DOWN" }, "1": { "color": "green", "text": "UP" } }, "type": "value" }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          }
+        }
+      },
+      "gridPos": { "h": 3, "w": 4, "x": 8, "y": 1 },
+      "id": 3,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "title": "PostgreSQL",
+      "type": "stat",
+      "targets": [{ "expr": "geetanjali_postgres_up", "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [
+            { "options": { "0": { "color": "red", "text": "DOWN" }, "1": { "color": "green", "text": "UP" } }, "type": "value" }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          }
+        }
+      },
+      "gridPos": { "h": 3, "w": 4, "x": 12, "y": 1 },
+      "id": 4,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "title": "Redis",
+      "type": "stat",
+      "targets": [{ "expr": "geetanjali_redis_connections > 0 or vector(0)", "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [
+            { "options": { "0": { "color": "red", "text": "DOWN" }, "1": { "color": "green", "text": "UP" } }, "type": "value" }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          }
+        }
+      },
+      "gridPos": { "h": 3, "w": 4, "x": 16, "y": 1 },
+      "id": 5,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "title": "Ollama",
+      "type": "stat",
+      "targets": [{ "expr": "geetanjali_ollama_up", "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [
+            { "options": { "0": { "color": "red", "text": "DOWN" }, "1": { "color": "green", "text": "UP" } }, "type": "value" }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          }
+        }
+      },
+      "gridPos": { "h": 3, "w": 4, "x": 20, "y": 1 },
+      "id": 6,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "title": "ChromaDB",
+      "type": "stat",
+      "targets": [{ "expr": "geetanjali_chromadb_up", "refId": "A" }]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 4 },
       "id": 100,
       "title": "📊 Golden Signals",
       "type": "row"
@@ -29,7 +222,7 @@
           "unit": "reqps"
         }
       },
-      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 1 },
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 5 },
       "id": 10,
       "options": {
         "colorMode": "value",
@@ -60,7 +253,7 @@
           "unit": "percentunit"
         }
       },
-      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 1 },
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 5 },
       "id": 11,
       "options": {
         "colorMode": "value",
@@ -91,7 +284,7 @@
           "unit": "ms"
         }
       },
-      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 1 },
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 5 },
       "id": 12,
       "options": {
         "colorMode": "value",
@@ -122,7 +315,7 @@
           "unit": "ms"
         }
       },
-      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 1 },
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 5 },
       "id": 15,
       "options": {
         "colorMode": "value",
@@ -152,7 +345,7 @@
           }
         }
       },
-      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 1 },
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 5 },
       "id": 13,
       "options": {
         "colorMode": "value",
@@ -179,7 +372,7 @@
           "unit": "reqpm"
         }
       },
-      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 1 },
+      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 5 },
       "id": 61,
       "options": {
         "colorMode": "value",
@@ -195,7 +388,7 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 9 },
       "id": 102,
       "title": "🔧 Infrastructure",
       "type": "row"
@@ -217,7 +410,7 @@
           "unit": "bytes"
         }
       },
-      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 6 },
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 10 },
       "id": 24,
       "options": {
         "colorMode": "value",
@@ -248,7 +441,7 @@
           "unit": "percent"
         }
       },
-      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 6 },
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 10 },
       "id": 25,
       "options": {
         "colorMode": "value",
@@ -275,7 +468,7 @@
           "unit": "decbytes"
         }
       },
-      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 6 },
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 10 },
       "id": 23,
       "options": {
         "colorMode": "value",
@@ -301,7 +494,7 @@
           }
         }
       },
-      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 6 },
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 10 },
       "id": 22,
       "options": {
         "colorMode": "value",
@@ -332,7 +525,7 @@
           "unit": "percent"
         }
       },
-      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 6 },
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 10 },
       "id": 20,
       "options": {
         "colorMode": "value",
@@ -362,7 +555,7 @@
           }
         }
       },
-      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 6 },
+      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 10 },
       "id": 62,
       "options": {
         "colorMode": "value",
@@ -378,7 +571,7 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 10 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 14 },
       "id": 103,
       "title": "📈 Business KPIs",
       "type": "row"
@@ -395,7 +588,7 @@
           }
         }
       },
-      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 11 },
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 15 },
       "id": 30,
       "options": {
         "colorMode": "value",
@@ -421,7 +614,7 @@
           }
         }
       },
-      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 11 },
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 15 },
       "id": 34,
       "options": {
         "colorMode": "value",
@@ -447,7 +640,7 @@
           }
         }
       },
-      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 11 },
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 15 },
       "id": 33,
       "options": {
         "colorMode": "value",
@@ -473,7 +666,7 @@
           }
         }
       },
-      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 11 },
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 15 },
       "id": 35,
       "options": {
         "colorMode": "value",
@@ -504,7 +697,7 @@
           "unit": "percentunit"
         }
       },
-      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 11 },
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 15 },
       "id": 36,
       "options": {
         "colorMode": "value",
@@ -530,7 +723,7 @@
           }
         }
       },
-      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 11 },
+      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 15 },
       "id": 41,
       "options": {
         "colorMode": "value",
@@ -546,9 +739,9 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 15 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 19 },
       "id": 104,
-      "title": "🌐 HTTP Traffic",
+      "title": "📉 Time Series",
       "type": "row"
     },
     {
@@ -583,7 +776,7 @@
           "unit": "reqps"
         }
       },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 20 },
       "id": 50,
       "options": {
         "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
@@ -625,7 +818,7 @@
           "unit": "ms"
         }
       },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 20 },
       "id": 51,
       "options": {
         "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
@@ -634,6 +827,184 @@
       "title": "Response Latency (P95)",
       "type": "timeseries",
       "targets": [{ "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job=\"backend\"}[5m])) by (le, handler)) * 1000", "legendFormat": "{{handler}}", "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": { "group": "A", "mode": "none" },
+            "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "color": "green", "value": null }]
+          },
+          "unit": "bytes"
+        }
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 20 },
+      "id": 52,
+      "options": {
+        "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "title": "Memory Usage",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "process_resident_memory_bytes{job=\"backend\"}", "legendFormat": "Backend", "refId": "A" },
+        { "expr": "process_resident_memory_bytes{job=\"worker\"}", "legendFormat": "Worker", "refId": "B" }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": { "group": "A", "mode": "none" },
+            "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "color": "green", "value": null }]
+          },
+          "unit": "short"
+        }
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 28 },
+      "id": 53,
+      "options": {
+        "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "title": "Queue Depth Over Time",
+      "type": "timeseries",
+      "targets": [{ "expr": "geetanjali_queue_depth", "legendFormat": "Queue Depth", "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": { "group": "A", "mode": "none" },
+            "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "color": "green", "value": null }]
+          },
+          "unit": "reqpm"
+        }
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 28 },
+      "id": 54,
+      "options": {
+        "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "title": "LLM Requests Over Time",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "sum(rate(geetanjali_llm_requests_total{status=\"success\"}[5m])) * 60", "legendFormat": "Success", "refId": "A" },
+        { "expr": "sum(rate(geetanjali_llm_requests_total{status=\"error\"}[5m])) * 60", "legendFormat": "Error", "refId": "B" }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": { "group": "A", "mode": "none" },
+            "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "color": "green", "value": null }]
+          },
+          "unit": "short"
+        }
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 28 },
+      "id": 55,
+      "options": {
+        "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "title": "Database Connections",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "geetanjali_postgres_connections_active", "legendFormat": "Active", "refId": "A" },
+        { "expr": "geetanjali_postgres_connections_idle", "legendFormat": "Idle", "refId": "B" },
+        { "expr": "geetanjali_redis_connections", "legendFormat": "Redis", "refId": "C" }
+      ]
     }
   ],
   "refresh": "30s",
@@ -663,6 +1034,6 @@
   "timezone": "",
   "title": "Geetanjali Overview",
   "uid": "geetanjali-overview",
-  "version": 3,
+  "version": 4,
   "weekStart": ""
 }
