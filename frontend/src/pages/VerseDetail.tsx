@@ -68,6 +68,9 @@ export default function VerseDetail() {
 
         setVerse(verseData);
         setTranslations(sortTranslations(translationsData));
+
+        // Smooth scroll to top when navigating between verses
+        window.scrollTo({ top: 0, behavior: "smooth" });
       } catch (err) {
         setError(errorMessages.verseLoad(err));
       } finally {
@@ -188,7 +191,7 @@ export default function VerseDetail() {
           <ChapterContextBar chapter={verse.chapter} verse={verse.verse} />
 
           {/* Main Spotlight Section */}
-          <div className="bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 rounded-xl sm:rounded-2xl lg:rounded-3xl shadow-xl sm:shadow-2xl p-4 sm:p-8 lg:p-12 mb-4 sm:mb-6 lg:mb-8 border border-amber-200/50">
+          <div className="animate-fade-in bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 rounded-xl sm:rounded-2xl lg:rounded-3xl shadow-xl sm:shadow-2xl p-4 sm:p-8 lg:p-12 mb-4 sm:mb-6 lg:mb-8 border border-amber-200/50">
             {/* Sanskrit Spotlight */}
             {verse.sanskrit_devanagari && (
               <div className="mb-4 sm:mb-6 lg:mb-8 text-center pt-2 sm:pt-4">
@@ -304,7 +307,7 @@ export default function VerseDetail() {
 
           {/* Translations Section - Toggle Switch */}
           {translations.length > 0 && (
-            <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 mb-4 sm:mb-6 lg:mb-8">
+            <div className="animate-fade-in bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 mb-4 sm:mb-6 lg:mb-8" style={{ animationDelay: "100ms" }}>
               <div className="flex items-center justify-between mb-4 sm:mb-6">
                 <h2 className="text-lg sm:text-xl font-bold text-gray-900">
                   Translations
