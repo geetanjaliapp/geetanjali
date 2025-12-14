@@ -69,6 +69,9 @@ def init_sentry(service_name: str = "backend") -> bool:
             attach_stacktrace=True,
             # Server name for distinguishing instances
             server_name=f"geetanjali-{service_name}",
+            # Keep HTTP connections alive to prevent SSL errors on stale connections
+            # See: https://github.com/getsentry/sentry-python/issues/1198
+            keep_alive=True,
         )
 
         _sentry_initialized = True
