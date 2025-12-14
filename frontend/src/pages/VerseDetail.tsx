@@ -85,6 +85,46 @@ export default function VerseDetail() {
     verse?.verse ?? 0
   );
 
+  // Keyboard navigation for desktop
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Don't handle if user is typing in an input
+      const target = event.target as HTMLElement;
+      if (
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.isContentEditable
+      ) {
+        return;
+      }
+
+      switch (event.key) {
+        case "ArrowLeft":
+          // Navigate to previous verse
+          if (prevVerse) {
+            event.preventDefault();
+            navigate(`/verses/${prevVerse.canonical_id}`);
+          }
+          break;
+        case "ArrowRight":
+          // Navigate to next verse
+          if (nextVerse) {
+            event.preventDefault();
+            navigate(`/verses/${nextVerse.canonical_id}`);
+          }
+          break;
+        case "Escape":
+          // Go back to previous page
+          event.preventDefault();
+          navigate(-1);
+          break;
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [navigate, prevVerse, nextVerse]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex flex-col">
