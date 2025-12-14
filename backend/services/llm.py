@@ -22,6 +22,7 @@ except ImportError:
 from config import settings
 from services.mock_llm import MockLLMService
 from utils.exceptions import LLMError, RetryableLLMError
+from utils.metrics import llm_requests_total, llm_tokens_total
 
 logger = logging.getLogger(__name__)
 
@@ -159,6 +160,15 @@ class LLMService:
                 f"{response.usage.input_tokens} in / {response.usage.output_tokens} out tokens"
             )
 
+            # Track LLM metrics
+            llm_requests_total.labels(provider="anthropic", status="success").inc()
+            llm_tokens_total.labels(provider="anthropic", token_type="input").inc(
+                response.usage.input_tokens
+            )
+            llm_tokens_total.labels(provider="anthropic", token_type="output").inc(
+                response.usage.output_tokens
+            )
+
             return {
                 "response": response_text,
                 "model": settings.ANTHROPIC_MODEL,
@@ -170,10 +180,12 @@ class LLMService:
         except (APITimeoutError, APIConnectionError) as e:
             # Transient errors - use RetryableLLMError for retry logic
             logger.error(f"Anthropic API error (retryable): {e}")
+            llm_requests_total.labels(provider="anthropic", status="error").inc()
             raise RetryableLLMError(f"Anthropic request failed: {str(e)}")
         except AnthropicError as e:
             # Permanent errors (auth, invalid request) - don't retry
             logger.error(f"Anthropic error (permanent): {e}")
+            llm_requests_total.labels(provider="anthropic", status="error").inc()
             raise LLMError(f"Anthropic error: {str(e)}")
 
     @retry(
@@ -242,21 +254,28 @@ class LLMService:
 
             logger.info(f"Ollama response: {len(result.get('response', ''))} chars")
 
+            # Track LLM metrics
+            eval_count = result.get("eval_count", 0)
+            llm_requests_total.labels(provider="ollama", status="success").inc()
+            llm_tokens_total.labels(provider="ollama", token_type="output").inc(eval_count)
+
             return {
                 "response": result.get("response", ""),
                 "model": result.get("model", self.ollama_model),
                 "provider": "ollama",
                 "total_duration": result.get("total_duration", 0),
-                "eval_count": result.get("eval_count", 0),
+                "eval_count": eval_count,
             }
 
         except httpx.TimeoutException as e:
             logger.error(
                 f"Ollama timeout after {settings.OLLAMA_MAX_RETRIES} retries: {e}"
             )
+            llm_requests_total.labels(provider="ollama", status="error").inc()
             raise LLMError("Ollama request timed out")
         except Exception as e:
             logger.error(f"Ollama error: {e}")
+            llm_requests_total.labels(provider="ollama", status="error").inc()
             raise
 
     def generate(

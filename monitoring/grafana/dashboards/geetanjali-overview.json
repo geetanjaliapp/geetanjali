@@ -1227,9 +1227,18 @@
               {
                 "color": "green",
                 "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 536870912
+              },
+              {
+                "color": "red",
+                "value": 1073741824
               }
             ]
-          }
+          },
+          "unit": "bytes"
         }
       },
       "gridPos": {
@@ -1239,6 +1248,131 @@
         "y": 9
       },
       "id": 24,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "Backend Mem",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "process_resident_memory_bytes{job=\"backend\"}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 50
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        }
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 20,
+        "y": 9
+      },
+      "id": 25,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "Backend CPU",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "rate(process_cpu_seconds_total{job=\"backend\"}[5m]) * 100",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 12
+      },
+      "id": 105,
+      "title": "\ud83e\udd16 LLM & AI Metrics",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 0,
+        "y": 13
+      },
+      "id": 60,
       "options": {
         "colorMode": "value",
         "graphMode": "none",
@@ -1277,7 +1411,224 @@
             "mode": "absolute",
             "steps": [
               {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "reqpm"
+        }
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 4,
+        "y": 13
+      },
+      "id": 61,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "LLM Req/min",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "sum(rate(geetanjali_llm_requests_total[5m])) * 60 or vector(0)",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
                 "color": "yellow",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 5
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 8,
+        "y": 13
+      },
+      "id": 62,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "LLM Errors",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "sum(rate(geetanjali_llm_requests_total{status=\"error\"}[5m])) * 60 or vector(0)",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "purple",
+                "value": null
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 12,
+        "y": 13
+      },
+      "id": 63,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "In Tokens/min",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "sum(rate(geetanjali_llm_tokens_total{token_type=\"input\"}[5m])) * 60 or vector(0)",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "orange",
+                "value": null
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 16,
+        "y": 13
+      },
+      "id": 64,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "Out Tokens/min",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "sum(rate(geetanjali_llm_tokens_total{token_type=\"output\"}[5m])) * 60 or vector(0)",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "super-light-blue",
                 "value": null
               }
             ]
@@ -1288,9 +1639,9 @@
         "h": 3,
         "w": 4,
         "x": 20,
-        "y": 9
+        "y": 13
       },
-      "id": 25,
+      "id": 65,
       "options": {
         "colorMode": "value",
         "graphMode": "none",
@@ -1305,11 +1656,11 @@
         },
         "textMode": "auto"
       },
-      "title": "Active (24h)",
+      "title": "Vectors",
       "type": "stat",
       "targets": [
         {
-          "expr": "geetanjali_active_users_24h",
+          "expr": "geetanjali_chromadb_collection_count",
           "refId": "A"
         }
       ]
@@ -1320,7 +1671,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 12
+        "y": 16
       },
       "id": 103,
       "title": "\ud83d\udcc8 Business Metrics",
@@ -1352,7 +1703,7 @@
         "h": 3,
         "w": 4,
         "x": 0,
-        "y": 13
+        "y": 17
       },
       "id": 30,
       "options": {
@@ -1404,7 +1755,7 @@
         "h": 3,
         "w": 4,
         "x": 4,
-        "y": 13
+        "y": 17
       },
       "id": 31,
       "options": {
@@ -1456,7 +1807,7 @@
         "h": 3,
         "w": 4,
         "x": 8,
-        "y": 13
+        "y": 17
       },
       "id": 32,
       "options": {
@@ -1508,7 +1859,7 @@
         "h": 3,
         "w": 4,
         "x": 12,
-        "y": 13
+        "y": 17
       },
       "id": 33,
       "options": {
@@ -1560,7 +1911,7 @@
         "h": 3,
         "w": 4,
         "x": 16,
-        "y": 13
+        "y": 17
       },
       "id": 37,
       "options": {
@@ -1612,7 +1963,7 @@
         "h": 3,
         "w": 4,
         "x": 20,
-        "y": 13
+        "y": 17
       },
       "id": 38,
       "options": {
@@ -1664,7 +2015,7 @@
         "h": 3,
         "w": 4,
         "x": 0,
-        "y": 16
+        "y": 20
       },
       "id": 34,
       "options": {
@@ -1716,7 +2067,7 @@
         "h": 3,
         "w": 4,
         "x": 4,
-        "y": 16
+        "y": 20
       },
       "id": 35,
       "options": {
@@ -1768,7 +2119,7 @@
         "h": 3,
         "w": 4,
         "x": 8,
-        "y": 16
+        "y": 20
       },
       "id": 39,
       "options": {
@@ -1820,7 +2171,7 @@
         "h": 3,
         "w": 4,
         "x": 12,
-        "y": 16
+        "y": 20
       },
       "id": 40,
       "options": {
@@ -1872,7 +2223,7 @@
         "h": 3,
         "w": 4,
         "x": 16,
-        "y": 16
+        "y": 20
       },
       "id": 41,
       "options": {
@@ -1933,7 +2284,7 @@
         "h": 3,
         "w": 4,
         "x": 20,
-        "y": 16
+        "y": 20
       },
       "id": 36,
       "options": {
@@ -1965,7 +2316,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 19
+        "y": 23
       },
       "id": 104,
       "title": "\ud83c\udf10 HTTP Traffic",
@@ -2028,7 +2379,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 20
+        "y": 24
       },
       "id": 50,
       "options": {
@@ -2113,7 +2464,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 20
+        "y": 24
       },
       "id": 51,
       "options": {
@@ -2259,7 +2610,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 27
+        "y": 31
       },
       "id": 52,
       "options": {
@@ -2341,7 +2692,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 27
+        "y": 31
       },
       "id": 53,
       "options": {
