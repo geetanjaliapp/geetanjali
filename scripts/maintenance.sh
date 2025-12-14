@@ -191,11 +191,12 @@ task_security_check() {
     log "Running security checks..."
 
     # Check fail2ban status
-    BANNED_COUNT=$(fail2ban-client status sshd 2>/dev/null | grep "Currently banned" | awk '{print $NF}' || echo "0")
+    BANNED_COUNT=$(fail2ban-client status sshd 2>/dev/null | grep "Currently banned" | awk '{print $NF}') || BANNED_COUNT=0
     log "Currently banned IPs: ${BANNED_COUNT}"
 
     # Check for failed SSH attempts in last 24h using journalctl (more reliable than grepping auth.log)
-    FAILED_SSH=$(journalctl -u ssh --since "24 hours ago" 2>/dev/null | grep -c "Failed password" || echo "0")
+    # Try both 'ssh' and 'sshd' service names, use grep -c (returns 1 if no matches, so handle separately)
+    FAILED_SSH=$(journalctl -u ssh -u sshd --since "24 hours ago" 2>/dev/null | grep -c "Failed password" 2>/dev/null) || FAILED_SSH=0
     log "Failed SSH attempts (last 24h): ${FAILED_SSH}"
 
     if [[ ${FAILED_SSH} -gt 100 ]]; then
