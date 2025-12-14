@@ -23,6 +23,7 @@ services:
       - no-new-privileges:true
     # Resource limits
     pids_limit: 64
+    mem_limit: 512M
     networks:
       - geetanjali-network
     restart: unless-stopped
@@ -47,6 +48,7 @@ services:
       - no-new-privileges:true
     # Resource limits
     pids_limit: 64
+    mem_limit: 512M
     environment:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
       # SECURITY: Password must be set in .env.enc - empty password will use Grafana default

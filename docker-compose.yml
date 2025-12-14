@@ -90,6 +90,9 @@ services:
     user: "999:999"
     # No external port - only accessible within Docker network
     command: redis-server --save "" --appendonly no --requirepass ${REDIS_PASSWORD:-redis_dev_pass}
+    environment:
+      # Used by redis-cli for auth (avoids password in ps output)
+      REDISCLI_AUTH: ${REDIS_PASSWORD:-redis_dev_pass}
     # Security hardening - drop all capabilities (no user switch needed when running as non-root)
     cap_drop:
       - ALL
@@ -108,7 +111,8 @@ services:
         reservations:
           memory: 64M
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-redis_dev_pass}", "ping"]
+      # Uses REDISCLI_AUTH env var for auth (password not visible in ps)
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -173,6 +177,14 @@ services:
       - no-new-privileges:true
     # Resource limits
     pids_limit: 256
+    mem_limit: 2G
+    # Health check
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     depends_on:
       postgres:
         condition: service_healthy
@@ -213,6 +225,7 @@ services:
       - no-new-privileges:true
     # Resource limits
     pids_limit: 128
+    mem_limit: 2G
     # Healthcheck via HTTP endpoint (checks Redis connectivity)
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8001/health/ready"]
@@ -269,6 +282,7 @@ services:
       - no-new-privileges:true
     # Resource limits
     pids_limit: 64
+    mem_limit: 256M
     depends_on:
       backend:
         condition: service_started
