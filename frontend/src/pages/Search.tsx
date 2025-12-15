@@ -429,11 +429,8 @@ function SearchStarterContent({
         </div>
       </div>
 
-      {/* Featured Verse - subtle card */}
-      <div>
-        <p className="text-center text-sm text-gray-500 mb-3">Verse Spotlight</p>
-        <StarterVerseSpotlight verse={featuredVerse} loading={verseLoading} />
-      </div>
+      {/* Featured Verse */}
+      <StarterVerseSpotlight verse={featuredVerse} loading={verseLoading} />
 
       {/* Bottom CTA */}
       <div className="text-center">
