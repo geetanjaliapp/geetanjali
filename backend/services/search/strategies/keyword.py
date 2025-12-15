@@ -127,15 +127,14 @@ def keyword_search(
     if config.chapter:
         base_query = base_query.filter(Verse.chapter == config.chapter)
 
-    # Search in Translation model (covers all scholar translations)
-    _search_translations(
-        db, base_query, query, keywords, keyword_patterns, config, results, seen_ids
-    )
-
-    # Search in Verse.translation_en as fallback
-    # (translation_en is copied from Translation, but join limits may miss some)
+    # Search in Verse.translation_en first (preferred translation, highest priority)
     _search_verse_translation(
         base_query, query, keywords, keyword_patterns, config, results, seen_ids
+    )
+
+    # Search in Translation model (other scholar translations)
+    _search_translations(
+        db, base_query, query, keywords, keyword_patterns, config, results, seen_ids
     )
 
     # Search in Verse.paraphrase_en (unique leadership content)
@@ -212,7 +211,7 @@ def _search_verse_translation(
     results: List[SearchResult],
     seen_ids: Set[str],
 ) -> None:
-    """Search in Verse.translation_en as fallback with OR logic."""
+    """Search in Verse.translation_en (preferred translation) with OR logic."""
     or_conditions = [Verse.translation_en.ilike(pattern) for pattern in keyword_patterns]
 
     verses = (
@@ -228,7 +227,8 @@ def _search_verse_translation(
 
         match_count, best_field = _get_best_match_count(verse, keywords)
         match_ratio = match_count / len(keywords) if keywords else 0
-        base_score = 0.6 + (0.4 * match_ratio)
+        # Preferred translation gets higher base score (0.7-1.0 vs 0.6-1.0)
+        base_score = 0.7 + (0.3 * match_ratio)
 
         results.append(
             verse_to_result(
