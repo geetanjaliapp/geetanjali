@@ -11,7 +11,7 @@
  * Used by: ReadingMode
  */
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { versesApi } from "../lib/api";
 import { formatSanskritLines, isSpeakerIntro } from "../lib/sanskritFormatter";
@@ -41,6 +41,13 @@ export function VerseFocus({ verse, onTap }: VerseFocusProps) {
   const [translations, setTranslations] = useState<Translation[]>([]);
   const [loadingTranslations, setLoadingTranslations] = useState(false);
   const [translationError, setTranslationError] = useState<string | null>(null);
+
+  // Reset state when verse changes
+  useEffect(() => {
+    setShowTranslation(false);
+    setTranslations([]);
+    setTranslationError(null);
+  }, [verse.canonical_id]);
 
   // Get primary translations (first Hindi and first English)
   const hindiTranslation = translations.find((t) => t.language === "hi" || t.language === "hindi");
@@ -75,6 +82,30 @@ export function VerseFocus({ verse, onTap }: VerseFocusProps) {
 
     onTap?.();
   }, [showTranslation, translations.length, loadTranslations, onTap]);
+
+  // Space key to toggle translation (desktop)
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Don't handle if user is typing in an input
+      const target = event.target as HTMLElement;
+      if (
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.isContentEditable
+      ) {
+        return;
+      }
+
+      // Space key toggles translation
+      if (event.key === " " || event.key === "Spacebar") {
+        event.preventDefault();
+        handleToggle();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [handleToggle]);
 
   // Format Sanskrit text using the shared helper (detail mode with speaker intros)
   const sanskritLines = formatSanskritLines(

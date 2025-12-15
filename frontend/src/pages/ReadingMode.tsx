@@ -196,6 +196,33 @@ export default function ReadingMode() {
     enabled: !state.isLoading && !!currentVerse,
   });
 
+  // Keyboard navigation for desktop
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Don't handle if user is typing in an input
+      const target = event.target as HTMLElement;
+      if (
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.isContentEditable
+      ) {
+        return;
+      }
+
+      // Arrow keys and J/K for navigation
+      if ((event.key === "ArrowLeft" || event.key === "k" || event.key === "K") && canGoPrev) {
+        event.preventDefault();
+        prevVerse();
+      } else if ((event.key === "ArrowRight" || event.key === "j" || event.key === "J") && canGoNext) {
+        event.preventDefault();
+        nextVerse();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [canGoPrev, canGoNext, prevVerse, nextVerse]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 flex flex-col">
       <Navbar />
@@ -237,9 +264,10 @@ export default function ReadingMode() {
       </header>
 
       {/* Main Content Area - swipeable on mobile */}
+      {/* Note: justify-start (not center) to prevent layout shift when translation expands */}
       <main
         ref={swipeRef}
-        className="flex-1 flex flex-col items-center justify-center px-4 py-8 touch-pan-y"
+        className="flex-1 flex flex-col items-center justify-start px-4 pt-8 sm:pt-12 pb-8 touch-pan-y overflow-y-auto"
       >
         {state.isLoading ? (
           // Loading state

@@ -57,7 +57,7 @@ export function FloatingActionButton({
   }, [isHomepage]);
 
   // Hide FAB on certain pages where it's not appropriate
-  const hiddenPaths = ["/cases/new", "/login", "/signup"];
+  const hiddenPaths = ["/cases/new", "/login", "/signup", "/read"];
   const shouldHide = hiddenPaths.some((path) => location.pathname === path);
 
   // Also hide if we're on a specific case view (to avoid clutter during reading)
