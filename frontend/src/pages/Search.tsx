@@ -826,8 +826,16 @@ export default function Search() {
                     "No results found"
                   ) : (
                     <>
-                      <span className="font-medium">{data.total}</span> result
-                      {data.total !== 1 && "s"} for "{data.query}"
+                      {hasMore ? (
+                        <>
+                          <span className="font-medium">{data.total}</span>
+                          <span className="text-gray-400"> of </span>
+                          <span className="font-medium">{data.total_count}</span>
+                        </>
+                      ) : (
+                        <span className="font-medium">{data.total_count ?? data.total}</span>
+                      )}
+                      {" "}result{(data.total_count ?? data.total) !== 1 && "s"} for "{data.query}"
                     </>
                   )}
                 </p>
