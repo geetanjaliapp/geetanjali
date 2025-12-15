@@ -127,6 +127,11 @@ Full API documentation at `/docs` when running.
 
 **[docs.geetanjaliapp.com](https://docs.geetanjaliapp.com)**
 
+**User Journeys:**
+- [Discovery Journey](docs/discovery.md) - Verse Browser and Reading Mode for exploring scripture
+- [Consultation Journey](docs/consultation.md) - Case analysis and follow-up conversations
+
+**Reference:**
 - [Setup Guide](docs/setup.md) - Local development, Docker, environment
 - [Docker Configuration](docs/docker.md) - Compose files, deployment modes
 - [Architecture](docs/architecture.md) - System design, RAG pipeline, components

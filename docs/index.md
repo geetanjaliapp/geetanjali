@@ -14,6 +14,11 @@ Ethical leadership guidance from the Bhagavad Geeta.
 
 - [Building Geetanjali](building-geetanjali.md) — How we built the RAG system, architecture, and design decisions
 
+## User Journeys
+
+- [Discovery Journey](discovery.md) — Verse Browser and Reading Mode for exploring scripture
+- [Consultation Journey](consultation.md) — Case analysis and follow-up conversations for ethical guidance
+
 ## Reference
 
 - [Architecture](architecture.md) — System design, components, data flow
