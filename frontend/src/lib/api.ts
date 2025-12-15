@@ -11,6 +11,7 @@ import type {
   Message,
   BookMetadata,
   ChapterMetadata,
+  SearchResponse,
 } from "../types";
 import { tokenStorage, authApi } from "../api/auth";
 import { getSessionId } from "./session";
@@ -290,6 +291,38 @@ export const readingApi = {
   /** Get metadata for a specific chapter */
   getChapter: async (chapterNumber: number): Promise<ChapterMetadata> => {
     const response = await api.get(`/reading/chapters/${chapterNumber}`);
+    return response.data;
+  },
+};
+
+// Search API
+export const searchApi = {
+  /**
+   * Unified hybrid search across verses
+   * Auto-detects query intent (canonical, Sanskrit, keyword, semantic)
+   */
+  search: async (
+    query: string,
+    options?: {
+      chapter?: number;
+      principle?: string;
+      limit?: number;
+      offset?: number;
+    }
+  ): Promise<SearchResponse> => {
+    const params: Record<string, string | number> = { q: query };
+    if (options?.chapter) params.chapter = options.chapter;
+    if (options?.principle) params.principle = options.principle;
+    if (options?.limit) params.limit = options.limit;
+    if (options?.offset) params.offset = options.offset;
+
+    const response = await api.get(`/search`, { params });
+    return response.data;
+  },
+
+  /** Get available consulting principles for filtering */
+  getPrinciples: async (): Promise<string[]> => {
+    const response = await api.get(`/search/principles`);
     return response.data;
   },
 };

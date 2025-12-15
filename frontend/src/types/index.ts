@@ -207,3 +207,62 @@ export interface ChapterMetadata {
   verse_count: number;
   key_themes?: string[];
 }
+
+// Search Types
+
+/** Match type indicating how a verse matched the search query */
+export type SearchMatchType =
+  | "exact_canonical"
+  | "exact_sanskrit"
+  | "keyword_translation"
+  | "keyword_paraphrase"
+  | "principle"
+  | "semantic";
+
+/** Information about how a verse matched the search query */
+export interface SearchMatch {
+  type: SearchMatchType;
+  field: string;
+  score: number;
+  highlight: string | null;
+}
+
+/** A single search result with verse data and match context */
+export interface SearchResult {
+  canonical_id: string;
+  chapter: number;
+  verse: number;
+  sanskrit_devanagari: string | null;
+  sanskrit_iast: string | null;
+  translation_en: string | null;
+  paraphrase_en: string | null;
+  principles: string[];
+  is_featured: boolean;
+  match: SearchMatch;
+  rank_score: number;
+}
+
+/** Moderation result for blocked queries */
+export interface SearchModeration {
+  blocked: boolean;
+  message: string;
+}
+
+/** Suggestion for alternative actions (e.g., consultation CTA) */
+export interface SearchSuggestion {
+  type: string;
+  message: string;
+  cta: string;
+  prefill?: string;
+}
+
+/** Complete search response from the API */
+export interface SearchResponse {
+  query: string;
+  strategy: string;
+  total: number;
+  total_count?: number;
+  results: SearchResult[];
+  moderation: SearchModeration | null;
+  suggestion: SearchSuggestion | null;
+}
