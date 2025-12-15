@@ -287,6 +287,26 @@ export default function ReadingMode() {
     }
   }, []);
 
+  // Reset reading progress - clear saved position and start over
+  const resetProgress = useCallback(() => {
+    try {
+      localStorage.removeItem(READING_POSITION_KEY);
+    } catch {
+      // Ignore
+    }
+    // Clear URL params
+    setSearchParams({}, { replace: true });
+    // Reset to book cover, chapter 1
+    setState((prev) => ({
+      ...prev,
+      chapter: 1,
+      pageIndex: PAGE_BOOK_COVER,
+      chapterVerses: [],
+    }));
+    setTargetVerse(null);
+    loadChapter(1);
+  }, [setSearchParams, loadChapter]);
+
   // Prefetch a chapter silently (no state updates, just cache)
   const prefetchChapter = useCallback(async (chapter: number) => {
     // Skip if already cached or currently fetching
@@ -537,7 +557,7 @@ export default function ReadingMode() {
                 {getChapterName(state.chapter)}
               </span>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               {/* Font size toggle - Aa + filled circles */}
               <button
                 onClick={cycleFontSize}
@@ -552,8 +572,31 @@ export default function ReadingMode() {
                   <span className={`w-1.5 h-1.5 rounded-full ${settings.fontSize === "large" ? "bg-amber-500" : "bg-amber-200"}`} />
                 </span>
               </button>
+              {/* Reset progress button */}
+              <button
+                onClick={resetProgress}
+                className="p-1.5 text-amber-400 hover:text-amber-600 hover:bg-amber-100 active:bg-amber-200 rounded transition-colors"
+                aria-label="Start over from beginning"
+                title="Start over"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                  />
+                </svg>
+              </button>
+              {/* Verse counter */}
               {currentVerse && (
-                <div className="text-sm text-amber-600">
+                <div className="text-sm text-amber-600 ml-1">
                   {currentVerse.verse}/{getChapterVerseCount(state.chapter)}
                 </div>
               )}
