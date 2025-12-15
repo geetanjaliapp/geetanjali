@@ -30,8 +30,25 @@ export default function VerseDetail() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  // Check if user came from reading mode - hide navigation if so
-  const isFromReadingMode = searchParams.get("from") === "read";
+  // Check navigation context - hide prev/next nav when coming from search or reading mode
+  const fromContext = searchParams.get("from");
+  const isFromReadingMode = fromContext === "read";
+  const isFromSearch = fromContext === "search";
+  const hideVerseNavigation = isFromReadingMode || isFromSearch;
+
+  // Get back navigation path based on context
+  const getBackPath = (): string | null => {
+    if (isFromSearch) {
+      return "/search";
+    }
+    if (isFromReadingMode) {
+      return "/read";
+    }
+    return null;
+  };
+
+  const backPath = getBackPath();
+  const backLabel = isFromSearch ? "Back to Search" : isFromReadingMode ? "Back to Reading" : null;
 
   const [verse, setVerse] = useState<Verse | null>(null);
   const [translations, setTranslations] = useState<Translation[]>([]);
@@ -93,10 +110,10 @@ export default function VerseDetail() {
     verse?.verse ?? 0
   );
 
-  // Keyboard navigation for desktop (disabled when coming from reading mode)
+  // Keyboard navigation for desktop (disabled when coming from search or reading mode)
   useEffect(() => {
-    // Skip keyboard nav if user came from reading mode
-    if (isFromReadingMode) return;
+    // Skip keyboard nav if user came from search or reading mode
+    if (hideVerseNavigation) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
       // Don't handle if user is typing in an input
@@ -120,7 +137,7 @@ export default function VerseDetail() {
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [navigate, prevVerse, nextVerse, isFromReadingMode]);
+  }, [navigate, prevVerse, nextVerse, hideVerseNavigation]);
 
   if (loading) {
     return (
@@ -238,8 +255,8 @@ export default function VerseDetail() {
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex flex-col">
       <Navbar />
 
-      {/* Desktop Floating Navigation Arrows (hidden when coming from reading mode) */}
-      {!isFromReadingMode && (
+      {/* Desktop Floating Navigation Arrows (hidden when coming from search or reading mode) */}
+      {!hideVerseNavigation && (
         <>
           <FloatingNavArrow
             direction="prev"
@@ -256,6 +273,26 @@ export default function VerseDetail() {
 
       <div className="flex-1 py-4 sm:py-6 lg:py-8">
         <div className="max-w-5xl mx-auto px-3 sm:px-4 lg:px-6">
+          {/* Contextual Back Button (when coming from search or reading mode) */}
+          {backPath && backLabel && (
+            <div className="mb-3 sm:mb-4">
+              <Link
+                to={backPath}
+                className="inline-flex items-center gap-1.5 text-sm text-amber-700 hover:text-amber-900 font-medium transition-colors group"
+              >
+                <svg
+                  className="w-4 h-4 transition-transform group-hover:-translate-x-0.5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                {backLabel}
+              </Link>
+            </div>
+          )}
+
           {/* Chapter Context Bar */}
           <ChapterContextBar chapter={verse.chapter} verse={verse.verse} />
 
@@ -437,8 +474,8 @@ export default function VerseDetail() {
       {/* Bottom padding for sticky nav on mobile */}
       <div className="h-16 sm:hidden" />
 
-      {/* Mobile Sticky Bottom Navigation (hidden when coming from reading mode) */}
-      {!isFromReadingMode && (
+      {/* Mobile Sticky Bottom Navigation (hidden when coming from search or reading mode) */}
+      {!hideVerseNavigation && (
         <StickyBottomNav
           prevVerse={prevVerse}
           nextVerse={nextVerse}

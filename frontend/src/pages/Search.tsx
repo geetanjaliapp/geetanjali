@@ -146,7 +146,7 @@ function SearchResultCard({
   return (
     <div className="relative bg-amber-50 rounded-xl p-3 sm:p-4 border border-amber-200 shadow-sm hover:shadow-md hover:border-amber-300 hover:-translate-y-0.5 transition-all duration-150">
       <Link
-        to={`/verses/${result.canonical_id}`}
+        to={`/verses/${result.canonical_id}?from=search`}
         className="absolute inset-0 z-0 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
         aria-label={`View verse ${result.chapter}.${result.verse}`}
       />
@@ -311,7 +311,7 @@ function StarterVerseSpotlight({
 
   return (
     <Link
-      to={`/verses/${verse.canonical_id}`}
+      to={`/verses/${verse.canonical_id}?from=search`}
       className="block"
     >
       <div className="bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 rounded-xl sm:rounded-2xl p-6 sm:p-8 border border-amber-200/50 shadow-lg hover:shadow-xl hover:border-amber-300 transition-all">
