@@ -179,6 +179,10 @@ export default function ReadingMode() {
   const [bookMetadata, setBookMetadata] = useState<BookMetadata | null>(null);
   const [chapterMetadata, setChapterMetadata] = useState<ChapterMetadata | null>(null);
 
+  // Translation visibility - persists within chapter, resets on chapter change
+  const [showTranslation, setShowTranslation] = useState(false);
+  const toggleTranslation = useCallback(() => setShowTranslation((prev) => !prev), []);
+
   // Dismiss onboarding and remember
   const dismissOnboarding = useCallback(() => {
     setShowOnboarding(false);
@@ -437,6 +441,8 @@ export default function ReadingMode() {
           pageIndex: startAtEnd ? -3 : PAGE_CHAPTER_INTRO,
           chapterVerses: [],
         }));
+        // Reset translation visibility for new chapter
+        setShowTranslation(false);
         loadChapter(chapter);
       }
     },
@@ -654,7 +660,13 @@ export default function ReadingMode() {
           />
         ) : currentVerse ? (
           // Verse display with tap-to-reveal translations
-          <VerseFocus key={currentVerse.canonical_id} verse={currentVerse} fontSize={settings.fontSize} />
+          <VerseFocus
+            key={currentVerse.canonical_id}
+            verse={currentVerse}
+            fontSize={settings.fontSize}
+            showTranslation={showTranslation}
+            onToggleTranslation={toggleTranslation}
+          />
         ) : (
           // Fallback: No content available
           <div className="text-center">

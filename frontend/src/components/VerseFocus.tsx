@@ -26,7 +26,11 @@ interface VerseFocusProps {
   verse: Verse;
   /** Font size for Sanskrit text */
   fontSize?: FontSize;
-  /** Callback when user taps the verse */
+  /** Controlled mode: whether translation is shown */
+  showTranslation?: boolean;
+  /** Controlled mode: callback to toggle translation */
+  onToggleTranslation?: () => void;
+  /** Callback when user taps the verse (deprecated, use onToggleTranslation) */
   onTap?: () => void;
 }
 
@@ -54,18 +58,31 @@ const SPEAKER_FONT_SIZE_CLASSES: Record<FontSize, string> = {
   large: "text-lg sm:text-xl",
 };
 
-export function VerseFocus({ verse, fontSize = "medium", onTap }: VerseFocusProps) {
-  const [showTranslation, setShowTranslation] = useState(false);
+export function VerseFocus({
+  verse,
+  fontSize = "medium",
+  showTranslation: controlledShowTranslation,
+  onToggleTranslation,
+  onTap,
+}: VerseFocusProps) {
+  // Support both controlled and uncontrolled modes
+  const isControlled = controlledShowTranslation !== undefined;
+  const [internalShowTranslation, setInternalShowTranslation] = useState(false);
+  const showTranslation = isControlled ? controlledShowTranslation : internalShowTranslation;
+
   const [translations, setTranslations] = useState<Translation[]>([]);
   const [loadingTranslations, setLoadingTranslations] = useState(false);
   const [translationError, setTranslationError] = useState<string | null>(null);
 
-  // Reset state when verse changes
+  // Reset internal state when verse changes (uncontrolled mode only)
   useEffect(() => {
-    setShowTranslation(false);
+    if (!isControlled) {
+      setInternalShowTranslation(false);
+    }
+    // Always reset translations cache for new verse
     setTranslations([]);
     setTranslationError(null);
-  }, [verse.canonical_id]);
+  }, [verse.canonical_id, isControlled]);
 
   // Get primary translations (first Hindi and first English)
   const hindiTranslation = translations.find((t) => t.language === "hi" || t.language === "hindi");
@@ -91,7 +108,13 @@ export function VerseFocus({ verse, fontSize = "medium", onTap }: VerseFocusProp
   // Handle tap/click to toggle translation
   const handleToggle = useCallback(() => {
     const newState = !showTranslation;
-    setShowTranslation(newState);
+
+    // Use controlled callback if available, otherwise update internal state
+    if (onToggleTranslation) {
+      onToggleTranslation();
+    } else {
+      setInternalShowTranslation(newState);
+    }
 
     // Load translations when revealing for the first time
     if (newState && translations.length === 0) {
@@ -99,7 +122,7 @@ export function VerseFocus({ verse, fontSize = "medium", onTap }: VerseFocusProp
     }
 
     onTap?.();
-  }, [showTranslation, translations.length, loadTranslations, onTap]);
+  }, [showTranslation, translations.length, loadTranslations, onToggleTranslation, onTap]);
 
   // Space key to toggle translation (desktop)
   useEffect(() => {
