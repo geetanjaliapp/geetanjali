@@ -12,6 +12,12 @@
     sans-serif;
 }
 
+html {
+  /* Prevent layout shift when scrollbar appears/disappears between pages */
+  overflow-y: scroll; /* Fallback for older browsers */
+  scrollbar-gutter: stable; /* Modern browsers: reserve space without showing scrollbar */
+}
+
 body {
   @apply bg-gray-50 text-gray-900;
   margin: 0;
