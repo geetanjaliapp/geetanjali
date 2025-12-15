@@ -188,6 +188,7 @@ flowchart TB
 
 **Entry Points:**
 - Homepage "Explore Verses" → Verse Browser
+- Navbar "Read" → Reading Mode
 - Navbar "Verses" → Verse Browser
 - Verse Browser "Reading Mode" link → Reading Mode
 - Direct URL `/read?c=2&v=47` → Reading Mode at position

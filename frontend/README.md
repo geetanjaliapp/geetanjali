@@ -61,19 +61,29 @@ npm run preview
 
 ```
 src/
+├── api/            # API client modules
 ├── assets/         # Static assets (images, SVGs)
 ├── components/     # Reusable React components
-│   ├── OptionTable.tsx      # Display options with pros/cons
-│   └── ProvenancePanel.tsx  # Show verse sources and confidence
+│   ├── navigation/       # Navigation module
+│   │   ├── navConfig.ts      # Routes, labels, icons config
+│   │   ├── Navbar.tsx        # Main orchestrator
+│   │   ├── DesktopNav.tsx    # Desktop links + auth
+│   │   ├── MobileDrawer.tsx  # Mobile slide-out menu
+│   │   ├── UserMenu.tsx      # Avatar dropdown
+│   │   └── hooks/            # useClickOutside, etc.
+│   └── ...
+├── contexts/       # React contexts (Auth, etc.)
+├── hooks/          # Custom React hooks
 ├── lib/            # Utilities and services
-│   └── api.ts      # API client with typed endpoints
 ├── pages/          # Page components (routes)
-│   ├── Home.tsx          # Landing page with health check
+│   ├── Home.tsx          # Landing page
 │   ├── NewCase.tsx       # Case creation form
-│   ├── CaseView.tsx      # Case details and analysis
-│   └── Verses.tsx        # Verse browsing (placeholder)
+│   ├── CaseView.tsx      # Case details and conversation
+│   ├── Verses.tsx        # Verse browser grid
+│   ├── VerseDetail.tsx   # Single verse view
+│   ├── ReadingMode.tsx   # Sequential scripture reading
+│   └── ...
 ├── types/          # TypeScript type definitions
-│   └── index.ts    # API response types
 ├── App.tsx         # Root component with routing
 ├── main.tsx        # Application entry point
 └── index.css       # Global styles and Tailwind directives
@@ -83,33 +93,21 @@ src/
 
 ### Pages
 
-1. **Home** (`/`)
-   - Backend health check with visual status
-   - Navigation to case creation and verse browsing
-   - Feature overview cards
-
-2. **New Case** (`/cases/new`)
-   - Comprehensive form with validation
-   - Fields: title, description, role, stakeholders, constraints, horizon, sensitivity
-   - Client-side validation with error display
-   - Creates case and navigates to analysis view
-
-3. **Case View** (`/cases/:id`)
-   - Display case details
-   - Trigger RAG analysis
-   - Executive summary with confidence meter
-   - Three options with pros/cons
-   - Recommended action and reflection prompts
-   - Scholar flag warnings
-   - Provenance panel with verse citations
-
-4. **Verses** (`/verses`)
-   - Verse browsing (to be implemented)
+1. **Home** (`/`) — Landing with value proposition and primary CTA
+2. **New Case** (`/cases/new`) — Dilemma submission with optional personalization
+3. **Case View** (`/cases/:id`) — Analysis display with follow-up conversation
+4. **Cases** (`/consultations`) — User's consultation history
+5. **Verses** (`/verses`) — Grid browser with chapter/topic filters
+6. **Verse Detail** (`/verses/:id`) — Single verse with translations
+7. **Reading Mode** (`/read`) — Sequential scripture study
+8. **About** (`/about`) — Mission and methodology
 
 ### Components
 
-- **ProvenancePanel**: Shows confidence scores, referenced verses with canonical IDs, paraphrases, and school attributions
-- **OptionTable**: Displays three options with color-coded pros (green) and cons (red), plus supporting verses
+- **Navigation**: Modular navbar with desktop links, mobile drawer, user menu
+- **ProvenancePanel**: Confidence scores, verse citations with canonical IDs
+- **OptionTable**: Three options with color-coded pros/cons
+- **FloatingActionButton**: Mobile CTA for primary action
 
 ### API Integration
 
