@@ -638,7 +638,7 @@ export default function ReadingMode() {
           </div>
         ) : isBookCover && bookMetadata ? (
           // Book cover page
-          <IntroCard key="book-cover" type="book" book={bookMetadata} fontSize={settings.fontSize} />
+          <IntroCard key="book-cover" type="book" book={bookMetadata} fontSize={settings.fontSize} onBegin={nextPage} />
         ) : isChapterIntro && chapterMetadata ? (
           // Chapter intro page
           <IntroCard key={`chapter-${state.chapter}-intro`} type="chapter" chapter={chapterMetadata} fontSize={settings.fontSize} />

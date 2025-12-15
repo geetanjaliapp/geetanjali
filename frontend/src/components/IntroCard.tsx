@@ -28,6 +28,7 @@ interface BookIntroProps {
   book: BookMetadata;
   chapter?: never;
   fontSize?: FontSize;
+  onBegin?: () => void;
 }
 
 interface ChapterIntroProps {
@@ -76,7 +77,7 @@ export function IntroCard(props: IntroCardProps) {
   }, [handleToggle]);
 
   if (type === "book") {
-    const book = props.book;
+    const { book, onBegin } = props;
     return (
       <div className="w-full max-w-2xl mx-auto flex flex-col">
         <div className="flex-shrink-0">
@@ -136,6 +137,18 @@ export function IntroCard(props: IntroCardProps) {
                 "{book.tagline}"
               </p>
             </div>
+
+            {/* Begin Journey CTA */}
+            {onBegin && (
+              <div className="text-center pt-2">
+                <button
+                  onClick={onBegin}
+                  className="px-8 py-3 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white font-medium rounded-xl transition-colors shadow-md hover:shadow-lg"
+                >
+                  Begin Journey
+                </button>
+              </div>
+            )}
 
             {/* Intro text */}
             <div className="bg-white/70 rounded-xl p-4 border border-amber-200/50">
