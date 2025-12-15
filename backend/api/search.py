@@ -95,7 +95,8 @@ class SearchResponse(BaseModel):
         ...,
         description="Primary search strategy used: canonical, keyword, semantic, etc.",
     )
-    total: int = Field(..., description="Total number of results returned")
+    total: int = Field(..., description="Number of results in this response")
+    total_count: int = Field(..., description="Total matching results (for pagination)")
     results: List[SearchResultResponse] = Field(
         default_factory=list, description="Ranked search results"
     )
