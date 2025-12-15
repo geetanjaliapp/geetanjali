@@ -484,16 +484,18 @@ export default function ReadingMode() {
               </span>
             </div>
             <div className="flex items-center gap-3">
-              {/* Font size toggle */}
+              {/* Font size toggle - Aa + filled circles */}
               <button
                 onClick={cycleFontSize}
-                className="flex items-center gap-1 px-2 py-1 text-amber-600 hover:bg-amber-100 active:bg-amber-200 rounded transition-colors text-sm"
+                className="flex items-center gap-1.5 px-2 py-1 text-amber-600 hover:bg-amber-100 active:bg-amber-200 rounded transition-colors"
                 aria-label={`Font size: ${settings.fontSize}. Tap to change.`}
-                title="Change font size"
+                title={`Font size: ${settings.fontSize}`}
               >
-                <span className="font-serif">Aa</span>
-                <span className="text-xs text-amber-500 uppercase">
-                  {settings.fontSize[0]}
+                <span className="text-sm font-serif">Aa</span>
+                <span className="flex items-center gap-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                  <span className={`w-1.5 h-1.5 rounded-full ${settings.fontSize !== "small" ? "bg-amber-500" : "bg-amber-200"}`} />
+                  <span className={`w-1.5 h-1.5 rounded-full ${settings.fontSize === "large" ? "bg-amber-500" : "bg-amber-200"}`} />
                 </span>
               </button>
               {currentVerse && (
