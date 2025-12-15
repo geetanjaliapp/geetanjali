@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Optional
 
 from sqlalchemy.orm import Session
 
-from services.content_filter import check_blocklist, ContentCheckResult
+from services.content_filter import check_search_query, ContentCheckResult
 
 from .config import SearchConfig
 from .parser import QueryParser
@@ -174,11 +174,14 @@ class SearchService:
     ) -> Optional[Dict[str, Any]]:
         """Check query against content moderation.
 
-        Skips moderation for:
-        - Canonical verse references (e.g., "BG 2.47")
-        - Short queries (1-2 words) - these are common search terms like
-          "karma", "dharma", "satya" that would be false-positive flagged
-        - Sanskrit queries (Devanagari text)
+        Uses search-specific filter that:
+        - Blocks explicit content and profanity
+        - Allows short spiritual terms (karma, dharma, yoga)
+        - Has lenient gibberish detection for search queries
+
+        Skips moderation entirely for:
+        - Canonical verse references (e.g., "BG 2.47") - always valid
+        - Sanskrit queries (Devanagari text) - can't apply English filters
 
         Args:
             query: Search query to check
@@ -188,7 +191,7 @@ class SearchService:
         Returns:
             Moderation result dict or None if passed
         """
-        # Skip moderation for canonical references
+        # Skip moderation for canonical references (always valid)
         if canonical_ref:
             return None
 
@@ -196,14 +199,8 @@ class SearchService:
         if is_sanskrit:
             return None
 
-        # Skip moderation for short queries (1-2 words)
-        # These are common search terms that the gibberish detector
-        # incorrectly flags (e.g., "karma", "dharma", "satya", "yoga")
-        word_count = len(query.split())
-        if word_count <= 2:
-            return None
-
-        result: ContentCheckResult = check_blocklist(query)
+        # Use search-specific content filter
+        result: ContentCheckResult = check_search_query(query)
 
         if result.is_violation:
             logger.warning(

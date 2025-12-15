@@ -109,6 +109,34 @@ _COMPILED_SPAM: List[Pattern[str]] = [
 # "f*ck you" → blocked (direct abuse)
 # "He said 'this is bullshit'" → allowed (describing situation)
 
+# Standalone profanity patterns (for search - block any profanity)
+_PROFANITY_PATTERNS = [
+    r"\b(f+[uü*@4]+c*k+|fck|fuk|fcuk)\b",
+    r"\b(sh[i1*]+t+|sh1t)\b",
+    r"\b(a+[s$]+h[o0]+le)\b",
+    r"\b(b[i1]+tch|b1tch)\b",
+    r"\b(d[i1]+ck|c[o0]+ck|p[e3]+n[i1]+s)\b",
+    r"\b(p[u*]+ss+y|c[u*]+nt)\b",
+    r"\b(wh[o0]+re|sl[u*]+t)\b",
+]
+
+# Slurs (always blocked everywhere - search and consultation)
+_SLUR_PATTERNS = [
+    r"\b(n+[i1*]+gg+[ae3*]+r?s?)\b",
+    r"\b(f+[a@4]+gg*[o0]+t+s?)\b",
+    r"\b(r+[e3]+t+[a@4]+r+d+s?)\b",
+    r"\b(ch[i1]+nk+s?)\b",
+    r"\b(sp[i1]+c+s?)\b",
+    r"\b(k[i1]+ke+s?)\b",
+]
+
+_COMPILED_PROFANITY: List[Pattern[str]] = [
+    re.compile(p, re.IGNORECASE) for p in _PROFANITY_PATTERNS
+]
+_COMPILED_SLURS: List[Pattern[str]] = [
+    re.compile(p, re.IGNORECASE) for p in _SLUR_PATTERNS
+]
+
 # Direct abuse patterns: profanity directed at the reader/system
 _ABUSE_PATTERNS = [
     # Profanity + second person (direct attack)
@@ -534,6 +562,167 @@ def check_blocklist(text: str) -> ContentCheckResult:
     if _is_gibberish(text):
         logger.warning(
             "Blocklist violation detected",
+            extra={"violation_type": ViolationType.SPAM_GIBBERISH.value},
+        )
+        return ContentCheckResult(
+            is_violation=True,
+            violation_type=ViolationType.SPAM_GIBBERISH,
+        )
+
+    return ContentCheckResult(is_violation=False)
+
+
+# ============================================================================
+# Search Query Filter (Separate from Consultation)
+# ============================================================================
+# Search queries need different rules than consultation submissions:
+# - Short queries (1-3 words) are normal: "karma", "duty dharma", "yoga meditation"
+# - Any profanity blocked (not just directed) - this is sacred text search
+# - Explicit content always blocked
+# - Slurs always blocked
+
+
+def _contains_profanity(text: str) -> bool:
+    """
+    Check if text contains any profanity (for search queries).
+
+    Unlike consultation filter, this blocks ALL profanity regardless of context.
+    Search queries for sacred texts should not contain profanity.
+
+    Args:
+        text: Input text to check
+
+    Returns:
+        True if text contains profanity
+    """
+    # Check standalone profanity patterns
+    for pattern in _COMPILED_PROFANITY:
+        if pattern.search(text):
+            return True
+
+    # Check slurs (always blocked)
+    for pattern in _COMPILED_SLURS:
+        if pattern.search(text):
+            return True
+
+    # Use better-profanity for obfuscation detection
+    try:
+        from better_profanity import profanity
+
+        if profanity.contains_profanity(text):
+            return True
+    except ImportError:
+        logger.debug("better-profanity not installed, skipping obfuscation check")
+
+    return False
+
+
+def _is_search_gibberish(text: str) -> bool:
+    """
+    Check if search query is gibberish.
+
+    More lenient than consultation gibberish check:
+    - Short queries (1-3 words) skip gibberish check entirely
+    - Longer queries need at least one common word
+
+    Args:
+        text: Search query to check
+
+    Returns:
+        True if query appears to be gibberish
+    """
+    words = re.findall(r"[a-zA-Z]+", text.lower())
+
+    # No alphabetic words - check if it's just symbols/numbers
+    if not words:
+        # Allow short non-alphabetic (might be verse numbers like "2.47")
+        return len(text.strip()) > 15
+
+    # Short queries (1-3 words): skip gibberish check
+    # "karma", "duty dharma", "yoga meditation practice" are all valid
+    if len(words) <= 3:
+        return False
+
+    # For longer queries (4+ words), require at least one common word
+    found_common = set(word for word in words if word in _COMMON_WORDS)
+    return len(found_common) < 1
+
+
+def check_search_query(query: str) -> ContentCheckResult:
+    """
+    Check search query against content policy.
+
+    Designed specifically for search queries on sacred text:
+    - Block explicit sexual/violence content
+    - Block ALL profanity (stricter than consultation)
+    - Block slurs
+    - Light gibberish check only for longer queries (4+ words)
+    - Allow short spiritual terms: "karma", "dharma", "yoga", "satya"
+
+    Can be disabled via:
+    - CONTENT_FILTER_ENABLED=false (master switch)
+
+    Args:
+        query: Search query to check
+
+    Returns:
+        ContentCheckResult indicating if query should be blocked
+    """
+    # Check if filtering is enabled
+    if not settings.CONTENT_FILTER_ENABLED:
+        return ContentCheckResult(is_violation=False)
+
+    # Check explicit sexual content
+    for pattern in _COMPILED_SEXUAL:
+        if pattern.search(query):
+            logger.warning(
+                "Search query blocked",
+                extra={"violation_type": ViolationType.EXPLICIT_SEXUAL.value},
+            )
+            return ContentCheckResult(
+                is_violation=True,
+                violation_type=ViolationType.EXPLICIT_SEXUAL,
+            )
+
+    # Check explicit violence
+    for pattern in _COMPILED_VIOLENCE:
+        if pattern.search(query):
+            logger.warning(
+                "Search query blocked",
+                extra={"violation_type": ViolationType.EXPLICIT_VIOLENCE.value},
+            )
+            return ContentCheckResult(
+                is_violation=True,
+                violation_type=ViolationType.EXPLICIT_VIOLENCE,
+            )
+
+    # Check profanity (strict - any profanity blocked for sacred text search)
+    if _contains_profanity(query):
+        logger.warning(
+            "Search query blocked",
+            extra={"violation_type": ViolationType.PROFANITY_ABUSE.value},
+        )
+        return ContentCheckResult(
+            is_violation=True,
+            violation_type=ViolationType.PROFANITY_ABUSE,
+        )
+
+    # Check spam patterns (repeated chars, etc.)
+    for pattern in _COMPILED_SPAM:
+        if pattern.search(query):
+            logger.warning(
+                "Search query blocked",
+                extra={"violation_type": ViolationType.SPAM_GIBBERISH.value},
+            )
+            return ContentCheckResult(
+                is_violation=True,
+                violation_type=ViolationType.SPAM_GIBBERISH,
+            )
+
+    # Check gibberish (lenient for search)
+    if _is_search_gibberish(query):
+        logger.warning(
+            "Search query blocked",
             extra={"violation_type": ViolationType.SPAM_GIBBERISH.value},
         )
         return ContentCheckResult(
