@@ -362,3 +362,73 @@ export function getViolationType(text: string): ViolationType {
   if (containsAbuse(text)) return "abuse";
   return "valid";
 }
+
+// ============================================================================
+// Search-Specific Validation
+// ============================================================================
+
+/**
+ * Check if text contains profanity (for search queries).
+ *
+ * Unlike containsAbuse(), this blocks ANY profanity regardless of context.
+ * Used for search where even single-word profanity should be blocked.
+ */
+function containsProfanity(text: string): boolean {
+  // Check direct abuse patterns (slurs, etc.)
+  for (const pattern of ABUSE_PATTERNS) {
+    if (pattern.test(text)) {
+      return true;
+    }
+  }
+
+  // Use obscenity matcher for profanity detection
+  try {
+    return matcher.hasMatch(text);
+  } catch {
+    console.warn("Obscenity matcher error, deferring to backend");
+    return false;
+  }
+}
+
+/**
+ * Validate search query with relaxed gibberish check but strict profanity filter.
+ *
+ * Search-specific rules:
+ * - Skip gibberish check for short queries (1-2 words) to allow "karma", "duty", etc.
+ * - Always block profanity, even single words like "fuck"
+ *
+ * @param query - The search query to validate
+ * @returns ValidationResult with valid flag and optional reason
+ */
+export function validateSearchQuery(query: string): ValidationResult {
+  const trimmed = query.trim();
+
+  // Skip validation for empty queries
+  if (trimmed.length === 0) {
+    return { valid: true };
+  }
+
+  // Always check for profanity (even single words)
+  if (containsProfanity(trimmed)) {
+    return {
+      valid: false,
+      reason: "Please use appropriate language in your search.",
+    };
+  }
+
+  // Skip gibberish check for short queries (1-2 words)
+  const wordCount = trimmed.split(/\s+/).length;
+  if (wordCount <= 2) {
+    return { valid: true };
+  }
+
+  // For longer queries, check gibberish
+  if (isGibberish(trimmed)) {
+    return {
+      valid: false,
+      reason: "Please enter a clearer search term.",
+    };
+  }
+
+  return { valid: true };
+}

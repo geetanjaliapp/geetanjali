@@ -7,6 +7,7 @@ import { SearchIcon, SpinnerIcon, StarIcon, CloseIcon } from "../components/icon
 import { getPrincipleShortLabel, PRINCIPLE_TAXONOMY, type PrincipleId } from "../constants/principles";
 import { CHAPTERS, TOTAL_CHAPTERS } from "../constants/chapters";
 import { formatSanskritLines } from "../lib/sanskritFormatter";
+import { validateSearchQuery } from "../lib/contentFilter";
 import type { SearchResult, Verse } from "../types";
 
 // Generate chapter options array from CHAPTERS object
@@ -551,6 +552,14 @@ export default function Search() {
   const [recentSearches, setRecentSearches] = useState<string[]>(() => getRecentSearches());
   const [showRecent, setShowRecent] = useState(false);
 
+  // Content validation error (profanity filter)
+  // Initialize with validation of URL query to avoid effect-based setState
+  const [validationError, setValidationError] = useState<string | null>(() => {
+    if (!initialQuery) return null;
+    const validation = validateSearchQuery(initialQuery);
+    return validation.valid ? null : (validation.reason || "Invalid search query");
+  });
+
   // Load featured verse on mount
   useEffect(() => {
     let cancelled = false;
@@ -591,13 +600,13 @@ export default function Search() {
     description: "Search the Bhagavad Geeta by verse reference, Sanskrit text, keywords, or meaning.",
   });
 
-  // Search on mount if query in URL
+  // Search on mount if query in URL (skip if validation failed)
   useEffect(() => {
-    if (initialQuery && !hasSearchedRef.current) {
+    if (initialQuery && !hasSearchedRef.current && !validationError) {
       hasSearchedRef.current = true;
       search(initialQuery);
     }
-  }, [initialQuery, search]);
+  }, [initialQuery, search, validationError]);
 
   // Handle form submit
   const handleSubmit = useCallback(
@@ -605,6 +614,16 @@ export default function Search() {
       e.preventDefault();
       const trimmed = inputValue.trim();
       if (!trimmed) return;
+
+      // Clear previous validation error
+      setValidationError(null);
+
+      // Validate query before searching
+      const validation = validateSearchQuery(trimmed);
+      if (!validation.valid) {
+        setValidationError(validation.reason || "Invalid search query");
+        return;
+      }
 
       // Update URL
       const newParams = new URLSearchParams();
@@ -712,7 +731,10 @@ export default function Search() {
                 ref={inputRef}
                 type="text"
                 value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
+                onChange={(e) => {
+                  setInputValue(e.target.value);
+                  if (validationError) setValidationError(null);
+                }}
                 onFocus={() => setShowRecent(true)}
                 onBlur={() => setTimeout(() => setShowRecent(false), 200)}
                 placeholder="Search verses, topics, or references..."
@@ -811,8 +833,15 @@ export default function Search() {
 
         {/* Content Section */}
         <div className="max-w-6xl mx-auto">
-          {/* Error State */}
-          {error && (
+          {/* Validation Error (profanity filter) */}
+          {validationError && (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 text-center">
+              <p className="text-amber-800">{validationError}</p>
+            </div>
+          )}
+
+          {/* API Error State */}
+          {error && !validationError && (
             <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
               <p className="text-red-700">{error}</p>
             </div>
