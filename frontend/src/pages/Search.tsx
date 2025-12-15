@@ -38,6 +38,12 @@ const SEARCH_EXAMPLES = [
   { query: "duty", label: "Keyword", description: "English search" },
 ];
 
+// Responsive page size: 16 for desktop, 12 for mobile (matches Verses page)
+const getResultsPerPage = () => {
+  if (typeof window === "undefined") return 12;
+  return window.innerWidth >= 1024 ? 16 : 12;
+};
+
 /**
  * Get recent searches from localStorage
  */
@@ -535,9 +541,12 @@ export default function Search() {
     initialChapter
   );
 
+  // Responsive page size: 16 for desktop, 12 for mobile
+  const pageSize = useMemo(() => getResultsPerPage(), []);
+
   const { data, loading, loadingMore, error, hasMore, search, loadMore, clear } = useSearch({
     chapter: selectedChapter,
-    limit: 20,
+    limit: pageSize,
   });
 
   // Track if initial search has been performed
