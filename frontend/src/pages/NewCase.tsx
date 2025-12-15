@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Link, useLocation } from "react-router-dom";
+import { useNavigate, Link, useLocation, useSearchParams } from "react-router-dom";
 import { casesApi } from "../lib/api";
 import type { Case } from "../types";
 import { Navbar } from "../components";
@@ -41,7 +41,13 @@ export default function NewCase() {
   });
   const navigate = useNavigate();
   const location = useLocation();
-  const prefill = (location.state as LocationState)?.prefill || "";
+  const [searchParams] = useSearchParams();
+
+  // Support prefill from both URL query param (?prefill=...) and router state
+  const prefill =
+    searchParams.get("prefill") ||
+    (location.state as LocationState)?.prefill ||
+    "";
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
