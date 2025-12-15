@@ -4,7 +4,7 @@ Centralized types for the search service. All dataclasses and enums
 used across search modules are defined here for consistency.
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
@@ -141,7 +141,10 @@ def serialize_search_response(response: SearchResponse) -> Dict[str, Any]:
             for r in response.results
         ],
         "moderation": (
-            {"blocked": True, "message": response.moderation.get("reason", "Content blocked")}
+            {
+                "blocked": True,
+                "message": response.moderation.get("reason", "Content blocked"),
+            }
             if response.moderation and response.moderation.get("blocked")
             else None
         ),

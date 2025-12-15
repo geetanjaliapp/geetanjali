@@ -7,7 +7,6 @@ import uuid
 
 from services.search import (
     SearchService,
-    SearchConfig,
     MatchType,
 )
 from services.search.parser import QueryParser
@@ -164,12 +163,16 @@ class TestQueryParser:
     def test_is_situational_query_my(self):
         """Test detection of situational 'my' queries."""
         parser = QueryParser()
-        assert parser.is_situational_query("My team is struggling with motivation") is True
+        assert (
+            parser.is_situational_query("My team is struggling with motivation") is True
+        )
 
     def test_is_situational_query_how(self):
         """Test detection of 'how do I' queries."""
         parser = QueryParser()
-        assert parser.is_situational_query("How do I deal with a difficult boss?") is True
+        assert (
+            parser.is_situational_query("How do I deal with a difficult boss?") is True
+        )
 
     def test_is_situational_query_keyword(self):
         """Test that keyword queries are not situational."""
@@ -298,7 +301,9 @@ class TestSearchService:
 
         # Results should be different (if multiple matches exist)
         if response1.total_count > 1 and response2.total > 0:
-            assert response1.results[0].canonical_id != response2.results[0].canonical_id
+            assert (
+                response1.results[0].canonical_id != response2.results[0].canonical_id
+            )
 
     def test_search_featured_boost(self, db_session, sample_verses):
         """Test featured verses get ranking boost."""
@@ -306,9 +311,7 @@ class TestSearchService:
         response = service.search("action")
 
         # Featured verses should rank higher
-        featured_indices = [
-            i for i, r in enumerate(response.results) if r.is_featured
-        ]
+        featured_indices = [i for i, r in enumerate(response.results) if r.is_featured]
         non_featured_indices = [
             i for i, r in enumerate(response.results) if not r.is_featured
         ]
@@ -412,7 +415,9 @@ class TestSearchAPI:
 
     def test_search_endpoint_situational_suggestion(self, client, sample_verses):
         """Test situational query returns suggestion."""
-        response = client.get("/api/v1/search?q=How%20do%20I%20handle%20stress%20at%20work")
+        response = client.get(
+            "/api/v1/search?q=How%20do%20I%20handle%20stress%20at%20work"
+        )
 
         assert response.status_code == status.HTTP_200_OK
         data = response.json()

@@ -4,7 +4,6 @@ Helper functions for highlighting, escaping, and text processing.
 """
 
 import re
-from typing import List
 
 from models.verse import Verse
 from .types import SearchMatch, SearchResult
@@ -23,12 +22,7 @@ def escape_like_pattern(query: str) -> str:
         Escaped string safe for use in LIKE patterns
     """
     # Order matters: escape backslash first
-    return (
-        query
-        .replace("\\", "\\\\")
-        .replace("%", "\\%")
-        .replace("_", "\\_")
-    )
+    return query.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
 
 
 def highlight_match(
@@ -55,7 +49,7 @@ def highlight_match(
     # Split query into words for multi-word highlighting
     query_words = query.lower().split()
     if not query_words:
-        return text[:max_context * 2] + "..." if len(text) > max_context * 2 else text
+        return text[: max_context * 2] + "..." if len(text) > max_context * 2 else text
 
     text_lower = text.lower()
 
@@ -68,7 +62,7 @@ def highlight_match(
 
     if first_pos == len(text):
         # No match found, return truncated text
-        return text[:max_context * 2] + "..." if len(text) > max_context * 2 else text
+        return text[: max_context * 2] + "..." if len(text) > max_context * 2 else text
 
     # Extract context around first match
     start = max(0, first_pos - max_context)
@@ -116,7 +110,7 @@ def highlight_single_match(
     pos = lower_text.find(lower_query)
 
     if pos == -1:
-        return text[:max_context * 2] + "..." if len(text) > max_context * 2 else text
+        return text[: max_context * 2] + "..." if len(text) > max_context * 2 else text
 
     start = max(0, pos - max_context)
     end = min(len(text), pos + len(query) + max_context)
@@ -129,11 +123,11 @@ def highlight_single_match(
     excerpt_lower = excerpt.lower()
     match_pos = excerpt_lower.find(lower_query)
     if match_pos != -1:
-        matched_text = excerpt[match_pos:match_pos + len(query)]
+        matched_text = excerpt[match_pos : match_pos + len(query)]
         excerpt = (
             excerpt[:match_pos]
             + f"<mark>{matched_text}</mark>"
-            + excerpt[match_pos + len(query):]
+            + excerpt[match_pos + len(query) :]
         )
 
     return prefix + excerpt + suffix

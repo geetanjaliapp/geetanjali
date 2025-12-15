@@ -40,9 +40,7 @@ class QueryParser:
     DEVANAGARI_RANGE: Tuple[int, int] = (0x0900, 0x097F)
 
     # IAST diacritical characters (for Sanskrit detection)
-    IAST_CHARS: Set[str] = set(
-        "āīūṛṝḷḹēōṃḥñṅṭḍṇśṣĀĪŪṚṜḶḸĒŌṂḤÑṄṬḌṆŚṢ"
-    )
+    IAST_CHARS: Set[str] = set("āīūṛṝḷḹēōṃḥñṅṭḍṇśṣĀĪŪṚṜḶḸĒŌṂḤÑṄṬḌṆŚṢ")
 
     # Situational query patterns (indicate personal dilemma)
     SITUATIONAL_PATTERNS: List[str] = [
@@ -179,7 +177,6 @@ class QueryParser:
         decomposed = unicodedata.normalize("NFKD", text)
         # Remove combining diacritical marks
         normalized = "".join(
-            char for char in decomposed
-            if not unicodedata.combining(char)
+            char for char in decomposed if not unicodedata.combining(char)
         )
         return normalized.lower()

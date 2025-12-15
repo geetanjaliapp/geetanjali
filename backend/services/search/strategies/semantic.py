@@ -124,9 +124,7 @@ def _enrich_with_verse_data(
         List of SearchResult with full verse data
     """
     verses = (
-        db.query(Verse)
-        .filter(Verse.canonical_id.in_(list(id_to_score.keys())))
-        .all()
+        db.query(Verse).filter(Verse.canonical_id.in_(list(id_to_score.keys()))).all()
     )
 
     results = []

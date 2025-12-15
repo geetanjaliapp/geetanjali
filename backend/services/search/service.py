@@ -194,13 +194,19 @@ class SearchService:
                 "Query blocked by moderation",
                 extra={
                     "query": query,
-                    "violation_type": result.violation_type.value if result.violation_type else "unknown",
+                    "violation_type": (
+                        result.violation_type.value
+                        if result.violation_type
+                        else "unknown"
+                    ),
                 },
             )
             return {
                 "blocked": True,
                 "reason": f"Content policy violation: {result.violation_type.value if result.violation_type else 'unknown'}",
-                "category": result.violation_type.value if result.violation_type else "unknown",
+                "category": (
+                    result.violation_type.value if result.violation_type else "unknown"
+                ),
             }
 
         return None
@@ -243,17 +249,13 @@ class SearchService:
 
         # Strategy 2: Sanskrit text search
         if is_sanskrit:
-            sanskrit_results = sanskrit_search(
-                self.db, query, config, self.parser
-            )
+            sanskrit_results = sanskrit_search(self.db, query, config, self.parser)
             if sanskrit_results:
                 results[SearchStrategy.SANSKRIT] = sanskrit_results
 
         # Strategy 3: Principle filter
         if config.principle:
-            principle_results = principle_search(
-                self.db, config.principle, config
-            )
+            principle_results = principle_search(self.db, config.principle, config)
             if principle_results:
                 results[SearchStrategy.PRINCIPLE] = principle_results
 
@@ -266,8 +268,7 @@ class SearchService:
         # Strategy 5: Semantic search (fallback or augmentation)
         # Run semantic if we have few results or no results
         should_run_semantic = (
-            not results
-            or sum(len(r) for r in results.values()) < config.limit // 2
+            not results or sum(len(r) for r in results.values()) < config.limit // 2
         )
 
         if should_run_semantic:
@@ -308,9 +309,7 @@ def get_available_principles(db: Session) -> List[str]:
         return [row[0] for row in result]
     except Exception:
         # Fallback for SQLite in tests
-        verses = (
-            db.query(Verse).filter(Verse.consulting_principles.isnot(None)).all()
-        )
+        verses = db.query(Verse).filter(Verse.consulting_principles.isnot(None)).all()
         principles = set()
         for verse in verses:
             if verse.consulting_principles:

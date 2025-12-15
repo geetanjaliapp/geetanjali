@@ -62,9 +62,7 @@ def keyword_search(
     )
 
     # Search in Verse.paraphrase_en (lower priority)
-    _search_paraphrase(
-        base_query, query, search_pattern, config, results, seen_ids
-    )
+    _search_paraphrase(base_query, query, search_pattern, config, results, seen_ids)
 
     return results
 
@@ -80,8 +78,7 @@ def _search_translations(
 ) -> None:
     """Search in Translation model (scholar translations)."""
     translation_verses = (
-        base_query
-        .join(Verse.translations)
+        base_query.join(Verse.translations)
         .filter(Translation.text.ilike(search_pattern))
         .options(joinedload(Verse.translations))
         .limit(config.limit)
@@ -126,8 +123,7 @@ def _search_verse_translation(
 ) -> None:
     """Search in Verse.translation_en (primary translation)."""
     direct_translation_verses = (
-        base_query
-        .filter(Verse.translation_en.ilike(search_pattern))
+        base_query.filter(Verse.translation_en.ilike(search_pattern))
         .limit(config.limit)
         .all()
     )
@@ -160,8 +156,7 @@ def _search_paraphrase(
 ) -> None:
     """Search in Verse.paraphrase_en (leadership paraphrase)."""
     paraphrase_verses = (
-        base_query
-        .filter(Verse.paraphrase_en.ilike(search_pattern))
+        base_query.filter(Verse.paraphrase_en.ilike(search_pattern))
         .limit(config.limit)
         .all()
     )

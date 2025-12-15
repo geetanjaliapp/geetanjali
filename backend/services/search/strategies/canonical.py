@@ -34,11 +34,7 @@ def canonical_search(
     """
     canonical_id = f"BG_{chapter}_{verse}"
 
-    verse_obj = (
-        db.query(Verse)
-        .filter(Verse.canonical_id == canonical_id)
-        .first()
-    )
+    verse_obj = db.query(Verse).filter(Verse.canonical_id == canonical_id).first()
 
     if not verse_obj:
         return []

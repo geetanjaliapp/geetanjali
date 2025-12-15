@@ -105,6 +105,6 @@ def merge_results(
     total_count = len(all_results)
 
     # Apply pagination
-    paginated = all_results[config.offset:config.offset + config.limit]
+    paginated = all_results[config.offset : config.offset + config.limit]
 
     return paginated, primary_strategy or SearchStrategy.KEYWORD, total_count

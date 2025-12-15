@@ -26,10 +26,17 @@ router = APIRouter(prefix="/api/v1/search")
 class SearchMatchResponse(BaseModel):
     """Match information showing why a verse appeared in results."""
 
-    type: str = Field(..., description="Match type: exact_canonical, keyword_translation, semantic, etc.")
-    field: str = Field(..., description="Field that matched: canonical_id, translation_en, etc.")
+    type: str = Field(
+        ...,
+        description="Match type: exact_canonical, keyword_translation, semantic, etc.",
+    )
+    field: str = Field(
+        ..., description="Field that matched: canonical_id, translation_en, etc."
+    )
     score: float = Field(..., description="Match quality score (0.0 to 1.0)")
-    highlight: Optional[str] = Field(None, description="Matched text excerpt with <mark> tags")
+    highlight: Optional[str] = Field(
+        None, description="Matched text excerpt with <mark> tags"
+    )
 
 
 class SearchResultResponse(BaseModel):
@@ -38,14 +45,28 @@ class SearchResultResponse(BaseModel):
     canonical_id: str = Field(..., description="Verse identifier (e.g., BG_2_47)")
     chapter: int = Field(..., description="Chapter number (1-18)")
     verse: int = Field(..., description="Verse number within chapter")
-    sanskrit_devanagari: Optional[str] = Field(None, description="Sanskrit in Devanagari script")
-    sanskrit_iast: Optional[str] = Field(None, description="Sanskrit in IAST transliteration")
-    translation_en: Optional[str] = Field(None, description="Primary English translation")
-    paraphrase_en: Optional[str] = Field(None, description="Leadership-focused paraphrase")
-    principles: List[str] = Field(default_factory=list, description="Associated consulting principles")
+    sanskrit_devanagari: Optional[str] = Field(
+        None, description="Sanskrit in Devanagari script"
+    )
+    sanskrit_iast: Optional[str] = Field(
+        None, description="Sanskrit in IAST transliteration"
+    )
+    translation_en: Optional[str] = Field(
+        None, description="Primary English translation"
+    )
+    paraphrase_en: Optional[str] = Field(
+        None, description="Leadership-focused paraphrase"
+    )
+    principles: List[str] = Field(
+        default_factory=list, description="Associated consulting principles"
+    )
     is_featured: bool = Field(False, description="Whether verse is featured/curated")
-    match: SearchMatchResponse = Field(..., description="Information about how this verse matched")
-    rank_score: float = Field(..., description="Final ranking score (higher = more relevant)")
+    match: SearchMatchResponse = Field(
+        ..., description="Information about how this verse matched"
+    )
+    rank_score: float = Field(
+        ..., description="Final ranking score (higher = more relevant)"
+    )
 
 
 class SearchModerationResponse(BaseModel):
@@ -61,18 +82,29 @@ class SearchSuggestionResponse(BaseModel):
     type: str = Field(..., description="Suggestion type: consultation")
     message: str = Field(..., description="Suggestion message")
     cta: str = Field(..., description="Call-to-action button text")
-    prefill: Optional[str] = Field(None, description="Text to prefill in consultation form")
+    prefill: Optional[str] = Field(
+        None, description="Text to prefill in consultation form"
+    )
 
 
 class SearchResponse(BaseModel):
     """Complete search response with results and metadata."""
 
     query: str = Field(..., description="Original search query")
-    strategy: str = Field(..., description="Primary search strategy used: canonical, keyword, semantic, etc.")
+    strategy: str = Field(
+        ...,
+        description="Primary search strategy used: canonical, keyword, semantic, etc.",
+    )
     total: int = Field(..., description="Total number of results returned")
-    results: List[SearchResultResponse] = Field(default_factory=list, description="Ranked search results")
-    moderation: Optional[SearchModerationResponse] = Field(None, description="Moderation result if query was blocked")
-    suggestion: Optional[SearchSuggestionResponse] = Field(None, description="Alternative action suggestion")
+    results: List[SearchResultResponse] = Field(
+        default_factory=list, description="Ranked search results"
+    )
+    moderation: Optional[SearchModerationResponse] = Field(
+        None, description="Moderation result if query was blocked"
+    )
+    suggestion: Optional[SearchSuggestionResponse] = Field(
+        None, description="Alternative action suggestion"
+    )
 
     class Config:
         json_schema_extra = {
@@ -203,12 +235,14 @@ async def get_available_principles(
     # For SQLite (tests): fall back to fetching all and processing in Python
     try:
         result = db.execute(
-            text("""
+            text(
+                """
                 SELECT DISTINCT jsonb_array_elements_text(consulting_principles) as principle
                 FROM verses
                 WHERE consulting_principles IS NOT NULL
                 ORDER BY principle
-            """)
+            """
+            )
         )
         principles = [row[0] for row in result.fetchall()]
     except Exception:
