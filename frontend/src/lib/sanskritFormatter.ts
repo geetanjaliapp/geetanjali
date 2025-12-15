@@ -52,8 +52,18 @@ export function formatSanskritLines(
   // Remove the verse number at the end (e.g., ।।2.52।। or ॥2.52॥)
   const withoutVerseNum = text.replace(/[।॥]+\d+\.\d+[।॥]+\s*$/, "");
 
+  // Break line after speaker intros (वाच = "said/spoke")
+  // This handles cases where speaker intro is inline with verse content
+  // e.g., "श्रीभगवानुवाचऊर्ध्वमूलम्..." → "श्रीभगवानुवाच\nऊर्ध्वमूलम्..."
+  // Using वाच to catch both standalone "उवाच" and sandhi forms like "भगवानुवाच"
+  // \s* handles both with and without space after वाच
+  const withSpeakerBreaks = withoutVerseNum.replace(
+    /(वाच)\s*/g,
+    "$1\n"
+  );
+
   // Split by newlines to detect speaker intro lines
-  const lines = withoutVerseNum
+  const lines = withSpeakerBreaks
     .split("\n")
     .map((l) => l.trim())
     .filter((l) => l);
