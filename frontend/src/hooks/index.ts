@@ -15,3 +15,4 @@ export { useSEO } from "./useSEO";
 export { useShare, shareUrls } from "./useShare";
 export { useAdjacentVerses } from "./useAdjacentVerses";
 export { useSwipeNavigation } from "./useSwipeNavigation";
+export { useSearch } from "./useSearch";
