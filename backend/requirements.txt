@@ -1,12 +1,12 @@
 # Geetanjali Backend Dependencies
 
 # Web Framework
-fastapi==0.124.0
+fastapi==0.124.4
 uvicorn[standard]==0.38.0
 python-multipart==0.0.20
 
 # Database
-sqlalchemy==2.0.44
+sqlalchemy==2.0.45
 alembic==1.17.2
 psycopg2-binary==2.9.11  # PostgreSQL driver
 
@@ -16,10 +16,10 @@ pydantic-settings==2.12.0
 email-validator==2.3.0  # Required for pydantic EmailStr validation
 
 # Vector Database
-chromadb==1.3.5
+chromadb==1.3.7
 
 # Embeddings
-sentence-transformers==5.1.2
+sentence-transformers==5.2.0
 
 # LLM Clients
 httpx>=0.27.0  # For Ollama API calls (chromadb 1.3.5 requires >=0.27.0)
@@ -33,7 +33,7 @@ pytest-cov==4.1.0
 # Code Quality
 black==25.12.0
 flake8==7.3.0
-mypy==1.19.0
+mypy==1.19.1
 types-requests==2.32.4.20250913  # Type stubs for requests
 types-PyYAML==6.0.12.12  # Type stubs for PyYAML
 types-redis==4.6.0.20241004  # Type stubs for redis
@@ -65,10 +65,10 @@ urllib3>=2.5.0  # CVE-2025-50181, CVE-2025-50182 fix
 resend>=2.5.0  # Transactional email service
 
 # Monitoring
-sentry-sdk[fastapi]==2.29.1  # Error tracking and performance monitoring
+sentry-sdk[fastapi]==2.47.0  # Error tracking and performance monitoring
 prometheus-fastapi-instrumentator==7.1.0  # FastAPI metrics instrumentation
-prometheus-client==0.22.1  # Prometheus client library
+prometheus-client==0.23.1  # Prometheus client library
 
 # Scheduling
-apscheduler==3.10.4  # Background task scheduler for metrics collection
+apscheduler==3.11.1  # Background task scheduler for metrics collection
 
