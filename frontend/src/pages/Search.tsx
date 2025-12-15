@@ -909,7 +909,7 @@ export default function Search() {
               {/* Results Grid */}
               {data.total > 0 ? (
                 <>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                     {data.results.map((result) => (
                       <SearchResultCard
                         key={result.canonical_id}

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Link, useLocation, useSearchParams } from "react-router-dom";
+import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { casesApi } from "../lib/api";
 import type { Case } from "../types";
 import { Navbar } from "../components";
@@ -361,13 +361,14 @@ export default function NewCase() {
 
             {/* Submit Buttons - Stack on mobile */}
             <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-3 pt-2">
-              <Link
-                to="/"
+              <button
+                type="button"
+                onClick={() => navigate(-1)}
                 className="px-4 sm:px-6 py-2.5 sm:py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-medium text-center text-sm sm:text-base inline-flex items-center justify-center gap-1"
               >
                 <span className="hidden sm:inline">←</span>
                 <span>Back</span>
-              </Link>
+              </button>
               <button
                 type="submit"
                 disabled={loading}
