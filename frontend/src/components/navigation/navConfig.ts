@@ -114,7 +114,11 @@ export function isNavItemActive(item: NavItem, pathname: string): boolean {
   }
 
   // Check prefix matches (for nested routes)
+  // Exclude /cases/new as it has its own "Ask" CTA
   if (item.activePrefixes) {
+    if (pathname === "/cases/new") {
+      return false;
+    }
     return item.activePrefixes.some((prefix) => pathname.startsWith(prefix));
   }
 

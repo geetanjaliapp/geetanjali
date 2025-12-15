@@ -6,6 +6,7 @@
  * - Tap/click to reveal translations (Hindi + English)
  * - Translation panel expands downward only (no layout shift)
  * - Lazy loading of translations
+ * - Collapsible sections with persistent preferences
  * - Styling matches VerseDetail page
  *
  * Used by: ReadingMode
@@ -21,6 +22,121 @@ import type { Verse, Translation } from "../types";
 /** Font size options for Sanskrit text */
 export type FontSize = "small" | "medium" | "large";
 
+/** Section identifiers for collapsible content */
+type SectionId = "iast" | "insight" | "hindi" | "english";
+
+/** Section expansion preferences */
+type SectionPrefs = Record<SectionId, boolean>;
+
+/** localStorage key for section preferences */
+const SECTION_PREFS_KEY = "geetanjali:readingSectionPrefs";
+
+/** Default: all sections expanded */
+const DEFAULT_SECTION_PREFS: SectionPrefs = {
+  iast: true,
+  insight: true,
+  hindi: true,
+  english: true,
+};
+
+/** Load section preferences from localStorage */
+function loadSectionPrefs(): SectionPrefs {
+  try {
+    const stored = localStorage.getItem(SECTION_PREFS_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      // Merge with defaults to handle new sections
+      return { ...DEFAULT_SECTION_PREFS, ...parsed };
+    }
+  } catch {
+    // Ignore parse errors
+  }
+  return DEFAULT_SECTION_PREFS;
+}
+
+/** Save section preferences to localStorage */
+function saveSectionPrefs(prefs: SectionPrefs): void {
+  try {
+    localStorage.setItem(SECTION_PREFS_KEY, JSON.stringify(prefs));
+  } catch {
+    // Ignore storage errors
+  }
+}
+
+/** Collapsible section with tappable header */
+interface CollapsibleSectionProps {
+  /** Section identifier */
+  id: SectionId;
+  /** Display label */
+  label: string;
+  /** Optional subtitle (e.g., translator name) */
+  subtitle?: string;
+  /** Whether section is expanded */
+  isExpanded: boolean;
+  /** Toggle callback */
+  onToggle: (id: SectionId) => void;
+  /** Background styling class */
+  bgClass: string;
+  /** Content to render when expanded */
+  children: React.ReactNode;
+}
+
+function CollapsibleSection({
+  id,
+  label,
+  subtitle,
+  isExpanded,
+  onToggle,
+  bgClass,
+  children,
+}: CollapsibleSectionProps) {
+  return (
+    <div className={`${bgClass} rounded-xl border border-amber-200/50 overflow-hidden`}>
+      {/* Tappable header */}
+      <button
+        onClick={() => onToggle(id)}
+        className="w-full flex items-center justify-between p-4 text-left hover:bg-amber-100/30 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-amber-500"
+        aria-expanded={isExpanded}
+        aria-controls={`section-${id}`}
+      >
+        <div className="flex items-baseline gap-2">
+          <span className="text-xs font-semibold text-amber-700/70 uppercase tracking-widest">
+            {label}
+          </span>
+          {subtitle && (
+            <span className="text-xs font-normal normal-case tracking-normal text-amber-600/60">
+              — {subtitle}
+            </span>
+          )}
+        </div>
+        {/* Chevron indicator */}
+        <svg
+          className={`w-4 h-4 text-amber-600/50 transition-transform duration-200 ${
+            isExpanded ? "rotate-180" : ""
+          }`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      {/* Collapsible content */}
+      <div
+        id={`section-${id}`}
+        className={`transition-all duration-200 ease-in-out ${
+          isExpanded ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0 overflow-hidden"
+        }`}
+      >
+        <div className="px-4 pb-4">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 interface VerseFocusProps {
   /** The verse to display */
   verse: Verse;
@@ -30,8 +146,6 @@ interface VerseFocusProps {
   showTranslation?: boolean;
   /** Controlled mode: callback to toggle translation */
   onToggleTranslation?: () => void;
-  /** Callback when user taps the verse (deprecated, use onToggleTranslation) */
-  onTap?: () => void;
 }
 
 /**
@@ -63,7 +177,6 @@ export function VerseFocus({
   fontSize = "medium",
   showTranslation: controlledShowTranslation,
   onToggleTranslation,
-  onTap,
 }: VerseFocusProps) {
   // Support both controlled and uncontrolled modes
   const isControlled = controlledShowTranslation !== undefined;
@@ -73,6 +186,18 @@ export function VerseFocus({
   const [translations, setTranslations] = useState<Translation[]>([]);
   const [loadingTranslations, setLoadingTranslations] = useState(false);
   const [translationError, setTranslationError] = useState<string | null>(null);
+
+  // Section expansion preferences (persisted across verses and chapters)
+  const [sectionPrefs, setSectionPrefs] = useState<SectionPrefs>(loadSectionPrefs);
+
+  // Toggle a section's expanded state and persist
+  const toggleSection = useCallback((id: SectionId) => {
+    setSectionPrefs((prev) => {
+      const updated = { ...prev, [id]: !prev[id] };
+      saveSectionPrefs(updated);
+      return updated;
+    });
+  }, []);
 
   // Reset internal state when verse changes (uncontrolled mode only)
   useEffect(() => {
@@ -105,6 +230,14 @@ export function VerseFocus({
     }
   }, [verse.canonical_id, translations.length, loadingTranslations]);
 
+  // Auto-fetch translations when verse changes and translation is visible (controlled mode)
+  // This ensures Hindi translation persists when navigating with translation panel open
+  useEffect(() => {
+    if (isControlled && controlledShowTranslation && translations.length === 0 && !loadingTranslations) {
+      loadTranslations();
+    }
+  }, [verse.canonical_id, isControlled, controlledShowTranslation, translations.length, loadingTranslations, loadTranslations]);
+
   // Handle tap/click to toggle translation
   const handleToggle = useCallback(() => {
     const newState = !showTranslation;
@@ -120,9 +253,7 @@ export function VerseFocus({
     if (newState && translations.length === 0) {
       loadTranslations();
     }
-
-    onTap?.();
-  }, [showTranslation, translations.length, loadTranslations, onToggleTranslation, onTap]);
+  }, [showTranslation, translations.length, loadTranslations, onToggleTranslation]);
 
   // Space key to toggle translation (desktop)
   useEffect(() => {
@@ -233,80 +364,99 @@ export function VerseFocus({
               </button>
             </div>
           ) : (
-            // Translations display
-            <div className="space-y-4">
-              {/* IAST (Romanized Sanskrit) - shown first if available */}
+            // Translations display with collapsible sections
+            <div className="space-y-3">
+              {/* IAST (Romanized Sanskrit) */}
               {verse.sanskrit_iast && (
-                <div className="bg-amber-100/30 rounded-xl p-4 border border-amber-200/30">
-                  <div className="text-xs font-semibold text-amber-700/70 uppercase tracking-widest mb-2">
-                    IAST
-                  </div>
+                <CollapsibleSection
+                  id="iast"
+                  label="IAST"
+                  isExpanded={sectionPrefs.iast}
+                  onToggle={toggleSection}
+                  bgClass="bg-amber-100/30"
+                >
                   <p className="text-base text-amber-800/80 leading-relaxed italic font-serif">
                     {verse.sanskrit_iast}
                   </p>
-                </div>
+                </CollapsibleSection>
+              )}
+
+              {/* Leadership Insight (Paraphrase) */}
+              {verse.paraphrase_en && (
+                <CollapsibleSection
+                  id="insight"
+                  label="Leadership Insight"
+                  isExpanded={sectionPrefs.insight}
+                  onToggle={toggleSection}
+                  bgClass="bg-gradient-to-br from-amber-50 to-orange-50/50"
+                >
+                  <p className="text-base text-gray-800 leading-relaxed">
+                    {verse.paraphrase_en}
+                  </p>
+                </CollapsibleSection>
               )}
 
               {/* Hindi translation */}
               {hindiTranslation && (
-                <div className="bg-amber-50/50 rounded-xl p-4 border border-amber-200/50">
-                  <div className="text-xs font-semibold text-amber-700/70 uppercase tracking-widest mb-2">
-                    Hindi
-                    {hindiTranslation.translator && (
-                      <span className="font-normal normal-case tracking-normal ml-2 text-amber-600/60">
-                        — {hindiTranslation.translator}
-                      </span>
-                    )}
-                  </div>
+                <CollapsibleSection
+                  id="hindi"
+                  label="Hindi"
+                  subtitle={hindiTranslation.translator}
+                  isExpanded={sectionPrefs.hindi}
+                  onToggle={toggleSection}
+                  bgClass="bg-amber-50/50"
+                >
                   <p className="text-base text-gray-800 leading-relaxed" lang="hi">
                     {hindiTranslation.text}
                   </p>
-                </div>
+                </CollapsibleSection>
               )}
 
               {/* English translation */}
               {englishTranslation && (
-                <div className="bg-white/70 rounded-xl p-4 border border-amber-200/50">
-                  <div className="text-xs font-semibold text-amber-700/70 uppercase tracking-widest mb-2">
-                    English
-                    {englishTranslation.translator && (
-                      <span className="font-normal normal-case tracking-normal ml-2 text-amber-600/60">
-                        — {englishTranslation.translator}
-                      </span>
-                    )}
-                  </div>
+                <CollapsibleSection
+                  id="english"
+                  label="English"
+                  subtitle={englishTranslation.translator}
+                  isExpanded={sectionPrefs.english}
+                  onToggle={toggleSection}
+                  bgClass="bg-amber-50/50"
+                >
                   <p className="text-base text-gray-800 leading-relaxed">
                     {englishTranslation.text}
                   </p>
-                </div>
+                </CollapsibleSection>
               )}
 
               {/* Fallback: Use verse's built-in translation if no translations fetched */}
               {!hindiTranslation && !englishTranslation && verse.translation_en && (
-                <div className="bg-white/70 rounded-xl p-4 border border-amber-200/50">
-                  <div className="text-xs font-semibold text-amber-700/70 uppercase tracking-widest mb-2">
-                    English
-                  </div>
+                <CollapsibleSection
+                  id="english"
+                  label="English"
+                  isExpanded={sectionPrefs.english}
+                  onToggle={toggleSection}
+                  bgClass="bg-amber-50/50"
+                >
                   <p className="text-base text-gray-800 leading-relaxed">
                     {verse.translation_en}
                   </p>
-                </div>
+                </CollapsibleSection>
               )}
 
               {/* No translations available */}
-              {!hindiTranslation && !englishTranslation && !verse.translation_en && (
+              {!hindiTranslation && !englishTranslation && !verse.translation_en && !verse.paraphrase_en && !verse.sanskrit_iast && (
                 <div className="text-center py-4 text-amber-600/60 text-sm">
                   No translations available
                 </div>
               )}
 
-              {/* View full details link - adds from=read param */}
+              {/* Link to verse detail page - adds from=read param for back navigation */}
               <div className="text-center pt-2">
                 <Link
                   to={`/verses/${verse.canonical_id}?from=read`}
                   className="inline-flex items-center gap-1.5 text-sm text-amber-600 hover:text-amber-800 transition-colors"
                 >
-                  View full details
+                  Explore this verse
                   <span aria-hidden="true">→</span>
                 </Link>
               </div>
