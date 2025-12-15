@@ -251,7 +251,7 @@ export function IntroCard(props: IntroCardProps) {
                 className="px-6 py-2 text-amber-700 hover:text-amber-800 font-medium border border-amber-300 hover:border-amber-400 hover:bg-amber-50 rounded-lg transition-colors"
               >
                 {resumeVerse && resumeVerse > 1
-                  ? `Continue from verse ${resumeVerse}`
+                  ? `Continue from ${chapter.chapter_number}.${resumeVerse}`
                   : "Begin Chapter"}
               </button>
             </div>
