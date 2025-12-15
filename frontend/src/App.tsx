@@ -20,6 +20,7 @@ const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const About = lazy(() => import("./pages/About"));
 const PublicCaseView = lazy(() => import("./pages/PublicCaseView"));
 const ReadingMode = lazy(() => import("./pages/ReadingMode"));
+const Search = lazy(() => import("./pages/Search"));
 
 // Loading fallback component
 function PageLoader() {
@@ -75,6 +76,7 @@ function App() {
             <Route path="/cases/:id" element={<CaseView />} />
             <Route path="/consultations" element={<Consultations />} />
             <Route path="/verses" element={<Verses />} />
+            <Route path="/search" element={<Search />} />
             <Route path="/verses/:canonicalId" element={<VerseDetail />} />
             <Route path="/read" element={<ReadingMode />} />
             <Route path="/about" element={<About />} />
