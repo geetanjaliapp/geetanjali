@@ -4,8 +4,15 @@ import { Navbar, Footer } from "../components";
 import { useSearch, useSEO } from "../hooks";
 import { SearchIcon, SpinnerIcon, StarIcon, CloseIcon } from "../components/icons";
 import { getPrincipleShortLabel } from "../constants/principles";
-import { CHAPTERS } from "../constants/chapters";
+import { CHAPTERS, TOTAL_CHAPTERS } from "../constants/chapters";
 import type { SearchResult } from "../types";
+
+// Generate chapter options array from CHAPTERS object
+const CHAPTER_OPTIONS = Array.from({ length: TOTAL_CHAPTERS }, (_, i) => {
+  const num = i + 1;
+  const chapter = CHAPTERS[num as keyof typeof CHAPTERS];
+  return { number: num, name: chapter.shortName };
+});
 
 // localStorage key for recent searches
 const RECENT_SEARCHES_KEY = "geetanjali:recentSearches";
@@ -487,7 +494,7 @@ export default function Search() {
                 aria-label="Filter by chapter"
               >
                 <option value="">All Chapters</option>
-                {CHAPTERS.map((ch) => (
+                {CHAPTER_OPTIONS.map((ch) => (
                   <option key={ch.number} value={ch.number}>
                     Ch. {ch.number}: {ch.name}
                   </option>
