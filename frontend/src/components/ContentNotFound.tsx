@@ -47,7 +47,7 @@ const CONTENT = {
     ),
     title: "Consultation Not Found",
     message: "This consultation doesn't exist or you don't have access.",
-    primaryCta: { label: "View Your Consultations", to: "/consultations" },
+    primaryCta: { label: "View Cases", to: "/consultations" },
     secondaryCta: { label: "Start New Consultation", to: "/cases/new" },
     authHint: true,
   },

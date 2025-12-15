@@ -205,7 +205,7 @@ export default function Consultations() {
           <div className="mb-4 sm:mb-6 lg:mb-8">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4">
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                Your Consultations
+                Cases
               </h1>
               {/* CTA visible on tablet+ only, FAB handles mobile */}
               <Link
