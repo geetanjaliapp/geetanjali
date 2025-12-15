@@ -41,11 +41,12 @@ type IntroCardProps = BookIntroProps | ChapterIntroProps;
 
 export function IntroCard(props: IntroCardProps) {
   const { type, fontSize = "medium" } = props;
-  const [showDetails, setShowDetails] = useState(false);
+  // Start with details expanded for better UX
+  const [showDetails, setShowDetails] = useState(true);
 
-  // Reset when content changes
+  // Keep details expanded when content changes (intro cards should show content by default)
   useEffect(() => {
-    setShowDetails(false);
+    setShowDetails(true);
   }, [type, props.type === "book" ? props.book?.book_key : props.chapter?.chapter_number]);
 
   const handleToggle = useCallback(() => {

@@ -122,57 +122,49 @@ interface ReadingState {
 export default function ReadingMode() {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Parse initial state from URL params, falling back to localStorage
-  const getInitialChapter = (): number => {
-    // First check URL params (deep links take priority)
-    const c = searchParams.get("c");
-    if (c) {
-      const chapter = parseInt(c, 10);
+  // Check URL params and saved position on mount
+  const urlChapter = searchParams.get("c");
+  const urlVerse = searchParams.get("v");
+  const savedPosition = getSavedPosition();
+
+  // Determine initial state based on URL and saved position
+  const getInitialState = (): { chapter: number; verse: number; hasPosition: boolean } => {
+    // URL params take priority (deep link)
+    if (urlChapter) {
+      const chapter = parseInt(urlChapter, 10);
       if (chapter >= 1 && chapter <= TOTAL_CHAPTERS) {
-        return chapter;
+        const verse = urlVerse ? parseInt(urlVerse, 10) : 1;
+        return { chapter, verse: verse >= 1 ? verse : 1, hasPosition: true };
       }
     }
     // Fall back to saved position
-    const saved = getSavedPosition();
-    if (saved && saved.chapter >= 1 && saved.chapter <= TOTAL_CHAPTERS) {
-      return saved.chapter;
+    if (savedPosition && savedPosition.chapter >= 1 && savedPosition.chapter <= TOTAL_CHAPTERS) {
+      return {
+        chapter: savedPosition.chapter,
+        verse: savedPosition.verse >= 1 ? savedPosition.verse : 1,
+        hasPosition: true,
+      };
     }
-    return 1; // Default to chapter 1
+    // Fresh start - no position
+    return { chapter: 1, verse: 1, hasPosition: false };
   };
 
-  const getInitialVerse = (): number => {
-    // First check URL params (deep links take priority)
-    const v = searchParams.get("v");
-    if (v) {
-      const verse = parseInt(v, 10);
-      if (verse >= 1) {
-        return verse;
-      }
-    }
-    // Fall back to saved position (only if no URL chapter param either)
-    if (!searchParams.get("c")) {
-      const saved = getSavedPosition();
-      if (saved && saved.verse >= 1) {
-        return saved.verse;
-      }
-    }
-    return 1; // Default to verse 1
-  };
-
-  // Determine if we should start with book cover or jump to a specific verse
-  const urlHasVerse = searchParams.get("v") !== null;
-  const urlHasChapter = searchParams.get("c") !== null;
+  const initial = getInitialState();
 
   const [state, setState] = useState<ReadingState>({
-    chapter: getInitialChapter(),
-    // Start at book cover unless URL specifies a verse/chapter
-    pageIndex: (urlHasVerse || urlHasChapter) ? PAGE_CHAPTER_INTRO : PAGE_BOOK_COVER,
+    chapter: initial.chapter,
+    // Fresh start → book cover, has position → chapter intro (then resume verse)
+    pageIndex: initial.hasPosition ? PAGE_CHAPTER_INTRO : PAGE_BOOK_COVER,
     chapterVerses: [],
     isLoading: true,
     error: null,
   });
 
-  const [initialVerse] = useState(getInitialVerse);
+  // Target verse to navigate to after chapter intro (for resume/deep-link)
+  const [targetVerse, setTargetVerse] = useState<number | null>(
+    initial.hasPosition ? initial.verse : null
+  );
+
   const [showChapterSelector, setShowChapterSelector] = useState(false);
   const [settings, setSettings] = useState<ReadingSettings>(getSavedSettings);
   const [showOnboarding, setShowOnboarding] = useState(() => {
@@ -336,6 +328,16 @@ export default function ReadingMode() {
     loadChapter(state.chapter);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Update URL on mount if resuming from saved position (no URL params)
+  useEffect(() => {
+    if (!urlChapter && !urlVerse && initial.hasPosition) {
+      const newParams = new URLSearchParams();
+      newParams.set("c", initial.chapter.toString());
+      newParams.set("v", initial.verse.toString());
+      setSearchParams(newParams, { replace: true });
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Fetch book metadata on mount (for cover page)
   useEffect(() => {
     readingApi.getBookMetadata()
@@ -374,25 +376,6 @@ export default function ReadingMode() {
       prefetchChapter(state.chapter - 1);
     }
   }, [state.pageIndex, state.chapterVerses.length, state.chapter, prefetchChapter]);
-
-  // Track if we've done the initial setup (only once per component mount)
-  const initialSetupDoneRef = useRef(false);
-
-  // Set initial verse index once chapter loads (only on first load, and only if URL specified a verse)
-  useEffect(() => {
-    if (state.chapterVerses.length > 0 && !initialSetupDoneRef.current) {
-      // Handle initial verse from URL (skip cover and chapter intro)
-      if (initialVerse > 1 && (urlHasVerse || urlHasChapter)) {
-        const index = state.chapterVerses.findIndex(
-          (v) => v.verse === initialVerse
-        );
-        if (index !== -1) {
-          setState((prev) => ({ ...prev, pageIndex: index }));
-        }
-      }
-      initialSetupDoneRef.current = true;
-    }
-  }, [state.chapterVerses, initialVerse, urlHasVerse, urlHasChapter]);
 
   // Handle "start at end" case when navigating to previous chapter
   // pageIndex of -3 signals "start at last verse of chapter"
@@ -448,8 +431,16 @@ export default function ReadingMode() {
       if (prev.pageIndex === PAGE_BOOK_COVER) {
         return { ...prev, pageIndex: PAGE_CHAPTER_INTRO };
       }
-      // Chapter intro → first verse
+      // Chapter intro → target verse (resume) or first verse
       if (prev.pageIndex === PAGE_CHAPTER_INTRO) {
+        if (targetVerse && prev.chapterVerses.length > 0) {
+          const index = prev.chapterVerses.findIndex((v) => v.verse === targetVerse);
+          if (index !== -1) {
+            // Clear target verse after using it
+            setTargetVerse(null);
+            return { ...prev, pageIndex: index };
+          }
+        }
         return { ...prev, pageIndex: 0 };
       }
       // If not at end of chapter, go to next verse
@@ -462,7 +453,7 @@ export default function ReadingMode() {
       }
       return prev;
     });
-  }, []);
+  }, [targetVerse]);
 
   const prevPage = useCallback(() => {
     setState((prev) => {
