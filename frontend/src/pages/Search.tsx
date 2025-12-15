@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, FormEvent } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo, FormEvent } from "react";
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { Navbar, Footer } from "../components";
 import { useSearch, useSEO } from "../hooks";
@@ -133,6 +133,7 @@ function HighlightedText({ text }: { text: string }) {
 
 /**
  * Search result card with match context
+ * Layout consistent with VerseCard compact mode
  */
 function SearchResultCard({
   result,
@@ -143,6 +144,16 @@ function SearchResultCard({
 }) {
   const { match } = result;
 
+  // Format Sanskrit text consistently with VerseCard
+  const sanskritLines = useMemo(
+    () =>
+      formatSanskritLines(result.sanskrit_devanagari || "", {
+        mode: "compact",
+        includeSpeakerIntro: false,
+      }),
+    [result.sanskrit_devanagari]
+  );
+
   return (
     <div className="relative bg-amber-50 rounded-xl p-3 sm:p-4 border border-amber-200 shadow-sm hover:shadow-md hover:border-amber-300 hover:-translate-y-0.5 transition-all duration-150">
       <Link
@@ -152,7 +163,8 @@ function SearchResultCard({
       />
 
       <div className="relative z-10 pointer-events-none">
-        <div className="flex items-start justify-between mb-2">
+        {/* Header: Verse Reference + Badges */}
+        <div className="flex items-start justify-between mb-2 sm:mb-3">
           <div className="text-amber-600 font-serif font-medium text-xs sm:text-sm">
             ॥ {result.chapter}.{result.verse} ॥
           </div>
@@ -168,16 +180,24 @@ function SearchResultCard({
           </div>
         </div>
 
-        {result.sanskrit_devanagari && (
+        {/* Sanskrit Text - formatted consistently with VerseCard */}
+        {sanskritLines.length > 0 && (
           <div
             lang="sa"
-            className="text-amber-900 font-serif text-sm sm:text-base leading-relaxed text-center mb-2 line-clamp-2"
+            className="text-amber-900 font-serif text-sm sm:text-base leading-relaxed text-center"
           >
-            {result.sanskrit_devanagari}
+            {sanskritLines.map((line, idx) => (
+              <p key={idx} className="mb-0.5">
+                {line}
+              </p>
+            ))}
           </div>
         )}
 
+        {/* Divider */}
         <div className="my-2 border-t border-amber-200/50" />
+
+        {/* Translation/Match Highlight */}
         <p className="text-xs sm:text-sm text-gray-600 text-center leading-relaxed line-clamp-3">
           {match.highlight ? (
             <HighlightedText text={match.highlight} />
@@ -186,6 +206,7 @@ function SearchResultCard({
           )}
         </p>
 
+        {/* Match field indicator */}
         {match.field && match.field !== "canonical_id" && (
           <div className="mt-2 text-center">
             <span className="text-[10px] text-gray-400">
