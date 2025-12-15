@@ -57,28 +57,35 @@ export function FloatingActionButton({
   }, [isHomepage]);
 
   // Hide FAB on certain pages where it's not appropriate
-  const hiddenPaths = ["/cases/new", "/login", "/signup", "/read"];
+  const hiddenPaths = ["/cases/new", "/login", "/signup"];
   const shouldHide = hiddenPaths.some((path) => location.pathname === path);
 
-  // Also hide if we're on a specific case view (to avoid clutter during reading)
+  // Show on /read (users may have questions from scripture)
+  const isOnReadingMode = location.pathname === "/read";
+
+  // Show on case view (users may want follow-up questions)
   const isOnCaseView = location.pathname.match(/^\/cases\/[^/]+$/);
 
-  // Hide on verse detail (conflicts with sticky bottom nav, reading context)
+  // Hide on verse detail (conflicts with sticky bottom nav)
   const isOnVerseDetail = location.pathname.match(/^\/verses\/[^/]+$/);
 
   // Hide when inline CTA is visible on homepage
   const hideOnHomepage = isHomepage && ctaInView;
 
-  if (shouldHide || isOnCaseView || isOnVerseDetail || hideOnHomepage) {
+  if (shouldHide || isOnVerseDetail || hideOnHomepage) {
     return null;
   }
+
+  // Position higher on pages with bottom navigation
+  const needsHigherPosition = isOnReadingMode || isOnCaseView;
 
   return (
     <Link
       to={to}
       onClick={handleFabClick}
-      className="
-        fixed bottom-6 right-6 z-40
+      className={`
+        fixed right-6 z-40
+        ${needsHigherPosition ? "bottom-20" : "bottom-6"}
         md:hidden
         flex items-center gap-2
         bg-gradient-to-r from-orange-500 to-orange-600
@@ -91,7 +98,7 @@ export function FloatingActionButton({
         transform hover:scale-105
         transition-all duration-200
         active:scale-95
-      "
+      `}
       aria-label="Ask a Question"
     >
       {/* Plus icon */}
