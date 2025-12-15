@@ -49,6 +49,13 @@ class QueryParser:
         r"\b(help|advice|guidance)\s+(me|us)\b",
         r"\bwhat\s+should\s+(i|we)\s+do\b",
         r"\bi('m|\s+am)\s+(feeling|facing|dealing)\b",
+        # Decision-making and life guidance queries
+        r"\b(want|need)\s+to\s+(decide|choose|figure out)\b",
+        r"\bwhat\s+to\s+do\s+(in|with|about)\b",
+        r"\b(stuck|lost|uncertain|unsure)\b.*\b(life|career|work|job|relationship)\b",
+        r"\b(life|career|work)\s+(decision|choice|dilemma|problem)\b",
+        r"\bhow\s+to\s+(handle|deal|cope|manage|overcome)\b",
+        r"\b(stressed|anxious|overwhelmed)\s+(about|with|at)?\b",
     ]
 
     def __init__(self) -> None:
