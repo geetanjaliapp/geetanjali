@@ -389,104 +389,57 @@ function SearchStarterContent({
   onTopicClick,
   featuredVerse,
   verseLoading,
-  recentSearches,
-  onRecentSelect,
-  onClearRecent,
 }: {
   onSearch: (query: string) => void;
   onTopicClick: (topic: string) => void;
   featuredVerse: Verse | null;
   verseLoading: boolean;
-  recentSearches: string[];
-  onRecentSelect: (query: string) => void;
-  onClearRecent: () => void;
 }) {
   return (
-    <div className="space-y-6">
-      {/* Two-column layout on desktop: Left (examples + topics), Right (featured verse) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
-        {/* Left Column: Discovery Options */}
-        <div className="space-y-5">
-          {/* Search Type Examples */}
-          <div>
-            <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
-              Try these searches
-            </h3>
-            <div className="grid grid-cols-3 gap-2">
-              {SEARCH_EXAMPLES.map((example) => (
-                <button
-                  key={example.query}
-                  onClick={() => onSearch(example.query)}
-                  className="bg-white rounded-lg p-2.5 sm:p-3 border border-amber-200 hover:border-orange-300 hover:shadow-md transition-all text-center group"
-                >
-                  <div className="text-sm sm:text-base font-medium text-gray-900 group-hover:text-orange-700 transition-colors">
-                    {example.query}
-                  </div>
-                  <div className="text-[10px] text-gray-500">{example.label}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Browse by Topic */}
-          <div>
-            <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
-              Browse by Topic
-            </h3>
-            <div className="flex flex-wrap gap-1.5">
-              {POPULAR_TOPICS.map((topic) => {
-                const principle = PRINCIPLE_TAXONOMY[topic.id];
-                return (
-                  <button
-                    key={topic.id}
-                    onClick={() => onTopicClick(topic.id)}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 sm:px-3 sm:py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 rounded-full text-xs sm:text-sm font-medium border border-amber-200 hover:border-amber-300 transition-all"
-                  >
-                    <span>{topic.icon}</span>
-                    <span>{principle.shortLabel}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Recent Searches */}
-          {recentSearches.length > 0 && (
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Recent
-                </h3>
-                <button
-                  onClick={onClearRecent}
-                  className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  Clear
-                </button>
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {recentSearches.map((query, index) => (
-                  <button
-                    key={index}
-                    onClick={() => onRecentSelect(query)}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-full text-xs sm:text-sm border border-gray-200 hover:border-gray-300 transition-all"
-                  >
-                    <SearchIcon className="w-3 h-3 text-gray-400" />
-                    <span>{query}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+    <div className="max-w-3xl mx-auto space-y-8">
+      {/* Quick Search Examples - centered, prominent */}
+      <div className="text-center">
+        <p className="text-sm text-gray-500 mb-3">Try searching for</p>
+        <div className="flex flex-wrap justify-center gap-2">
+          {SEARCH_EXAMPLES.map((example) => (
+            <button
+              key={example.query}
+              onClick={() => onSearch(example.query)}
+              className="group px-4 py-2 bg-white rounded-full border border-amber-200 hover:border-orange-400 hover:shadow-md transition-all"
+            >
+              <span className="font-medium text-gray-800 group-hover:text-orange-700">
+                {example.query}
+              </span>
+              <span className="ml-2 text-xs text-gray-400">{example.label}</span>
+            </button>
+          ))}
         </div>
+      </div>
 
-        {/* Right Column: Featured Verse */}
-        <div>
-          <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
-            Verse Spotlight
-          </h3>
-          <StarterVerseSpotlight verse={featuredVerse} loading={verseLoading} />
+      {/* Browse by Topic - horizontal scroll on mobile */}
+      <div className="text-center">
+        <p className="text-sm text-gray-500 mb-3">Or explore by topic</p>
+        <div className="flex flex-wrap justify-center gap-2">
+          {POPULAR_TOPICS.map((topic) => {
+            const principle = PRINCIPLE_TAXONOMY[topic.id];
+            return (
+              <button
+                key={topic.id}
+                onClick={() => onTopicClick(topic.id)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 rounded-full text-sm font-medium border border-amber-200 hover:border-amber-300 transition-all"
+              >
+                <span>{topic.icon}</span>
+                <span>{principle.shortLabel}</span>
+              </button>
+            );
+          })}
         </div>
+      </div>
+
+      {/* Featured Verse - subtle card */}
+      <div>
+        <p className="text-center text-sm text-gray-500 mb-3">Verse Spotlight</p>
+        <StarterVerseSpotlight verse={featuredVerse} loading={verseLoading} />
       </div>
 
       {/* Bottom CTA */}
@@ -687,89 +640,87 @@ export default function Search() {
         {/* Search Header */}
         <div className="max-w-2xl mx-auto mb-6 sm:mb-8">
           {/* Search Form */}
-          <form onSubmit={handleSubmit} className="space-y-3">
-            <div className="relative">
-              <input
-                ref={inputRef}
-                type="text"
-                value={inputValue}
-                onChange={(e) => {
-                  setInputValue(e.target.value);
-                  if (validationError) setValidationError(null);
-                }}
-                onFocus={() => setShowRecent(true)}
-                onBlur={() => setTimeout(() => setShowRecent(false), 200)}
-                placeholder="Search verses, topics, or references..."
-                className="w-full pl-10 pr-20 py-3 sm:py-3.5 border border-amber-200 rounded-full bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-gray-900 placeholder-gray-400 shadow-sm hover:shadow-md focus:shadow-md transition-shadow"
-                aria-label="Search query"
-              />
-              <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-amber-500" />
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                {inputValue ? (
-                  <button
-                    type="button"
-                    onClick={handleClear}
-                    className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors"
-                    aria-label="Clear search"
-                  >
-                    <CloseIcon className="w-4 h-4" />
-                  </button>
-                ) : (
-                  <kbd className="hidden sm:inline-flex items-center px-2 py-1 text-xs text-amber-600 bg-amber-50 rounded-md border border-amber-200">
-                    ⌘K
-                  </kbd>
+          <form onSubmit={handleSubmit}>
+            <div className="relative flex items-center">
+              {/* Search Input */}
+              <div className="relative flex-1">
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={inputValue}
+                  onChange={(e) => {
+                    setInputValue(e.target.value);
+                    if (validationError) setValidationError(null);
+                  }}
+                  onFocus={() => setShowRecent(true)}
+                  onBlur={() => setTimeout(() => setShowRecent(false), 200)}
+                  placeholder="Search verses, topics, or references..."
+                  className="w-full pl-10 pr-10 py-3 sm:py-3.5 border border-amber-200 rounded-l-full sm:rounded-l-full bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:z-10 text-gray-900 placeholder-gray-400 shadow-sm transition-shadow"
+                  aria-label="Search query"
+                />
+                <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-amber-500" />
+
+                {/* Clear button or keyboard hint */}
+                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                  {inputValue ? (
+                    <button
+                      type="button"
+                      onClick={handleClear}
+                      className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors"
+                      aria-label="Clear search"
+                    >
+                      <CloseIcon className="w-4 h-4" />
+                    </button>
+                  ) : (
+                    <kbd className="hidden lg:inline-flex items-center px-1.5 py-0.5 text-[10px] text-amber-600/70 bg-amber-50 rounded border border-amber-200/50">
+                      ⌘K
+                    </kbd>
+                  )}
+                </div>
+
+                {/* Recent Searches Dropdown */}
+                {showRecent && recentSearches.length > 0 && !inputValue && (
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-amber-200 rounded-xl shadow-lg z-20 overflow-hidden">
+                    <div className="flex items-center justify-between px-4 py-2 border-b border-amber-100 bg-amber-50/50">
+                      <span className="text-xs font-medium text-gray-500">Recent</span>
+                      <button
+                        type="button"
+                        onClick={handleClearRecent}
+                        className="text-xs text-gray-400 hover:text-gray-600"
+                      >
+                        Clear
+                      </button>
+                    </div>
+                    <ul>
+                      {recentSearches.map((query, index) => (
+                        <li key={index}>
+                          <button
+                            type="button"
+                            onClick={() => handleRecentSelect(query)}
+                            className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-orange-50 flex items-center gap-3 transition-colors"
+                          >
+                            <SearchIcon className="w-4 h-4 text-amber-400" />
+                            {query}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 )}
               </div>
 
-              {/* Recent Searches Dropdown */}
-              {showRecent && recentSearches.length > 0 && !inputValue && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-amber-200 rounded-xl shadow-lg z-20 overflow-hidden">
-                  <div className="flex items-center justify-between px-4 py-2 border-b border-amber-100 bg-amber-50/50">
-                    <span className="text-xs font-medium text-gray-500">Recent searches</span>
-                    <button
-                      type="button"
-                      onClick={handleClearRecent}
-                      className="text-xs text-gray-400 hover:text-gray-600"
-                    >
-                      Clear
-                    </button>
-                  </div>
-                  <ul>
-                    {recentSearches.map((query, index) => (
-                      <li key={index}>
-                        <button
-                          type="button"
-                          onClick={() => handleRecentSelect(query)}
-                          className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-orange-50 flex items-center gap-3 transition-colors"
-                        >
-                          <SearchIcon className="w-4 h-4 text-amber-400" />
-                          {query}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-
-            {/* Search Button */}
-            <div className="flex justify-center">
+              {/* Search Button - inline with input */}
               <button
                 type="submit"
                 disabled={loading || !inputValue.trim()}
-                className="px-5 py-2 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2 shadow-sm hover:shadow-md"
+                className="px-4 sm:px-6 py-3 sm:py-3.5 bg-orange-600 text-white font-medium rounded-r-full hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 shadow-sm hover:shadow-md border border-orange-600 hover:border-orange-700 -ml-px"
               >
                 {loading ? (
-                  <>
-                    <SpinnerIcon className="w-4 h-4 animate-spin" />
-                    <span className="hidden sm:inline">Searching...</span>
-                  </>
+                  <SpinnerIcon className="w-5 h-5 animate-spin" />
                 ) : (
-                  <>
-                    <SearchIcon className="w-4 h-4" />
-                    <span>Search</span>
-                  </>
+                  <SearchIcon className="w-5 h-5" />
                 )}
+                <span className="hidden sm:inline">Search</span>
               </button>
             </div>
           </form>
@@ -963,9 +914,6 @@ export default function Search() {
               onTopicClick={handleTopicClick}
               featuredVerse={featuredVerse}
               verseLoading={verseLoading}
-              recentSearches={recentSearches}
-              onRecentSelect={handleRecentSelect}
-              onClearRecent={handleClearRecent}
             />
           )}
         </div>
