@@ -334,17 +334,12 @@ export default function ReadingMode() {
     }
   }, [state.verseIndex, state.chapterVerses.length, state.chapter, prefetchChapter]);
 
-  // Set initial verse index once chapter loads
+  // Track if we've done the initial setup (only once per component mount)
+  const initialSetupDoneRef = useRef(false);
+
+  // Set initial verse index once chapter loads (only on first load)
   useEffect(() => {
-    if (state.chapterVerses.length > 0) {
-      // Handle "start at end" case (verseIndex -1)
-      if (state.verseIndex === -1) {
-        setState((prev) => ({
-          ...prev,
-          verseIndex: prev.chapterVerses.length - 1,
-        }));
-        return;
-      }
+    if (state.chapterVerses.length > 0 && !initialSetupDoneRef.current) {
       // Handle initial verse from URL
       if (initialVerse > 1) {
         const index = state.chapterVerses.findIndex(
@@ -354,8 +349,19 @@ export default function ReadingMode() {
           setState((prev) => ({ ...prev, verseIndex: index }));
         }
       }
+      initialSetupDoneRef.current = true;
     }
-  }, [state.chapterVerses, state.verseIndex, initialVerse]);
+  }, [state.chapterVerses, initialVerse]);
+
+  // Handle "start at end" case when navigating to previous chapter
+  useEffect(() => {
+    if (state.chapterVerses.length > 0 && state.verseIndex === -1) {
+      setState((prev) => ({
+        ...prev,
+        verseIndex: prev.chapterVerses.length - 1,
+      }));
+    }
+  }, [state.chapterVerses, state.verseIndex]);
 
   // Update URL and save position when verse changes
   useEffect(() => {
@@ -388,7 +394,11 @@ export default function ReadingMode() {
     [loadChapter, state.chapter]
   );
 
-  // Navigation functions
+  // Ref to hold goToChapter for stable reference in navigation callbacks
+  const goToChapterRef = useRef(goToChapter);
+  goToChapterRef.current = goToChapter;
+
+  // Navigation functions - use refs to avoid stale closures
   const nextVerse = useCallback(() => {
     setState((prev) => {
       // If not at end of chapter, go to next verse
@@ -397,12 +407,11 @@ export default function ReadingMode() {
       }
       // At end of chapter - advance to next chapter
       if (prev.chapter < TOTAL_CHAPTERS) {
-        // Use setTimeout to avoid setState during render
-        setTimeout(() => goToChapter(prev.chapter + 1), 0);
+        setTimeout(() => goToChapterRef.current(prev.chapter + 1), 0);
       }
       return prev;
     });
-  }, [goToChapter]);
+  }, []);
 
   const prevVerse = useCallback(() => {
     setState((prev) => {
@@ -412,12 +421,11 @@ export default function ReadingMode() {
       }
       // At start of chapter - go to previous chapter (at end)
       if (prev.chapter > 1) {
-        // Use setTimeout to avoid setState during render
-        setTimeout(() => goToChapter(prev.chapter - 1, true), 0);
+        setTimeout(() => goToChapterRef.current(prev.chapter - 1, true), 0);
       }
       return prev;
     });
-  }, [goToChapter]);
+  }, []);
 
   // Check navigation boundaries
   const canGoPrev = state.verseIndex > 0 || state.chapter > 1;
@@ -531,7 +539,7 @@ export default function ReadingMode() {
           </div>
         ) : currentVerse ? (
           // Verse display with tap-to-reveal translations
-          <VerseFocus verse={currentVerse} fontSize={settings.fontSize} />
+          <VerseFocus key={currentVerse.canonical_id} verse={currentVerse} fontSize={settings.fontSize} />
         ) : (
           // No verses loaded
           <div className="text-center">
