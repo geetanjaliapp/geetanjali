@@ -6,7 +6,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { FeaturedVerse } from "../components/FeaturedVerse";
 import { ExampleConsultation } from "../components/ExampleConsultation";
 import { Footer } from "../components/Footer";
-import { Navbar } from "../components/Navbar";
+import { Navbar } from "../components";
 import { useSEO } from "../hooks";
 import { trackEvent } from "../lib/experiment";
 import { errorMessages } from "../lib/errorMessages";

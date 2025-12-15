@@ -2,7 +2,7 @@ import { useSearchParams, Link } from "react-router-dom";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { versesApi } from "../lib/api";
 import type { Verse } from "../types";
-import { Navbar } from "../components/Navbar";
+import { Navbar } from "../components";
 import { Footer } from "../components/Footer";
 import { VerseCard, VerseCardSkeleton } from "../components/VerseCard";
 import { BackToTopButton } from "../components/BackToTopButton";

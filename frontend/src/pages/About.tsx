@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { Navbar } from "../components/Navbar";
+import { Navbar } from "../components";
 import { Footer } from "../components/Footer";
 import { api } from "../lib/api";
 import { validateContent } from "../lib/contentFilter";

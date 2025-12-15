@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { authApi } from "../api/auth";
-import { Navbar } from "../components/Navbar";
+import { Navbar } from "../components";
 import { getErrorMessage } from "../lib/errorMessages";
 import { useSEO } from "../hooks";
 

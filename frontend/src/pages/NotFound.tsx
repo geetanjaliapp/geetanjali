@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { formatSanskritLines, isSpeakerIntro } from "../lib/sanskritFormatter";
-import { Navbar } from "../components/Navbar";
+import { Navbar } from "../components";
 import { useSEO } from "../hooks";
 
 // Top 5 most famous Geeta verses - embedded statically to avoid API calls

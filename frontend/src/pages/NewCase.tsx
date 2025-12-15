@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { casesApi } from "../lib/api";
 import type { Case } from "../types";
-import { Navbar } from "../components/Navbar";
+import { Navbar } from "../components";
 import { ExampleQuestions } from "../components/ExampleQuestions";
 import { InspirationVerse } from "../components/InspirationVerse";
 import { errorMessages } from "../lib/errorMessages";
