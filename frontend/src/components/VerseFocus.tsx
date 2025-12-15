@@ -121,10 +121,16 @@ export function VerseFocus({ verse, onTap }: VerseFocusProps) {
             ॥ {verse.chapter}.{verse.verse} ॥
           </div>
 
-          {/* Tap hint (only show when translation is hidden) */}
+          {/* Hints (only show when translation is hidden) */}
           {!showTranslation && (
-            <div className="text-sm text-amber-500/60 italic animate-pulse">
-              Tap for translation
+            <div className="space-y-2">
+              <div className="text-sm text-amber-500/60 italic animate-pulse">
+                Tap for translation
+              </div>
+              {/* Swipe hint - mobile only */}
+              <div className="sm:hidden text-xs text-amber-400/50">
+                ← swipe →
+              </div>
             </div>
           )}
         </button>

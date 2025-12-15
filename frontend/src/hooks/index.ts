@@ -14,3 +14,4 @@ export { useCaseData } from "./useCaseData";
 export { useSEO } from "./useSEO";
 export { useShare, shareUrls } from "./useShare";
 export { useAdjacentVerses } from "./useAdjacentVerses";
+export { useSwipeNavigation } from "./useSwipeNavigation";

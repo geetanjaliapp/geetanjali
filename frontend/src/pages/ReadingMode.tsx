@@ -15,7 +15,7 @@ import { useEffect, useState, useCallback } from "react";
 import { versesApi } from "../lib/api";
 import type { Verse } from "../types";
 import { Navbar, VerseFocus } from "../components";
-import { useSEO } from "../hooks";
+import { useSEO, useSwipeNavigation } from "../hooks";
 import {
   getChapterName,
   getChapterVerseCount,
@@ -189,6 +189,13 @@ export default function ReadingMode() {
     state.verseIndex < state.chapterVerses.length - 1 ||
     state.chapter < TOTAL_CHAPTERS;
 
+  // Swipe navigation for mobile
+  const swipeRef = useSwipeNavigation<HTMLElement>({
+    onNext: canGoNext ? nextVerse : undefined,
+    onPrev: canGoPrev ? prevVerse : undefined,
+    enabled: !state.isLoading && !!currentVerse,
+  });
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 flex flex-col">
       <Navbar />
@@ -229,8 +236,11 @@ export default function ReadingMode() {
         </div>
       </header>
 
-      {/* Main Content Area */}
-      <main className="flex-1 flex flex-col items-center justify-center px-4 py-8">
+      {/* Main Content Area - swipeable on mobile */}
+      <main
+        ref={swipeRef}
+        className="flex-1 flex flex-col items-center justify-center px-4 py-8 touch-pan-y"
+      >
         {state.isLoading ? (
           // Loading state
           <div className="text-center">
