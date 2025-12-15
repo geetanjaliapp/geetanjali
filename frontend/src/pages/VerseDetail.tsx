@@ -36,20 +36,6 @@ export default function VerseDetail() {
   const isFromSearch = fromContext === "search";
   const hideVerseNavigation = isFromReadingMode || isFromSearch;
 
-  // Get back navigation path based on context
-  const getBackPath = (): string | null => {
-    if (isFromSearch) {
-      return "/search";
-    }
-    if (isFromReadingMode) {
-      return "/read";
-    }
-    return null;
-  };
-
-  const backPath = getBackPath();
-  const backLabel = isFromSearch ? "Back to Search" : isFromReadingMode ? "Back to Reading" : null;
-
   const [verse, setVerse] = useState<Verse | null>(null);
   const [translations, setTranslations] = useState<Translation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -273,26 +259,6 @@ export default function VerseDetail() {
 
       <div className="flex-1 py-4 sm:py-6 lg:py-8">
         <div className="max-w-5xl mx-auto px-3 sm:px-4 lg:px-6">
-          {/* Contextual Back Button (when coming from search or reading mode) */}
-          {backPath && backLabel && (
-            <div className="mb-3 sm:mb-4">
-              <Link
-                to={backPath}
-                className="inline-flex items-center gap-1.5 text-sm text-amber-700 hover:text-amber-900 font-medium transition-colors group"
-              >
-                <svg
-                  className="w-4 h-4 transition-transform group-hover:-translate-x-0.5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-                {backLabel}
-              </Link>
-            </div>
-          )}
-
           {/* Chapter Context Bar */}
           <ChapterContextBar chapter={verse.chapter} verse={verse.verse} />
 
