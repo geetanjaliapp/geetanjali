@@ -716,7 +716,7 @@ export default function Search() {
   }, [clear, setSearchParams]);
 
   // Determine if we should show starter content
-  const showStarterContent = !loading && !data && !error;
+  const showStarterContent = !loading && !data && !error && !validationError;
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-orange-50 to-red-50">
