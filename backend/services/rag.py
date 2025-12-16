@@ -14,6 +14,7 @@ from services.prompts import (
     OLLAMA_SYSTEM_PROMPT,
     build_ollama_prompt,
     post_process_ollama_response,
+    format_executive_summary,
 )
 from services.content_filter import (
     detect_llm_refusal,
@@ -742,6 +743,13 @@ class RAGPipeline:
             )
         else:
             output["scholar_flag"] = output.get("scholar_flag", False)
+
+        # Post-process executive_summary for better markdown formatting
+        # This is idempotent - safe to run on already-formatted text
+        if output.get("executive_summary"):
+            output["executive_summary"] = format_executive_summary(
+                output["executive_summary"]
+            )
 
         logger.info(
             f"Output validation complete: {len(output.get('options', []))} options, "

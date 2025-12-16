@@ -561,3 +561,81 @@ def build_follow_up_prompt(
     parts.append(f"{follow_up_question}\n")
 
     return "".join(parts)
+
+
+# ============================================================================
+# Executive Summary Post-Processing
+# ============================================================================
+# Formats LLM output for better markdown rendering.
+# Designed to be idempotent and non-destructive.
+
+import re
+
+
+def format_executive_summary(text: str) -> str:
+    """
+    Post-process executive summary for better markdown formatting.
+
+    This function is idempotent - running it multiple times produces the same result.
+    It's also non-destructive - already well-formatted text passes through unchanged.
+
+    Improvements:
+    1. Section headers get proper paragraph breaks
+    2. Verse references are normalized (BG_X_Y format preserved)
+    3. Paragraphs are properly spaced
+
+    Args:
+        text: Raw executive summary from LLM
+
+    Returns:
+        Formatted executive summary with proper markdown structure
+    """
+    if not text or not isinstance(text, str):
+        return text
+
+    result = text
+
+    # 1. Section Header Formatting
+    # Ensure section headers start on new lines with proper spacing
+    section_headers = [
+        r"\*\*Wisdom from the Geeta\*\*",
+        r"\*\*Practical [Ii]nsight\*\*:?",
+        r"\*\*Closing\*\*:?",
+        r"\*\*Application\*\*:?",
+        r"\*\*Reflection\*\*:?",
+    ]
+
+    for header_pattern in section_headers:
+        # Add paragraph break BEFORE header if not already there
+        # Matches: non-newline char + optional space + header
+        # Replaces with: char + double newline + header
+        result = re.sub(
+            rf"([^\n])[ \t]*({header_pattern})",
+            r"\1\n\n\2",
+            result
+        )
+
+        # Add paragraph break AFTER header if text follows on same line
+        # Matches: header + optional colon + space + non-newline text
+        # Replaces with: header + colon + double newline + text
+        result = re.sub(
+            rf"({header_pattern}:?)[ \t]+([^\n])",
+            r"\1\n\n\2",
+            result
+        )
+
+    # 2. Verse Reference Normalization
+    # Convert BG_X.Y to BG_X_Y (some LLMs use dots)
+    result = re.sub(r"\(BG_(\d+)\.(\d+)\)", r"(BG_\1_\2)", result)
+
+    # 3. Paragraph Spacing
+    # Normalize multiple newlines to exactly two (paragraph break)
+    result = re.sub(r"\n{3,}", "\n\n", result)
+
+    # 4. Clean up leading/trailing whitespace
+    result = result.strip()
+
+    # 5. Ensure no trailing spaces on lines
+    result = re.sub(r" +\n", "\n", result)
+
+    return result

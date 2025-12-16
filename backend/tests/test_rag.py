@@ -450,3 +450,90 @@ class TestPromptConstruction:
 
         # Ollama prompt should be more concise
         assert len(ollama_prompt) <= len(full_prompt)
+
+
+class TestFormatExecutiveSummary:
+    """Tests for executive summary post-processing."""
+
+    def test_formats_inline_section_headers(self):
+        """Section headers should get paragraph breaks."""
+        from services.prompts import format_executive_summary
+
+        raw = "Opening text. **Wisdom from the Geeta** teaches us something."
+        result = format_executive_summary(raw)
+
+        assert "\n\n**Wisdom from the Geeta**\n\n" in result
+        assert "Opening text." in result
+        assert "teaches us something." in result
+
+    def test_formats_practical_insight(self):
+        """Practical insight header should be on its own line."""
+        from services.prompts import format_executive_summary
+
+        raw = "Some text. **Practical insight**: Apply this wisdom."
+        result = format_executive_summary(raw)
+
+        assert "\n\n**Practical insight**:\n\n" in result
+
+    def test_formats_closing(self):
+        """Closing header should be on its own line."""
+        from services.prompts import format_executive_summary
+
+        raw = "Some text. **Closing**: Remember this."
+        result = format_executive_summary(raw)
+
+        assert "\n\n**Closing**:\n\n" in result
+
+    def test_idempotent(self):
+        """Running twice should produce same result."""
+        from services.prompts import format_executive_summary
+
+        raw = "Text. **Wisdom from the Geeta** content. **Closing**: end."
+        first = format_executive_summary(raw)
+        second = format_executive_summary(first)
+
+        assert first == second
+
+    def test_preserves_well_formatted_text(self):
+        """Already formatted text should pass through unchanged."""
+        from services.prompts import format_executive_summary
+
+        well_formatted = """Opening paragraph.
+
+**Wisdom from the Geeta**
+
+Verse content here.
+
+**Closing**
+
+Final thoughts."""
+
+        result = format_executive_summary(well_formatted)
+        assert result == well_formatted
+
+    def test_normalizes_verse_reference_dots(self):
+        """BG_X.Y should become BG_X_Y."""
+        from services.prompts import format_executive_summary
+
+        raw = "As stated in (BG_2.47) and (BG_3.35)."
+        result = format_executive_summary(raw)
+
+        assert "(BG_2_47)" in result
+        assert "(BG_3_35)" in result
+
+    def test_handles_empty_input(self):
+        """Empty or None input should return as-is."""
+        from services.prompts import format_executive_summary
+
+        assert format_executive_summary("") == ""
+        assert format_executive_summary(None) is None
+
+    def test_normalizes_multiple_newlines(self):
+        """Multiple newlines should be normalized to two."""
+        from services.prompts import format_executive_summary
+
+        raw = "Paragraph one.\n\n\n\nParagraph two."
+        result = format_executive_summary(raw)
+
+        assert "\n\n\n" not in result
+        assert "Paragraph one.\n\nParagraph two." == result
