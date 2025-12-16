@@ -22,16 +22,17 @@ export function InspirationVerse({ className = "" }: InspirationVerseProps) {
   const verseLink = getVersePath(verse.ref);
 
   return (
-    <div className={`text-center ${className}`}>
-      <blockquote className="text-gray-600 italic text-sm sm:text-base">
-        "{verse.text}"
-      </blockquote>
-      <Link
-        to={verseLink}
-        className="text-xs text-orange-600 hover:text-orange-700 hover:underline mt-1 inline-block"
-      >
-        — {verse.ref}
-      </Link>
+    <div className={`text-center max-w-2xl mx-auto ${className}`}>
+      <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
+        <span className="italic">"{verse.text}"</span>
+        <span className="mx-1">—</span>
+        <Link
+          to={verseLink}
+          className="text-orange-600 hover:text-orange-700 hover:underline whitespace-nowrap"
+        >
+          {verse.ref}
+        </Link>
+      </p>
     </div>
   );
 }
