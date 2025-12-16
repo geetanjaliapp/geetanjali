@@ -1,59 +1,33 @@
 # Geetanjali Frontend
 
-React application for Geetanjali - Ethical leadership guidance from the Bhagavad Geeta.
+React application for ethical leadership guidance from the Bhagavad Geeta.
 
 ## Tech Stack
 
-- **React 18** - UI framework
-- **TypeScript 5.6+** - Type safety
-- **Vite 7.2** - Build tool and dev server
-- **Tailwind CSS 3.x** - Utility-first CSS
-- **React Router 7+** - Client-side routing
-- **Axios** - HTTP client
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| React | 19.x | UI framework |
+| TypeScript | 5.9+ | Type safety |
+| Vite | 7.x | Build tool |
+| Tailwind CSS | 3.x | Styling |
+| React Router | 7.x | Routing |
+| Axios | 1.x | HTTP client |
+| Vitest | 3.x | Testing |
 
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18+ and npm
-
-### Installation
+## Quick Start
 
 ```bash
+# Install dependencies
 npm install
-```
 
-### Configuration
-
-Copy `.env.example` to `.env` and configure:
-
-```bash
-cp .env.example .env
-```
-
-Environment variables:
-- `VITE_API_URL` - Backend API base URL (default: http://127.0.0.1:8000)
-- `VITE_API_V1_PREFIX` - API version prefix (default: /api/v1)
-
-### Development
-
-```bash
+# Start development server
 npm run dev
-```
+# → http://localhost:5173
 
-Runs the app at http://localhost:5173 with hot module replacement.
-
-### Build
-
-```bash
+# Build for production
 npm run build
-```
 
-Builds optimized production bundle to `dist/` directory.
-
-### Preview Production Build
-
-```bash
+# Preview production build
 npm run preview
 ```
 
@@ -61,77 +35,176 @@ npm run preview
 
 ```
 src/
-├── api/            # API client modules
-├── assets/         # Static assets (images, SVGs)
-├── components/     # Reusable React components
-│   ├── navigation/       # Navigation module
-│   │   ├── navConfig.ts      # Routes, labels, icons config
-│   │   ├── Navbar.tsx        # Main orchestrator
-│   │   ├── DesktopNav.tsx    # Desktop links + auth
-│   │   ├── MobileDrawer.tsx  # Mobile slide-out menu
-│   │   ├── UserMenu.tsx      # Avatar dropdown
-│   │   └── hooks/            # useClickOutside, etc.
-│   └── ...
-├── contexts/       # React contexts (Auth, etc.)
-├── hooks/          # Custom React hooks
-├── lib/            # Utilities and services
-├── pages/          # Page components (routes)
-│   ├── Home.tsx          # Landing page
-│   ├── NewCase.tsx       # Case creation form
-│   ├── CaseView.tsx      # Case details and conversation
-│   ├── Verses.tsx        # Verse browser grid
-│   ├── VerseDetail.tsx   # Single verse view
-│   ├── ReadingMode.tsx   # Sequential scripture reading
-│   └── ...
-├── types/          # TypeScript type definitions
-├── App.tsx         # Root component with routing
-├── main.tsx        # Application entry point
-└── index.css       # Global styles and Tailwind directives
+├── pages/                  # Route components
+│   ├── Home.tsx            # Landing page
+│   ├── NewCase.tsx         # Consultation form
+│   ├── CaseView.tsx        # Case analysis with follow-up
+│   ├── Consultations.tsx   # User's consultation history
+│   ├── Verses.tsx          # Verse browser grid
+│   ├── VerseDetail.tsx     # Single verse view
+│   ├── ReadingMode.tsx     # Sequential scripture reading
+│   ├── Search.tsx          # Verse search
+│   ├── About.tsx           # Mission and methodology
+│   ├── Login.tsx           # Authentication
+│   ├── Signup.tsx          # Registration
+│   └── NotFound.tsx        # 404 page
+│
+├── components/             # Reusable components
+│   ├── navigation/         # Navbar module
+│   │   ├── Navbar.tsx      # Main orchestrator
+│   │   ├── DesktopNav.tsx  # Desktop links
+│   │   ├── MobileDrawer.tsx # Mobile slide-out
+│   │   ├── UserMenu.tsx    # Auth dropdown
+│   │   └── navConfig.ts    # Route definitions
+│   ├── case/               # Case analysis components
+│   │   ├── CaseExchange.tsx    # Conversation view
+│   │   ├── CaseHeader.tsx      # Case metadata
+│   │   ├── PathsSection.tsx    # Three-path options
+│   │   ├── StepsSection.tsx    # Action steps
+│   │   ├── FollowUpInput.tsx   # Follow-up form
+│   │   └── OutputFeedback.tsx  # Rating/feedback
+│   ├── VerseCard.tsx       # Verse display card
+│   ├── VerseFocus.tsx      # Reading mode verse display
+│   ├── ChapterSelector.tsx # Chapter picker
+│   ├── Footer.tsx          # Site footer
+│   └── icons.tsx           # SVG icon components
+│
+├── hooks/                  # Custom hooks
+│   ├── useCaseData.ts      # Case fetching/polling
+│   ├── useSearch.ts        # Search state management
+│   ├── useSwipeNavigation.ts # Touch gestures
+│   ├── useAdjacentVerses.ts  # Verse navigation
+│   └── useSEO.ts           # Document head management
+│
+├── lib/                    # Utilities
+│   ├── api.ts              # API client (axios)
+│   ├── contentFilter.ts    # Client-side moderation
+│   ├── sanskritFormatter.ts # Sanskrit text formatting
+│   ├── session.ts          # Anonymous session handling
+│   ├── config.ts           # Runtime configuration
+│   └── monitoring.ts       # Sentry, web vitals
+│
+├── contexts/               # React contexts
+│   └── AuthContext.tsx     # Authentication state
+│
+├── constants/              # Static data
+│   ├── chapters.ts         # Chapter metadata
+│   ├── principles.ts       # Consulting principles taxonomy
+│   └── translators.ts      # Translator priority
+│
+├── types/                  # TypeScript definitions
+│   └── index.ts            # Shared types
+│
+├── App.tsx                 # Root component with routing
+├── main.tsx                # Entry point
+└── index.css               # Tailwind directives, global styles
 ```
 
-## Features
+## Pages
 
-### Pages
+| Route | Component | Description |
+|-------|-----------|-------------|
+| `/` | Home | Landing with value proposition |
+| `/cases/new` | NewCase | Dilemma submission form |
+| `/cases/:id` | CaseView | Analysis with conversation |
+| `/consultations` | Consultations | User's case history |
+| `/verses` | Verses | Grid browser with filters |
+| `/verses/:id` | VerseDetail | Single verse with translations |
+| `/read` | ReadingMode | Sequential scripture study |
+| `/search` | Search | Multi-strategy search |
+| `/about` | About | Mission and methodology |
+| `/login` | Login | Sign in |
+| `/signup` | Signup | Create account |
 
-1. **Home** (`/`) — Landing with value proposition and primary CTA
-2. **New Case** (`/cases/new`) — Dilemma submission with optional personalization
-3. **Case View** (`/cases/:id`) — Analysis display with follow-up conversation
-4. **Cases** (`/consultations`) — User's consultation history
-5. **Verses** (`/verses`) — Grid browser with chapter/topic filters
-6. **Verse Detail** (`/verses/:id`) — Single verse with translations
-7. **Reading Mode** (`/read`) — Sequential scripture study
-8. **About** (`/about`) — Mission and methodology
+## API Integration
 
-### Components
+Type-safe client in `lib/api.ts`:
 
-- **Navigation**: Modular navbar with desktop links, mobile drawer, user menu
-- **ProvenancePanel**: Confidence scores, verse citations with canonical IDs
-- **OptionTable**: Three options with color-coded pros/cons
-- **FloatingActionButton**: Mobile CTA for primary action
+```typescript
+// Cases
+casesApi.create(data)           // Create consultation
+casesApi.get(id)                // Get case by ID
+casesApi.list(skip, limit)      // List user's cases
+casesApi.analyze(id)            // Trigger RAG analysis
 
-### API Integration
+// Outputs
+outputsApi.get(id)              // Get analysis output
+outputsApi.listByCaseId(id)     // List outputs for case
+outputsApi.submitFeedback(id, data)
 
-Type-safe API client with endpoints:
-- `casesApi.create(caseData)` - Create new case
-- `casesApi.get(id)` - Get case by ID
-- `casesApi.list(skip, limit)` - List user's cases
-- `casesApi.analyze(id)` - Trigger RAG analysis
-- `outputsApi.get(id)` - Get analysis output
-- `outputsApi.listByCaseId(caseId)` - List all outputs for a case
-- `outputsApi.scholarReview(id, reviewData)` - Submit scholar review
-- `versesApi.search(query)` - Search verses
-- `checkHealth()` - Backend health check
+// Verses
+versesApi.list(params)          // List with pagination
+versesApi.get(id)               // Single verse
+versesApi.getTranslations(id)   // Verse translations
+versesApi.getDaily()            // Daily featured
+versesApi.getRandom()           // Random verse
 
-All API methods include automatic error handling via axios interceptor.
+// Search
+searchApi.search(query, params) // Hybrid search
 
-## Code Quality
+// Auth
+authApi.login(email, password)
+authApi.signup(email, password, name)
+authApi.logout()
+authApi.refresh()
+```
 
-- Full TypeScript coverage
-- ESLint for code linting
-- Prettier-compatible formatting (via Tailwind)
-- Type-safe API calls
-- Responsive design with Tailwind CSS
+## Configuration
 
-## License
+Environment variables in `.env`:
 
-MIT
+```bash
+VITE_API_URL=http://127.0.0.1:8000
+VITE_API_V1_PREFIX=/api/v1
+VITE_SENTRY_DSN=https://...@sentry.io/...
+```
+
+## Design System
+
+See [docs/design.md](../docs/design.md) for the full design language.
+
+**Typography:**
+- Headings: Spectral (serif)
+- Body: Source Sans Pro
+- Sanskrit: Noto Serif Devanagari
+
+**Colors:**
+- Primary action: orange-600
+- Surfaces: amber-50, white
+- Borders: amber-200
+
+**Breakpoints:**
+- `sm:` 640px — Primary responsive
+- `lg:` 1024px — Desktop enhancements
+
+## Development
+
+```bash
+# Development server with HMR
+npm run dev
+
+# Type check
+npx tsc --noEmit
+
+# Lint
+npm run lint
+
+# Test
+npm test              # Watch mode
+npm run test:run      # Single run
+npm run test:coverage # With coverage
+```
+
+## Build
+
+```bash
+# Production build
+npm run build
+
+# Output in dist/
+# - index.html
+# - assets/*.js (code-split chunks)
+# - assets/*.css
+```
+
+Served by nginx in production with SPA fallback routing.
