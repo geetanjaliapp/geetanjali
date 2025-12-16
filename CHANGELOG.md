@@ -2,6 +2,28 @@
 
 All notable changes to Geetanjali are documented here.
 
+## [1.11.1] - 2025-12-16
+
+Polish release focusing on typography, readability, and case view improvements.
+
+### Features
+- **Executive Summary Formatting** - Post-processing for LLM responses adds paragraph breaks around section headers (**Wisdom from the Geeta**, **Closing**), improving readability without relying on LLM formatting consistency.
+
+### Improvements
+- **Typography** - Custom prose styling with amber-800 bold text and Spectral serif italics. Increased font sizes in Guidance Summary sections for better readability.
+- **Case View** - Unified status handling shows user question consistently across draft, pending, processing, and failed states. Draft cases now display "Get Guidance" button.
+- **Reading Mode** - Improved contrast with gray text, larger font size step increments for noticeable difference.
+- **Search** - Auto-focus on search input, cleaner spotlight card without redundant labels.
+- **New Case** - Inspiration verse displayed inline with reference link.
+- **Home** - Reduced hero tagline font size on mobile for better balance.
+- **Waiting State** - Fixed quote layout shift, reduced shimmer prominence.
+- **Prompts** - Enriched executive_summary with structured "Wisdom from the Geeta" section.
+
+### Technical
+- Centralized curated verses in single location (`curatedVerses.ts`)
+- Markdown rendering added to PublicCaseView (was showing raw `**` markers)
+- Post-processing is idempotent - safe if LLM returns well-formatted text
+
 ## [1.11.0] - 2025-12-16
 
 Search, Reading Mode, and Design System release.
