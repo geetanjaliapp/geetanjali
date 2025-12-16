@@ -21,7 +21,7 @@ import {
   StepsSection,
   ReflectionsSection,
   FollowUpInput,
-  FollowUpThinking,
+  ThinkingIndicator,
 } from "../components/case";
 
 export default function CaseView() {
@@ -138,8 +138,9 @@ export default function CaseView() {
         const userMessages = messagesData.filter((m) => m.role === "user");
         const lastUserMessage = userMessages[userMessages.length - 1];
 
-        if (lastUserMessage && outputsData.length < userMessages.length) {
+        if (lastUserMessage && outputsData.length > 0 && outputsData.length < userMessages.length) {
           // There's a user message without a response - that's the pending follow-up
+          // Note: outputsData.length > 0 ensures this only triggers for follow-ups, not initial consultation
           setPendingFollowUp(lastUserMessage.content);
         }
       }
@@ -842,25 +843,9 @@ ${messages
                           </>
                         )}
 
-                        {/* Processing state */}
+                        {/* Processing state - uses unified ThinkingIndicator */}
                         {isProcessing && (
-                          <>
-                            <div className="absolute left-0 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-orange-100 border-2 border-orange-300 flex items-center justify-center animate-pulse">
-                              <span className="text-xs">🧘</span>
-                            </div>
-                            <div className="bg-orange-50 border border-orange-200 rounded-xl px-4 py-3">
-                              <div className="flex items-center gap-3">
-                                <div className="flex space-x-1">
-                                  <div className="w-2 h-2 bg-orange-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                                  <div className="w-2 h-2 bg-orange-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                                  <div className="w-2 h-2 bg-orange-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                                </div>
-                                <p className="text-sm text-orange-800">
-                                  <span className="font-medium">Contemplating</span> — Ancient wisdom is being consulted for your guidance...
-                                </p>
-                              </div>
-                            </div>
-                          </>
+                          <ThinkingIndicator variant="initial" />
                         )}
 
                         {/* Failed state */}
@@ -1056,7 +1041,8 @@ ${messages
               {/* Follow-up thinking indicator - shows during submission and background processing */}
               {/* Don't show pendingMessage if it's already in the messages list (async flow adds it immediately) */}
               {(submittingFollowUp || isProcessing) && pendingFollowUp && (
-                <FollowUpThinking
+                <ThinkingIndicator
+                  variant="followup"
                   pendingMessage={
                     messages.some(
                       (m) => m.role === "user" && m.content === pendingFollowUp,

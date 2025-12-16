@@ -18,7 +18,6 @@ export { ErrorBoundary } from "./ErrorBoundary";
 export { VerseCard } from "./VerseCard";
 export { FeaturedVerse } from "./FeaturedVerse";
 export { ConfirmModal } from "./ConfirmModal";
-export { ConsultationWaiting } from "./ConsultationWaiting";
 export { FloatingActionButton } from "./FloatingActionButton";
 export { ContentNotFound } from "./ContentNotFound";
 export { SkipLink } from "./SkipLink";
@@ -40,4 +39,5 @@ export {
   FollowUpInput,
   CaseTimeline,
   CaseExchange,
+  ThinkingIndicator,
 } from "./case";

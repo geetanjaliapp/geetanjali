@@ -1,11 +1,30 @@
 import { useState, useEffect } from "react";
 import { WISDOM_QUOTES } from "../../constants/curatedVerses";
 
-interface FollowUpThinkingProps {
+type ThinkingVariant = "initial" | "followup";
+
+interface ThinkingIndicatorProps {
+  variant?: ThinkingVariant;
   pendingMessage?: string;
 }
 
-export function FollowUpThinking({ pendingMessage }: FollowUpThinkingProps) {
+const COPY = {
+  initial: {
+    label: "Consulting the Geeta...",
+    message: "Preparing your consultation",
+    footer: "Your guidance is being prepared...",
+  },
+  followup: {
+    label: "Contemplating...",
+    message: "Finding wisdom for your follow-up",
+    footer: "This usually takes about a minute...",
+  },
+};
+
+export function ThinkingIndicator({
+  variant = "followup",
+  pendingMessage,
+}: ThinkingIndicatorProps) {
   const [currentQuoteIndex, setCurrentQuoteIndex] = useState(() =>
     Math.floor(Math.random() * WISDOM_QUOTES.length),
   );
@@ -19,11 +38,12 @@ export function FollowUpThinking({ pendingMessage }: FollowUpThinkingProps) {
   }, []);
 
   const currentQuote = WISDOM_QUOTES[currentQuoteIndex];
+  const copy = COPY[variant];
 
   return (
     <div className="relative">
-      {/* Pending user message */}
-      {pendingMessage && (
+      {/* Pending user message (only for follow-up variant) */}
+      {variant === "followup" && pendingMessage && (
         <div className="relative pl-8 sm:pl-10 pb-3 sm:pb-4">
           <div className="absolute left-0 w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center bg-blue-100 border-2 border-blue-400">
             <span className="text-xs text-blue-700">+</span>
@@ -45,12 +65,12 @@ export function FollowUpThinking({ pendingMessage }: FollowUpThinkingProps) {
           <span className="text-xs text-orange-600 font-medium">~</span>
         </div>
         <div className="text-xs font-semibold uppercase tracking-wide mb-2 text-orange-600">
-          Contemplating...
+          {copy.label}
         </div>
 
         {/* Enhanced container with glow and shimmer */}
         <div className="relative rounded-xl p-4 sm:p-5 bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-300 animate-glow-pulse overflow-hidden">
-          {/* Shimmer overlay */}
+          {/* Shimmer overlay - warm amber */}
           <div className="absolute inset-0 animate-shimmer pointer-events-none" />
 
           {/* Content */}
@@ -72,7 +92,7 @@ export function FollowUpThinking({ pendingMessage }: FollowUpThinkingProps) {
                 />
               </div>
               <span className="text-sm text-orange-700 font-medium">
-                Finding wisdom for your follow-up
+                {copy.message}
               </span>
             </div>
 
@@ -87,7 +107,7 @@ export function FollowUpThinking({ pendingMessage }: FollowUpThinkingProps) {
             </div>
 
             <p className="text-xs text-gray-500 mt-3 text-center">
-              This usually takes about a minute...
+              {copy.footer}
             </p>
           </div>
         </div>
