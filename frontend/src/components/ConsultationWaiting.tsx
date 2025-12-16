@@ -141,8 +141,6 @@ export function ConsultationWaiting({
       aria-live="polite"
       aria-busy="true"
     >
-      {/* Shimmer overlay for visual prominence */}
-      <div className="absolute inset-0 animate-shimmer pointer-events-none" />
 
       {/* Header with animated indicator */}
       <div className="relative text-center">
@@ -179,12 +177,12 @@ export function ConsultationWaiting({
         ))}
       </div>
 
-      {/* Rotating wisdom quote */}
-      <div className="relative bg-white/60 rounded-xl p-4 sm:p-5 lg:p-6 text-center transition-opacity duration-500">
-        <blockquote className="text-sm sm:text-base lg:text-lg text-gray-700 italic mb-1.5 sm:mb-2">
+      {/* Rotating wisdom quote - fixed height prevents layout shift */}
+      <div className="relative bg-white/60 rounded-xl p-4 sm:p-5 text-center transition-opacity duration-500 min-h-[80px] sm:min-h-[88px] flex flex-col justify-center">
+        <blockquote className="text-xs sm:text-sm text-gray-700 italic mb-1.5 sm:mb-2">
           "{currentQuote.text}"
         </blockquote>
-        <cite className="text-xs sm:text-sm text-gray-500">
+        <cite className="text-xs text-gray-500">
           — {currentQuote.source}
         </cite>
       </div>
