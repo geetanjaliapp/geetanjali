@@ -6,6 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
 {% seo %}
+
+    <!-- Google Fonts: Match main app typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Spectral:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
     {% include head-custom.html %}
   </head>
@@ -15,6 +21,7 @@
         <a href="{{ '/' | relative_url }}" class="brand">
           <img src="{{ '/logo.svg' | relative_url }}" alt="" class="brand-logo">
           <span class="brand-name">Geetanjali</span>
+          <span class="brand-docs">Docs</span>
         </a>
         <div class="nav-links">
           <a href="https://geetanjaliapp.com" class="nav-link">App</a>
@@ -29,6 +36,10 @@
       {{ content }}
 
       <footer class="site-footer">
+        <p>
+          <a href="https://geetanjaliapp.com">Geetanjali</a> ·
+          Ethical guidance from the Bhagavad Geeta
+        </p>
       </footer>
     </main>
 
@@ -60,29 +71,62 @@
     </script>
 
     <style>
-      /* Match frontend styling - color palette */
+      /*
+       * Geetanjali Docs - Design System
+       * Aligned with main app (v1.11.0)
+       *
+       * Typography: Spectral (headings), Source Sans 3 (body)
+       * Colors: orange-600 (primary), amber-* (warm surfaces), gray-* (text)
+       */
+
+      /* ============================================
+         CSS Variables - Match main app palette
+         ============================================ */
       :root {
+        /* Gray scale */
         --gray-50: #f9fafb;
         --gray-100: #f3f4f6;
         --gray-200: #e5e7eb;
         --gray-300: #d1d5db;
+        --gray-400: #9ca3af;
         --gray-500: #6b7280;
         --gray-600: #4b5563;
         --gray-700: #374151;
+        --gray-800: #1f2937;
         --gray-900: #111827;
+
+        /* Amber - warm surfaces */
+        --amber-50: #fffbeb;
+        --amber-100: #fef3c7;
+        --amber-200: #fde68a;
+        --amber-400: #fbbf24;
+        --amber-600: #d97706;
+        --amber-700: #b45309;
+        --amber-800: #92400e;
+        --amber-900: #78350f;
+
+        /* Orange - primary interactive */
         --orange-50: #fff7ed;
+        --orange-100: #ffedd5;
+        --orange-500: #f97316;
         --orange-600: #ea580c;
         --orange-700: #c2410c;
+        --orange-800: #9a3412;
       }
 
-      /* Override cayman defaults with frontend fonts */
+      /* ============================================
+         Base Typography
+         ============================================ */
       body {
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-family: 'Source Sans 3', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         color: var(--gray-900);
         background-color: var(--gray-50);
+        line-height: 1.6;
       }
 
-      /* Navbar - matches frontend */
+      /* ============================================
+         Navbar - Matches main app
+         ============================================ */
       .site-nav {
         background: white;
         box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
@@ -112,7 +156,7 @@
         }
       }
 
-      /* Brand logo + name */
+      /* Brand: Logo + Name + "Docs" badge */
       .brand {
         display: flex;
         align-items: center;
@@ -139,15 +183,25 @@
         }
       }
       .brand-name {
-        font-family: Georgia, 'Times New Roman', serif;
+        font-family: 'Spectral', Georgia, serif;
         font-size: 1.25rem;
-        font-weight: 700;
+        font-weight: 600;
         color: var(--orange-600);
       }
       @media (min-width: 640px) {
         .brand-name {
           font-size: 1.5rem;
         }
+      }
+      .brand-docs {
+        font-family: 'Source Sans 3', system-ui, sans-serif;
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: var(--gray-500);
+        background: var(--gray-100);
+        padding: 0.125rem 0.5rem;
+        border-radius: 9999px;
+        margin-left: 0.25rem;
       }
 
       /* Nav links */
@@ -167,100 +221,286 @@
       }
       .nav-link:hover {
         color: var(--orange-600);
-        background-color: var(--gray-50);
+        background-color: var(--orange-50);
       }
 
-      /* Main content */
+      /* ============================================
+         Main Content
+         ============================================ */
       .main-content {
-        padding-top: 2.5rem;
-        background-color: var(--gray-50);
+        max-width: 52rem;
+        margin: 0 auto;
+        padding: 2rem 1rem 3rem;
       }
+      @media (min-width: 640px) {
+        .main-content {
+          padding: 2.5rem 1.5rem 4rem;
+        }
+      }
+      @media (min-width: 1024px) {
+        .main-content {
+          padding: 3rem 2rem 5rem;
+        }
+      }
+
+      /* ============================================
+         Headings - Spectral serif
+         ============================================ */
       .main-content h1 {
-        color: var(--gray-900);
-        font-weight: 700;
-      }
-      .main-content h2 {
-        color: var(--gray-900);
+        font-family: 'Spectral', Georgia, serif;
+        font-size: 2rem;
         font-weight: 600;
-        border-bottom: 1px solid var(--gray-200);
-        padding-bottom: 0.5rem;
+        color: var(--gray-900);
+        margin-bottom: 0.5rem;
+        line-height: 1.2;
       }
-      .main-content h3, .main-content h4 {
+      @media (min-width: 640px) {
+        .main-content h1 {
+          font-size: 2.5rem;
+        }
+      }
+
+      .main-content h2 {
+        font-family: 'Spectral', Georgia, serif;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--gray-900);
+        margin-top: 2.5rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--amber-200);
+      }
+      @media (min-width: 640px) {
+        .main-content h2 {
+          font-size: 1.75rem;
+        }
+      }
+
+      .main-content h3 {
+        font-family: 'Spectral', Georgia, serif;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--gray-800);
+        margin-top: 2rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .main-content h4 {
+        font-family: 'Source Sans 3', system-ui, sans-serif;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--gray-700);
+        margin-top: 1.5rem;
+        margin-bottom: 0.5rem;
+      }
+
+      /* ============================================
+         Paragraphs and Lists
+         ============================================ */
+      .main-content p {
+        margin-bottom: 1rem;
         color: var(--gray-700);
       }
+
+      .main-content ul, .main-content ol {
+        margin-bottom: 1rem;
+        padding-left: 1.5rem;
+        color: var(--gray-700);
+      }
+
+      .main-content li {
+        margin-bottom: 0.5rem;
+      }
+
+      .main-content li > ul, .main-content li > ol {
+        margin-top: 0.5rem;
+        margin-bottom: 0;
+      }
+
+      /* ============================================
+         Links - Orange primary
+         ============================================ */
       .main-content a {
         color: var(--orange-600);
+        text-decoration: none;
+        transition: color 0.15s;
       }
       .main-content a:hover {
         color: var(--orange-700);
         text-decoration: underline;
       }
 
-      /* Code blocks */
-      .main-content pre {
-        background-color: var(--gray-100);
-        border: 1px solid var(--gray-200);
-        border-radius: 0.375rem;
+      /* Strong links (bold) in lists */
+      .main-content li > strong > a,
+      .main-content li > a > strong {
+        font-weight: 600;
       }
+
+      /* ============================================
+         Code Blocks
+         ============================================ */
+      .main-content pre {
+        background-color: var(--gray-900);
+        color: var(--gray-100);
+        border-radius: 0.5rem;
+        padding: 1rem;
+        overflow-x: auto;
+        margin: 1.5rem 0;
+        font-size: 0.875rem;
+        line-height: 1.5;
+      }
+
       .main-content code {
-        background-color: var(--gray-100);
-        color: var(--gray-700);
+        font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
         font-size: 0.875em;
-        padding: 0.125rem 0.25rem;
+      }
+
+      .main-content :not(pre) > code {
+        background-color: var(--amber-100);
+        color: var(--amber-900);
+        padding: 0.125rem 0.375rem;
         border-radius: 0.25rem;
       }
+
       .main-content pre code {
         background: transparent;
         padding: 0;
+        color: inherit;
       }
 
-      /* Tables */
+      /* ============================================
+         Tables - Warm header
+         ============================================ */
       .main-content table {
         border-collapse: collapse;
         width: 100%;
+        margin: 1.5rem 0;
+        font-size: 0.9375rem;
       }
       .main-content table th {
-        background-color: var(--gray-100);
+        background-color: var(--amber-50);
         font-weight: 600;
         text-align: left;
+        color: var(--gray-800);
       }
       .main-content table th,
       .main-content table td {
-        border: 1px solid var(--gray-200);
+        border: 1px solid var(--amber-200);
         padding: 0.75rem;
       }
-      .main-content table tr:hover {
+      .main-content table tr:nth-child(even) {
         background-color: var(--gray-50);
       }
+      .main-content table tr:hover {
+        background-color: var(--amber-50);
+      }
 
-      /* Mermaid diagrams */
+      /* ============================================
+         Blockquotes - Orange accent
+         ============================================ */
+      .main-content blockquote {
+        border-left: 4px solid var(--orange-500);
+        background-color: var(--orange-50);
+        padding: 1rem 1.5rem;
+        margin: 1.5rem 0;
+        color: var(--gray-700);
+        border-radius: 0 0.5rem 0.5rem 0;
+      }
+      .main-content blockquote p:last-child {
+        margin-bottom: 0;
+      }
+
+      /* ============================================
+         Horizontal Rules
+         ============================================ */
+      .main-content hr {
+        border: none;
+        border-top: 1px solid var(--amber-200);
+        margin: 2.5rem 0;
+      }
+
+      /* ============================================
+         Mermaid Diagrams
+         ============================================ */
       .mermaid {
         text-align: center;
-        margin: 2em 0;
+        margin: 2rem 0;
         background: white;
         padding: 1.5rem;
-        border-radius: 0.5rem;
-        border: 1px solid var(--gray-200);
+        border-radius: 0.75rem;
+        border: 1px solid var(--amber-200);
       }
       .mermaid svg {
         max-width: 100%;
         height: auto;
       }
 
-      /* Blockquotes */
-      .main-content blockquote {
-        border-left: 4px solid var(--orange-600);
-        background-color: white;
-        padding: 1rem 1.5rem;
-        margin: 1.5rem 0;
-        color: var(--gray-700);
+      /* ============================================
+         ASCII Art Blocks (pre without syntax)
+         ============================================ */
+      .main-content pre:not([class*="language-"]) {
+        background-color: var(--amber-50);
+        color: var(--gray-800);
+        border: 1px solid var(--amber-200);
       }
 
-      /* Horizontal rules */
-      .main-content hr {
-        border: none;
-        border-top: 1px solid var(--gray-200);
-        margin: 2rem 0;
+      /* ============================================
+         Footer
+         ============================================ */
+      .site-footer {
+        margin-top: 4rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--amber-200);
+        text-align: center;
+        color: var(--gray-500);
+        font-size: 0.875rem;
+      }
+      .site-footer a {
+        color: var(--orange-600);
+        text-decoration: none;
+      }
+      .site-footer a:hover {
+        text-decoration: underline;
+      }
+
+      /* ============================================
+         First Paragraph After H1 (Lead text)
+         ============================================ */
+      .main-content h1 + p {
+        font-size: 1.125rem;
+        color: var(--gray-600);
+        margin-bottom: 1.5rem;
+      }
+      @media (min-width: 640px) {
+        .main-content h1 + p {
+          font-size: 1.25rem;
+        }
+      }
+
+      /* ============================================
+         Images
+         ============================================ */
+      .main-content img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 0.5rem;
+      }
+
+      /* ============================================
+         Print Styles
+         ============================================ */
+      @media print {
+        .site-nav, .site-footer {
+          display: none;
+        }
+        .main-content {
+          max-width: 100%;
+          padding: 0;
+        }
+        .main-content pre {
+          background: var(--gray-100) !important;
+          color: black !important;
+        }
       }
     </style>
   </body>
