@@ -11,6 +11,7 @@ from services.search import (
 )
 from services.search.parser import QueryParser
 from services.search.utils import highlight_match
+from tests.conftest import requires_postgresql
 
 # Mark all tests in this module as integration tests (require DB)
 pytestmark = pytest.mark.integration
@@ -253,6 +254,7 @@ class TestSearchService:
         canonical_ids = [r.canonical_id for r in response.results]
         assert "BG_2_47" in canonical_ids
 
+    @requires_postgresql
     def test_search_by_principle(self, db_session, sample_verses):
         """Test search by principle filter."""
         service = SearchService(db_session)
@@ -365,6 +367,7 @@ class TestSearchAPI:
         for result in data["results"]:
             assert result["chapter"] == 2
 
+    @requires_postgresql
     def test_search_endpoint_with_principle_filter(self, client, sample_verses):
         """Test search endpoint with principle filter."""
         response = client.get("/api/v1/search?q=action&principle=detachment")

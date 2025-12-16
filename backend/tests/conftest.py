@@ -32,6 +32,16 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers", "e2e: End-to-end tests (skipped in CI by default)"
     )
+    config.addinivalue_line(
+        "markers", "postgresql: Tests requiring PostgreSQL features (skipped on SQLite)"
+    )
+
+
+# Skip marker for PostgreSQL-only tests (JSONB, etc.)
+requires_postgresql = pytest.mark.skipif(
+    True,  # Always skip in test suite using SQLite
+    reason="Test requires PostgreSQL JSONB features (SQLite used in CI)"
+)
 
 
 # Import all models to register them with Base.metadata

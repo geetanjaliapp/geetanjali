@@ -78,7 +78,7 @@ def _get_best_match_count(verse: Verse, keywords: List[str]) -> Tuple[int, str]:
                 best_field = "translation"
 
     # Check paraphrase_en (unique leadership content)
-    count = _count_keyword_matches(verse.paraphrase_en, keywords)
+    count = _count_keyword_matches(verse.paraphrase_en or "", keywords)
     if count > best_count:
         best_count = count
         best_field = "paraphrase_en"
