@@ -1,34 +1,11 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { getVersePath } from "../lib/sanskritFormatter";
+import { INSPIRATION_VERSES } from "../constants/curatedVerses";
 
 interface InspirationVerseProps {
   className?: string;
 }
-
-// 5 curated short wisdom verses for decision-making inspiration
-const INSPIRATION_VERSES = [
-  {
-    ref: "BG 2.47",
-    text: "You have the right to work, but never to the fruit of work.",
-  },
-  {
-    ref: "BG 2.48",
-    text: "Perform work in this world, Arjuna, as a man established within himself.",
-  },
-  {
-    ref: "BG 3.35",
-    text: "It is better to do one's own duty imperfectly than another's duty perfectly.",
-  },
-  {
-    ref: "BG 6.5",
-    text: "Elevate yourself through the power of your mind, and not degrade yourself.",
-  },
-  {
-    ref: "BG 18.63",
-    text: "Reflect on this fully, and then do as you wish.",
-  },
-];
 
 /**
  * Inspiration Verse component

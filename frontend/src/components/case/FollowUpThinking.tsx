@@ -1,25 +1,5 @@
 import { useState, useEffect } from "react";
-
-// Wisdom quotes - reused from ConsultationWaiting for brand consistency
-const WISDOM_QUOTES = [
-  {
-    text: "The mind is restless and difficult to restrain, but it is subdued by practice.",
-    source: "BG 6.35",
-  },
-  {
-    text: "You have the right to work, but never to the fruit of work.",
-    source: "BG 2.47",
-  },
-  { text: "The soul is neither born, and nor does it die.", source: "BG 2.20" },
-  {
-    text: "When meditation is mastered, the mind is unwavering like the flame of a lamp in a windless place.",
-    source: "BG 6.19",
-  },
-  {
-    text: "Set thy heart upon thy work, but never on its reward.",
-    source: "BG 2.47",
-  },
-];
+import { WISDOM_QUOTES } from "../../constants/curatedVerses";
 
 interface FollowUpThinkingProps {
   pendingMessage?: string;
@@ -96,8 +76,8 @@ export function FollowUpThinking({ pendingMessage }: FollowUpThinkingProps) {
               </span>
             </div>
 
-            {/* Rotating quote */}
-            <div className="bg-white/70 rounded-lg p-3 sm:p-4 transition-opacity duration-500">
+            {/* Rotating quote - fixed height prevents layout shift */}
+            <div className="bg-white/70 rounded-lg p-3 sm:p-4 transition-opacity duration-500 min-h-[72px] sm:min-h-[80px] flex flex-col justify-center">
               <blockquote className="text-sm text-gray-600 italic">
                 "{currentQuote.text}"
               </blockquote>

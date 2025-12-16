@@ -2,32 +2,12 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import type { CaseStatus, Verse } from "../types";
 import { versesApi } from "../lib/api";
+import { WISDOM_QUOTES } from "../constants/curatedVerses";
 
 interface ConsultationWaitingProps {
   status: CaseStatus;
   onRetry?: () => void;
 }
-
-// Wisdom quotes to display while waiting
-const WISDOM_QUOTES = [
-  {
-    text: "The mind is restless and difficult to restrain, but it is subdued by practice.",
-    source: "BG 6.35",
-  },
-  {
-    text: "You have the right to work, but never to the fruit of work.",
-    source: "BG 2.47",
-  },
-  { text: "The soul is neither born, and nor does it die.", source: "BG 2.20" },
-  {
-    text: "When meditation is mastered, the mind is unwavering like the flame of a lamp in a windless place.",
-    source: "BG 6.19",
-  },
-  {
-    text: "Set thy heart upon thy work, but never on its reward.",
-    source: "BG 2.47",
-  },
-];
 
 // Processing stages for progress indicator
 const PROCESSING_STAGES = [
