@@ -99,7 +99,7 @@ export default function Home() {
             </div>
 
             {/* Main Tagline */}
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold font-heading text-gray-900 mb-2">
+            <h1 className="text-xl sm:text-3xl lg:text-4xl font-bold font-heading text-gray-900 mb-2">
               Wisdom for Life's{" "}
               <span className="bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
                 Difficult Decisions
