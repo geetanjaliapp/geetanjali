@@ -67,7 +67,7 @@ export default function NotFound() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-red-50">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50">
       <Navbar />
       <div
         className="flex items-center justify-center"
@@ -83,7 +83,7 @@ export default function NotFound() {
           />
 
           {/* Heading */}
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 sm:mb-6 lg:mb-8">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold font-heading text-gray-900 mb-4 sm:mb-6 lg:mb-8">
             The Path You Seek is Elsewhere
           </h1>
 
@@ -99,7 +99,7 @@ export default function NotFound() {
 
             {/* Sanskrit - Full Verse with proper formatting */}
             <div className="mb-4 sm:mb-6 text-center">
-              <div className="text-lg sm:text-2xl md:text-3xl font-serif text-amber-900 leading-relaxed tracking-wide mb-3 sm:mb-4">
+              <div className="text-lg sm:text-2xl lg:text-3xl font-sanskrit text-amber-900 leading-relaxed tracking-wide mb-3 sm:mb-4">
                 {formatSanskritLines(verse.sanskrit_devanagari).map(
                   (line, idx) => (
                     <p
@@ -130,7 +130,7 @@ export default function NotFound() {
           {/* CTA Button */}
           <Link
             to="/"
-            className="inline-flex items-center gap-2 bg-orange-600 text-white px-5 sm:px-6 lg:px-8 py-2.5 sm:py-3 rounded-lg hover:bg-orange-700 transition-colors font-semibold text-sm sm:text-base lg:text-lg"
+            className="inline-flex items-center gap-2 bg-orange-600 text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-lg hover:bg-orange-700 transition-colors font-semibold text-sm sm:text-base"
           >
             <svg
               className="w-4 h-4 sm:w-5 sm:h-5"

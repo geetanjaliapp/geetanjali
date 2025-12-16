@@ -226,7 +226,7 @@ const COMMON_WORDS = new Set([
 ]);
 
 // Thresholds matching backend (content_filter.py:216-218)
-const MIN_COMMON_WORD_RATIO = 0.20; // At least 20% common words
+const MIN_COMMON_WORD_RATIO = 0.2; // At least 20% common words
 const MIN_DISTINCT_COMMON_WORDS = 2; // At least 2 distinct common words
 const SHORT_INPUT_WORD_CUTOFF = 6; // Short inputs only need 1 common word
 
@@ -276,10 +276,15 @@ function isGibberish(text: string): boolean {
   }
 
   // Longer inputs: need both ratio and distinct count
-  const commonOccurrences = words.filter((word) => COMMON_WORDS.has(word)).length;
+  const commonOccurrences = words.filter((word) =>
+    COMMON_WORDS.has(word),
+  ).length;
   const ratio = commonOccurrences / totalWords;
 
-  return ratio < MIN_COMMON_WORD_RATIO || distinctCommonCount < MIN_DISTINCT_COMMON_WORDS;
+  return (
+    ratio < MIN_COMMON_WORD_RATIO ||
+    distinctCommonCount < MIN_DISTINCT_COMMON_WORDS
+  );
 }
 
 /**

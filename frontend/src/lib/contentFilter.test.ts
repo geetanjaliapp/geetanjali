@@ -11,28 +11,28 @@ describe("contentFilter", () => {
 
     it("allows legitimate ethical dilemma", () => {
       const result = validateContent(
-        "My boss asked me to falsify a report. Should I do it?"
+        "My boss asked me to falsify a report. Should I do it?",
       );
       expect(result.valid).toBe(true);
     });
 
     it("allows complex workplace scenario", () => {
       const result = validateContent(
-        "I discovered my colleague is taking credit for my work. How should I handle this situation?"
+        "I discovered my colleague is taking credit for my work. How should I handle this situation?",
       );
       expect(result.valid).toBe(true);
     });
 
     it("allows contextual harsh language", () => {
       const result = validateContent(
-        "My boss said my work was worthless. Should I report this to HR?"
+        "My boss said my work was worthless. Should I report this to HR?",
       );
       expect(result.valid).toBe(true);
     });
 
     it("allows mild profanity in context", () => {
       const result = validateContent(
-        "I feel like crap about this decision. It's a damn mess."
+        "I feel like crap about this decision. It's a damn mess.",
       );
       expect(result.valid).toBe(true);
     });
@@ -92,7 +92,7 @@ describe("contentFilter", () => {
     it("allows quoted profanity describing situation", () => {
       // Profanity is quoting what someone else said, not directed at reader
       const result = validateContent(
-        "He said 'this project is bullshit' and I don't know how to respond"
+        "He said 'this project is bullshit' and I don't know how to respond",
       );
       expect(result.valid).toBe(true);
     });
@@ -100,7 +100,7 @@ describe("contentFilter", () => {
     it("allows 'die' in philosophical context", () => {
       // "die" as verb, not imperative abuse
       const result = validateContent(
-        "I would rather die than compromise my principles"
+        "I would rather die than compromise my principles",
       );
       expect(result.valid).toBe(true);
     });
@@ -109,7 +109,7 @@ describe("contentFilter", () => {
 
     it("blocks random characters", () => {
       const result = validateContent(
-        "dfsdfdsfsdfsdfsdfd dsfsdfd sdfsdf afsfsd"
+        "dfsdfdsfsdfsdfsdfd dsfsdfd sdfsdf afsfsd",
       );
       expect(result.valid).toBe(false);
       expect(result.reason).toContain("clear description");
@@ -136,7 +136,9 @@ describe("contentFilter", () => {
   describe("getViolationType", () => {
     it("returns 'valid' for legitimate content", () => {
       expect(
-        getViolationType("Should I report my colleague for unethical behavior?")
+        getViolationType(
+          "Should I report my colleague for unethical behavior?",
+        ),
       ).toBe("valid");
     });
 

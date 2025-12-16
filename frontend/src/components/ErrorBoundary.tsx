@@ -27,7 +27,7 @@ function ErrorNavbar() {
               alt="Geetanjali"
               className="h-8 w-8 sm:h-10 sm:w-10"
             />
-            <span className="text-xl sm:text-2xl font-serif font-bold text-orange-600">
+            <span className="text-xl sm:text-2xl font-heading font-bold text-orange-600">
               Geetanjali
             </span>
           </a>

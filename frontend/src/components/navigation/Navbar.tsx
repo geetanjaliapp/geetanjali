@@ -63,7 +63,11 @@ export function Navbar({
   }, [isMobileMenuOpen]);
 
   // Close mobile menu when clicking outside
-  useClickOutside(mobileMenuRef, () => setIsMobileMenuOpen(false), isMobileMenuOpen);
+  useClickOutside(
+    mobileMenuRef,
+    () => setIsMobileMenuOpen(false),
+    isMobileMenuOpen,
+  );
 
   const handleLogout = async () => {
     setIsMobileMenuOpen(false);
@@ -126,7 +130,11 @@ export function Navbar({
               )}
 
               {/* Logo or Back button */}
-              <NavLogo showBack={showBack} backTo={backTo} backLabel={backLabel} />
+              <NavLogo
+                showBack={showBack}
+                backTo={backTo}
+                backLabel={backLabel}
+              />
             </div>
 
             {/* Desktop navigation */}

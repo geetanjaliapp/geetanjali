@@ -80,7 +80,8 @@ const HTTP_STATUS_MESSAGES: Record<
     signup:
       "Please check your information. Make sure your password meets the requirements.",
     case_create: "Please provide more details in your question.",
-    follow_up: "Your question couldn't be processed. Please rephrase and try again.",
+    follow_up:
+      "Your question couldn't be processed. Please rephrase and try again.",
     contact: "Please check your message content and try again.",
     general: "Please check your input and try again.",
   },

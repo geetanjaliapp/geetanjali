@@ -61,8 +61,10 @@ export function FloatingNavArrow({
                   focus-visible:ring-offset-2`}
       aria-label={`${isPrev ? "Previous" : "Next"} verse: ${formatVerseRef(verse)}`}
     >
-      <div className={`flex items-center gap-1.5 text-amber-700 font-medium text-sm lg:text-base
-                       ${isPrev ? "flex-row" : "flex-row-reverse"}`}>
+      <div
+        className={`flex items-center gap-1.5 text-amber-700 font-medium text-sm lg:text-base
+                       ${isPrev ? "flex-row" : "flex-row-reverse"}`}
+      >
         <span aria-hidden="true" className="text-lg lg:text-xl">
           {isPrev ? "←" : "→"}
         </span>

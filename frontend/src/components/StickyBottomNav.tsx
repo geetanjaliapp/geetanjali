@@ -61,8 +61,12 @@ export function StickyBottomNav({
                        focus-visible:ring-amber-500"
             aria-label={`Previous verse: ${formatVerseRef(prevVerse)}`}
           >
-            <span aria-hidden="true" className="text-amber-700 text-lg">←</span>
-            <span className="text-amber-700 font-medium">{formatVerseRef(prevVerse)}</span>
+            <span aria-hidden="true" className="text-amber-700 text-lg">
+              ←
+            </span>
+            <span className="text-amber-700 font-medium">
+              {formatVerseRef(prevVerse)}
+            </span>
           </Link>
         ) : (
           <div
@@ -70,7 +74,9 @@ export function StickyBottomNav({
                         ${isAtStart ? "text-gray-300" : "text-gray-400"}`}
             aria-disabled="true"
           >
-            <span aria-hidden="true" className="text-lg">←</span>
+            <span aria-hidden="true" className="text-lg">
+              ←
+            </span>
             <span className="font-medium">{isAtStart ? "Start" : "..."}</span>
           </div>
         )}
@@ -88,8 +94,12 @@ export function StickyBottomNav({
                        focus-visible:ring-amber-500"
             aria-label={`Next verse: ${formatVerseRef(nextVerse)}`}
           >
-            <span className="text-amber-700 font-medium">{formatVerseRef(nextVerse)}</span>
-            <span aria-hidden="true" className="text-amber-700 text-lg">→</span>
+            <span className="text-amber-700 font-medium">
+              {formatVerseRef(nextVerse)}
+            </span>
+            <span aria-hidden="true" className="text-amber-700 text-lg">
+              →
+            </span>
           </Link>
         ) : (
           <div
@@ -98,7 +108,9 @@ export function StickyBottomNav({
             aria-disabled="true"
           >
             <span className="font-medium">{isAtEnd ? "End" : "..."}</span>
-            <span aria-hidden="true" className="text-lg">→</span>
+            <span aria-hidden="true" className="text-lg">
+              →
+            </span>
           </div>
         )}
       </div>

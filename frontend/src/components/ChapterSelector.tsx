@@ -52,7 +52,7 @@ export function ChapterSelector({
       onSelect(chapter);
       onClose();
     },
-    [onSelect, onClose]
+    [onSelect, onClose],
   );
 
   if (!isOpen) return null;

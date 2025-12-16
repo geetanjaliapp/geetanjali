@@ -2,8 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Typography System (v1.11.0)
+ * - font-body: Source Sans 3 (default for all text)
+ * - font-heading: Spectral (headings, titles)
+ * - font-sanskrit: Noto Serif Devanagari (Sanskrit verses)
+ * - font-serif: Spectral (legacy serif usage)
+ */
 :root {
+  /* Default body font - Source Sans 3 */
   font-family:
+    "Source Sans 3",
     system-ui,
     -apple-system,
     BlinkMacSystemFont,
@@ -56,6 +65,70 @@ body {
 
 .animate-slide-up {
   animation: slide-up 0.3s ease-out forwards;
+}
+
+/* ============================================
+   Thinking/Processing Animations
+   ============================================ */
+
+/* Subtle shimmer effect - light sweep across surface */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(251, 191, 36, 0.1) 25%,
+    rgba(251, 191, 36, 0.2) 50%,
+    rgba(251, 191, 36, 0.1) 75%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+/* Pulsing glow border for thinking containers */
+@keyframes glow-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 8px rgba(251, 146, 60, 0.3),
+      0 0 16px rgba(251, 146, 60, 0.1);
+  }
+  50% {
+    box-shadow:
+      0 0 16px rgba(251, 146, 60, 0.4),
+      0 0 32px rgba(251, 146, 60, 0.2);
+  }
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+/* Sequenced dot pulse (more refined than bounce) */
+@keyframes dot-pulse {
+  0%,
+  80%,
+  100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+.animate-dot-pulse {
+  animation: dot-pulse 1.4s ease-in-out infinite;
 }
 
 /* Hide scrollbar but allow scrolling */

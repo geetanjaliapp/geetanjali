@@ -13,7 +13,7 @@ import { useSwipeNavigation } from "./useSwipeNavigation";
 function createTouchEvent(
   type: "touchstart" | "touchmove" | "touchend",
   clientX: number,
-  clientY: number
+  clientY: number,
 ): Event {
   const event = new Event(type, { bubbles: true, cancelable: true });
 

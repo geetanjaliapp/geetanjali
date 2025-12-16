@@ -43,7 +43,10 @@ export function FeaturedVerse({ verse, loading = false }: FeaturedVerseProps) {
             <div className="text-3xl sm:text-4xl text-amber-400/50 mb-3 sm:mb-4 lg:mb-6 font-light">
               ॐ
             </div>
-            <div lang="sa" className="text-lg sm:text-2xl md:text-3xl font-serif text-amber-900 leading-relaxed tracking-wide mb-3 sm:mb-4 lg:mb-6 space-y-1">
+            <div
+              lang="sa"
+              className="text-lg sm:text-2xl lg:text-3xl font-sanskrit text-amber-900 leading-relaxed tracking-wide mb-3 sm:mb-4 lg:mb-6 space-y-1"
+            >
               {sanskritLines.map((line, idx) => (
                 <p key={idx} className="mb-0">
                   {line}

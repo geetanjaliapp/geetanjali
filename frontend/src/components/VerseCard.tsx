@@ -88,7 +88,9 @@ export const VerseCard = memo(function VerseCard({
   // Compact mode: Sanskrit-only display for verse browsing
   if (isCompact) {
     // Use translation_en for grid (literal), paraphrase_en reserved for detail page (curated)
-    const translationText = showTranslationPreview ? (verse.translation_en || "") : "";
+    const translationText = showTranslationPreview
+      ? verse.translation_en || ""
+      : "";
 
     return (
       <div className="relative bg-amber-50 rounded-xl p-3 sm:p-4 border border-amber-200 shadow-sm hover:shadow-md hover:border-amber-300 hover:-translate-y-0.5 transition-all duration-150">
@@ -118,7 +120,10 @@ export const VerseCard = memo(function VerseCard({
           </div>
 
           {/* Full Sanskrit Verse */}
-          <div lang="sa" className="text-amber-900 font-serif text-sm sm:text-base leading-relaxed text-center">
+          <div
+            lang="sa"
+            className="text-amber-900 font-sanskrit text-sm sm:text-base leading-relaxed text-center"
+          >
             {sanskritLines.map((line, idx) => (
               <p key={idx} className="mb-0.5">
                 {line}
@@ -140,32 +145,37 @@ export const VerseCard = memo(function VerseCard({
         </div>
 
         {/* Principle Tags - pointer-events-auto so they're clickable above the stretched link */}
-        {verse.consulting_principles && verse.consulting_principles.length > 0 && (
-          <div className={`mt-2 sm:mt-3 flex flex-wrap justify-center gap-1 ${linkTo ? "relative z-10" : ""}`}>
-            {verse.consulting_principles.slice(0, 2).map((principle) => (
-              <button
-                key={principle}
-                onClick={(e) => {
-                  if (onPrincipleClick) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    onPrincipleClick(principle);
-                  }
-                }}
-                className={`px-2 py-0.5 rounded-full bg-amber-100/70 text-amber-800 text-[10px] sm:text-xs font-medium pointer-events-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 ${
-                  onPrincipleClick ? "hover:bg-amber-200 cursor-pointer transition-colors" : ""
-                }`}
-              >
-                {getPrincipleShortLabel(principle)}
-              </button>
-            ))}
-            {verse.consulting_principles.length > 2 && (
-              <span className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 text-[10px] sm:text-xs font-medium">
-                +{verse.consulting_principles.length - 2}
-              </span>
-            )}
-          </div>
-        )}
+        {verse.consulting_principles &&
+          verse.consulting_principles.length > 0 && (
+            <div
+              className={`mt-2 sm:mt-3 flex flex-wrap justify-center gap-1 ${linkTo ? "relative z-10" : ""}`}
+            >
+              {verse.consulting_principles.slice(0, 2).map((principle) => (
+                <button
+                  key={principle}
+                  onClick={(e) => {
+                    if (onPrincipleClick) {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onPrincipleClick(principle);
+                    }
+                  }}
+                  className={`px-2 py-0.5 rounded-full bg-amber-100/70 text-amber-800 text-[10px] sm:text-xs font-medium pointer-events-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 ${
+                    onPrincipleClick
+                      ? "hover:bg-amber-200 cursor-pointer transition-colors"
+                      : ""
+                  }`}
+                >
+                  {getPrincipleShortLabel(principle)}
+                </button>
+              ))}
+              {verse.consulting_principles.length > 2 && (
+                <span className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 text-[10px] sm:text-xs font-medium">
+                  +{verse.consulting_principles.length - 2}
+                </span>
+              )}
+            </div>
+          )}
       </div>
     );
   }
@@ -188,7 +198,10 @@ export const VerseCard = memo(function VerseCard({
         <div className="flex-grow flex flex-col justify-center">
           {/* Sanskrit Text */}
           {displayLines.length > 0 && (
-            <div lang="sa" className="text-base sm:text-xl md:text-2xl text-amber-800/60 font-serif text-center leading-relaxed tracking-wide mb-4 sm:mb-6">
+            <div
+              lang="sa"
+              className="text-base sm:text-xl lg:text-2xl text-amber-800/60 font-sanskrit text-center leading-relaxed tracking-wide mb-4 sm:mb-6"
+            >
               {displayLines.map((line, idx) => (
                 <p
                   key={idx}

@@ -14,7 +14,13 @@ import { useSearchParams } from "react-router-dom";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { versesApi, readingApi } from "../lib/api";
 import type { Verse, BookMetadata, ChapterMetadata } from "../types";
-import { Navbar, VerseFocus, ProgressBar, ChapterSelector, IntroCard } from "../components";
+import {
+  Navbar,
+  VerseFocus,
+  ProgressBar,
+  ChapterSelector,
+  IntroCard,
+} from "../components";
 import { useSEO, useSwipeNavigation } from "../hooks";
 import {
   getChapterName,
@@ -128,7 +134,11 @@ export default function ReadingMode() {
   const savedPosition = getSavedPosition();
 
   // Determine initial state based on URL and saved position
-  const getInitialState = (): { chapter: number; verse: number; hasPosition: boolean } => {
+  const getInitialState = (): {
+    chapter: number;
+    verse: number;
+    hasPosition: boolean;
+  } => {
     // URL params take priority (deep link)
     if (urlChapter) {
       const chapter = parseInt(urlChapter, 10);
@@ -138,7 +148,11 @@ export default function ReadingMode() {
       }
     }
     // Fall back to saved position
-    if (savedPosition && savedPosition.chapter >= 1 && savedPosition.chapter <= TOTAL_CHAPTERS) {
+    if (
+      savedPosition &&
+      savedPosition.chapter >= 1 &&
+      savedPosition.chapter <= TOTAL_CHAPTERS
+    ) {
       return {
         chapter: savedPosition.chapter,
         verse: savedPosition.verse >= 1 ? savedPosition.verse : 1,
@@ -162,7 +176,7 @@ export default function ReadingMode() {
 
   // Target verse to navigate to after chapter intro (for resume/deep-link)
   const [targetVerse, setTargetVerse] = useState<number | null>(
-    initial.hasPosition ? initial.verse : null
+    initial.hasPosition ? initial.verse : null,
   );
 
   const [showChapterSelector, setShowChapterSelector] = useState(false);
@@ -177,11 +191,15 @@ export default function ReadingMode() {
 
   // Book and chapter metadata for intro cards
   const [bookMetadata, setBookMetadata] = useState<BookMetadata | null>(null);
-  const [chapterMetadata, setChapterMetadata] = useState<ChapterMetadata | null>(null);
+  const [chapterMetadata, setChapterMetadata] =
+    useState<ChapterMetadata | null>(null);
 
   // Translation visibility - persists within chapter, resets on chapter change
   const [showTranslation, setShowTranslation] = useState(false);
-  const toggleTranslation = useCallback(() => setShowTranslation((prev) => !prev), []);
+  const toggleTranslation = useCallback(
+    () => setShowTranslation((prev) => !prev),
+    [],
+  );
 
   // Dismiss onboarding and remember
   const dismissOnboarding = useCallback(() => {
@@ -262,7 +280,7 @@ export default function ReadingMode() {
           pageSize,
           chapter,
           undefined, // No featured filter
-          undefined // No principles filter
+          undefined, // No principles filter
         );
         allVerses.push(...batch);
         hasMore = batch.length === pageSize;
@@ -334,7 +352,13 @@ export default function ReadingMode() {
       let hasMore = true;
 
       while (hasMore) {
-        const batch = await versesApi.list(skip, pageSize, chapter, undefined, undefined);
+        const batch = await versesApi.list(
+          skip,
+          pageSize,
+          chapter,
+          undefined,
+          undefined,
+        );
         allVerses.push(...batch);
         hasMore = batch.length === pageSize;
         skip += pageSize;
@@ -366,7 +390,8 @@ export default function ReadingMode() {
 
   // Fetch book metadata on mount (for cover page)
   useEffect(() => {
-    readingApi.getBookMetadata()
+    readingApi
+      .getBookMetadata()
       .then(setBookMetadata)
       .catch(() => {
         // If book metadata fails, skip to chapter intro
@@ -378,7 +403,8 @@ export default function ReadingMode() {
 
   // Fetch chapter metadata when chapter changes
   useEffect(() => {
-    readingApi.getChapter(state.chapter)
+    readingApi
+      .getChapter(state.chapter)
       .then(setChapterMetadata)
       .catch(() => {
         // Silently fail - will use fallback in UI
@@ -390,7 +416,8 @@ export default function ReadingMode() {
   useEffect(() => {
     if (state.chapterVerses.length === 0 || state.pageIndex < 0) return;
 
-    const progressInChapter = (state.pageIndex + 1) / state.chapterVerses.length;
+    const progressInChapter =
+      (state.pageIndex + 1) / state.chapterVerses.length;
 
     // Near end (80%+) - prefetch next chapter
     if (progressInChapter >= 0.8 && state.chapter < TOTAL_CHAPTERS) {
@@ -401,7 +428,12 @@ export default function ReadingMode() {
     if (progressInChapter <= 0.2 && state.chapter > 1) {
       prefetchChapter(state.chapter - 1);
     }
-  }, [state.pageIndex, state.chapterVerses.length, state.chapter, prefetchChapter]);
+  }, [
+    state.pageIndex,
+    state.chapterVerses.length,
+    state.chapter,
+    prefetchChapter,
+  ]);
 
   // Handle "start at end" case when navigating to previous chapter
   // pageIndex of -3 signals "start at last verse of chapter"
@@ -432,7 +464,11 @@ export default function ReadingMode() {
   // startAtEnd: if true, start at the last verse (for prev navigation)
   const goToChapter = useCallback(
     (chapter: number, startAtEnd = false) => {
-      if (chapter >= 1 && chapter <= TOTAL_CHAPTERS && chapter !== state.chapter) {
+      if (
+        chapter >= 1 &&
+        chapter <= TOTAL_CHAPTERS &&
+        chapter !== state.chapter
+      ) {
         setState((prev) => ({
           ...prev,
           chapter,
@@ -445,7 +481,7 @@ export default function ReadingMode() {
         loadChapter(chapter);
       }
     },
-    [loadChapter, state.chapter]
+    [loadChapter, state.chapter],
   );
 
   // Ref to hold goToChapter for stable reference in navigation callbacks
@@ -462,7 +498,9 @@ export default function ReadingMode() {
       // Chapter intro → target verse (resume) or first verse
       if (prev.pageIndex === PAGE_CHAPTER_INTRO) {
         if (targetVerse && prev.chapterVerses.length > 0) {
-          const index = prev.chapterVerses.findIndex((v) => v.verse === targetVerse);
+          const index = prev.chapterVerses.findIndex(
+            (v) => v.verse === targetVerse,
+          );
           if (index !== -1) {
             // Clear target verse after using it
             setTargetVerse(null);
@@ -536,10 +574,18 @@ export default function ReadingMode() {
       }
 
       // Arrow keys and J/K for navigation
-      if ((event.key === "ArrowLeft" || event.key === "k" || event.key === "K") && canGoPrev) {
+      if (
+        (event.key === "ArrowLeft" || event.key === "k" || event.key === "K") &&
+        canGoPrev
+      ) {
         event.preventDefault();
         prevPage();
-      } else if ((event.key === "ArrowRight" || event.key === "j" || event.key === "J") && canGoNext) {
+      } else if (
+        (event.key === "ArrowRight" ||
+          event.key === "j" ||
+          event.key === "J") &&
+        canGoNext
+      ) {
         event.preventDefault();
         nextPage();
       }
@@ -550,7 +596,7 @@ export default function ReadingMode() {
   }, [canGoPrev, canGoNext, prevPage, nextPage]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex flex-col">
       <Navbar />
 
       {/* Chapter Header */}
@@ -576,8 +622,12 @@ export default function ReadingMode() {
                 <span className="text-sm font-serif">Aa</span>
                 <span className="flex items-center gap-0.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                  <span className={`w-1.5 h-1.5 rounded-full ${settings.fontSize !== "small" ? "bg-amber-500" : "bg-amber-200"}`} />
-                  <span className={`w-1.5 h-1.5 rounded-full ${settings.fontSize === "large" ? "bg-amber-500" : "bg-amber-200"}`} />
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full ${settings.fontSize !== "small" ? "bg-amber-500" : "bg-amber-200"}`}
+                  />
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full ${settings.fontSize === "large" ? "bg-amber-500" : "bg-amber-200"}`}
+                  />
                 </span>
               </button>
               {/* Reset progress button */}
@@ -629,7 +679,9 @@ export default function ReadingMode() {
         {state.isLoading ? (
           // Loading state
           <div className="text-center">
-            <div className="text-4xl text-amber-300/60 mb-4 animate-pulse">ॐ</div>
+            <div className="text-4xl text-amber-300/60 mb-4 animate-pulse">
+              ॐ
+            </div>
             <p className="text-amber-600/70">Loading chapter...</p>
           </div>
         ) : state.error ? (
@@ -646,7 +698,13 @@ export default function ReadingMode() {
           </div>
         ) : isBookCover && bookMetadata ? (
           // Book cover page
-          <IntroCard key="book-cover" type="book" book={bookMetadata} fontSize={settings.fontSize} onBegin={nextPage} />
+          <IntroCard
+            key="book-cover"
+            type="book"
+            book={bookMetadata}
+            fontSize={settings.fontSize}
+            onBegin={nextPage}
+          />
         ) : isChapterIntro && chapterMetadata ? (
           // Chapter intro page
           <IntroCard
@@ -739,7 +797,6 @@ export default function ReadingMode() {
               <span className="text-sm font-medium">Next</span>
               <span className="text-lg">→</span>
             </button>
-
           </div>
         </div>
       </nav>
@@ -770,7 +827,7 @@ export default function ReadingMode() {
             aria-modal="true"
             aria-label="Reading Mode tips"
           >
-            <h2 className="text-lg font-semibold text-amber-900 text-center mb-4">
+            <h2 className="text-lg font-semibold font-heading text-gray-900 text-center mb-4">
               Welcome to Reading Mode
             </h2>
 
@@ -779,8 +836,12 @@ export default function ReadingMode() {
               <div className="flex items-start gap-3">
                 <span className="text-xl">👆</span>
                 <div>
-                  <p className="font-medium text-gray-900">Tap for translation</p>
-                  <p className="text-gray-500">Tap the verse to reveal Hindi, English & IAST</p>
+                  <p className="font-medium text-gray-900">
+                    Tap for translation
+                  </p>
+                  <p className="text-gray-500">
+                    Tap the verse to reveal Hindi, English & IAST
+                  </p>
                 </div>
               </div>
 
@@ -789,7 +850,9 @@ export default function ReadingMode() {
                 <span className="text-xl">👈👉</span>
                 <div>
                   <p className="font-medium text-gray-900">Swipe to navigate</p>
-                  <p className="text-gray-500">Swipe left/right to move between verses</p>
+                  <p className="text-gray-500">
+                    Swipe left/right to move between verses
+                  </p>
                 </div>
               </div>
 
@@ -797,8 +860,12 @@ export default function ReadingMode() {
               <div className="hidden sm:flex items-start gap-3">
                 <span className="text-xl">⌨️</span>
                 <div>
-                  <p className="font-medium text-gray-900">Keyboard shortcuts</p>
-                  <p className="text-gray-500">← → or J/K to navigate, Space for translation</p>
+                  <p className="font-medium text-gray-900">
+                    Keyboard shortcuts
+                  </p>
+                  <p className="text-gray-500">
+                    ← → or J/K to navigate, Space for translation
+                  </p>
                 </div>
               </div>
             </div>
@@ -812,7 +879,6 @@ export default function ReadingMode() {
           </div>
         </>
       )}
-
     </div>
   );
 }

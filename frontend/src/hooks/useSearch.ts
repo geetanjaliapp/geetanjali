@@ -82,7 +82,13 @@ export function useSearch(options: UseSearchOptions = {}) {
       setQuery(trimmed);
 
       if (!trimmed) {
-        setState({ data: null, loading: false, loadingMore: false, error: null, hasMore: false });
+        setState({
+          data: null,
+          loading: false,
+          loadingMore: false,
+          error: null,
+          hasMore: false,
+        });
         setAllResults([]);
         return;
       }
@@ -120,11 +126,17 @@ export function useSearch(options: UseSearchOptions = {}) {
         if (err instanceof Error && err.name === "AbortError") return;
 
         const message = errorMessages.search(err);
-        setState({ data: null, loading: false, loadingMore: false, error: message, hasMore: false });
+        setState({
+          data: null,
+          loading: false,
+          loadingMore: false,
+          error: message,
+          hasMore: false,
+        });
         setAllResults([]);
       }
     },
-    [chapter, principle, limit]
+    [chapter, principle, limit],
   );
 
   /**
@@ -162,7 +174,16 @@ export function useSearch(options: UseSearchOptions = {}) {
       const message = errorMessages.search(err);
       setState((prev) => ({ ...prev, loadingMore: false, error: message }));
     }
-  }, [state.loadingMore, state.data, state.hasMore, query, chapter, principle, limit, allResults]);
+  }, [
+    state.loadingMore,
+    state.data,
+    state.hasMore,
+    query,
+    chapter,
+    principle,
+    limit,
+    allResults,
+  ]);
 
   /**
    * Debounced search for instant results (for input onChange)
@@ -178,7 +199,13 @@ export function useSearch(options: UseSearchOptions = {}) {
 
       // Don't search if too short
       if (trimmed.length < minQueryLength) {
-        setState({ data: null, loading: false, loadingMore: false, error: null, hasMore: false });
+        setState({
+          data: null,
+          loading: false,
+          loadingMore: false,
+          error: null,
+          hasMore: false,
+        });
         setAllResults([]);
         return;
       }
@@ -198,7 +225,7 @@ export function useSearch(options: UseSearchOptions = {}) {
         search(trimmed);
       }, debounceMs);
     },
-    [debounceMs, minQueryLength, search]
+    [debounceMs, minQueryLength, search],
   );
 
   /**
@@ -206,7 +233,13 @@ export function useSearch(options: UseSearchOptions = {}) {
    */
   const clear = useCallback(() => {
     setQuery("");
-    setState({ data: null, loading: false, loadingMore: false, error: null, hasMore: false });
+    setState({
+      data: null,
+      loading: false,
+      loadingMore: false,
+      error: null,
+      hasMore: false,
+    });
     setAllResults([]);
     if (debounceRef.current) clearTimeout(debounceRef.current);
   }, []);

@@ -99,7 +99,7 @@ export default function Home() {
             </div>
 
             {/* Main Tagline */}
-            <h1 className="text-xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2 sm:mb-3">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold font-heading text-gray-900 mb-2">
               Wisdom for Life's{" "}
               <span className="bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
                 Difficult Decisions
@@ -218,7 +218,7 @@ export default function Home() {
           )}
 
           {/* Feature Overview - Problem-oriented copy */}
-          <div className="mt-4 sm:mt-6 grid grid-cols-3 gap-2 sm:gap-5 lg:gap-6 max-w-4xl mx-auto">
+          <div className="mt-4 sm:mt-6 grid grid-cols-3 gap-2 sm:gap-4 lg:gap-6 max-w-4xl mx-auto">
             <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-3 sm:p-6 rounded-xl border border-amber-100 text-center">
               <div className="w-10 h-10 sm:w-12 sm:h-12 bg-amber-100 rounded-lg flex items-center justify-center mb-2 sm:mb-4 mx-auto">
                 <svg

@@ -333,7 +333,9 @@ export default function CaseView() {
 
       // Submit follow-up (async - returns 202 with user message)
       // Assistant response is processed in background
-      const userMessage = await messagesApi.followUp(id, { content: messageContent });
+      const userMessage = await messagesApi.followUp(id, {
+        content: messageContent,
+      });
 
       // Add the user message to the list immediately
       setMessages((prev) => [
@@ -371,7 +373,10 @@ export default function CaseView() {
     }
     // Scroll to follow-up input after a brief delay to ensure it's rendered
     setTimeout(() => {
-      followUpInputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      followUpInputRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
       // Focus the textarea inside the follow-up input
       const textarea = followUpInputRef.current?.querySelector("textarea");
       textarea?.focus();
@@ -549,7 +554,7 @@ ${messages
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-amber-50 via-orange-50 to-red-50 flex flex-col">
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex flex-col">
         <Navbar />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-gray-600">Loading consultation...</div>
@@ -560,7 +565,7 @@ ${messages
 
   if (!caseData) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-amber-50 via-orange-50 to-red-50 flex flex-col">
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex flex-col">
         <Navbar />
         <div className="flex-1 flex items-center justify-center">
           <ContentNotFound variant="case" isAuthenticated={isAuthenticated} />
@@ -570,7 +575,7 @@ ${messages
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-50 via-orange-50 to-red-50 flex flex-col overflow-x-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex flex-col overflow-x-hidden">
       <Navbar />
 
       <CaseHeader
@@ -881,11 +886,25 @@ ${messages
                             </div>
                             {showFollowUpInput && (
                               <button
-                                onClick={() => handleRefineGuidance("Can you provide more detail or clarify the recommended approach?")}
+                                onClick={() =>
+                                  handleRefineGuidance(
+                                    "Can you provide more detail or clarify the recommended approach?",
+                                  )
+                                }
                                 className="mt-2 text-sm text-amber-700 hover:text-amber-900 hover:underline flex items-center gap-1 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2"
                               >
-                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                <svg
+                                  className="w-3.5 h-3.5"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M13 7l5 5m0 0l-5 5m5-5H6"
+                                  />
                                 </svg>
                                 Ask a follow-up to refine this guidance
                               </button>
@@ -981,7 +1000,9 @@ ${messages
               {(submittingFollowUp || isProcessing) && pendingFollowUp && (
                 <FollowUpThinking
                   pendingMessage={
-                    messages.some((m) => m.role === "user" && m.content === pendingFollowUp)
+                    messages.some(
+                      (m) => m.role === "user" && m.content === pendingFollowUp,
+                    )
                       ? undefined
                       : pendingFollowUp
                   }
@@ -990,7 +1011,10 @@ ${messages
 
               {/* Follow-up Input - at end of conversation flow */}
               {showFollowUpInput && (
-                <div ref={followUpInputRef} className="relative pl-8 sm:pl-10 pt-2 pb-4">
+                <div
+                  ref={followUpInputRef}
+                  className="relative pl-8 sm:pl-10 pt-2 pb-4"
+                >
                   <div className="absolute left-0 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-gray-100 border-2 border-gray-300 flex items-center justify-center">
                     <svg
                       className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-gray-500"

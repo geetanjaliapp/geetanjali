@@ -6,20 +6,29 @@ export default {
   ],
   theme: {
     extend: {
-      colors: {
-        primary: {
-          50: '#fef2f2',
-          100: '#fee2e2',
-          200: '#fecaca',
-          300: '#fca5a5',
-          400: '#f87171',
-          500: '#ef4444',
-          600: '#dc2626',
-          700: '#b91c1c',
-          800: '#991b1b',
-          900: '#7f1d1d',
-        },
+      /*
+       * Typography System (v1.11.0)
+       * - Headings: Spectral (classical serif)
+       * - Body: Source Sans 3 (clean sans-serif)
+       * - Sanskrit: Noto Serif Devanagari (proper glyph rendering)
+       * - Mono: System monospace (code/IDs)
+       */
+      fontFamily: {
+        heading: ['Spectral', 'Georgia', 'serif'],
+        body: ['"Source Sans 3"', 'system-ui', 'sans-serif'],
+        sanskrit: ['"Noto Serif Devanagari"', 'serif'],
+        serif: ['Spectral', 'Georgia', 'serif'], // Override default serif
       },
+      /*
+       * Color System (v1.11.0)
+       * Uses Tailwind's built-in colors with semantic roles:
+       * - Surfaces: amber-50, amber-100 (warm backgrounds)
+       * - Interactive: orange-600/700/800 (buttons, links)
+       * - Text: gray-900/600/400, amber-900 (Sanskrit)
+       * - Borders: amber-200 (default), amber-100 (subtle)
+       * - Status: green (success), yellow (warning), red (error), orange (processing)
+       * - Gradients: from-amber-50 via-orange-50 to-red-50 (hero)
+       */
     },
   },
   plugins: [

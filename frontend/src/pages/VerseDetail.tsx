@@ -1,5 +1,10 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate, useSearchParams, Link } from "react-router-dom";
+import {
+  useParams,
+  useNavigate,
+  useSearchParams,
+  Link,
+} from "react-router-dom";
 import { versesApi } from "../lib/api";
 import { formatSanskritLines, isSpeakerIntro } from "../lib/sanskritFormatter";
 import { PRINCIPLE_TAXONOMY } from "../constants/principles";
@@ -93,7 +98,7 @@ export default function VerseDetail() {
   // Hook must be called unconditionally, but will only fetch when verse is loaded
   const { prevVerse, nextVerse } = useAdjacentVerses(
     verse?.chapter ?? 0,
-    verse?.verse ?? 0
+    verse?.verse ?? 0,
   );
 
   // Keyboard navigation for desktop (disabled when coming from search or reading mode)
@@ -178,7 +183,7 @@ export default function VerseDetail() {
               <div className="my-4 sm:my-6 h-px bg-gradient-to-r from-transparent via-amber-300/50 to-transparent" />
 
               {/* Translations Skeleton */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
                 <div>
                   <div className="h-3 bg-amber-200/40 rounded w-24 mb-4 animate-pulse" />
                   <div className="space-y-2">
@@ -230,7 +235,7 @@ export default function VerseDetail() {
 
   // Filter out primary translations for "More Translations" section
   const otherTranslations = translations.filter(
-    (t) => t.id !== primaryHindi?.id && t.id !== primaryEnglish?.id
+    (t) => t.id !== primaryHindi?.id && t.id !== primaryEnglish?.id,
   );
 
   // Determine if at boundaries of Geeta
@@ -270,7 +275,10 @@ export default function VerseDetail() {
                 <div className="text-3xl sm:text-4xl text-amber-400/50 mb-3 sm:mb-4 lg:mb-6 font-light">
                   ॐ
                 </div>
-                <div lang="sa" className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-serif text-amber-900/70 leading-relaxed tracking-wide mb-3 sm:mb-4 lg:mb-6">
+                <div
+                  lang="sa"
+                  className="text-xl sm:text-3xl lg:text-4xl font-sanskrit text-amber-900/70 leading-relaxed tracking-wide mb-3 sm:mb-4 lg:mb-6"
+                >
                   {formatSanskritLines(verse.sanskrit_devanagari).map(
                     (line, idx) => (
                       <p
@@ -294,7 +302,7 @@ export default function VerseDetail() {
                 <p className="text-xs font-semibold text-red-700/70 uppercase tracking-widest mb-2 sm:mb-4">
                   Leadership Insight
                 </p>
-                <p className="text-base sm:text-lg md:text-xl text-gray-800 leading-relaxed italic">
+                <p className="text-base sm:text-lg lg:text-xl text-gray-800 leading-relaxed italic">
                   "{verse.paraphrase_en}"
                 </p>
               </div>
@@ -328,7 +336,9 @@ export default function VerseDetail() {
                           aria-label={`View all verses about ${principle?.label || principleId}`}
                         >
                           <span>{principle?.shortLabel || principleId}</span>
-                          <span aria-hidden="true" className="text-amber-600">→</span>
+                          <span aria-hidden="true" className="text-amber-600">
+                            →
+                          </span>
                         </Link>
                       );
                     })}
@@ -340,7 +350,7 @@ export default function VerseDetail() {
             <div className="my-4 sm:my-6 h-px bg-gradient-to-r from-transparent via-amber-300/50 to-transparent" />
 
             {/* Translations - Side by side */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
               {/* Hindi Translation */}
               {primaryHindi && (
                 <div>
@@ -379,14 +389,21 @@ export default function VerseDetail() {
 
           {/* More Translations Section - Toggle Switch */}
           {otherTranslations.length > 0 && (
-            <div className="animate-fade-in bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 mb-4 sm:mb-6 lg:mb-8" style={{ animationDelay: "100ms" }}>
+            <div
+              className="animate-fade-in bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 mb-4 sm:mb-6 lg:mb-8"
+              style={{ animationDelay: "100ms" }}
+            >
               <div className="flex items-center justify-between mb-4 sm:mb-6">
-                <h2 className="text-lg sm:text-xl font-bold text-gray-900">
+                <h2 className="text-lg sm:text-xl font-bold font-heading text-gray-900">
                   More Translations
                 </h2>
                 <button
                   onClick={() => setShowAllTranslations(!showAllTranslations)}
-                  aria-label={showAllTranslations ? "Hide more translations" : "Show more translations"}
+                  aria-label={
+                    showAllTranslations
+                      ? "Hide more translations"
+                      : "Show more translations"
+                  }
                   aria-pressed={showAllTranslations}
                   className={`relative inline-flex h-7 sm:h-8 w-12 sm:w-14 items-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 ${
                     showAllTranslations ? "bg-amber-600" : "bg-gray-300"
@@ -430,7 +447,6 @@ export default function VerseDetail() {
               )}
             </div>
           )}
-
         </div>
       </div>
 

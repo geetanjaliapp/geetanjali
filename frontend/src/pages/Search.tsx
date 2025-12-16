@@ -1,10 +1,27 @@
-import { useState, useEffect, useCallback, useRef, useMemo, type FormEvent } from "react";
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useMemo,
+  type FormEvent,
+} from "react";
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { Navbar, Footer } from "../components";
 import { useSearch, useSEO } from "../hooks";
 import { versesApi } from "../lib/api";
-import { SearchIcon, SpinnerIcon, StarIcon, CloseIcon } from "../components/icons";
-import { getPrincipleShortLabel, PRINCIPLE_TAXONOMY, type PrincipleId } from "../constants/principles";
+import {
+  SearchIcon,
+  SpinnerIcon,
+  StarIcon,
+  CloseIcon,
+  ChevronDownIcon,
+} from "../components/icons";
+import {
+  getPrincipleShortLabel,
+  PRINCIPLE_TAXONOMY,
+  type PrincipleId,
+} from "../constants/principles";
 import { formatSanskritLines } from "../lib/sanskritFormatter";
 import { validateSearchQuery } from "../lib/contentFilter";
 import type { SearchResult, Verse } from "../types";
@@ -57,7 +74,9 @@ function saveRecentSearch(query: string): void {
     if (!trimmed) return;
 
     const recent = getRecentSearches();
-    const filtered = recent.filter((s) => s.toLowerCase() !== trimmed.toLowerCase());
+    const filtered = recent.filter(
+      (s) => s.toLowerCase() !== trimmed.toLowerCase(),
+    );
     const updated = [trimmed, ...filtered].slice(0, MAX_RECENT_SEARCHES);
     localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(updated));
   } catch {
@@ -119,7 +138,10 @@ function HighlightedText({ text }: { text: string }) {
         if (part.startsWith("<mark>") && part.endsWith("</mark>")) {
           const content = part.slice(6, -7);
           return (
-            <mark key={i} className="bg-amber-200 text-amber-900 px-0.5 rounded">
+            <mark
+              key={i}
+              className="bg-amber-200 text-amber-900 px-0.5 rounded"
+            >
               {content}
             </mark>
           );
@@ -150,7 +172,7 @@ function SearchResultCard({
         mode: "compact",
         includeSpeakerIntro: false,
       }),
-    [result.sanskrit_devanagari]
+    [result.sanskrit_devanagari],
   );
 
   return (
@@ -183,7 +205,7 @@ function SearchResultCard({
         {sanskritLines.length > 0 && (
           <div
             lang="sa"
-            className="text-amber-900 font-serif text-sm sm:text-base leading-relaxed text-center"
+            className="text-amber-900 font-sanskrit text-sm sm:text-base leading-relaxed text-center"
           >
             {sanskritLines.map((line, idx) => (
               <p key={idx} className="mb-0.5">
@@ -330,14 +352,13 @@ function StarterVerseSpotlight({
   });
 
   return (
-    <Link
-      to={`/verses/${verse.canonical_id}?from=search`}
-      className="block"
-    >
+    <Link to={`/verses/${verse.canonical_id}?from=search`} className="block">
       <div className="bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 rounded-xl sm:rounded-2xl p-6 sm:p-8 border border-amber-200/50 shadow-lg hover:shadow-xl hover:border-amber-300 transition-all">
         {/* Om Symbol */}
         <div className="text-center mb-4">
-          <div className="text-2xl sm:text-3xl text-amber-400/60 font-light">ॐ</div>
+          <div className="text-2xl sm:text-3xl text-amber-400/60 font-light">
+            ॐ
+          </div>
         </div>
 
         {/* Sanskrit */}
@@ -345,7 +366,7 @@ function StarterVerseSpotlight({
           <div className="text-center mb-4">
             <div
               lang="sa"
-              className="text-base sm:text-lg md:text-xl font-serif text-amber-900 leading-relaxed tracking-wide space-y-0.5"
+              className="text-base sm:text-lg lg:text-xl font-sanskrit text-amber-900 leading-relaxed tracking-wide space-y-0.5"
             >
               {sanskritLines.map((line, idx) => (
                 <p key={idx} className="mb-0">
@@ -403,7 +424,9 @@ function SearchStarterContent({
               <span className="font-medium text-gray-800 group-hover:text-orange-700">
                 {example.query}
               </span>
-              <span className="ml-2 text-xs text-gray-400">{example.label}</span>
+              <span className="ml-2 text-xs text-gray-400">
+                {example.label}
+              </span>
             </button>
           ))}
         </div>
@@ -439,8 +462,18 @@ function SearchStarterContent({
           className="inline-flex items-center gap-1.5 text-sm text-orange-600 hover:text-orange-700 font-medium transition-colors"
         >
           <span>Browse all 700 verses</span>
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          <svg
+            className="w-3.5 h-3.5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 5l7 7-7 7"
+            />
           </svg>
         </Link>
       </div>
@@ -463,7 +496,16 @@ export default function Search() {
   // Responsive page size: 16 for desktop, 12 for mobile
   const pageSize = useMemo(() => getResultsPerPage(), []);
 
-  const { data, loading, loadingMore, error, hasMore, search, loadMore, clear } = useSearch({
+  const {
+    data,
+    loading,
+    loadingMore,
+    error,
+    hasMore,
+    search,
+    loadMore,
+    clear,
+  } = useSearch({
     limit: pageSize,
   });
 
@@ -476,15 +518,20 @@ export default function Search() {
   const [verseLoading, setVerseLoading] = useState(true);
 
   // Recent searches state
-  const [recentSearches, setRecentSearches] = useState<string[]>(() => getRecentSearches());
+  const [recentSearches, setRecentSearches] = useState<string[]>(() =>
+    getRecentSearches(),
+  );
   const [showRecent, setShowRecent] = useState(false);
+  const [selectedRecentIndex, setSelectedRecentIndex] = useState(-1);
 
   // Content validation error (profanity filter)
   // Initialize with validation of URL query to avoid effect-based setState
   const [validationError, setValidationError] = useState<string | null>(() => {
     if (!initialQuery) return null;
     const validation = validateSearchQuery(initialQuery);
-    return validation.valid ? null : (validation.reason || "Invalid search query");
+    return validation.valid
+      ? null
+      : validation.reason || "Invalid search query";
   });
 
   // Load featured verse on mount
@@ -524,7 +571,8 @@ export default function Search() {
     title: initialQuery
       ? `Search: ${initialQuery} | Geetanjali`
       : "Search Verses | Geetanjali",
-    description: "Search the Bhagavad Geeta by verse reference, Sanskrit text, keywords, or meaning.",
+    description:
+      "Search the Bhagavad Geeta by verse reference, Sanskrit text, keywords, or meaning.",
   });
 
   // Search on mount if query in URL (skip if validation failed)
@@ -564,7 +612,7 @@ export default function Search() {
       // Execute search
       search(trimmed);
     },
-    [inputValue, search, setSearchParams, clear]
+    [inputValue, search, setSearchParams, clear],
   );
 
   // Handle quick search (from example buttons)
@@ -576,7 +624,7 @@ export default function Search() {
       setRecentSearches(getRecentSearches());
       search(query);
     },
-    [search, setSearchParams]
+    [search, setSearchParams],
   );
 
   // Handle selecting a recent search
@@ -584,10 +632,54 @@ export default function Search() {
     (query: string) => {
       setInputValue(query);
       setShowRecent(false);
+      setSelectedRecentIndex(-1);
       setSearchParams({ q: query });
       search(query);
     },
-    [search, setSearchParams]
+    [search, setSearchParams],
+  );
+
+  // Handle keyboard navigation in recent searches
+  const handleInputKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      // Only handle when recent searches dropdown is visible
+      if (!showRecent || recentSearches.length === 0 || inputValue) return;
+
+      switch (e.key) {
+        case "ArrowDown":
+          e.preventDefault();
+          setSelectedRecentIndex((prev) =>
+            prev < recentSearches.length - 1 ? prev + 1 : 0,
+          );
+          break;
+        case "ArrowUp":
+          e.preventDefault();
+          setSelectedRecentIndex((prev) =>
+            prev > 0 ? prev - 1 : recentSearches.length - 1,
+          );
+          break;
+        case "Enter":
+          if (
+            selectedRecentIndex >= 0 &&
+            selectedRecentIndex < recentSearches.length
+          ) {
+            e.preventDefault();
+            handleRecentSelect(recentSearches[selectedRecentIndex]);
+          }
+          break;
+        case "Escape":
+          setShowRecent(false);
+          setSelectedRecentIndex(-1);
+          break;
+      }
+    },
+    [
+      showRecent,
+      recentSearches,
+      inputValue,
+      selectedRecentIndex,
+      handleRecentSelect,
+    ],
   );
 
   // Handle clearing recent searches
@@ -601,7 +693,7 @@ export default function Search() {
     (topic: string) => {
       navigate(`/verses?topic=${topic}`);
     },
-    [navigate]
+    [navigate],
   );
 
   // Handle principle tag click in results
@@ -609,7 +701,7 @@ export default function Search() {
     (principle: string) => {
       navigate(`/verses?topic=${principle}`);
     },
-    [navigate]
+    [navigate],
   );
 
   // Handle clear
@@ -627,9 +719,18 @@ export default function Search() {
       <Navbar />
 
       <div className="flex-grow container mx-auto px-4 py-6 sm:py-8">
-        {/* Search Header */}
+        {/* Page Header */}
+        <div className="text-center mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold font-heading text-gray-900 mb-2">
+            Search the Bhagavad Geeta
+          </h1>
+          <p className="text-base sm:text-lg text-gray-600">
+            Find verses by reference, Sanskrit, or meaning
+          </p>
+        </div>
+
+        {/* Search Form */}
         <div className="max-w-2xl mx-auto mb-6 sm:mb-8">
-          {/* Search Form */}
           <form onSubmit={handleSubmit}>
             <div className="relative flex items-center">
               {/* Search Input */}
@@ -640,13 +741,32 @@ export default function Search() {
                   value={inputValue}
                   onChange={(e) => {
                     setInputValue(e.target.value);
+                    setSelectedRecentIndex(-1);
                     if (validationError) setValidationError(null);
                   }}
-                  onFocus={() => setShowRecent(true)}
-                  onBlur={() => setTimeout(() => setShowRecent(false), 200)}
+                  onFocus={() => {
+                    setShowRecent(true);
+                    setSelectedRecentIndex(-1);
+                  }}
+                  onBlur={() =>
+                    setTimeout(() => {
+                      setShowRecent(false);
+                      setSelectedRecentIndex(-1);
+                    }, 200)
+                  }
+                  onKeyDown={handleInputKeyDown}
                   placeholder="Search verses, topics, or references..."
                   className="w-full pl-10 pr-10 py-3 sm:py-3.5 border border-amber-200 rounded-l-full sm:rounded-l-full bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:z-10 text-gray-900 placeholder-gray-400 shadow-sm transition-shadow"
                   aria-label="Search query"
+                  aria-expanded={
+                    showRecent && recentSearches.length > 0 && !inputValue
+                  }
+                  aria-haspopup="listbox"
+                  aria-activedescendant={
+                    selectedRecentIndex >= 0
+                      ? `recent-search-${selectedRecentIndex}`
+                      : undefined
+                  }
                 />
                 <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-amber-500" />
 
@@ -672,7 +792,9 @@ export default function Search() {
                 {showRecent && recentSearches.length > 0 && !inputValue && (
                   <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-amber-200 rounded-xl shadow-lg z-20 overflow-hidden">
                     <div className="flex items-center justify-between px-4 py-2 border-b border-amber-100 bg-amber-50/50">
-                      <span className="text-xs font-medium text-gray-500">Recent</span>
+                      <span className="text-xs font-medium text-gray-500">
+                        Recent
+                      </span>
                       <button
                         type="button"
                         onClick={handleClearRecent}
@@ -681,20 +803,36 @@ export default function Search() {
                         Clear
                       </button>
                     </div>
-                    <ul>
+                    <ul role="listbox">
                       {recentSearches.map((query, index) => (
-                        <li key={index}>
+                        <li
+                          key={index}
+                          role="option"
+                          aria-selected={index === selectedRecentIndex}
+                        >
                           <button
+                            id={`recent-search-${index}`}
                             type="button"
                             onClick={() => handleRecentSelect(query)}
-                            className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-orange-50 flex items-center gap-3 transition-colors"
+                            className={`w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 transition-colors ${
+                              index === selectedRecentIndex
+                                ? "bg-orange-100 text-orange-900"
+                                : "text-gray-700 hover:bg-orange-50"
+                            }`}
                           >
-                            <SearchIcon className="w-4 h-4 text-amber-400" />
+                            <SearchIcon
+                              className={`w-4 h-4 ${index === selectedRecentIndex ? "text-orange-500" : "text-amber-400"}`}
+                            />
                             {query}
                           </button>
                         </li>
                       ))}
                     </ul>
+                    <div className="px-4 py-1.5 border-t border-amber-100 bg-amber-50/30">
+                      <span className="text-[10px] text-gray-400">
+                        ↑↓ to navigate · Enter to select
+                      </span>
+                    </div>
                   </div>
                 )}
               </div>
@@ -765,12 +903,17 @@ export default function Search() {
                         <>
                           <span className="font-medium">{data.total}</span>
                           <span className="text-gray-400"> of </span>
-                          <span className="font-medium">{data.total_count}</span>
+                          <span className="font-medium">
+                            {data.total_count}
+                          </span>
                         </>
                       ) : (
-                        <span className="font-medium">{data.total_count ?? data.total}</span>
-                      )}
-                      {" "}result{(data.total_count ?? data.total) !== 1 && "s"} for "{data.query}"
+                        <span className="font-medium">
+                          {data.total_count ?? data.total}
+                        </span>
+                      )}{" "}
+                      result{(data.total_count ?? data.total) !== 1 && "s"} for
+                      "{data.query}"
                     </>
                   )}
                 </p>
@@ -804,24 +947,30 @@ export default function Search() {
                       >
                         <div className="flex items-center gap-4">
                           <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-300/50 to-amber-300/70" />
-                          <div className={`flex flex-col items-center transition-all duration-300 ${loadingMore ? "scale-95 opacity-70" : "group-hover:scale-105"}`}>
+                          <div
+                            className={`flex flex-col items-center transition-all duration-300 ${loadingMore ? "scale-95 opacity-70" : "group-hover:scale-105"}`}
+                          >
                             {loadingMore ? (
-                              <div className="flex items-center gap-2 text-amber-600">
-                                <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                                </svg>
-                                <span className="text-sm font-medium">Loading...</span>
-                              </div>
+                              <SpinnerIcon className="w-6 h-6 text-amber-500 mb-1.5" />
                             ) : (
-                              <>
-                                <span className="text-sm font-medium text-amber-700 group-hover:text-amber-800">
+                              <span className="text-amber-400/70 text-xl mb-1">
+                                ॰
+                              </span>
+                            )}
+                            <span className="flex items-center gap-1.5 text-base font-medium text-amber-700/80 group-hover:text-amber-800 transition-colors">
+                              {loadingMore ? (
+                                "Loading"
+                              ) : (
+                                <>
                                   Load More
-                                </span>
-                                <svg className="w-4 h-4 text-amber-500 group-hover:text-amber-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                </svg>
-                              </>
+                                  <ChevronDownIcon className="w-4 h-4" />
+                                </>
+                              )}
+                            </span>
+                            {!loadingMore && data.total_count && (
+                              <span className="text-xs text-amber-600/50 mt-1">
+                                {data.total_count - data.total} more
+                              </span>
                             )}
                           </div>
                           <div className="flex-1 h-px bg-gradient-to-l from-transparent via-amber-300/50 to-amber-300/70" />
@@ -829,11 +978,14 @@ export default function Search() {
                       </button>
                     ) : (
                       <div className="flex items-center gap-4">
-                        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-200/50 to-amber-200/70" />
-                        <span className="text-xs text-amber-600/60 font-medium">
-                          All {data.total} results shown
-                        </span>
-                        <div className="flex-1 h-px bg-gradient-to-l from-transparent via-amber-200/50 to-amber-200/70" />
+                        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-200/40 to-amber-200/60" />
+                        <div className="flex flex-col items-center">
+                          <span className="text-amber-300/60 text-xl">ॐ</span>
+                          <span className="text-xs text-amber-600/40 mt-1">
+                            {data.total_count ?? data.total} results shown
+                          </span>
+                        </div>
+                        <div className="flex-1 h-px bg-gradient-to-l from-transparent via-amber-200/40 to-amber-200/60" />
                       </div>
                     )}
                   </div>
@@ -847,18 +999,29 @@ export default function Search() {
                   </h3>
 
                   {/* Show consultation CTA if query looks like a personal question */}
-                  {(data.suggestion || data.query.split(" ").length >= 5) ? (
+                  {data.suggestion || data.query.split(" ").length >= 5 ? (
                     <>
                       <p className="text-sm text-gray-600 mb-6 max-w-md mx-auto">
-                        Your question sounds like you're seeking personal guidance.
-                        Our consultation feature can provide tailored insights from the Geeta.
+                        Your question sounds like you're seeking personal
+                        guidance. Our consultation feature can provide tailored
+                        insights from the Geeta.
                       </p>
                       <Link
                         to={`/cases/new?prefill=${encodeURIComponent(data.query)}`}
                         className="inline-flex items-center gap-2 px-6 py-3 bg-orange-600 text-white font-medium rounded-xl hover:bg-orange-700 transition-colors shadow-lg hover:shadow-xl mb-6"
                       >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                          />
                         </svg>
                         Get Personal Guidance
                       </Link>
@@ -868,7 +1031,8 @@ export default function Search() {
                     </>
                   ) : (
                     <p className="text-sm text-gray-500 mb-6 max-w-sm mx-auto">
-                      Try different keywords or a verse reference (e.g., "2.47").
+                      Try different keywords or a verse reference (e.g.,
+                      "2.47").
                     </p>
                   )}
 

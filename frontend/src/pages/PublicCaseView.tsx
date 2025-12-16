@@ -89,7 +89,7 @@ export default function PublicCaseView() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-amber-50 via-orange-50 to-red-50 flex flex-col overflow-x-hidden">
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex flex-col overflow-x-hidden">
         <Navbar />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-gray-600">Loading consultation...</div>
@@ -100,7 +100,7 @@ export default function PublicCaseView() {
 
   if (error || !caseData) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-amber-50 via-orange-50 to-red-50 flex flex-col overflow-x-hidden">
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex flex-col overflow-x-hidden">
         <Navbar />
         <div className="flex-1 flex items-center justify-center">
           <ContentNotFound variant="shared" />
@@ -110,7 +110,7 @@ export default function PublicCaseView() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-50 via-orange-50 to-red-50 flex flex-col overflow-x-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex flex-col overflow-x-hidden">
       <Navbar />
 
       {/* Header */}

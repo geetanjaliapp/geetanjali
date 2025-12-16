@@ -118,7 +118,7 @@ export function ContentNotFound({
       {/* Primary CTA */}
       <Link
         to={primaryCta.to}
-        className="inline-block px-6 py-2.5 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium text-sm"
+        className="inline-block px-5 sm:px-6 py-2.5 sm:py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium text-sm sm:text-base"
       >
         {primaryCta.label}
       </Link>

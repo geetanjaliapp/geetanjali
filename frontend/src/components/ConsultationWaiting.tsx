@@ -136,13 +136,16 @@ export function ConsultationWaiting({
 
   return (
     <div
-      className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 lg:space-y-8"
+      className="relative bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 lg:space-y-8 border border-orange-200 animate-glow-pulse overflow-hidden"
       role="status"
       aria-live="polite"
       aria-busy="true"
     >
+      {/* Shimmer overlay for visual prominence */}
+      <div className="absolute inset-0 animate-shimmer pointer-events-none" />
+
       {/* Header with animated indicator */}
-      <div className="text-center">
+      <div className="relative text-center">
         <div
           className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-white rounded-full shadow-lg mb-3 sm:mb-4 animate-pulse"
           aria-hidden="true"
@@ -163,7 +166,7 @@ export function ConsultationWaiting({
       </div>
 
       {/* Progress indicator */}
-      <div className="flex justify-center items-center space-x-1.5 sm:space-x-2">
+      <div className="relative flex justify-center items-center space-x-1.5 sm:space-x-2">
         {PROCESSING_STAGES.map((stage, index) => (
           <div
             key={stage.id}
@@ -177,7 +180,7 @@ export function ConsultationWaiting({
       </div>
 
       {/* Rotating wisdom quote */}
-      <div className="bg-white/60 rounded-xl p-4 sm:p-5 lg:p-6 text-center transition-opacity duration-500">
+      <div className="relative bg-white/60 rounded-xl p-4 sm:p-5 lg:p-6 text-center transition-opacity duration-500">
         <blockquote className="text-sm sm:text-base lg:text-lg text-gray-700 italic mb-1.5 sm:mb-2">
           "{currentQuote.text}"
         </blockquote>
@@ -187,7 +190,7 @@ export function ConsultationWaiting({
       </div>
 
       {/* Activity options */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+      <div className="relative grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         {/* Breathing Exercise */}
         <div className="bg-white rounded-xl p-3 sm:p-4 lg:p-5 shadow-sm">
           <h3 className="font-semibold text-gray-800 mb-2 sm:mb-3 flex items-center text-sm sm:text-base">
@@ -253,7 +256,7 @@ export function ConsultationWaiting({
       </div>
 
       {/* Footer message */}
-      <p className="text-center text-xs sm:text-sm text-gray-500">
+      <p className="relative text-center text-xs sm:text-sm text-gray-500">
         Your consultation typically takes 1-3 minutes. Feel free to explore or
         wait here.
       </p>

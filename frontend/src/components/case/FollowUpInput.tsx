@@ -39,9 +39,7 @@ export function FollowUpInput({
               style={{ animationDelay: "300ms" }}
             />
           </div>
-          <span className="text-sm font-medium">
-            Thinking...
-          </span>
+          <span className="text-sm font-medium">Thinking...</span>
         </div>
       )}
 

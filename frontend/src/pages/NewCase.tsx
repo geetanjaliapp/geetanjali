@@ -129,9 +129,11 @@ export default function NewCase() {
         return text.slice(0, 100).trim();
       };
 
-      const roleLabels = ROLE_OPTIONS.filter((r) => selectedRoles.has(r.value))
-        .map((r) => r.label);
-      const roleLabel = roleLabels.length > 0 ? roleLabels.join(", ") : "Individual";
+      const roleLabels = ROLE_OPTIONS.filter((r) =>
+        selectedRoles.has(r.value),
+      ).map((r) => r.label);
+      const roleLabel =
+        roleLabels.length > 0 ? roleLabels.join(", ") : "Individual";
       const caseData: Omit<Case, "id" | "created_at"> = {
         title: generateSimpleTitle(formData.question),
         description: description,
@@ -190,11 +192,11 @@ export default function NewCase() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex flex-col">
       <Navbar />
-      <div className="flex-1 py-4 sm:py-6 lg:py-8">
+      <div className="flex-1 py-6 sm:py-8">
         <div className="max-w-3xl mx-auto px-4">
           {/* Header */}
-          <div className="mb-4 sm:mb-6 lg:mb-8 text-center">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">
+          <div className="mb-6 sm:mb-8 text-center">
+            <h1 className="text-2xl sm:text-3xl font-bold font-heading text-gray-900 mb-2">
               Seek Guidance
             </h1>
             <p className="text-base sm:text-lg text-gray-600 mb-4">
@@ -265,7 +267,9 @@ export default function NewCase() {
                 }`}
               >
                 <ExampleQuestions
-                  onSelect={(q) => setFormData((prev) => ({ ...prev, question: q }))}
+                  onSelect={(q) =>
+                    setFormData((prev) => ({ ...prev, question: q }))
+                  }
                 />
               </div>
             </div>
@@ -315,7 +319,9 @@ export default function NewCase() {
                       <button
                         key={opt.value}
                         type="button"
-                        onClick={() => toggleSelection(opt.value, setSelectedRoles)}
+                        onClick={() =>
+                          toggleSelection(opt.value, setSelectedRoles)
+                        }
                         className={`px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm rounded-full border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 ${
                           selectedRoles.has(opt.value)
                             ? "bg-orange-100 border-orange-300 text-orange-700"
@@ -341,7 +347,9 @@ export default function NewCase() {
                       <button
                         key={opt.value}
                         type="button"
-                        onClick={() => toggleSelection(opt.value, setSelectedStakeholders)}
+                        onClick={() =>
+                          toggleSelection(opt.value, setSelectedStakeholders)
+                        }
                         className={`px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm rounded-full border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 ${
                           selectedStakeholders.has(opt.value)
                             ? "bg-orange-100 border-orange-300 text-orange-700"
@@ -383,7 +391,10 @@ export default function NewCase() {
           <p className="text-center text-xs sm:text-sm text-gray-500 mt-4 sm:mt-6">
             Your question will be analyzed using wisdom from the Bhagavad Geeta.
             <br className="hidden sm:inline" />
-            <span className="text-gray-400"> You'll receive guidance in under a minute.</span>
+            <span className="text-gray-400">
+              {" "}
+              You'll receive guidance in under a minute.
+            </span>
           </p>
         </div>
       </div>

@@ -244,7 +244,11 @@ export const versesApi = {
     return response.data;
   },
 
-  count: async (chapter?: number, featured?: boolean, principles?: string): Promise<number> => {
+  count: async (
+    chapter?: number,
+    featured?: boolean,
+    principles?: string,
+  ): Promise<number> => {
     const params: Record<string, number | boolean | string> = {};
     if (chapter) params.chapter = chapter;
     if (featured !== undefined) params.featured = featured;
@@ -308,7 +312,7 @@ export const searchApi = {
       principle?: string;
       limit?: number;
       offset?: number;
-    }
+    },
   ): Promise<SearchResponse> => {
     const params: Record<string, string | number> = { q: query };
     if (options?.chapter) params.chapter = options.chapter;

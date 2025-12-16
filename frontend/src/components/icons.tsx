@@ -9,7 +9,12 @@ interface IconProps {
 
 export function CloseIcon({ className = "w-3 h-3" }: IconProps) {
   return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -22,7 +27,12 @@ export function CloseIcon({ className = "w-3 h-3" }: IconProps) {
 
 export function ChevronDownIcon({ className = "w-4 h-4" }: IconProps) {
   return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -43,7 +53,12 @@ export function StarIcon({ className = "w-3 h-3" }: IconProps) {
 
 export function ArrowUpIcon({ className = "w-5 h-5" }: IconProps) {
   return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -56,7 +71,11 @@ export function ArrowUpIcon({ className = "w-5 h-5" }: IconProps) {
 
 export function SpinnerIcon({ className = "w-4 h-4" }: IconProps) {
   return (
-    <svg className={`animate-spin ${className}`} fill="none" viewBox="0 0 24 24">
+    <svg
+      className={`animate-spin ${className}`}
+      fill="none"
+      viewBox="0 0 24 24"
+    >
       <circle
         className="opacity-25"
         cx="12"
@@ -76,7 +95,12 @@ export function SpinnerIcon({ className = "w-4 h-4" }: IconProps) {
 
 export function SearchIcon({ className = "w-5 h-5" }: IconProps) {
   return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
       <path
         strokeLinecap="round"
         strokeLinejoin="round"

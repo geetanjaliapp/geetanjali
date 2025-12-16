@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { casesApi } from "../lib/api";
 import type { Case, CaseStatus } from "../types";
 import { Navbar, ConfirmModal, Footer } from "../components";
+import { SpinnerIcon, ChevronDownIcon } from "../components/icons";
 import { errorMessages } from "../lib/errorMessages";
 import { useAuth } from "../contexts/AuthContext";
 import { useSEO } from "../hooks";
@@ -199,18 +200,23 @@ export default function Consultations() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex flex-col">
       <Navbar />
-      <div className="flex-1 py-4 sm:py-6 lg:py-8">
+      <div className="flex-1 py-6 sm:py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header - stack on mobile, row on desktop */}
-          <div className="mb-4 sm:mb-6 lg:mb-8">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4">
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                Cases
-              </h1>
+          <div className="mb-6 sm:mb-8">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-4">
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold font-heading text-gray-900 mb-2">
+                  My Cases
+                </h1>
+                <p className="text-base sm:text-lg text-gray-600">
+                  Your consultation history
+                </p>
+              </div>
               {/* CTA visible on tablet+ only, FAB handles mobile */}
               <Link
                 to="/cases/new"
-                className="hidden sm:inline-block bg-orange-600 hover:bg-orange-700 text-white font-semibold px-5 py-2.5 sm:px-6 sm:py-3 rounded-lg transition-colors text-sm sm:text-base"
+                className="hidden sm:inline-block bg-orange-600 hover:bg-orange-700 text-white font-semibold px-5 py-2.5 sm:px-6 sm:py-3 rounded-lg transition-colors text-sm sm:text-base flex-shrink-0"
               >
                 Ask a Question
               </Link>
@@ -446,43 +452,55 @@ export default function Consultations() {
                 })}
               </div>
 
-              {/* Load More Button */}
-              {hasMore && (
-                <div className="flex justify-center mt-6 sm:mt-8">
+              {/* Load More / End of Results */}
+              <div className="mt-8 sm:mt-10">
+                {hasMore ? (
                   <button
                     onClick={loadMore}
                     disabled={loadingMore}
-                    className="px-6 py-3 bg-white border border-gray-300 rounded-xl text-gray-700 font-medium hover:bg-gray-50 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
+                    className="w-full group"
                   >
-                    {loadingMore ? (
-                      <span className="flex items-center gap-2">
-                        <svg
-                          className="animate-spin h-4 w-4 text-gray-500"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          />
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          />
-                        </svg>
-                        Loading...
-                      </span>
-                    ) : (
-                      "Load More"
-                    )}
+                    <div className="flex items-center gap-4">
+                      <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-300/50 to-amber-300/70" />
+                      <div
+                        className={`flex flex-col items-center transition-all duration-300 ${loadingMore ? "scale-95 opacity-70" : "group-hover:scale-105"}`}
+                      >
+                        {loadingMore ? (
+                          <SpinnerIcon className="w-6 h-6 text-amber-500 mb-1.5" />
+                        ) : (
+                          <span className="text-amber-400/70 text-xl mb-1">
+                            ॰
+                          </span>
+                        )}
+                        <span className="flex items-center gap-1.5 text-base font-medium text-amber-700/80 group-hover:text-amber-800 transition-colors">
+                          {loadingMore ? (
+                            "Loading"
+                          ) : (
+                            <>
+                              Load More
+                              <ChevronDownIcon className="w-4 h-4" />
+                            </>
+                          )}
+                        </span>
+                      </div>
+                      <div className="flex-1 h-px bg-gradient-to-l from-transparent via-amber-300/50 to-amber-300/70" />
+                    </div>
                   </button>
-                </div>
-              )}
+                ) : (
+                  cases.length > 0 && (
+                    <div className="flex items-center gap-4">
+                      <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-200/40 to-amber-200/60" />
+                      <div className="flex flex-col items-center">
+                        <span className="text-amber-300/60 text-xl">ॐ</span>
+                        <span className="text-xs text-amber-600/40 mt-1">
+                          {cases.length} consultations shown
+                        </span>
+                      </div>
+                      <div className="flex-1 h-px bg-gradient-to-l from-transparent via-amber-200/40 to-amber-200/60" />
+                    </div>
+                  )
+                )}
+              </div>
             </>
           )}
         </div>

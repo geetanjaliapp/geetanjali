@@ -55,9 +55,15 @@ describe("Signup Password Validation", () => {
     });
 
     await user.type(screen.getByLabelText(/full name/i), "John Doe");
-    await user.type(screen.getByLabelText(/email address/i), "john@example.com");
+    await user.type(
+      screen.getByLabelText(/email address/i),
+      "john@example.com",
+    );
     await user.type(screen.getByLabelText(/^password$/i), "Password123");
-    await user.type(screen.getByLabelText(/confirm password/i), "DifferentPass456");
+    await user.type(
+      screen.getByLabelText(/confirm password/i),
+      "DifferentPass456",
+    );
     await user.click(screen.getByRole("button", { name: /sign up/i }));
 
     await waitFor(() => {
@@ -75,7 +81,10 @@ describe("Signup Password Validation", () => {
     });
 
     await user.type(screen.getByLabelText(/full name/i), "John Doe");
-    await user.type(screen.getByLabelText(/email address/i), "john@example.com");
+    await user.type(
+      screen.getByLabelText(/email address/i),
+      "john@example.com",
+    );
     await user.type(screen.getByLabelText(/^password$/i), "Pass1");
     await user.type(screen.getByLabelText(/confirm password/i), "Pass1");
     await user.click(screen.getByRole("button", { name: /sign up/i }));
@@ -97,7 +106,10 @@ describe("Signup Password Validation", () => {
     });
 
     await user.type(screen.getByLabelText(/full name/i), "John Doe");
-    await user.type(screen.getByLabelText(/email address/i), "john@example.com");
+    await user.type(
+      screen.getByLabelText(/email address/i),
+      "john@example.com",
+    );
     await user.type(screen.getByLabelText(/^password$/i), "12345678");
     await user.type(screen.getByLabelText(/confirm password/i), "12345678");
     await user.click(screen.getByRole("button", { name: /sign up/i }));
@@ -119,7 +131,10 @@ describe("Signup Password Validation", () => {
     });
 
     await user.type(screen.getByLabelText(/full name/i), "John Doe");
-    await user.type(screen.getByLabelText(/email address/i), "john@example.com");
+    await user.type(
+      screen.getByLabelText(/email address/i),
+      "john@example.com",
+    );
     await user.type(screen.getByLabelText(/^password$/i), "Password");
     await user.type(screen.getByLabelText(/confirm password/i), "Password");
     await user.click(screen.getByRole("button", { name: /sign up/i }));

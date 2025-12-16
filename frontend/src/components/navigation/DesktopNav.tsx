@@ -39,7 +39,11 @@ export function DesktopNav({
   const otherItems = visibleItems.filter((item) => item.to !== "/");
 
   return (
-    <div className="hidden md:flex items-center space-x-1" role="navigation" aria-label="Main navigation">
+    <div
+      className="hidden md:flex items-center space-x-1"
+      role="navigation"
+      aria-label="Main navigation"
+    >
       {/* Home link */}
       {homeItem && (
         <Link
@@ -63,8 +67,19 @@ export function DesktopNav({
             : "text-gray-600 hover:text-orange-600 hover:bg-orange-50"
         }`}
       >
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={NAV_ICONS.sparkle} />
+        <svg
+          className="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d={NAV_ICONS.sparkle}
+          />
         </svg>
         Ask
       </Link>

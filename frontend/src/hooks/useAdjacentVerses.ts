@@ -71,7 +71,7 @@ function getNextCanonicalId(chapter: number, verse: number): string | null {
  */
 export function useAdjacentVerses(
   chapter: number,
-  verse: number
+  verse: number,
 ): AdjacentVerses {
   const [prevVerse, setPrevVerse] = useState<Verse | null>(null);
   const [nextVerse, setNextVerse] = useState<Verse | null>(null);

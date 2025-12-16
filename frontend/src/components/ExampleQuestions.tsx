@@ -36,7 +36,9 @@ function getRandomSample<T>(array: T[], count: number): T[] {
  */
 export function ExampleQuestions({ onSelect }: ExampleQuestionsProps) {
   // Select 3 random questions on mount (stable for component lifetime)
-  const [displayQuestions] = useState(() => getRandomSample(EXAMPLE_QUESTIONS, 3));
+  const [displayQuestions] = useState(() =>
+    getRandomSample(EXAMPLE_QUESTIONS, 3),
+  );
 
   const handleSelect = (question: string, idx: number) => {
     trackEvent("newcase", "example_question_click", { question_index: idx });

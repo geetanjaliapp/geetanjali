@@ -1,5 +1,10 @@
 import { api } from "../lib/api";
-import type { Message, MessageCreate, FollowUpRequest, FollowUpResponse } from "../types";
+import type {
+  Message,
+  MessageCreate,
+  FollowUpRequest,
+  FollowUpResponse,
+} from "../types";
 
 export const messagesApi = {
   /**
@@ -33,7 +38,10 @@ export const messagesApi = {
    * 4. Case status changes to "completed"
    * 5. Call list() to get all messages including assistant response
    */
-  async followUp(caseId: string, data: FollowUpRequest): Promise<FollowUpResponse> {
+  async followUp(
+    caseId: string,
+    data: FollowUpRequest,
+  ): Promise<FollowUpResponse> {
     const response = await api.post(`/cases/${caseId}/follow-up`, data);
     return response.data;
   },

@@ -18,13 +18,17 @@ describe("tokenStorage", () => {
 
     it("should return the token after setting it", () => {
       // Create a valid JWT structure (header.payload.signature)
-      const mockToken = createMockJWT({ exp: Math.floor(Date.now() / 1000) + 3600 });
+      const mockToken = createMockJWT({
+        exp: Math.floor(Date.now() / 1000) + 3600,
+      });
       tokenStorage.setToken(mockToken);
       expect(tokenStorage.getToken()).toBe(mockToken);
     });
 
     it("should handle null token (logout)", () => {
-      const mockToken = createMockJWT({ exp: Math.floor(Date.now() / 1000) + 3600 });
+      const mockToken = createMockJWT({
+        exp: Math.floor(Date.now() / 1000) + 3600,
+      });
       tokenStorage.setToken(mockToken);
       tokenStorage.setToken(null);
       expect(tokenStorage.getToken()).toBeNull();
@@ -33,14 +37,18 @@ describe("tokenStorage", () => {
 
   describe("clearToken", () => {
     it("should clear the stored token", () => {
-      const mockToken = createMockJWT({ exp: Math.floor(Date.now() / 1000) + 3600 });
+      const mockToken = createMockJWT({
+        exp: Math.floor(Date.now() / 1000) + 3600,
+      });
       tokenStorage.setToken(mockToken);
       tokenStorage.clearToken();
       expect(tokenStorage.getToken()).toBeNull();
     });
 
     it("should reset expiry tracking", () => {
-      const mockToken = createMockJWT({ exp: Math.floor(Date.now() / 1000) + 3600 });
+      const mockToken = createMockJWT({
+        exp: Math.floor(Date.now() / 1000) + 3600,
+      });
       tokenStorage.setToken(mockToken);
       tokenStorage.clearToken();
       // After clearing, isExpired should return true (no token)
@@ -55,21 +63,27 @@ describe("tokenStorage", () => {
 
     it("should return false for fresh token (>5 min until expiry)", () => {
       // Token expires in 1 hour
-      const mockToken = createMockJWT({ exp: Math.floor(Date.now() / 1000) + 3600 });
+      const mockToken = createMockJWT({
+        exp: Math.floor(Date.now() / 1000) + 3600,
+      });
       tokenStorage.setToken(mockToken);
       expect(tokenStorage.needsRefresh()).toBe(false);
     });
 
     it("should return true when token expires in <5 minutes", () => {
       // Token expires in 3 minutes (180 seconds)
-      const mockToken = createMockJWT({ exp: Math.floor(Date.now() / 1000) + 180 });
+      const mockToken = createMockJWT({
+        exp: Math.floor(Date.now() / 1000) + 180,
+      });
       tokenStorage.setToken(mockToken);
       expect(tokenStorage.needsRefresh()).toBe(true);
     });
 
     it("should return true when token is already expired", () => {
       // Token expired 1 minute ago
-      const mockToken = createMockJWT({ exp: Math.floor(Date.now() / 1000) - 60 });
+      const mockToken = createMockJWT({
+        exp: Math.floor(Date.now() / 1000) - 60,
+      });
       tokenStorage.setToken(mockToken);
       expect(tokenStorage.needsRefresh()).toBe(true);
     });
@@ -82,14 +96,18 @@ describe("tokenStorage", () => {
 
     it("should return false for valid token", () => {
       // Token expires in 1 hour
-      const mockToken = createMockJWT({ exp: Math.floor(Date.now() / 1000) + 3600 });
+      const mockToken = createMockJWT({
+        exp: Math.floor(Date.now() / 1000) + 3600,
+      });
       tokenStorage.setToken(mockToken);
       expect(tokenStorage.isExpired()).toBe(false);
     });
 
     it("should return true for expired token", () => {
       // Token expired 1 minute ago
-      const mockToken = createMockJWT({ exp: Math.floor(Date.now() / 1000) - 60 });
+      const mockToken = createMockJWT({
+        exp: Math.floor(Date.now() / 1000) - 60,
+      });
       tokenStorage.setToken(mockToken);
       expect(tokenStorage.isExpired()).toBe(true);
     });

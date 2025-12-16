@@ -1,15 +1,18 @@
-import { useSearchParams, Link, useNavigate } from "react-router-dom";
-import { useEffect, useState, useCallback, useMemo, type FormEvent } from "react";
+import { useSearchParams } from "react-router-dom";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { versesApi } from "../lib/api";
 import type { Verse } from "../types";
 import { Navbar } from "../components";
 import { Footer } from "../components/Footer";
 import { VerseCard, VerseCardSkeleton } from "../components/VerseCard";
 import { BackToTopButton } from "../components/BackToTopButton";
-import { CloseIcon, ChevronDownIcon, SpinnerIcon, SearchIcon } from "../components/icons";
+import { CloseIcon, ChevronDownIcon, SpinnerIcon } from "../components/icons";
 import { errorMessages } from "../lib/errorMessages";
 import { useSEO } from "../hooks";
-import { PRINCIPLE_TAXONOMY, getPrincipleShortLabel } from "../constants/principles";
+import {
+  PRINCIPLE_TAXONOMY,
+  getPrincipleShortLabel,
+} from "../constants/principles";
 
 // Responsive page size: 16 for desktop (4x4 grid), 12 for mobile
 const getVersesPerPage = () => {
@@ -18,7 +21,8 @@ const getVersesPerPage = () => {
 };
 
 // Shared grid layout classes
-const VERSE_GRID_CLASSES = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 items-start";
+const VERSE_GRID_CLASSES =
+  "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 items-start";
 
 // Animation timing constants
 const CARD_ANIMATION_DELAY_MS = 30;
@@ -26,9 +30,11 @@ const CARD_ANIMATION_MAX_DELAY_MS = 300;
 const SKELETON_COUNT = 8;
 
 // Filter pill styling patterns (focus-visible for keyboard-only focus rings)
-const FILTER_PILL_BASE = "px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2";
+const FILTER_PILL_BASE =
+  "px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2";
 const FILTER_PILL_ACTIVE = "bg-orange-600 text-white shadow-md";
-const FILTER_PILL_INACTIVE = "bg-white text-gray-700 hover:bg-gray-100 border border-gray-300";
+const FILTER_PILL_INACTIVE =
+  "bg-white text-gray-700 hover:bg-gray-100 border border-gray-300";
 
 // Filter modes: 'featured' shows curated verses, 'all' shows all 701 verses
 type FilterMode = "featured" | "all" | number; // number = specific chapter
@@ -66,10 +72,10 @@ export default function Verses() {
   };
 
   const [filterMode, setFilterMode] = useState<FilterMode>(getInitialFilter);
-  const [selectedPrinciple, setSelectedPrinciple] = useState<string | null>(getInitialPrinciple);
+  const [selectedPrinciple, setSelectedPrinciple] = useState<string | null>(
+    getInitialPrinciple,
+  );
   const [showChapterDropdown, setShowChapterDropdown] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const navigate = useNavigate();
 
   // Derived state
   const selectedChapter = typeof filterMode === "number" ? filterMode : null;
@@ -84,7 +90,11 @@ export default function Verses() {
     try {
       const chapter = typeof filterMode === "number" ? filterMode : undefined;
       const featured = filterMode === "featured" ? true : undefined;
-      const count = await versesApi.count(chapter, featured, selectedPrinciple || undefined);
+      const count = await versesApi.count(
+        chapter,
+        featured,
+        selectedPrinciple || undefined,
+      );
       setTotalCount(count);
     } catch {
       setTotalCount(null);
@@ -204,76 +214,19 @@ export default function Verses() {
     updateSearchParams(filterMode, principle);
   };
 
-  // Handle search submission - navigate to /search
-  const handleSearchSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    const trimmed = searchQuery.trim();
-    if (trimmed) {
-      navigate(`/search?q=${encodeURIComponent(trimmed)}`);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex flex-col">
       <Navbar />
 
-      {/* Page Header - Contemplative intro */}
-      <div className="bg-gradient-to-b from-amber-50/80 to-transparent py-6 sm:py-8 text-center">
+      {/* Page Header */}
+      <div className="py-6 sm:py-8 text-center">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-          <div className="text-3xl sm:text-4xl text-amber-400/70 mb-2">ॐ</div>
-          <h1 className="text-xl sm:text-2xl font-serif text-amber-900 mb-1">
+          <h1 className="text-2xl sm:text-3xl font-bold font-heading text-gray-900 mb-2">
             Explore the Bhagavad Geeta
           </h1>
-          <p className="text-sm text-gray-600 mb-4">
+          <p className="text-base sm:text-lg text-gray-600">
             701 verses of timeless wisdom
           </p>
-
-          {/* Search Bar */}
-          <form onSubmit={handleSearchSubmit} className="max-w-md mx-auto mb-4">
-            <div className="relative">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search by verse, Sanskrit, or keywords..."
-                className="w-full pl-10 pr-4 py-2.5 border border-amber-200 rounded-full bg-white/80 focus:bg-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-gray-900 placeholder-gray-400 text-sm"
-                aria-label="Search verses"
-              />
-              <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              {searchQuery && (
-                <button
-                  type="submit"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1 bg-orange-600 text-white text-xs font-medium rounded-full hover:bg-orange-700 transition-colors"
-                >
-                  Search
-                </button>
-              )}
-            </div>
-          </form>
-
-          {/* Reading Mode Entry Point */}
-          <Link
-            to="/read"
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium
-                       text-amber-700 bg-amber-100 hover:bg-amber-200
-                       rounded-full transition-colors"
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-              />
-            </svg>
-            Reading Mode
-          </Link>
         </div>
       </div>
 
@@ -318,8 +271,8 @@ export default function Verses() {
                     onClick={() => setShowChapterDropdown(false)}
                   />
                   {/* Panel */}
-                  <div className="absolute left-0 mt-2 p-3 bg-white rounded-xl shadow-xl border border-gray-200 z-20 w-64 sm:w-72">
-                    <div className="grid grid-cols-6 gap-2">
+                  <div className="absolute left-0 mt-2 p-3 bg-white rounded-xl shadow-xl border border-gray-200 z-20 w-56 sm:w-72">
+                    <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
                       {Array.from({ length: 18 }, (_, i) => i + 1).map(
                         (chapter) => (
                           <button
@@ -358,7 +311,7 @@ export default function Verses() {
                   key={principleId}
                   onClick={() =>
                     handlePrincipleSelect(
-                      selectedPrinciple === principleId ? null : principleId
+                      selectedPrinciple === principleId ? null : principleId,
                     )
                   }
                   className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
@@ -378,9 +331,11 @@ export default function Verses() {
       {/* Active Filter Banner - Fixed height to prevent layout shift */}
       <div className="bg-amber-50/80 border-b border-amber-100 min-h-[36px] sm:min-h-[40px]">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2 sm:py-2.5">
-          {(selectedChapter || selectedPrinciple) ? (
+          {selectedChapter || selectedPrinciple ? (
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs sm:text-sm text-amber-700">Filtering by:</span>
+              <span className="text-xs sm:text-sm text-amber-700">
+                Filtering by:
+              </span>
 
               {/* Chapter filter tag */}
               {selectedChapter && (
@@ -472,9 +427,16 @@ export default function Verses() {
 
                 <p className="text-sm sm:text-base text-gray-500 mb-6">
                   {selectedPrinciple && selectedChapter ? (
-                    <>No verses in Chapter {selectedChapter} match the "{getPrincipleShortLabel(selectedPrinciple)}" principle.</>
+                    <>
+                      No verses in Chapter {selectedChapter} match the "
+                      {getPrincipleShortLabel(selectedPrinciple)}" principle.
+                    </>
                   ) : selectedPrinciple ? (
-                    <>No verses found with the "{getPrincipleShortLabel(selectedPrinciple)}" principle in this selection.</>
+                    <>
+                      No verses found with the "
+                      {getPrincipleShortLabel(selectedPrinciple)}" principle in
+                      this selection.
+                    </>
                   ) : selectedChapter ? (
                     <>No featured verses found in Chapter {selectedChapter}.</>
                   ) : (
@@ -508,12 +470,16 @@ export default function Verses() {
           ) : (
             <>
               {/* Verse Grid */}
-              <div className={`${VERSE_GRID_CLASSES} transition-opacity duration-200 ${loading ? "opacity-50" : "opacity-100"}`}>
+              <div
+                className={`${VERSE_GRID_CLASSES} transition-opacity duration-200 ${loading ? "opacity-50" : "opacity-100"}`}
+              >
                 {verses.map((verse, index) => (
                   <div
                     key={verse.id}
                     className="animate-fade-in"
-                    style={{ animationDelay: `${Math.min(index * CARD_ANIMATION_DELAY_MS, CARD_ANIMATION_MAX_DELAY_MS)}ms` }}
+                    style={{
+                      animationDelay: `${Math.min(index * CARD_ANIMATION_DELAY_MS, CARD_ANIMATION_MAX_DELAY_MS)}ms`,
+                    }}
                   >
                     <VerseCard
                       verse={verse}
@@ -542,16 +508,22 @@ export default function Verses() {
                       <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-300/50 to-amber-300/70" />
 
                       {/* Center content */}
-                      <div className={`flex flex-col items-center transition-all duration-300 ${loadingMore ? "scale-95 opacity-70" : "group-hover:scale-105"}`}>
+                      <div
+                        className={`flex flex-col items-center transition-all duration-300 ${loadingMore ? "scale-95 opacity-70" : "group-hover:scale-105"}`}
+                      >
                         {loadingMore ? (
                           <SpinnerIcon className="w-6 h-6 text-amber-500 mb-1.5" />
                         ) : (
-                          <span className="text-amber-400/70 text-xl mb-1">॰</span>
+                          <span className="text-amber-400/70 text-xl mb-1">
+                            ॰
+                          </span>
                         )}
                         <span className="flex items-center gap-1.5 text-base font-medium text-amber-700/80 group-hover:text-amber-800 transition-colors">
-                          {loadingMore ? "Loading" : (
+                          {loadingMore ? (
+                            "Loading"
+                          ) : (
                             <>
-                              Continue
+                              Load More
                               <ChevronDownIcon className="w-4 h-4" />
                             </>
                           )}
@@ -567,17 +539,19 @@ export default function Verses() {
                       <div className="flex-1 h-px bg-gradient-to-l from-transparent via-amber-300/50 to-amber-300/70" />
                     </div>
                   </button>
-                ) : verses.length > 0 && (
-                  <div className="flex items-center gap-4">
-                    <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-200/40 to-amber-200/60" />
-                    <div className="flex flex-col items-center">
-                      <span className="text-amber-300/60 text-xl">ॐ</span>
-                      <span className="text-xs text-amber-600/40 mt-1">
-                        {verses.length} verses explored
-                      </span>
+                ) : (
+                  verses.length > 0 && (
+                    <div className="flex items-center gap-4">
+                      <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-200/40 to-amber-200/60" />
+                      <div className="flex flex-col items-center">
+                        <span className="text-amber-300/60 text-xl">ॐ</span>
+                        <span className="text-xs text-amber-600/40 mt-1">
+                          {verses.length} verses explored
+                        </span>
+                      </div>
+                      <div className="flex-1 h-px bg-gradient-to-l from-transparent via-amber-200/40 to-amber-200/60" />
                     </div>
-                    <div className="flex-1 h-px bg-gradient-to-l from-transparent via-amber-200/40 to-amber-200/60" />
-                  </div>
+                  )
                 )}
               </div>
             </>

@@ -38,7 +38,8 @@ const INSPIRATION_VERSES = [
 export function InspirationVerse({ className = "" }: InspirationVerseProps) {
   // Select one random verse on mount (stable for component lifetime)
   const [verse] = useState(
-    () => INSPIRATION_VERSES[Math.floor(Math.random() * INSPIRATION_VERSES.length)]
+    () =>
+      INSPIRATION_VERSES[Math.floor(Math.random() * INSPIRATION_VERSES.length)],
   );
 
   const verseLink = getVersePath(verse.ref);

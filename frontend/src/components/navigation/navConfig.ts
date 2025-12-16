@@ -14,8 +14,7 @@ export const NAV_ICONS = {
   search: "M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z",
   cases:
     "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2",
-  about:
-    "M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
+  about: "M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
   sparkle:
     "M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z",
   logout:
@@ -60,6 +59,14 @@ export const PRIMARY_CTA: PrimaryCTA = {
 /**
  * Main navigation items
  * Order determines display order in both desktop and mobile nav
+ *
+ * UX Flow:
+ * 1. Home - anchor
+ * 2. Verses - entry point for discovery (browse first)
+ * 3. Search - find specific content
+ * 4. Read - deep sequential reading (after finding content)
+ * 5. Cases - consultation history (utility, less frequent)
+ * 6. About - informational
  */
 export const NAV_ITEMS: NavItem[] = [
   {
@@ -68,13 +75,6 @@ export const NAV_ITEMS: NavItem[] = [
     mobileLabel: "Home",
     icon: "home",
     activePrefixes: [], // Exact match only
-  },
-  {
-    to: "/read",
-    label: "Read",
-    mobileLabel: "Read Scripture",
-    icon: "read",
-    activePrefixes: ["/read"],
   },
   {
     to: "/verses",
@@ -86,14 +86,21 @@ export const NAV_ITEMS: NavItem[] = [
   {
     to: "/search",
     label: "Search",
-    mobileLabel: "Search Verses",
+    mobileLabel: "Search",
     icon: "search",
     activePrefixes: ["/search"],
   },
   {
+    to: "/read",
+    label: "Read",
+    mobileLabel: "Reading Mode",
+    icon: "read",
+    activePrefixes: ["/read"],
+  },
+  {
     to: "/consultations",
     label: "Cases",
-    mobileLabel: "Cases",
+    mobileLabel: "My Cases",
     icon: "cases",
     // Available to all users - anonymous users see session-based cases via localStorage
     activePrefixes: ["/consultations", "/cases/"],
@@ -138,7 +145,7 @@ export function isNavItemActive(item: NavItem, pathname: string): boolean {
  */
 export function getVisibleNavItems(
   items: NavItem[],
-  isAuthenticated: boolean
+  isAuthenticated: boolean,
 ): NavItem[] {
   return items.filter((item) => !item.authOnly || isAuthenticated);
 }

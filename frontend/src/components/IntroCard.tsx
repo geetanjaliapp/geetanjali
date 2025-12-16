@@ -18,9 +18,9 @@ import type { FontSize } from "./VerseFocus";
 
 // Font size classes matching VerseFocus
 const FONT_SIZE_CLASSES: Record<FontSize, string> = {
-  small: "text-lg sm:text-xl md:text-2xl",
-  medium: "text-xl sm:text-2xl md:text-3xl",
-  large: "text-2xl sm:text-3xl md:text-4xl",
+  small: "text-lg sm:text-xl lg:text-2xl",
+  medium: "text-xl sm:text-2xl lg:text-3xl",
+  large: "text-2xl sm:text-3xl lg:text-4xl",
 };
 
 interface BookIntroProps {
@@ -94,7 +94,7 @@ export function IntroCard(props: IntroCardProps) {
             {/* Sanskrit title - hero display */}
             <div
               lang="sa"
-              className={`${FONT_SIZE_CLASSES[fontSize]} font-serif text-amber-900/70 leading-relaxed tracking-wide mb-2 sm:mb-3`}
+              className={`${FONT_SIZE_CLASSES[fontSize]} font-sanskrit text-amber-900/70 leading-relaxed tracking-wide mb-2 sm:mb-3`}
             >
               <p>{book.sanskrit_title}</p>
             </div>
@@ -131,7 +131,9 @@ export function IntroCard(props: IntroCardProps) {
         {/* Details panel - expands downward */}
         <div
           className={`flex-shrink-0 overflow-hidden transition-all duration-300 ease-in-out ${
-            showDetails ? "max-h-[1000px] opacity-100 mt-4" : "max-h-0 opacity-0 mt-0"
+            showDetails
+              ? "max-h-[1000px] opacity-100 mt-4"
+              : "max-h-0 opacity-0 mt-0"
           }`}
         >
           <div className="border-t border-amber-200/50 pt-4 space-y-3">
@@ -190,7 +192,7 @@ export function IntroCard(props: IntroCardProps) {
           {/* Sanskrit name - hero display */}
           <div
             lang="sa"
-            className={`${FONT_SIZE_CLASSES[fontSize]} font-serif text-amber-900/70 leading-relaxed tracking-wide mb-2 sm:mb-3`}
+            className={`${FONT_SIZE_CLASSES[fontSize]} font-sanskrit text-amber-900/70 leading-relaxed tracking-wide mb-2 sm:mb-3`}
           >
             <p>{chapter.sanskrit_name}</p>
           </div>
@@ -227,7 +229,9 @@ export function IntroCard(props: IntroCardProps) {
       {/* Details panel - expands downward */}
       <div
         className={`flex-shrink-0 overflow-hidden transition-all duration-300 ease-in-out ${
-          showDetails ? "max-h-[1000px] opacity-100 mt-4" : "max-h-0 opacity-0 mt-0"
+          showDetails
+            ? "max-h-[1000px] opacity-100 mt-4"
+            : "max-h-0 opacity-0 mt-0"
         }`}
       >
         <div className="border-t border-amber-200/50 pt-4 space-y-3">

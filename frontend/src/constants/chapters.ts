@@ -170,5 +170,5 @@ export const TOTAL_CHAPTERS = 18;
  */
 export const TOTAL_VERSES = Object.values(CHAPTERS).reduce(
   (sum, ch) => sum + ch.verses,
-  0
+  0,
 );

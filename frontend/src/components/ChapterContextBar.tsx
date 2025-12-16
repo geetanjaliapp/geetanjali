@@ -11,10 +11,7 @@
  */
 
 import { useNavigate } from "react-router-dom";
-import {
-  getChapterInfo,
-  getVerseProgress,
-} from "../constants/chapters";
+import { getChapterInfo, getVerseProgress } from "../constants/chapters";
 import { ProgressBar } from "./ProgressBar";
 
 interface ChapterContextBarProps {

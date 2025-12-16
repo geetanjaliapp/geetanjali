@@ -61,7 +61,7 @@ export function formatSanskritLines(
   // Using lookahead to ensure वाच is followed by non-danda content (the actual verse)
   const withSpeakerBreaks = withoutVerseNum.replace(
     /^([^।]*वाच)\s*(?=[^।])/,
-    "$1\n"
+    "$1\n",
   );
 
   // Split by newlines to detect speaker intro lines

@@ -71,7 +71,7 @@ export function useSwipeNavigation<T extends HTMLElement = HTMLDivElement>({
         isTracking: true,
       };
     },
-    [enabled]
+    [enabled],
   );
 
   const handleTouchMove = useCallback(
@@ -95,7 +95,7 @@ export function useSwipeNavigation<T extends HTMLElement = HTMLDivElement>({
         e.preventDefault();
       }
     },
-    [enabled]
+    [enabled],
   );
 
   const handleTouchEnd = useCallback(
@@ -123,7 +123,7 @@ export function useSwipeNavigation<T extends HTMLElement = HTMLDivElement>({
         onPrev();
       }
     },
-    [enabled, threshold, minVelocity, onNext, onPrev]
+    [enabled, threshold, minVelocity, onNext, onPrev],
   );
 
   useEffect(() => {

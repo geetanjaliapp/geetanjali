@@ -49,7 +49,7 @@ export function FloatingActionButton({
 
     const observer = new IntersectionObserver(
       ([entry]) => setCtaInView(entry.isIntersecting),
-      { threshold: 0.5 }
+      { threshold: 0.5 },
     );
     observer.observe(ctaElement);
 

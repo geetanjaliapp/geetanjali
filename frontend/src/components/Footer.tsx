@@ -14,10 +14,16 @@ export function Footer() {
         <div className="sm:hidden text-center space-y-3">
           {/* Links */}
           <div className="flex justify-center gap-4 text-xs text-gray-600">
-            <Link to="/about" className="hover:text-orange-600 transition-colors">
+            <Link
+              to="/about"
+              className="hover:text-orange-600 transition-colors"
+            >
               About
             </Link>
-            <Link to="/about#contact" className="hover:text-orange-600 transition-colors">
+            <Link
+              to="/about#contact"
+              className="hover:text-orange-600 transition-colors"
+            >
               Contact
             </Link>
             <a
@@ -39,7 +45,8 @@ export function Footer() {
           </div>
           {/* Copyleft */}
           <p className="text-xs text-gray-400">
-            <span className="inline-block -scale-x-100">©</span> {new Date().getFullYear()}{" "}
+            <span className="inline-block -scale-x-100">©</span>{" "}
+            {new Date().getFullYear()}{" "}
             <Link to="/" className="hover:text-orange-600 transition-colors">
               Geetanjali
             </Link>
@@ -50,10 +57,16 @@ export function Footer() {
         <div className="hidden sm:flex items-center justify-between text-xs text-gray-500">
           {/* Left: Links */}
           <div className="flex items-center gap-4">
-            <Link to="/about" className="hover:text-orange-600 transition-colors">
+            <Link
+              to="/about"
+              className="hover:text-orange-600 transition-colors"
+            >
               About
             </Link>
-            <Link to="/about#contact" className="hover:text-orange-600 transition-colors">
+            <Link
+              to="/about#contact"
+              className="hover:text-orange-600 transition-colors"
+            >
               Contact
             </Link>
             <a
@@ -77,7 +90,8 @@ export function Footer() {
 
           {/* Right: Copyleft */}
           <span className="text-gray-400">
-            <span className="inline-block -scale-x-100">©</span> {new Date().getFullYear()}{" "}
+            <span className="inline-block -scale-x-100">©</span>{" "}
+            {new Date().getFullYear()}{" "}
             <Link to="/" className="hover:text-orange-600 transition-colors">
               Geetanjali
             </Link>

@@ -78,7 +78,10 @@ export function ExampleConsultation({
   };
 
   const handleAskSimilar = () => {
-    trackEvent("homepage", "cta_click", { type: "ask_similar", category: selected });
+    trackEvent("homepage", "cta_click", {
+      type: "ask_similar",
+      category: selected,
+    });
     // Prefill with the example dilemma so users have a starting point
     navigate("/cases/new", {
       state: { prefill: example.dilemma },

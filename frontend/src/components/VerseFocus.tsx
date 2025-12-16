@@ -91,7 +91,9 @@ function CollapsibleSection({
   children,
 }: CollapsibleSectionProps) {
   return (
-    <div className={`${bgClass} rounded-xl border border-amber-200/50 overflow-hidden`}>
+    <div
+      className={`${bgClass} rounded-xl border border-amber-200/50 overflow-hidden`}
+    >
       {/* Tappable header */}
       <button
         onClick={() => onToggle(id)}
@@ -119,19 +121,24 @@ function CollapsibleSection({
           viewBox="0 0 24 24"
           aria-hidden="true"
         >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M19 9l-7 7-7-7"
+          />
         </svg>
       </button>
       {/* Collapsible content */}
       <div
         id={`section-${id}`}
         className={`transition-all duration-200 ease-in-out ${
-          isExpanded ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0 overflow-hidden"
+          isExpanded
+            ? "max-h-[500px] opacity-100"
+            : "max-h-0 opacity-0 overflow-hidden"
         }`}
       >
-        <div className="px-4 pb-4">
-          {children}
-        </div>
+        <div className="px-4 pb-4">{children}</div>
       </div>
     </div>
   );
@@ -161,9 +168,9 @@ function sortTranslations(translations: Translation[]): Translation[] {
 
 // Font size classes mapping
 const FONT_SIZE_CLASSES: Record<FontSize, string> = {
-  small: "text-lg sm:text-xl md:text-2xl",
-  medium: "text-xl sm:text-2xl md:text-3xl",
-  large: "text-2xl sm:text-3xl md:text-4xl",
+  small: "text-lg sm:text-xl lg:text-2xl",
+  medium: "text-xl sm:text-2xl lg:text-3xl",
+  large: "text-2xl sm:text-3xl lg:text-4xl",
 };
 
 const SPEAKER_FONT_SIZE_CLASSES: Record<FontSize, string> = {
@@ -181,14 +188,17 @@ export function VerseFocus({
   // Support both controlled and uncontrolled modes
   const isControlled = controlledShowTranslation !== undefined;
   const [internalShowTranslation, setInternalShowTranslation] = useState(false);
-  const showTranslation = isControlled ? controlledShowTranslation : internalShowTranslation;
+  const showTranslation = isControlled
+    ? controlledShowTranslation
+    : internalShowTranslation;
 
   const [translations, setTranslations] = useState<Translation[]>([]);
   const [loadingTranslations, setLoadingTranslations] = useState(false);
   const [translationError, setTranslationError] = useState<string | null>(null);
 
   // Section expansion preferences (persisted across verses and chapters)
-  const [sectionPrefs, setSectionPrefs] = useState<SectionPrefs>(loadSectionPrefs);
+  const [sectionPrefs, setSectionPrefs] =
+    useState<SectionPrefs>(loadSectionPrefs);
 
   // Toggle a section's expanded state and persist
   const toggleSection = useCallback((id: SectionId) => {
@@ -210,8 +220,12 @@ export function VerseFocus({
   }, [verse.canonical_id, isControlled]);
 
   // Get primary translations (first Hindi and first English)
-  const hindiTranslation = translations.find((t) => t.language === "hi" || t.language === "hindi");
-  const englishTranslation = translations.find((t) => t.language === "en" || t.language === "english");
+  const hindiTranslation = translations.find(
+    (t) => t.language === "hi" || t.language === "hindi",
+  );
+  const englishTranslation = translations.find(
+    (t) => t.language === "en" || t.language === "english",
+  );
 
   // Fetch translations lazily when user first reveals
   const loadTranslations = useCallback(async () => {
@@ -233,10 +247,22 @@ export function VerseFocus({
   // Auto-fetch translations when verse changes and translation is visible (controlled mode)
   // This ensures Hindi translation persists when navigating with translation panel open
   useEffect(() => {
-    if (isControlled && controlledShowTranslation && translations.length === 0 && !loadingTranslations) {
+    if (
+      isControlled &&
+      controlledShowTranslation &&
+      translations.length === 0 &&
+      !loadingTranslations
+    ) {
       loadTranslations();
     }
-  }, [verse.canonical_id, isControlled, controlledShowTranslation, translations.length, loadingTranslations, loadTranslations]);
+  }, [
+    verse.canonical_id,
+    isControlled,
+    controlledShowTranslation,
+    translations.length,
+    loadingTranslations,
+    loadTranslations,
+  ]);
 
   // Handle tap/click to toggle translation
   const handleToggle = useCallback(() => {
@@ -253,7 +279,12 @@ export function VerseFocus({
     if (newState && translations.length === 0) {
       loadTranslations();
     }
-  }, [showTranslation, translations.length, loadTranslations, onToggleTranslation]);
+  }, [
+    showTranslation,
+    translations.length,
+    loadTranslations,
+    onToggleTranslation,
+  ]);
 
   // Space key to toggle translation (desktop)
   useEffect(() => {
@@ -282,7 +313,7 @@ export function VerseFocus({
   // Format Sanskrit text using the shared helper (detail mode with speaker intros)
   const sanskritLines = formatSanskritLines(
     verse.sanskrit_devanagari || verse.sanskrit_iast || "",
-    { mode: "detail" }
+    { mode: "detail" },
   );
 
   return (
@@ -303,7 +334,7 @@ export function VerseFocus({
           {/* Sanskrit verse - hero display with formatSanskritLines */}
           <div
             lang="sa"
-            className={`${FONT_SIZE_CLASSES[fontSize]} font-serif text-amber-900/70 leading-relaxed tracking-wide mb-3 sm:mb-4`}
+            className={`${FONT_SIZE_CLASSES[fontSize]} font-sanskrit text-amber-900/70 leading-relaxed tracking-wide mb-3 sm:mb-4`}
           >
             {sanskritLines.map((line, idx) => (
               <p
@@ -342,7 +373,9 @@ export function VerseFocus({
       {/* Translation panel - expands downward only */}
       <div
         className={`flex-shrink-0 overflow-hidden transition-all duration-300 ease-in-out ${
-          showTranslation ? "max-h-[1000px] opacity-100 mt-6" : "max-h-0 opacity-0 mt-0"
+          showTranslation
+            ? "max-h-[1000px] opacity-100 mt-6"
+            : "max-h-0 opacity-0 mt-0"
         }`}
       >
         <div className="border-t border-amber-200/50 pt-6">
@@ -350,7 +383,9 @@ export function VerseFocus({
             // Loading state
             <div className="text-center py-4">
               <div className="w-5 h-5 border-2 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-              <p className="text-sm text-amber-600/70">Loading translations...</p>
+              <p className="text-sm text-amber-600/70">
+                Loading translations...
+              </p>
             </div>
           ) : translationError ? (
             // Error state
@@ -406,7 +441,10 @@ export function VerseFocus({
                   onToggle={toggleSection}
                   bgClass="bg-amber-50/50"
                 >
-                  <p className="text-base text-gray-800 leading-relaxed" lang="hi">
+                  <p
+                    className="text-base text-gray-800 leading-relaxed"
+                    lang="hi"
+                  >
                     {hindiTranslation.text}
                   </p>
                 </CollapsibleSection>
@@ -429,26 +467,32 @@ export function VerseFocus({
               )}
 
               {/* Fallback: Use verse's built-in translation if no translations fetched */}
-              {!hindiTranslation && !englishTranslation && verse.translation_en && (
-                <CollapsibleSection
-                  id="english"
-                  label="English"
-                  isExpanded={sectionPrefs.english}
-                  onToggle={toggleSection}
-                  bgClass="bg-amber-50/50"
-                >
-                  <p className="text-base text-gray-800 leading-relaxed">
-                    {verse.translation_en}
-                  </p>
-                </CollapsibleSection>
-              )}
+              {!hindiTranslation &&
+                !englishTranslation &&
+                verse.translation_en && (
+                  <CollapsibleSection
+                    id="english"
+                    label="English"
+                    isExpanded={sectionPrefs.english}
+                    onToggle={toggleSection}
+                    bgClass="bg-amber-50/50"
+                  >
+                    <p className="text-base text-gray-800 leading-relaxed">
+                      {verse.translation_en}
+                    </p>
+                  </CollapsibleSection>
+                )}
 
               {/* No translations available */}
-              {!hindiTranslation && !englishTranslation && !verse.translation_en && !verse.paraphrase_en && !verse.sanskrit_iast && (
-                <div className="text-center py-4 text-amber-600/60 text-sm">
-                  No translations available
-                </div>
-              )}
+              {!hindiTranslation &&
+                !englishTranslation &&
+                !verse.translation_en &&
+                !verse.paraphrase_en &&
+                !verse.sanskrit_iast && (
+                  <div className="text-center py-4 text-amber-600/60 text-sm">
+                    No translations available
+                  </div>
+                )}
 
               {/* Link to verse detail page - adds from=read param for back navigation */}
               <div className="text-center pt-2">

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { Navbar } from "../components";
 import { Footer } from "../components/Footer";
 import { api } from "../lib/api";
@@ -65,7 +65,8 @@ export default function About() {
     setErrorMessage("");
 
     // Client-side content validation (name, subject, and message)
-    const textToValidate = `${formData.name} ${formData.subject || ""} ${formData.message}`.trim();
+    const textToValidate =
+      `${formData.name} ${formData.subject || ""} ${formData.message}`.trim();
     const contentCheck = validateContent(textToValidate);
     if (!contentCheck.valid) {
       setSubmitStatus("error");
@@ -111,18 +112,47 @@ export default function About() {
               className="h-14 w-14 sm:h-16 sm:w-16 lg:h-20 lg:w-20"
             />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 sm:mb-4">
+          <h1 className="text-2xl sm:text-3xl font-bold font-heading text-gray-900 mb-2">
             About Geetanjali
           </h1>
           <p className="text-base sm:text-lg lg:text-xl text-gray-600 max-w-2xl mx-auto">
             Ancient wisdom for modern decisions. Navigate life's complex choices
             with timeless principles from the Bhagavad Geeta.
           </p>
+
+          {/* Primary CTAs */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mt-6 sm:mt-8">
+            <Link
+              to="/cases/new"
+              className="inline-flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold px-6 py-3 sm:px-8 sm:py-3.5 rounded-xl transition-all shadow-lg hover:shadow-xl text-base sm:text-lg"
+            >
+              <span>Start a Consultation</span>
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 7l5 5m0 0l-5 5m5-5H6"
+                />
+              </svg>
+            </Link>
+            <Link
+              to="/verses"
+              className="inline-flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-700 font-medium px-6 py-3 sm:px-8 sm:py-3.5 rounded-xl transition-all border border-gray-300 hover:border-gray-400 text-base sm:text-lg"
+            >
+              <span>Explore Verses</span>
+            </Link>
+          </div>
         </div>
 
         {/* What is Geetanjali */}
         <section className="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 mb-4 sm:mb-6 lg:mb-8">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">
+          <h2 className="text-xl sm:text-2xl font-bold font-heading text-gray-900 mb-3 sm:mb-4">
             What is Geetanjali?
           </h2>
           <div className="prose prose-orange max-w-none text-gray-600">
@@ -148,7 +178,7 @@ export default function About() {
 
         {/* How It Works */}
         <section className="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 mb-4 sm:mb-6 lg:mb-8">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
+          <h2 className="text-xl sm:text-2xl font-bold font-heading text-gray-900 mb-4 sm:mb-6">
             How It Works
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
@@ -189,11 +219,34 @@ export default function About() {
               </p>
             </div>
           </div>
+
+          {/* CTA after How It Works */}
+          <div className="text-center mt-6 pt-6 border-t border-gray-100">
+            <Link
+              to="/cases/new"
+              className="inline-flex items-center gap-2 text-orange-600 hover:text-orange-700 font-semibold"
+            >
+              Try it now — it's free
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 7l5 5m0 0l-5 5m5-5H6"
+                />
+              </svg>
+            </Link>
+          </div>
         </section>
 
         {/* Why the Bhagavad Geeta */}
         <section className="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 mb-4 sm:mb-6 lg:mb-8">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">
+          <h2 className="text-xl sm:text-2xl font-bold font-heading text-gray-900 mb-3 sm:mb-4">
             Why the Bhagavad Geeta?
           </h2>
           <div className="prose prose-orange max-w-none text-gray-600">
@@ -306,7 +359,7 @@ export default function About() {
           id="contact"
           className="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 mb-4 sm:mb-6 lg:mb-8"
         >
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+          <h2 className="text-xl sm:text-2xl font-bold font-heading text-gray-900 mb-2">
             Get in Touch
           </h2>
           <p className="text-gray-600 mb-6">
@@ -347,7 +400,7 @@ export default function About() {
                     onChange={(e) =>
                       setFormData({ ...formData, name: e.target.value })
                     }
-                    className="w-full px-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-base sm:text-sm"
                     placeholder="Your name"
                   />
                 </div>
@@ -366,7 +419,7 @@ export default function About() {
                     onChange={(e) =>
                       setFormData({ ...formData, email: e.target.value })
                     }
-                    className="w-full px-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-base sm:text-sm"
                     placeholder="you@example.com"
                   />
                 </div>
@@ -389,7 +442,7 @@ export default function About() {
                         message_type: e.target.value as ContactType,
                       })
                     }
-                    className="w-full px-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-base sm:text-sm"
                   >
                     <option value="feedback">General Feedback</option>
                     <option value="question">Question</option>
@@ -412,7 +465,7 @@ export default function About() {
                     onChange={(e) =>
                       setFormData({ ...formData, subject: e.target.value })
                     }
-                    className="w-full px-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-base sm:text-sm"
                     placeholder="Brief subject"
                   />
                 </div>
@@ -433,7 +486,7 @@ export default function About() {
                   onChange={(e) =>
                     setFormData({ ...formData, message: e.target.value })
                   }
-                  className="w-full px-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 resize-none"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 resize-none text-base sm:text-sm"
                   placeholder="Share your thoughts..."
                 />
               </div>
@@ -447,12 +500,63 @@ export default function About() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full md:w-auto bg-orange-600 hover:bg-orange-700 disabled:bg-orange-400 text-white font-semibold px-8 py-3 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
+                className="w-full sm:w-auto bg-orange-600 hover:bg-orange-700 disabled:bg-orange-400 text-white font-semibold px-6 py-3 sm:px-8 sm:py-3 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 text-base"
               >
                 {isSubmitting ? "Sending..." : "Send Message"}
               </button>
             </form>
           )}
+        </section>
+
+        {/* Final CTA Section */}
+        <section className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl sm:rounded-2xl p-6 sm:p-8 mb-6 sm:mb-8 text-center border border-amber-200">
+          <h2 className="text-xl sm:text-2xl font-bold font-heading text-gray-900 mb-2">
+            Ready to Explore?
+          </h2>
+          <p className="text-gray-600 mb-6 max-w-lg mx-auto">
+            Whether you're facing a difficult decision or simply curious about
+            ancient wisdom, we're here to help.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+            <Link
+              to="/cases/new"
+              className="inline-flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold px-6 py-3 sm:px-8 sm:py-3.5 rounded-xl transition-all shadow-lg hover:shadow-xl text-base sm:text-lg"
+            >
+              <span>Ask a Question</span>
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 7l5 5m0 0l-5 5m5-5H6"
+                />
+              </svg>
+            </Link>
+            <Link
+              to="/verses"
+              className="inline-flex items-center gap-2 text-orange-600 hover:text-orange-700 font-medium"
+            >
+              <span>Browse All Verses</span>
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </Link>
+          </div>
         </section>
 
         {/* Credits */}

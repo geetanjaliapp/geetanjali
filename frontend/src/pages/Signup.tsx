@@ -59,7 +59,7 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-orange-50 to-amber-50">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-orange-50 to-red-50">
       <Navbar />
       <div className="flex-1 flex items-center justify-center px-4 py-6 sm:py-8">
         <div className="max-w-md w-full space-y-5 sm:space-y-6">
@@ -75,7 +75,7 @@ export default function Signup() {
                 className="h-12 w-12 sm:h-16 sm:w-16 mx-auto"
               />
             </Link>
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
+            <h2 className="text-2xl sm:text-3xl font-bold font-heading text-gray-900">
               Create Account
             </h2>
             <p className="mt-1.5 sm:mt-2 text-sm text-gray-600">
