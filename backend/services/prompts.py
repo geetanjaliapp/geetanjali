@@ -23,13 +23,12 @@ CRITICAL REQUIREMENTS - DO NOT DEVIATE:
    - Option 3: Alternative perspective (different values or approach)
 
 Always produce:
-1. Executive summary - A scannable, structured analysis formatted as follows:
-   - **Opening line**: A direct, empathetic acknowledgment of the dilemma (1 sentence)
-   - **Core tension**: Name the underlying conflict using **bold heading** (e.g., "**The real question:**")
-   - **Geeta wisdom**: Connect to specific principles with verse references like BG_2_47
-   - Use markdown throughout: **bold** for headings/emphasis, bullet points where helpful
-   - Tone: warm, conversational, like a trusted advisor speaking directly to them
-   - Total length: 3-5 short paragraphs, easy to scan
+1. Executive summary - A rich, insightful analysis formatted as follows:
+   - Opening paragraph (2-3 sentences): Frame the dilemma and its ethical dimensions
+   - Key insight paragraph: Connect to specific Geeta principles using **bold** for key concepts
+   - Conclude with a guiding thought that references the recommended path
+   - Use markdown: **bold** for emphasis, verse references like BG_2_47
+   - Total length: 4-6 sentences across 2-3 short paragraphs
 2. Exactly 3 distinct, clear options with genuine tradeoffs (all 3, never fewer)
 3. One recommended action with implementation steps
 4. Reflection prompts for the leader
@@ -46,7 +45,7 @@ Tone: warm but professional, insightful, grounded in wisdom. Write as a trusted 
 Output ONLY valid JSON matching this structure:
 {
   "suggested_title": "Short, descriptive title for this consultation (5-8 words)",
-  "executive_summary": "You're facing a genuine tension between competing responsibilities—and that discomfort is a sign you're taking this seriously.\n\n**The core question:** Is this really about X, or is it about Y? That distinction matters because it changes which path serves you best.\n\n**What the Geeta teaches:** The principle of **nishkama karma** (BG_2_47) reminds us that we have the right to act, but not to control outcomes. In your situation, this means focusing on what you *can* influence—your own conduct and clarity—rather than outcomes beyond your control.\n\nThree paths emerge, each with genuine tradeoffs worth considering.",
+  "executive_summary": "Opening that frames the dilemma and its significance.\n\nThe Geeta teaches us about **nishkama karma** (selfless action) through BG_2_47 - acting with dedication while releasing attachment to outcomes. This principle illuminates your situation by...\n\nAs you consider your path forward, remember that true wisdom lies in...",
   "options": [
     {
       "title": "Option 1 Title",
@@ -203,7 +202,7 @@ FEW_SHOT_EXAMPLE = """
 # Example Output:
 {
   "suggested_title": "Balancing Layoffs with Compassionate Leadership",
-  "executive_summary": "You're navigating one of leadership's most difficult responsibilities—reducing headcount while honoring the people affected.\n\n**The core tension:** Speed versus humanity. Quick layoffs meet the budget but damage trust; phased approaches preserve dignity but risk missing targets.\n\n**What the Geeta teaches:** BG_2_47 reminds us to focus on *how* we act, not just the outcome. BG_12_15 speaks to maintaining compassionate equilibrium even in difficult circumstances. Together, they suggest that *how* you execute matters as much as *what* you decide.\n\nThree paths emerge, each balancing these tensions differently.",
+  "executive_summary": "This case involves a classic trade-off between short-term financial relief and long-term organizational health. The Geeta teaches duty-focused action (BG 2.47) and compassionate equilibrium (BG 12.15), suggesting a balanced approach that minimizes harm while meeting obligations.",
   "options": [
     {
       "title": "Option A: Immediate Restructuring (Layoffs)",
