@@ -102,18 +102,18 @@ function CollapsibleSection({
         aria-controls={`section-${id}`}
       >
         <div className="flex items-baseline gap-2">
-          <span className="text-xs font-semibold text-amber-700/70 uppercase tracking-widest">
+          <span className="text-xs font-semibold text-gray-600 uppercase tracking-widest">
             {label}
           </span>
           {subtitle && (
-            <span className="text-xs font-normal normal-case tracking-normal text-amber-600/60">
+            <span className="text-xs font-normal normal-case tracking-normal text-gray-500">
               — {subtitle}
             </span>
           )}
         </div>
         {/* Chevron indicator */}
         <svg
-          className={`w-4 h-4 text-amber-600/50 transition-transform duration-200 ${
+          className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
             isExpanded ? "rotate-180" : ""
           }`}
           fill="none"
@@ -334,14 +334,14 @@ export function VerseFocus({
           {/* Sanskrit verse - hero display with formatSanskritLines */}
           <div
             lang="sa"
-            className={`${FONT_SIZE_CLASSES[fontSize]} font-sanskrit text-amber-900/70 leading-relaxed tracking-wide mb-3 sm:mb-4`}
+            className={`${FONT_SIZE_CLASSES[fontSize]} font-sanskrit text-amber-900 leading-relaxed tracking-wide mb-3 sm:mb-4`}
           >
             {sanskritLines.map((line, idx) => (
               <p
                 key={idx}
                 className={
                   isSpeakerIntro(line)
-                    ? `${SPEAKER_FONT_SIZE_CLASSES[fontSize]} text-amber-700/60 mb-2 sm:mb-3 italic`
+                    ? `${SPEAKER_FONT_SIZE_CLASSES[fontSize]} text-gray-500 mb-2 sm:mb-3 italic`
                     : "mb-1 sm:mb-2"
                 }
               >
@@ -351,7 +351,7 @@ export function VerseFocus({
           </div>
 
           {/* Verse reference with devanagari marks */}
-          <div className="text-amber-600/70 text-base sm:text-lg font-serif mb-4">
+          <div className="text-gray-600 text-base sm:text-lg font-serif mb-4">
             ॥ {verse.chapter}.{verse.verse} ॥
           </div>
 
@@ -410,7 +410,7 @@ export function VerseFocus({
                   onToggle={toggleSection}
                   bgClass="bg-amber-100/30"
                 >
-                  <p className="text-base text-amber-800/80 leading-relaxed italic font-serif">
+                  <p className="text-base text-gray-700 leading-relaxed italic font-serif">
                     {verse.sanskrit_iast}
                   </p>
                 </CollapsibleSection>

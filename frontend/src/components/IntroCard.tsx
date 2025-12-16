@@ -94,23 +94,23 @@ export function IntroCard(props: IntroCardProps) {
             {/* Sanskrit title - hero display */}
             <div
               lang="sa"
-              className={`${FONT_SIZE_CLASSES[fontSize]} font-sanskrit text-amber-900/70 leading-relaxed tracking-wide mb-2 sm:mb-3`}
+              className={`${FONT_SIZE_CLASSES[fontSize]} font-sanskrit text-amber-900 leading-relaxed tracking-wide mb-2 sm:mb-3`}
             >
               <p>{book.sanskrit_title}</p>
             </div>
 
             {/* Transliteration */}
-            <div className="text-amber-700/60 text-base sm:text-lg font-serif italic mb-2">
+            <div className="text-gray-500 text-base sm:text-lg font-serif italic mb-2">
               {book.transliteration}
             </div>
 
             {/* English title with stats */}
-            <div className="text-amber-600/70 text-base sm:text-lg font-serif mb-1">
+            <div className="text-gray-700 text-base sm:text-lg font-serif mb-1">
               ॥ {book.english_title} ॥
             </div>
 
             {/* Stats - moved up for visibility */}
-            <div className="text-sm text-amber-500/70 mb-2">
+            <div className="text-sm text-gray-500 mb-2">
               {book.chapter_count} Chapters · {book.verse_count} Verses
             </div>
 
@@ -185,30 +185,30 @@ export function IntroCard(props: IntroCardProps) {
           </div>
 
           {/* Chapter badge */}
-          <div className="text-sm text-amber-600/60 uppercase tracking-widest mb-2">
+          <div className="text-sm text-gray-500 uppercase tracking-widest mb-2">
             Chapter {chapter.chapter_number}
           </div>
 
           {/* Sanskrit name - hero display */}
           <div
             lang="sa"
-            className={`${FONT_SIZE_CLASSES[fontSize]} font-sanskrit text-amber-900/70 leading-relaxed tracking-wide mb-2 sm:mb-3`}
+            className={`${FONT_SIZE_CLASSES[fontSize]} font-sanskrit text-amber-900 leading-relaxed tracking-wide mb-2 sm:mb-3`}
           >
             <p>{chapter.sanskrit_name}</p>
           </div>
 
           {/* Transliteration */}
-          <div className="text-amber-700/60 text-base sm:text-lg font-serif italic mb-2">
+          <div className="text-gray-500 text-base sm:text-lg font-serif italic mb-2">
             {chapter.transliteration}
           </div>
 
           {/* English title */}
-          <div className="text-amber-600/70 text-base sm:text-lg font-serif mb-1">
+          <div className="text-gray-700 text-base sm:text-lg font-serif mb-1">
             ॥ {chapter.english_title} ॥
           </div>
 
           {/* Verse count - moved up for visibility */}
-          <div className="text-sm text-amber-500/70 mb-2">
+          <div className="text-sm text-gray-500 mb-2">
             {chapter.verse_count} verses
           </div>
 
