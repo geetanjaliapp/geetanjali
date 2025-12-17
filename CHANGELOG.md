@@ -2,6 +2,25 @@
 
 All notable changes to Geetanjali are documented here.
 
+## [1.11.3] - 2025-12-17
+
+Bug fixes and resilience improvements for RAG pipeline and content validation.
+
+### Features
+- **RAG Verse Injection** - When LLM returns fewer than 3 source citations (or uses wrong format), system now injects relevant RAG-retrieved verses as fallback. Applies confidence penalty (-0.03 per injected verse) rather than hard failure.
+
+### Fixes
+- **JSON Parsing** - Fixed `extract_json_from_text()` returning string instead of dict, causing "'str' object has no attribute 'get'" errors.
+- **Legacy Data Handling** - Schema now handles legacy outputs with string sources (`['BG_2_47']`) and empty options arrays gracefully via model validator.
+- **Gibberish Detection** - Expanded common words list and relaxed thresholds (20%→12% ratio, 2→1 distinct words). Valid queries like "Do personal obligations ever justify bending professional standards?" no longer rejected.
+- **Source Validation** - Fixed bug where invalid option sources (e.g., "Verse 1" instead of "BG_2_47") weren't filtered when root sources array was empty.
+- **Follow-up Validation UX** - Validation errors now display inline near the input field, not just at page top.
+
+### Technical
+- Added `forgot-password` and `reset-password` to CSRF-exempt paths (pre-auth flows)
+- Disabled Redis caching in tests (`REDIS_ENABLED=false`) for isolation
+- Skip vector store tests by default (`SKIP_VECTOR_TESTS=true`)
+
 ## [1.11.2] - 2025-12-17
 
 UX improvements for verse discovery and consultation quality.
