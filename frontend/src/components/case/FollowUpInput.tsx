@@ -5,6 +5,7 @@ interface FollowUpInputProps {
   value: string;
   submitting: boolean;
   disabled?: boolean;
+  error?: string | null;
   onChange: (value: string) => void;
   onSubmit: (e: FormEvent) => void;
 }
@@ -13,6 +14,7 @@ export function FollowUpInput({
   value,
   submitting,
   disabled = false,
+  error,
   onChange,
   onSubmit,
 }: FollowUpInputProps) {
@@ -22,6 +24,12 @@ export function FollowUpInput({
     <div
       className={`mt-4 bg-white rounded-xl shadow-md p-3 sm:p-4 transition-opacity ${disabled ? "opacity-75" : ""}`}
     >
+      {/* Inline error message */}
+      {error && (
+        <div className="mb-3 bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-lg text-sm">
+          {error}
+        </div>
+      )}
       {/* Processing indicator */}
       {disabled && (
         <div className="flex items-center gap-2 mb-3 text-orange-600">

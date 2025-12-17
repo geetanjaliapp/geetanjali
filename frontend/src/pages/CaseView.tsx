@@ -34,6 +34,7 @@ export default function CaseView() {
   const [submittingFollowUp, setSubmittingFollowUp] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [followUpError, setFollowUpError] = useState<string | null>(null);
   const [followUp, setFollowUp] = useState("");
   const [pendingFollowUp, setPendingFollowUp] = useState<string | null>(null);
   const [showSignupPrompt, setShowSignupPrompt] = useState(false);
@@ -313,12 +314,14 @@ export default function CaseView() {
     // Use lenient mode for follow-ups - they're often specialized questions
     const contentCheck = validateContent(messageContent, true);
     if (!contentCheck.valid) {
-      setError(contentCheck.reason || "Please check your input and try again.");
+      setFollowUpError(
+        contentCheck.reason || "Please check your input and try again.",
+      );
       return;
     }
 
     setSubmittingFollowUp(true);
-    setError(null);
+    setFollowUpError(null);
 
     try {
       // Store the pending message for display while waiting
@@ -354,7 +357,7 @@ export default function CaseView() {
       // On error, restore the message and clear pending state
       setFollowUp(messageContent);
       setPendingFollowUp(null);
-      setError(errorMessages.followUp(err));
+      setFollowUpError(errorMessages.followUp(err));
     } finally {
       setSubmittingFollowUp(false);
     }
@@ -1071,7 +1074,11 @@ ${messages
                     value={followUp}
                     submitting={submittingFollowUp}
                     disabled={submittingFollowUp}
-                    onChange={setFollowUp}
+                    error={followUpError}
+                    onChange={(val) => {
+                      setFollowUp(val);
+                      if (followUpError) setFollowUpError(null);
+                    }}
                     onSubmit={handleFollowUpSubmit}
                   />
                 </div>
