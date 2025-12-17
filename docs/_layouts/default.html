@@ -112,6 +112,50 @@
         --orange-600: #ea580c;
         --orange-700: #c2410c;
         --orange-800: #9a3412;
+
+        /* Semantic colors */
+        --bg-primary: var(--gray-50);
+        --bg-surface: white;
+        --bg-surface-elevated: white;
+        --text-primary: var(--gray-900);
+        --text-secondary: var(--gray-700);
+        --text-muted: var(--gray-500);
+        --border-default: var(--gray-200);
+        --border-accent: var(--amber-200);
+        --code-bg: var(--gray-900);
+        --code-text: var(--gray-100);
+        --inline-code-bg: var(--amber-100);
+        --inline-code-text: var(--amber-900);
+        --blockquote-bg: var(--orange-50);
+        --table-header-bg: var(--amber-50);
+        --table-row-alt: var(--gray-50);
+        --table-row-hover: var(--amber-50);
+        --mermaid-bg: white;
+        --ascii-bg: var(--amber-50);
+      }
+
+      /* Dark mode - respects system preference */
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg-primary: #111827;
+          --bg-surface: #1f2937;
+          --bg-surface-elevated: #374151;
+          --text-primary: #f3f4f6;
+          --text-secondary: #d1d5db;
+          --text-muted: #9ca3af;
+          --border-default: #374151;
+          --border-accent: #4b5563;
+          --code-bg: #0f172a;
+          --code-text: #e5e7eb;
+          --inline-code-bg: rgba(251, 191, 36, 0.2);
+          --inline-code-text: #fbbf24;
+          --blockquote-bg: rgba(234, 88, 12, 0.1);
+          --table-header-bg: rgba(251, 191, 36, 0.1);
+          --table-row-alt: #1f2937;
+          --table-row-hover: rgba(251, 191, 36, 0.1);
+          --mermaid-bg: #1f2937;
+          --ascii-bg: #1f2937;
+        }
       }
 
       /* ============================================
@@ -119,8 +163,8 @@
          ============================================ */
       body {
         font-family: 'Source Sans 3', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        color: var(--gray-900);
-        background-color: var(--gray-50);
+        color: var(--text-primary);
+        background-color: var(--bg-primary);
         line-height: 1.6;
       }
 
@@ -128,9 +172,9 @@
          Navbar - Matches main app
          ============================================ */
       .site-nav {
-        background: white;
+        background: var(--bg-surface);
         box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-        border-bottom: 1px solid var(--gray-200);
+        border-bottom: 1px solid var(--border-default);
         height: 3.5rem;
         position: sticky;
         top: 0;
@@ -197,8 +241,8 @@
         font-family: 'Source Sans 3', system-ui, sans-serif;
         font-size: 0.75rem;
         font-weight: 500;
-        color: var(--gray-500);
-        background: var(--gray-100);
+        color: var(--text-muted);
+        background: var(--bg-surface-elevated);
         padding: 0.125rem 0.5rem;
         border-radius: 9999px;
         margin-left: 0.25rem;
@@ -214,14 +258,14 @@
         padding: 0.5rem 0.75rem;
         font-size: 0.875rem;
         font-weight: 500;
-        color: var(--gray-700);
+        color: var(--text-secondary);
         text-decoration: none;
         border-radius: 0.375rem;
         transition: all 0.15s;
       }
       .nav-link:hover {
         color: var(--orange-600);
-        background-color: var(--orange-50);
+        background-color: var(--blockquote-bg);
       }
 
       /* ============================================
@@ -250,7 +294,7 @@
         font-family: 'Spectral', Georgia, serif;
         font-size: 2rem;
         font-weight: 600;
-        color: var(--gray-900);
+        color: var(--text-primary);
         margin-bottom: 0.5rem;
         line-height: 1.2;
       }
@@ -264,11 +308,11 @@
         font-family: 'Spectral', Georgia, serif;
         font-size: 1.5rem;
         font-weight: 600;
-        color: var(--gray-900);
+        color: var(--text-primary);
         margin-top: 2.5rem;
         margin-bottom: 1rem;
         padding-bottom: 0.5rem;
-        border-bottom: 1px solid var(--amber-200);
+        border-bottom: 1px solid var(--border-accent);
       }
       @media (min-width: 640px) {
         .main-content h2 {
@@ -280,7 +324,7 @@
         font-family: 'Spectral', Georgia, serif;
         font-size: 1.25rem;
         font-weight: 600;
-        color: var(--gray-800);
+        color: var(--text-primary);
         margin-top: 2rem;
         margin-bottom: 0.75rem;
       }
@@ -289,7 +333,7 @@
         font-family: 'Source Sans 3', system-ui, sans-serif;
         font-size: 1rem;
         font-weight: 600;
-        color: var(--gray-700);
+        color: var(--text-secondary);
         margin-top: 1.5rem;
         margin-bottom: 0.5rem;
       }
@@ -299,13 +343,13 @@
          ============================================ */
       .main-content p {
         margin-bottom: 1rem;
-        color: var(--gray-700);
+        color: var(--text-secondary);
       }
 
       .main-content ul, .main-content ol {
         margin-bottom: 1rem;
         padding-left: 1.5rem;
-        color: var(--gray-700);
+        color: var(--text-secondary);
       }
 
       .main-content li {
@@ -340,8 +384,8 @@
          Code Blocks
          ============================================ */
       .main-content pre {
-        background-color: var(--gray-900);
-        color: var(--gray-100);
+        background-color: var(--code-bg);
+        color: var(--code-text);
         border-radius: 0.5rem;
         padding: 1rem;
         overflow-x: auto;
@@ -356,8 +400,8 @@
       }
 
       .main-content :not(pre) > code {
-        background-color: var(--amber-100);
-        color: var(--amber-900);
+        background-color: var(--inline-code-bg);
+        color: var(--inline-code-text);
         padding: 0.125rem 0.375rem;
         border-radius: 0.25rem;
       }
@@ -378,21 +422,24 @@
         font-size: 0.9375rem;
       }
       .main-content table th {
-        background-color: var(--amber-50);
+        background-color: var(--table-header-bg);
         font-weight: 600;
         text-align: left;
-        color: var(--gray-800);
+        color: var(--text-primary);
       }
       .main-content table th,
       .main-content table td {
-        border: 1px solid var(--amber-200);
+        border: 1px solid var(--border-accent);
         padding: 0.75rem;
       }
+      .main-content table td {
+        color: var(--text-secondary);
+      }
       .main-content table tr:nth-child(even) {
-        background-color: var(--gray-50);
+        background-color: var(--table-row-alt);
       }
       .main-content table tr:hover {
-        background-color: var(--amber-50);
+        background-color: var(--table-row-hover);
       }
 
       /* ============================================
@@ -400,10 +447,10 @@
          ============================================ */
       .main-content blockquote {
         border-left: 4px solid var(--orange-500);
-        background-color: var(--orange-50);
+        background-color: var(--blockquote-bg);
         padding: 1rem 1.5rem;
         margin: 1.5rem 0;
-        color: var(--gray-700);
+        color: var(--text-secondary);
         border-radius: 0 0.5rem 0.5rem 0;
       }
       .main-content blockquote p:last-child {
@@ -415,7 +462,7 @@
          ============================================ */
       .main-content hr {
         border: none;
-        border-top: 1px solid var(--amber-200);
+        border-top: 1px solid var(--border-accent);
         margin: 2.5rem 0;
       }
 
@@ -425,10 +472,10 @@
       .mermaid {
         text-align: center;
         margin: 2rem 0;
-        background: white;
+        background: var(--mermaid-bg);
         padding: 1.5rem;
         border-radius: 0.75rem;
-        border: 1px solid var(--amber-200);
+        border: 1px solid var(--border-accent);
       }
       .mermaid svg {
         max-width: 100%;
@@ -439,9 +486,9 @@
          ASCII Art Blocks (pre without syntax)
          ============================================ */
       .main-content pre:not([class*="language-"]) {
-        background-color: var(--amber-50);
-        color: var(--gray-800);
-        border: 1px solid var(--amber-200);
+        background-color: var(--ascii-bg);
+        color: var(--text-primary);
+        border: 1px solid var(--border-accent);
       }
 
       /* ============================================
@@ -450,9 +497,9 @@
       .site-footer {
         margin-top: 4rem;
         padding-top: 2rem;
-        border-top: 1px solid var(--amber-200);
+        border-top: 1px solid var(--border-accent);
         text-align: center;
-        color: var(--gray-500);
+        color: var(--text-muted);
         font-size: 0.875rem;
       }
       .site-footer a {
@@ -468,7 +515,7 @@
          ============================================ */
       .main-content h1 + p {
         font-size: 1.125rem;
-        color: var(--gray-600);
+        color: var(--text-muted);
         margin-bottom: 1.5rem;
       }
       @media (min-width: 640px) {
