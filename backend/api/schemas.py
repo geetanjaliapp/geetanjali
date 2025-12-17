@@ -2,7 +2,7 @@
 
 from typing import List, Optional, Dict, Any, TypeVar, Generic
 from datetime import datetime
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field, EmailStr, model_validator
 
 T = TypeVar("T")
 
@@ -257,20 +257,36 @@ class SourceSchema(BaseModel):
     """Schema for a source verse."""
 
     canonical_id: str
-    paraphrase: str
-    relevance: float = Field(..., ge=0.0, le=1.0)
+    paraphrase: str = ""  # May be empty for legacy data
+    relevance: float = Field(default=0.8, ge=0.0, le=1.0)
 
 
 class OutputResultSchema(BaseModel):
     """Schema for complete output result."""
 
     executive_summary: str
-    options: List[OptionSchema] = Field(..., min_length=3, max_length=3)
-    recommended_action: RecommendedActionSchema
-    reflection_prompts: List[str]
-    sources: List[SourceSchema]
-    confidence: float = Field(..., ge=0.0, le=1.0)
-    scholar_flag: bool
+    # Allow 0+ options for degraded/legacy outputs (target is 3)
+    options: List[OptionSchema] = Field(default_factory=list)
+    recommended_action: Optional[RecommendedActionSchema] = None
+    reflection_prompts: List[str] = Field(default_factory=list)
+    sources: List[SourceSchema] = Field(default_factory=list)
+    confidence: float = Field(default=0.5, ge=0.0, le=1.0)
+    scholar_flag: bool = True
+
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_sources(cls, data: Any) -> Any:
+        """Convert legacy string sources to SourceSchema format."""
+        if isinstance(data, dict) and "sources" in data:
+            sources = data.get("sources", [])
+            if sources and isinstance(sources[0], str):
+                # Legacy format: sources are canonical IDs as strings
+                data["sources"] = [
+                    {"canonical_id": s, "paraphrase": "", "relevance": 0.8}
+                    for s in sources
+                    if isinstance(s, str)
+                ]
+        return data
 
 
 class OutputResponse(BaseModel):
