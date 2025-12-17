@@ -64,7 +64,7 @@ export default function ResetPassword() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex flex-col bg-gradient-to-br from-orange-50 to-red-50">
+      <div className="min-h-screen flex flex-col bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900">
         <Navbar />
         <div className="flex-1 flex items-center justify-center px-4 py-8 sm:py-12">
           <div className="max-w-md w-full space-y-6 sm:space-y-8 text-center">
@@ -80,9 +80,9 @@ export default function ResetPassword() {
                   className="h-12 w-12 sm:h-16 sm:w-16 mx-auto"
                 />
               </Link>
-              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg
-                  className="w-6 h-6 sm:w-8 sm:h-8 text-green-600"
+                  className="w-6 h-6 sm:w-8 sm:h-8 text-green-600 dark:text-green-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -95,10 +95,10 @@ export default function ResetPassword() {
                   />
                 </svg>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-bold font-heading text-gray-900">
+              <h2 className="text-2xl sm:text-3xl font-bold font-heading text-gray-900 dark:text-gray-100">
                 Password Reset
               </h2>
-              <p className="mt-3 text-sm text-gray-600 max-w-sm mx-auto">
+              <p className="mt-3 text-sm text-gray-600 dark:text-gray-400 max-w-sm mx-auto">
                 Your password has been reset successfully. You can now sign in
                 with your new password.
               </p>
@@ -107,7 +107,7 @@ export default function ResetPassword() {
             <div className="pt-4">
               <Link
                 to="/login"
-                className="w-full inline-flex justify-center py-2.5 sm:py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors"
+                className="w-full inline-flex justify-center py-2.5 sm:py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 focus:ring-orange-500 transition-colors"
               >
                 Sign In
               </Link>
@@ -119,7 +119,7 @@ export default function ResetPassword() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-orange-50 to-red-50">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900">
       <Navbar />
       <div className="flex-1 flex items-center justify-center px-4 py-8 sm:py-12">
         <div className="max-w-md w-full space-y-6 sm:space-y-8">
@@ -135,18 +135,18 @@ export default function ResetPassword() {
                 className="h-12 w-12 sm:h-16 sm:w-16 mx-auto"
               />
             </Link>
-            <h2 className="text-2xl sm:text-3xl font-bold font-heading text-gray-900">
+            <h2 className="text-2xl sm:text-3xl font-bold font-heading text-gray-900 dark:text-gray-100">
               Set New Password
             </h2>
-            <p className="mt-1.5 sm:mt-2 text-sm text-gray-600">
+            <p className="mt-1.5 sm:mt-2 text-sm text-gray-600 dark:text-gray-400">
               Enter your new password below
             </p>
           </div>
 
           <form className="space-y-5 sm:space-y-6" onSubmit={handleSubmit}>
             {error && (
-              <div className="rounded-lg bg-red-50 p-3 sm:p-4">
-                <div className="text-sm text-red-600">{error}</div>
+              <div className="rounded-lg bg-red-50 dark:bg-red-900/20 p-3 sm:p-4">
+                <div className="text-sm text-red-600 dark:text-red-400">{error}</div>
               </div>
             )}
 
@@ -154,7 +154,7 @@ export default function ResetPassword() {
               <div>
                 <label
                   htmlFor="password"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                 >
                   New Password
                 </label>
@@ -166,14 +166,14 @@ export default function ResetPassword() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full px-3 py-2.5 sm:py-2 border border-amber-200 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-base sm:text-sm"
+                  className="block w-full px-3 py-2.5 sm:py-2 border border-amber-200 dark:border-gray-600 bg-white dark:bg-gray-800 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-base sm:text-sm"
                   placeholder="Minimum 8 characters"
                 />
               </div>
               <div>
                 <label
                   htmlFor="confirmPassword"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                 >
                   Confirm Password
                 </label>
@@ -185,7 +185,7 @@ export default function ResetPassword() {
                   required
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="block w-full px-3 py-2.5 sm:py-2 border border-amber-200 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-base sm:text-sm"
+                  className="block w-full px-3 py-2.5 sm:py-2 border border-amber-200 dark:border-gray-600 bg-white dark:bg-gray-800 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-base sm:text-sm"
                   placeholder="Re-enter your password"
                 />
               </div>
@@ -195,7 +195,7 @@ export default function ResetPassword() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-2.5 sm:py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="w-full flex justify-center py-2.5 sm:py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {loading ? "Resetting..." : "Reset Password"}
               </button>
@@ -204,14 +204,14 @@ export default function ResetPassword() {
             <div className="text-center text-sm">
               <Link
                 to="/login"
-                className="font-medium text-orange-600 hover:text-orange-500"
+                className="font-medium text-orange-600 dark:text-orange-400 hover:text-orange-500 dark:hover:text-orange-300"
               >
                 Back to Sign In
               </Link>
             </div>
           </form>
 
-          <div className="text-center text-xs text-gray-500">
+          <div className="text-center text-xs text-gray-500 dark:text-gray-400">
             <p>Ethical guidance rooted in timeless wisdom</p>
           </div>
         </div>
