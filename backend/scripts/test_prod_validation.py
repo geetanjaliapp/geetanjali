@@ -81,7 +81,7 @@ def test_production_output():
 
     try:
         parsed = extract_json_from_text(PROD_OUTPUT_2_OPTIONS)
-        print(f"✅ JSON extraction successful")
+        print("✅ JSON extraction successful")
         print(f"   - Title: {parsed.get('suggested_title')}")
         print(
             f"   - Options count (before validation): {len(parsed.get('options', []))}"
@@ -99,12 +99,12 @@ def test_production_output():
         # Create RAGPipeline instance to access validate_output method
         pipeline = RAGPipeline()
         validated_output = pipeline.validate_output(parsed)
-        print(f"✅ Validation passed")
+        print("✅ Validation passed")
 
         # The validate_output method modifies the output in place
         # Check if constraint was enforced
         options_count = len(validated_output.get("options", []))
-        print(f"\nConstraint Check:")
+        print("\nConstraint Check:")
         print(f"  - Options count (after validation): {options_count}")
 
         if options_count < 3:
@@ -113,7 +113,7 @@ def test_production_output():
             )
             return False
         else:
-            print(f"  ✅ Now has 3 options (constraint satisfied)")
+            print("  ✅ Now has 3 options (constraint satisfied)")
 
     except Exception as e:
         print(f"❌ Validation failed with exception: {e}")

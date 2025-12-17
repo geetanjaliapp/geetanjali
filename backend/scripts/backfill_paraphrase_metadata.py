@@ -132,7 +132,7 @@ def backfill_paraphrase_metadata(dry_run: bool = False):
                 logger.error(f"Error updating {verse.canonical_id}: {e}")
                 errors += 1
 
-        logger.info(f"\nBackfill complete:")
+        logger.info("\nBackfill complete:")
         logger.info(f"  Updated: {updated}")
         logger.info(f"  Skipped: {skipped}")
         logger.info(f"  Errors:  {errors}")

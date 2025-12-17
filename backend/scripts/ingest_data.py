@@ -215,7 +215,7 @@ def print_results(all_stats: dict, dry_run: bool):
     total_skipped = sum(s.get("skipped", 0) for s in all_stats.values())
     total_errors = sum(s.get("errors", 0) for s in all_stats.values())
 
-    print(f"\nTOTAL:")
+    print("\nTOTAL:")
     if dry_run:
         print(f"  Would create: {total_created}")
     else:

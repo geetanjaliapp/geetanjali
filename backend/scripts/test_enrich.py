@@ -94,7 +94,7 @@ def main():
             verse.consulting_principles = enriched.get("consulting_principles", [])
             db.commit()
 
-            logger.info(f"  Saved to database!")
+            logger.info("  Saved to database!")
 
         logger.info(f"\n{'='*60}")
         logger.info(f"Enrichment complete for {len(verses)} verses")
