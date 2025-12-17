@@ -12,6 +12,13 @@ Usage:
     pytest -m "unit or integration"     # Run unit and integration
 """
 
+import os
+
+# Disable Redis caching before importing app (must be before config import)
+os.environ["REDIS_ENABLED"] = "false"
+# Skip vector store tests (require ChromaDB infrastructure)
+os.environ["SKIP_VECTOR_TESTS"] = "true"
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine

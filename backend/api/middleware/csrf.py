@@ -17,6 +17,8 @@ CSRF_EXEMPT_PATHS = {
     "/api/v1/auth/signup",
     "/api/v1/auth/refresh",
     "/api/v1/auth/logout",
+    "/api/v1/auth/forgot-password",  # Pre-auth flow, no session to protect
+    "/api/v1/auth/reset-password",  # Pre-auth flow, uses one-time token
 }
 
 

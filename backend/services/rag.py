@@ -385,7 +385,11 @@ class RAGPipeline:
                 "LLM returned invalid JSON and no verses available for fallback"
             )
 
-    def validate_output(self, output: Dict[str, Any]) -> Dict[str, Any]:
+    def validate_output(
+        self,
+        output: Dict[str, Any],
+        retrieved_verses: Optional[List[Dict[str, Any]]] = None,
+    ) -> Dict[str, Any]:
         """
         Validate and enrich LLM output, handling incomplete or malformed responses.
 
@@ -393,8 +397,13 @@ class RAGPipeline:
         If LLM fails to generate exactly 3 options, we intelligently fill gaps rather
         than reject the response, and flag for scholar review.
 
+        When LLM sources are empty or drop below 3 after validation, RAG-retrieved
+        verses are injected to ensure users always see relevant verse citations.
+        A confidence penalty (-0.03 per injected verse) is applied.
+
         Args:
             output: Raw LLM output (potentially incomplete)
+            retrieved_verses: RAG-retrieved verses for injection when LLM sources empty
 
         Returns:
             Validated and enriched output with all required fields
@@ -696,38 +705,133 @@ class RAGPipeline:
                 output["sources"] = valid_sources
 
         # Validate and filter source references in options
-        if sources_array:
-            valid_canonical_ids = {s.get("canonical_id") for s in sources_array if s}
-            for option_idx, option in enumerate(output.get("options", [])):
-                original_sources = option.get("sources", [])
-                valid_sources_for_option = [
-                    src
-                    for src in original_sources
-                    if _validate_source_reference(src, sources_array)
-                ]
-                invalid_sources = set(original_sources) - set(valid_sources_for_option)
-                if invalid_sources:
-                    logger.warning(
-                        f"Option {option_idx}: removed invalid citations {invalid_sources}. "
-                        f"Valid: {valid_canonical_ids}"
-                    )
-                    option["sources"] = valid_sources_for_option
+        # FIX: Always filter invalid sources (even when root sources empty)
+        # This catches cases where LLM uses wrong format like "Verse 1" instead of "BG_2_47"
+        sources_array = output.get("sources", [])
+        valid_canonical_ids = {s.get("canonical_id") for s in sources_array if s}
 
-            # Also validate recommended_action sources
-            rec_action = output.get("recommended_action", {})
-            if rec_action and "sources" in rec_action:
-                original_rec_sources = rec_action.get("sources", [])
-                valid_rec_sources = [
-                    src
-                    for src in original_rec_sources
-                    if _validate_source_reference(src, sources_array)
-                ]
-                invalid_rec = set(original_rec_sources) - set(valid_rec_sources)
-                if invalid_rec:
-                    logger.warning(
-                        f"recommended_action: removed invalid citations {invalid_rec}"
-                    )
-                    rec_action["sources"] = valid_rec_sources
+        for option_idx, option in enumerate(output.get("options", [])):
+            original_sources = option.get("sources", [])
+            valid_sources_for_option = []
+            invalid_sources = []
+
+            for src in original_sources:
+                # Must be string AND either in root sources OR valid canonical format
+                if isinstance(src, str):
+                    if sources_array and _validate_source_reference(src, sources_array):
+                        valid_sources_for_option.append(src)
+                    elif not sources_array and validate_canonical_id(src):
+                        # When root sources empty, accept valid format but log warning
+                        valid_sources_for_option.append(src)
+                        logger.debug(
+                            f"Option {option_idx}: accepting orphan source {src} (valid format)"
+                        )
+                    else:
+                        invalid_sources.append(src)
+                else:
+                    invalid_sources.append(str(src))
+
+            if invalid_sources:
+                logger.warning(
+                    f"Option {option_idx}: removed invalid source refs: {invalid_sources}"
+                )
+                option["sources"] = valid_sources_for_option
+
+        # Also validate recommended_action sources
+        rec_action = output.get("recommended_action", {})
+        if rec_action and "sources" in rec_action:
+            original_rec_sources = rec_action.get("sources", [])
+            valid_rec_sources = []
+            invalid_rec = []
+
+            for src in original_rec_sources:
+                if isinstance(src, str):
+                    if sources_array and _validate_source_reference(src, sources_array):
+                        valid_rec_sources.append(src)
+                    elif not sources_array and validate_canonical_id(src):
+                        valid_rec_sources.append(src)
+                    else:
+                        invalid_rec.append(src)
+                else:
+                    invalid_rec.append(str(src))
+
+            if invalid_rec:
+                logger.warning(
+                    f"recommended_action: removed invalid citations {invalid_rec}"
+                )
+                rec_action["sources"] = valid_rec_sources
+
+        # =================================================================
+        # INJECT RAG VERSES when sources drop below minimum threshold
+        # =================================================================
+        # Target: minimum 3 sources for good user experience
+        # Penalty: -0.03 confidence per injected verse
+        MIN_SOURCES = 3
+        INJECTION_CONFIDENCE_PENALTY = 0.03
+
+        sources_array = output.get("sources", [])
+        num_existing = len(sources_array)
+
+        if num_existing < MIN_SOURCES and retrieved_verses:
+            # Calculate how many to inject
+            num_to_inject = MIN_SOURCES - num_existing
+
+            # Get existing canonical IDs to avoid duplicates
+            existing_ids = {s.get("canonical_id") for s in sources_array}
+
+            # Build injection candidates from retrieved verses
+            injected_count = 0
+            for verse in retrieved_verses:
+                if injected_count >= num_to_inject:
+                    break
+
+                # Get canonical_id from verse (can be top-level or in metadata)
+                verse_id = verse.get("canonical_id") or verse.get(
+                    "metadata", {}
+                ).get("canonical_id")
+
+                if not verse_id or verse_id in existing_ids:
+                    continue
+
+                # Get paraphrase/translation for the injected source
+                metadata = verse.get("metadata", {})
+                paraphrase = (
+                    metadata.get("translation_en")
+                    or metadata.get("paraphrase")
+                    or verse.get("document", "")[:200]  # Fallback to document excerpt
+                )
+
+                if not paraphrase:
+                    continue
+
+                # Create source object
+                injected_source = {
+                    "canonical_id": verse_id,
+                    "paraphrase": paraphrase,
+                    "relevance": verse.get("relevance", 0.7),  # Use RAG relevance
+                }
+
+                sources_array.append(injected_source)
+                existing_ids.add(verse_id)
+                injected_count += 1
+
+                logger.info(f"Injected RAG verse {verse_id} (relevance: {verse.get('relevance', 0.7):.2f})")
+
+            if injected_count > 0:
+                output["sources"] = sources_array
+                # Apply confidence penalty
+                current_confidence = output.get("confidence", 0.5)
+                penalty = INJECTION_CONFIDENCE_PENALTY * injected_count
+                output["confidence"] = max(current_confidence - penalty, 0.3)
+                logger.warning(
+                    f"Injected {injected_count} RAG verses (sources now: {len(sources_array)}). "
+                    f"Confidence penalty: -{penalty:.2f} (now: {output['confidence']:.2f})"
+                )
+        elif num_existing < MIN_SOURCES:
+            # No retrieved_verses available to inject
+            logger.warning(
+                f"Sources below minimum ({num_existing} < {MIN_SOURCES}) but no RAG verses available to inject"
+            )
 
         # Validate confidence is numeric and in range
         confidence = output.get("confidence", 0.5)
@@ -907,9 +1011,9 @@ class RAGPipeline:
             logger.error(f"LLM generation failed: {e}")
             return self._create_fallback_response(case_data, "LLM unavailable"), False
 
-        # Step 4: Validate and enrich
+        # Step 4: Validate and enrich (pass retrieved_verses for injection fallback)
         try:
-            validated_output = self.validate_output(output)
+            validated_output = self.validate_output(output, retrieved_verses)
 
             # Mark as degraded if no verses were retrieved
             if not retrieved_verses:
