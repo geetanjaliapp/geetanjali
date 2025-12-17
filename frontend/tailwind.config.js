@@ -4,6 +4,7 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: 'class', // Enable class-based dark mode (v1.12.0)
   theme: {
     extend: {
       /*
@@ -58,6 +59,15 @@ export default {
             'a': {
               color: 'inherit',
               textDecoration: 'none',
+            },
+          },
+        },
+        // Dark mode typography (v1.12.0)
+        invert: {
+          css: {
+            'strong': {
+              color: 'rgb(253 230 138)', // amber-200 for dark mode
+              fontWeight: '600',
             },
           },
         },

@@ -8,6 +8,10 @@
  * - font-heading: Spectral (headings, titles)
  * - font-sanskrit: Noto Serif Devanagari (Sanskrit verses)
  * - font-serif: Spectral (legacy serif usage)
+ *
+ * Color System (v1.12.0)
+ * CSS custom properties for animations and dynamic styling.
+ * Maps to Tailwind palette for consistency.
  */
 :root {
   /* Default body font - Source Sans 3 */
@@ -19,6 +23,10 @@
     "Segoe UI",
     Roboto,
     sans-serif;
+
+  /* Animation colors - mapped to Tailwind palette */
+  --color-amber-400: 251 191 36;    /* #fbbf24 - warm shimmer */
+  --color-orange-400: 251 146 60;   /* #fb923c - processing glow */
 }
 
 html {
@@ -85,9 +93,9 @@ body {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(251, 191, 36, 0.1) 25%,
-    rgba(251, 191, 36, 0.2) 50%,
-    rgba(251, 191, 36, 0.1) 75%,
+    rgb(var(--color-amber-400) / 0.1) 25%,
+    rgb(var(--color-amber-400) / 0.2) 50%,
+    rgb(var(--color-amber-400) / 0.1) 75%,
     transparent 100%
   );
   background-size: 200% 100%;
@@ -99,13 +107,13 @@ body {
   0%,
   100% {
     box-shadow:
-      0 0 8px rgba(251, 146, 60, 0.3),
-      0 0 16px rgba(251, 146, 60, 0.1);
+      0 0 8px rgb(var(--color-orange-400) / 0.3),
+      0 0 16px rgb(var(--color-orange-400) / 0.1);
   }
   50% {
     box-shadow:
-      0 0 16px rgba(251, 146, 60, 0.4),
-      0 0 32px rgba(251, 146, 60, 0.2);
+      0 0 16px rgb(var(--color-orange-400) / 0.4),
+      0 0 32px rgb(var(--color-orange-400) / 0.2);
   }
 }
 

@@ -113,6 +113,16 @@
       ]
     }
     </script>
+    <!-- Theme flash prevention (v1.12.0) - Runs before React to prevent FOUC -->
+    <script>
+      (function() {
+        const stored = localStorage.getItem('geetanjali:theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = stored || 'system';
+        const isDark = theme === 'dark' || (theme === 'system' && prefersDark);
+        if (isDark) document.documentElement.classList.add('dark');
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

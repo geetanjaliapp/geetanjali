@@ -26,17 +26,17 @@ const Search = lazy(() => import("./pages/Search"));
 function PageLoader() {
   return (
     <div
-      className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-red-50"
+      className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900"
       role="status"
       aria-live="polite"
       aria-label="Loading page content"
     >
       <div className="text-center">
         <div
-          className="w-8 h-8 border-2 border-orange-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"
+          className="w-8 h-8 border-2 border-orange-600 dark:border-orange-400 border-t-transparent rounded-full animate-spin mx-auto mb-2"
           aria-hidden="true"
         ></div>
-        <div className="text-gray-600 text-sm">Loading...</div>
+        <div className="text-gray-600 dark:text-gray-400 text-sm">Loading...</div>
       </div>
     </div>
   );
@@ -49,12 +49,12 @@ function App() {
   if (loading) {
     return (
       <div
-        className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-red-50"
+        className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900"
         role="status"
         aria-live="polite"
         aria-label="Checking authentication"
       >
-        <div className="text-gray-600">Loading...</div>
+        <div className="text-gray-600 dark:text-gray-400">Loading...</div>
       </div>
     );
   }
