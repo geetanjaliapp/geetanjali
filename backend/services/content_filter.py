@@ -761,12 +761,81 @@ _COMPILED_REFUSAL: List[Pattern[str]] = [
 ]
 
 
+def _contains_valid_json(text: str) -> bool:
+    """
+    Check if response contains valid JSON with expected structure.
+
+    If the LLM generated valid JSON with our expected fields,
+    it's very unlikely to be a refusal - even if refusal-like
+    phrases appear in the content (e.g., quoted dialogue).
+    """
+    import json
+
+    # Try to find and parse JSON in the response
+    # Handle both raw JSON and markdown-wrapped JSON
+    json_text = text.strip()
+
+    # Remove markdown code block if present
+    if json_text.startswith("```"):
+        # Find the end of the code block
+        lines = json_text.split("\n")
+        # Skip first line (```json) and find closing ```
+        json_lines = []
+        in_block = False
+        for line in lines:
+            if line.startswith("```") and not in_block:
+                in_block = True
+                continue
+            if line.startswith("```") and in_block:
+                break
+            if in_block:
+                json_lines.append(line)
+        json_text = "\n".join(json_lines)
+
+    # Try to parse as JSON
+    try:
+        data = json.loads(json_text)
+        # Check for expected fields that indicate a valid consultation response
+        if isinstance(data, dict):
+            has_summary = "executive_summary" in data
+            has_options = "options" in data and isinstance(data["options"], list)
+            if has_summary or has_options:
+                return True
+    except (json.JSONDecodeError, ValueError):
+        pass
+
+    return False
+
+
+def _is_match_inside_quotes(text: str, match_start: int, match_end: int) -> bool:
+    """
+    Check if a match position is inside quoted text.
+
+    This helps avoid false positives where refusal-like phrases
+    appear in dialogue suggestions (e.g., "tell them 'I can't help'").
+    """
+    # Count quotes before the match position
+    text_before = text[:match_start]
+
+    # Count different quote types
+    single_quotes = text_before.count("'") - text_before.count("\\'")
+    double_quotes = text_before.count('"') - text_before.count('\\"')
+
+    # If odd number of quotes, we're inside a quoted string
+    return (single_quotes % 2 == 1) or (double_quotes % 2 == 1)
+
+
 def detect_llm_refusal(response_text: str) -> Tuple[bool, Optional[str]]:
     """
     Detect if LLM response indicates a refusal (Layer 2).
 
     This detects when Claude or other LLMs refuse to process content
     due to their built-in safety guidelines.
+
+    Detection strategy (to minimize false positives):
+    1. If response contains valid JSON with expected fields, NOT a refusal
+    2. Pattern must match in first 500 chars (refusals happen at start)
+    3. Pattern must not be inside quotes (avoids matching dialogue)
 
     Can be disabled via:
     - CONTENT_FILTER_ENABLED=false (master switch)
@@ -785,9 +854,26 @@ def detect_llm_refusal(response_text: str) -> Tuple[bool, Optional[str]]:
     ):
         return False, None
 
+    # Strategy 1: If response contains valid JSON, it's not a refusal
+    # LLM wouldn't generate complete consultation JSON and then refuse
+    if _contains_valid_json(response_text):
+        logger.debug("Response contains valid JSON - not a refusal")
+        return False, None
+
+    # Strategy 2 & 3: Check patterns in first 500 chars, exclude quoted text
+    # Real refusals happen at the start, not buried in content
+    check_text = response_text[:500]
+
     for pattern in _COMPILED_REFUSAL:
-        match = pattern.search(response_text)
+        match = pattern.search(check_text)
         if match:
+            # Strategy 3: Skip if match is inside quotes
+            if _is_match_inside_quotes(check_text, match.start(), match.end()):
+                logger.debug(
+                    f"Refusal pattern '{match.group(0)}' found but inside quotes - skipping"
+                )
+                continue
+
             logger.warning(
                 "LLM refusal detected in response",
                 extra={"violation_type": ViolationType.LLM_REFUSAL.value},
