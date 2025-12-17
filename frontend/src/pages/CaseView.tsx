@@ -995,7 +995,7 @@ ${messages
                                       >
                                         <div className="flex items-center justify-between">
                                           <Link
-                                            to={`/verses/${source.canonical_id}?from=cases`}
+                                            to={`/verses/${source.canonical_id}`}
                                             className="font-mono text-orange-700 font-semibold text-sm hover:underline"
                                           >
                                             {source.canonical_id.replace(

@@ -47,7 +47,7 @@ export function FloatingNavArrow({
 
   return (
     <Link
-      to={`/verses/${verse.canonical_id}`}
+      to={`/verses/${verse.canonical_id}?from=browse`}
       className={`hidden sm:flex fixed top-1/2 -translate-y-1/2 z-30
                   ${isPrev ? "left-2 lg:left-4" : "right-2 lg:right-4"}
                   items-center justify-center

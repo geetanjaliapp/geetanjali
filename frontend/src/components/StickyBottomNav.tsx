@@ -54,7 +54,7 @@ export function StickyBottomNav({
         {/* Previous verse button */}
         {prevVerse ? (
           <Link
-            to={`/verses/${prevVerse.canonical_id}`}
+            to={`/verses/${prevVerse.canonical_id}?from=browse`}
             className="flex-1 flex items-center justify-start gap-2 p-4 min-h-[56px]
                        hover:bg-amber-50 active:bg-amber-100 transition-colors
                        focus:outline-none focus-visible:ring-2 focus-visible:ring-inset
@@ -87,7 +87,7 @@ export function StickyBottomNav({
         {/* Next verse button */}
         {nextVerse ? (
           <Link
-            to={`/verses/${nextVerse.canonical_id}`}
+            to={`/verses/${nextVerse.canonical_id}?from=browse`}
             className="flex-1 flex items-center justify-end gap-2 p-4 min-h-[56px]
                        hover:bg-amber-50 active:bg-amber-100 transition-colors
                        focus:outline-none focus-visible:ring-2 focus-visible:ring-inset

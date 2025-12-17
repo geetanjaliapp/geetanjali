@@ -35,12 +35,11 @@ export default function VerseDetail() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  // Check navigation context - hide prev/next nav when coming from search, reading mode, or cases
+  // Navigation is only enabled when browsing from the verse browser
+  // Default: clean view (no nav) - user came to see one verse and will use browser back
+  // With ?from=browse: full nav - user is sequentially browsing verses
   const fromContext = searchParams.get("from");
-  const isFromReadingMode = fromContext === "read";
-  const isFromSearch = fromContext === "search";
-  const isFromCases = fromContext === "cases";
-  const hideVerseNavigation = isFromReadingMode || isFromSearch || isFromCases;
+  const showVerseNavigation = fromContext === "browse";
 
   const [verse, setVerse] = useState<Verse | null>(null);
   const [translations, setTranslations] = useState<Translation[]>([]);
@@ -102,10 +101,10 @@ export default function VerseDetail() {
     verse?.verse ?? 0,
   );
 
-  // Keyboard navigation for desktop (disabled when coming from search or reading mode)
+  // Keyboard navigation for desktop (only when browsing)
   useEffect(() => {
-    // Skip keyboard nav if user came from search or reading mode
-    if (hideVerseNavigation) return;
+    // Skip keyboard nav if not in browse mode
+    if (!showVerseNavigation) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
       // Don't handle if user is typing in an input
@@ -120,16 +119,16 @@ export default function VerseDetail() {
 
       if (event.key === "ArrowLeft" && prevVerse) {
         event.preventDefault();
-        navigate(`/verses/${prevVerse.canonical_id}`);
+        navigate(`/verses/${prevVerse.canonical_id}?from=browse`);
       } else if (event.key === "ArrowRight" && nextVerse) {
         event.preventDefault();
-        navigate(`/verses/${nextVerse.canonical_id}`);
+        navigate(`/verses/${nextVerse.canonical_id}?from=browse`);
       }
     };
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [navigate, prevVerse, nextVerse, hideVerseNavigation]);
+  }, [navigate, prevVerse, nextVerse, showVerseNavigation]);
 
   if (loading) {
     return (
@@ -247,8 +246,8 @@ export default function VerseDetail() {
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex flex-col">
       <Navbar />
 
-      {/* Desktop Floating Navigation Arrows (hidden when coming from search or reading mode) */}
-      {!hideVerseNavigation && (
+      {/* Desktop Floating Navigation Arrows (only when browsing) */}
+      {showVerseNavigation && (
         <>
           <FloatingNavArrow
             direction="prev"
@@ -454,11 +453,11 @@ export default function VerseDetail() {
       {/* Footer */}
       <Footer />
 
-      {/* Bottom padding for sticky nav on mobile */}
-      <div className="h-16 sm:hidden" />
+      {/* Bottom padding for sticky nav on mobile (only when browsing) */}
+      {showVerseNavigation && <div className="h-16 sm:hidden" />}
 
-      {/* Mobile Sticky Bottom Navigation (hidden when coming from search or reading mode) */}
-      {!hideVerseNavigation && (
+      {/* Mobile Sticky Bottom Navigation (only when browsing) */}
+      {showVerseNavigation && (
         <StickyBottomNav
           prevVerse={prevVerse}
           nextVerse={nextVerse}

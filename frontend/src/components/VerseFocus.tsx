@@ -494,10 +494,10 @@ export function VerseFocus({
                   </div>
                 )}
 
-              {/* Link to verse detail page - adds from=read param for back navigation */}
+              {/* Link to verse detail page - clean view, user returns via browser back */}
               <div className="text-center pt-2">
                 <Link
-                  to={`/verses/${verse.canonical_id}?from=read`}
+                  to={`/verses/${verse.canonical_id}`}
                   className="inline-flex items-center gap-1.5 text-sm text-amber-600 hover:text-amber-800 transition-colors"
                 >
                   Explore this verse

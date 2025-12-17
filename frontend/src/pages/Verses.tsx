@@ -489,7 +489,7 @@ export default function Verses() {
                       showTranslation={false}
                       showTranslationPreview={true}
                       onPrincipleClick={handlePrincipleSelect}
-                      linkTo={`/verses/${verse.canonical_id}`}
+                      linkTo={`/verses/${verse.canonical_id}?from=browse`}
                     />
                   </div>
                 ))}
