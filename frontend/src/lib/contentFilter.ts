@@ -322,27 +322,64 @@ function containsAbuse(text: string): boolean {
 }
 
 /**
+ * Check if text appears to be gibberish for follow-up questions.
+ *
+ * Follow-ups are more lenient than initial consultations because:
+ * - Users ask specialized questions with domain terminology
+ * - Questions are often shorter and more focused
+ * - Context already established in prior conversation
+ */
+function isFollowUpGibberish(text: string): boolean {
+  const words = text.toLowerCase().match(/[a-z]+/g) || [];
+
+  if (words.length === 0) {
+    return text.trim().length > 20;
+  }
+
+  // Short questions (up to 12 words): just need 1 common word
+  // This handles questions like "Do personal obligations ever justify bending professional standards?"
+  if (words.length <= 12) {
+    const foundCommon = words.filter((word) => COMMON_WORDS.has(word));
+    return foundCommon.length < 1;
+  }
+
+  // Longer inputs: apply standard ratio but more lenient (15% instead of 20%)
+  const commonOccurrences = words.filter((word) =>
+    COMMON_WORDS.has(word),
+  ).length;
+  const ratio = commonOccurrences / words.length;
+
+  return ratio < 0.15;
+}
+
+/**
  * Validate content before submission.
  *
  * Provides instant client-side feedback for obvious violations.
  * This is for UX only - backend validation is authoritative.
  *
  * @param text - The text to validate (combined title + description)
+ * @param isFollowUp - If true, use lenient gibberish detection for follow-up questions
  * @returns ValidationResult with valid flag and optional reason
  */
-export function validateContent(text: string): ValidationResult {
+export function validateContent(
+  text: string,
+  isFollowUp: boolean = false,
+): ValidationResult {
   // Skip validation for very short text (might still be typing)
   if (text.trim().length < 5) {
     return { valid: true };
   }
 
-  // Check for gibberish
-  if (isGibberish(text)) {
+  // Check for gibberish (use lenient check for follow-ups)
+  const gibberishCheck = isFollowUp ? isFollowUpGibberish : isGibberish;
+  if (gibberishCheck(text)) {
     return {
       valid: false,
-      reason:
-        "Please enter a clear description of your dilemma. " +
-        "Try describing the specific situation you're facing.",
+      reason: isFollowUp
+        ? "Please enter a clear question or comment."
+        : "Please enter a clear description of your dilemma. " +
+          "Try describing the specific situation you're facing.",
     };
   }
 

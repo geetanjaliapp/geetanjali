@@ -310,7 +310,8 @@ export default function CaseView() {
     const messageContent = followUp.trim();
 
     // Client-side content validation (gibberish, abuse detection)
-    const contentCheck = validateContent(messageContent);
+    // Use lenient mode for follow-ups - they're often specialized questions
+    const contentCheck = validateContent(messageContent, true);
     if (!contentCheck.valid) {
       setError(contentCheck.reason || "Please check your input and try again.");
       return;
