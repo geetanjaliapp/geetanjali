@@ -2,6 +2,25 @@
 
 All notable changes to Geetanjali are documented here.
 
+## [1.11.2] - 2025-12-17
+
+UX improvements for verse discovery and consultation quality.
+
+### Features
+- **Verse Reference Auto-Linking** - Verse references in guidance text (BG 2.47, BG_3_35) are now clickable. Click to see a popover with the leadership insight and option to view full verse. Supports multiple formats.
+- **Raw LLM Storage for Policy Violations** - Backend now stores raw LLM response when content is flagged, enabling debugging and refinement of refusal detection.
+
+### Improvements
+- **Concise Guidance** - Updated prompts for crisper responses: initial guidance now 100-150 words (was 150-250), follow-ups 50-100 words (was 2-4 paragraphs).
+- **Verse Citation Constraints** - Prompts now explicitly instruct LLM to only cite verses provided in context, preventing hallucinated verse references.
+- **Refusal Detection** - Three-strategy fix reduces false positives: JSON-first check, position-based matching (first 500 chars), and quote-aware pattern detection. Valid guidance containing phrases like "I can't help" in suggested dialogue is no longer incorrectly flagged.
+- **Unified Thinking Indicators** - Consolidated thinking/loading indicators into reusable ThinkingIndicator component.
+- **Navigation** - Verse links from case view now properly return to case context.
+
+### Fixes
+- Aligned follow-up response format with main guidance style (paragraph structure, headers)
+- Prevented duplicate thinking indicators during follow-up processing
+
 ## [1.11.1] - 2025-12-16
 
 Polish release focusing on typography, readability, and case view improvements.
