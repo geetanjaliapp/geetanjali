@@ -813,16 +813,27 @@ def _is_match_inside_quotes(text: str, match_start: int, match_end: int) -> bool
 
     This helps avoid false positives where refusal-like phrases
     appear in dialogue suggestions (e.g., "tell them 'I can't help'").
+
+    Only counts quotes that appear to be string delimiters (not contractions).
     """
     # Count quotes before the match position
     text_before = text[:match_start]
 
-    # Count different quote types
-    single_quotes = text_before.count("'") - text_before.count("\\'")
+    # For double quotes, simple count works (they're rarely used in contractions)
     double_quotes = text_before.count('"') - text_before.count('\\"')
 
-    # If odd number of quotes, we're inside a quoted string
-    return (single_quotes % 2 == 1) or (double_quotes % 2 == 1)
+    # For single quotes, be smarter - only count quotes that look like string delimiters
+    # Skip contractions like I'm, can't, won't, don't by requiring space/punctuation before quote
+    import re
+
+    # Match single quotes that are likely string delimiters:
+    # - preceded by space, punctuation, or start of string
+    # - followed by a word character
+    quote_pattern = re.compile(r"(?:^|[\s,;:({])'(?=\w)")
+    single_quote_openers = len(quote_pattern.findall(text_before))
+
+    # If odd number of quote openers, we're inside a quoted string
+    return (single_quote_openers % 2 == 1) or (double_quotes % 2 == 1)
 
 
 def detect_llm_refusal(response_text: str) -> Tuple[bool, Optional[str]]:

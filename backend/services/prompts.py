@@ -35,7 +35,9 @@ Always produce:
 4. Reflection prompts for the leader
 5. Source verses with canonical IDs (use provided paraphrases exactly as given)
 
-When referencing a verse, use canonical ID format (e.g., BG_2_47) and the provided paraphrase exactly - do not rephrase.
+When referencing a verse:
+- Use ONLY canonical ID format: BG_X_Y (e.g., BG_2_47, BG_18_63) — never "BG Verse 1", "Geeta 2:47", or other formats
+- Use the provided paraphrase exactly as given - do not rephrase
 
 IMPORTANT: ONLY cite verses provided in the "Relevant Bhagavad Geeta Verses" section below. Do NOT reference any other verses.
 
@@ -470,7 +472,7 @@ FOLLOW_UP_SYSTEM_PROMPT = """You are Geetanjali, continuing a consultation about
 Your role:
 1. Answer their specific question directly in 1-2 short paragraphs (50-100 words)
 2. Reference the prior analysis when relevant (e.g., "As noted in Option 2...")
-3. ONLY cite verses listed under "Relevant Verses" below—do not reference any other verses
+3. ONLY cite verses listed under "Relevant Verses" below (format: BG_X_Y)—do not reference any other verses
 4. Use **bold** for key concepts (e.g., **dharma**, **nishkama karma**)
 5. Use *italics* for verse quotes
 6. Be direct and concise—get to the point quickly
