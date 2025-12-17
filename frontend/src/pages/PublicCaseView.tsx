@@ -1,9 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
-import Markdown from "react-markdown";
 import { casesApi } from "../lib/api";
 import type { Case, Message, Output } from "../types";
-import { Navbar, ContentNotFound, Footer } from "../components";
+import { Navbar, ContentNotFound, Footer, GuidanceMarkdown } from "../components";
 import { groupMessagesIntoExchanges } from "../lib/messageGrouping";
 import { useSEO } from "../hooks";
 
@@ -250,11 +249,11 @@ export default function PublicCaseView() {
                           : "bg-white shadow-md border-orange-100"
                       }`}
                     >
-                      <div
+                      <GuidanceMarkdown
+                        content={exchange.assistant.content}
+                        sources={exchange.output?.result_json.sources}
                         className={`leading-relaxed prose max-w-none ${isFirst ? "text-gray-900" : "text-gray-800"} prose-p:my-2 prose-ul:my-2 prose-li:my-0.5`}
-                      >
-                        <Markdown>{exchange.assistant.content}</Markdown>
-                      </div>
+                      />
 
                       {/* Verse Sources */}
                       {exchange.output &&

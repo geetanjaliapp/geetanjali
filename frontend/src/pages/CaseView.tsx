@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import Markdown from "react-markdown";
 import { casesApi, outputsApi } from "../lib/api";
 import { messagesApi } from "../api/messages";
 import type { Case, Message, Output, Option } from "../types";
@@ -9,6 +8,7 @@ import {
   Navbar,
   ConfirmModal,
   ContentNotFound,
+  GuidanceMarkdown,
 } from "../components";
 import { errorMessages } from "../lib/errorMessages";
 import { validateContent } from "../lib/contentFilter";
@@ -125,10 +125,6 @@ export default function CaseView() {
       if (isFinished) {
         setPendingFollowUp(null);
 
-        if (outputsData.length > 0) {
-          setExpandedSources(new Set([outputsData[0].id]));
-        }
-
         if (!isAuthenticated && outputsData.length > 0) {
           setShowSignupPrompt(true);
         }
@@ -202,10 +198,6 @@ export default function CaseView() {
           setMessages(messagesData);
           setOutputs(outputsData);
           setPendingFollowUp(null);
-
-          if (outputsData.length > 0) {
-            setExpandedSources(new Set([outputsData[0].id]));
-          }
         }
       } catch {
         // Silent fail - polling will retry
@@ -913,11 +905,11 @@ ${messages
                             : "bg-white shadow-md border-orange-100"
                         }`}
                       >
-                        <div
+                        <GuidanceMarkdown
+                          content={exchange.assistant.content}
+                          sources={exchange.output?.result_json.sources}
                           className={`leading-relaxed prose max-w-none ${isFirst ? "text-gray-900" : "text-gray-800"} prose-p:my-2 prose-ul:my-2 prose-li:my-0.5`}
-                        >
-                          <Markdown>{exchange.assistant.content}</Markdown>
-                        </div>
+                        />
 
                         {/* Scholar flag with refine option */}
                         {exchange.output?.scholar_flag && (

@@ -28,6 +28,8 @@ export { FloatingNavArrow } from "./FloatingNavArrow";
 export { VerseFocus } from "./VerseFocus";
 export { ChapterSelector } from "./ChapterSelector";
 export { IntroCard } from "./IntroCard";
+export { VersePopover } from "./VersePopover";
+export { GuidanceMarkdown } from "./GuidanceMarkdown";
 
 // Case-related components
 export {
