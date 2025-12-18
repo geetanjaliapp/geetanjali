@@ -8,7 +8,7 @@
  * - App shell caching for instant loads
  */
 
-const CACHE_VERSION = 'v3';
+const CACHE_VERSION = 'v4';
 const STATIC_CACHE = `geetanjali-static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `geetanjali-dynamic-${CACHE_VERSION}`;
 const VERSE_CACHE = `geetanjali-verses-${CACHE_VERSION}`;
@@ -84,6 +84,10 @@ self.addEventListener('fetch', (event) => {
     // Verse endpoints - cache for offline access
     if (url.pathname.includes('/verses/')) {
       event.respondWith(networkFirstWithCache(request, VERSE_CACHE, 86400)); // 24h
+    }
+    // Taxonomy endpoints - cache for offline access (rarely changes)
+    else if (url.pathname.includes('/taxonomy/')) {
+      event.respondWith(networkFirstWithCache(request, STATIC_CACHE, 86400)); // 24h
     } else {
       // Other API - network only (don't cache user data)
       event.respondWith(fetch(request));
