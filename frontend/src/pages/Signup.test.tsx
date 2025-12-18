@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { BrowserRouter } from "react-router-dom";
 import Signup from "./Signup";
 import { AuthProvider } from "../contexts/AuthContext";
+import { ThemeProvider } from "../contexts/ThemeContext";
 import { authApi, tokenStorage } from "../api/auth";
 import type { ReactNode } from "react";
 
@@ -36,7 +37,9 @@ vi.mock("react-router-dom", async () => {
 
 const wrapper = ({ children }: { children: ReactNode }) => (
   <BrowserRouter>
-    <AuthProvider>{children}</AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>{children}</AuthProvider>
+    </ThemeProvider>
   </BrowserRouter>
 );
 

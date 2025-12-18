@@ -3,6 +3,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import Home from "./Home";
 import { AuthProvider } from "../contexts/AuthContext";
+import { ThemeProvider } from "../contexts/ThemeContext";
 import * as api from "../lib/api";
 import { authApi, tokenStorage } from "../api/auth";
 import { mockCase, mockVerse, mockUser } from "../test/fixtures";
@@ -55,7 +56,9 @@ vi.mock("../api/auth", () => ({
 
 const wrapper = ({ children }: { children: ReactNode }) => (
   <BrowserRouter>
-    <AuthProvider>{children}</AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>{children}</AuthProvider>
+    </ThemeProvider>
   </BrowserRouter>
 );
 

@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import ResetPassword from "./ResetPassword";
 import { AuthProvider } from "../contexts/AuthContext";
+import { ThemeProvider } from "../contexts/ThemeContext";
 import { authApi, tokenStorage } from "../api/auth";
 import type { ReactNode } from "react";
 
@@ -40,11 +41,13 @@ vi.mock("react-router-dom", async () => {
 const renderWithToken = (token: string) => {
   const Wrapper = ({ children }: { children: ReactNode }) => (
     <MemoryRouter initialEntries={[`/reset-password?token=${token}`]}>
-      <AuthProvider>
-        <Routes>
-          <Route path="/reset-password" element={children} />
-        </Routes>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <Routes>
+            <Route path="/reset-password" element={children} />
+          </Routes>
+        </AuthProvider>
+      </ThemeProvider>
     </MemoryRouter>
   );
   return render(<ResetPassword />, { wrapper: Wrapper });
@@ -53,11 +56,13 @@ const renderWithToken = (token: string) => {
 const renderWithoutToken = () => {
   const Wrapper = ({ children }: { children: ReactNode }) => (
     <MemoryRouter initialEntries={["/reset-password"]}>
-      <AuthProvider>
-        <Routes>
-          <Route path="/reset-password" element={children} />
-        </Routes>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <Routes>
+            <Route path="/reset-password" element={children} />
+          </Routes>
+        </AuthProvider>
+      </ThemeProvider>
     </MemoryRouter>
   );
   return render(<ResetPassword />, { wrapper: Wrapper });

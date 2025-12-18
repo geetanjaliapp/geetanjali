@@ -42,9 +42,9 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 // Get system preference
 function getSystemTheme(): ResolvedTheme {
   if (typeof window === "undefined") return "light";
-  return window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light";
+  // Handle environments where matchMedia is not available (e.g., jsdom)
+  const mediaQuery = window.matchMedia?.("(prefers-color-scheme: dark)");
+  return mediaQuery?.matches ? "dark" : "light";
 }
 
 // Get stored theme or default to system
@@ -103,7 +103,13 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
 
   // Listen for system preference changes
   useEffect(() => {
+    // Handle environments where matchMedia is not available (e.g., jsdom)
+    if (typeof window === "undefined" || !window.matchMedia) return;
+
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+    // Guard against environments where matchMedia returns undefined
+    if (!mediaQuery) return;
 
     const handleChange = () => {
       if (theme === "system") {

@@ -2,6 +2,21 @@ import "@testing-library/jest-dom";
 import { afterEach, beforeAll, vi } from "vitest";
 import { cleanup } from "@testing-library/react";
 
+// Mock matchMedia immediately (before any component loads)
+Object.defineProperty(window, "matchMedia", {
+  writable: true,
+  value: vi.fn().mockImplementation((query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  })),
+});
+
 // Cleanup after each test
 afterEach(() => {
   cleanup();
@@ -52,20 +67,5 @@ beforeAll(() => {
     value: {
       randomUUID: () => "test-uuid-" + Math.random().toString(36).substring(7),
     },
-  });
-
-  // Mock matchMedia
-  Object.defineProperty(window, "matchMedia", {
-    writable: true,
-    value: vi.fn().mockImplementation((query: string) => ({
-      matches: false,
-      media: query,
-      onchange: null,
-      addListener: vi.fn(),
-      removeListener: vi.fn(),
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-      dispatchEvent: vi.fn(),
-    })),
   });
 });
