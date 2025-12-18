@@ -12,14 +12,11 @@ import {
   ChevronDownIcon,
   SpinnerIcon,
   HeartIcon,
+  StarIcon,
 } from "../components/icons";
 import { errorMessages } from "../lib/errorMessages";
-import { useSEO, useFavorites, useShare, useSearch } from "../hooks";
+import { useSEO, useFavorites, useShare, useSearch, useTaxonomy } from "../hooks";
 import { validateSearchQuery } from "../lib/contentFilter";
-import {
-  PRINCIPLE_TAXONOMY,
-  getPrincipleShortLabel,
-} from "../constants/principles";
 
 // Responsive page size: 16 for desktop (4x4 grid), 12 for mobile
 const getVersesPerPage = () => {
@@ -38,7 +35,7 @@ const SKELETON_COUNT = 8;
 
 // Filter pill styling patterns (focus-visible for keyboard-only focus rings)
 const FILTER_PILL_BASE =
-  "px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2";
+  "px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900";
 const FILTER_PILL_ACTIVE = "bg-orange-600 text-white shadow-md";
 const FILTER_PILL_INACTIVE =
   "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600";
@@ -85,6 +82,9 @@ export default function Verses() {
 
   // Share hook for share button
   const { share, copied: shareCopied } = useShare();
+
+  // Taxonomy hook for principles (single source of truth from backend)
+  const { principles, getPrincipleShortLabel } = useTaxonomy();
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -182,6 +182,64 @@ export default function Verses() {
   );
   const [showChapterDropdown, setShowChapterDropdown] = useState(false);
 
+  // Ref for auto-scrolling to selected principle pill
+  const principlesContainerRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to selected principle pill when it changes (e.g., from URL param)
+  useEffect(() => {
+    if (selectedPrinciple && principlesContainerRef.current) {
+      const container = principlesContainerRef.current;
+      const selectedButton = container.querySelector(
+        `[data-principle-id="${selectedPrinciple}"]`,
+      ) as HTMLElement | null;
+
+      if (selectedButton) {
+        // Scroll the button into view with some padding
+        const containerRect = container.getBoundingClientRect();
+        const buttonRect = selectedButton.getBoundingClientRect();
+
+        // Check if button is outside visible area
+        if (
+          buttonRect.left < containerRect.left ||
+          buttonRect.right > containerRect.right
+        ) {
+          selectedButton.scrollIntoView({
+            behavior: "smooth",
+            block: "nearest",
+            inline: "center",
+          });
+        }
+      }
+    }
+  }, [selectedPrinciple, principles]); // Also depend on principles loading
+
+  // Sync filter state with URL changes (e.g., clicking "Verses" in navbar resets filters)
+  useEffect(() => {
+    const urlTopic = searchParams.get("topic");
+    const urlChapter = searchParams.get("chapter");
+    const urlAll = searchParams.get("all");
+    const urlFavorites = searchParams.get("favorites");
+
+    // Sync principle filter
+    if (urlTopic !== selectedPrinciple) {
+      setSelectedPrinciple(urlTopic);
+    }
+
+    // Sync filter mode
+    const newFilterMode: FilterMode = urlChapter
+      ? parseInt(urlChapter)
+      : urlAll === "true"
+        ? "all"
+        : urlFavorites === "true"
+          ? "favorites"
+          : "featured";
+
+    if (newFilterMode !== filterMode) {
+      setFilterMode(newFilterMode);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]); // Only depend on searchParams, not state (to avoid infinite loops)
+
   // Derived state
   const selectedChapter = typeof filterMode === "number" ? filterMode : null;
   const showFeatured = filterMode === "featured";
@@ -196,8 +254,8 @@ export default function Verses() {
     return verses;
   }, [verses, showFavorites, favorites]);
 
-  // All principle IDs for the pill row
-  const principleIds = Object.keys(PRINCIPLE_TAXONOMY);
+  // Principles for the pill row (ordered by backend - single source of truth)
+  // principles array comes from useTaxonomy hook
 
   // Memoized load functions
   const loadCount = useCallback(async () => {
@@ -366,6 +424,10 @@ export default function Verses() {
           params.topic = selectedPrinciple;
         }
         setSearchParams(params);
+        // Clear focus from search input
+        if (document.activeElement instanceof HTMLElement) {
+          document.activeElement.blur();
+        }
       }
     };
     document.addEventListener("keydown", handleEscape);
@@ -375,6 +437,35 @@ export default function Verses() {
     clearSearch,
     filterMode,
     selectedPrinciple,
+    setSearchParams,
+  ]);
+
+  // Escape key clears filters when in browse mode (not search mode)
+  useEffect(() => {
+    // Only handle escape for filters when not in search mode and a filter is active
+    const hasActiveFilter =
+      selectedPrinciple || selectedChapter || filterMode !== "featured";
+    if (isSearchMode || !hasActiveFilter) return;
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        // Reset to default state
+        setFilterMode("featured");
+        setSelectedPrinciple(null);
+        setSearchParams({});
+        // Clear focus from any filter button
+        if (document.activeElement instanceof HTMLElement) {
+          document.activeElement.blur();
+        }
+      }
+    };
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [
+    isSearchMode,
+    selectedPrinciple,
+    selectedChapter,
+    filterMode,
     setSearchParams,
   ]);
 
@@ -592,117 +683,116 @@ export default function Verses() {
             />
           </div>
 
-          {/* Row 2: Filters - fixed buttons + scrollable topics */}
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            {/* Fixed Filter Buttons (don't scroll) */}
-            <div className="flex gap-1.5 sm:gap-2 items-center flex-shrink-0">
-              <button
-                onClick={() => handleFilterSelect("featured")}
-                className={`${FILTER_PILL_BASE} ${showFeatured && !selectedPrinciple ? FILTER_PILL_ACTIVE : FILTER_PILL_INACTIVE}`}
-              >
-                Featured
-              </button>
-              <button
-                onClick={() => handleFilterSelect("all")}
-                className={`${FILTER_PILL_BASE} ${showAll && !selectedPrinciple ? FILTER_PILL_ACTIVE : FILTER_PILL_INACTIVE}`}
-              >
-                All
-              </button>
-              <button
-                onClick={() => handleFilterSelect("favorites")}
-                className={`${FILTER_PILL_BASE} flex items-center gap-1 ${showFavorites && !selectedPrinciple ? FILTER_PILL_ACTIVE : FILTER_PILL_INACTIVE}`}
-              >
-                <HeartIcon
-                  className="w-3.5 h-3.5 sm:w-4 sm:h-4"
-                  filled={showFavorites || favoritesCount > 0}
-                />
-                <span className="hidden sm:inline">Favorites</span>
-                {favoritesCount > 0 && (
-                  <span
-                    className={`text-[10px] sm:text-xs px-1 sm:px-1.5 py-0.5 rounded-full ${
-                      showFavorites && !selectedPrinciple
-                        ? "bg-white/20 text-white"
-                        : "bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400"
-                    }`}
-                  >
-                    {favoritesCount}
-                  </span>
-                )}
-              </button>
-
-              {/* Chapter Dropdown - outside scroll container so dropdown isn't clipped */}
-              <div className="relative">
-                <button
-                  onClick={() => setShowChapterDropdown(!showChapterDropdown)}
-                  className={`${FILTER_PILL_BASE} flex items-center gap-1 ${selectedChapter && !selectedPrinciple ? FILTER_PILL_ACTIVE : FILTER_PILL_INACTIVE}`}
+          {/* Row 2: Mode Filters - Featured, All, Favorites, Chapter */}
+          <div className="flex items-center gap-1.5 sm:gap-2 mb-2">
+            <button
+              onClick={() => handleFilterSelect("featured")}
+              className={`${FILTER_PILL_BASE} flex items-center gap-1 ${showFeatured && !selectedPrinciple ? FILTER_PILL_ACTIVE : FILTER_PILL_INACTIVE}`}
+            >
+              <StarIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span>Featured</span>
+            </button>
+            <button
+              onClick={() => handleFilterSelect("all")}
+              className={`${FILTER_PILL_BASE} ${showAll && !selectedPrinciple ? FILTER_PILL_ACTIVE : FILTER_PILL_INACTIVE}`}
+            >
+              All
+            </button>
+            <button
+              onClick={() => handleFilterSelect("favorites")}
+              className={`${FILTER_PILL_BASE} flex items-center gap-1 ${showFavorites && !selectedPrinciple ? FILTER_PILL_ACTIVE : FILTER_PILL_INACTIVE}`}
+            >
+              <HeartIcon
+                className="w-3.5 h-3.5 sm:w-4 sm:h-4"
+                filled={showFavorites || favoritesCount > 0}
+              />
+              <span className="hidden sm:inline">Favorites</span>
+              {favoritesCount > 0 && (
+                <span
+                  className={`text-[10px] sm:text-xs px-1 sm:px-1.5 py-0.5 rounded-full ${
+                    showFavorites && !selectedPrinciple
+                      ? "bg-white/20 text-white"
+                      : "bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400"
+                  }`}
                 >
-                  {selectedChapter ? `Ch ${selectedChapter}` : "Ch"}
-                  <ChevronDownIcon
-                    className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform ${showChapterDropdown ? "rotate-180" : ""}`}
+                  {favoritesCount}
+                </span>
+              )}
+            </button>
+
+            {/* Chapter Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setShowChapterDropdown(!showChapterDropdown)}
+                className={`${FILTER_PILL_BASE} flex items-center gap-1 ${selectedChapter && !selectedPrinciple ? FILTER_PILL_ACTIVE : FILTER_PILL_INACTIVE}`}
+              >
+                {selectedChapter ? `Ch ${selectedChapter}` : "Chapter"}
+                <ChevronDownIcon
+                  className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform ${showChapterDropdown ? "rotate-180" : ""}`}
+                />
+              </button>
+
+              {showChapterDropdown && (
+                <>
+                  <div
+                    className="fixed inset-0 z-10"
+                    onClick={() => setShowChapterDropdown(false)}
                   />
-                </button>
-
-                {showChapterDropdown && (
-                  <>
-                    <div
-                      className="fixed inset-0 z-10"
-                      onClick={() => setShowChapterDropdown(false)}
-                    />
-                    <div className="absolute left-0 mt-2 p-2 sm:p-3 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 z-20 w-48 sm:w-64">
-                      <div className="grid grid-cols-6 gap-1.5 sm:gap-2">
-                        {Array.from({ length: 18 }, (_, i) => i + 1).map(
-                          (chapter) => (
-                            <button
-                              key={chapter}
-                              onClick={() => {
-                                handleFilterSelect(chapter);
-                                setShowChapterDropdown(false);
-                              }}
-                              className={`h-8 sm:h-9 rounded-lg text-xs sm:text-sm font-medium transition-all ${
-                                selectedChapter === chapter
-                                  ? "bg-orange-600 text-white shadow-md"
-                                  : "bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-orange-50 dark:hover:bg-orange-900/30 hover:text-orange-700 dark:hover:text-orange-400 border border-gray-200 dark:border-gray-600"
-                              }`}
-                            >
-                              {chapter}
-                            </button>
-                          ),
-                        )}
-                      </div>
+                  <div className="absolute left-0 mt-2 p-2 sm:p-3 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 z-20 w-48 sm:w-64">
+                    <div className="grid grid-cols-6 gap-1.5 sm:gap-2">
+                      {Array.from({ length: 18 }, (_, i) => i + 1).map(
+                        (chapter) => (
+                          <button
+                            key={chapter}
+                            onClick={() => {
+                              handleFilterSelect(chapter);
+                              setShowChapterDropdown(false);
+                            }}
+                            className={`h-8 sm:h-9 rounded-lg text-xs sm:text-sm font-medium transition-all ${
+                              selectedChapter === chapter
+                                ? "bg-orange-600 text-white shadow-md"
+                                : "bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-orange-50 dark:hover:bg-orange-900/30 hover:text-orange-700 dark:hover:text-orange-400 border border-gray-200 dark:border-gray-600"
+                            }`}
+                          >
+                            {chapter}
+                          </button>
+                        ),
+                      )}
                     </div>
-                  </>
-                )}
-              </div>
+                  </div>
+                </>
+              )}
             </div>
+          </div>
 
-            {/* Visual Separator */}
-            <div className="w-px h-5 bg-amber-300/50 dark:bg-gray-600 flex-shrink-0" />
+          {/* Row 3: Topic/Principle Pills - scrollable */}
+          <div className="relative">
+            {/* Scroll fade indicators */}
+            <div className="absolute left-0 top-0 bottom-0 w-4 bg-gradient-to-r from-amber-50/95 dark:from-gray-900/95 to-transparent z-10 pointer-events-none" />
+            <div className="absolute right-0 top-0 bottom-0 w-4 bg-gradient-to-l from-amber-50/95 dark:from-gray-900/95 to-transparent z-10 pointer-events-none" />
 
-            {/* Scrollable Topic Pills */}
-            <div className="relative flex-1 min-w-0">
-              {/* Scroll fade indicators (mobile) */}
-              <div className="absolute left-0 top-0 bottom-0 w-4 bg-gradient-to-r from-amber-50/95 dark:from-gray-900/95 to-transparent z-10 pointer-events-none" />
-              <div className="absolute right-0 top-0 bottom-0 w-4 bg-gradient-to-l from-amber-50/95 dark:from-gray-900/95 to-transparent z-10 pointer-events-none" />
-
-              <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-0.5 px-1 scrollbar-hide">
-                {principleIds.map((principleId) => (
-                  <button
-                    key={principleId}
-                    onClick={() =>
-                      handlePrincipleSelect(
-                        selectedPrinciple === principleId ? null : principleId,
-                      )
-                    }
-                    className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
-                      selectedPrinciple === principleId
-                        ? "bg-amber-600 text-white shadow-md"
-                        : "bg-amber-100/80 dark:bg-gray-700 text-amber-800 dark:text-amber-300 hover:bg-amber-200 dark:hover:bg-gray-600 border border-amber-200/50 dark:border-gray-600"
-                    }`}
-                  >
-                    {getPrincipleShortLabel(principleId)}
-                  </button>
-                ))}
-              </div>
+            <div
+              ref={principlesContainerRef}
+              className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-0.5 px-1 scrollbar-hide"
+            >
+              {principles.map((principle) => (
+                <button
+                  key={principle.id}
+                  data-principle-id={principle.id}
+                  onClick={() =>
+                    handlePrincipleSelect(
+                      selectedPrinciple === principle.id ? null : principle.id,
+                    )
+                  }
+                  className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-900 ${
+                    selectedPrinciple === principle.id
+                      ? "bg-amber-600 text-white shadow-md"
+                      : "bg-amber-100/80 dark:bg-gray-700 text-amber-800 dark:text-amber-300 hover:bg-amber-200 dark:hover:bg-gray-600 border border-amber-200/50 dark:border-gray-600"
+                  }`}
+                >
+                  {principle.shortLabel}
+                </button>
+              ))}
             </div>
           </div>
         </div>

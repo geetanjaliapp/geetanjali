@@ -7,7 +7,7 @@ import {
 } from "react-router-dom";
 import { versesApi } from "../lib/api";
 import { formatSanskritLines, isSpeakerIntro } from "../lib/sanskritFormatter";
-import { PRINCIPLE_TAXONOMY } from "../constants/principles";
+import { getPrincipleShortLabel, getPrincipleLabel } from "../constants/principles";
 import { getTranslatorPriority } from "../constants/translators";
 import type { Verse, Translation } from "../types";
 import {
@@ -378,35 +378,29 @@ export default function VerseDetail() {
                     Consulting Principles
                   </p>
                   <div className="flex flex-wrap gap-2 sm:gap-3">
-                    {verse.consulting_principles.map((principleId) => {
-                      const principle =
-                        PRINCIPLE_TAXONOMY[
-                          principleId as keyof typeof PRINCIPLE_TAXONOMY
-                        ];
-                      return (
-                        <Link
-                          key={principleId}
-                          to={`/verses?topic=${principleId}`}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2
-                                     bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 rounded-full text-sm sm:text-base
-                                     font-medium shadow-sm
-                                     hover:bg-amber-200 dark:hover:bg-amber-800/50 hover:shadow-md
-                                     active:bg-amber-300 dark:active:bg-amber-700/50
-                                     transition-all duration-150
-                                     focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500
-                                     focus-visible:ring-offset-2"
-                          aria-label={`View all verses about ${principle?.label || principleId}`}
+                    {verse.consulting_principles.map((principleId) => (
+                      <Link
+                        key={principleId}
+                        to={`/verses?topic=${principleId}`}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2
+                                   bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 rounded-full text-sm sm:text-base
+                                   font-medium shadow-sm
+                                   hover:bg-amber-200 dark:hover:bg-amber-800/50 hover:shadow-md
+                                   active:bg-amber-300 dark:active:bg-amber-700/50
+                                   transition-all duration-150
+                                   focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500
+                                   focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800"
+                        aria-label={`View all verses about ${getPrincipleLabel(principleId)}`}
+                      >
+                        <span>{getPrincipleShortLabel(principleId)}</span>
+                        <span
+                          aria-hidden="true"
+                          className="text-amber-600 dark:text-amber-400"
                         >
-                          <span>{principle?.shortLabel || principleId}</span>
-                          <span
-                            aria-hidden="true"
-                            className="text-amber-600 dark:text-amber-400"
-                          >
-                            →
-                          </span>
-                        </Link>
-                      );
-                    })}
+                          →
+                        </span>
+                      </Link>
+                    ))}
                   </div>
                 </div>
               )}
