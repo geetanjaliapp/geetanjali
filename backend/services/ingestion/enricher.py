@@ -98,14 +98,14 @@ class Enricher:
         self, verse_text: str, temperature: float = 0.1
     ) -> List[str]:
         """
-        Extract consulting principles from verse using LLM.
+        Extract consulting principles from verse using LLM with Geeta Expert persona.
 
         Args:
             verse_text: English translation of the verse
             temperature: LLM temperature (low for consistent tagging)
 
         Returns:
-            List of principle IDs
+            List of principle IDs (2-4 principles)
         """
         if not verse_text or not verse_text.strip():
             logger.warning("Empty verse text provided for principle extraction")
@@ -115,33 +115,53 @@ class Enricher:
             logger.warning("No principle taxonomy loaded, skipping extraction")
             return []
 
-        # Build principle list for prompt
+        # Build principle list with richer context from taxonomy
         principle_list = []
         for pid, data in self.principle_taxonomy.items():
             label = data.get("label", pid)
             description = data.get("description", "")
-            principle_list.append(f"- {pid}: {label} - {description}")
+            leadership = data.get("leadershipContext", "")
+            group = data.get("group", "")
+            keywords = data.get("keywords", [])
 
-        principle_text = "\n".join(principle_list)
+            # Include keywords and leadership context for better matching
+            keywords_str = ", ".join(keywords[:5]) if keywords else ""
+            principle_list.append(
+                f"- {pid} ({group}): {label}\n"
+                f"  Description: {description}\n"
+                f"  Leadership: {leadership}\n"
+                f"  Keywords: {keywords_str}"
+            )
 
-        # Build prompt
-        prompt = f"""You are analyzing a verse from the Bhagavad Geeta \
-for consulting principles relevant to ethical leadership.
+        principle_text = "\n\n".join(principle_list)
+
+        # Build prompt with Geeta Expert persona
+        prompt = f"""You are a Bhagavad Geeta scholar and expert in Vedantic philosophy, \
+analyzing verses for their core teachings and applications to modern leadership.
+
+Your task is to identify which principles from the taxonomy best represent this verse's message.
+
+Consider:
+1. The direct teaching of the verse
+2. The broader context within the Geeta's philosophy (Karma, Jnana, Bhakti yoga paths)
+3. Relevance to modern life and leadership application
+4. The verse's emphasis - what is it primarily teaching?
 
 Verse translation:
 {verse_text}
 
-Identify which of these consulting principles apply to this verse:
+PRINCIPLE TAXONOMY (16 principles in 4 groups):
 
 {principle_text}
 
 Return ONLY a valid JSON object with this exact format:
-{{"principles": ["principle_id_1", "principle_id_2"]}}
+{{"principles": ["principle_id_1", "principle_id_2", "principle_id_3"]}}
 
 Rules:
-- Only use principle IDs from the list provided
-- Select 1-3 most relevant principles
-- Return empty array if no principles clearly apply
+- Only use principle IDs from the list provided (e.g., "dharma", "nishkama_karma")
+- Select 2-4 most relevant principles that authentically capture the verse's wisdom
+- Prioritize principles that match the verse's primary teaching
+- Consider the yoga path (karma/jnana/bhakti/sadachara) when grouping principles
 - Must be valid JSON format"""
 
         try:
@@ -180,7 +200,7 @@ Rules:
         self, verse_text: str, max_words: int = 25, temperature: float = 0.3
     ) -> str:
         """
-        Generate short paraphrase for UI display.
+        Generate short paraphrase for UI display using Geeta Expert persona.
 
         Args:
             verse_text: English translation of the verse
@@ -194,8 +214,15 @@ Rules:
             logger.warning("Empty verse text provided for paraphrasing")
             return ""
 
-        prompt = f"""Summarize this Bhagavad Geeta verse translation in maximum {max_words} words.
-Focus on actionable wisdom for modern leaders and decision-makers.
+        prompt = f"""You are a Bhagavad Geeta scholar presenting timeless wisdom to modern professionals.
+
+Distill this verse translation into a brief, actionable insight (maximum {max_words} words).
+
+Guidelines:
+- Focus on the practical application for modern leaders and decision-makers
+- Use accessible language while preserving the verse's essence
+- Avoid religious jargon; emphasize universal wisdom
+- Be concise and memorable
 
 Verse:
 {verse_text}
