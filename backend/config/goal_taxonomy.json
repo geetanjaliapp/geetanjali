@@ -1,0 +1,58 @@
+{
+  "inner_peace": {
+    "id": "inner_peace",
+    "label": "Inner Peace",
+    "description": "Finding calm amidst life's storms",
+    "icon": "peace",
+    "principles": ["samatvam", "sthitaprajna", "dhyana", "tyaga"]
+  },
+  "spiritual_growth": {
+    "id": "spiritual_growth",
+    "label": "Spiritual Growth",
+    "description": "Deepening connection with the divine",
+    "icon": "lotus",
+    "principles": ["bhakti", "sharanagati", "shraddha", "jnana"]
+  },
+  "work_excellence": {
+    "id": "work_excellence",
+    "label": "Work & Career",
+    "description": "Excelling without burning out",
+    "icon": "briefcase",
+    "principles": ["dharma", "svadharma", "nishkama_karma", "discipline"]
+  },
+  "decision_clarity": {
+    "id": "decision_clarity",
+    "label": "Decisions & Clarity",
+    "description": "Making wise choices with confidence",
+    "icon": "compass",
+    "principles": ["viveka", "sthitaprajna", "dharma", "shraddha"]
+  },
+  "personal_growth": {
+    "id": "personal_growth",
+    "label": "Personal Growth",
+    "description": "Building character and better habits",
+    "icon": "sprout",
+    "principles": ["abhyasa", "discipline", "virtue", "jnana"]
+  },
+  "leadership": {
+    "id": "leadership",
+    "label": "Leadership",
+    "description": "Guiding others with wisdom and integrity",
+    "icon": "crown",
+    "principles": ["seva", "dharma", "virtue", "sthitaprajna"]
+  },
+  "resilience": {
+    "id": "resilience",
+    "label": "Resilience",
+    "description": "Overcoming setbacks and adversity",
+    "icon": "mountain",
+    "principles": ["shraddha", "tyaga", "samatvam", "abhyasa"]
+  },
+  "exploring": {
+    "id": "exploring",
+    "label": "Just Exploring",
+    "description": "Curious about the Geeta's wisdom",
+    "icon": "book",
+    "principles": []
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "karma": {
+    "id": "karma",
+    "label": "Action",
+    "sanskrit": "कर्म योग",
+    "transliteration": "Karma Yoga",
+    "description": "The path of selfless action",
+    "principles": ["dharma", "nishkama_karma", "svadharma", "seva"]
+  },
+  "jnana": {
+    "id": "jnana",
+    "label": "Knowledge",
+    "sanskrit": "ज्ञान योग",
+    "transliteration": "Jnana Yoga",
+    "description": "The path of wisdom and discernment",
+    "principles": ["viveka", "jnana", "sthitaprajna", "tyaga"]
+  },
+  "bhakti": {
+    "id": "bhakti",
+    "label": "Devotion",
+    "sanskrit": "भक्ति योग",
+    "transliteration": "Bhakti Yoga",
+    "description": "The path of love and surrender",
+    "principles": ["bhakti", "sharanagati", "shraddha", "dhyana"]
+  },
+  "sadachara": {
+    "id": "sadachara",
+    "label": "Character",
+    "sanskrit": "सदाचार",
+    "transliteration": "Sadachara",
+    "description": "The path of virtuous conduct",
+    "principles": ["samatvam", "discipline", "virtue", "abhyasa"]
+  }
+}

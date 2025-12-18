@@ -1,47 +1,194 @@
 {
-  "duty_focus": {
-    "label": "Duty-focused action",
-    "description": "Act based on dharma and responsibility, not on desired outcomes. Focus on what is right rather than what is advantageous.",
-    "keywords": ["duty", "dharma", "responsibility", "obligation", "right action"]
+  "dharma": {
+    "id": "dharma",
+    "label": "Righteous Duty",
+    "shortLabel": "Duty",
+    "sanskrit": "धर्म",
+    "transliteration": "dharma",
+    "description": "Honor your responsibilities and role. Act on what is right, not what is convenient.",
+    "leadershipContext": "Leaders must understand and fulfill their responsibilities to stakeholders, teams, and society.",
+    "keywords": ["duty", "responsibility", "dharma", "obligation", "role", "commitment", "righteous", "right action"],
+    "group": "karma",
+    "chapterFocus": [2, 3, 18]
   },
-  "detachment": {
-    "label": "Non-attachment to outcomes",
-    "description": "Emphasize process over results. Perform actions without being attached to success or failure.",
-    "keywords": ["detachment", "non-attachment", "equanimity", "process", "renunciation"]
+  "nishkama_karma": {
+    "id": "nishkama_karma",
+    "label": "Selfless Action",
+    "shortLabel": "Selfless Action",
+    "sanskrit": "निष्काम कर्म",
+    "transliteration": "nishkama karma",
+    "description": "Act without attachment to outcomes. Focus on the process, not results.",
+    "leadershipContext": "Leaders perform their duties with excellence regardless of recognition or reward.",
+    "keywords": ["detachment", "non-attachment", "selfless", "process", "outcomes", "results", "action without desire"],
+    "group": "karma",
+    "chapterFocus": [2, 3, 5]
   },
-  "self_control": {
-    "label": "Leader temperament",
-    "description": "Cultivate self-discipline, mental clarity, and personal integrity as foundation for leadership.",
-    "keywords": ["self-control", "discipline", "temperament", "integrity", "composure"]
+  "samatvam": {
+    "id": "samatvam",
+    "label": "Equanimity",
+    "shortLabel": "Equanimity",
+    "sanskrit": "समत्वम्",
+    "transliteration": "samatvam",
+    "description": "Remain balanced in success and failure, praise and criticism.",
+    "leadershipContext": "Leaders maintain emotional equilibrium regardless of outcomes, modeling stability for their teams.",
+    "keywords": ["equanimity", "balance", "evenness", "composure", "stability", "calm", "poise", "equilibrium"],
+    "group": "sadachara",
+    "chapterFocus": [2, 6, 14]
   },
-  "informed_choice": {
-    "label": "Autonomous decision-making",
-    "description": "Make decisions with full knowledge and freedom. Understand options before choosing.",
-    "keywords": ["informed", "autonomous", "knowledge", "awareness", "understanding"]
+  "sthitaprajna": {
+    "id": "sthitaprajna",
+    "label": "Steady Wisdom",
+    "shortLabel": "Steady Wisdom",
+    "sanskrit": "स्थितप्रज्ञ",
+    "transliteration": "sthitaprajna",
+    "description": "Maintain clarity and stability of mind amidst changing circumstances.",
+    "leadershipContext": "Leaders remain composed and clear-thinking during crises and uncertainty.",
+    "keywords": ["steady", "stable", "wisdom", "clarity", "composure", "unshaken", "centered", "grounded"],
+    "group": "jnana",
+    "chapterFocus": [2, 6, 14]
   },
-  "role_fit": {
-    "label": "Fit tasks to nature",
-    "description": "Match responsibilities to natural capabilities and temperament. Assign work according to strengths.",
-    "keywords": ["role", "nature", "capability", "temperament", "strength", "svadharma"]
+  "dhyana": {
+    "id": "dhyana",
+    "label": "Meditation",
+    "shortLabel": "Meditation",
+    "sanskrit": "ध्यान",
+    "transliteration": "dhyana",
+    "description": "Cultivate inner stillness, focus, and connection through practice.",
+    "leadershipContext": "Leaders develop focus and presence through mindful practices that quiet the mind.",
+    "keywords": ["meditation", "contemplation", "focus", "stillness", "mindfulness", "concentration", "inner", "awareness"],
+    "group": "bhakti",
+    "chapterFocus": [6, 8]
   },
-  "compassion": {
-    "label": "Compassionate equilibrium",
-    "description": "Minimize harm in decision-making. Balance multiple stakeholder needs with empathy.",
-    "keywords": ["compassion", "harm reduction", "empathy", "care", "stakeholders"]
+  "viveka": {
+    "id": "viveka",
+    "label": "Discernment",
+    "shortLabel": "Discernment",
+    "sanskrit": "विवेक",
+    "transliteration": "viveka",
+    "description": "Distinguish the essential from non-essential, wise from unwise.",
+    "leadershipContext": "Leaders make informed decisions by clearly seeing what matters and what doesn't.",
+    "keywords": ["discernment", "discrimination", "wisdom", "choice", "judgment", "clarity", "essential", "priorities"],
+    "group": "jnana",
+    "chapterFocus": [2, 13, 18]
   },
-  "self_responsibility": {
-    "label": "Self-effort and example",
-    "description": "Leaders lead through personal action and example. Take responsibility for self-improvement.",
-    "keywords": ["self-effort", "example", "role model", "personal action", "initiative"]
+  "jnana": {
+    "id": "jnana",
+    "label": "Self-Knowledge",
+    "shortLabel": "Knowledge",
+    "sanskrit": "ज्ञान",
+    "transliteration": "jnana",
+    "description": "Pursue understanding of self, truth, and the nature of reality.",
+    "leadershipContext": "Leaders grow through continuous learning and honest self-assessment.",
+    "keywords": ["knowledge", "wisdom", "understanding", "truth", "learning", "self-awareness", "insight", "realization"],
+    "group": "jnana",
+    "chapterFocus": [4, 7, 13]
   },
-  "ethical_character": {
-    "label": "Character traits",
-    "description": "Filter actions through virtuous character traits. Cultivate qualities like truthfulness, courage, and patience.",
-    "keywords": ["character", "virtue", "ethics", "qualities", "values"]
+  "tyaga": {
+    "id": "tyaga",
+    "label": "Letting Go",
+    "shortLabel": "Letting Go",
+    "sanskrit": "त्याग",
+    "transliteration": "tyaga",
+    "description": "Release attachments to possessions, status, ego, and past.",
+    "leadershipContext": "Leaders let go of ego, past failures, and the need for control to move forward effectively.",
+    "keywords": ["renunciation", "letting go", "release", "surrender", "detachment", "ego", "freedom", "liberation"],
+    "group": "jnana",
+    "chapterFocus": [12, 18]
   },
-  "consistent_duty": {
-    "label": "Consistent performance",
-    "description": "Perform duties regularly and consistently. Avoid impulsive or erratic behavior.",
-    "keywords": ["consistency", "regularity", "steadiness", "discipline", "routine"]
+  "bhakti": {
+    "id": "bhakti",
+    "label": "Devotion",
+    "shortLabel": "Devotion",
+    "sanskrit": "भक्ति",
+    "transliteration": "bhakti",
+    "description": "Cultivate love and connection to something greater than yourself.",
+    "leadershipContext": "Leaders find purpose in serving something larger than personal ambition.",
+    "keywords": ["devotion", "love", "connection", "divine", "surrender", "worship", "dedication", "higher purpose"],
+    "group": "bhakti",
+    "chapterFocus": [9, 11, 12]
+  },
+  "shraddha": {
+    "id": "shraddha",
+    "label": "Faith",
+    "shortLabel": "Faith",
+    "sanskrit": "श्रद्धा",
+    "transliteration": "shraddha",
+    "description": "Act with conviction and trust. You become what you believe.",
+    "leadershipContext": "Leaders inspire confidence through their own unwavering belief in vision and values.",
+    "keywords": ["faith", "conviction", "belief", "trust", "confidence", "dedication", "commitment", "resolve"],
+    "group": "bhakti",
+    "chapterFocus": [4, 17]
+  },
+  "sharanagati": {
+    "id": "sharanagati",
+    "label": "Surrender",
+    "shortLabel": "Surrender",
+    "sanskrit": "शरणागति",
+    "transliteration": "sharanagati",
+    "description": "Let go of ego-driven control. Trust in the larger order.",
+    "leadershipContext": "Leaders accept what they cannot control and trust in their team and process.",
+    "keywords": ["surrender", "trust", "refuge", "acceptance", "letting go", "faith", "submission", "reliance"],
+    "group": "bhakti",
+    "chapterFocus": [18]
+  },
+  "discipline": {
+    "id": "discipline",
+    "label": "Self-Mastery",
+    "shortLabel": "Discipline",
+    "sanskrit": "संयम",
+    "transliteration": "samyama",
+    "description": "Control senses, mind, and impulses. Cultivate restraint.",
+    "leadershipContext": "Leaders demonstrate self-control and discipline, mastering their own impulses before leading others.",
+    "keywords": ["discipline", "self-control", "restraint", "mastery", "control", "temperament", "willpower", "regulation"],
+    "group": "sadachara",
+    "chapterFocus": [2, 3, 6]
+  },
+  "virtue": {
+    "id": "virtue",
+    "label": "Noble Qualities",
+    "shortLabel": "Virtue",
+    "sanskrit": "दैवी सम्पद्",
+    "transliteration": "daivi sampat",
+    "description": "Embody divine qualities: truthfulness, courage, compassion, patience.",
+    "leadershipContext": "Leaders cultivate and demonstrate virtuous character traits that inspire trust and respect.",
+    "keywords": ["virtue", "character", "ethics", "qualities", "values", "integrity", "truthfulness", "courage", "compassion"],
+    "group": "sadachara",
+    "chapterFocus": [16]
+  },
+  "svadharma": {
+    "id": "svadharma",
+    "label": "True to Your Nature",
+    "shortLabel": "Your Nature",
+    "sanskrit": "स्वधर्म",
+    "transliteration": "svadharma",
+    "description": "Align work with your innate strengths and authentic self.",
+    "leadershipContext": "Leaders match responsibilities to natural capabilities and temperament, both for themselves and their teams.",
+    "keywords": ["nature", "authentic", "strengths", "temperament", "calling", "role fit", "innate", "self"],
+    "group": "karma",
+    "chapterFocus": [3, 18]
+  },
+  "seva": {
+    "id": "seva",
+    "label": "Selfless Service",
+    "shortLabel": "Service",
+    "sanskrit": "सेवा",
+    "transliteration": "seva",
+    "description": "Act for the welfare of others without expectation. Lead by personal example.",
+    "leadershipContext": "Leaders serve their teams and stakeholders, leading through personal action rather than just direction.",
+    "keywords": ["service", "selfless", "welfare", "others", "example", "role model", "compassion", "helping"],
+    "group": "karma",
+    "chapterFocus": [3, 12, 16]
+  },
+  "abhyasa": {
+    "id": "abhyasa",
+    "label": "Practice",
+    "shortLabel": "Practice",
+    "sanskrit": "अभ्यास",
+    "transliteration": "abhyasa",
+    "description": "Persist through consistent effort. Growth comes through repetition.",
+    "leadershipContext": "Leaders develop skills and wisdom through persistent, deliberate practice over time.",
+    "keywords": ["practice", "repetition", "consistency", "effort", "persistence", "training", "habit", "discipline", "routine"],
+    "group": "sadachara",
+    "chapterFocus": [6, 12]
   }
 }
