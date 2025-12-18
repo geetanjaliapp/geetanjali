@@ -62,11 +62,12 @@ export const PRIMARY_CTA: PrimaryCTA = {
  *
  * UX Flow:
  * 1. Home - anchor
- * 2. Verses - entry point for discovery (browse first)
- * 3. Search - find specific content
- * 4. Read - deep sequential reading (after finding content)
- * 5. Cases - consultation history (utility, less frequent)
- * 6. About - informational
+ * 2. Verses - entry point for discovery (browse + search unified)
+ * 3. Read - deep sequential reading (after finding content)
+ * 4. Cases - consultation history (utility, less frequent)
+ * 5. About - informational
+ *
+ * Note: Search was merged into Verses page (v1.12.0)
  */
 export const NAV_ITEMS: NavItem[] = [
   {
@@ -79,16 +80,9 @@ export const NAV_ITEMS: NavItem[] = [
   {
     to: "/verses",
     label: "Verses",
-    mobileLabel: "Browse Verses",
+    mobileLabel: "Explore Verses",
     icon: "verses",
     activePrefixes: ["/verses"],
-  },
-  {
-    to: "/search",
-    label: "Search",
-    mobileLabel: "Search",
-    icon: "search",
-    activePrefixes: ["/search"],
   },
   {
     to: "/read",
@@ -99,8 +93,8 @@ export const NAV_ITEMS: NavItem[] = [
   },
   {
     to: "/consultations",
-    label: "Cases",
-    mobileLabel: "My Cases",
+    label: "History",
+    mobileLabel: "My Guidance",
     icon: "cases",
     // Available to all users - anonymous users see session-based cases via localStorage
     activePrefixes: ["/consultations", "/cases/"],
