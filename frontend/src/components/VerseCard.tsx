@@ -44,6 +44,29 @@ export function VerseCardSkeleton() {
   );
 }
 
+/** Match type labels for search results */
+const MATCH_TYPE_LABELS: Record<string, string> = {
+  exact_canonical: "Verse Reference",
+  exact_sanskrit: "Sanskrit",
+  keyword_translation: "Translation",
+  keyword_paraphrase: "Leadership Insight",
+  principle: "Topic",
+  semantic: "Meaning",
+};
+
+/** Search match info for displaying highlighted results */
+export interface VerseMatch {
+  type:
+    | "exact_canonical"
+    | "exact_sanskrit"
+    | "keyword_translation"
+    | "keyword_paraphrase"
+    | "principle"
+    | "semantic";
+  highlight?: string; // Pre-highlighted text with <mark> tags from API
+  field?: string; // Which field matched (e.g., "translation", "sanskrit")
+}
+
 export interface VerseCardProps {
   verse: Verse;
   displayMode?: "detail" | "compact";
@@ -59,10 +82,41 @@ export interface VerseCardProps {
   onShare?: (verse: Verse) => void;
   /** Show checkmark instead of share icon (for clipboard feedback) */
   shareCopied?: boolean;
+  /** Search match info - when provided, displays match type badge and highlighted text */
+  match?: VerseMatch;
 }
 
 function formatVerseRef(verse: Verse): string {
   return `${verse.chapter}.${verse.verse}`;
+}
+
+/**
+ * Render highlighted text with <mark> tags as React elements.
+ * Used for search result highlighting.
+ */
+function HighlightedText({ text }: { text: string }) {
+  if (!text) return null;
+
+  const parts = text.split(/(<mark>.*?<\/mark>)/g);
+
+  return (
+    <>
+      {parts.map((part, i) => {
+        if (part.startsWith("<mark>") && part.endsWith("</mark>")) {
+          const content = part.slice(6, -7);
+          return (
+            <mark
+              key={i}
+              className="bg-amber-200 dark:bg-amber-800/50 text-amber-900 dark:text-amber-200 px-0.5 rounded"
+            >
+              {content}
+            </mark>
+          );
+        }
+        return <span key={i}>{part}</span>;
+      })}
+    </>
+  );
 }
 
 /**
@@ -82,6 +136,7 @@ export const VerseCard = memo(function VerseCard({
   onToggleFavorite,
   onShare,
   shareCopied = false,
+  match,
 }: VerseCardProps) {
   const isCompact = displayMode === "compact";
 
@@ -113,19 +168,28 @@ export const VerseCard = memo(function VerseCard({
           />
         )}
 
-        {/* Featured Badge - top right corner, absolute positioned */}
+        {/* Featured Badge - top LEFT corner (moved from right to make room for match badge) */}
         {verse.is_featured && (
-          <div className="absolute top-2 right-2 sm:top-3 sm:right-3 z-10">
+          <div className="absolute top-2 left-2 sm:top-3 sm:left-3 z-10">
             <span className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400">
               <StarIcon className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
             </span>
           </div>
         )}
 
+        {/* Match Type Badge - top RIGHT corner (only shown for search results) */}
+        {match && (
+          <div className="absolute top-2 right-2 sm:top-3 sm:right-3 z-10">
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-400 text-[10px] sm:text-xs font-medium">
+              {MATCH_TYPE_LABELS[match.type] || match.type}
+            </span>
+          </div>
+        )}
+
         {/* Card content - pointer-events-none so clicks pass through to stretched link */}
         <div className={linkTo ? "relative z-10 pointer-events-none" : ""}>
-          {/* Verse Reference with integrated actions */}
-          <div className="flex items-center justify-center gap-2 sm:gap-3 mt-1 mb-2 sm:mb-3">
+          {/* Verse Reference with integrated actions - mt-6 clears space for absolute badges */}
+          <div className="flex items-center justify-center gap-2 sm:gap-3 mt-6 sm:mt-5 mb-2 sm:mb-3">
             {/* Favorite button (left of verse ref) */}
             {onToggleFavorite && (
               <button
@@ -186,15 +250,29 @@ export const VerseCard = memo(function VerseCard({
             ))}
           </div>
 
-          {/* Translation preview (if enabled and available) */}
-          {showTranslationPreview && translationText && (
+          {/* Translation preview - with match highlighting when available */}
+          {(match?.highlight || (showTranslationPreview && translationText)) && (
             <>
               {/* Subtle divider */}
               <div className="my-2 sm:my-3 border-t border-amber-200/50 dark:border-gray-700" />
-              {/* Translation with CSS line-clamp */}
-              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 text-center leading-relaxed line-clamp-2 sm:line-clamp-3">
-                "{translationText}"
-              </p>
+              {/* Translation with highlighting or line-clamp */}
+              {match?.highlight ? (
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 text-center leading-relaxed">
+                  {'"'}
+                  <HighlightedText text={match.highlight} />
+                  {'"'}
+                </p>
+              ) : (
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 text-center leading-relaxed line-clamp-2 sm:line-clamp-3">
+                  "{translationText}"
+                </p>
+              )}
+              {/* "Matched in" indicator for search results */}
+              {match?.field && (
+                <p className="mt-1 text-center text-[10px] text-gray-400 dark:text-gray-500">
+                  Matched in: {match.field}
+                </p>
+              )}
             </>
           )}
         </div>
