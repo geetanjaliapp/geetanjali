@@ -1,7 +1,9 @@
 import { useState, useRef } from "react";
+import { Link } from "react-router-dom";
 import { useClickOutside } from "./hooks";
 import type { NavUser } from "./types";
 import { getInitials, getFirstName } from "./utils";
+import { HeartIcon } from "../icons";
 
 interface UserMenuProps {
   /** Current user object */
@@ -88,6 +90,15 @@ export function UserMenu({
             <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{user?.name}</p>
             <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user?.email}</p>
           </div>
+          <Link
+            role="menuitem"
+            to="/verses?favorites=true"
+            onClick={() => setIsOpen(false)}
+            className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors focus:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-gray-700"
+          >
+            <HeartIcon className="w-4 h-4 text-red-400" filled />
+            My Favorites
+          </Link>
           <button
             role="menuitem"
             onClick={handleLogout}

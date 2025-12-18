@@ -16,7 +16,11 @@ import {
   StarIcon,
   CloseIcon,
   ChevronDownIcon,
+  HeartIcon,
+  ShareIcon,
+  CheckIcon,
 } from "../components/icons";
+import { useFavorites, useShare } from "../hooks";
 import {
   getPrincipleShortLabel,
   PRINCIPLE_TAXONOMY,
@@ -140,7 +144,7 @@ function HighlightedText({ text }: { text: string }) {
           return (
             <mark
               key={i}
-              className="bg-amber-200 text-amber-900 px-0.5 rounded"
+              className="bg-amber-200 dark:bg-amber-800/50 text-amber-900 dark:text-amber-200 px-0.5 rounded"
             >
               {content}
             </mark>
@@ -164,6 +168,21 @@ function SearchResultCard({
   onPrincipleClick?: (principle: string) => void;
 }) {
   const { match } = result;
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const { share, copied: shareCopied } = useShare();
+
+  // Share handler
+  const handleShare = useCallback(async () => {
+    const verseRef = `${result.chapter}.${result.verse}`;
+    const url = `${window.location.origin}/verses/${result.canonical_id}`;
+    const text = result.translation_en || result.paraphrase_en || "";
+
+    await share({
+      title: `Bhagavad Geeta ${verseRef}`,
+      text: text ? `"${text}"` : undefined,
+      url,
+    });
+  }, [result, share]);
 
   // Format Sanskrit text consistently with VerseCard
   const sanskritLines = useMemo(
@@ -176,7 +195,7 @@ function SearchResultCard({
   );
 
   return (
-    <div className="relative bg-amber-50 rounded-xl p-3 sm:p-4 border border-amber-200 shadow-sm hover:shadow-md hover:border-amber-300 hover:-translate-y-0.5 transition-all duration-150">
+    <div className="relative bg-amber-50 dark:bg-gray-800 rounded-xl p-3 sm:p-4 border border-amber-200 dark:border-gray-700 shadow-sm hover:shadow-md hover:border-amber-300 dark:hover:border-gray-600 hover:-translate-y-0.5 transition-all duration-150">
       <Link
         to={`/verses/${result.canonical_id}`}
         className="absolute inset-0 z-0 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
@@ -184,28 +203,73 @@ function SearchResultCard({
       />
 
       <div className="relative z-10 pointer-events-none">
-        {/* Header: Verse Reference + Badges */}
-        <div className="flex items-start justify-between mb-2 sm:mb-3">
-          <div className="text-amber-600 font-serif font-medium text-xs sm:text-sm">
-            ॥ {result.chapter}.{result.verse} ॥
-          </div>
-          <div className="flex items-center gap-1.5">
+        {/* Top row: Badges only (featured + match type) */}
+        <div className="flex items-center justify-between mb-2 sm:mb-3">
+          {/* Featured badge on left */}
+          <div>
             {result.is_featured && (
-              <span className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[10px]">
+              <span className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 text-[10px]">
                 <StarIcon className="w-2.5 h-2.5" />
               </span>
             )}
-            <span className="px-1.5 py-0.5 rounded-full bg-orange-100 text-orange-700 text-[10px] font-medium">
-              {getMatchTypeLabel(match.type)}
-            </span>
           </div>
+          {/* Match type badge on right */}
+          <span className="px-1.5 py-0.5 rounded-full bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-400 text-[10px] font-medium">
+            {getMatchTypeLabel(match.type)}
+          </span>
+        </div>
+
+        {/* Verse Reference with integrated actions - centered */}
+        <div className="flex items-center justify-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+          {/* Favorite button */}
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              toggleFavorite(result.canonical_id);
+            }}
+            className={`p-1 rounded-full transition-all duration-150 pointer-events-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 ${
+              isFavorite(result.canonical_id)
+                ? "text-red-500 dark:text-red-400"
+                : "text-amber-600/50 dark:text-amber-400/60 hover:text-red-400 dark:hover:text-red-400 hover:scale-110"
+            }`}
+            aria-label={isFavorite(result.canonical_id) ? "Remove from favorites" : "Add to favorites"}
+          >
+            <HeartIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" filled={isFavorite(result.canonical_id)} />
+          </button>
+
+          {/* Verse reference */}
+          <span className="text-amber-600 dark:text-amber-400 font-serif font-medium text-xs sm:text-sm">
+            ॥ {result.chapter}.{result.verse} ॥
+          </span>
+
+          {/* Share button */}
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleShare();
+            }}
+            className={`p-1 rounded-full transition-all duration-150 pointer-events-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 ${
+              shareCopied
+                ? "text-green-500 dark:text-green-400"
+                : "text-amber-600/50 dark:text-amber-400/60 hover:text-amber-600 dark:hover:text-amber-400 hover:scale-110"
+            }`}
+            aria-label={shareCopied ? "Copied to clipboard" : "Share verse"}
+          >
+            {shareCopied ? (
+              <CheckIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            ) : (
+              <ShareIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            )}
+          </button>
         </div>
 
         {/* Sanskrit Text - formatted consistently with VerseCard */}
         {sanskritLines.length > 0 && (
           <div
             lang="sa"
-            className="text-amber-900 font-sanskrit text-sm sm:text-base leading-relaxed text-center"
+            className="text-amber-900 dark:text-amber-200 font-sanskrit text-sm sm:text-base leading-relaxed text-center"
           >
             {sanskritLines.map((line, idx) => (
               <p key={idx} className="mb-0.5">
@@ -216,10 +280,10 @@ function SearchResultCard({
         )}
 
         {/* Divider */}
-        <div className="my-2 border-t border-amber-200/50" />
+        <div className="my-2 border-t border-amber-200/50 dark:border-gray-700" />
 
         {/* Translation/Match Highlight */}
-        <p className="text-xs sm:text-sm text-gray-600 text-center leading-relaxed line-clamp-3">
+        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 text-center leading-relaxed line-clamp-3">
           {match.highlight ? (
             <HighlightedText text={match.highlight} />
           ) : (
@@ -230,7 +294,7 @@ function SearchResultCard({
         {/* Match field indicator */}
         {match.field && match.field !== "canonical_id" && (
           <div className="mt-2 text-center">
-            <span className="text-[10px] text-gray-400">
+            <span className="text-[10px] text-gray-400 dark:text-gray-500">
               Matched in: {match.field.replace("_", " ")}
             </span>
           </div>
@@ -249,13 +313,13 @@ function SearchResultCard({
                   onPrincipleClick(principle);
                 }
               }}
-              className="px-2 py-0.5 rounded-full bg-amber-100/70 text-amber-800 text-[10px] sm:text-xs font-medium pointer-events-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 hover:bg-amber-200 cursor-pointer transition-colors"
+              className="px-2 py-0.5 rounded-full bg-amber-100/70 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 text-[10px] sm:text-xs font-medium pointer-events-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 hover:bg-amber-200 dark:hover:bg-amber-800/40 cursor-pointer transition-colors"
             >
               {getPrincipleShortLabel(principle)}
             </button>
           ))}
           {result.principles.length > 2 && (
-            <span className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 text-[10px] sm:text-xs font-medium">
+            <span className="px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-[10px] sm:text-xs font-medium">
               +{result.principles.length - 2}
             </span>
           )}
@@ -278,9 +342,9 @@ function ConsultationBanner({
   query: string;
 }) {
   return (
-    <div className="bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 rounded-xl p-4 mb-6">
+    <div className="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 border border-orange-200 dark:border-orange-800 rounded-xl p-4 mb-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <p className="text-sm text-orange-800">{message}</p>
+        <p className="text-sm text-orange-800 dark:text-orange-300">{message}</p>
         <Link
           to={`/cases/new?prefill=${encodeURIComponent(query)}`}
           className="inline-flex items-center justify-center px-4 py-2 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 transition-colors whitespace-nowrap"
@@ -298,22 +362,22 @@ function ConsultationBanner({
 function SearchSkeleton() {
   return (
     <div className="animate-pulse">
-      <div className="h-4 w-48 bg-amber-200/50 rounded mb-6" />
+      <div className="h-4 w-48 bg-amber-200/50 dark:bg-amber-800/30 rounded mb-6" />
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {[1, 2, 3, 4, 5, 6].map((i) => (
           <div
             key={i}
-            className="bg-amber-50 rounded-xl p-4 border border-amber-200"
+            className="bg-amber-50 dark:bg-gray-800 rounded-xl p-4 border border-amber-200 dark:border-gray-700"
           >
-            <div className="h-4 w-16 bg-amber-200/60 rounded mb-3" />
+            <div className="h-4 w-16 bg-amber-200/60 dark:bg-amber-800/40 rounded mb-3" />
             <div className="space-y-2">
-              <div className="h-4 w-full bg-amber-200/50 rounded" />
-              <div className="h-4 w-4/5 bg-amber-200/50 rounded" />
+              <div className="h-4 w-full bg-amber-200/50 dark:bg-amber-800/30 rounded" />
+              <div className="h-4 w-4/5 bg-amber-200/50 dark:bg-amber-800/30 rounded" />
             </div>
-            <div className="my-3 border-t border-amber-200/30" />
+            <div className="my-3 border-t border-amber-200/30 dark:border-gray-700" />
             <div className="space-y-1.5">
-              <div className="h-3 w-full bg-gray-200/60 rounded" />
-              <div className="h-3 w-3/4 bg-gray-200/60 rounded" />
+              <div className="h-3 w-full bg-gray-200/60 dark:bg-gray-700 rounded" />
+              <div className="h-3 w-3/4 bg-gray-200/60 dark:bg-gray-700 rounded" />
             </div>
           </div>
         ))}
@@ -334,11 +398,11 @@ function StarterVerseSpotlight({
 }) {
   if (loading) {
     return (
-      <div className="bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 rounded-xl sm:rounded-2xl p-6 sm:p-8 border border-amber-200/50 shadow-lg animate-pulse">
+      <div className="bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 dark:from-gray-800 dark:via-gray-800 dark:to-gray-800 rounded-xl sm:rounded-2xl p-6 sm:p-8 border border-amber-200/50 dark:border-gray-700 shadow-lg animate-pulse">
         <div className="text-center space-y-4">
-          <div className="h-8 w-8 bg-amber-200/50 rounded-full mx-auto" />
-          <div className="h-6 w-48 bg-amber-200/50 rounded mx-auto" />
-          <div className="h-20 bg-amber-200/40 rounded" />
+          <div className="h-8 w-8 bg-amber-200/50 dark:bg-amber-800/30 rounded-full mx-auto" />
+          <div className="h-6 w-48 bg-amber-200/50 dark:bg-amber-800/30 rounded mx-auto" />
+          <div className="h-20 bg-amber-200/40 dark:bg-amber-800/20 rounded" />
         </div>
       </div>
     );
@@ -353,10 +417,10 @@ function StarterVerseSpotlight({
 
   return (
     <Link to={`/verses/${verse.canonical_id}`} className="block">
-      <div className="bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 rounded-xl sm:rounded-2xl p-6 sm:p-8 border border-amber-200/50 shadow-lg hover:shadow-xl hover:border-amber-300 transition-all">
+      <div className="bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 dark:from-gray-800 dark:via-gray-800 dark:to-gray-800 rounded-xl sm:rounded-2xl p-6 sm:p-8 border border-amber-200/50 dark:border-gray-700 shadow-lg hover:shadow-xl hover:border-amber-300 dark:hover:border-gray-600 transition-all">
         {/* Om Symbol */}
         <div className="text-center mb-4">
-          <div className="text-2xl sm:text-3xl text-amber-400/60 font-light">
+          <div className="text-2xl sm:text-3xl text-amber-400/60 dark:text-amber-500/50 font-light">
             ॐ
           </div>
         </div>
@@ -366,7 +430,7 @@ function StarterVerseSpotlight({
           <div className="text-center mb-4">
             <div
               lang="sa"
-              className="text-base sm:text-lg lg:text-xl font-sanskrit text-amber-900 leading-relaxed tracking-wide space-y-0.5"
+              className="text-base sm:text-lg lg:text-xl font-sanskrit text-amber-900 dark:text-amber-200 leading-relaxed tracking-wide space-y-0.5"
             >
               {sanskritLines.map((line, idx) => (
                 <p key={idx} className="mb-0">
@@ -379,7 +443,7 @@ function StarterVerseSpotlight({
 
         {/* Verse Reference */}
         <div className="text-center mb-4">
-          <span className="text-amber-700/70 font-serif text-sm sm:text-base">
+          <span className="text-amber-700/70 dark:text-amber-400/70 font-serif text-sm sm:text-base">
             ॥ {verseRef} ॥
           </span>
         </div>
@@ -406,18 +470,18 @@ function SearchStarterContent({
     <div className="max-w-3xl mx-auto space-y-8">
       {/* Quick Search Examples - centered, prominent */}
       <div className="text-center">
-        <p className="text-sm text-gray-500 mb-3">Try searching for</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">Try searching for</p>
         <div className="flex flex-wrap justify-center gap-2">
           {SEARCH_EXAMPLES.map((example) => (
             <button
               key={example.query}
               onClick={() => onSearch(example.query)}
-              className="group px-4 py-2 bg-white rounded-full border border-amber-200 hover:border-orange-400 hover:shadow-md transition-all"
+              className="group px-4 py-2 bg-white dark:bg-gray-800 rounded-full border border-amber-200 dark:border-gray-600 hover:border-orange-400 dark:hover:border-orange-500 hover:shadow-md transition-all"
             >
-              <span className="font-medium text-gray-800 group-hover:text-orange-700">
+              <span className="font-medium text-gray-800 dark:text-gray-200 group-hover:text-orange-700 dark:group-hover:text-orange-400">
                 {example.query}
               </span>
-              <span className="ml-2 text-xs text-gray-400">
+              <span className="ml-2 text-xs text-gray-400 dark:text-gray-500">
                 {example.label}
               </span>
             </button>
@@ -427,7 +491,7 @@ function SearchStarterContent({
 
       {/* Browse by Topic - horizontal scroll on mobile */}
       <div className="text-center">
-        <p className="text-sm text-gray-500 mb-3">Or explore by topic</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">Or explore by topic</p>
         <div className="flex flex-wrap justify-center gap-2">
           {POPULAR_TOPICS.map((topic) => {
             const principle = PRINCIPLE_TAXONOMY[topic.id];
@@ -435,7 +499,7 @@ function SearchStarterContent({
               <button
                 key={topic.id}
                 onClick={() => onTopicClick(topic.id)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 rounded-full text-sm font-medium border border-amber-200 hover:border-amber-300 transition-all"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 text-amber-800 dark:text-amber-300 rounded-full text-sm font-medium border border-amber-200 dark:border-amber-700 hover:border-amber-300 dark:hover:border-amber-600 transition-all"
               >
                 <span>{topic.icon}</span>
                 <span>{principle.shortLabel}</span>
@@ -452,7 +516,7 @@ function SearchStarterContent({
       <div className="text-center">
         <Link
           to="/verses"
-          className="inline-flex items-center gap-1.5 text-sm text-orange-600 hover:text-orange-700 font-medium transition-colors"
+          className="inline-flex items-center gap-1.5 text-sm text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 font-medium transition-colors"
         >
           <span>Browse all 700 verses</span>
           <svg
@@ -720,16 +784,16 @@ export default function Search() {
   const showStarterContent = !loading && !data && !error && !validationError;
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-orange-50 to-red-50">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900">
       <Navbar />
 
       <div className="flex-grow container mx-auto px-4 py-6 sm:py-8">
         {/* Page Header */}
         <div className="text-center mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold font-heading text-gray-900 mb-2">
+          <h1 className="text-2xl sm:text-3xl font-bold font-heading text-gray-900 dark:text-gray-100 mb-2">
             Search the Bhagavad Geeta
           </h1>
-          <p className="text-base sm:text-lg text-gray-600">
+          <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400">
             Find verses by reference, Sanskrit, or meaning
           </p>
         </div>
@@ -761,7 +825,7 @@ export default function Search() {
                   }
                   onKeyDown={handleInputKeyDown}
                   placeholder="Search verses, topics, or references..."
-                  className="w-full pl-10 pr-10 py-3 sm:py-3.5 border border-amber-200 rounded-l-full sm:rounded-l-full bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:z-10 text-gray-900 placeholder-gray-400 shadow-sm transition-shadow"
+                  className="w-full pl-10 pr-10 py-3 sm:py-3.5 border border-amber-200 dark:border-gray-600 rounded-l-full sm:rounded-l-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:z-10 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 shadow-sm transition-shadow"
                   aria-label="Search query"
                   aria-expanded={
                     showRecent && recentSearches.length > 0 && !inputValue
@@ -773,7 +837,7 @@ export default function Search() {
                       : undefined
                   }
                 />
-                <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-amber-500" />
+                <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-amber-500 dark:text-amber-400" />
 
                 {/* Clear button or keyboard hint */}
                 <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -781,13 +845,13 @@ export default function Search() {
                     <button
                       type="button"
                       onClick={handleClear}
-                      className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors"
+                      className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                       aria-label="Clear search"
                     >
                       <CloseIcon className="w-4 h-4" />
                     </button>
                   ) : (
-                    <kbd className="hidden lg:inline-flex items-center px-1.5 py-0.5 text-[10px] text-amber-600/70 bg-amber-50 rounded border border-amber-200/50">
+                    <kbd className="hidden lg:inline-flex items-center px-1.5 py-0.5 text-[10px] text-amber-600/70 dark:text-amber-400/70 bg-amber-50 dark:bg-amber-900/30 rounded border border-amber-200/50 dark:border-amber-700/50">
                       ⌘K
                     </kbd>
                   )}
@@ -795,15 +859,15 @@ export default function Search() {
 
                 {/* Recent Searches Dropdown */}
                 {showRecent && recentSearches.length > 0 && !inputValue && (
-                  <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-amber-200 rounded-xl shadow-lg z-20 overflow-hidden">
-                    <div className="flex items-center justify-between px-4 py-2 border-b border-amber-100 bg-amber-50/50">
-                      <span className="text-xs font-medium text-gray-500">
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 border border-amber-200 dark:border-gray-600 rounded-xl shadow-lg z-20 overflow-hidden">
+                    <div className="flex items-center justify-between px-4 py-2 border-b border-amber-100 dark:border-gray-700 bg-amber-50/50 dark:bg-gray-700/50">
+                      <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
                         Recent
                       </span>
                       <button
                         type="button"
                         onClick={handleClearRecent}
-                        className="text-xs text-gray-400 hover:text-gray-600"
+                        className="text-xs text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
                       >
                         Clear
                       </button>
@@ -821,20 +885,20 @@ export default function Search() {
                             onClick={() => handleRecentSelect(query)}
                             className={`w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 transition-colors ${
                               index === selectedRecentIndex
-                                ? "bg-orange-100 text-orange-900"
-                                : "text-gray-700 hover:bg-orange-50"
+                                ? "bg-orange-100 dark:bg-orange-900/40 text-orange-900 dark:text-orange-200"
+                                : "text-gray-700 dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-gray-700"
                             }`}
                           >
                             <SearchIcon
-                              className={`w-4 h-4 ${index === selectedRecentIndex ? "text-orange-500" : "text-amber-400"}`}
+                              className={`w-4 h-4 ${index === selectedRecentIndex ? "text-orange-500 dark:text-orange-400" : "text-amber-400 dark:text-amber-500"}`}
                             />
                             {query}
                           </button>
                         </li>
                       ))}
                     </ul>
-                    <div className="px-4 py-1.5 border-t border-amber-100 bg-amber-50/30">
-                      <span className="text-[10px] text-gray-400">
+                    <div className="px-4 py-1.5 border-t border-amber-100 dark:border-gray-700 bg-amber-50/30 dark:bg-gray-700/30">
+                      <span className="text-[10px] text-gray-400 dark:text-gray-500">
                         ↑↓ to navigate · Enter to select
                       </span>
                     </div>
@@ -863,22 +927,22 @@ export default function Search() {
         <div className="max-w-6xl mx-auto">
           {/* Validation Error (profanity filter) */}
           {validationError && (
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 text-center">
-              <p className="text-amber-800">{validationError}</p>
+            <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-xl p-4 mb-6 text-center">
+              <p className="text-amber-800 dark:text-amber-300">{validationError}</p>
             </div>
           )}
 
           {/* API Error State */}
           {error && !validationError && (
-            <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
-              <p className="text-red-700">{error}</p>
+            <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-xl p-4 mb-6">
+              <p className="text-red-700 dark:text-red-300">{error}</p>
             </div>
           )}
 
           {/* Moderation Block */}
           {data?.moderation?.blocked && (
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
-              <p className="text-amber-800">{data.moderation.message}</p>
+            <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-xl p-4 mb-6">
+              <p className="text-amber-800 dark:text-amber-300">{data.moderation.message}</p>
             </div>
           )}
 
@@ -899,21 +963,21 @@ export default function Search() {
             <>
               {/* Results Header */}
               <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
                   {data.total === 0 ? (
                     "No results found"
                   ) : (
                     <>
                       {hasMore ? (
                         <>
-                          <span className="font-medium">{data.total}</span>
-                          <span className="text-gray-400"> of </span>
-                          <span className="font-medium">
+                          <span className="font-medium text-gray-800 dark:text-gray-200">{data.total}</span>
+                          <span className="text-gray-400 dark:text-gray-500"> of </span>
+                          <span className="font-medium text-gray-800 dark:text-gray-200">
                             {data.total_count}
                           </span>
                         </>
                       ) : (
-                        <span className="font-medium">
+                        <span className="font-medium text-gray-800 dark:text-gray-200">
                           {data.total_count ?? data.total}
                         </span>
                       )}{" "}
@@ -923,7 +987,7 @@ export default function Search() {
                   )}
                 </p>
                 {data.total > 0 && (
-                  <span className="text-xs text-amber-700 bg-amber-100 px-2.5 py-1 rounded-full font-medium">
+                  <span className="text-xs text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/40 px-2.5 py-1 rounded-full font-medium">
                     {getStrategyLabel(data.strategy)}
                   </span>
                 )}
@@ -951,18 +1015,18 @@ export default function Search() {
                         className="w-full group"
                       >
                         <div className="flex items-center gap-4">
-                          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-300/50 to-amber-300/70" />
+                          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-300/50 dark:via-amber-600/30 to-amber-300/70 dark:to-amber-600/50" />
                           <div
                             className={`flex flex-col items-center transition-all duration-300 ${loadingMore ? "scale-95 opacity-70" : "group-hover:scale-105"}`}
                           >
                             {loadingMore ? (
-                              <SpinnerIcon className="w-6 h-6 text-amber-500 mb-1.5" />
+                              <SpinnerIcon className="w-6 h-6 text-amber-500 dark:text-amber-400 mb-1.5" />
                             ) : (
-                              <span className="text-amber-400/70 text-xl mb-1">
+                              <span className="text-amber-400/70 dark:text-amber-500/70 text-xl mb-1">
                                 ॰
                               </span>
                             )}
-                            <span className="flex items-center gap-1.5 text-base font-medium text-amber-700/80 group-hover:text-amber-800 transition-colors">
+                            <span className="flex items-center gap-1.5 text-base font-medium text-amber-700/80 dark:text-amber-400/80 group-hover:text-amber-800 dark:group-hover:text-amber-300 transition-colors">
                               {loadingMore ? (
                                 "Loading"
                               ) : (
@@ -973,40 +1037,40 @@ export default function Search() {
                               )}
                             </span>
                             {!loadingMore && data.total_count && (
-                              <span className="text-xs text-amber-600/50 mt-1">
+                              <span className="text-xs text-amber-600/70 dark:text-amber-500/70 mt-1">
                                 {data.total_count - data.total} more
                               </span>
                             )}
                           </div>
-                          <div className="flex-1 h-px bg-gradient-to-l from-transparent via-amber-300/50 to-amber-300/70" />
+                          <div className="flex-1 h-px bg-gradient-to-l from-transparent via-amber-300/50 dark:via-amber-600/30 to-amber-300/70 dark:to-amber-600/50" />
                         </div>
                       </button>
                     ) : (
                       <div className="flex items-center gap-4">
-                        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-200/40 to-amber-200/60" />
+                        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-200/40 dark:via-amber-700/30 to-amber-200/60 dark:to-amber-700/40" />
                         <div className="flex flex-col items-center">
-                          <span className="text-amber-300/60 text-xl">ॐ</span>
-                          <span className="text-xs text-amber-600/40 mt-1">
+                          <span className="text-amber-300/60 dark:text-amber-500/50 text-xl">ॐ</span>
+                          <span className="text-xs text-amber-600/70 dark:text-amber-500/60 mt-1">
                             {data.total_count ?? data.total} results shown
                           </span>
                         </div>
-                        <div className="flex-1 h-px bg-gradient-to-l from-transparent via-amber-200/40 to-amber-200/60" />
+                        <div className="flex-1 h-px bg-gradient-to-l from-transparent via-amber-200/40 dark:via-amber-700/30 to-amber-200/60 dark:to-amber-700/40" />
                       </div>
                     )}
                   </div>
                 </>
               ) : (
                 /* Empty Results State */
-                <div className="text-center py-12 bg-white/50 rounded-2xl border border-amber-100">
-                  <div className="text-4xl text-amber-300/60 mb-4">ॐ</div>
-                  <h3 className="text-lg font-serif text-gray-700 mb-2">
+                <div className="text-center py-12 bg-white/50 dark:bg-gray-800/50 rounded-2xl border border-amber-100 dark:border-gray-700">
+                  <div className="text-4xl text-amber-300/60 dark:text-amber-500/50 mb-4">ॐ</div>
+                  <h3 className="text-lg font-serif text-gray-700 dark:text-gray-300 mb-2">
                     No verses found
                   </h3>
 
                   {/* Show consultation CTA if query looks like a personal question */}
                   {data.suggestion || data.query.split(" ").length >= 5 ? (
                     <>
-                      <p className="text-sm text-gray-600 mb-6 max-w-md mx-auto">
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
                         Your question sounds like you're seeking personal
                         guidance. Our consultation feature can provide tailored
                         insights from the Geeta.
@@ -1030,12 +1094,12 @@ export default function Search() {
                         </svg>
                         Get Personal Guidance
                       </Link>
-                      <p className="text-xs text-gray-400">
+                      <p className="text-xs text-gray-400 dark:text-gray-500">
                         Or try a simpler search below
                       </p>
                     </>
                   ) : (
-                    <p className="text-sm text-gray-500 mb-6 max-w-sm mx-auto">
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 max-w-sm mx-auto">
                       Try different keywords or a verse reference (e.g.,
                       "2.47").
                     </p>
@@ -1044,19 +1108,19 @@ export default function Search() {
                   <div className="flex flex-wrap justify-center gap-2 mt-4">
                     <button
                       onClick={() => handleQuickSearch("karma")}
-                      className="px-3 py-1.5 bg-amber-100 text-amber-800 text-sm rounded-full hover:bg-amber-200 transition-colors"
+                      className="px-3 py-1.5 bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 text-sm rounded-full hover:bg-amber-200 dark:hover:bg-amber-900/60 transition-colors"
                     >
                       Try "karma"
                     </button>
                     <button
                       onClick={() => handleQuickSearch("2.47")}
-                      className="px-3 py-1.5 bg-amber-100 text-amber-800 text-sm rounded-full hover:bg-amber-200 transition-colors"
+                      className="px-3 py-1.5 bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 text-sm rounded-full hover:bg-amber-200 dark:hover:bg-amber-900/60 transition-colors"
                     >
                       Try "2.47"
                     </button>
                     <Link
                       to="/verses"
-                      className="px-3 py-1.5 bg-orange-100 text-orange-700 text-sm rounded-full hover:bg-orange-200 transition-colors"
+                      className="px-3 py-1.5 bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 text-sm rounded-full hover:bg-orange-200 dark:hover:bg-orange-900/60 transition-colors"
                     >
                       Browse all verses
                     </Link>

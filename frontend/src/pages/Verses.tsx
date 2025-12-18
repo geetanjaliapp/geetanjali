@@ -6,9 +6,9 @@ import { Navbar } from "../components";
 import { Footer } from "../components/Footer";
 import { VerseCard, VerseCardSkeleton } from "../components/VerseCard";
 import { BackToTopButton } from "../components/BackToTopButton";
-import { CloseIcon, ChevronDownIcon, SpinnerIcon } from "../components/icons";
+import { CloseIcon, ChevronDownIcon, SpinnerIcon, HeartIcon } from "../components/icons";
 import { errorMessages } from "../lib/errorMessages";
-import { useSEO } from "../hooks";
+import { useSEO, useFavorites, useShare } from "../hooks";
 import {
   PRINCIPLE_TAXONOMY,
   getPrincipleShortLabel,
@@ -34,10 +34,10 @@ const FILTER_PILL_BASE =
   "px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2";
 const FILTER_PILL_ACTIVE = "bg-orange-600 text-white shadow-md";
 const FILTER_PILL_INACTIVE =
-  "bg-white text-gray-700 hover:bg-gray-100 border border-gray-300";
+  "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600";
 
-// Filter modes: 'featured' shows curated verses, 'all' shows all 701 verses
-type FilterMode = "featured" | "all" | number; // number = specific chapter
+// Filter modes: 'featured' shows curated verses, 'all' shows all 701 verses, 'favorites' shows user's favorites
+type FilterMode = "featured" | "all" | "favorites" | number; // number = specific chapter
 
 export default function Verses() {
   useSEO({
@@ -46,6 +46,12 @@ export default function Verses() {
       "Explore all 701 verses of the Bhagavad Geeta. Search by chapter, browse featured verses, and discover timeless wisdom.",
     canonical: "/verses",
   });
+
+  // Favorites hook for heart icon and filtering
+  const { favorites, isFavorite, toggleFavorite, favoritesCount } = useFavorites();
+
+  // Share hook for share button
+  const { share, copied: shareCopied } = useShare();
 
   const [searchParams, setSearchParams] = useSearchParams();
   const [verses, setVerses] = useState<Verse[]>([]);
@@ -64,6 +70,8 @@ export default function Verses() {
     if (chapter) return parseInt(chapter);
     const showAll = searchParams.get("all");
     if (showAll === "true") return "all";
+    const showFavs = searchParams.get("favorites");
+    if (showFavs === "true") return "favorites";
     return "featured";
   };
 
@@ -81,12 +89,26 @@ export default function Verses() {
   const selectedChapter = typeof filterMode === "number" ? filterMode : null;
   const showFeatured = filterMode === "featured";
   const showAll = filterMode === "all";
+  const showFavorites = filterMode === "favorites";
+
+  // Filter verses by favorites when in favorites mode
+  const displayedVerses = useMemo(() => {
+    if (showFavorites) {
+      return verses.filter((v) => favorites.has(v.canonical_id));
+    }
+    return verses;
+  }, [verses, showFavorites, favorites]);
 
   // All principle IDs for the pill row
   const principleIds = Object.keys(PRINCIPLE_TAXONOMY);
 
   // Memoized load functions
   const loadCount = useCallback(async () => {
+    // For favorites mode, count is just the localStorage favorites count
+    if (filterMode === "favorites") {
+      setTotalCount(favoritesCount);
+      return;
+    }
     try {
       const chapter = typeof filterMode === "number" ? filterMode : undefined;
       const featured = filterMode === "featured" ? true : undefined;
@@ -99,10 +121,48 @@ export default function Verses() {
     } catch {
       setTotalCount(null);
     }
-  }, [filterMode, selectedPrinciple]);
+  }, [filterMode, selectedPrinciple, favoritesCount]);
 
   const loadVerses = useCallback(
     async (reset: boolean = false) => {
+      // For favorites mode, fetch each favorited verse by ID
+      if (filterMode === "favorites") {
+        if (!reset) {
+          // No pagination for favorites
+          setLoadingMore(false);
+          return;
+        }
+
+        setLoading(true);
+        setError(null);
+
+        try {
+          const favoriteIds = Array.from(favorites);
+          if (favoriteIds.length === 0) {
+            setVerses([]);
+            setLoading(false);
+            setHasMore(false);
+            return;
+          }
+
+          // Fetch all favorited verses in parallel
+          const versePromises = favoriteIds.map((id) =>
+            versesApi.get(id).catch(() => null) // Handle deleted/invalid verses gracefully
+          );
+          const results = await Promise.all(versePromises);
+          const validVerses = results.filter((v): v is Verse => v !== null);
+
+          setVerses(validVerses);
+          setHasMore(false); // No pagination for favorites
+        } catch (err) {
+          setError(errorMessages.verseLoad(err));
+        } finally {
+          setLoading(false);
+          setLoadingMore(false);
+        }
+        return;
+      }
+
       try {
         if (reset) {
           setLoading(true);
@@ -139,7 +199,7 @@ export default function Verses() {
         setLoadingMore(false);
       }
     },
-    [filterMode, selectedPrinciple, pageSize],
+    [filterMode, selectedPrinciple, pageSize, favorites],
   );
 
   useEffect(() => {
@@ -196,6 +256,8 @@ export default function Verses() {
       params.chapter = filter.toString();
     } else if (filter === "all") {
       params.all = "true";
+    } else if (filter === "favorites") {
+      params.favorites = "true";
     }
     if (principle) {
       params.topic = principle;
@@ -214,24 +276,40 @@ export default function Verses() {
     updateSearchParams(filterMode, principle);
   };
 
+  // Share handler for verse cards
+  const handleShare = useCallback(
+    async (verse: Verse) => {
+      const verseRef = `${verse.chapter}.${verse.verse}`;
+      const url = `${window.location.origin}/verses/${verse.canonical_id}`;
+      const text = verse.translation_en || verse.paraphrase_en || "";
+
+      await share({
+        title: `Bhagavad Geeta ${verseRef}`,
+        text: text ? `"${text}"` : undefined,
+        url,
+      });
+    },
+    [share],
+  );
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col">
       <Navbar />
 
       {/* Page Header */}
       <div className="py-6 sm:py-8 text-center">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-          <h1 className="text-2xl sm:text-3xl font-bold font-heading text-gray-900 mb-2">
+          <h1 className="text-2xl sm:text-3xl font-bold font-heading text-gray-900 dark:text-gray-100 mb-2">
             Explore the Bhagavad Geeta
           </h1>
-          <p className="text-base sm:text-lg text-gray-600">
+          <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400">
             701 verses of timeless wisdom
           </p>
         </div>
       </div>
 
       {/* Sticky Filter Bar - Below navbar */}
-      <div className="sticky top-14 sm:top-16 z-10 bg-amber-50/95 backdrop-blur-sm shadow-sm border-b border-amber-200/50">
+      <div className="sticky top-14 sm:top-16 z-10 bg-amber-50/95 dark:bg-gray-900/95 backdrop-blur-sm shadow-sm border-b border-amber-200/50 dark:border-gray-700/50">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-4">
           {/* Filter Pills - Responsive Layout */}
           <div className="flex gap-1.5 sm:gap-2 items-center">
@@ -248,6 +326,24 @@ export default function Verses() {
               className={`${FILTER_PILL_BASE} ${showAll ? FILTER_PILL_ACTIVE : FILTER_PILL_INACTIVE}`}
             >
               All
+            </button>
+
+            {/* Favorites */}
+            <button
+              onClick={() => handleFilterSelect("favorites")}
+              className={`${FILTER_PILL_BASE} flex items-center gap-1.5 ${showFavorites ? FILTER_PILL_ACTIVE : FILTER_PILL_INACTIVE}`}
+            >
+              <HeartIcon className="w-4 h-4" filled={showFavorites || favoritesCount > 0} />
+              <span className="hidden sm:inline">Favorites</span>
+              {favoritesCount > 0 && (
+                <span className={`text-xs px-1.5 py-0.5 rounded-full ${
+                  showFavorites
+                    ? "bg-white/20 text-white"
+                    : "bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400"
+                }`}>
+                  {favoritesCount}
+                </span>
+              )}
             </button>
 
             {/* Chapter Dropdown */}
@@ -271,7 +367,7 @@ export default function Verses() {
                     onClick={() => setShowChapterDropdown(false)}
                   />
                   {/* Panel */}
-                  <div className="absolute left-0 mt-2 p-3 bg-white rounded-xl shadow-xl border border-gray-200 z-20 w-56 sm:w-72">
+                  <div className="absolute left-0 mt-2 p-3 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 z-20 w-56 sm:w-72">
                     <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
                       {Array.from({ length: 18 }, (_, i) => i + 1).map(
                         (chapter) => (
@@ -284,7 +380,7 @@ export default function Verses() {
                             className={`h-10 rounded-lg text-sm font-medium transition-all ${
                               selectedChapter === chapter
                                 ? "bg-orange-600 text-white shadow-md"
-                                : "bg-gray-50 text-gray-700 hover:bg-orange-50 hover:text-orange-700 border border-gray-200"
+                                : "bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-orange-50 dark:hover:bg-orange-900/30 hover:text-orange-700 dark:hover:text-orange-400 border border-gray-200 dark:border-gray-600"
                             }`}
                           >
                             {chapter}
@@ -301,9 +397,9 @@ export default function Verses() {
           {/* Topic Pills Row - with scroll fade indicators */}
           <div className="mt-3 sm:mt-4 relative">
             {/* Left fade */}
-            <div className="absolute left-0 top-0 bottom-1 w-6 bg-gradient-to-r from-amber-50/95 to-transparent z-10 pointer-events-none sm:hidden" />
+            <div className="absolute left-0 top-0 bottom-1 w-6 bg-gradient-to-r from-amber-50/95 dark:from-gray-900/95 to-transparent z-10 pointer-events-none sm:hidden" />
             {/* Right fade */}
-            <div className="absolute right-0 top-0 bottom-1 w-6 bg-gradient-to-l from-amber-50/95 to-transparent z-10 pointer-events-none sm:hidden" />
+            <div className="absolute right-0 top-0 bottom-1 w-6 bg-gradient-to-l from-amber-50/95 dark:from-gray-900/95 to-transparent z-10 pointer-events-none sm:hidden" />
 
             <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-1 -mx-3 px-3 sm:-mx-6 sm:px-6 scrollbar-hide">
               {principleIds.map((principleId) => (
@@ -317,7 +413,7 @@ export default function Verses() {
                   className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
                     selectedPrinciple === principleId
                       ? "bg-amber-600 text-white shadow-md"
-                      : "bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200"
+                      : "bg-amber-50 dark:bg-gray-800 text-amber-800 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-gray-700 border border-amber-200 dark:border-gray-600"
                   }`}
                 >
                   {getPrincipleShortLabel(principleId)}
@@ -329,21 +425,21 @@ export default function Verses() {
       </div>
 
       {/* Active Filter Banner - Fixed height to prevent layout shift */}
-      <div className="bg-amber-50/80 border-b border-amber-100 min-h-[36px] sm:min-h-[40px]">
+      <div className="bg-amber-50/80 dark:bg-gray-800/50 border-b border-amber-100 dark:border-gray-700 min-h-[36px] sm:min-h-[40px]">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2 sm:py-2.5">
           {selectedChapter || selectedPrinciple ? (
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs sm:text-sm text-amber-700">
+              <span className="text-xs sm:text-sm text-amber-700 dark:text-amber-400">
                 Filtering by:
               </span>
 
               {/* Chapter filter tag */}
               {selectedChapter && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-100 text-orange-800 text-xs sm:text-sm font-medium">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-100 dark:bg-orange-900/40 text-orange-800 dark:text-orange-300 text-xs sm:text-sm font-medium">
                   Chapter {selectedChapter}
                   <button
                     onClick={() => handleFilterSelect("featured")}
-                    className="ml-0.5 hover:bg-orange-200 rounded-full p-0.5 transition-colors"
+                    className="ml-0.5 hover:bg-orange-200 dark:hover:bg-orange-800/40 rounded-full p-0.5 transition-colors"
                     aria-label="Clear chapter filter"
                   >
                     <CloseIcon />
@@ -353,11 +449,11 @@ export default function Verses() {
 
               {/* Principle filter tag */}
               {selectedPrinciple && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-xs sm:text-sm font-medium">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 text-xs sm:text-sm font-medium">
                   {getPrincipleShortLabel(selectedPrinciple)}
                   <button
                     onClick={() => handlePrincipleSelect(null)}
-                    className="ml-0.5 hover:bg-amber-200 rounded-full p-0.5 transition-colors"
+                    className="ml-0.5 hover:bg-amber-200 dark:hover:bg-amber-800/40 rounded-full p-0.5 transition-colors"
                     aria-label="Clear topic filter"
                   >
                     <CloseIcon />
@@ -368,7 +464,7 @@ export default function Verses() {
               {/* Count + Clear all */}
               <div className="flex items-center gap-2 ml-auto">
                 {totalCount !== null && (
-                  <span className="text-xs sm:text-sm text-amber-600/70">
+                  <span className="text-xs sm:text-sm text-amber-600/70 dark:text-amber-400/70">
                     {totalCount} verse{totalCount !== 1 ? "s" : ""}
                   </span>
                 )}
@@ -378,14 +474,14 @@ export default function Verses() {
                     setSelectedPrinciple(null);
                     updateSearchParams("featured", null);
                   }}
-                  className="text-xs sm:text-sm text-amber-600 hover:text-amber-800 font-medium underline underline-offset-2"
+                  className="text-xs sm:text-sm text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 font-medium underline underline-offset-2"
                 >
                   Clear
                 </button>
               </div>
             </div>
           ) : (
-            <div className="text-xs sm:text-sm text-amber-600/70">
+            <div className="text-xs sm:text-sm text-amber-600/70 dark:text-amber-400/70">
               {totalCount !== null ? `${totalCount} ` : ""}
               {showFeatured ? "featured verses" : "verses"}
             </div>
@@ -398,7 +494,7 @@ export default function Verses() {
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
           {/* Error State */}
           {error && (
-            <div className="mb-4 sm:mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+            <div className="mb-4 sm:mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg">
               <p className="font-semibold text-sm sm:text-base">
                 Error loading verses
               </p>
@@ -407,26 +503,32 @@ export default function Verses() {
           )}
 
           {/* Loading State - Skeleton Cards */}
-          {loading && verses.length === 0 ? (
+          {loading && verses.length === 0 && !showFavorites ? (
             <div className={VERSE_GRID_CLASSES}>
               {Array.from({ length: SKELETON_COUNT }).map((_, i) => (
                 <VerseCardSkeleton key={i} />
               ))}
             </div>
-          ) : verses.length === 0 ? (
+          ) : displayedVerses.length === 0 ? (
             <div className="text-center py-12 sm:py-16">
               <div className="max-w-md mx-auto">
                 {/* Decorative element */}
-                <div className="text-4xl sm:text-5xl text-amber-300/60 mb-4">
-                  ॐ
+                <div className="text-4xl sm:text-5xl text-amber-300/60 dark:text-amber-500/40 mb-4">
+                  {showFavorites ? "♡" : "ॐ"}
                 </div>
 
-                <h3 className="text-lg sm:text-xl font-serif text-gray-700 mb-2">
-                  No verses found
+                <h3 className="text-lg sm:text-xl font-serif text-gray-700 dark:text-gray-300 mb-2">
+                  {showFavorites ? "No favorites yet" : "No verses found"}
                 </h3>
 
-                <p className="text-sm sm:text-base text-gray-500 mb-6">
-                  {selectedPrinciple && selectedChapter ? (
+                <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mb-6">
+                  {showFavorites ? (
+                    <>
+                      Browse verses and tap the{" "}
+                      <HeartIcon className="w-4 h-4 inline-block align-text-bottom text-red-400" />{" "}
+                      to save your favorites.
+                    </>
+                  ) : selectedPrinciple && selectedChapter ? (
                     <>
                       No verses in Chapter {selectedChapter} match the "
                       {getPrincipleShortLabel(selectedPrinciple)}" principle.
@@ -446,24 +548,35 @@ export default function Verses() {
 
                 {/* Action buttons */}
                 <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center">
-                  {(selectedChapter || selectedPrinciple) && (
+                  {showFavorites ? (
                     <button
-                      onClick={() => {
-                        setFilterMode("featured");
-                        setSelectedPrinciple(null);
-                        updateSearchParams("featured", null);
-                      }}
-                      className="px-4 py-2 bg-amber-600 text-white rounded-lg text-sm font-medium hover:bg-amber-700 transition-colors"
+                      onClick={() => handleFilterSelect("featured")}
+                      className="px-4 py-2 bg-orange-600 text-white rounded-lg text-sm font-medium hover:bg-orange-700 transition-colors"
                     >
-                      Clear filters
+                      Browse featured verses
                     </button>
+                  ) : (
+                    <>
+                      {(selectedChapter || selectedPrinciple) && (
+                        <button
+                          onClick={() => {
+                            setFilterMode("featured");
+                            setSelectedPrinciple(null);
+                            updateSearchParams("featured", null);
+                          }}
+                          className="px-4 py-2 bg-amber-600 text-white rounded-lg text-sm font-medium hover:bg-amber-700 transition-colors"
+                        >
+                          Clear filters
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleFilterSelect("all")}
+                        className="px-4 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-lg text-sm font-medium border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                      >
+                        Browse all 701 verses
+                      </button>
+                    </>
                   )}
-                  <button
-                    onClick={() => handleFilterSelect("all")}
-                    className="px-4 py-2 bg-white text-gray-700 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 transition-colors"
-                  >
-                    Browse all 701 verses
-                  </button>
                 </div>
               </div>
             </div>
@@ -473,7 +586,7 @@ export default function Verses() {
               <div
                 className={`${VERSE_GRID_CLASSES} transition-opacity duration-200 ${loading ? "opacity-50" : "opacity-100"}`}
               >
-                {verses.map((verse, index) => (
+                {displayedVerses.map((verse, index) => (
                   <div
                     key={verse.id}
                     className="animate-fade-in"
@@ -490,6 +603,10 @@ export default function Verses() {
                       showTranslationPreview={true}
                       onPrincipleClick={handlePrincipleSelect}
                       linkTo={`/verses/${verse.canonical_id}?from=browse`}
+                      isFavorite={isFavorite(verse.canonical_id)}
+                      onToggleFavorite={toggleFavorite}
+                      onShare={handleShare}
+                      shareCopied={shareCopied}
                     />
                   </div>
                 ))}
@@ -505,20 +622,20 @@ export default function Verses() {
                   >
                     <div className="flex items-center gap-4">
                       {/* Left decorative line */}
-                      <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-300/50 to-amber-300/70" />
+                      <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-300/50 dark:via-amber-600/30 to-amber-300/70 dark:to-amber-600/50" />
 
                       {/* Center content */}
                       <div
                         className={`flex flex-col items-center transition-all duration-300 ${loadingMore ? "scale-95 opacity-70" : "group-hover:scale-105"}`}
                       >
                         {loadingMore ? (
-                          <SpinnerIcon className="w-6 h-6 text-amber-500 mb-1.5" />
+                          <SpinnerIcon className="w-6 h-6 text-amber-500 dark:text-amber-400 mb-1.5" />
                         ) : (
-                          <span className="text-amber-400/70 text-xl mb-1">
+                          <span className="text-amber-400/70 dark:text-amber-500/60 text-xl mb-1">
                             ॰
                           </span>
                         )}
-                        <span className="flex items-center gap-1.5 text-base font-medium text-amber-700/80 group-hover:text-amber-800 transition-colors">
+                        <span className="flex items-center gap-1.5 text-base font-medium text-amber-700/80 dark:text-amber-400/80 group-hover:text-amber-800 dark:group-hover:text-amber-300 transition-colors">
                           {loadingMore ? (
                             "Loading"
                           ) : (
@@ -529,27 +646,29 @@ export default function Verses() {
                           )}
                         </span>
                         {!loadingMore && totalCount && (
-                          <span className="text-xs text-amber-600/50 mt-1">
+                          <span className="text-xs text-amber-600/70 dark:text-amber-500/70 mt-1">
                             {totalCount - verses.length} more
                           </span>
                         )}
                       </div>
 
                       {/* Right decorative line */}
-                      <div className="flex-1 h-px bg-gradient-to-l from-transparent via-amber-300/50 to-amber-300/70" />
+                      <div className="flex-1 h-px bg-gradient-to-l from-transparent via-amber-300/50 dark:via-amber-600/30 to-amber-300/70 dark:to-amber-600/50" />
                     </div>
                   </button>
                 ) : (
-                  verses.length > 0 && (
+                  displayedVerses.length > 0 && (
                     <div className="flex items-center gap-4">
-                      <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-200/40 to-amber-200/60" />
+                      <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-200/40 dark:via-amber-600/20 to-amber-200/60 dark:to-amber-600/40" />
                       <div className="flex flex-col items-center">
-                        <span className="text-amber-300/60 text-xl">ॐ</span>
-                        <span className="text-xs text-amber-600/40 mt-1">
-                          {verses.length} verses explored
+                        <span className="text-amber-300/60 dark:text-amber-500/40 text-xl">
+                          {showFavorites ? "♡" : "ॐ"}
+                        </span>
+                        <span className="text-xs text-amber-600/70 dark:text-amber-500/60 mt-1">
+                          {displayedVerses.length} {showFavorites ? "favorite" : "verse"}{displayedVerses.length !== 1 ? "s" : ""}{showFavorites ? "" : " explored"}
                         </span>
                       </div>
-                      <div className="flex-1 h-px bg-gradient-to-l from-transparent via-amber-200/40 to-amber-200/60" />
+                      <div className="flex-1 h-px bg-gradient-to-l from-transparent via-amber-200/40 dark:via-amber-600/20 to-amber-200/60 dark:to-amber-600/40" />
                     </div>
                   )
                 )}

@@ -7,7 +7,7 @@
  * - Share tracking via analytics
  */
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, useRef, useEffect } from "react";
 
 interface ShareData {
   title: string;
@@ -20,6 +20,8 @@ interface UseShareReturn {
   copyToClipboard: (text: string) => Promise<boolean>;
   canShare: boolean;
   isSharing: boolean;
+  /** True for 2 seconds after successful clipboard copy (for visual feedback) */
+  copied: boolean;
   lastError: string | null;
 }
 
@@ -44,10 +46,34 @@ interface UseShareReturn {
  */
 export function useShare(): UseShareReturn {
   const [isSharing, setIsSharing] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [lastError, setLastError] = useState<string | null>(null);
+  const copiedTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Check if Web Share API is supported
   const canShare = typeof navigator !== "undefined" && !!navigator.share;
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (copiedTimeoutRef.current) {
+        clearTimeout(copiedTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  /**
+   * Show "copied" state for 2 seconds
+   */
+  const showCopiedFeedback = useCallback(() => {
+    setCopied(true);
+    if (copiedTimeoutRef.current) {
+      clearTimeout(copiedTimeoutRef.current);
+    }
+    copiedTimeoutRef.current = setTimeout(() => {
+      setCopied(false);
+    }, 2000);
+  }, []);
 
   /**
    * Copy text to clipboard
@@ -79,6 +105,7 @@ export function useShare(): UseShareReturn {
           window.umami.track("share", { method: "clipboard" });
         }
 
+        showCopiedFeedback();
         setIsSharing(false);
         return true;
       } catch (error) {
@@ -89,7 +116,7 @@ export function useShare(): UseShareReturn {
         return false;
       }
     },
-    [],
+    [showCopiedFeedback],
   );
 
   /**
@@ -143,6 +170,7 @@ export function useShare(): UseShareReturn {
     copyToClipboard,
     canShare,
     isSharing,
+    copied,
     lastError,
   };
 }
