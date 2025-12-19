@@ -51,3 +51,11 @@ export {
 export { GoalSelector } from "./GoalSelector";
 export { TimeSelector } from "./TimeSelector";
 export type { SendTime } from "./TimeSelector";
+export { NewsletterCard } from "./NewsletterCard";
+export {
+  markNewsletterSubscribed,
+  clearNewsletterSubscribed,
+} from "../lib/newsletterStorage";
+
+// Notifications
+export { Toast } from "./Toast";
