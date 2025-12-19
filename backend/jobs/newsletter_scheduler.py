@@ -20,12 +20,13 @@ Cron Schedule (UTC):
 import argparse
 import logging
 import sys
-from datetime import datetime
+from datetime import datetime, date
+from typing import Optional
 
 from config import settings
 from db.connection import SessionLocal
 from models import Subscriber, SendTime
-from services.tasks import enqueue_task, is_rq_available
+from services.tasks import enqueue_task, is_rq_available, get_queue
 from jobs.newsletter import send_subscriber_digest
 
 # Set up logging
@@ -35,6 +36,54 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 logger = logging.getLogger(__name__)
+
+# Lock TTL: 5 minutes (scheduler should complete well within this)
+SCHEDULER_LOCK_TTL_SECONDS = 300
+
+
+def _acquire_scheduler_lock(send_time: str) -> bool:
+    """
+    Acquire a distributed lock to prevent duplicate scheduler runs.
+
+    Returns True if lock acquired, False if already held by another process.
+    """
+    queue = get_queue()
+    if not queue:
+        # No Redis available, can't lock - proceed with warning
+        logger.warning("Redis unavailable for distributed lock, proceeding without lock")
+        return True
+
+    try:
+        lock_key = f"newsletter:scheduler:lock:{send_time}:{date.today().isoformat()}"
+        # SET NX (only if not exists) with TTL
+        acquired = queue.connection.set(
+            lock_key,
+            datetime.utcnow().isoformat(),
+            nx=True,  # Only set if not exists
+            ex=SCHEDULER_LOCK_TTL_SECONDS
+        )
+        if not acquired:
+            logger.warning(f"Scheduler lock already held for {send_time}, exiting")
+            return False
+        logger.info(f"Acquired scheduler lock: {lock_key}")
+        return True
+    except Exception as e:
+        logger.warning(f"Failed to acquire scheduler lock: {e}, proceeding anyway")
+        return True
+
+
+def _release_scheduler_lock(send_time: str) -> None:
+    """Release the scheduler lock."""
+    queue = get_queue()
+    if not queue:
+        return
+
+    try:
+        lock_key = f"newsletter:scheduler:lock:{send_time}:{date.today().isoformat()}"
+        queue.connection.delete(lock_key)
+        logger.debug(f"Released scheduler lock: {lock_key}")
+    except Exception as e:
+        logger.warning(f"Failed to release scheduler lock: {e}")
 
 
 def get_active_subscribers(db, send_time: str) -> list[Subscriber]:
@@ -79,10 +128,17 @@ def schedule_daily_digests(send_time: str, dry_run: bool = False) -> dict:
 
     logger.info(f"Starting newsletter scheduler for send_time={send_time} (dry_run={dry_run})")
 
+    # Acquire distributed lock to prevent duplicate runs
+    if not dry_run and not _acquire_scheduler_lock(send_time):
+        stats["error"] = "Lock held by another process"
+        stats["status"] = "skipped"
+        return stats
+
     # Check RQ availability
     if not dry_run and not is_rq_available():
         logger.error("RQ is not available. Cannot enqueue jobs.")
         stats["error"] = "RQ unavailable"
+        _release_scheduler_lock(send_time)
         return stats
 
     db = SessionLocal()
@@ -101,7 +157,7 @@ def schedule_daily_digests(send_time: str, dry_run: bool = False) -> dict:
         # Enqueue jobs
         for subscriber in subscribers:
             if dry_run:
-                logger.info(f"[DRY-RUN] Would enqueue job for: {subscriber.email}")
+                logger.info(f"[DRY-RUN] Would enqueue job for subscriber {subscriber.id}")
                 stats["jobs_queued"] += 1
             else:
                 try:
@@ -113,13 +169,13 @@ def schedule_daily_digests(send_time: str, dry_run: bool = False) -> dict:
                     )
                     if job_id:
                         stats["jobs_queued"] += 1
-                        logger.debug(f"Queued job {job_id} for {subscriber.email}")
+                        logger.debug(f"Queued job {job_id} for subscriber {subscriber.id}")
                     else:
                         stats["jobs_failed"] += 1
-                        logger.error(f"Failed to enqueue job for {subscriber.email}")
+                        logger.error(f"Failed to enqueue job for subscriber {subscriber.id}")
                 except Exception as e:
                     stats["jobs_failed"] += 1
-                    logger.exception(f"Error enqueueing job for {subscriber.email}: {e}")
+                    logger.exception(f"Error enqueueing job for subscriber {subscriber.id}")
 
         stats["completed_at"] = datetime.utcnow().isoformat()
         logger.info(
@@ -133,6 +189,9 @@ def schedule_daily_digests(send_time: str, dry_run: bool = False) -> dict:
 
     finally:
         db.close()
+        # Release lock (only if we acquired it - not in dry_run)
+        if not dry_run:
+            _release_scheduler_lock(send_time)
 
 
 def main():
