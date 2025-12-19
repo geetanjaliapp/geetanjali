@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import {
   useParams,
   useNavigate,
@@ -18,9 +18,10 @@ import {
   StickyBottomNav,
   FloatingNavArrow,
 } from "../components";
-import { HeartIcon, ShareIcon, CheckIcon } from "../components/icons";
+import { HeartIcon, ShareIcon } from "../components/icons";
+import { ShareModal } from "../components/verse";
 import { errorMessages } from "../lib/errorMessages";
-import { useSEO, useAdjacentVerses, useFavorites, useShare } from "../hooks";
+import { useSEO, useAdjacentVerses, useFavorites } from "../hooks";
 
 // localStorage key for newsletter subscription
 const NEWSLETTER_SUBSCRIBED_KEY = "geetanjali:newsletterSubscribed";
@@ -55,24 +56,10 @@ export default function VerseDetail() {
   const [error, setError] = useState<string | null>(null);
   const [showAllTranslations, setShowAllTranslations] = useState(false);
   const [showNewsletterNudge, setShowNewsletterNudge] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
 
-  // Favorites and sharing
+  // Favorites
   const { isFavorite, toggleFavorite } = useFavorites();
-  const { share, copied: shareCopied } = useShare();
-
-  // Share handler
-  const handleShare = useCallback(async () => {
-    if (!verse) return;
-    const verseRef = `${verse.chapter}.${verse.verse}`;
-    const url = `${window.location.origin}/verses/${verse.canonical_id}`;
-    const text = verse.paraphrase_en || verse.translation_en || "";
-
-    await share({
-      title: `Bhagavad Geeta ${verseRef}`,
-      text: text ? `"${text}"` : undefined,
-      url,
-    });
-  }, [verse, share]);
 
   // Redirect to canonical uppercase URL if case doesn't match
   const canonicalUppercase = canonicalId?.toUpperCase();
@@ -374,23 +361,13 @@ export default function VerseDetail() {
                     ॥ {verse.chapter}.{verse.verse} ॥
                   </span>
 
-                  {/* Share button */}
+                  {/* Share button - opens unified share modal */}
                   <button
-                    onClick={handleShare}
-                    className={`p-1.5 rounded-full transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800 ${
-                      shareCopied
-                        ? "text-green-500 dark:text-green-400"
-                        : "text-amber-600/50 dark:text-amber-400/60 hover:text-amber-600 dark:hover:text-amber-400 hover:scale-110"
-                    }`}
-                    aria-label={
-                      shareCopied ? "Copied to clipboard" : "Share verse"
-                    }
+                    onClick={() => setShowShareModal(true)}
+                    className="p-1.5 rounded-full transition-all duration-150 text-amber-600/50 dark:text-amber-400/60 hover:text-amber-600 dark:hover:text-amber-400 hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800"
+                    aria-label="Share verse"
                   >
-                    {shareCopied ? (
-                      <CheckIcon className="w-5 h-5 sm:w-6 sm:h-6" />
-                    ) : (
-                      <ShareIcon className="w-5 h-5 sm:w-6 sm:h-6" />
-                    )}
+                    <ShareIcon className="w-5 h-5 sm:w-6 sm:h-6" />
                   </button>
                 </div>
               </div>
@@ -593,6 +570,14 @@ export default function VerseDetail() {
           currentVerse={verse.verse}
         />
       )}
+
+      {/* Share Modal */}
+      <ShareModal
+        verse={verse}
+        hindiTranslation={primaryHindi}
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+      />
     </div>
   );
 }

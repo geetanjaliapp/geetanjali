@@ -2,7 +2,7 @@ import { memo, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { formatSanskritLines, isSpeakerIntro } from "../lib/sanskritFormatter";
 import { getPrincipleShortLabel } from "../constants/principles";
-import { StarIcon, HeartIcon, ShareIcon, CheckIcon } from "./icons";
+import { StarIcon, HeartIcon } from "./icons";
 import type { Verse } from "../types";
 
 /**
@@ -76,12 +76,8 @@ export interface VerseCardProps {
   showTranslationPreview?: boolean; // For compact mode: truncated translation_en
   onPrincipleClick?: (principle: string) => void; // Callback when a principle tag is clicked
   linkTo?: string; // For compact mode: stretched link pattern (card navigates here, tags remain clickable)
-  // Option C: Badge left, actions right
   isFavorite?: boolean;
   onToggleFavorite?: (verseId: string) => void;
-  onShare?: (verse: Verse) => void;
-  /** Show checkmark instead of share icon (for clipboard feedback) */
-  shareCopied?: boolean;
   /** Search match info - when provided, displays match type badge and highlighted text */
   match?: VerseMatch;
 }
@@ -134,8 +130,6 @@ export const VerseCard = memo(function VerseCard({
   linkTo,
   isFavorite = false,
   onToggleFavorite,
-  onShare,
-  shareCopied = false,
   match,
 }: VerseCardProps) {
   const isCompact = displayMode === "compact";
@@ -177,70 +171,44 @@ export const VerseCard = memo(function VerseCard({
           </div>
         )}
 
-        {/* Match Type Badge - top RIGHT corner (only shown for search results) */}
-        {match && (
-          <div className="absolute top-2 right-2 sm:top-3 sm:right-3 z-10">
+        {/* Top-right: Match badge + Heart (flex row, heart always rightmost) */}
+        <div className="absolute top-2 right-2 sm:top-3 sm:right-3 z-10 flex items-center gap-1.5">
+          {match && (
             <span className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-400 text-[10px] sm:text-xs font-medium">
               {MATCH_TYPE_LABELS[match.type] || match.type}
             </span>
-          </div>
-        )}
+          )}
+          {onToggleFavorite && (
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onToggleFavorite(verse.canonical_id);
+              }}
+              className={`p-1 rounded-full transition-all duration-150 pointer-events-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-800 ${
+                isFavorite
+                  ? "text-red-500 dark:text-red-400"
+                  : "text-gray-400 dark:text-gray-500 hover:text-red-400 dark:hover:text-red-400 hover:scale-110"
+              }`}
+              aria-label={
+                isFavorite ? "Remove from favorites" : "Add to favorites"
+              }
+            >
+              <HeartIcon
+                className="w-3.5 h-3.5 sm:w-4 sm:h-4"
+                filled={isFavorite}
+              />
+            </button>
+          )}
+        </div>
 
         {/* Card content - pointer-events-none so clicks pass through to stretched link */}
         <div className={linkTo ? "relative z-10 pointer-events-none" : ""}>
-          {/* Verse Reference with integrated actions - mt-6 clears space for absolute badges */}
-          <div className="flex items-center justify-center gap-2 sm:gap-3 mt-6 sm:mt-5 mb-2 sm:mb-3">
-            {/* Favorite button (left of verse ref) */}
-            {onToggleFavorite && (
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onToggleFavorite(verse.canonical_id);
-                }}
-                className={`p-1 rounded-full transition-all duration-150 pointer-events-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-800 ${
-                  isFavorite
-                    ? "text-red-500 dark:text-red-400"
-                    : "text-amber-600/50 dark:text-amber-400/60 hover:text-red-400 dark:hover:text-red-400 hover:scale-110"
-                }`}
-                aria-label={
-                  isFavorite ? "Remove from favorites" : "Add to favorites"
-                }
-              >
-                <HeartIcon
-                  className="w-3.5 h-3.5 sm:w-4 sm:h-4"
-                  filled={isFavorite}
-                />
-              </button>
-            )}
-
-            {/* Verse reference */}
+          {/* Verse Reference - centered, mt-6 clears space for absolute badges */}
+          <div className="flex items-center justify-center mt-6 sm:mt-5 mb-2 sm:mb-3">
             <span className="text-amber-600 dark:text-amber-400 font-serif font-medium text-xs sm:text-sm">
               ॥ {formatVerseRef(verse)} ॥
             </span>
-
-            {/* Share button (right of verse ref) */}
-            {onShare && (
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onShare(verse);
-                }}
-                className={`p-1 rounded-full transition-all duration-150 pointer-events-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-800 ${
-                  shareCopied
-                    ? "text-green-500 dark:text-green-400"
-                    : "text-amber-600/50 dark:text-amber-400/60 hover:text-amber-600 dark:hover:text-amber-400 hover:scale-110"
-                }`}
-                aria-label={shareCopied ? "Copied to clipboard" : "Share verse"}
-              >
-                {shareCopied ? (
-                  <CheckIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                ) : (
-                  <ShareIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                )}
-              </button>
-            )}
           </div>
 
           {/* Full Sanskrit Verse */}

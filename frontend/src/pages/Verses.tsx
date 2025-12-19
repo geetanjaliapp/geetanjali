@@ -15,7 +15,7 @@ import {
   StarIcon,
 } from "../components/icons";
 import { errorMessages } from "../lib/errorMessages";
-import { useSEO, useFavorites, useShare, useSearch, useTaxonomy } from "../hooks";
+import { useSEO, useFavorites, useSearch, useTaxonomy } from "../hooks";
 import { validateSearchQuery } from "../lib/contentFilter";
 
 // Responsive page size: 16 for desktop (4x4 grid), 12 for mobile
@@ -79,9 +79,6 @@ export default function Verses() {
   // Favorites hook for heart icon and filtering
   const { favorites, isFavorite, toggleFavorite, favoritesCount } =
     useFavorites();
-
-  // Share hook for share button
-  const { share, copied: shareCopied } = useShare();
 
   // Taxonomy hook for principles (single source of truth from backend)
   const { principles, getPrincipleShortLabel } = useTaxonomy();
@@ -237,7 +234,7 @@ export default function Verses() {
     if (newFilterMode !== filterMode) {
       setFilterMode(newFilterMode);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]); // Only depend on searchParams, not state (to avoid infinite loops)
 
   // Derived state
@@ -554,22 +551,6 @@ export default function Verses() {
     }
   };
 
-  // Share handler for verse cards
-  const handleShare = useCallback(
-    async (verse: Verse) => {
-      const verseRef = `${verse.chapter}.${verse.verse}`;
-      const url = `${window.location.origin}/verses/${verse.canonical_id}`;
-      const text = verse.translation_en || verse.paraphrase_en || "";
-
-      await share({
-        title: `Bhagavad Geeta ${verseRef}`,
-        text: text ? `"${text}"` : undefined,
-        url,
-      });
-    },
-    [share],
-  );
-
   // Search handlers
   const handleSearch = useCallback(
     (query: string) => {
@@ -687,20 +668,20 @@ export default function Verses() {
           <div className="flex items-center gap-1.5 sm:gap-2 mb-2">
             <button
               onClick={() => handleFilterSelect("featured")}
-              className={`${FILTER_PILL_BASE} flex items-center gap-1 ${showFeatured && !selectedPrinciple ? FILTER_PILL_ACTIVE : FILTER_PILL_INACTIVE}`}
+              className={`${FILTER_PILL_BASE} flex items-center gap-1 ${showFeatured && !selectedPrinciple && !isSearchMode ? FILTER_PILL_ACTIVE : FILTER_PILL_INACTIVE}`}
             >
               <StarIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span>Featured</span>
             </button>
             <button
               onClick={() => handleFilterSelect("all")}
-              className={`${FILTER_PILL_BASE} ${showAll && !selectedPrinciple ? FILTER_PILL_ACTIVE : FILTER_PILL_INACTIVE}`}
+              className={`${FILTER_PILL_BASE} ${showAll && !selectedPrinciple && !isSearchMode ? FILTER_PILL_ACTIVE : FILTER_PILL_INACTIVE}`}
             >
               All
             </button>
             <button
               onClick={() => handleFilterSelect("favorites")}
-              className={`${FILTER_PILL_BASE} flex items-center gap-1 ${showFavorites && !selectedPrinciple ? FILTER_PILL_ACTIVE : FILTER_PILL_INACTIVE}`}
+              className={`${FILTER_PILL_BASE} flex items-center gap-1 ${showFavorites && !selectedPrinciple && !isSearchMode ? FILTER_PILL_ACTIVE : FILTER_PILL_INACTIVE}`}
             >
               <HeartIcon
                 className="w-3.5 h-3.5 sm:w-4 sm:h-4"
@@ -710,7 +691,7 @@ export default function Verses() {
               {favoritesCount > 0 && (
                 <span
                   className={`text-[10px] sm:text-xs px-1 sm:px-1.5 py-0.5 rounded-full ${
-                    showFavorites && !selectedPrinciple
+                    showFavorites && !selectedPrinciple && !isSearchMode
                       ? "bg-white/20 text-white"
                       : "bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400"
                   }`}
@@ -724,7 +705,7 @@ export default function Verses() {
             <div className="relative">
               <button
                 onClick={() => setShowChapterDropdown(!showChapterDropdown)}
-                className={`${FILTER_PILL_BASE} flex items-center gap-1 ${selectedChapter && !selectedPrinciple ? FILTER_PILL_ACTIVE : FILTER_PILL_INACTIVE}`}
+                className={`${FILTER_PILL_BASE} flex items-center gap-1 ${selectedChapter && !selectedPrinciple && !isSearchMode ? FILTER_PILL_ACTIVE : FILTER_PILL_INACTIVE}`}
               >
                 {selectedChapter ? `Ch ${selectedChapter}` : "Chapter"}
                 <ChevronDownIcon
@@ -785,7 +766,7 @@ export default function Verses() {
                     )
                   }
                   className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-900 ${
-                    selectedPrinciple === principle.id
+                    selectedPrinciple === principle.id && !isSearchMode
                       ? "bg-amber-600 text-white shadow-md"
                       : "bg-amber-100/80 dark:bg-gray-700 text-amber-800 dark:text-amber-300 hover:bg-amber-200 dark:hover:bg-gray-600 border border-amber-200/50 dark:border-gray-600"
                   }`}
@@ -994,8 +975,6 @@ export default function Verses() {
                           linkTo={`/verses/${result.canonical_id}?from=search`}
                           isFavorite={isFavorite(result.canonical_id)}
                           onToggleFavorite={toggleFavorite}
-                          onShare={handleShare}
-                          shareCopied={shareCopied}
                           match={toVerseMatch(result.match)}
                         />
                       </div>
@@ -1225,8 +1204,6 @@ export default function Verses() {
                           linkTo={`/verses/${verse.canonical_id}?from=browse`}
                           isFavorite={isFavorite(verse.canonical_id)}
                           onToggleFavorite={toggleFavorite}
-                          onShare={handleShare}
-                          shareCopied={shareCopied}
                         />
                       </div>
                     ))}

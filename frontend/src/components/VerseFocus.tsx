@@ -17,8 +17,8 @@ import { Link } from "react-router-dom";
 import { versesApi } from "../lib/api";
 import { formatSanskritLines, isSpeakerIntro } from "../lib/sanskritFormatter";
 import { getTranslatorPriority } from "../constants/translators";
-import { HeartIcon, ShareIcon, CheckIcon } from "./icons";
-import { useFavorites, useShare } from "../hooks";
+import { HeartIcon } from "./icons";
+import { useFavorites } from "../hooks";
 import type { Verse, Translation } from "../types";
 
 /** Font size options for Sanskrit text */
@@ -191,22 +191,9 @@ export function VerseFocus({
   const isControlled = controlledShowTranslation !== undefined;
   const [internalShowTranslation, setInternalShowTranslation] = useState(false);
 
-  // Favorites and sharing
+  // Favorites
   const { isFavorite, toggleFavorite } = useFavorites();
-  const { share, copied: shareCopied } = useShare();
 
-  // Share handler
-  const handleShare = useCallback(async () => {
-    const verseRef = `${verse.chapter}.${verse.verse}`;
-    const url = `${window.location.origin}/verses/${verse.canonical_id}`;
-    const text = verse.paraphrase_en || verse.translation_en || "";
-
-    await share({
-      title: `Bhagavad Geeta ${verseRef}`,
-      text: text ? `"${text}"` : undefined,
-      url,
-    });
-  }, [verse, share]);
   const showTranslation = isControlled
     ? controlledShowTranslation
     : internalShowTranslation;
@@ -369,19 +356,25 @@ export function VerseFocus({
             ))}
           </div>
 
-          {/* Verse reference with micro-icons */}
-          <div className="flex items-center justify-center gap-3 sm:gap-4 mb-4">
-            {/* Favorite button - micro size for reading mode */}
+          {/* Verse reference - centered */}
+          <div className="text-center mb-2">
+            <span className="text-gray-600 dark:text-gray-400 text-base sm:text-lg font-serif">
+              ॥ {verse.chapter}.{verse.verse} ॥
+            </span>
+          </div>
+
+          {/* Favorite button - centered below verse ref, subtle */}
+          <div className="flex justify-center mb-4">
             <button
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 toggleFavorite(verse.canonical_id);
               }}
-              className={`p-1 rounded-full transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 ${
+              className={`p-1.5 rounded-full transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 ${
                 isFavorite(verse.canonical_id)
                   ? "text-red-500 dark:text-red-400"
-                  : "text-gray-500/60 dark:text-gray-400/60 hover:text-red-400 dark:hover:text-red-400 hover:scale-110"
+                  : "text-gray-400/50 dark:text-gray-500/50 hover:text-red-400 dark:hover:text-red-400 hover:scale-110"
               }`}
               aria-label={
                 isFavorite(verse.canonical_id)
@@ -393,32 +386,6 @@ export function VerseFocus({
                 className="w-4 h-4"
                 filled={isFavorite(verse.canonical_id)}
               />
-            </button>
-
-            {/* Verse reference */}
-            <span className="text-gray-600 dark:text-gray-400 text-base sm:text-lg font-serif">
-              ॥ {verse.chapter}.{verse.verse} ॥
-            </span>
-
-            {/* Share button - micro size for reading mode */}
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                handleShare();
-              }}
-              className={`p-1 rounded-full transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 ${
-                shareCopied
-                  ? "text-green-500 dark:text-green-400"
-                  : "text-gray-500/60 dark:text-gray-400/60 hover:text-gray-600 dark:hover:text-gray-400 hover:scale-110"
-              }`}
-              aria-label={shareCopied ? "Copied to clipboard" : "Share verse"}
-            >
-              {shareCopied ? (
-                <CheckIcon className="w-4 h-4" />
-              ) : (
-                <ShareIcon className="w-4 h-4" />
-              )}
             </button>
           </div>
 
