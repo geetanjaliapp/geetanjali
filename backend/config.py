@@ -175,6 +175,9 @@ class Settings(BaseSettings):
         None  # Sender address - MUST set in .env (use verified domain)
     )
 
+    # Newsletter
+    NEWSLETTER_DRY_RUN: bool = True  # Default safe: log emails, don't send. Set False in prod.
+
     # Monitoring (Sentry)
     SENTRY_DSN: Optional[str] = None  # Set in .env to enable error tracking
     SENTRY_TRACES_SAMPLE_RATE: float = 0.1  # 10% of requests for performance monitoring

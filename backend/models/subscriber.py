@@ -5,7 +5,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Optional, List
 
-from sqlalchemy import String, Boolean, DateTime, ForeignKey, Index, JSON
+from sqlalchemy import String, Boolean, DateTime, ForeignKey, Index, JSON, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models.base import Base, TimestampMixin
@@ -72,6 +72,9 @@ class Subscriber(Base, TimestampMixin):
     verses_sent_30d: Mapped[List[str]] = mapped_column(
         JSON, default=list, nullable=False
     )  # Verse canonical IDs sent in last 30 days
+    verses_sent_count: Mapped[int] = mapped_column(
+        Integer, default=0, nullable=False
+    )  # Total verses sent (for milestone messages: 7, 30, 100, 365)
 
     # Optional link to user account
     # Allows logged-in users to subscribe with a different email
