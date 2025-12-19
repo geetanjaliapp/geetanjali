@@ -2,9 +2,12 @@
 
 import html
 import logging
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 from config import settings
+
+if TYPE_CHECKING:
+    from models import Verse
 
 logger = logging.getLogger(__name__)
 
@@ -476,4 +479,233 @@ Geetanjali - Ethical Guidance from the Bhagavad Geeta
 
     except Exception as e:
         logger.error(f"Failed to send newsletter welcome email: {e}")
+        return False
+
+
+def send_newsletter_digest_email(
+    email: str,
+    name: str,
+    greeting: str,
+    verse: "Verse",
+    goal_labels: str,
+    milestone_message: Optional[str],
+    reflection_prompt: Optional[str],
+    verse_url: str,
+    unsubscribe_url: str,
+    preferences_url: str,
+) -> bool:
+    """
+    Send daily digest email with personalized verse.
+
+    This is the core daily email that subscribers receive. Design philosophy:
+    - Contemplative and unhurried ("quiet library" feel)
+    - Sanskrit first, honoring the source
+    - Warm amber/orange accents, not loud gradients
+    - Content-forward, minimal chrome
+
+    Args:
+        email: Subscriber's email address
+        name: Display name for greeting
+        greeting: Time-based greeting (Good morning, etc.)
+        verse: Verse object with sanskrit, translation, paraphrase
+        goal_labels: Human-readable goal description
+        milestone_message: Optional milestone (day 7, 30, etc.)
+        reflection_prompt: Optional reflection question
+        verse_url: URL to full verse page
+        unsubscribe_url: URL to unsubscribe
+        preferences_url: URL to manage preferences
+
+    Returns:
+        True if email sent successfully, False otherwise
+    """
+    resend = _get_resend()
+
+    if not resend:
+        logger.warning("Email service not available - digest email not sent")
+        return False
+
+    if not settings.CONTACT_EMAIL_FROM:
+        logger.warning("CONTACT_EMAIL_FROM not configured - digest email not sent")
+        return False
+
+    # HTML-escape user inputs
+    safe_name = html.escape(name)
+    safe_goal_labels = html.escape(goal_labels)
+
+    # Verse content (already from trusted source, but escape just in case)
+    verse_ref = f"{verse.chapter}.{verse.verse}"
+    sanskrit = verse.sanskrit_devanagari or ""
+    translation = verse.translation_en or ""
+    paraphrase = verse.paraphrase_en or ""
+
+    # Build milestone section if applicable
+    milestone_html = ""
+    milestone_text = ""
+    if milestone_message:
+        milestone_html = f"""
+            <p style="color: #92400e; font-style: italic; text-align: center; margin: 16px 0; padding: 12px; background: #fffbeb; border-radius: 6px;">
+                ✦ {html.escape(milestone_message)} ✦
+            </p>
+        """
+        milestone_text = f"\n✦ {milestone_message} ✦\n"
+
+    # Build reflection section if applicable
+    reflection_html = ""
+    reflection_text = ""
+    if reflection_prompt:
+        reflection_html = f"""
+            <p style="color: #6b7280; font-style: italic; margin: 16px 0 0 0; padding-top: 12px; border-top: 1px dashed #e5e7eb;">
+                {html.escape(reflection_prompt)}
+            </p>
+        """
+        reflection_text = f"\n{reflection_prompt}\n"
+
+    # Build HTML email body - contemplative, content-forward design
+    html_body = f"""
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="margin: 0; padding: 0; background-color: #fefce8;">
+        <div style="font-family: Georgia, 'Times New Roman', serif; max-width: 600px; margin: 0 auto; padding: 24px 16px;">
+
+            <!-- Header - minimal, warm -->
+            <div style="text-align: center; padding: 24px 0 32px 0; border-bottom: 1px solid #fde68a;">
+                <p style="color: #92400e; font-size: 14px; letter-spacing: 2px; margin: 0; text-transform: uppercase;">
+                    Daily Wisdom
+                </p>
+            </div>
+
+            <!-- Greeting -->
+            <div style="padding: 32px 0 24px 0;">
+                <p style="color: #78716c; font-size: 18px; margin: 0;">
+                    {html.escape(greeting)}, {safe_name}
+                </p>
+            </div>
+
+            <!-- Verse Reference -->
+            <div style="text-align: center; padding: 16px 0;">
+                <p style="color: #d97706; font-size: 16px; margin: 0; letter-spacing: 1px;">
+                    ॥ {verse_ref} ॥
+                </p>
+            </div>
+
+            <!-- Sanskrit (Devanagari) -->
+            <div style="text-align: center; padding: 16px 24px; background: #fffbeb; border-radius: 8px; margin: 16px 0;">
+                <p style="color: #44403c; font-size: 20px; line-height: 1.8; margin: 0; font-family: 'Noto Sans Devanagari', Georgia, serif;">
+                    {sanskrit}
+                </p>
+            </div>
+
+            <!-- Translation -->
+            <div style="padding: 24px 0;">
+                <p style="color: #44403c; font-size: 17px; line-height: 1.7; margin: 0; text-align: center;">
+                    {html.escape(translation)}
+                </p>
+            </div>
+
+            <!-- Divider -->
+            <div style="text-align: center; padding: 8px 0;">
+                <span style="color: #d4d4d4;">❧</span>
+            </div>
+
+            <!-- Paraphrase / Commentary -->
+            <div style="padding: 16px 0 24px 0;">
+                <p style="color: #57534e; font-size: 15px; line-height: 1.8; margin: 0;">
+                    {html.escape(paraphrase)}
+                </p>
+            </div>
+
+            <!-- Read More Link -->
+            <div style="text-align: center; padding: 16px 0 24px 0;">
+                <a href="{verse_url}"
+                   style="color: #d97706; font-size: 14px; text-decoration: none; border-bottom: 1px solid #fde68a;">
+                    Read full verse →
+                </a>
+            </div>
+
+            <!-- Why This Verse -->
+            <div style="padding: 24px 0; border-top: 1px solid #fde68a;">
+                <p style="color: #78716c; font-size: 13px; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 1px;">
+                    Why this verse
+                </p>
+                <p style="color: #57534e; font-size: 14px; line-height: 1.6; margin: 0;">
+                    Selected for your journey toward {safe_goal_labels}.
+                </p>
+            </div>
+
+            {milestone_html}
+
+            {reflection_html}
+
+            <!-- Footer -->
+            <div style="padding: 32px 0 16px 0; border-top: 1px solid #fde68a; margin-top: 24px;">
+                <p style="color: #a8a29e; font-size: 12px; text-align: center; margin: 0 0 12px 0;">
+                    Geetanjali — Wisdom for modern life
+                </p>
+                <p style="text-align: center; margin: 0;">
+                    <a href="{unsubscribe_url}" style="color: #a8a29e; font-size: 11px; text-decoration: none;">Unsubscribe</a>
+                    <span style="color: #d4d4d4; margin: 0 8px;">·</span>
+                    <a href="{preferences_url}" style="color: #a8a29e; font-size: 11px; text-decoration: none;">Manage preferences</a>
+                </p>
+            </div>
+
+        </div>
+    </body>
+    </html>
+    """
+
+    # Plain text version - equally contemplative
+    text_body = f"""
+{greeting}, {name}
+
+══════════════════════════════════════
+
+॥ {verse_ref} ॥
+
+{sanskrit}
+
+{translation}
+
+---
+
+{paraphrase}
+
+Read full verse: {verse_url}
+
+══════════════════════════════════════
+
+Why this verse?
+Selected for your journey toward {goal_labels}.
+{milestone_text}{reflection_text}
+---
+
+Geetanjali — Wisdom for modern life
+
+Unsubscribe: {unsubscribe_url}
+Manage preferences: {preferences_url}
+    """.strip()
+
+    # Subject line - personal, not promotional
+    subject = f"Your daily verse • {verse_ref}"
+
+    try:
+        params = {
+            "from": settings.CONTACT_EMAIL_FROM,
+            "to": [email],
+            "subject": subject,
+            "html": html_body,
+            "text": text_body,
+        }
+
+        response = resend.Emails.send(params)
+        logger.info(
+            f"Newsletter digest email sent to {email}: {response.get('id', 'unknown')}"
+        )
+        return True
+
+    except Exception as e:
+        logger.error(f"Failed to send newsletter digest email: {e}")
         return False
