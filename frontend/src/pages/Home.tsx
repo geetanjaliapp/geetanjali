@@ -6,7 +6,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { FeaturedVerse } from "../components/FeaturedVerse";
 import { ExampleConsultation } from "../components/ExampleConsultation";
 import { Footer } from "../components/Footer";
-import { Navbar } from "../components";
+import { Navbar, NewsletterCard } from "../components";
 import { useSEO } from "../hooks";
 import { trackEvent } from "../lib/experiment";
 import { errorMessages } from "../lib/errorMessages";
@@ -184,52 +184,8 @@ export default function Home() {
             <ExampleConsultation />
           </div>
 
-          {/* Daily Wisdom Discovery Card */}
-          <div className="mb-8 sm:mb-10 max-w-4xl mx-auto">
-            <Link
-              to="/settings"
-              className="block p-4 sm:p-5 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-gray-800/80 dark:to-gray-800/80 rounded-xl border border-amber-200/60 dark:border-gray-700 hover:border-amber-300 dark:hover:border-amber-700 transition-all group"
-            >
-              <div className="flex items-center gap-4">
-                <div className="flex-shrink-0 p-2.5 rounded-lg bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400">
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1.5}
-                      d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
-                    />
-                  </svg>
-                </div>
-                <div className="flex-1 text-left">
-                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm sm:text-base group-hover:text-amber-700 dark:group-hover:text-amber-400 transition-colors">
-                    Daily Wisdom
-                  </h3>
-                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-                    Start each day with a verse chosen for your journey
-                  </p>
-                </div>
-                <svg
-                  className="w-5 h-5 text-gray-400 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors flex-shrink-0"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </div>
-            </Link>
-          </div>
+          {/* Daily Wisdom Discovery Card - dismissable */}
+          <NewsletterCard />
 
           {/* Recent Consultations */}
           {!casesLoading && recentCases.length > 0 && (

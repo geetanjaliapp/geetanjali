@@ -5,6 +5,7 @@ import {
   XCircleIcon,
   SpinnerIcon,
 } from "../components/icons";
+import { markNewsletterSubscribed } from "../components";
 import { api } from "../lib/api";
 
 type VerifyState = "loading" | "success" | "error" | "already_verified";
@@ -37,6 +38,8 @@ export default function NewsletterVerify() {
       try {
         const response = await api.get(`/api/v1/newsletter/verify/${token}`);
         setEmail(response.data.email);
+        // Mark as subscribed in localStorage (hides home page card)
+        markNewsletterSubscribed();
         if (response.data.message.includes("already")) {
           setState("already_verified");
         } else {

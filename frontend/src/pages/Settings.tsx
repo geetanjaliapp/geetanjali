@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
-import { Navbar } from "../components";
+import { Navbar, markNewsletterSubscribed } from "../components";
 import { Footer } from "../components/Footer";
 import { GoalSelector } from "../components/GoalSelector";
 import { TimeSelector, type SendTime } from "../components/TimeSelector";
@@ -88,6 +88,7 @@ export default function Settings() {
       if (response.data.requires_verification === false) {
         // Already subscribed
         setStatus("subscribed");
+        markNewsletterSubscribed();
       } else {
         // Verification email sent
         setStatus("pending");
