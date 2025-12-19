@@ -314,7 +314,7 @@ class TestScheduleDailyDigests:
     @patch("jobs.newsletter_scheduler.is_rq_available")
     def test_lock_already_held_skips(self, mock_rq, mock_lock, mock_session):
         """Test scheduler skips when lock is held."""
-        mock_lock.return_value = False
+        mock_lock.return_value = None  # None indicates lock held by another
 
         stats = schedule_daily_digests("morning")
 
@@ -328,13 +328,14 @@ class TestScheduleDailyDigests:
     @patch("jobs.newsletter_scheduler.is_rq_available")
     def test_rq_unavailable_returns_error(self, mock_rq, mock_release, mock_lock, mock_session):
         """Test scheduler returns error when RQ unavailable."""
-        mock_lock.return_value = True
+        lock_key = "newsletter:scheduler:lock:morning:2024-01-01"
+        mock_lock.return_value = lock_key
         mock_rq.return_value = False
 
         stats = schedule_daily_digests("morning")
 
         assert stats["error"] == "RQ unavailable"
-        mock_release.assert_called_once_with("morning")
+        mock_release.assert_called_once_with(lock_key)
 
     @patch("jobs.newsletter_scheduler.SessionLocal")
     @patch("jobs.newsletter_scheduler._acquire_scheduler_lock")
@@ -345,7 +346,7 @@ class TestScheduleDailyDigests:
         self, mock_get_subs, mock_rq, mock_release, mock_lock, mock_session
     ):
         """Test scheduler returns early when no subscribers found."""
-        mock_lock.return_value = True
+        mock_lock.return_value = "newsletter:scheduler:lock:morning:2024-01-01"
         mock_rq.return_value = True
         mock_get_subs.return_value = []
 
@@ -367,7 +368,7 @@ class TestScheduleDailyDigests:
         self, mock_enqueue, mock_get_subs, mock_rq, mock_release, mock_lock, mock_session
     ):
         """Test scheduler enqueues jobs for each subscriber."""
-        mock_lock.return_value = True
+        mock_lock.return_value = "newsletter:scheduler:lock:morning:2024-01-01"
         mock_rq.return_value = True
 
         mock_sub1 = MagicMock()

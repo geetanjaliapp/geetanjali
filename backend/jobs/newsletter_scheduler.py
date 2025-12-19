@@ -41,20 +41,23 @@ logger = logging.getLogger(__name__)
 SCHEDULER_LOCK_TTL_SECONDS = 300
 
 
-def _acquire_scheduler_lock(send_time: str) -> bool:
+def _acquire_scheduler_lock(send_time: str) -> Optional[str]:
     """
     Acquire a distributed lock to prevent duplicate scheduler runs.
 
-    Returns True if lock acquired, False if already held by another process.
+    Returns lock_key if acquired, None if already held or unavailable.
+    The lock_key is captured once to avoid midnight boundary race conditions.
     """
     queue = get_queue()
     if not queue:
         # No Redis available, can't lock - proceed with warning
         logger.warning("Redis unavailable for distributed lock, proceeding without lock")
-        return True
+        return ""  # Empty string indicates "no lock needed"
+
+    # Capture lock_key once to avoid midnight boundary issues
+    lock_key = f"newsletter:scheduler:lock:{send_time}:{date.today().isoformat()}"
 
     try:
-        lock_key = f"newsletter:scheduler:lock:{send_time}:{date.today().isoformat()}"
         # SET NX (only if not exists) with TTL
         acquired = queue.connection.set(
             lock_key,
@@ -64,22 +67,25 @@ def _acquire_scheduler_lock(send_time: str) -> bool:
         )
         if not acquired:
             logger.warning(f"Scheduler lock already held for {send_time}, exiting")
-            return False
+            return None
         logger.info(f"Acquired scheduler lock: {lock_key}")
-        return True
+        return lock_key
     except Exception as e:
         logger.warning(f"Failed to acquire scheduler lock: {e}, proceeding anyway")
-        return True
+        return ""  # Empty string indicates "no lock needed"
 
 
-def _release_scheduler_lock(send_time: str) -> None:
-    """Release the scheduler lock."""
+def _release_scheduler_lock(lock_key: str) -> None:
+    """Release the scheduler lock using the exact key from acquisition."""
+    if not lock_key:
+        # No lock was acquired (Redis unavailable or error)
+        return
+
     queue = get_queue()
     if not queue:
         return
 
     try:
-        lock_key = f"newsletter:scheduler:lock:{send_time}:{date.today().isoformat()}"
         queue.connection.delete(lock_key)
         logger.debug(f"Released scheduler lock: {lock_key}")
     except Exception as e:
@@ -129,16 +135,19 @@ def schedule_daily_digests(send_time: str, dry_run: bool = False) -> dict:
     logger.info(f"Starting newsletter scheduler for send_time={send_time} (dry_run={dry_run})")
 
     # Acquire distributed lock to prevent duplicate runs
-    if not dry_run and not _acquire_scheduler_lock(send_time):
-        stats["error"] = "Lock held by another process"
-        stats["status"] = "skipped"
-        return stats
+    lock_key: Optional[str] = None
+    if not dry_run:
+        lock_key = _acquire_scheduler_lock(send_time)
+        if lock_key is None:
+            stats["error"] = "Lock held by another process"
+            stats["status"] = "skipped"
+            return stats
 
     # Check RQ availability
     if not dry_run and not is_rq_available():
         logger.error("RQ is not available. Cannot enqueue jobs.")
         stats["error"] = "RQ unavailable"
-        _release_scheduler_lock(send_time)
+        _release_scheduler_lock(lock_key or "")
         return stats
 
     db = SessionLocal()
@@ -190,8 +199,8 @@ def schedule_daily_digests(send_time: str, dry_run: bool = False) -> dict:
     finally:
         db.close()
         # Release lock (only if we acquired it - not in dry_run)
-        if not dry_run:
-            _release_scheduler_lock(send_time)
+        if not dry_run and lock_key:
+            _release_scheduler_lock(lock_key)
 
 
 def main():
