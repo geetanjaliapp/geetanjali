@@ -178,3 +178,274 @@ export function CheckIcon({ className = "w-5 h-5" }: IconProps) {
     </svg>
   );
 }
+
+// Goal icons for learning goals
+export function SunIcon({ className = "w-6 h-6" }: IconProps) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      viewBox="0 0 24 24"
+    >
+      <circle cx="12" cy="12" r="5" />
+      <line x1="12" y1="1" x2="12" y2="3" />
+      <line x1="12" y1="21" x2="12" y2="23" />
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+      <line x1="1" y1="12" x2="3" y2="12" />
+      <line x1="21" y1="12" x2="23" y2="12" />
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+    </svg>
+  );
+}
+
+export function FlameIcon({ className = "w-6 h-6" }: IconProps) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      viewBox="0 0 24 24"
+    >
+      <path d="M12 22c4.97 0 9-4.03 9-9 0-3.87-3.13-7-3.13-7s-1.74 2-4.87 2c-3 0-5-2-5-2S4 9.13 4 13c0 4.97 4.03 9 8 9z" />
+      <path d="M12 22c-2.21 0-4-1.79-4-4 0-2.21 2-4 4-4s4 1.79 4 4c0 2.21-1.79 4-4 4z" />
+    </svg>
+  );
+}
+
+export function BriefcaseIcon({ className = "w-6 h-6" }: IconProps) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <rect x="2" y="7" width="20" height="14" rx="2" strokeWidth={2} />
+      <path
+        strokeLinecap="round"
+        strokeWidth={2}
+        d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"
+      />
+      <path strokeWidth={2} d="M2 12h20" />
+    </svg>
+  );
+}
+
+export function CompassIcon({ className = "w-6 h-6" }: IconProps) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <circle cx="12" cy="12" r="10" strokeWidth={2} />
+      <polygon
+        points="16.24,7.76 14.12,14.12 7.76,16.24 9.88,9.88"
+        strokeWidth={2}
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+export function SproutIcon({ className = "w-6 h-6" }: IconProps) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M7 20h10M12 20v-8m0 0c-2.5 0-5-2.5-5-6 5 0 5 3 5 6zm0 0c2.5 0 5-2.5 5-6-5 0-5 3-5 6z"
+      />
+    </svg>
+  );
+}
+
+export function UsersIcon({ className = "w-6 h-6" }: IconProps) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      viewBox="0 0 24 24"
+    >
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+    </svg>
+  );
+}
+
+export function MountainIcon({ className = "w-6 h-6" }: IconProps) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M4 20h16M8 20l4-12 4 12M10 14l2-6 2 6"
+      />
+    </svg>
+  );
+}
+
+export function BookOpenIcon({ className = "w-6 h-6" }: IconProps) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      viewBox="0 0 24 24"
+    >
+      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+    </svg>
+  );
+}
+
+export function MailIcon({ className = "w-6 h-6" }: IconProps) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <rect x="2" y="4" width="20" height="16" rx="2" strokeWidth={2} />
+      <path strokeLinecap="round" strokeWidth={2} d="M22 6l-10 7L2 6" />
+    </svg>
+  );
+}
+
+export function SettingsIcon({ className = "w-6 h-6" }: IconProps) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <circle cx="12" cy="12" r="3" strokeWidth={2} />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"
+      />
+    </svg>
+  );
+}
+
+// Time-of-day icons for TimeSelector
+export function SunriseIcon({ className = "w-6 h-6" }: IconProps) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      viewBox="0 0 24 24"
+    >
+      <path d="M12 2v4M4.93 10.93l2.83 2.83M2 18h4M20 18h2M19.07 10.93l-2.83 2.83M12 18a6 6 0 0 0 0-12" />
+      <line x1="2" y1="22" x2="22" y2="22" />
+    </svg>
+  );
+}
+
+export function SunMediumIcon({ className = "w-6 h-6" }: IconProps) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      viewBox="0 0 24 24"
+    >
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 3v1M12 20v1M5.6 5.6l.7.7M17.7 17.7l.7.7M3 12h1M20 12h1M5.6 18.4l.7-.7M17.7 6.3l.7-.7" />
+    </svg>
+  );
+}
+
+export function SunsetIcon({ className = "w-6 h-6" }: IconProps) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      viewBox="0 0 24 24"
+    >
+      <path d="M12 10V2M4.93 13.93l2.83-2.83M2 18h4M20 18h2M19.07 13.93l-2.83-2.83M12 18a6 6 0 0 0 0-12" />
+      <line x1="2" y1="22" x2="22" y2="22" />
+    </svg>
+  );
+}
+
+/**
+ * Map goal ID directly to icon component (bypasses API icon field)
+ */
+// eslint-disable-next-line react-refresh/only-export-components
+export const GoalIconsById: Record<
+  string,
+  React.ComponentType<{ className?: string }>
+> = {
+  inner_peace: SunIcon,
+  spiritual_growth: FlameIcon,
+  work_excellence: BriefcaseIcon,
+  decision_clarity: CompassIcon,
+  personal_growth: SproutIcon,
+  leadership: UsersIcon,
+  resilience: MountainIcon,
+  exploring: BookOpenIcon,
+};
+
+/**
+ * Map icon name (from goal_taxonomy.json) to component
+ */
+// eslint-disable-next-line react-refresh/only-export-components
+export const GoalIcons: Record<
+  string,
+  React.ComponentType<{ className?: string }>
+> = {
+  sun: SunIcon,
+  flame: FlameIcon,
+  briefcase: BriefcaseIcon,
+  compass: CompassIcon,
+  sprout: SproutIcon,
+  users: UsersIcon,
+  mountain: MountainIcon,
+  "book-open": BookOpenIcon,
+};
