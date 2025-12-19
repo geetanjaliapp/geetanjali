@@ -46,3 +46,8 @@ export {
   CaseExchange,
   ThinkingIndicator,
 } from "./case";
+
+// Newsletter/Settings components
+export { GoalSelector } from "./GoalSelector";
+export { TimeSelector } from "./TimeSelector";
+export type { SendTime } from "./TimeSelector";
