@@ -32,15 +32,15 @@ export function Toast({
   const exitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Store latest onDismiss to avoid stale closures
   const onDismissRef = useRef(onDismiss);
-  onDismissRef.current = onDismiss;
 
-  // Track unmount
+  // Track unmount and keep onDismiss ref updated
   useEffect(() => {
     isMountedRef.current = true;
+    onDismissRef.current = onDismiss;
     return () => {
       isMountedRef.current = false;
     };
-  }, []);
+  }, [onDismiss]);
 
   // Stable dismiss function that properly cleans up
   const triggerDismiss = useCallback(() => {
