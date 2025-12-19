@@ -78,7 +78,7 @@ export default function Settings() {
     setIsSubmitting(true);
 
     try {
-      const response = await api.post("/api/v1/newsletter/subscribe", {
+      const response = await api.post("/newsletter/subscribe", {
         email: email.trim(),
         name: effectiveName || null,
         goal_ids: selectedGoals.map((g) => g.id),
