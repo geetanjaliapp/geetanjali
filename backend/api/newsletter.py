@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Request, BackgroundTasks
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -85,6 +85,8 @@ class UnsubscribeResponse(BaseModel):
 
 class PreferencesRequest(BaseModel):
     """Request to update subscription preferences."""
+
+    model_config = ConfigDict(extra="forbid")
 
     name: Optional[str] = Field(
         None,
