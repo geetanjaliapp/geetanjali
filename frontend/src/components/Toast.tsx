@@ -76,7 +76,7 @@ export function Toast({
         {/* Dismiss button */}
         <button
           onClick={handleDismiss}
-          className="p-1 text-gray-400 dark:text-gray-500 hover:text-white dark:hover:text-gray-900 transition-colors"
+          className="p-2 -m-1 text-gray-400 dark:text-gray-500 hover:text-white dark:hover:text-gray-900 transition-colors"
           aria-label="Dismiss notification"
         >
           <svg

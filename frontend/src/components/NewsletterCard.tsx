@@ -65,10 +65,10 @@ export function NewsletterCard() {
         to="/settings"
         className="block p-4 sm:p-5 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-gray-800/80 dark:to-gray-800/80 rounded-xl border border-amber-200/60 dark:border-gray-700 hover:border-amber-300 dark:hover:border-amber-700 transition-all group relative"
       >
-        {/* Dismiss button */}
+        {/* Dismiss button - 44px touch target */}
         <button
           onClick={handleDismiss}
-          className="absolute top-2 right-2 p-1.5 text-amber-400 dark:text-gray-500 hover:text-amber-600 dark:hover:text-gray-300 transition-colors rounded-full hover:bg-amber-100 dark:hover:bg-gray-700"
+          className="absolute top-1 right-1 p-2.5 text-amber-400 dark:text-gray-500 hover:text-amber-600 dark:hover:text-gray-300 transition-colors rounded-full hover:bg-amber-100 dark:hover:bg-gray-700"
           aria-label="Dismiss newsletter card"
         >
           <svg
