@@ -22,6 +22,13 @@ import { HeartIcon, ShareIcon, CheckIcon } from "../components/icons";
 import { errorMessages } from "../lib/errorMessages";
 import { useSEO, useAdjacentVerses, useFavorites, useShare } from "../hooks";
 
+// localStorage key for newsletter subscription
+const NEWSLETTER_SUBSCRIBED_KEY = "geetanjali:newsletterSubscribed";
+// sessionStorage key for verse view count
+const VERSE_VIEW_COUNT_KEY = "geetanjali:verseViewCount";
+// Show nudge after this many views
+const NUDGE_THRESHOLD = 3;
+
 // Sort translations by priority
 function sortTranslations(translations: Translation[]): Translation[] {
   return [...translations].sort((a, b) => {
@@ -47,6 +54,7 @@ export default function VerseDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showAllTranslations, setShowAllTranslations] = useState(false);
+  const [showNewsletterNudge, setShowNewsletterNudge] = useState(false);
 
   // Favorites and sharing
   const { isFavorite, toggleFavorite } = useFavorites();
@@ -73,6 +81,32 @@ export default function VerseDetail() {
       navigate(`/verses/${canonicalUppercase}`, { replace: true });
     }
   }, [canonicalId, canonicalUppercase, navigate]);
+
+  // Track verse views for newsletter nudge
+  useEffect(() => {
+    try {
+      // Don't show nudge if user is subscribed
+      const isSubscribed =
+        localStorage.getItem(NEWSLETTER_SUBSCRIBED_KEY) === "true";
+      if (isSubscribed) {
+        setShowNewsletterNudge(false);
+        return;
+      }
+
+      // Increment view count in session
+      const currentCount = parseInt(
+        sessionStorage.getItem(VERSE_VIEW_COUNT_KEY) || "0",
+        10
+      );
+      const newCount = currentCount + 1;
+      sessionStorage.setItem(VERSE_VIEW_COUNT_KEY, newCount.toString());
+
+      // Show nudge after threshold
+      setShowNewsletterNudge(newCount >= NUDGE_THRESHOLD);
+    } catch {
+      // Ignore storage errors
+    }
+  }, [canonicalId]);
 
   // Dynamic SEO based on verse data
   useSEO({
@@ -520,6 +554,21 @@ export default function VerseDetail() {
                   ))}
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* Newsletter Nudge - shown after 3+ verses viewed */}
+          {showNewsletterNudge && (
+            <div className="animate-fade-in text-center py-6">
+              <p className="text-gray-600 dark:text-gray-400 text-sm">
+                Enjoying the wisdom?{" "}
+                <Link
+                  to="/settings"
+                  className="text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 font-medium"
+                >
+                  Get a verse like this in your inbox each day
+                </Link>
+              </p>
             </div>
           )}
         </div>
