@@ -1,5 +1,6 @@
 """Email service using Resend for sending emails."""
 
+import html
 import logging
 from typing import Optional
 
@@ -262,4 +263,217 @@ Geetanjali - Ethical Guidance from the Bhagavad Geeta
 
     except Exception as e:
         logger.error(f"Failed to send password reset email: {e}")
+        return False
+
+
+def send_newsletter_verification_email(
+    email: str, name: Optional[str], verify_url: str
+) -> bool:
+    """
+    Send newsletter verification email (double opt-in).
+
+    Args:
+        email: Subscriber's email address
+        name: Subscriber's name (for greeting)
+        verify_url: Full URL to verify subscription
+
+    Returns:
+        True if email sent successfully, False otherwise
+    """
+    resend = _get_resend()
+
+    if not resend:
+        logger.warning("Email service not available - verification email not sent")
+        return False
+
+    if not settings.CONTACT_EMAIL_FROM:
+        logger.warning("CONTACT_EMAIL_FROM not configured - verification email not sent")
+        return False
+
+    # HTML-escape name as defense-in-depth (regex already sanitizes, but be safe)
+    greeting = f"Hello {html.escape(name)}" if name else "Hello"
+
+    # Build HTML email body
+    html_body = f"""
+    <div style="font-family: system-ui, -apple-system, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: linear-gradient(135deg, #f97316, #dc2626); padding: 20px; border-radius: 8px 8px 0 0;">
+            <h1 style="color: white; margin: 0; font-size: 24px;">🙏 Confirm Your Subscription</h1>
+        </div>
+        <div style="background: #fff; padding: 24px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px;">
+            <p style="color: #374151; line-height: 1.6; margin: 0 0 16px 0;">
+                {greeting},
+            </p>
+            <p style="color: #374151; line-height: 1.6; margin: 0 0 16px 0;">
+                Thank you for subscribing to <strong>Daily Wisdom</strong> from Geetanjali!
+                Please confirm your email address to start receiving daily verses from the Bhagavad Geeta.
+            </p>
+            <div style="text-align: center; margin: 24px 0;">
+                <a href="{verify_url}"
+                   style="display: inline-block; background: #f97316; color: white; padding: 12px 32px;
+                          text-decoration: none; border-radius: 8px; font-weight: 500;">
+                    Confirm Subscription
+                </a>
+            </div>
+            <p style="color: #6b7280; font-size: 14px; line-height: 1.6; margin: 16px 0 0 0;">
+                This link will expire in 24 hours. If you didn't request this, you can safely ignore this email.
+            </p>
+            <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;">
+            <p style="color: #9ca3af; font-size: 12px; margin: 0;">
+                If the button doesn't work, copy and paste this link into your browser:<br>
+                <a href="{verify_url}" style="color: #f97316; word-break: break-all;">{verify_url}</a>
+            </p>
+        </div>
+        <div style="text-align: center; padding: 16px; color: #9ca3af; font-size: 12px;">
+            Geetanjali - Ethical Guidance from the Bhagavad Geeta
+        </div>
+    </div>
+    """
+
+    # Plain text version
+    text_body = f"""
+{greeting},
+
+Thank you for subscribing to Daily Wisdom from Geetanjali!
+Please confirm your email address to start receiving daily verses from the Bhagavad Geeta.
+
+Click this link to confirm your subscription:
+{verify_url}
+
+This link will expire in 24 hours. If you didn't request this, you can safely ignore this email.
+
+---
+Geetanjali - Ethical Guidance from the Bhagavad Geeta
+    """.strip()
+
+    try:
+        params = {
+            "from": settings.CONTACT_EMAIL_FROM,
+            "to": [email],
+            "subject": "Confirm Your Daily Wisdom Subscription",
+            "html": html_body,
+            "text": text_body,
+        }
+
+        response = resend.Emails.send(params)
+        logger.info(
+            f"Newsletter verification email sent to {email}: {response.get('id', 'unknown')}"
+        )
+        return True
+
+    except Exception as e:
+        logger.error(f"Failed to send newsletter verification email: {e}")
+        return False
+
+
+def send_newsletter_welcome_email(
+    email: str,
+    name: Optional[str],
+    unsubscribe_url: str,
+    preferences_url: str,
+    app_url: str = "https://geetanjali.app",
+) -> bool:
+    """
+    Send welcome email after newsletter verification.
+
+    Args:
+        email: Subscriber's email address
+        name: Subscriber's name (for greeting)
+        unsubscribe_url: URL to unsubscribe
+        preferences_url: URL to manage preferences
+
+    Returns:
+        True if email sent successfully, False otherwise
+    """
+    resend = _get_resend()
+
+    if not resend:
+        logger.warning("Email service not available - welcome email not sent")
+        return False
+
+    if not settings.CONTACT_EMAIL_FROM:
+        logger.warning("CONTACT_EMAIL_FROM not configured - welcome email not sent")
+        return False
+
+    # HTML-escape name as defense-in-depth (regex already sanitizes, but be safe)
+    greeting = f"Hello {html.escape(name)}" if name else "Hello"
+
+    # Build HTML email body
+    html_body = f"""
+    <div style="font-family: system-ui, -apple-system, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: linear-gradient(135deg, #f97316, #dc2626); padding: 20px; border-radius: 8px 8px 0 0;">
+            <h1 style="color: white; margin: 0; font-size: 24px;">🎉 Welcome to Daily Wisdom!</h1>
+        </div>
+        <div style="background: #fff; padding: 24px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px;">
+            <p style="color: #374151; line-height: 1.6; margin: 0 0 16px 0;">
+                {greeting},
+            </p>
+            <p style="color: #374151; line-height: 1.6; margin: 0 0 16px 0;">
+                Your subscription is now confirmed! You'll receive a daily verse from the Bhagavad Geeta
+                at your preferred time, personalized based on your learning goals.
+            </p>
+            <p style="color: #374151; line-height: 1.6; margin: 0 0 16px 0;">
+                <strong>What to expect:</strong>
+            </p>
+            <ul style="color: #374151; line-height: 1.8; margin: 0 0 16px 0; padding-left: 24px;">
+                <li>A carefully selected verse from the Geeta</li>
+                <li>Sanskrit text with English translation</li>
+                <li>Practical wisdom for modern life</li>
+            </ul>
+            <div style="text-align: center; margin: 24px 0;">
+                <a href="{app_url}"
+                   style="display: inline-block; background: #f97316; color: white; padding: 12px 32px;
+                          text-decoration: none; border-radius: 8px; font-weight: 500;">
+                    Explore Geetanjali
+                </a>
+            </div>
+            <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;">
+            <p style="color: #9ca3af; font-size: 12px; margin: 0;">
+                <a href="{preferences_url}" style="color: #f97316;">Manage Preferences</a> |
+                <a href="{unsubscribe_url}" style="color: #f97316;">Unsubscribe</a>
+            </p>
+        </div>
+        <div style="text-align: center; padding: 16px; color: #9ca3af; font-size: 12px;">
+            Geetanjali - Ethical Guidance from the Bhagavad Geeta
+        </div>
+    </div>
+    """
+
+    # Plain text version
+    text_body = f"""
+{greeting},
+
+Your subscription is now confirmed! You'll receive a daily verse from the Bhagavad Geeta
+at your preferred time, personalized based on your learning goals.
+
+What to expect:
+- A carefully selected verse from the Geeta
+- Sanskrit text with English translation
+- Practical wisdom for modern life
+
+Visit Geetanjali: {app_url}
+
+---
+Manage Preferences: {preferences_url}
+Unsubscribe: {unsubscribe_url}
+
+Geetanjali - Ethical Guidance from the Bhagavad Geeta
+    """.strip()
+
+    try:
+        params = {
+            "from": settings.CONTACT_EMAIL_FROM,
+            "to": [email],
+            "subject": "Welcome to Daily Wisdom! 🙏",
+            "html": html_body,
+            "text": text_body,
+        }
+
+        response = resend.Emails.send(params)
+        logger.info(
+            f"Newsletter welcome email sent to {email}: {response.get('id', 'unknown')}"
+        )
+        return True
+
+    except Exception as e:
+        logger.error(f"Failed to send newsletter welcome email: {e}")
         return False
