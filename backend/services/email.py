@@ -100,7 +100,6 @@ def _get_resend_or_raise():
         EmailConfigurationError: If API key not configured
         EmailServiceUnavailable: If resend library not installed
     """
-    global _resend_init_error
     client = _get_resend()
     if client is None:
         if _resend_init_error and "not configured" in _resend_init_error:
