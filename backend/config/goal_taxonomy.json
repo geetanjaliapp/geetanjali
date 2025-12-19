@@ -3,14 +3,14 @@
     "id": "inner_peace",
     "label": "Inner Peace",
     "description": "Finding calm amidst life's storms",
-    "icon": "peace",
+    "icon": "sun",
     "principles": ["samatvam", "sthitaprajna", "dhyana", "tyaga"]
   },
   "spiritual_growth": {
     "id": "spiritual_growth",
     "label": "Spiritual Growth",
     "description": "Deepening connection with the divine",
-    "icon": "lotus",
+    "icon": "flame",
     "principles": ["bhakti", "sharanagati", "shraddha", "jnana"]
   },
   "work_excellence": {
@@ -38,7 +38,7 @@
     "id": "leadership",
     "label": "Leadership",
     "description": "Guiding others with wisdom and integrity",
-    "icon": "crown",
+    "icon": "users",
     "principles": ["seva", "dharma", "virtue", "sthitaprajna"]
   },
   "resilience": {
@@ -52,7 +52,7 @@
     "id": "exploring",
     "label": "Just Exploring",
     "description": "Curious about the Geeta's wisdom",
-    "icon": "book",
+    "icon": "book-open",
     "principles": []
   }
 }
