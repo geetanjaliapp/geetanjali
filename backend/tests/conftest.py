@@ -54,7 +54,7 @@ requires_postgresql = pytest.mark.skipif(
 # Import all models to register them with Base.metadata
 # These imports are required to register models with SQLAlchemy Base.metadata
 from models import Base  # noqa: F401
-from models import User, RefreshToken, Case, Output, Message, Verse  # noqa: F401
+from models import User, RefreshToken, Case, Output, Message, Verse, Subscriber  # noqa: F401
 
 # Use in-memory SQLite with StaticPool for single connection across threads
 TEST_DATABASE_URL = "sqlite:///:memory:"

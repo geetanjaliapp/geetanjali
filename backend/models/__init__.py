@@ -11,6 +11,7 @@ from models.feedback import Feedback
 from models.contact import ContactMessage, ContactType
 from models.experiment import ExperimentEvent
 from models.metadata import BookMetadata, ChapterMetadata
+from models.subscriber import Subscriber, SendTime
 
 __all__ = [
     "Base",
@@ -29,4 +30,6 @@ __all__ = [
     "ExperimentEvent",
     "BookMetadata",
     "ChapterMetadata",
+    "Subscriber",
+    "SendTime",
 ]
