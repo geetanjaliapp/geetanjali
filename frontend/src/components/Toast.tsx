@@ -5,7 +5,7 @@
  * Designed to be unobtrusive while still being noticeable.
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 
 interface ToastProps {
@@ -26,6 +26,19 @@ export function Toast({
   const [isVisible, setIsVisible] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
 
+  // Track timers for proper cleanup
+  const exitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Stable dismiss function that properly cleans up
+  const triggerDismiss = useCallback(() => {
+    setIsLeaving(true);
+    // Clear any existing exit timer
+    if (exitTimerRef.current) {
+      clearTimeout(exitTimerRef.current);
+    }
+    exitTimerRef.current = setTimeout(onDismiss, 300);
+  }, [onDismiss]);
+
   // Entrance animation
   useEffect(() => {
     const showTimer = setTimeout(() => setIsVisible(true), 10);
@@ -34,17 +47,19 @@ export function Toast({
 
   // Auto-dismiss after duration
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLeaving(true);
-      setTimeout(onDismiss, 300); // Wait for exit animation
-    }, duration);
+    const timer = setTimeout(triggerDismiss, duration);
 
-    return () => clearTimeout(timer);
-  }, [duration, onDismiss]);
+    return () => {
+      clearTimeout(timer);
+      // Also clean up the exit animation timer
+      if (exitTimerRef.current) {
+        clearTimeout(exitTimerRef.current);
+      }
+    };
+  }, [duration, triggerDismiss]);
 
   const handleDismiss = () => {
-    setIsLeaving(true);
-    setTimeout(onDismiss, 300);
+    triggerDismiss();
   };
 
   return (

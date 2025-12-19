@@ -8,9 +8,23 @@
  * - Links to Settings page for signup
  */
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { isNewsletterSubscribed } from "../lib/newsletterStorage";
+
+/**
+ * Safely write to localStorage, handling quota exceeded errors
+ */
+function safeSetItem(key: string, value: string): boolean {
+  try {
+    localStorage.setItem(key, value);
+    return true;
+  } catch (e) {
+    // QuotaExceededError or SecurityError (private browsing)
+    console.warn("localStorage write failed:", e);
+    return false;
+  }
+}
 
 // localStorage key for dismissal tracking
 const NEWSLETTER_DISMISSED_KEY = "geetanjali:newsletterCardDismissed";
@@ -45,15 +59,19 @@ function shouldShowCard(): boolean {
 export function NewsletterCard() {
   // Use lazy initializer to avoid useEffect lint warning
   const [isVisible, setIsVisible] = useState(shouldShowCard);
+  // Prevent rapid clicks from causing issues
+  const isDismissingRef = useRef(false);
 
   const handleDismiss = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    try {
-      localStorage.setItem(NEWSLETTER_DISMISSED_KEY, Date.now().toString());
-    } catch {
-      // Ignore
-    }
+
+    // Debounce: ignore if already dismissing
+    if (isDismissingRef.current) return;
+    isDismissingRef.current = true;
+
+    // Try to persist dismissal, but hide card either way
+    safeSetItem(NEWSLETTER_DISMISSED_KEY, Date.now().toString());
     setIsVisible(false);
   };
 

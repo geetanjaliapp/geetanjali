@@ -16,6 +16,7 @@ from jobs.daily_digest import (
     MILESTONE_MESSAGES,
     REFLECTION_PROMPTS,
     TIME_GREETINGS,
+    FAILURE_ALERT_THRESHOLD_PERCENT,
 )
 
 
@@ -416,3 +417,76 @@ class TestConstants:
     def test_reflection_prompts_not_empty(self):
         """Reflection prompts list is not empty."""
         assert len(REFLECTION_PROMPTS) > 0
+
+    def test_failure_alert_threshold_is_reasonable(self):
+        """Failure alert threshold is set to a reasonable value."""
+        assert FAILURE_ALERT_THRESHOLD_PERCENT > 0
+        assert FAILURE_ALERT_THRESHOLD_PERCENT <= 100
+
+
+# =============================================================================
+# Test error handling
+# =============================================================================
+
+
+class TestDigestErrorHandling:
+    """Tests for digest job error handling and resilience."""
+
+    def test_failure_alert_threshold_value(self):
+        """Verify the failure alert threshold is configured correctly."""
+        # The threshold should be set to a reasonable percentage
+        assert FAILURE_ALERT_THRESHOLD_PERCENT == 10
+
+    @patch("jobs.daily_digest.SessionLocal")
+    @patch("jobs.daily_digest.logger")
+    def test_no_alert_when_no_subscribers(self, mock_logger, mock_session):
+        """No critical alert when there are no subscribers."""
+        mock_db = MagicMock()
+        mock_db.query.return_value.filter.return_value.filter.return_value.filter.return_value.all.return_value = []
+        mock_session.return_value = mock_db
+
+        stats = send_daily_digest("morning", dry_run=True)
+
+        # No critical should be called since no emails were processed
+        mock_logger.critical.assert_not_called()
+        assert stats["subscribers_found"] == 0
+
+    def test_select_verse_returns_none_without_fallback(self):
+        """Test verse selection returns None when no verses match and no fallback."""
+        mock_db = MagicMock()
+        mock_subscriber = MagicMock()
+        mock_subscriber.goal_ids = ["inner_peace"]  # Has principles
+
+        # Query returns empty list
+        mock_query = MagicMock()
+        mock_query.filter.return_value = mock_query
+        mock_query.all.return_value = []
+        mock_db.query.return_value = mock_query
+
+        result = select_verse_for_subscriber(
+            mock_db, mock_subscriber, [], fallback_to_featured=False
+        )
+
+        # Should return None without fallback
+        assert result is None
+
+    def test_select_verse_with_exploring_goal_uses_featured(self):
+        """Test exploring goal users get featured verses."""
+        mock_db = MagicMock()
+        mock_subscriber = MagicMock()
+        mock_subscriber.goal_ids = ["exploring"]  # No principles, uses featured
+
+        mock_verse = MagicMock()
+        mock_verse.canonical_id = "BG_2_47"
+
+        mock_query = MagicMock()
+        mock_query.filter.return_value = mock_query
+        mock_query.all.return_value = [mock_verse]
+        mock_db.query.return_value = mock_query
+
+        result = select_verse_for_subscriber(
+            mock_db, mock_subscriber, [], fallback_to_featured=False
+        )
+
+        # Should return the featured verse
+        assert result == mock_verse

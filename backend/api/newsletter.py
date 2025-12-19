@@ -7,6 +7,7 @@ from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Request, BackgroundTasks
 from pydantic import BaseModel, EmailStr, Field
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from db.connection import get_db
@@ -186,7 +187,12 @@ async def subscribe(
             subscriber.verification_expires_at = datetime.utcnow() + timedelta(
                 hours=VERIFICATION_TOKEN_EXPIRY_HOURS
             )
-            db.commit()
+            try:
+                db.commit()
+            except Exception as e:
+                db.rollback()
+                logger.exception(f"Error reactivating subscription for {email}: {e}")
+                raise HTTPException(status_code=500, detail="An error occurred. Please try again.")
             logger.info(f"Reactivating subscription for {email}")
         elif subscriber.verified:
             # Already subscribed and verified
@@ -205,7 +211,12 @@ async def subscribe(
             subscriber.send_time = data.send_time
             if data.name:
                 subscriber.name = data.name
-            db.commit()
+            try:
+                db.commit()
+            except Exception as e:
+                db.rollback()
+                logger.exception(f"Error resending verification for {email}: {e}")
+                raise HTTPException(status_code=500, detail="An error occurred. Please try again.")
             logger.info(f"Resending verification for {email}")
     else:
         # Create new subscriber
@@ -220,9 +231,35 @@ async def subscribe(
             user_id=current_user.id if current_user else None,
         )
         db.add(subscriber)
-        db.commit()
-        db.refresh(subscriber)
-        logger.info(f"New subscription created for {email}")
+        try:
+            db.commit()
+            db.refresh(subscriber)
+            logger.info(f"New subscription created for {email}")
+        except IntegrityError:
+            # Race condition: another request created the same email
+            db.rollback()
+            # Retry lookup and handle as existing subscriber
+            subscriber = get_subscriber_by_email(db, email)
+            if subscriber and subscriber.verified:
+                return SubscribeResponse(
+                    message="You're already subscribed to Daily Wisdom!",
+                    requires_verification=False,
+                )
+            elif subscriber:
+                # Pending verification - generate new token
+                subscriber.verification_token = generate_verification_token()
+                subscriber.verification_expires_at = datetime.utcnow() + timedelta(
+                    hours=VERIFICATION_TOKEN_EXPIRY_HOURS
+                )
+                db.commit()
+                logger.info(f"Race condition handled, resending verification for {email}")
+            else:
+                # Unexpected: IntegrityError but no subscriber found
+                logger.error(f"IntegrityError but subscriber not found for {email}")
+                raise HTTPException(
+                    status_code=500,
+                    detail="An error occurred. Please try again.",
+                )
 
     # Send verification email in background
     verify_url = f"{settings.FRONTEND_URL}/n/verify/{subscriber.verification_token}"
@@ -275,16 +312,18 @@ async def verify_subscription(
     # Verify subscriber
     subscriber.verified = True
     subscriber.verified_at = datetime.utcnow()
-    subscriber.verification_token = None  # Clear token after use
+    # Generate new token for unsubscribe/preferences (replaces verification token)
+    unsubscribe_token = generate_verification_token()
+    subscriber.verification_token = unsubscribe_token
     subscriber.verification_expires_at = None
-    db.commit()
+    try:
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        logger.exception(f"Error verifying subscription for {subscriber.email}: {e}")
+        raise HTTPException(status_code=500, detail="An error occurred. Please try again.")
 
     logger.info(f"Subscription verified for {subscriber.email}")
-
-    # Send welcome email in background
-    unsubscribe_token = generate_verification_token()
-    subscriber.verification_token = unsubscribe_token  # Reuse field for unsubscribe
-    db.commit()
 
     unsubscribe_url = f"{settings.FRONTEND_URL}/n/unsubscribe/{unsubscribe_token}"
     preferences_url = f"{settings.FRONTEND_URL}/n/preferences/{unsubscribe_token}"
@@ -329,7 +368,12 @@ async def unsubscribe(
 
     # Soft delete - preserve data for analytics
     subscriber.unsubscribed_at = datetime.utcnow()
-    db.commit()
+    try:
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        logger.exception(f"Error unsubscribing {subscriber.email}: {e}")
+        raise HTTPException(status_code=500, detail="An error occurred. Please try again.")
 
     logger.info(f"Unsubscribed: {subscriber.email}")
 
@@ -399,8 +443,13 @@ async def update_preferences(
             )
         subscriber.send_time = data.send_time
 
-    db.commit()
-    db.refresh(subscriber)
+    try:
+        db.commit()
+        db.refresh(subscriber)
+    except Exception as e:
+        db.rollback()
+        logger.exception(f"Error updating preferences for {subscriber.email}: {e}")
+        raise HTTPException(status_code=500, detail="An error occurred. Please try again.")
 
     logger.info(f"Preferences updated for {subscriber.email}")
 

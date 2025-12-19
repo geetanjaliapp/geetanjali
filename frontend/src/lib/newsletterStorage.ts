@@ -9,12 +9,16 @@ export const NEWSLETTER_SUBSCRIBED_KEY = "geetanjali:newsletterSubscribed";
 
 /**
  * Mark the user as subscribed (call this after successful subscription)
+ * Returns true if the write succeeded, false otherwise (quota exceeded, private browsing, etc.)
  */
-export function markNewsletterSubscribed(): void {
+export function markNewsletterSubscribed(): boolean {
   try {
     localStorage.setItem(NEWSLETTER_SUBSCRIBED_KEY, "true");
-  } catch {
-    // Ignore storage errors
+    return true;
+  } catch (e) {
+    // QuotaExceededError or SecurityError (private browsing)
+    console.warn("Failed to mark newsletter subscribed:", e);
+    return false;
   }
 }
 

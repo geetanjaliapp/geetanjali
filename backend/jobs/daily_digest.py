@@ -40,6 +40,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Alert threshold: log critical if failure rate exceeds this percentage
+FAILURE_ALERT_THRESHOLD_PERCENT = 10
+
 
 # =============================================================================
 # Time-based Greetings
@@ -128,6 +131,7 @@ def select_verse_for_subscriber(
     db: Session,
     subscriber: Subscriber,
     exclude_ids: List[str],
+    fallback_to_featured: bool = False,
 ) -> Optional[Verse]:
     """
     Select a verse for the subscriber based on their goals.
@@ -137,7 +141,13 @@ def select_verse_for_subscriber(
     2. If no principles (exploring or no goals), use featured verses
     3. Filter out recently sent verses (exclude_ids)
     4. Random selection from remaining
-    5. Fallback: if no verses available, return None (will reset window)
+    5. Fallback: if no verses available and fallback_to_featured=True, try featured
+
+    Args:
+        db: Database session
+        subscriber: The subscriber to select verse for
+        exclude_ids: List of verse IDs to exclude (recently sent)
+        fallback_to_featured: If True, fall back to featured verses when principle-based fails
     """
     principles = get_principles_for_goals(subscriber.goal_ids or [])
 
@@ -163,11 +173,22 @@ def select_verse_for_subscriber(
     # Get all matching verses
     verses = query.all()
 
-    if not verses:
-        return None
+    if verses:
+        return random.choice(verses)
 
-    # Random selection
-    return random.choice(verses)
+    # No verses found with principle filter, try featured as fallback
+    if fallback_to_featured and principles:
+        logger.info(
+            f"No principle-based verses for {subscriber.email}, falling back to featured"
+        )
+        featured_query = db.query(Verse).filter(Verse.is_featured == True)  # noqa: E712
+        if exclude_ids:
+            featured_query = featured_query.filter(Verse.canonical_id.notin_(exclude_ids))
+        featured_verses = featured_query.all()
+        if featured_verses:
+            return random.choice(featured_verses)
+
+    return None
 
 
 def get_goal_labels(goal_ids: List[str]) -> str:
@@ -296,9 +317,11 @@ def send_daily_digest(
 
         for subscriber in subscribers:
             try:
-                # Select verse
+                # Select verse with fallback to featured if principle-based fails
                 exclude_ids = subscriber.verses_sent_30d or []
-                verse = select_verse_for_subscriber(db, subscriber, exclude_ids)
+                verse = select_verse_for_subscriber(
+                    db, subscriber, exclude_ids, fallback_to_featured=True
+                )
 
                 if not verse:
                     # No verse available - reset window and retry
@@ -308,11 +331,14 @@ def send_daily_digest(
                         f"attempting window reset"
                     )
                     subscriber.verses_sent_30d = []
-                    verse = select_verse_for_subscriber(db, subscriber, [])
+                    verse = select_verse_for_subscriber(
+                        db, subscriber, [], fallback_to_featured=True
+                    )
 
                     if not verse:
                         logger.error(
-                            f"Still no verse available for {subscriber.email}"
+                            f"Still no verse available for {subscriber.email} "
+                            f"(exhausted all fallbacks)"
                         )
                         db.rollback()  # Rollback window reset
                         stats["no_verse_available"] += 1
@@ -396,6 +422,17 @@ def send_daily_digest(
             f"failed={stats['failed']}, "
             f"no_verse={stats['no_verse_available']}"
         )
+
+        # Check failure rate and alert if above threshold
+        total_processed = stats["sent"] + stats["simulated"] + stats["failed"]
+        if total_processed > 0:
+            failure_rate = (stats["failed"] / total_processed) * 100
+            if failure_rate >= FAILURE_ALERT_THRESHOLD_PERCENT:
+                logger.critical(
+                    f"HIGH FAILURE RATE ALERT: {failure_rate:.1f}% of emails failed "
+                    f"({stats['failed']}/{total_processed}). "
+                    f"Check email service configuration and logs."
+                )
 
         return stats
 

@@ -1,6 +1,7 @@
 """Tests for newsletter subscription endpoints."""
 
 import pytest
+import threading
 from datetime import datetime, timedelta
 from unittest.mock import patch, MagicMock
 from fastapi import status
@@ -255,6 +256,43 @@ class TestSubscribe:
                 .first()
             )
             assert set(subscriber.goal_ids) == {"inner_peace", "resilience"}
+
+    def test_subscribe_concurrent_requests_race_condition(self, client, db_session):
+        """Test concurrent subscribe requests for same email don't cause errors.
+
+        This tests the race condition fix where two requests simultaneously
+        try to create a subscriber with the same email, triggering IntegrityError.
+        The second request should handle this gracefully.
+        """
+        email = "concurrent@example.com"
+        results = []
+        errors = []
+
+        def make_request():
+            try:
+                with patch("api.newsletter.send_newsletter_verification_email"):
+                    response = client.post(
+                        "/api/v1/newsletter/subscribe",
+                        json={"email": email, "send_time": "morning"},
+                    )
+                    results.append(response.status_code)
+            except Exception as e:
+                errors.append(str(e))
+
+        # Launch concurrent requests
+        threads = [threading.Thread(target=make_request) for _ in range(3)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+
+        # All requests should succeed (200 OK)
+        assert len(errors) == 0, f"Unexpected errors: {errors}"
+        assert all(code == 200 for code in results), f"Non-200 responses: {results}"
+
+        # Only one subscriber should exist
+        count = db_session.query(Subscriber).filter(Subscriber.email == email).count()
+        assert count == 1, f"Expected 1 subscriber, got {count}"
 
 
 # =============================================================================
