@@ -19,3 +19,4 @@ export { useSwipeNavigation } from "./useSwipeNavigation";
 export { useSearch } from "./useSearch";
 export { useTaxonomy, preloadTaxonomy } from "./useTaxonomy";
 export { useLearningGoal } from "./useLearningGoal";
+export { useFocusTrap } from "./useFocusTrap";

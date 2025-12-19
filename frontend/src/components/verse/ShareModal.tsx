@@ -6,6 +6,7 @@ import {
   type ImageTheme,
   type ImageFormat,
 } from "./ImageCardGenerator";
+import { useFocusTrap } from "../../hooks";
 
 /**
  * Check if native file sharing is supported (Web Share API Level 2)
@@ -64,6 +65,9 @@ export function ShareModal({
   const modalRef = useRef<HTMLDivElement>(null);
   const blobRef = useRef<Blob | null>(null);
   const previewUrlRef = useRef<string | null>(null);
+
+  // Trap focus within modal (WCAG 2.1)
+  useFocusTrap(modalRef, isOpen);
 
   // Check native share support once on mount
   const nativeShareSupported = useMemo(() => canShareFiles(), []);

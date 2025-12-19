@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { useFocusTrap } from "../hooks";
 
 interface ConfirmModalProps {
   isOpen: boolean;
@@ -24,7 +25,10 @@ export function ConfirmModal({
   onCancel,
 }: ConfirmModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
-  const confirmButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Trap focus within modal (WCAG 2.1)
+  // Note: Focuses Cancel button first (safer default for destructive actions)
+  useFocusTrap(modalRef, isOpen);
 
   // Handle escape key
   useEffect(() => {
@@ -39,13 +43,6 @@ export function ConfirmModal({
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, loading, onCancel]);
-
-  // Focus confirm button when modal opens
-  useEffect(() => {
-    if (isOpen && confirmButtonRef.current) {
-      confirmButtonRef.current.focus();
-    }
-  }, [isOpen]);
 
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -171,7 +168,6 @@ export function ConfirmModal({
               {cancelLabel}
             </button>
             <button
-              ref={confirmButtonRef}
               type="button"
               onClick={onConfirm}
               disabled={loading}

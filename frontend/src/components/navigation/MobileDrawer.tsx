@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { Link } from "react-router-dom";
 import {
   NAV_ITEMS,
@@ -9,6 +10,7 @@ import {
 import { ThemeToggle } from "./ThemeToggle";
 import type { NavUser } from "./types";
 import { getInitials } from "./utils";
+import { useFocusTrap } from "../../hooks";
 
 interface MobileDrawerProps {
   /** Whether drawer is open */
@@ -63,7 +65,11 @@ export function MobileDrawer({
   user,
   onLogout,
 }: MobileDrawerProps) {
+  const drawerRef = useRef<HTMLDivElement>(null);
   const visibleItems = getVisibleNavItems(NAV_ITEMS, isAuthenticated);
+
+  // Trap focus within drawer when open (WCAG 2.1)
+  useFocusTrap(drawerRef, isOpen);
 
   const handleLogout = () => {
     onClose();
@@ -87,6 +93,7 @@ export function MobileDrawer({
 
       {/* Drawer */}
       <div
+        ref={drawerRef}
         id="mobile-nav-drawer"
         role="navigation"
         aria-label="Mobile navigation"
