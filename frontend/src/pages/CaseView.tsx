@@ -302,37 +302,44 @@ export default function CaseView() {
    *
    * Behavior:
    * - Click up when none/down: Submit positive feedback immediately
-   * - Click up when already up: No-op (can't un-vote)
+   * - Click up when already up: Remove feedback (un-vote)
    * - Click down when none/up: Expand form for comment
-   * - Click down when already down: Expand form to edit (if collapsed)
+   * - Click down when already down (form closed): Expand form to edit
+   * - Click down when already down (form open): Remove feedback (un-vote)
    */
   const handleFeedback = async (outputId: string, type: "up" | "down") => {
     if (feedbackLoading === outputId) return;
 
     const current = feedbackGiven[outputId];
+    const isFormOpen = expandedFeedback === outputId;
 
-    // Clicking same button that's already active
-    if (current === type) {
-      if (type === "up") {
-        // Already thumbs up - no-op (can't un-vote)
+    // Clicking thumbs down
+    if (type === "down") {
+      if (current === "down" && isFormOpen) {
+        // Already down with form open - un-vote (remove feedback)
+        await removeFeedback(outputId);
         return;
-      } else {
-        // Already thumbs down - expand form to add/edit comment
+      }
+      if (current === "down") {
+        // Already down, form closed - open form to edit
         setFeedbackText((prev) => ({ ...prev, [outputId]: savedComment[outputId] || "" }));
         setExpandedFeedback(outputId);
         return;
       }
-    }
-
-    // Clicking thumbs down (when not already down)
-    if (type === "down") {
-      // Expand form for new negative feedback (clear draft text)
+      // Not down yet - expand form for new negative feedback
       setFeedbackText((prev) => ({ ...prev, [outputId]: "" }));
       setExpandedFeedback(outputId);
       return;
     }
 
-    // Clicking thumbs up (submits immediately)
+    // Clicking thumbs up
+    if (current === "up") {
+      // Already up - un-vote (remove feedback)
+      await removeFeedback(outputId);
+      return;
+    }
+
+    // Submit positive feedback
     setFeedbackLoading(outputId);
     try {
       await outputsApi.submitFeedback(outputId, { rating: true });
@@ -352,6 +359,38 @@ export default function CaseView() {
     } catch {
       // Still update UI on error (optimistic)
       setFeedbackGiven((prev) => ({ ...prev, [outputId]: "up" }));
+    } finally {
+      setFeedbackLoading(null);
+    }
+  };
+
+  /**
+   * Remove feedback entirely (un-vote).
+   */
+  const removeFeedback = async (outputId: string) => {
+    setFeedbackLoading(outputId);
+    try {
+      // Submit null/neutral feedback to remove
+      // Backend handles this as deleting the feedback record
+      await outputsApi.deleteFeedback(outputId);
+      setFeedbackGiven((prev) => {
+        const next = { ...prev };
+        delete next[outputId];
+        return next;
+      });
+      setSavedComment((prev) => {
+        const next = { ...prev };
+        delete next[outputId];
+        return next;
+      });
+      setFeedbackText((prev) => {
+        const next = { ...prev };
+        delete next[outputId];
+        return next;
+      });
+      setExpandedFeedback(null);
+    } catch {
+      // Silent fail - keep current state
     } finally {
       setFeedbackLoading(null);
     }

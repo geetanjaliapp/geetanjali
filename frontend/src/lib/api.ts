@@ -220,6 +220,10 @@ export const outputsApi = {
     const response = await api.post(`/outputs/${outputId}/feedback`, data);
     return response.data;
   },
+
+  deleteFeedback: async (outputId: string): Promise<void> => {
+    await api.delete(`/outputs/${outputId}/feedback`);
+  },
 };
 
 // Verses API

@@ -521,3 +521,65 @@ async def submit_feedback(
     logger.info(f"Feedback submitted for output {output_id}: {rating_str}")
 
     return feedback
+
+
+@router.delete(
+    "/outputs/{output_id}/feedback",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+@limiter.limit("30/minute")
+async def delete_feedback(
+    request: Request,
+    output_id: str,
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_optional_user),
+    session_id: Optional[str] = Depends(get_session_id),
+):
+    """
+    Delete feedback for an output (un-vote).
+
+    Removes the user's feedback entirely, returning to neutral state.
+
+    Args:
+        output_id: Output ID to remove feedback from
+        db: Database session
+        current_user: Authenticated user (optional)
+        session_id: Session ID for anonymous users
+
+    Raises:
+        HTTPException: 404 if feedback not found
+    """
+    # Verify output exists
+    output = db.query(Output).filter(Output.id == output_id).first()
+    if not output:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Output {output_id} not found",
+        )
+
+    # Need either user or session
+    if not current_user and not session_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Authentication or session required to delete feedback",
+        )
+
+    # Find existing feedback
+    feedback_query = db.query(Feedback).filter(Feedback.output_id == output_id)
+    if current_user:
+        feedback = feedback_query.filter(Feedback.user_id == current_user.id).first()
+    else:
+        feedback = feedback_query.filter(
+            Feedback.session_id == session_id, Feedback.user_id.is_(None)
+        ).first()
+
+    if not feedback:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Feedback not found",
+        )
+
+    db.delete(feedback)
+    db.commit()
+
+    logger.info(f"Feedback deleted for output {output_id}")
