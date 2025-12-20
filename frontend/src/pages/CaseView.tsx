@@ -342,6 +342,11 @@ export default function CaseView() {
     }
   };
 
+  const handleEditFeedback = (outputId: string) => {
+    // Just expand the form for editing, don't toggle feedback state
+    setExpandedFeedback(outputId);
+  };
+
   const handleCancelFeedback = (outputId: string) => {
     setExpandedFeedback(null);
     setFeedbackText((prev) => ({ ...prev, [outputId]: "" }));
@@ -1091,6 +1096,7 @@ ${messages
                               expandedFeedback={expandedFeedback}
                               feedbackText={feedbackText}
                               onFeedback={handleFeedback}
+                              onEditFeedback={handleEditFeedback}
                               onSubmitNegativeFeedback={
                                 handleSubmitNegativeFeedback
                               }

@@ -8,6 +8,7 @@ interface OutputFeedbackProps {
   expandedFeedback: string | null;
   feedbackText: Record<string, string>;
   onFeedback: (outputId: string, type: "up" | "down") => void;
+  onEditFeedback: (outputId: string) => void;
   onSubmitNegativeFeedback: (outputId: string) => void;
   onCancelFeedback: (outputId: string) => void;
   onFeedbackTextChange: (outputId: string, text: string) => void;
@@ -26,6 +27,7 @@ export const OutputFeedback = memo(
     expandedFeedback,
     feedbackText,
     onFeedback,
+    onEditFeedback,
     onSubmitNegativeFeedback,
     onCancelFeedback,
     onFeedbackTextChange,
@@ -115,7 +117,7 @@ export const OutputFeedback = memo(
                 "{feedbackText[output.id]}"
               </p>
               <button
-                onClick={() => onFeedback(output.id, "down")}
+                onClick={() => onEditFeedback(output.id)}
                 className="text-xs text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 whitespace-nowrap"
               >
                 Edit

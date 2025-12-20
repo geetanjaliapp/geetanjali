@@ -11,6 +11,7 @@ describe("OutputFeedback", () => {
     expandedFeedback: null as string | null,
     feedbackText: {} as Record<string, string>,
     onFeedback: vi.fn(),
+    onEditFeedback: vi.fn(),
     onSubmitNegativeFeedback: vi.fn(),
     onCancelFeedback: vi.fn(),
     onFeedbackTextChange: vi.fn(),
