@@ -161,7 +161,7 @@ export default function CaseView() {
     } finally {
       setLoading(false);
     }
-  }, [id, isAuthenticated]);
+  }, [id, isAuthenticated, initializeFeedback]);
 
   useEffect(() => {
     loadCaseData();
@@ -225,7 +225,7 @@ export default function CaseView() {
     }, POLL_INTERVAL);
 
     return () => clearInterval(pollInterval);
-  }, [isProcessing, id]);
+  }, [isProcessing, id, initializeFeedback]);
 
   const handleRetry = async () => {
     if (!id || !caseData) return;

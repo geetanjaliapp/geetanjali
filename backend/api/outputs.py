@@ -351,17 +351,17 @@ async def list_case_outputs(
     output_ids = [o.id for o in outputs]
     feedback_query = db.query(Feedback).filter(Feedback.output_id.in_(output_ids))
 
+    # Build feedback lookup based on user/session
+    feedback_by_output: dict[str, Feedback] = {}
     if current_user:
         feedback_query = feedback_query.filter(Feedback.user_id == current_user.id)
+        feedback_by_output = {f.output_id: f for f in feedback_query.all()}
     elif session_id:
         feedback_query = feedback_query.filter(
             Feedback.session_id == session_id, Feedback.user_id.is_(None)
         )
-    else:
-        # No user or session, can't match feedback
-        feedback_query = feedback_query.filter(False)
-
-    feedback_by_output = {f.output_id: f for f in feedback_query.all()}
+        feedback_by_output = {f.output_id: f for f in feedback_query.all()}
+    # else: No user or session - feedback_by_output stays empty
 
     # Build response with user_feedback
     result = []
