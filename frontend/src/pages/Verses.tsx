@@ -33,13 +33,6 @@ const CARD_ANIMATION_DELAY_MS = 30;
 const CARD_ANIMATION_MAX_DELAY_MS = 300;
 const SKELETON_COUNT = 8;
 
-// Filter pill styling patterns (focus-visible for keyboard-only focus rings)
-const FILTER_PILL_BASE =
-  "px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900";
-const FILTER_PILL_ACTIVE = "bg-orange-600 text-white shadow-md";
-const FILTER_PILL_INACTIVE =
-  "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600";
-
 // Filter modes: 'featured' shows curated verses, 'all' shows all 701 verses, 'favorites' shows user's favorites
 type FilterMode = "featured" | "all" | "favorites" | number; // number = specific chapter
 
@@ -630,6 +623,20 @@ export default function Verses() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col">
+      {/* Screen reader announcements for search results */}
+      <div
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className="sr-only"
+      >
+        {isSearchMode && !searchLoading && searchData && (
+          searchData.total === 0
+            ? `No results found for "${searchData.query}"`
+            : `${searchData.total} result${searchData.total !== 1 ? 's' : ''} found for "${searchData.query}"`
+        )}
+      </div>
+
       <Navbar />
 
       {/* Page Header - scrolls away, content-first */}
@@ -664,48 +671,78 @@ export default function Verses() {
             />
           </div>
 
-          {/* Row 2: Mode Filters - Featured, All, Favorites, Chapter */}
-          <div className="flex items-center gap-1.5 sm:gap-2 mb-2">
-            <button
-              onClick={() => handleFilterSelect("featured")}
-              className={`${FILTER_PILL_BASE} flex items-center gap-1 ${showFeatured && !selectedPrinciple && !isSearchMode ? FILTER_PILL_ACTIVE : FILTER_PILL_INACTIVE}`}
-            >
-              <StarIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              <span>Featured</span>
-            </button>
-            <button
-              onClick={() => handleFilterSelect("all")}
-              className={`${FILTER_PILL_BASE} ${showAll && !selectedPrinciple && !isSearchMode ? FILTER_PILL_ACTIVE : FILTER_PILL_INACTIVE}`}
-            >
-              All
-            </button>
-            <button
-              onClick={() => handleFilterSelect("favorites")}
-              className={`${FILTER_PILL_BASE} flex items-center gap-1 ${showFavorites && !selectedPrinciple && !isSearchMode ? FILTER_PILL_ACTIVE : FILTER_PILL_INACTIVE}`}
-            >
-              <HeartIcon
-                className="w-3.5 h-3.5 sm:w-4 sm:h-4"
-                filled={showFavorites || favoritesCount > 0}
-              />
-              <span className="hidden sm:inline">Favorites</span>
-              {favoritesCount > 0 && (
+          {/* Row 2: Mode Filters - Segmented Control + Chapter Dropdown */}
+          <div className="flex items-center gap-2 sm:gap-3 mb-2">
+            {/* Segmented Control: Featured | All | Favorites */}
+            <div className="inline-flex rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 p-0.5 shadow-sm">
+              {/* Featured Segment */}
+              <button
+                onClick={() => handleFilterSelect("featured")}
+                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 ${
+                  showFeatured && !selectedPrinciple && !isSearchMode
+                    ? "bg-orange-600 text-white shadow-sm"
+                    : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                }`}
+              >
+                <StarIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">Featured</span>
+              </button>
+
+              {/* Divider */}
+              <div className="w-px bg-gray-200 dark:bg-gray-600 my-1" />
+
+              {/* All Segment */}
+              <button
+                onClick={() => handleFilterSelect("all")}
+                className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 ${
+                  showAll && !selectedPrinciple && !isSearchMode
+                    ? "bg-orange-600 text-white shadow-sm"
+                    : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                }`}
+              >
+                All
+              </button>
+
+              {/* Divider */}
+              <div className="w-px bg-gray-200 dark:bg-gray-600 my-1" />
+
+              {/* Favorites Segment */}
+              <button
+                onClick={() => handleFilterSelect("favorites")}
+                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 ${
+                  showFavorites && !selectedPrinciple && !isSearchMode
+                    ? "bg-orange-600 text-white shadow-sm"
+                    : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                }`}
+              >
+                <HeartIcon
+                  className="w-3.5 h-3.5 sm:w-4 sm:h-4"
+                  filled={showFavorites || favoritesCount > 0}
+                />
+                {/* Count badge with reserved width for 2-digit numbers */}
                 <span
-                  className={`text-[10px] sm:text-xs px-1 sm:px-1.5 py-0.5 rounded-full ${
+                  className={`min-w-[1.25rem] text-center text-[10px] sm:text-xs tabular-nums ${
                     showFavorites && !selectedPrinciple && !isSearchMode
-                      ? "bg-white/20 text-white"
-                      : "bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400"
+                      ? "text-white/80"
+                      : favoritesCount > 0
+                        ? "text-red-500 dark:text-red-400"
+                        : "text-gray-400 dark:text-gray-500"
                   }`}
                 >
                   {favoritesCount}
                 </span>
-              )}
-            </button>
+              </button>
+            </div>
 
-            {/* Chapter Dropdown */}
+            {/* Chapter Dropdown - Separate */}
             <div className="relative">
               <button
                 onClick={() => setShowChapterDropdown(!showChapterDropdown)}
-                className={`${FILTER_PILL_BASE} flex items-center gap-1 ${selectedChapter && !selectedPrinciple && !isSearchMode ? FILTER_PILL_ACTIVE : FILTER_PILL_INACTIVE}`}
+                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-sm font-medium transition-colors border focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 ${
+                  selectedChapter && !selectedPrinciple && !isSearchMode
+                    ? "bg-orange-600 text-white border-orange-600 shadow-md"
+                    : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
+                }`}
               >
                 {selectedChapter ? `Ch ${selectedChapter}` : "Chapter"}
                 <ChevronDownIcon
