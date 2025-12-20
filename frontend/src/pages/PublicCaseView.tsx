@@ -75,6 +75,24 @@ export default function PublicCaseView() {
     loadData();
   }, [loadData]);
 
+  // Record view once per session
+  useEffect(() => {
+    if (!slug) return;
+
+    // Only record once per session per case
+    const viewedKey = `geetanjali:viewed:${slug}`;
+    if (sessionStorage.getItem(viewedKey)) return;
+
+    casesApi
+      .recordPublicView(slug)
+      .then(() => {
+        sessionStorage.setItem(viewedKey, "true");
+      })
+      .catch(() => {
+        // Ignore errors - view tracking is non-critical
+      });
+  }, [slug]);
+
   const toggleSources = (outputId: string) => {
     setExpandedSources((prev) => {
       const newSet = new Set(prev);
