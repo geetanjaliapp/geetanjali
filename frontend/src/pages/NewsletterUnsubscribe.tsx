@@ -68,7 +68,7 @@ export default function NewsletterUnsubscribe() {
             <div className="space-y-3">
               <button
                 onClick={handleConfirm}
-                className="w-full px-6 py-3 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition-all focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                className="w-full px-6 py-3 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition-all focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
               >
                 Yes, Unsubscribe
               </button>

@@ -208,7 +208,7 @@ export function VersePopover({
               className="flex items-center justify-center gap-1.5 text-sm text-orange-600 dark:text-orange-400
                          hover:text-orange-700 dark:hover:text-orange-300 font-medium transition-colors
                          focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500
-                         focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800 rounded py-1"
+                         focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 rounded py-1"
               onClick={() => setIsOpen(false)}
             >
               View full verse

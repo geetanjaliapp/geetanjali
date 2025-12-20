@@ -408,7 +408,7 @@ export default function NewCase() {
               <button
                 type="button"
                 onClick={handlePersonalizationToggle}
-                className="text-sm text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 font-medium flex items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800 rounded"
+                className="text-sm text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 font-medium flex items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 rounded"
               >
                 <span>{showAdvanced ? "−" : "+"}</span>
                 <span>Personalize your guidance</span>
@@ -431,7 +431,7 @@ export default function NewCase() {
                         onClick={() =>
                           toggleSelection(opt.value, setSelectedRoles)
                         }
-                        className={`px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm rounded-full border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-800 ${
+                        className={`px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm rounded-full border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-900 ${
                           selectedRoles.has(opt.value)
                             ? "bg-orange-100 dark:bg-orange-900/40 border-orange-300 dark:border-orange-700 text-orange-700 dark:text-orange-400"
                             : "bg-amber-50/50 dark:bg-gray-700 border-amber-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-amber-100 dark:hover:bg-gray-600"
@@ -459,7 +459,7 @@ export default function NewCase() {
                         onClick={() =>
                           toggleSelection(opt.value, setSelectedStakeholders)
                         }
-                        className={`px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm rounded-full border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-800 ${
+                        className={`px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm rounded-full border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-900 ${
                           selectedStakeholders.has(opt.value)
                             ? "bg-orange-100 dark:bg-orange-900/40 border-orange-300 dark:border-orange-700 text-orange-700 dark:text-orange-400"
                             : "bg-amber-50/50 dark:bg-gray-700 border-amber-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-amber-100 dark:hover:bg-gray-600"

@@ -185,7 +185,7 @@ export const VerseCard = memo(function VerseCard({
                 e.stopPropagation();
                 onToggleFavorite(verse.canonical_id);
               }}
-              className={`p-2.5 sm:p-1 -m-1.5 sm:m-0 rounded-full transition-all duration-150 pointer-events-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-800 ${
+              className={`p-2.5 sm:p-1 -m-1.5 sm:m-0 rounded-full transition-all duration-150 pointer-events-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-900 ${
                 isFavorite
                   ? "text-red-500 dark:text-red-400"
                   : "text-gray-400 dark:text-gray-500 hover:text-red-400 dark:hover:text-red-400 hover:scale-110"
@@ -267,7 +267,7 @@ export const VerseCard = memo(function VerseCard({
                       onPrincipleClick(principle);
                     }
                   }}
-                  className={`px-2 py-0.5 rounded-full bg-amber-100/70 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 text-[10px] sm:text-xs font-medium pointer-events-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-800 ${
+                  className={`px-2 py-0.5 rounded-full bg-amber-100/70 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 text-[10px] sm:text-xs font-medium pointer-events-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-900 ${
                     onPrincipleClick
                       ? "hover:bg-amber-200 dark:hover:bg-amber-800/40 cursor-pointer transition-colors"
                       : ""

@@ -339,7 +339,7 @@ export default function VerseDetail() {
                   {/* Favorite button */}
                   <button
                     onClick={() => toggleFavorite(verse.canonical_id)}
-                    className={`p-3 sm:p-1.5 rounded-full transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800 ${
+                    className={`p-3 sm:p-1.5 rounded-full transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 ${
                       isFavorite(verse.canonical_id)
                         ? "text-red-500 dark:text-red-400"
                         : "text-amber-600/50 dark:text-amber-400/60 hover:text-red-400 dark:hover:text-red-400 hover:scale-110"
@@ -364,7 +364,7 @@ export default function VerseDetail() {
                   {/* Share button - opens unified share modal */}
                   <button
                     onClick={() => setShowShareModal(true)}
-                    className="p-3 sm:p-1.5 rounded-full transition-all duration-150 text-amber-600/50 dark:text-amber-400/60 hover:text-amber-600 dark:hover:text-amber-400 hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800"
+                    className="p-3 sm:p-1.5 rounded-full transition-all duration-150 text-amber-600/50 dark:text-amber-400/60 hover:text-amber-600 dark:hover:text-amber-400 hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
                     aria-label="Share verse"
                   >
                     <ShareIcon className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -378,6 +378,18 @@ export default function VerseDetail() {
                 >
                   Read in context →
                 </Link>
+              </div>
+            )}
+
+            {/* IAST Transliteration - Subtle, for learners */}
+            {verse.sanskrit_iast && (
+              <div className="text-center mb-4 sm:mb-6">
+                <p
+                  lang="sa"
+                  className="text-sm sm:text-base text-amber-700/60 dark:text-amber-400/50 italic font-serif leading-relaxed"
+                >
+                  {verse.sanskrit_iast}
+                </p>
               </div>
             )}
 
@@ -412,7 +424,7 @@ export default function VerseDetail() {
                                    active:bg-amber-300 dark:active:bg-amber-700/50
                                    transition-all duration-150
                                    focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500
-                                   focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800"
+                                   focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
                         aria-label={`View all verses about ${getPrincipleLabel(principleId)}`}
                       >
                         <span>{getPrincipleShortLabel(principleId)}</span>
