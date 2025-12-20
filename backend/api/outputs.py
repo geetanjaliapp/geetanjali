@@ -421,10 +421,10 @@ async def submit_feedback(
     session_id: Optional[str] = Depends(get_session_id),
 ):
     """
-    Submit feedback (thumbs up/down + optional comment) for an output.
+    Submit or update feedback (thumbs up/down + optional comment) for an output.
 
     Can be submitted by authenticated users or anonymous sessions.
-    Only one feedback per user/session per output is allowed.
+    If feedback already exists, it will be updated (upsert behavior).
 
     Args:
         output_id: Output ID to rate
@@ -434,10 +434,10 @@ async def submit_feedback(
         session_id: Session ID for anonymous users
 
     Returns:
-        Created feedback
+        Created or updated feedback
 
     Raises:
-        HTTPException: 404 if output not found, 409 if already submitted
+        HTTPException: 404 if output not found
     """
     # Verify output exists
     output = db.query(Output).filter(Output.id == output_id).first()
@@ -464,10 +464,14 @@ async def submit_feedback(
         ).first()
 
     if existing:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Feedback already submitted for this output",
-        )
+        # Update existing feedback (allow changing mind)
+        existing.rating = feedback_data.rating
+        existing.comment = feedback_data.comment
+        db.commit()
+        db.refresh(existing)
+        rating_str = "thumbs_up" if existing.rating else "thumbs_down"
+        logger.info(f"Feedback updated for output {output_id}: {rating_str}")
+        return existing
 
     # Create feedback
     feedback = Feedback(
