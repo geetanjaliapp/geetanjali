@@ -42,8 +42,6 @@ export {
   ReflectionsSection,
   OutputFeedback,
   FollowUpInput,
-  CaseTimeline,
-  CaseExchange,
   ThinkingIndicator,
 } from "./case";
 
@@ -59,3 +57,4 @@ export {
 
 // Notifications
 export { Toast } from "./Toast";
+export { OfflineIndicator } from "./OfflineIndicator";

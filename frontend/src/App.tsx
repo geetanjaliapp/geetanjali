@@ -7,7 +7,7 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { useAuth } from "./contexts/AuthContext";
-import { FloatingActionButton, SkipLink } from "./components";
+import { FloatingActionButton, SkipLink, OfflineIndicator } from "./components";
 
 // Eagerly loaded (critical path)
 import Home from "./pages/Home";
@@ -89,6 +89,7 @@ function App() {
   return (
     <Router>
       <SkipLink />
+      <OfflineIndicator />
       <FloatingActionButton />
       <main id="main-content">
         <Suspense fallback={<PageLoader />}>
