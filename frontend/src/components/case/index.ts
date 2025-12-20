@@ -6,3 +6,4 @@ export { StepsSection } from "./StepsSection";
 export { ReflectionsSection } from "./ReflectionsSection";
 export { FollowUpInput } from "./FollowUpInput";
 export { ThinkingIndicator } from "./ThinkingIndicator";
+export { ShareBar } from "./ShareBar";
