@@ -169,7 +169,7 @@ export default function PublicCaseView() {
                     <div
                       className={`absolute left-0 w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center ${
                         isFirst
-                          ? "bg-amber-500 text-white"
+                          ? "bg-amber-600 text-white"
                           : "bg-blue-100 dark:bg-blue-900/40 border-2 border-blue-400 dark:border-blue-600"
                       }`}
                     >
@@ -353,6 +353,19 @@ export default function PublicCaseView() {
                               {(exchange.output.confidence * 100).toFixed(0)}%
                             </span>
                           </div>
+                        )}
+
+                        {/* Interpretive tradition disclosure - subtle, first exchange only */}
+                        {isFirst && (
+                          <p className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700 text-[10px] sm:text-xs text-gray-400 dark:text-gray-500 italic">
+                            Guidance reflects practical Vedantic principles.{" "}
+                            <Link
+                              to="/about#our-approach"
+                              className="underline hover:text-gray-600 dark:hover:text-gray-400"
+                            >
+                              Learn about our approach
+                            </Link>
+                          </p>
                         )}
                       </div>
                     </div>

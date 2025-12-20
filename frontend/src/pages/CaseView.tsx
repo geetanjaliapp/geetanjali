@@ -716,7 +716,7 @@ ${messages
               </p>
               <button
                 onClick={() => setShowSignupPrompt(false)}
-                className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 ml-4 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800"
+                className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 ml-4 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
               >
                 <svg
                   className="w-4 h-4"
@@ -759,7 +759,7 @@ ${messages
                       <div
                         className={`absolute left-0 w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center ${
                           isFirst
-                            ? "bg-amber-500 text-white"
+                            ? "bg-amber-600 text-white"
                             : "bg-blue-100 dark:bg-blue-900/40 border-2 border-blue-400 dark:border-blue-600"
                         }`}
                       >
@@ -956,7 +956,7 @@ ${messages
                                       "Can you provide more detail or clarify the recommended approach?",
                                     )
                                   }
-                                  className="mt-2 text-sm text-amber-700 dark:text-amber-400 hover:text-amber-900 dark:hover:text-amber-300 hover:underline flex items-center gap-1 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800"
+                                  className="mt-2 text-sm text-amber-700 dark:text-amber-400 hover:text-amber-900 dark:hover:text-amber-300 hover:underline flex items-center gap-1 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
                                 >
                                   <svg
                                     className="w-3.5 h-3.5"
@@ -986,7 +986,7 @@ ${messages
                                     exchange.output &&
                                     toggleSources(exchange.output.id)
                                   }
-                                  className="text-xs font-medium text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 flex items-center gap-1 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800"
+                                  className="text-xs font-medium text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 flex items-center gap-1 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
                                 >
                                   <svg
                                     className={`w-3 h-3 transition-transform ${isSourcesExpanded ? "rotate-90" : ""}`}
@@ -1054,6 +1054,19 @@ ${messages
                               onCancelFeedback={handleCancelFeedback}
                               onFeedbackTextChange={handleFeedbackTextChange}
                             />
+                          )}
+
+                          {/* Interpretive tradition disclosure - subtle, first exchange only */}
+                          {isFirst && (
+                            <p className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700 text-[10px] sm:text-xs text-gray-400 dark:text-gray-500 italic">
+                              Guidance reflects practical Vedantic principles.{" "}
+                              <Link
+                                to="/about#our-approach"
+                                className="underline hover:text-gray-600 dark:hover:text-gray-400"
+                              >
+                                Learn about our approach
+                              </Link>
+                            </p>
                           )}
                         </div>
                       </div>

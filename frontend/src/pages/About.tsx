@@ -276,6 +276,37 @@ export default function About() {
           </div>
         </section>
 
+        {/* Our Approach */}
+        <section
+          id="our-approach"
+          className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 mb-4 sm:mb-6 lg:mb-8"
+        >
+          <h2 className="text-xl sm:text-2xl font-bold font-heading text-gray-900 dark:text-gray-100 mb-3 sm:mb-4">
+            Our Approach
+          </h2>
+          <div className="prose prose-orange max-w-none text-gray-600 dark:text-gray-300">
+            <p className="mb-4">
+              Geetanjali's guidance draws primarily from practical Vedantic
+              principles—a philosophical tradition that emphasizes
+              self-knowledge, ethical action, and finding meaning amid life's
+              complexities. This approach focuses on actionable wisdom rather
+              than ritual or metaphysics.
+            </p>
+            <p className="mb-4">
+              We present the Geeta's teachings in an accessible, non-sectarian
+              way. While we strive for accuracy, interpretations naturally
+              reflect this practical lens. Scholarly traditions differ in their
+              readings—some emphasize devotion, others knowledge or action—and
+              we encourage exploring multiple perspectives.
+            </p>
+            <p>
+              Think of Geetanjali as one thoughtful voice among many. For
+              deeper study, we recommend consulting traditional commentaries and
+              qualified teachers who can offer richer, more nuanced guidance.
+            </p>
+          </div>
+        </section>
+
         {/* Privacy Note */}
         <section className="bg-orange-50 dark:bg-gray-800 rounded-xl sm:rounded-2xl p-4 sm:p-6 mb-4 sm:mb-6 lg:mb-8 border border-orange-100 dark:border-gray-700">
           <div className="flex items-start gap-4">
@@ -387,7 +418,7 @@ export default function About() {
               </p>
               <button
                 onClick={() => setSubmitStatus("idle")}
-                className="mt-4 text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 rounded"
+                className="mt-4 text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 rounded"
               >
                 Send another message
               </button>
@@ -513,7 +544,7 @@ export default function About() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full sm:w-auto bg-orange-600 hover:bg-orange-700 disabled:bg-orange-400 text-white font-semibold px-6 py-3 sm:px-8 sm:py-3 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 text-base"
+                className="w-full sm:w-auto bg-orange-600 hover:bg-orange-700 disabled:bg-orange-400 text-white font-semibold px-6 py-3 sm:px-8 sm:py-3 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 text-base"
               >
                 {isSubmitting ? "Sending..." : "Send Message"}
               </button>
