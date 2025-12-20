@@ -70,7 +70,7 @@ export function useFeedback() {
       });
       setExpandedFeedback(null);
     } catch {
-      // Silent fail - keep current state
+      // Silent rollback - state unchanged, user can retry
     } finally {
       setFeedbackLoading(null);
     }
@@ -122,26 +122,37 @@ export function useFeedback() {
         return;
       }
 
-      // Submit positive feedback
+      // Submit positive feedback with rollback on error
+      const previousState = feedbackGiven[outputId];
+      const previousComment = savedComment[outputId];
+
       setFeedbackLoading(outputId);
+      // Optimistic update
+      setFeedbackGiven((prev) => ({ ...prev, [outputId]: "up" }));
+      setSavedComment((prev) => {
+        const next = { ...prev };
+        delete next[outputId];
+        return next;
+      });
+      setFeedbackText((prev) => {
+        const next = { ...prev };
+        delete next[outputId];
+        return next;
+      });
+      setExpandedFeedback(null);
+
       try {
         await outputsApi.submitFeedback(outputId, { rating: true });
-        setFeedbackGiven((prev) => ({ ...prev, [outputId]: "up" }));
-        // Clear any saved comment since positive feedback has no comment
-        setSavedComment((prev) => {
-          const next = { ...prev };
-          delete next[outputId];
-          return next;
-        });
-        setFeedbackText((prev) => {
-          const next = { ...prev };
-          delete next[outputId];
-          return next;
-        });
-        setExpandedFeedback(null);
+        // Success - optimistic state is correct
       } catch {
-        // Still update UI on error (optimistic)
-        setFeedbackGiven((prev) => ({ ...prev, [outputId]: "up" }));
+        // Silent rollback - restore previous state
+        setFeedbackGiven((prev) => ({
+          ...prev,
+          [outputId]: previousState ?? null,
+        }));
+        if (previousComment) {
+          setSavedComment((prev) => ({ ...prev, [outputId]: previousComment }));
+        }
       } finally {
         setFeedbackLoading(null);
       }
@@ -156,30 +167,50 @@ export function useFeedback() {
     async (outputId: string) => {
       if (feedbackLoading === outputId) return;
 
+      // Capture previous state for rollback
+      const previousState = feedbackGiven[outputId];
+      const previousComment = savedComment[outputId];
+      const comment = feedbackText[outputId]?.trim() || undefined;
+
       setFeedbackLoading(outputId);
+      // Optimistic update
+      setFeedbackGiven((prev) => ({ ...prev, [outputId]: "down" }));
+      setSavedComment((prev) =>
+        comment
+          ? { ...prev, [outputId]: comment }
+          : (() => {
+              const next = { ...prev };
+              delete next[outputId];
+              return next;
+            })()
+      );
+      setExpandedFeedback(null);
+
       try {
-        const comment = feedbackText[outputId]?.trim() || undefined;
         await outputsApi.submitFeedback(outputId, { rating: false, comment });
-        setFeedbackGiven((prev) => ({ ...prev, [outputId]: "down" }));
-        // Save the comment as persisted
-        setSavedComment((prev) =>
-          comment
-            ? { ...prev, [outputId]: comment }
-            : (() => {
-                const next = { ...prev };
-                delete next[outputId];
-                return next;
-              })()
-        );
-        setExpandedFeedback(null);
+        // Success - optimistic state is correct
       } catch {
-        // Still update UI on error (optimistic)
-        setFeedbackGiven((prev) => ({ ...prev, [outputId]: "down" }));
+        // Silent rollback - restore previous state
+        setFeedbackGiven((prev) => ({
+          ...prev,
+          [outputId]: previousState ?? null,
+        }));
+        if (previousComment) {
+          setSavedComment((prev) => ({ ...prev, [outputId]: previousComment }));
+        } else {
+          setSavedComment((prev) => {
+            const next = { ...prev };
+            delete next[outputId];
+            return next;
+          });
+        }
+        // Re-expand form so user can retry
+        setExpandedFeedback(outputId);
       } finally {
         setFeedbackLoading(null);
       }
     },
-    [feedbackLoading, feedbackText]
+    [feedbackLoading, feedbackText, feedbackGiven, savedComment]
   );
 
   /**
