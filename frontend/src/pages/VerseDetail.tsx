@@ -335,11 +335,11 @@ export default function VerseDetail() {
                   )}
                 </div>
                 {/* Verse Reference with integrated actions */}
-                <div className="flex items-center justify-center gap-3 sm:gap-4">
+                <div className="flex items-center justify-center gap-2 sm:gap-4">
                   {/* Favorite button */}
                   <button
                     onClick={() => toggleFavorite(verse.canonical_id)}
-                    className={`p-1.5 rounded-full transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800 ${
+                    className={`p-3 sm:p-1.5 rounded-full transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800 ${
                       isFavorite(verse.canonical_id)
                         ? "text-red-500 dark:text-red-400"
                         : "text-amber-600/50 dark:text-amber-400/60 hover:text-red-400 dark:hover:text-red-400 hover:scale-110"
@@ -364,12 +364,20 @@ export default function VerseDetail() {
                   {/* Share button - opens unified share modal */}
                   <button
                     onClick={() => setShowShareModal(true)}
-                    className="p-1.5 rounded-full transition-all duration-150 text-amber-600/50 dark:text-amber-400/60 hover:text-amber-600 dark:hover:text-amber-400 hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800"
+                    className="p-3 sm:p-1.5 rounded-full transition-all duration-150 text-amber-600/50 dark:text-amber-400/60 hover:text-amber-600 dark:hover:text-amber-400 hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800"
                     aria-label="Share verse"
                   >
                     <ShareIcon className="w-5 h-5 sm:w-6 sm:h-6" />
                   </button>
                 </div>
+
+                {/* Reading Mode link - subtle, non-intrusive */}
+                <Link
+                  to={`/read?c=${verse.chapter}&v=${verse.verse}`}
+                  className="inline-block mt-3 text-xs text-amber-600/60 dark:text-amber-400/50 hover:text-amber-700 dark:hover:text-amber-300 transition-colors"
+                >
+                  Read in context →
+                </Link>
               </div>
             )}
 
