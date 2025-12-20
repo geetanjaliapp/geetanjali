@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { casesApi } from "../lib/api";
 import type { Case } from "../types";
@@ -9,6 +9,59 @@ import { errorMessages } from "../lib/errorMessages";
 import { validateContent } from "../lib/contentFilter";
 import { useSEO } from "../hooks";
 import { trackEvent } from "../lib/experiment";
+
+// localStorage key for draft saving
+const DRAFT_KEY = "geetanjali:caseDraft";
+const DRAFT_DEBOUNCE_MS = 1000; // Save after 1s of inactivity
+
+interface DraftData {
+  question: string;
+  context: string;
+  roles: string[];
+  stakeholders: string[];
+  savedAt: number;
+}
+
+// Draft helpers
+function loadDraft(): DraftData | null {
+  try {
+    const stored = localStorage.getItem(DRAFT_KEY);
+    if (!stored) return null;
+    const draft = JSON.parse(stored) as DraftData;
+    // Expire drafts after 7 days
+    if (Date.now() - draft.savedAt > 7 * 24 * 60 * 60 * 1000) {
+      localStorage.removeItem(DRAFT_KEY);
+      return null;
+    }
+    return draft;
+  } catch {
+    return null;
+  }
+}
+
+function saveDraft(data: Omit<DraftData, "savedAt">): void {
+  try {
+    // Don't save empty drafts
+    if (!data.question.trim() && !data.context.trim()) {
+      localStorage.removeItem(DRAFT_KEY);
+      return;
+    }
+    localStorage.setItem(
+      DRAFT_KEY,
+      JSON.stringify({ ...data, savedAt: Date.now() }),
+    );
+  } catch {
+    // Ignore storage errors
+  }
+}
+
+function clearDraft(): void {
+  try {
+    localStorage.removeItem(DRAFT_KEY);
+  } catch {
+    // Ignore
+  }
+}
 
 interface LocationState {
   prefill?: string;
@@ -52,19 +105,60 @@ export default function NewCase() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [draftRestored, setDraftRestored] = useState(false);
+
+  // Load draft on mount (only if no prefill)
+  const draft = !prefill ? loadDraft() : null;
 
   const [formData, setFormData] = useState({
-    question: prefill,
-    context: "",
+    question: prefill || draft?.question || "",
+    context: draft?.context || "",
   });
 
   const [selectedRoles, setSelectedRoles] = useState<Set<string>>(
-    new Set(["individual"]),
+    new Set(draft?.roles || ["individual"]),
   );
 
   const [selectedStakeholders, setSelectedStakeholders] = useState<Set<string>>(
-    new Set(["self"]),
+    new Set(draft?.stakeholders || ["self"]),
   );
+
+  // Show draft restored message
+  useEffect(() => {
+    if (draft && (draft.question || draft.context)) {
+      setDraftRestored(true);
+      // Auto-hide after 3 seconds
+      const timer = setTimeout(() => setDraftRestored(false), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Debounced draft saving
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const debouncedSaveDraft = useCallback(() => {
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+    saveTimeoutRef.current = setTimeout(() => {
+      saveDraft({
+        question: formData.question,
+        context: formData.context,
+        roles: Array.from(selectedRoles),
+        stakeholders: Array.from(selectedStakeholders),
+      });
+    }, DRAFT_DEBOUNCE_MS);
+  }, [formData.question, formData.context, selectedRoles, selectedStakeholders]);
+
+  // Save draft when form data changes
+  useEffect(() => {
+    debouncedSaveDraft();
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, [debouncedSaveDraft]);
 
   const toggleSelection = (
     value: string,
@@ -157,6 +251,9 @@ export default function NewCase() {
         // Silent fail
       }
 
+      // Clear draft on successful submission
+      clearDraft();
+
       navigate(`/cases/${createdCase.id}`);
     } catch (err) {
       setError(errorMessages.caseCreate(err));
@@ -247,6 +344,10 @@ export default function NewCase() {
                 {errors.question ? (
                   <p className="text-xs sm:text-sm text-red-600 dark:text-red-400">
                     {errors.question}
+                  </p>
+                ) : draftRestored ? (
+                  <p className="text-xs sm:text-sm text-amber-600 dark:text-amber-400">
+                    Draft restored
                   </p>
                 ) : (
                   <span />
