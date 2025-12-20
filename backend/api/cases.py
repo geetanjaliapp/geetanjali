@@ -378,22 +378,29 @@ async def toggle_case_sharing(
 
     Args:
         case_id: Case ID
-        share_data: Whether to make public or private
+        share_data: Whether to make public or private, and share mode
         db: Database session
         case: Case object (validated by dependency)
 
     Returns:
-        Updated case with is_public and public_slug
+        Updated case with is_public, public_slug, and share_mode
     """
     repo = CaseRepository(db)
 
     update_data: dict[str, Any] = {"is_public": share_data.is_public}
 
-    # Generate slug and set shared_at when making public (if not already set)
-    if share_data.is_public and not case.public_slug:
-        update_data["shared_at"] = datetime.utcnow()
-        # OPTIMIZATION: Batch check multiple candidate slugs in single query
-        update_data["public_slug"] = generate_unique_public_slug(db)
+    if share_data.is_public:
+        # Generate slug and set shared_at when making public (if not already set)
+        if not case.public_slug:
+            update_data["shared_at"] = datetime.utcnow()
+            # OPTIMIZATION: Batch check multiple candidate slugs in single query
+            update_data["public_slug"] = generate_unique_public_slug(db)
+
+        # Set share mode (default to 'full' if not provided)
+        update_data["share_mode"] = share_data.share_mode or "full"
+    else:
+        # Clear share_mode when making private
+        update_data["share_mode"] = None
 
     # Update case
     updated_case = repo.update(case_id, update_data)
@@ -403,7 +410,8 @@ async def toggle_case_sharing(
             detail="Case not found after update",
         )
     logger.info(
-        f"Case {case_id} sharing toggled: is_public={share_data.is_public}, slug={updated_case.public_slug}"
+        f"Case {case_id} sharing toggled: is_public={share_data.is_public}, "
+        f"share_mode={updated_case.share_mode}, slug={updated_case.public_slug}"
     )
 
     # Invalidate cache when toggling share (especially when making private)
@@ -484,17 +492,60 @@ async def get_public_case_outputs(
     Get outputs for a publicly shared case.
 
     No authentication required. Cached in Redis (1 hour) and HTTP (5 minutes).
+
+    If share_mode is 'essential', options and reflection_prompts are hidden.
     """
 
     def fetch_outputs():
         case = get_public_case_or_404(slug, db)
-        return OutputRepository(db).get_by_case_id(case.id)
+        outputs = OutputRepository(db).get_by_case_id(case.id)
+        return (outputs, case.share_mode)
+
+    def serialize_with_mode(data: tuple) -> list:
+        outputs, share_mode = data
+        result = []
+        for o in outputs:
+            output_dict = OutputResponse.model_validate(o).model_dump(mode="json")
+
+            # Filter output based on share_mode
+            if share_mode == "essential" and output_dict.get("result_json"):
+                # Hide options and reflection_prompts for essential mode
+                output_dict["result_json"].pop("options", None)
+                output_dict["result_json"].pop("reflection_prompts", None)
+
+            result.append(output_dict)
+        return result
 
     return cached_public_response(
         cache_key=public_case_outputs_key(slug),
         response=response,
         fetch_fn=fetch_outputs,
-        serialize_fn=lambda outs: [
-            OutputResponse.model_validate(o).model_dump(mode="json") for o in outs
-        ],
+        serialize_fn=serialize_with_mode,
     )
+
+
+@router.post("/public/{slug}/view")
+@limiter.limit("60/minute")
+async def record_public_view(
+    request: Request,
+    slug: str,
+    db: Session = Depends(get_db),
+):
+    """
+    Record a view for a public case.
+
+    Called when PublicCaseView loads. Rate limited to prevent abuse.
+    Frontend should dedupe with sessionStorage to only call once per session.
+
+    Returns:
+        Current view count
+    """
+    case = get_public_case_or_404(slug, db)
+
+    # Increment view count
+    case.view_count = (case.view_count or 0) + 1
+    db.commit()
+
+    logger.debug(f"Public case {slug} viewed, count: {case.view_count}")
+
+    return {"view_count": case.view_count}
