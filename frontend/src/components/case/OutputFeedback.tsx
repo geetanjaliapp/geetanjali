@@ -14,8 +14,9 @@ interface OutputFeedbackProps {
 }
 
 /**
- * P1.6 FIX: Memoized feedback component with custom comparison.
- * Only re-renders when relevant props for this specific output change.
+ * Feedback component for consultation outputs.
+ * Shows thumbs up/down buttons, handles feedback submission,
+ * and displays existing feedback with edit capability.
  */
 export const OutputFeedback = memo(
   function OutputFeedback({
@@ -29,6 +30,10 @@ export const OutputFeedback = memo(
     onCancelFeedback,
     onFeedbackTextChange,
   }: OutputFeedbackProps) {
+    const isExpanded = expandedFeedback === output.id;
+    const hasExistingComment = feedback === "down" && feedbackText[output.id];
+    const isEditing = isExpanded;
+
     return (
       <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
         <div className="flex items-center justify-between">
@@ -54,6 +59,7 @@ export const OutputFeedback = memo(
             <button
               onClick={() => onFeedback(output.id, "up")}
               disabled={feedbackLoading === output.id}
+              aria-label={feedback === "up" ? "Feedback: helpful" : "Mark as helpful"}
               className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
                 feedback === "up"
                   ? "bg-green-500 text-white"
@@ -77,8 +83,9 @@ export const OutputFeedback = memo(
             <button
               onClick={() => onFeedback(output.id, "down")}
               disabled={feedbackLoading === output.id}
+              aria-label={feedback === "down" ? "Feedback: needs improvement" : "Mark as needs improvement"}
               className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
-                feedback === "down" || expandedFeedback === output.id
+                feedback === "down" || isExpanded
                   ? "bg-red-500 text-white"
                   : "bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 hover:bg-red-100 dark:hover:bg-red-900/40 hover:text-red-600 dark:hover:text-red-400"
               }`}
@@ -100,8 +107,25 @@ export const OutputFeedback = memo(
           </div>
         </div>
 
-        {/* Expanded feedback text input */}
-        {expandedFeedback === output.id && (
+        {/* Show existing comment in read-only mode when not editing */}
+        {hasExistingComment && !isEditing && (
+          <div className="mt-3 p-2.5 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-100 dark:border-red-800/50">
+            <div className="flex items-start justify-between gap-2">
+              <p className="text-xs text-gray-600 dark:text-gray-400 italic flex-1">
+                "{feedbackText[output.id]}"
+              </p>
+              <button
+                onClick={() => onFeedback(output.id, "down")}
+                className="text-xs text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 whitespace-nowrap"
+              >
+                Edit
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Expanded feedback form for editing */}
+        {isEditing && (
           <div className="mt-3 animate-in slide-in-from-top-2 duration-200">
             <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
               {feedback === "down"
@@ -143,9 +167,8 @@ export const OutputFeedback = memo(
       </div>
     );
   },
-  // P1.6 FIX: Custom comparison to prevent re-renders from unrelated state changes
+  // Custom comparison to prevent re-renders from unrelated state changes
   (prev, next) => {
-    // Only re-render if props relevant to THIS output have changed
     return (
       prev.output.id === next.output.id &&
       prev.output.confidence === next.output.confidence &&

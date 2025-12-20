@@ -119,13 +119,20 @@ export default function CaseView() {
 
       // Initialize feedback state from loaded outputs
       const initialFeedback: Record<string, "up" | "down" | null> = {};
+      const initialFeedbackText: Record<string, string> = {};
       for (const output of outputsData) {
         if (output.user_feedback) {
           initialFeedback[output.id] = output.user_feedback.rating ? "up" : "down";
+          if (output.user_feedback.comment) {
+            initialFeedbackText[output.id] = output.user_feedback.comment;
+          }
         }
       }
       if (Object.keys(initialFeedback).length > 0) {
         setFeedbackGiven(initialFeedback);
+      }
+      if (Object.keys(initialFeedbackText).length > 0) {
+        setFeedbackText(initialFeedbackText);
       }
 
       // When completed/failed/policy_violation, clear pending state and set up UI
@@ -216,15 +223,22 @@ export default function CaseView() {
 
           // Initialize feedback state from loaded outputs
           const initialFeedback: Record<string, "up" | "down" | null> = {};
+          const initialFeedbackText: Record<string, string> = {};
           for (const output of outputsData) {
             if (output.user_feedback) {
               initialFeedback[output.id] = output.user_feedback.rating
                 ? "up"
                 : "down";
+              if (output.user_feedback.comment) {
+                initialFeedbackText[output.id] = output.user_feedback.comment;
+              }
             }
           }
           if (Object.keys(initialFeedback).length > 0) {
             setFeedbackGiven((prev) => ({ ...prev, ...initialFeedback }));
+          }
+          if (Object.keys(initialFeedbackText).length > 0) {
+            setFeedbackText((prev) => ({ ...prev, ...initialFeedbackText }));
           }
 
           setPendingFollowUp(null);
