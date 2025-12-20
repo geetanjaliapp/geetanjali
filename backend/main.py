@@ -3,6 +3,7 @@
 import uuid
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.exceptions import RequestValidationError
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
@@ -54,6 +55,7 @@ app = FastAPI(
 )
 
 app.state.limiter = limiter
+app.add_middleware(GZipMiddleware, minimum_size=1000)  # Compress responses > 1KB
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,

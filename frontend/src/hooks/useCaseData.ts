@@ -1,8 +1,12 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { casesApi, outputsApi } from "../lib/api";
 import { messagesApi } from "../api/messages";
 import type { Case, Message, Output } from "../types";
 import { errorMessages } from "../lib/errorMessages";
+
+// Exponential backoff constants
+const POLL_INITIAL_INTERVAL = 1000; // Start at 1s for fast initial feedback
+const POLL_MAX_INTERVAL = 5000; // Cap at 5s per user alignment
 
 interface UseCaseDataOptions {
   caseId: string | undefined;
@@ -83,14 +87,19 @@ export function useCaseData({ caseId, isAuthenticated }: UseCaseDataOptions) {
     }
   }, [wasProcessing, isCompleted, outputs.length]);
 
-  // Polling for processing status
-  // Fixed 5s interval: predictable latency, reasonable request count
+  // Polling for processing status with exponential backoff
+  // Starts at 1s for fast feedback, doubles each poll, caps at 5s
+  const pollIntervalRef = useRef(POLL_INITIAL_INTERVAL);
+  const pollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   useEffect(() => {
-    if (!isProcessing || !caseId) return;
+    if (!isProcessing || !caseId) {
+      // Reset interval when not processing
+      pollIntervalRef.current = POLL_INITIAL_INTERVAL;
+      return;
+    }
 
-    const POLL_INTERVAL = 5000; // 5 seconds
-
-    const pollInterval = setInterval(async () => {
+    const poll = async () => {
       try {
         const data = await casesApi.get(caseId);
         setCaseData(data);
@@ -100,15 +109,31 @@ export function useCaseData({ caseId, isAuthenticated }: UseCaseDataOptions) {
           data.status === "failed" ||
           data.status === "policy_violation"
         ) {
-          clearInterval(pollInterval);
+          // Reset interval for next time
+          pollIntervalRef.current = POLL_INITIAL_INTERVAL;
           loadCaseData();
+          return; // Stop polling
         }
       } catch {
-        // Silent fail - polling will retry
+        // Silent fail - polling will retry with backoff
       }
-    }, POLL_INTERVAL);
 
-    return () => clearInterval(pollInterval);
+      // Schedule next poll with exponential backoff
+      pollIntervalRef.current = Math.min(
+        pollIntervalRef.current * 2,
+        POLL_MAX_INTERVAL,
+      );
+      pollTimeoutRef.current = setTimeout(poll, pollIntervalRef.current);
+    };
+
+    // Start first poll after initial interval
+    pollTimeoutRef.current = setTimeout(poll, pollIntervalRef.current);
+
+    return () => {
+      if (pollTimeoutRef.current) {
+        clearTimeout(pollTimeoutRef.current);
+      }
+    };
   }, [isProcessing, caseId, loadCaseData]);
 
   return {
