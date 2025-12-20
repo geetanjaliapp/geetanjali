@@ -321,6 +321,13 @@ class OutputResultSchema(BaseModel):
         return data
 
 
+class UserFeedbackSummary(BaseModel):
+    """Summary of current user's feedback on an output."""
+
+    rating: bool  # True = thumbs up, False = thumbs down
+    comment: Optional[str] = None
+
+
 class OutputResponse(BaseModel):
     """Schema for output response."""
 
@@ -331,6 +338,7 @@ class OutputResponse(BaseModel):
     confidence: float
     scholar_flag: bool
     created_at: datetime
+    user_feedback: Optional[UserFeedbackSummary] = None
 
     class Config:
         from_attributes = True

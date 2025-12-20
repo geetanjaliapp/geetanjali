@@ -14,7 +14,7 @@ from db.repositories.message_repository import MessageRepository
 from models.output import Output
 from models.case import Case, CaseStatus
 from models.user import User
-from api.schemas import OutputResponse, CaseResponse, FeedbackCreate, FeedbackResponse
+from api.schemas import OutputResponse, CaseResponse, FeedbackCreate, FeedbackResponse, UserFeedbackSummary
 from api.middleware.auth import get_optional_user, require_role, get_session_id
 from api.dependencies import get_case_with_access, get_output_with_access, limiter
 from services.rag import get_rag_pipeline
@@ -330,12 +330,15 @@ async def list_case_outputs(
     request: Request,
     case: Case = Depends(get_case_with_access),
     db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_optional_user),
+    session_id: Optional[str] = Depends(get_session_id),
 ):
     """
     List all outputs for a case (supports anonymous users).
+    Includes user's feedback for each output if available.
 
     Returns:
-        List of outputs for the case
+        List of outputs for the case with user_feedback populated
     """
     outputs = (
         db.query(Output)
@@ -344,7 +347,34 @@ async def list_case_outputs(
         .all()
     )
 
-    return outputs
+    # Get user's feedback for all outputs in one query
+    output_ids = [o.id for o in outputs]
+    feedback_query = db.query(Feedback).filter(Feedback.output_id.in_(output_ids))
+
+    if current_user:
+        feedback_query = feedback_query.filter(Feedback.user_id == current_user.id)
+    elif session_id:
+        feedback_query = feedback_query.filter(
+            Feedback.session_id == session_id, Feedback.user_id.is_(None)
+        )
+    else:
+        # No user or session, can't match feedback
+        feedback_query = feedback_query.filter(False)
+
+    feedback_by_output = {f.output_id: f for f in feedback_query.all()}
+
+    # Build response with user_feedback
+    result = []
+    for output in outputs:
+        output_dict = OutputResponse.model_validate(output).model_dump()
+        fb = feedback_by_output.get(output.id)
+        if fb:
+            output_dict["user_feedback"] = UserFeedbackSummary(
+                rating=fb.rating, comment=fb.comment
+            ).model_dump()
+        result.append(output_dict)
+
+    return result
 
 
 @router.post("/outputs/{output_id}/scholar-review", response_model=OutputResponse)

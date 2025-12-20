@@ -50,6 +50,11 @@ export interface Option {
   verses?: string[]; // canonical_ids (optional - may be missing in fallback responses)
 }
 
+export interface UserFeedbackSummary {
+  rating: boolean; // true = thumbs up, false = thumbs down
+  comment?: string;
+}
+
 export interface Output {
   id: string;
   case_id: string;
@@ -74,6 +79,7 @@ export interface Output {
   confidence: number;
   scholar_flag: boolean;
   created_at: string;
+  user_feedback?: UserFeedbackSummary;
 }
 
 export interface ScholarReviewRequest {

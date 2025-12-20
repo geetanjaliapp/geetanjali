@@ -117,6 +117,17 @@ export default function CaseView() {
       const outputsData = await outputsApi.listByCaseId(id);
       setOutputs(outputsData);
 
+      // Initialize feedback state from loaded outputs
+      const initialFeedback: Record<string, "up" | "down" | null> = {};
+      for (const output of outputsData) {
+        if (output.user_feedback) {
+          initialFeedback[output.id] = output.user_feedback.rating ? "up" : "down";
+        }
+      }
+      if (Object.keys(initialFeedback).length > 0) {
+        setFeedbackGiven(initialFeedback);
+      }
+
       // When completed/failed/policy_violation, clear pending state and set up UI
       const isFinished =
         data.status === "completed" ||
@@ -202,6 +213,20 @@ export default function CaseView() {
           ]);
           setMessages(messagesData);
           setOutputs(outputsData);
+
+          // Initialize feedback state from loaded outputs
+          const initialFeedback: Record<string, "up" | "down" | null> = {};
+          for (const output of outputsData) {
+            if (output.user_feedback) {
+              initialFeedback[output.id] = output.user_feedback.rating
+                ? "up"
+                : "down";
+            }
+          }
+          if (Object.keys(initialFeedback).length > 0) {
+            setFeedbackGiven((prev) => ({ ...prev, ...initialFeedback }));
+          }
+
           setPendingFollowUp(null);
         }
       } catch {
