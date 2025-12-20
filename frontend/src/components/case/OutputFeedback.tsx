@@ -104,7 +104,9 @@ export const OutputFeedback = memo(
         {expandedFeedback === output.id && (
           <div className="mt-3 animate-in slide-in-from-top-2 duration-200">
             <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
-              What could be improved? (optional)
+              {feedback === "down"
+                ? "Edit your feedback"
+                : "What could be improved? (optional)"}
             </p>
             <textarea
               value={feedbackText[output.id] || ""}
@@ -128,7 +130,11 @@ export const OutputFeedback = memo(
                   disabled={feedbackLoading === output.id}
                   className="px-3 py-1.5 text-xs bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
                 >
-                  {feedbackLoading === output.id ? "Sending..." : "Submit"}
+                  {feedbackLoading === output.id
+                    ? "Saving..."
+                    : feedback === "down"
+                      ? "Update"
+                      : "Submit"}
                 </button>
               </div>
             </div>

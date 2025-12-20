@@ -196,7 +196,7 @@ describe("OutputFeedback", () => {
       expect(onCancelFeedback).toHaveBeenCalledWith(mockOutput.id);
     });
 
-    it('should show "Sending..." when loading', () => {
+    it('should show "Saving..." when loading', () => {
       render(
         <OutputFeedback
           {...defaultProps}
@@ -205,7 +205,7 @@ describe("OutputFeedback", () => {
         />,
       );
 
-      expect(screen.getByText("Sending...")).toBeInTheDocument();
+      expect(screen.getByText("Saving...")).toBeInTheDocument();
     });
   });
 });
