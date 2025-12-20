@@ -152,10 +152,15 @@ export const casesApi = {
     return response.data;
   },
 
-  // Toggle public sharing
-  toggleShare: async (id: string, isPublic: boolean): Promise<Case> => {
+  // Toggle public sharing with optional share mode
+  toggleShare: async (
+    id: string,
+    isPublic: boolean,
+    shareMode: "full" | "essential" = "full",
+  ): Promise<Case> => {
     const response = await api.post(`/cases/${id}/share`, {
       is_public: isPublic,
+      share_mode: shareMode,
     });
     return response.data;
   },
@@ -163,6 +168,12 @@ export const casesApi = {
   // Get public case by slug (no auth required)
   getPublic: async (slug: string): Promise<Case> => {
     const response = await api.get(`/cases/public/${slug}`);
+    return response.data;
+  },
+
+  // Record a view for a public case
+  recordPublicView: async (slug: string): Promise<{ view_count: number }> => {
+    const response = await api.post(`/cases/public/${slug}/view`);
     return response.data;
   },
 

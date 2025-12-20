@@ -8,6 +8,8 @@ export type CaseStatus =
   | "failed"
   | "policy_violation";
 
+export type ShareMode = "full" | "essential";
+
 export interface Case {
   id: string;
   user_id?: string;
@@ -21,6 +23,8 @@ export interface Case {
   status?: CaseStatus;
   is_public?: boolean;
   public_slug?: string | null;
+  share_mode?: ShareMode | null;
+  view_count?: number;
   is_deleted?: boolean;
   created_at?: string;
 }
