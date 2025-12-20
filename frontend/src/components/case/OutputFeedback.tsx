@@ -61,7 +61,7 @@ export const OutputFeedback = memo(
               disabled={feedbackLoading === output.id}
               aria-label={feedback === "up" ? "Feedback: helpful" : "Mark as helpful"}
               className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
-                feedback === "up"
+                feedback === "up" && !isExpanded
                   ? "bg-green-500 text-white"
                   : "bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 hover:bg-green-100 dark:hover:bg-green-900/40 hover:text-green-600 dark:hover:text-green-400"
               }`}

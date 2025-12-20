@@ -300,6 +300,10 @@ export default function CaseView() {
     const current = feedbackGiven[outputId];
 
     if (type === "down" && current !== "down") {
+      // Clear any existing "up" state when expanding for "down"
+      if (current === "up") {
+        setFeedbackGiven((prev) => ({ ...prev, [outputId]: null }));
+      }
       setExpandedFeedback(outputId);
       return;
     }
