@@ -108,6 +108,7 @@ class Settings(BaseSettings):
         "http://127.0.0.1:3000",
         "http://127.0.0.1:5173",
     ]
+    # NOTE: Default is for dev only. Production validation will FAIL TO START if used.
     API_KEY: str = "dev-api-key-12345"
     ANALYZE_RATE_LIMIT: str = "10/hour"  # Rate limit for analyze endpoint
     FOLLOW_UP_RATE_LIMIT: str = (
@@ -115,9 +116,9 @@ class Settings(BaseSettings):
     )
 
     # Authentication / JWT
-    JWT_SECRET: str = (
-        "dev-secret-key-change-in-production-use-env-var"  # MUST be set via env var in production
-    )
+    # NOTE: Default is for dev only. Production validation (validate_production_config)
+    # will FAIL TO START if this default is used when APP_ENV=production.
+    JWT_SECRET: str = "dev-secret-key-change-in-production-use-env-var"
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = (
         60  # 60 minutes - short-lived, auto-refreshed by frontend

@@ -1,8 +1,9 @@
 """Pydantic schemas for API request/response validation."""
 
+import re
 from typing import List, Optional, Dict, Any, TypeVar, Generic
 from datetime import datetime
-from pydantic import BaseModel, Field, EmailStr, model_validator
+from pydantic import BaseModel, Field, EmailStr, model_validator, field_validator
 
 T = TypeVar("T")
 
@@ -42,14 +43,38 @@ class UserResponse(UserBase):
 # ============================================================================
 
 
+def validate_password_complexity(password: str) -> str:
+    """Validate password meets complexity requirements.
+
+    Requirements (reasonable, not overly complex):
+    - Minimum 8 characters
+    - At least one letter (a-z, A-Z)
+    - At least one number (0-9)
+    """
+    if len(password) < 8:
+        raise ValueError("Password must be at least 8 characters long")
+    if not re.search(r"[a-zA-Z]", password):
+        raise ValueError("Password must contain at least one letter")
+    if not re.search(r"\d", password):
+        raise ValueError("Password must contain at least one number")
+    return password
+
+
 class SignupRequest(BaseModel):
     """Schema for user signup request."""
 
     email: EmailStr = Field(..., description="User email address")
     name: str = Field(..., min_length=1, max_length=255, description="User full name")
     password: str = Field(
-        ..., min_length=8, description="Password (minimum 8 characters)"
+        ...,
+        min_length=8,
+        description="Password (min 8 chars, requires letter + number)",
     )
+
+    @field_validator("password")
+    @classmethod
+    def check_password_complexity(cls, v: str) -> str:
+        return validate_password_complexity(v)
 
 
 class LoginRequest(BaseModel):
@@ -85,8 +110,15 @@ class ResetPasswordRequest(BaseModel):
 
     token: str = Field(..., description="Password reset token")
     password: str = Field(
-        ..., min_length=8, description="New password (minimum 8 characters)"
+        ...,
+        min_length=8,
+        description="New password (min 8 chars, requires letter + number)",
     )
+
+    @field_validator("password")
+    @classmethod
+    def check_password_complexity(cls, v: str) -> str:
+        return validate_password_complexity(v)
 
 
 class MessageResponse(BaseModel):

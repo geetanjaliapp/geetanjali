@@ -40,9 +40,19 @@ export default function ResetPassword() {
       return;
     }
 
-    // Validate password length
+    // Validate password requirements (must match Signup.tsx)
     if (password.length < 8) {
-      setError("Password must be at least 8 characters");
+      setError("Password must be at least 8 characters long");
+      return;
+    }
+
+    if (!/[a-zA-Z]/.test(password)) {
+      setError("Password must contain at least one letter");
+      return;
+    }
+
+    if (!/\d/.test(password)) {
+      setError("Password must contain at least one number");
       return;
     }
 
@@ -173,8 +183,11 @@ export default function ResetPassword() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="block w-full px-3 py-2.5 sm:py-2 border border-amber-200 dark:border-gray-600 bg-white dark:bg-gray-800 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-base sm:text-sm"
-                  placeholder="Minimum 8 characters"
+                  placeholder="••••••••"
                 />
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  At least 8 characters with one letter and one number
+                </p>
               </div>
               <div>
                 <label
