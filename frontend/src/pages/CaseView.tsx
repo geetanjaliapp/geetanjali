@@ -475,24 +475,51 @@ ${messages
     URL.revokeObjectURL(url);
   };
 
-  const handleToggleShare = async () => {
+  const handleShare = async () => {
     if (!caseData || !id) return;
 
     setShareLoading(true);
     try {
-      const newIsPublic = !caseData.is_public;
-      const updated = await casesApi.toggleShare(id, newIsPublic);
+      const updated = await casesApi.toggleShare(id, true, "full");
       setCaseData(updated);
 
       // Auto-copy link when sharing is enabled
-      if (newIsPublic && updated.public_slug) {
+      if (updated.public_slug) {
         const url = `${window.location.origin}/c/${updated.public_slug}`;
         await navigator.clipboard.writeText(url);
         setCopySuccess(true);
         setTimeout(() => setCopySuccess(false), 2000);
       }
     } catch {
-      setError(`Failed to ${caseData.is_public ? "make private" : "share"}`);
+      setError("Failed to share consultation");
+    } finally {
+      setShareLoading(false);
+    }
+  };
+
+  const handleModeChange = async (mode: "full" | "essential") => {
+    if (!caseData || !id) return;
+
+    setShareLoading(true);
+    try {
+      const updated = await casesApi.toggleShare(id, true, mode);
+      setCaseData(updated);
+    } catch {
+      setError("Failed to update share mode");
+    } finally {
+      setShareLoading(false);
+    }
+  };
+
+  const handleStopSharing = async () => {
+    if (!caseData || !id) return;
+
+    setShareLoading(true);
+    try {
+      const updated = await casesApi.toggleShare(id, false);
+      setCaseData(updated);
+    } catch {
+      setError("Failed to stop sharing");
     } finally {
       setShareLoading(false);
     }
@@ -540,7 +567,7 @@ ${messages
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col overflow-x-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col">
       <Navbar />
 
       <CaseHeader
@@ -552,7 +579,9 @@ ${messages
         copySuccess={copySuccess}
         onSave={handleSave}
         onDeleteClick={handleDeleteClick}
-        onToggleShare={handleToggleShare}
+        onShare={handleShare}
+        onModeChange={handleModeChange}
+        onStopSharing={handleStopSharing}
         onCopyShareLink={copyShareLink}
       />
 
