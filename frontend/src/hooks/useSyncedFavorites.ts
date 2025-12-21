@@ -114,37 +114,40 @@ export function useSyncedFavorites(): UseSyncedFavoritesReturn {
 
   /**
    * Sync current favorites to server (debounced)
+   *
+   * Reads latest favorites from localStorage when sync fires to avoid
+   * race conditions with rapid add/remove operations.
    */
-  const syncToServer = useCallback(
-    async (items: string[]) => {
-      if (!isAuthenticated || isSyncingRef.current) return;
+  const syncToServer = useCallback(() => {
+    if (!isAuthenticated) return;
 
-      // Clear existing timeout
-      if (syncTimeoutRef.current) {
-        clearTimeout(syncTimeoutRef.current);
+    // Clear existing timeout (debounce)
+    if (syncTimeoutRef.current) {
+      clearTimeout(syncTimeoutRef.current);
+    }
+
+    // Debounce the sync - read latest favorites when timeout fires
+    syncTimeoutRef.current = setTimeout(async () => {
+      if (isSyncingRef.current) return;
+      isSyncingRef.current = true;
+      setSyncStatus("syncing");
+
+      try {
+        // Read current favorites from localStorage at sync time (not call time)
+        const currentItems = Array.from(localFavorites.favorites);
+        await preferencesApi.update({
+          bookmarks: { items: currentItems },
+        });
+        setSyncStatus("synced");
+        setLastSynced(new Date());
+      } catch (error) {
+        console.error("[SyncedFavorites] Sync failed:", error);
+        setSyncStatus("error");
+      } finally {
+        isSyncingRef.current = false;
       }
-
-      // Debounce the sync
-      syncTimeoutRef.current = setTimeout(async () => {
-        isSyncingRef.current = true;
-        setSyncStatus("syncing");
-
-        try {
-          await preferencesApi.update({
-            bookmarks: { items },
-          });
-          setSyncStatus("synced");
-          setLastSynced(new Date());
-        } catch (error) {
-          console.error("[SyncedFavorites] Sync failed:", error);
-          setSyncStatus("error");
-        } finally {
-          isSyncingRef.current = false;
-        }
-      }, SYNC_DEBOUNCE_MS);
-    },
-    [isAuthenticated],
-  );
+    }, SYNC_DEBOUNCE_MS);
+  }, [isAuthenticated, localFavorites.favorites]);
 
   /**
    * Handle login: merge local favorites with server
@@ -166,6 +169,13 @@ export function useSyncedFavorites(): UseSyncedFavoritesReturn {
       setSyncStatus("idle");
       setLastSynced(null);
       setDidInitialSync(false);
+      // Reset syncing ref to prevent stuck state if logout during sync
+      isSyncingRef.current = false;
+      // Clear any pending sync timeout
+      if (syncTimeoutRef.current) {
+        clearTimeout(syncTimeoutRef.current);
+        syncTimeoutRef.current = null;
+      }
     }
 
     previousUserIdRef.current = currentUserId;
@@ -179,9 +189,8 @@ export function useSyncedFavorites(): UseSyncedFavoritesReturn {
       const success = localFavorites.addFavorite(verseId);
 
       if (success && isAuthenticated) {
-        // Get updated list and sync
-        const updatedItems = [...Array.from(localFavorites.favorites), verseId];
-        syncToServer(updatedItems);
+        // Trigger debounced sync (reads latest from localStorage)
+        syncToServer();
       }
 
       return success;
@@ -197,11 +206,8 @@ export function useSyncedFavorites(): UseSyncedFavoritesReturn {
       localFavorites.removeFavorite(verseId);
 
       if (isAuthenticated) {
-        // Get updated list and sync
-        const updatedItems = Array.from(localFavorites.favorites).filter(
-          (id) => id !== verseId,
-        );
-        syncToServer(updatedItems);
+        // Trigger debounced sync (reads latest from localStorage)
+        syncToServer();
       }
     },
     [localFavorites, isAuthenticated, syncToServer],
