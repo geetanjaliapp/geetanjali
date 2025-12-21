@@ -26,7 +26,11 @@ export function FollowUpInput({
     >
       {/* Inline error message */}
       {error && (
-        <div className="mb-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-3 py-2 rounded-lg text-sm">
+        <div
+          id="followup-error"
+          role="alert"
+          className="mb-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-3 py-2 rounded-lg text-sm"
+        >
           {error}
         </div>
       )}
@@ -52,8 +56,12 @@ export function FollowUpInput({
       )}
 
       <form onSubmit={onSubmit}>
+        <label htmlFor="followup-input" className="sr-only">
+          Ask a follow-up question
+        </label>
         <div className="flex gap-2 sm:gap-3">
           <textarea
+            id="followup-input"
             value={value}
             onChange={(e) => onChange(e.target.value)}
             onKeyDown={(e) => {
@@ -69,6 +77,8 @@ export function FollowUpInput({
               disabled ? "Please wait..." : "Ask a follow-up question..."
             }
             rows={2}
+            aria-invalid={error ? true : undefined}
+            aria-describedby={error ? "followup-error" : undefined}
             className={`flex-1 px-3 sm:px-4 py-2.5 sm:py-3 border rounded-xl text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors resize-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 ${
               disabled
                 ? "border-orange-200 dark:border-orange-800 bg-orange-50/50 dark:bg-orange-900/20"

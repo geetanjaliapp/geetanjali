@@ -523,18 +523,29 @@ export default function Settings() {
                   </div>
 
                   {/* Name input */}
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder={derivedName || "Your name"}
-                    className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  />
+                  <div>
+                    <label htmlFor="newsletter-name" className="sr-only">
+                      Your name
+                    </label>
+                    <input
+                      id="newsletter-name"
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder={derivedName || "Your name"}
+                      aria-describedby={updateError ? "newsletter-prefs-error" : undefined}
+                      className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    />
+                  </div>
 
                   <TimeSelector value={sendTime} onChange={setSendTime} disabled={isUpdatingPrefs} />
 
                   {updateError && (
-                    <p className="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded px-2 py-1">
+                    <p
+                      id="newsletter-prefs-error"
+                      role="alert"
+                      className="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded px-2 py-1"
+                    >
                       {updateError}
                     </p>
                   )}
@@ -575,26 +586,43 @@ export default function Settings() {
                   {showSubscribeOther && (
                     <form onSubmit={handleSubscribe} className="mt-3 space-y-2">
                       <div className="grid grid-cols-2 gap-2">
-                        <input
-                          type="text"
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
-                          placeholder="Name"
-                          className="px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                        />
-                        <input
-                          ref={emailInputRef}
-                          type="email"
-                          required
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          placeholder="Different email"
-                          className="px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                        />
+                        <div>
+                          <label htmlFor="subscribe-other-name" className="sr-only">
+                            Name
+                          </label>
+                          <input
+                            id="subscribe-other-name"
+                            type="text"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            placeholder="Name"
+                            className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="subscribe-other-email" className="sr-only">
+                            Email address
+                          </label>
+                          <input
+                            id="subscribe-other-email"
+                            ref={emailInputRef}
+                            type="email"
+                            required
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="Different email"
+                            aria-describedby={error ? "subscribe-other-error" : undefined}
+                            className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                          />
+                        </div>
                       </div>
 
                       {error && (
-                        <p className="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded px-2 py-1">
+                        <p
+                          id="subscribe-other-error"
+                          role="alert"
+                          className="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded px-2 py-1"
+                        >
                           {error}
                         </p>
                       )}
@@ -715,28 +743,45 @@ export default function Settings() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-2">
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder={derivedName || "Your name"}
-                    className="px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  />
-                  <input
-                    ref={emailInputRef}
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Email"
-                    className="px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  />
+                  <div>
+                    <label htmlFor="newsletter-anon-name" className="sr-only">
+                      Your name
+                    </label>
+                    <input
+                      id="newsletter-anon-name"
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder={derivedName || "Your name"}
+                      className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="newsletter-anon-email" className="sr-only">
+                      Email address
+                    </label>
+                    <input
+                      id="newsletter-anon-email"
+                      ref={emailInputRef}
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Email"
+                      aria-describedby={error ? "newsletter-anon-error" : undefined}
+                      className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    />
+                  </div>
                 </div>
 
                 <TimeSelector value={sendTime} onChange={setSendTime} disabled={isSubmitting} />
 
                 {error && (
-                  <p className="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded px-2 py-1">
+                  <p
+                    id="newsletter-anon-error"
+                    role="alert"
+                    className="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded px-2 py-1"
+                  >
                     {error}
                   </p>
                 )}
