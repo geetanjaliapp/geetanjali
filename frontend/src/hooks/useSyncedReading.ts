@@ -31,7 +31,11 @@ const SYNC_DEBOUNCE_MS = 30000;
 const MERGE_THROTTLE_MS = 10000;
 // Minimum interval between any sync calls (module-level throttle)
 const SYNC_THROTTLE_MS = 5000;
-// Module-level tracking for throttles (persists across remounts)
+
+/**
+ * Module-level timestamps for rate limiting.
+ * See useSyncedFavorites.ts for rationale (cross-remount throttling).
+ */
 let lastMergeTimestamp = 0;
 let lastSyncTimestamp = 0;
 

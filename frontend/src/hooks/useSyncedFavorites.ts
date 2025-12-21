@@ -47,7 +47,17 @@ const SYNC_DEBOUNCE_MS = 30000;
 const MERGE_THROTTLE_MS = 10000;
 // Minimum interval between any sync calls (module-level throttle)
 const SYNC_THROTTLE_MS = 5000;
-// Module-level tracking for throttles (persists across remounts)
+
+/**
+ * Module-level timestamps for rate limiting.
+ *
+ * INTENTIONALLY module-level (not refs) because:
+ * 1. Throttling must persist across component unmount/remount cycles
+ * 2. Prevents 429 errors when React Strict Mode double-mounts or user navigates rapidly
+ * 3. Client-side only app, so no SSR state sharing concerns
+ *
+ * Trade-off: Makes unit testing harder (requires manual reset between tests).
+ */
 let lastMergeTimestamp = 0;
 let lastSyncTimestamp = 0;
 
