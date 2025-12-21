@@ -6,9 +6,15 @@
  *
  * Features:
  * - Merge on login (union of local + server favorites)
- * - Debounced sync on add/remove (1 second)
+ * - Debounced sync on changes (30 seconds for background, immediate on tab switch)
  * - Optimistic updates (UI updates immediately, sync in background)
  * - Graceful error handling (continues working if sync fails)
+ *
+ * Sync Strategy:
+ * We use a long debounce (30s) because the primary sync trigger is visibility change
+ * (user switching tabs or closing page). This reduces API calls while ensuring data
+ * is always saved before the user leaves. The debounced sync acts as a fallback for
+ * users who stay on the same tab for extended periods.
  */
 
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";

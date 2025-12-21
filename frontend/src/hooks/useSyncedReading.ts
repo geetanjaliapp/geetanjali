@@ -6,10 +6,13 @@
  *
  * Features:
  * - Merge on login (most recent timestamp wins)
- * - Debounced sync on changes (2 seconds)
+ * - Debounced sync on changes (30 seconds for background, immediate on tab switch)
  * - Optimistic updates (UI updates immediately, sync in background)
  * - Flush on page unload (prevents data loss)
  * - Graceful error handling (continues working if sync fails)
+ *
+ * Sync Strategy: See useSyncedFavorites.ts for rationale on 30s debounce.
+ * Primary sync is on visibility change (tab switch/close).
  *
  * Note: Section prefs (IAST, Hindi, English toggles) stay local to VerseFocus
  * and are not synced across devices.
