@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useFocusTrap } from "../hooks";
 
 interface ConfirmModalProps {
@@ -9,6 +9,10 @@ interface ConfirmModalProps {
   cancelLabel?: string;
   variant?: "danger" | "warning" | "default";
   loading?: boolean;
+  /** If set, user must type this text to enable confirm button */
+  requireText?: string;
+  /** Placeholder/hint for the text input */
+  requireTextHint?: string;
   onConfirm: () => void;
   onCancel: () => void;
 }
@@ -21,10 +25,22 @@ export function ConfirmModal({
   cancelLabel = "Cancel",
   variant = "default",
   loading = false,
+  requireText,
+  requireTextHint,
   onConfirm,
   onCancel,
 }: ConfirmModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
+  const [confirmInput, setConfirmInput] = useState("");
+
+  // Reset input when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setConfirmInput("");
+    }
+  }, [isOpen]);
+
+  const textMatches = !requireText || confirmInput.toLowerCase() === requireText.toLowerCase();
 
   // Trap focus within modal (WCAG 2.1)
   // Note: Focuses Cancel button first (safer default for destructive actions)
@@ -157,6 +173,25 @@ export function ConfirmModal({
             </p>
           </div>
 
+          {/* Text confirmation input */}
+          {requireText && (
+            <div className="mb-4">
+              <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1.5 text-center">
+                Type <span className="font-semibold text-gray-700 dark:text-gray-300">{requireText}</span> to confirm
+              </label>
+              <input
+                type="text"
+                value={confirmInput}
+                onChange={(e) => setConfirmInput(e.target.value)}
+                placeholder={requireTextHint || requireText}
+                disabled={loading}
+                className="w-full px-3 py-2 text-sm text-center border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent disabled:opacity-50"
+                autoComplete="off"
+                spellCheck={false}
+              />
+            </div>
+          )}
+
           {/* Actions */}
           <div className="flex gap-3">
             <button
@@ -170,8 +205,8 @@ export function ConfirmModal({
             <button
               type="button"
               onClick={onConfirm}
-              disabled={loading}
-              className={`flex-1 px-4 py-2.5 text-sm font-medium text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 transition-colors ${styles.confirmButton}`}
+              disabled={loading || !textMatches}
+              className={`flex-1 px-4 py-2.5 text-sm font-medium text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${styles.confirmButton}`}
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">

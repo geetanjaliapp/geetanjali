@@ -680,11 +680,12 @@ export default function Settings() {
         isOpen={showDeleteAccountConfirm}
         onCancel={() => setShowDeleteAccountConfirm(false)}
         onConfirm={handleDeleteAccount}
-        title="Delete your account?"
-        message="This will permanently delete your account and all associated data including consultations, preferences, and favorites. This action cannot be undone. You can create a new account with the same email later."
-        confirmLabel={isDeletingAccount ? "Deleting..." : "Delete account"}
+        title="We're sad to see you go"
+        message="This will permanently delete your account and all associated data including consultations, preferences, and favorites. You can create a new account with the same email later if you wish to return."
+        confirmLabel={isDeletingAccount ? "Deleting..." : "Delete my account"}
         variant="danger"
         loading={isDeletingAccount}
+        requireText="goodbye"
       />
     </div>
   );
