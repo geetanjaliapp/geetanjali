@@ -146,9 +146,7 @@ class Settings(BaseSettings):
     CACHE_TTL_PRINCIPLES: int = 3600  # 1 hour - principles list rarely changes
     CACHE_TTL_FEATURED_COUNT: int = 3600  # 1 hour - featured count rarely changes
     CACHE_TTL_PUBLIC_CASE: int = 3600  # 1 hour Redis TTL for public cases
-    CACHE_TTL_PUBLIC_CASE_HTTP: int = (
-        60  # 1 minute browser cache (short for fast revocation)
-    )
+    CACHE_TTL_PUBLIC_CASE_HTTP: int = 300  # 5 minutes browser cache
     CACHE_TTL_SITEMAP: int = 3600  # 1 hour
     CACHE_TTL_FEED: int = 3600  # 1 hour
     CACHE_TTL_RAG_OUTPUT: int = 86400  # 24 hours
