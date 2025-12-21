@@ -33,14 +33,18 @@ export function ConfirmModal({
   const modalRef = useRef<HTMLDivElement>(null);
   const [confirmInput, setConfirmInput] = useState("");
 
-  // Reset input when modal closes
-  useEffect(() => {
-    if (!isOpen) {
-      setConfirmInput("");
-    }
-  }, [isOpen]);
-
   const textMatches = !requireText || confirmInput.toLowerCase() === requireText.toLowerCase();
+
+  // Wrap handlers to reset input
+  const handleCancel = () => {
+    setConfirmInput("");
+    onCancel();
+  };
+
+  const handleConfirm = () => {
+    setConfirmInput("");
+    onConfirm();
+  };
 
   // Trap focus within modal (WCAG 2.1)
   // Note: Focuses Cancel button first (safer default for destructive actions)
@@ -52,6 +56,7 @@ export function ConfirmModal({
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && !loading) {
+        setConfirmInput("");
         onCancel();
       }
     };
@@ -141,7 +146,7 @@ export function ConfirmModal({
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/50 transition-opacity"
-        onClick={loading ? undefined : onCancel}
+        onClick={loading ? undefined : handleCancel}
       />
 
       {/* Modal */}
@@ -196,7 +201,7 @@ export function ConfirmModal({
           <div className="flex gap-3">
             <button
               type="button"
-              onClick={onCancel}
+              onClick={handleCancel}
               disabled={loading}
               className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 focus:ring-gray-500 disabled:opacity-50 transition-colors"
             >
@@ -204,7 +209,7 @@ export function ConfirmModal({
             </button>
             <button
               type="button"
-              onClick={onConfirm}
+              onClick={handleConfirm}
               disabled={loading || !textMatches}
               className={`flex-1 px-4 py-2.5 text-sm font-medium text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${styles.confirmButton}`}
             >
