@@ -666,23 +666,25 @@ export default function Settings() {
       {/* Delete local data confirmation modal */}
       <ConfirmModal
         isOpen={showDeleteConfirm}
-        onClose={() => setShowDeleteConfirm(false)}
+        onCancel={() => setShowDeleteConfirm(false)}
         onConfirm={handleDeleteLocalData}
         title="Delete local data?"
         message="This will clear all your favorites, reading progress, goals, and preferences from this device. This action cannot be undone."
-        confirmText={isDeleting ? "Deleting..." : "Delete"}
-        confirmVariant="danger"
+        confirmLabel={isDeleting ? "Deleting..." : "Delete"}
+        variant="danger"
+        loading={isDeleting}
       />
 
       {/* Delete account confirmation modal */}
       <ConfirmModal
         isOpen={showDeleteAccountConfirm}
-        onClose={() => setShowDeleteAccountConfirm(false)}
+        onCancel={() => setShowDeleteAccountConfirm(false)}
         onConfirm={handleDeleteAccount}
         title="Delete your account?"
         message="This will permanently delete your account and all associated data including consultations, preferences, and favorites. This action cannot be undone. You can create a new account with the same email later."
-        confirmText={isDeletingAccount ? "Deleting..." : "Delete account"}
-        confirmVariant="danger"
+        confirmLabel={isDeletingAccount ? "Deleting..." : "Delete account"}
+        variant="danger"
+        loading={isDeletingAccount}
       />
     </div>
   );
