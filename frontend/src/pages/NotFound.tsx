@@ -99,7 +99,10 @@ export default function NotFound() {
 
             {/* Sanskrit - Full Verse with proper formatting */}
             <div className="mb-4 sm:mb-6 text-center">
-              <div className="text-lg sm:text-2xl lg:text-3xl font-sanskrit text-amber-900 dark:text-amber-200 leading-relaxed tracking-wide mb-3 sm:mb-4">
+              <div
+                lang="sa"
+                className="text-lg sm:text-2xl lg:text-3xl font-sanskrit text-amber-900 dark:text-amber-200 leading-relaxed tracking-wide mb-3 sm:mb-4"
+              >
                 {formatSanskritLines(verse.sanskrit_devanagari).map(
                   (line, idx) => (
                     <p
