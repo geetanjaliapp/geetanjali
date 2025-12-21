@@ -9,13 +9,12 @@ Adds:
   - One row per user (unique constraint on user_id)
   - favorites: JSON list of canonical verse IDs
   - reading_*: Chapter, verse, font size, section prefs
-  - learning_goal_*: Goal ID with timestamp
+  - learning_goal_ids: JSON list of goal IDs (multi-select)
 """
 
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy import inspect
-from sqlalchemy.dialects.postgresql import JSONB
 
 revision = "016"
 down_revision = "015"
@@ -66,13 +65,18 @@ def upgrade() -> None:
             ),
             sa.Column(
                 "reading_section_prefs",
-                JSONB(),
+                sa.JSON(),
                 nullable=False,
                 server_default="{}",
             ),
             sa.Column("reading_updated_at", sa.DateTime(), nullable=True),
-            # Learning goal
-            sa.Column("learning_goal_id", sa.String(50), nullable=True),
+            # Learning goals (multi-select)
+            sa.Column(
+                "learning_goal_ids",
+                sa.JSON(),
+                nullable=False,
+                server_default="[]",
+            ),
             sa.Column("learning_goal_updated_at", sa.DateTime(), nullable=True),
             # Timestamps
             sa.Column(

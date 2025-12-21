@@ -10,12 +10,12 @@ Adds:
   - Learning goal preferences for personalization
   - Send time preference (morning/afternoon/evening)
   - 30-day rolling window for verse deduplication
+  - Milestone tracking via verses_sent_count
   - Optional FK to users table
 """
 
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy import inspect
 
 revision = "009"
@@ -37,12 +37,12 @@ def upgrade() -> None:
             sa.Column("id", sa.String(36), primary_key=True),
             # Contact info
             sa.Column("email", sa.String(255), unique=True, nullable=False, index=True),
-            sa.Column("name", sa.String(255), nullable=True),
-            # Preferences (JSON for SQLite compat, JSONB for PostgreSQL)
-            sa.Column("goal_ids", sa.JSON(), nullable=False, default=list),
-            sa.Column("send_time", sa.String(20), nullable=False, default="morning"),
+            sa.Column("name", sa.String(100), nullable=True),  # 100 chars to match API validation
+            # Preferences
+            sa.Column("goal_ids", sa.JSON(), nullable=False, server_default="[]"),
+            sa.Column("send_time", sa.String(20), nullable=False, server_default="morning"),
             # Verification (double opt-in)
-            sa.Column("verified", sa.Boolean(), nullable=False, default=False),
+            sa.Column("verified", sa.Boolean(), nullable=False, server_default="false"),
             sa.Column(
                 "verification_token", sa.String(64), nullable=True, index=True
             ),
@@ -50,9 +50,10 @@ def upgrade() -> None:
             # Subscription lifecycle
             sa.Column("verified_at", sa.DateTime(), nullable=True),
             sa.Column("unsubscribed_at", sa.DateTime(), nullable=True),
-            # Verse tracking (30-day rolling window)
+            # Verse tracking
             sa.Column("last_verse_sent_at", sa.DateTime(), nullable=True),
-            sa.Column("verses_sent_30d", sa.JSON(), nullable=False, default=list),
+            sa.Column("verses_sent_30d", sa.JSON(), nullable=False, server_default="[]"),
+            sa.Column("verses_sent_count", sa.Integer(), nullable=False, server_default="0"),
             # Optional link to user account
             sa.Column(
                 "user_id",
