@@ -13,7 +13,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState, useMemo } from "react";
-import { useLearningGoal } from "./useLearningGoal";
+import { useLearningGoalContext } from "../contexts/LearningGoalContext";
 import { useAuth } from "../contexts/AuthContext";
 import { preferencesApi } from "../lib/api";
 import type { Goal, Principle } from "../lib/api";
@@ -75,7 +75,7 @@ function loadStoredGoals(): StoredGoals | null {
  */
 export function useSyncedGoal(): UseSyncedGoalReturn {
   const { isAuthenticated, user } = useAuth();
-  const localGoal = useLearningGoal();
+  const goalContext = useLearningGoalContext();
 
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("idle");
   const [lastSynced, setLastSynced] = useState<Date | null>(null);
@@ -115,8 +115,8 @@ export function useSyncedGoal(): UseSyncedGoalReturn {
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(newGoals));
 
-      // Sync with the local hook state
-      localGoal.setGoals(newGoals.goalIds);
+      // Sync with the context state
+      goalContext.setGoals(newGoals.goalIds);
 
       setSyncStatus("synced");
       setLastSynced(new Date());
@@ -130,7 +130,7 @@ export function useSyncedGoal(): UseSyncedGoalReturn {
     } finally {
       isSyncingRef.current = false;
     }
-  }, [localGoal]);
+  }, [goalContext]);
 
   /**
    * Sync current goals to server (debounced)
@@ -201,13 +201,13 @@ export function useSyncedGoal(): UseSyncedGoalReturn {
    */
   const toggleGoal = useCallback(
     (goalId: string) => {
-      localGoal.toggleGoal(goalId);
+      goalContext.toggleGoal(goalId);
 
       if (isAuthenticated) {
         syncToServer();
       }
     },
-    [localGoal, isAuthenticated, syncToServer],
+    [goalContext, isAuthenticated, syncToServer],
   );
 
   /**
@@ -215,20 +215,20 @@ export function useSyncedGoal(): UseSyncedGoalReturn {
    */
   const setGoals = useCallback(
     (goalIds: string[]) => {
-      localGoal.setGoals(goalIds);
+      goalContext.setGoals(goalIds);
 
       if (isAuthenticated) {
         syncToServer();
       }
     },
-    [localGoal, isAuthenticated, syncToServer],
+    [goalContext, isAuthenticated, syncToServer],
   );
 
   /**
    * Clear goals with sync
    */
   const clearGoals = useCallback(() => {
-    localGoal.clearGoals();
+    goalContext.clearGoals();
 
     if (isAuthenticated) {
       // Sync empty goals to server
@@ -245,7 +245,7 @@ export function useSyncedGoal(): UseSyncedGoalReturn {
           setSyncStatus("error");
         });
     }
-  }, [localGoal, isAuthenticated]);
+  }, [goalContext, isAuthenticated]);
 
   /**
    * Manual resync
@@ -267,13 +267,13 @@ export function useSyncedGoal(): UseSyncedGoalReturn {
 
   return useMemo(
     () => ({
-      // Pass through from local hook
-      selectedGoalIds: localGoal.selectedGoalIds,
-      selectedGoals: localGoal.selectedGoals,
-      goalPrinciples: localGoal.goalPrinciples,
-      goals: localGoal.goals,
-      isSelected: localGoal.isSelected,
-      initialized: localGoal.initialized,
+      // Pass through from context
+      selectedGoalIds: goalContext.selectedGoalIds,
+      selectedGoals: goalContext.selectedGoals,
+      goalPrinciples: goalContext.goalPrinciples,
+      goals: goalContext.goals,
+      isSelected: goalContext.isSelected,
+      initialized: goalContext.initialized,
 
       // Synced actions
       toggleGoal,
@@ -286,12 +286,12 @@ export function useSyncedGoal(): UseSyncedGoalReturn {
       resync,
     }),
     [
-      localGoal.selectedGoalIds,
-      localGoal.selectedGoals,
-      localGoal.goalPrinciples,
-      localGoal.goals,
-      localGoal.isSelected,
-      localGoal.initialized,
+      goalContext.selectedGoalIds,
+      goalContext.selectedGoals,
+      goalContext.goalPrinciples,
+      goalContext.goals,
+      goalContext.isSelected,
+      goalContext.initialized,
       toggleGoal,
       setGoals,
       clearGoals,
