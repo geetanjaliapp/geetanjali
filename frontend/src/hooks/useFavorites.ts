@@ -20,6 +20,7 @@ interface UseFavoritesReturn {
   addFavorite: (verseId: string) => boolean;
   removeFavorite: (verseId: string) => void;
   clearFavorites: () => void;
+  setAllFavorites: (items: string[]) => void;
   favoritesCount: number;
 }
 
@@ -172,6 +173,16 @@ export function useFavorites(): UseFavoritesReturn {
     }
   }, []);
 
+  /**
+   * Replace all favorites with a new set (used by sync merge)
+   * This avoids race conditions from clear-then-add pattern
+   */
+  const setAllFavorites = useCallback((items: string[]): void => {
+    const newFavorites = new Set(items.slice(0, MAX_FAVORITES));
+    setFavorites(newFavorites);
+    saveFavorites(newFavorites);
+  }, []);
+
   return {
     favorites,
     isFavorite,
@@ -179,6 +190,7 @@ export function useFavorites(): UseFavoritesReturn {
     addFavorite,
     removeFavorite,
     clearFavorites,
+    setAllFavorites,
     favoritesCount: favorites.size,
   };
 }

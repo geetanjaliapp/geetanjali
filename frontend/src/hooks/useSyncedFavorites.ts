@@ -90,12 +90,8 @@ export function useSyncedFavorites(): UseSyncedFavoritesReturn {
         favorites: { items: localItems },
       });
 
-      // Update local storage with merged result
-      // Clear and re-add to ensure we have the server's merged set
-      localFavorites.clearFavorites();
-      for (const item of merged.favorites.items) {
-        localFavorites.addFavorite(item);
-      }
+      // Update local storage with merged result (atomic update to avoid race conditions)
+      localFavorites.setAllFavorites(merged.favorites.items);
 
       setSyncStatus("synced");
       setLastSynced(new Date());
