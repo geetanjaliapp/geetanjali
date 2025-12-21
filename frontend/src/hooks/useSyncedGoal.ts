@@ -23,8 +23,15 @@ export type SyncStatus = "idle" | "syncing" | "synced" | "error";
 // localStorage key (matches useLearningGoal)
 const STORAGE_KEY = "geetanjali:learningGoals";
 
-// Debounce delay for syncing changes to server
-const SYNC_DEBOUNCE_MS = 2000;
+// Debounce delay for syncing changes to server (long - primary sync is on visibility change)
+const SYNC_DEBOUNCE_MS = 30000;
+// Throttle delay for merge calls (prevents 429 on rapid remounts)
+const MERGE_THROTTLE_MS = 10000;
+// Minimum interval between any sync calls (module-level throttle)
+const SYNC_THROTTLE_MS = 5000;
+// Module-level tracking for throttles (persists across remounts)
+let lastMergeTimestamp = 0;
+let lastSyncTimestamp = 0;
 
 interface StoredGoals {
   goalIds: string[];
@@ -91,7 +98,14 @@ export function useSyncedGoal(): UseSyncedGoalReturn {
    * Merge local goals with server (used on login)
    */
   const mergeWithServer = useCallback(async () => {
+    // Throttle to prevent 429 on rapid remounts (e.g., React StrictMode)
+    const now = Date.now();
+    if (now - lastMergeTimestamp < MERGE_THROTTLE_MS) {
+      console.debug("[SyncedGoal] Merge throttled");
+      return;
+    }
     if (isSyncingRef.current) return;
+    lastMergeTimestamp = now;
     isSyncingRef.current = true;
     setSyncStatus("syncing");
 
@@ -146,6 +160,15 @@ export function useSyncedGoal(): UseSyncedGoalReturn {
     // Debounce the sync
     syncTimeoutRef.current = setTimeout(async () => {
       if (isSyncingRef.current) return;
+
+      // Throttle check (module-level, prevents rapid syncs)
+      const now = Date.now();
+      if (now - lastSyncTimestamp < SYNC_THROTTLE_MS) {
+        console.debug("[SyncedGoal] Sync throttled");
+        return;
+      }
+      lastSyncTimestamp = now;
+
       isSyncingRef.current = true;
       setSyncStatus("syncing");
 
