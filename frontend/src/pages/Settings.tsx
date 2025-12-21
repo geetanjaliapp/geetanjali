@@ -9,6 +9,7 @@ import {
   CheckIcon,
   MailIcon,
   HeartIcon,
+  GoalIconsById,
 } from "../components/icons";
 import { useSyncedGoal, useSyncedFavorites, useSyncedReading, useSEO } from "../hooks";
 import { useAuth } from "../contexts/AuthContext";
@@ -111,7 +112,6 @@ export default function Settings() {
 
   const derivedName = useMemo(() => getNameFromEmail(email), [email]);
   const effectiveName = name.trim() || derivedName;
-  const selectedGoalLabels = selectedGoals.map((g) => g.label).join(", ");
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -415,11 +415,30 @@ export default function Settings() {
                   </div>
                 )}
 
-                {selectedGoals.length > 0 && (
-                  <p className="text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700/50 rounded px-2 py-1.5">
-                    Goals: <strong>{selectedGoalLabels}</strong>
-                  </p>
-                )}
+                {/* Reserved space for selected goals - always visible */}
+                <div className="flex items-center gap-2 min-h-[32px] bg-gray-50 dark:bg-gray-700/50 rounded-lg px-2 py-1.5">
+                  <span className="text-xs text-gray-500 dark:text-gray-400 shrink-0">Goals:</span>
+                  {selectedGoals.length > 0 ? (
+                    <div className="flex items-center gap-1 flex-wrap">
+                      {selectedGoals.map((goal) => {
+                        const IconComponent = GoalIconsById[goal.id];
+                        return (
+                          <div
+                            key={goal.id}
+                            className="w-6 h-6 rounded-full bg-amber-100 dark:bg-amber-800/40 text-amber-700 dark:text-amber-400 flex items-center justify-center"
+                            title={goal.label}
+                          >
+                            {IconComponent && <IconComponent className="w-3.5 h-3.5" />}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <span className="text-xs text-gray-400 dark:text-gray-500 italic">
+                      None selected
+                    </span>
+                  )}
+                </div>
 
                 <div className="grid grid-cols-2 gap-2">
                   <input
