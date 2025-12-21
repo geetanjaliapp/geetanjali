@@ -15,9 +15,8 @@ export function markNewsletterSubscribed(): boolean {
   try {
     localStorage.setItem(NEWSLETTER_SUBSCRIBED_KEY, "true");
     return true;
-  } catch (e) {
+  } catch {
     // QuotaExceededError or SecurityError (private browsing)
-    console.warn("Failed to mark newsletter subscribed:", e);
     return false;
   }
 }

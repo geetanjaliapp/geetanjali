@@ -160,9 +160,8 @@ export function GuidanceMarkdown({
             return next;
           });
         }
-      } catch (error) {
+      } catch {
         // Silently fail - popover will show "not available"
-        console.warn(`Failed to fetch verse ${canonicalId}:`, error);
       }
     },
     [fetchedParaphrases],

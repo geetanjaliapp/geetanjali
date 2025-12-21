@@ -19,9 +19,8 @@ function safeSetItem(key: string, value: string): boolean {
   try {
     localStorage.setItem(key, value);
     return true;
-  } catch (e) {
+  } catch {
     // QuotaExceededError or SecurityError (private browsing)
-    console.warn("localStorage write failed:", e);
     return false;
   }
 }

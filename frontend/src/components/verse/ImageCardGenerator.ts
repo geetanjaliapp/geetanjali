@@ -132,9 +132,8 @@ export async function loadFonts(): Promise<void> {
       document.fonts.load('400 24px "Source Sans 3"'),
       document.fonts.load('500 24px "Source Sans 3"'),
     ]);
-  } catch (err) {
+  } catch {
     // Continue execution - browser will use fallback fonts
-    console.warn("Failed to preload fonts:", err);
   }
 }
 
