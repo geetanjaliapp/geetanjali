@@ -80,7 +80,7 @@ export function NewsletterCard() {
   return (
     <div className="mb-8 sm:mb-10 max-w-4xl mx-auto">
       <Link
-        to="/settings"
+        to="/settings#newsletter"
         className="block p-4 sm:p-5 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-gray-800/80 dark:to-gray-800/80 rounded-xl border border-amber-200/60 dark:border-gray-700 hover:border-amber-300 dark:hover:border-amber-700 transition-all group relative"
       >
         {/* Dismiss button - 44px touch target */}

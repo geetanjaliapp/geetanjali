@@ -14,12 +14,52 @@ import {
 import { useSyncedGoal, useSyncedFavorites, useSyncedReading, useSEO } from "../hooks";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme, type Theme } from "../contexts/ThemeContext";
-import { api } from "../lib/api";
+import { api, newsletterApi, type NewsletterPreferences } from "../lib/api";
+import {
+  exportUserData,
+  clearAllLocalStorage,
+  clearAllSessionStorage,
+  STORAGE_KEYS,
+  getStorageItem,
+  setStorageItem,
+} from "../lib/storage";
 
 type SubscriptionStatus = "idle" | "pending" | "subscribed";
 type FontSize = "small" | "medium" | "large";
+type DefaultVersesTab = "default" | "featured" | "for-you" | "favorites" | "all";
 
-const READING_PREFS_KEY = "geetanjali:readingDefaults";
+/** Section prefs key - matches VerseFocus component */
+const SECTION_PREFS_KEY = "geetanjali:readingSectionPrefs";
+
+/** Section IDs for collapsible content in ReadingMode */
+type SectionPrefs = {
+  iast: boolean;
+  insight: boolean;
+  hindi: boolean;
+  english: boolean;
+};
+
+const DEFAULT_SECTION_PREFS: SectionPrefs = {
+  iast: true,
+  insight: true,
+  hindi: true,
+  english: true,
+};
+
+/**
+ * Load section preferences from localStorage (shared with VerseFocus)
+ */
+function loadSectionPrefs(): SectionPrefs {
+  try {
+    const stored = localStorage.getItem(SECTION_PREFS_KEY);
+    if (stored) {
+      return { ...DEFAULT_SECTION_PREFS, ...JSON.parse(stored) };
+    }
+  } catch {
+    // Ignore
+  }
+  return DEFAULT_SECTION_PREFS;
+}
 
 /**
  * Extract name from email address.
@@ -41,21 +81,6 @@ function getInitials(name?: string): string {
     return parts[0].charAt(0).toUpperCase();
   }
   return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
-}
-
-/**
- * Load reading defaults from localStorage
- */
-function loadReadingDefaults(): { fontSize: FontSize; showIAST: boolean; showHindi: boolean; showEnglish: boolean } {
-  try {
-    const stored = localStorage.getItem(READING_PREFS_KEY);
-    if (stored) {
-      return JSON.parse(stored);
-    }
-  } catch {
-    // Ignore
-  }
-  return { fontSize: "medium", showIAST: true, showHindi: true, showEnglish: true };
 }
 
 export default function Settings() {
@@ -81,11 +106,30 @@ export default function Settings() {
   const [error, setError] = useState<string | null>(null);
   const [showGoalsPrompt, setShowGoalsPrompt] = useState(false);
 
+  // Existing subscription state (for authenticated users)
+  const [existingSubscription, setExistingSubscription] = useState<NewsletterPreferences | null>(null);
+  const [isFetchingStatus, setIsFetchingStatus] = useState(false);
+  const [isUpdatingPrefs, setIsUpdatingPrefs] = useState(false);
+  const [showSubscribeOther, setShowSubscribeOther] = useState(false);
+  const [updateError, setUpdateError] = useState<string | null>(null);
+  const [updateSuccess, setUpdateSuccess] = useState(false);
+
   // Theme from context
   const { theme, setTheme } = useTheme();
 
-  // Reading preferences
-  const [readingPrefs, setReadingPrefs] = useState(loadReadingDefaults);
+  // Reading preferences (font size via useSyncedReading, sections via localStorage)
+  const { settings: readingSettings, setFontSize } = useSyncedReading();
+  const [sectionPrefs, setSectionPrefs] = useState<SectionPrefs>(loadSectionPrefs);
+
+  // Default Verses tab preference
+  const [defaultVersesTab, setDefaultVersesTab] = useState<DefaultVersesTab>(() =>
+    getStorageItem<DefaultVersesTab>(STORAGE_KEYS.defaultVersesTab, "default")
+  );
+
+  const handleDefaultTabChange = (tab: DefaultVersesTab) => {
+    setDefaultVersesTab(tab);
+    setStorageItem(STORAGE_KEYS.defaultVersesTab, tab);
+  };
 
   // Danger zone
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -101,14 +145,44 @@ export default function Settings() {
     }
   }, [user, email, name]);
 
-  // Save reading prefs
+  // Fetch newsletter subscription status for authenticated users
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setExistingSubscription(null);
+      return;
+    }
+
+    const fetchStatus = async () => {
+      setIsFetchingStatus(true);
+      try {
+        const response = await newsletterApi.getStatus();
+        if (response.subscribed && response.preferences) {
+          setExistingSubscription(response.preferences);
+          // Prefill form with existing preferences for editing
+          if (response.preferences.name) setName(response.preferences.name);
+          setSendTime(response.preferences.send_time as SendTime);
+        } else {
+          setExistingSubscription(null);
+        }
+      } catch (err) {
+        console.error("Failed to fetch newsletter status:", err);
+        setExistingSubscription(null);
+      } finally {
+        setIsFetchingStatus(false);
+      }
+    };
+
+    fetchStatus();
+  }, [isAuthenticated]);
+
+  // Save section prefs to localStorage (shared with VerseFocus)
   useEffect(() => {
     try {
-      localStorage.setItem(READING_PREFS_KEY, JSON.stringify(readingPrefs));
+      localStorage.setItem(SECTION_PREFS_KEY, JSON.stringify(sectionPrefs));
     } catch {
       // Ignore
     }
-  }, [readingPrefs]);
+  }, [sectionPrefs]);
 
   const derivedName = useMemo(() => getNameFromEmail(email), [email]);
   const effectiveName = name.trim() || derivedName;
@@ -142,6 +216,13 @@ export default function Settings() {
       if (response.data.requires_verification === false) {
         setStatus("subscribed");
         markNewsletterSubscribed();
+        // If this was the account email, refresh subscription status
+        if (isAuthenticated && email.trim().toLowerCase() === user?.email?.toLowerCase()) {
+          const statusResponse = await newsletterApi.getStatus();
+          if (statusResponse.subscribed && statusResponse.preferences) {
+            setExistingSubscription(statusResponse.preferences);
+          }
+        }
       } else {
         setStatus("pending");
       }
@@ -157,6 +238,35 @@ export default function Settings() {
     }
   };
 
+  // Update existing subscription preferences
+  const handleUpdatePreferences = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setUpdateError(null);
+    setUpdateSuccess(false);
+    setIsUpdatingPrefs(true);
+
+    try {
+      const updated = await newsletterApi.updateMyPreferences({
+        name: name.trim() || null,
+        goal_ids: selectedGoals.map((g) => g.id),
+        send_time: sendTime,
+      });
+      setExistingSubscription(updated);
+      setUpdateSuccess(true);
+      // Clear success message after 3 seconds
+      setTimeout(() => setUpdateSuccess(false), 3000);
+    } catch (err: unknown) {
+      if (err && typeof err === "object" && "response" in err) {
+        const axiosErr = err as { response?: { data?: { detail?: string } } };
+        setUpdateError(axiosErr.response?.data?.detail || "Failed to update preferences.");
+      } else {
+        setUpdateError("Failed to update preferences.");
+      }
+    } finally {
+      setIsUpdatingPrefs(false);
+    }
+  };
+
   const handleLogout = async () => {
     try {
       await logout();
@@ -167,17 +277,7 @@ export default function Settings() {
   };
 
   const handleExportData = () => {
-    const data = {
-      exported_at: new Date().toISOString(),
-      version: "1.0",
-      favorites: JSON.parse(localStorage.getItem("geetanjali_favorites") || "[]"),
-      reading: {
-        position: JSON.parse(localStorage.getItem("geetanjali:readingPosition") || "null"),
-        settings: JSON.parse(localStorage.getItem("geetanjali:readingSettings") || "{}"),
-      },
-      goals: JSON.parse(localStorage.getItem("geetanjali:learningGoals") || "{}"),
-      theme: localStorage.getItem("geetanjali:theme") || "system",
-    };
+    const data = exportUserData();
 
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -193,16 +293,9 @@ export default function Settings() {
   const handleDeleteLocalData = async () => {
     setIsDeleting(true);
     try {
-      // Clear all local data
-      const keysToRemove = [
-        "geetanjali_favorites",
-        "geetanjali:learningGoals",
-        "geetanjali:readingPosition",
-        "geetanjali:readingSettings",
-        "geetanjali:theme",
-        "geetanjali:readingDefaults",
-      ];
-      keysToRemove.forEach((key) => localStorage.removeItem(key));
+      // Clear all local data using centralized registry
+      clearAllLocalStorage();
+      clearAllSessionStorage();
 
       // Reload page to reset all state
       window.location.reload();
@@ -217,16 +310,9 @@ export default function Settings() {
     try {
       await api.delete("/auth/account");
 
-      // Clear local data
-      const keysToRemove = [
-        "geetanjali_favorites",
-        "geetanjali:learningGoals",
-        "geetanjali:readingPosition",
-        "geetanjali:readingSettings",
-        "geetanjali:theme",
-        "geetanjali:readingDefaults",
-      ];
-      keysToRemove.forEach((key) => localStorage.removeItem(key));
+      // Clear all local data using centralized registry
+      clearAllLocalStorage();
+      clearAllSessionStorage();
 
       // Redirect to home
       navigate("/");
@@ -340,6 +426,48 @@ export default function Settings() {
               What brings you to the Geeta?
             </p>
             <GoalSelector />
+
+            {/* Default Verses Tab */}
+            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <div>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Default Verses tab
+                </label>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 mb-3">
+                  When you open Verses
+                </p>
+                <div className="flex flex-wrap sm:flex-nowrap gap-1.5 sm:gap-2">
+                  {[
+                    { value: "default", label: "Default" },
+                    { value: "featured", label: "Featured" },
+                    ...(selectedGoals.length > 0 && selectedGoals.some(g => g.id !== "exploring")
+                      ? [{ value: "for-you", label: "For You" }]
+                      : []),
+                    { value: "favorites", label: "Favorites" },
+                    { value: "all", label: "All" },
+                  ].map((option) => (
+                    <label
+                      key={option.value}
+                      className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs sm:text-sm cursor-pointer transition-colors whitespace-nowrap ${
+                        defaultVersesTab === option.value
+                          ? "bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 ring-1 ring-amber-300 dark:ring-amber-700"
+                          : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="defaultVersesTab"
+                        value={option.value}
+                        checked={defaultVersesTab === option.value}
+                        onChange={(e) => handleDefaultTabChange(e.target.value as DefaultVersesTab)}
+                        className="sr-only"
+                      />
+                      {option.label}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
           </section>
 
           {/* Daily Wisdom */}
@@ -351,7 +479,147 @@ export default function Settings() {
               <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Daily Wisdom</h2>
             </div>
 
-            {status === "subscribed" ? (
+            {/* Loading state while fetching subscription status */}
+            {isFetchingStatus ? (
+              <div className="flex items-center justify-center py-4">
+                <div className="w-5 h-5 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+              </div>
+            ) : existingSubscription ? (
+              /* Authenticated user with existing subscription - show update form */
+              <div className="space-y-3">
+                {/* Subscribed status badge */}
+                <div className="flex items-center gap-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg px-3 py-2">
+                  <CheckIcon className="w-4 h-4 text-green-600 dark:text-green-400" />
+                  <span className="text-sm text-green-800 dark:text-green-300">
+                    Subscribed as <strong>{existingSubscription.email}</strong>
+                  </span>
+                </div>
+
+                {/* Update preferences form */}
+                <form onSubmit={handleUpdatePreferences} className="space-y-3">
+                  {/* Goals display */}
+                  <div className="flex items-center gap-2 h-10 bg-gray-50 dark:bg-gray-700/50 rounded-lg px-2.5">
+                    <span className="text-xs text-gray-500 dark:text-gray-400 shrink-0">Goals:</span>
+                    {selectedGoals.length > 0 ? (
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {selectedGoals.map((goal) => {
+                          const IconComponent = GoalIconsById[goal.id];
+                          return (
+                            <div
+                              key={goal.id}
+                              className="w-7 h-7 rounded-full bg-amber-200 dark:bg-amber-700/50 text-amber-700 dark:text-amber-300 flex items-center justify-center shadow-sm"
+                              title={goal.label}
+                            >
+                              {IconComponent && <IconComponent className="w-4 h-4" />}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <span className="text-xs text-gray-400 dark:text-gray-500">
+                        Select above for personalized verses
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Name input */}
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder={derivedName || "Your name"}
+                    className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  />
+
+                  <TimeSelector value={sendTime} onChange={setSendTime} disabled={isUpdatingPrefs} />
+
+                  {updateError && (
+                    <p className="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded px-2 py-1">
+                      {updateError}
+                    </p>
+                  )}
+
+                  {updateSuccess && (
+                    <p className="text-xs text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 rounded px-2 py-1">
+                      Preferences updated!
+                    </p>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={isUpdatingPrefs}
+                    className="w-full bg-orange-600 hover:bg-orange-700 disabled:bg-orange-400 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+                  >
+                    {isUpdatingPrefs ? "Saving..." : "Update preferences"}
+                  </button>
+                </form>
+
+                {/* Expandable: Subscribe another email */}
+                <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowSubscribeOther(!showSubscribeOther)}
+                    className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+                  >
+                    <svg
+                      className={`w-3 h-3 transition-transform ${showSubscribeOther ? "rotate-90" : ""}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                    Subscribe another email
+                  </button>
+
+                  {showSubscribeOther && (
+                    <form onSubmit={handleSubscribe} className="mt-3 space-y-2">
+                      <div className="grid grid-cols-2 gap-2">
+                        <input
+                          type="text"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          placeholder="Name"
+                          className="px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                        />
+                        <input
+                          ref={emailInputRef}
+                          type="email"
+                          required
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder="Different email"
+                          className="px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                        />
+                      </div>
+
+                      {error && (
+                        <p className="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded px-2 py-1">
+                          {error}
+                        </p>
+                      )}
+
+                      {status === "pending" && (
+                        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-2 text-center">
+                          <p className="text-xs text-amber-700 dark:text-amber-400">
+                            Confirmation sent to <strong>{email}</strong>
+                          </p>
+                        </div>
+                      )}
+
+                      <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="w-full bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 text-white text-sm font-medium px-4 py-1.5 rounded-lg transition-colors"
+                      >
+                        {isSubmitting ? "Subscribing..." : "Subscribe this email"}
+                      </button>
+                    </form>
+                  )}
+                </div>
+              </div>
+            ) : status === "subscribed" ? (
+              /* Just subscribed successfully (non-account email or guest) */
               <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
                 <div className="flex items-start gap-2">
                   <CheckIcon className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
@@ -372,6 +640,7 @@ export default function Settings() {
                 </div>
               </div>
             ) : status === "pending" ? (
+              /* Awaiting email verification */
               <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 text-center">
                 <MailIcon className="w-6 h-6 text-amber-600 dark:text-amber-400 mx-auto mb-2" />
                 <p className="text-sm font-medium text-amber-900 dark:text-amber-300">Check your email</p>
@@ -386,12 +655,13 @@ export default function Settings() {
                 </button>
               </div>
             ) : (
+              /* Default: Subscribe form */
               <form onSubmit={handleSubscribe} className="space-y-3">
                 {/* Goals prompt */}
                 {showGoalsPrompt && (
                   <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-3">
                     <p className="text-sm text-purple-800 dark:text-purple-300 mb-2">
-                      🎯 Select learning goals for personalized verses
+                      Select learning goals for personalized verses
                     </p>
                     <div className="flex gap-2">
                       <button
@@ -403,7 +673,7 @@ export default function Settings() {
                         }}
                         className="text-xs px-2 py-1 bg-purple-100 dark:bg-purple-800 text-purple-700 dark:text-purple-300 rounded"
                       >
-                        Select goals ↑
+                        Select goals
                       </button>
                       <button
                         type="submit"
@@ -504,9 +774,9 @@ export default function Settings() {
                   {(["small", "medium", "large"] as FontSize[]).map((size) => (
                     <button
                       key={size}
-                      onClick={() => setReadingPrefs((p) => ({ ...p, fontSize: size }))}
+                      onClick={() => setFontSize(size)}
                       className={`flex-1 px-3 py-1.5 text-sm rounded-lg border transition-colors ${
-                        readingPrefs.fontSize === size
+                        readingSettings.fontSize === size
                           ? "bg-orange-100 dark:bg-orange-900/30 border-orange-300 dark:border-orange-700 text-orange-700 dark:text-orange-400"
                           : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600"
                       }`}
@@ -517,21 +787,30 @@ export default function Settings() {
                 </div>
               </div>
 
-              {/* Section toggles */}
+              {/* Section toggles - controls which sections are expanded by default in Reading Mode */}
               <div>
-                <label className="text-sm text-gray-700 dark:text-gray-300 block mb-1.5">Default sections</label>
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <label className="text-sm text-gray-700 dark:text-gray-300">Default sections</label>
+                  <span className="text-[10px] text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">
+                    This device
+                  </span>
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                  Unchecked sections will start collapsed in Reading Mode
+                </p>
                 <div className="space-y-1.5">
                   {[
-                    { key: "showIAST", label: "IAST (Romanized)" },
-                    { key: "showHindi", label: "Hindi translation" },
-                    { key: "showEnglish", label: "English translation" },
+                    { key: "iast" as const, label: "IAST (Romanized)" },
+                    { key: "insight" as const, label: "Leadership Insight" },
+                    { key: "hindi" as const, label: "Hindi translation" },
+                    { key: "english" as const, label: "English translation" },
                   ].map(({ key, label }) => (
                     <label key={key} className="flex items-center gap-2 cursor-pointer">
                       <input
                         type="checkbox"
-                        checked={readingPrefs[key as keyof typeof readingPrefs] as boolean}
+                        checked={sectionPrefs[key]}
                         onChange={(e) =>
-                          setReadingPrefs((p) => ({ ...p, [key]: e.target.checked }))
+                          setSectionPrefs((p) => ({ ...p, [key]: e.target.checked }))
                         }
                         className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-orange-600 focus:ring-orange-500"
                       />

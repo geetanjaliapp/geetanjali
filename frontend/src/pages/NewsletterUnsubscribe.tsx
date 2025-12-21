@@ -114,7 +114,7 @@ export default function NewsletterUnsubscribe() {
                 Changed your mind?
               </p>
               <Link
-                to="/settings"
+                to="/settings#newsletter"
                 className="inline-block px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white font-medium rounded-lg hover:from-orange-600 hover:to-red-600 transition-all"
               >
                 Subscribe Again
@@ -142,7 +142,7 @@ export default function NewsletterUnsubscribe() {
                 Want to come back?
               </p>
               <Link
-                to="/settings"
+                to="/settings#newsletter"
                 className="inline-block px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white font-medium rounded-lg hover:from-orange-600 hover:to-red-600 transition-all"
               >
                 Subscribe Again

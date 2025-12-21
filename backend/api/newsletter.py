@@ -406,7 +406,14 @@ async def unsubscribe(
     )
 
 
-@router.get("/status", response_model=StatusResponse)
+class StatusWithPrefsResponse(BaseModel):
+    """Response for subscription status check with optional preferences."""
+
+    subscribed: bool
+    preferences: Optional[PreferencesResponse] = None
+
+
+@router.get("/status", response_model=StatusWithPrefsResponse)
 async def get_subscription_status(
     current_user: User = Depends(get_optional_user),
     db: Session = Depends(get_db),
@@ -414,8 +421,9 @@ async def get_subscription_status(
     """
     Check newsletter subscription status for authenticated user.
 
-    Returns whether the user's email is actively subscribed.
-    Used to sync localStorage across devices on login.
+    Returns whether the user's email is actively subscribed,
+    along with current preferences if subscribed.
+    Used to sync localStorage and show update form in Settings.
     """
     if not current_user:
         raise HTTPException(status_code=401, detail="Authentication required")
@@ -423,7 +431,82 @@ async def get_subscription_status(
     subscriber = get_subscriber_by_email(db, current_user.email)
     is_subscribed = subscriber is not None and subscriber.is_active
 
-    return StatusResponse(subscribed=is_subscribed)
+    if is_subscribed and subscriber:
+        return StatusWithPrefsResponse(
+            subscribed=True,
+            preferences=PreferencesResponse(
+                email=subscriber.email,
+                name=subscriber.name,
+                goal_ids=subscriber.goal_ids or [],
+                send_time=subscriber.send_time,
+                verified=subscriber.verified,
+            ),
+        )
+
+    return StatusWithPrefsResponse(subscribed=False)
+
+
+@router.patch("/my-preferences", response_model=PreferencesResponse)
+@limiter.limit("10/hour")
+async def update_my_preferences(
+    request: Request,
+    data: PreferencesRequest,
+    current_user: User = Depends(get_optional_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Update subscription preferences for authenticated user.
+
+    Allows updating name, goals, and send time without needing a token.
+    Only works for the user's own email subscription.
+    """
+    if not current_user:
+        raise HTTPException(status_code=401, detail="Authentication required")
+
+    subscriber = get_subscriber_by_email(db, current_user.email)
+
+    if not subscriber:
+        raise HTTPException(status_code=404, detail="No subscription found for your email")
+
+    if subscriber.unsubscribed_at:
+        raise HTTPException(status_code=400, detail="This subscription is no longer active")
+
+    # Update fields if provided
+    if data.name is not None:
+        subscriber.name = data.name.strip() if data.name.strip() else None
+    if data.goal_ids is not None:
+        invalid_goals = validate_goal_ids(data.goal_ids)
+        if invalid_goals:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid goal_ids: {invalid_goals}. Use /api/v1/taxonomy/goals for valid options.",
+            )
+        subscriber.goal_ids = data.goal_ids
+    if data.send_time is not None:
+        if data.send_time not in [t.value for t in SendTime]:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid send_time. Must be one of: {[t.value for t in SendTime]}",
+            )
+        subscriber.send_time = data.send_time
+
+    try:
+        db.commit()
+        db.refresh(subscriber)
+    except Exception:
+        db.rollback()
+        logger.exception(f"Error updating preferences for {_mask_email(subscriber.email)}")
+        raise HTTPException(status_code=500, detail="An error occurred. Please try again.")
+
+    logger.info(f"Preferences updated via auth for {_mask_email(subscriber.email)}")
+
+    return PreferencesResponse(
+        email=subscriber.email,
+        name=subscriber.name,
+        goal_ids=subscriber.goal_ids or [],
+        send_time=subscriber.send_time,
+        verified=subscriber.verified,
+    )
 
 
 @router.get("/preferences/{token}", response_model=PreferencesResponse)

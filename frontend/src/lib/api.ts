@@ -140,8 +140,16 @@ export const casesApi = {
     return response.data;
   },
 
-  list: async (skip = 0, limit = 100): Promise<Case[]> => {
-    const response = await api.get("/cases", { params: { skip, limit } });
+  list: async (
+    skip = 0,
+    limit = 100,
+    statusFilter?: string
+  ): Promise<{ cases: Case[]; counts: { all: number; completed: number; in_progress: number; failed: number; shared: number } }> => {
+    const params: Record<string, unknown> = { skip, limit };
+    if (statusFilter && statusFilter !== "all") {
+      params.status_filter = statusFilter;
+    }
+    const response = await api.get("/cases", { params });
     return response.data;
   },
 
@@ -448,11 +456,36 @@ export const preferencesApi = {
   },
 };
 
+// Newsletter preferences shape
+export interface NewsletterPreferences {
+  email: string;
+  name: string | null;
+  goal_ids: string[];
+  send_time: string;
+  verified: boolean;
+}
+
+// Newsletter status response (includes preferences if subscribed)
+export interface NewsletterStatusResponse {
+  subscribed: boolean;
+  preferences: NewsletterPreferences | null;
+}
+
 // Newsletter API (subscription status sync)
 export const newsletterApi = {
-  /** Check subscription status for authenticated user */
-  getStatus: async (): Promise<{ subscribed: boolean }> => {
+  /** Check subscription status for authenticated user (includes preferences if subscribed) */
+  getStatus: async (): Promise<NewsletterStatusResponse> => {
     const response = await api.get("/newsletter/status");
+    return response.data;
+  },
+
+  /** Update preferences for authenticated user's subscription */
+  updateMyPreferences: async (data: {
+    name?: string | null;
+    goal_ids?: string[];
+    send_time?: string;
+  }): Promise<NewsletterPreferences> => {
+    const response = await api.patch("/newsletter/my-preferences", data);
     return response.data;
   },
 };

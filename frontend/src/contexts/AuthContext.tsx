@@ -9,6 +9,7 @@ import {
 import type { ReactNode } from "react";
 import type { User, LoginRequest, SignupRequest } from "../types";
 import { authApi, tokenStorage } from "../api/auth";
+import { clearAllLocalStorage, clearAllSessionStorage } from "../lib/storage";
 
 interface AuthContextType {
   user: User | null;
@@ -97,20 +98,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     // Clear all user data from localStorage for fresh guest state
     // This ensures the next guest session starts clean
-    const keysToRemove = [
-      "geetanjali_favorites",
-      "geetanjali:learningGoals",
-      "geetanjali:readingPosition",
-      "geetanjali:readingSettings",
-      "geetanjali:theme",
-    ];
-    keysToRemove.forEach((key) => {
-      try {
-        localStorage.removeItem(key);
-      } catch {
-        // Ignore localStorage errors
-      }
-    });
+    clearAllLocalStorage();
+    clearAllSessionStorage();
 
     setUser(null);
   }, []);
