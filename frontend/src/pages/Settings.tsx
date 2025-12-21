@@ -416,27 +416,31 @@ export default function Settings() {
                 )}
 
                 {/* Reserved space for selected goals - always visible */}
-                <div className="flex items-center gap-2 min-h-[32px] bg-gray-50 dark:bg-gray-700/50 rounded-lg px-2 py-1.5">
+                <div className="flex items-center gap-2 h-10 bg-gray-50 dark:bg-gray-700/50 rounded-lg px-2.5">
                   <span className="text-xs text-gray-500 dark:text-gray-400 shrink-0">Goals:</span>
                   {selectedGoals.length > 0 ? (
-                    <div className="flex items-center gap-1 flex-wrap">
+                    <div className="flex items-center gap-1.5 flex-wrap">
                       {selectedGoals.map((goal) => {
                         const IconComponent = GoalIconsById[goal.id];
                         return (
                           <div
                             key={goal.id}
-                            className="w-6 h-6 rounded-full bg-amber-100 dark:bg-amber-800/40 text-amber-700 dark:text-amber-400 flex items-center justify-center"
+                            className="w-7 h-7 rounded-full bg-amber-200 dark:bg-amber-700/50 text-amber-700 dark:text-amber-300 flex items-center justify-center shadow-sm"
                             title={goal.label}
                           >
-                            {IconComponent && <IconComponent className="w-3.5 h-3.5" />}
+                            {IconComponent && <IconComponent className="w-4 h-4" />}
                           </div>
                         );
                       })}
                     </div>
                   ) : (
-                    <span className="text-xs text-gray-400 dark:text-gray-500 italic">
-                      None selected
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      {/* Placeholder circles to match height */}
+                      <div className="w-7 h-7 rounded-full border-2 border-dashed border-gray-300 dark:border-gray-600" />
+                      <span className="text-xs text-gray-400 dark:text-gray-500">
+                        Select above
+                      </span>
+                    </div>
                   )}
                 </div>
 
