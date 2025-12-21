@@ -54,6 +54,12 @@ class User(Base, TimestampMixin):
     )
     feedback = relationship("Feedback", back_populates="user")
     subscriptions = relationship("Subscriber", back_populates="user")
+    preferences = relationship(
+        "UserPreferences",
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan",
+    )
 
     def __repr__(self) -> str:
         return f"<User(id={self.id}, email={self.email}, role={self.role})>"

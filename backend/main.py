@@ -42,6 +42,7 @@ from api import (
     search,
     taxonomy,
     newsletter,
+    preferences,
 )
 from api.middleware.csrf import CSRFMiddleware
 from api.dependencies import limiter
@@ -136,6 +137,7 @@ app.include_router(reading.router, tags=["Reading"])
 app.include_router(search.router, tags=["Search"])
 app.include_router(taxonomy.router, tags=["Taxonomy"])
 app.include_router(newsletter.router, tags=["Newsletter"])
+app.include_router(preferences.router, tags=["Preferences"])
 
 # Prometheus metrics instrumentation (excludes /metrics from instrumentation)
 Instrumentator().instrument(app).expose(app, include_in_schema=False)

@@ -13,6 +13,7 @@ from models.experiment import ExperimentEvent
 from models.metadata import BookMetadata, ChapterMetadata
 from models.subscriber import Subscriber, SendTime
 from models.featured_case import FeaturedCase
+from models.user_preferences import UserPreferences
 
 __all__ = [
     "Base",
@@ -34,4 +35,5 @@ __all__ = [
     "Subscriber",
     "SendTime",
     "FeaturedCase",
+    "UserPreferences",
 ]
