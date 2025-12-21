@@ -37,7 +37,8 @@ class CaseRepository(BaseRepository[Case]):  # type: ignore[type-var]
             Case.user_id == user_id, Case.is_deleted == False  # noqa: E712
         )
         query = self._apply_status_filter(query, status_filter)
-        return query.order_by(Case.created_at.desc()).offset(skip).limit(limit).all()
+        result: List[Case] = query.order_by(Case.created_at.desc()).offset(skip).limit(limit).all()
+        return result
 
     def _apply_status_filter(self, query, status_filter: Optional[str]):
         """Apply status filter to query."""
@@ -105,6 +106,9 @@ class CaseRepository(BaseRepository[Case]):  # type: ignore[type-var]
             ),
         ).filter(base_filter).first()
 
+        if result is None:
+            return {"all": 0, "completed": 0, "in_progress": 0, "failed": 0, "shared": 0}
+
         return {
             "all": result.all or 0,
             "completed": result.completed or 0,
@@ -138,7 +142,8 @@ class CaseRepository(BaseRepository[Case]):  # type: ignore[type-var]
             Case.is_deleted == False,  # noqa: E712
         )
         query = self._apply_status_filter(query, status_filter)
-        return query.order_by(Case.created_at.desc()).offset(skip).limit(limit).all()
+        result: List[Case] = query.order_by(Case.created_at.desc()).offset(skip).limit(limit).all()
+        return result
 
     def count_by_session(self, session_id: str) -> dict:
         """
@@ -185,6 +190,9 @@ class CaseRepository(BaseRepository[Case]):  # type: ignore[type-var]
                 "shared"
             ),
         ).filter(base_filter).first()
+
+        if result is None:
+            return {"all": 0, "completed": 0, "in_progress": 0, "failed": 0, "shared": 0}
 
         return {
             "all": result.all or 0,
