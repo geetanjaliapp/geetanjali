@@ -40,7 +40,10 @@ export function SyncToast() {
       if (!alreadyShown) {
         // Mark as shown in storage first
         sessionStorage.setItem(SYNC_TOAST_KEY, JSON.stringify(true));
-        // Then show toast - this is a legitimate response to external state (auth sync)
+        // Show toast after sync completes.
+        // Disable ESLint: This setState is safe because it's a one-time response
+        // to the didInitialSync flag changing. The effect only runs once per
+        // login session (guarded by sessionStorage), preventing infinite loops.
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setToastState({ visible: true, count: favoritesCount });
       }

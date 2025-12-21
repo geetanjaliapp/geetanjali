@@ -103,8 +103,8 @@ export function useSyncedReading(): UseSyncedReadingReturn {
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("idle");
   const [lastSynced, setLastSynced] = useState<Date | null>(null);
 
-  // Track user ID to detect login/logout (undefined = not initialized, null = logged out)
-  const previousUserIdRef = useRef<string | null | undefined>(undefined);
+  // Track user ID to detect login/logout
+  const previousUserIdRef = useRef<string | null>(null);
   // Debounce timer ref
   const syncTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Track if we're currently syncing
@@ -260,27 +260,22 @@ export function useSyncedReading(): UseSyncedReadingReturn {
   /**
    * Handle login: merge local progress with server
    *
-   * Uses undefined as initial state to distinguish "not initialized" from "logged out".
-   * This prevents false positive login detection on mount when user is already logged in.
+   * Triggers merge when user logs in (or is already logged in on mount).
+   * This ensures reading progress is synced immediately.
    */
   useEffect(() => {
     const currentUserId = user?.id ?? null;
-    const previousUserId = previousUserIdRef.current;
+    const wasLoggedOut = previousUserIdRef.current === null;
+    const isNowLoggedIn = currentUserId !== null;
 
-    // Skip first render (previousUserId is undefined)
-    if (previousUserId === undefined) {
-      previousUserIdRef.current = currentUserId;
-      return;
-    }
-
-    // Detect login (was logged out, now logged in)
-    if (previousUserId === null && currentUserId !== null) {
+    // Detect login (includes mount when already logged in)
+    if (wasLoggedOut && isNowLoggedIn) {
       console.debug("[SyncedReading] Login detected, merging with server");
       mergeWithServer();
     }
 
-    // Detect logout (was logged in, now logged out)
-    if (previousUserId !== null && currentUserId === null) {
+    // Detect logout
+    if (previousUserIdRef.current !== null && currentUserId === null) {
       console.debug("[SyncedReading] Logout detected, resetting sync status");
       setSyncStatus("idle");
       setLastSynced(null);
@@ -295,19 +290,32 @@ export function useSyncedReading(): UseSyncedReadingReturn {
   }, [user?.id, mergeWithServer]);
 
   /**
-   * Flush on page unload
+   * Flush on page unload or tab switch
+   *
+   * Handles three scenarios:
+   * 1. beforeunload - User closes tab/window
+   * 2. pagehide - User navigates away (mobile Safari)
+   * 3. visibilitychange - User switches tabs (prevents stale sync race)
    */
   useEffect(() => {
     const handleUnload = () => {
       flushSync();
     };
 
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        flushSync();
+      }
+    };
+
     window.addEventListener("beforeunload", handleUnload);
     window.addEventListener("pagehide", handleUnload);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
       window.removeEventListener("beforeunload", handleUnload);
       window.removeEventListener("pagehide", handleUnload);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [flushSync]);
 
