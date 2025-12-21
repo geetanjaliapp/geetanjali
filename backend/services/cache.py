@@ -184,6 +184,34 @@ class CacheService:
         """Check if cache is available."""
         return get_redis_client() is not None
 
+    @staticmethod
+    def setnx(key: str, value: Any, ttl: int) -> bool:
+        """
+        Set value only if key doesn't exist (atomic operation).
+
+        Used for deduplication scenarios like view count tracking.
+
+        Args:
+            key: Cache key
+            value: Value to set
+            ttl: Time-to-live in seconds
+
+        Returns:
+            True if key was set (didn't exist), False if key already exists
+        """
+        client = get_redis_client()
+        if not client or ttl <= 0:
+            return True  # No Redis = allow operation to proceed
+
+        try:
+            serialized = json.dumps(value, default=str)
+            # SET with NX (only set if not exists) and EX (expiry in seconds)
+            result = client.set(key, serialized, ex=ttl, nx=True)
+            return result is True
+        except Exception as e:
+            logger.warning(f"Cache setnx error for {key}: {e}")
+            return True  # On error, allow operation to proceed
+
 
 # Cache key builders
 def verse_key(canonical_id: str) -> str:
@@ -288,6 +316,15 @@ def rag_output_key(description_hash: str) -> str:
 def featured_cases_key() -> str:
     """Build cache key for featured cases."""
     return "featured_cases:all"
+
+
+def public_case_view_key(slug: str, client_id: str) -> str:
+    """Build cache key for tracking unique case views.
+
+    Used to deduplicate view counts at the server level.
+    Key expires after 24 hours.
+    """
+    return f"case_view:{slug}:{client_id}"
 
 
 # Convenience instance

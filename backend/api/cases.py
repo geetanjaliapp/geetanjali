@@ -32,6 +32,7 @@ from services.cache import (
     public_case_key,
     public_case_messages_key,
     public_case_outputs_key,
+    public_case_view_key,
 )
 from services.content_filter import (
     validate_submission_content,
@@ -358,6 +359,7 @@ async def get_featured_cases(
             Case.is_deleted == False,  # noqa: E712
         )
         .order_by(FeaturedCase.category, FeaturedCase.display_order)
+        .limit(20)
         .all()
     )
 
@@ -750,17 +752,29 @@ async def record_public_view(
     Record a view for a public case.
 
     Called when PublicCaseView loads. Rate limited to prevent abuse.
-    Frontend should dedupe with sessionStorage to only call once per session.
+    Uses Redis to deduplicate views from the same client (24h window).
+    Falls back to allowing views if Redis is unavailable.
 
     Returns:
         Current view count
     """
     case = get_public_case_or_404(slug, db)
 
-    # Increment view count
-    case.view_count = (case.view_count or 0) + 1
-    db.commit()
+    # Get client identifier (IP address, with fallback)
+    client_ip = request.client.host if request.client else "unknown"
 
-    logger.debug(f"Public case {slug} viewed, count: {case.view_count}")
+    # Check if this client has already viewed this case (24h dedupe window)
+    view_key = public_case_view_key(slug, client_ip)
+    VIEW_DEDUPE_TTL = 86400  # 24 hours
+
+    is_new_view = cache.setnx(view_key, True, VIEW_DEDUPE_TTL)
+
+    if is_new_view:
+        # Only increment if this is a new unique view
+        case.view_count = (case.view_count or 0) + 1
+        db.commit()
+        logger.debug(f"Public case {slug} new view from {client_ip}, count: {case.view_count}")
+    else:
+        logger.debug(f"Public case {slug} duplicate view from {client_ip}, count unchanged")
 
     return {"view_count": case.view_count}
