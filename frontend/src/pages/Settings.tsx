@@ -263,7 +263,7 @@ export default function Settings() {
         </div>
 
         {/* Section 1: Account (Full Width) */}
-        <section className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 mb-4">
+        <section id="account" className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 mb-4 scroll-mt-20">
           <div className="flex items-center gap-2 mb-4">
             <div className="p-1.5 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -327,7 +327,7 @@ export default function Settings() {
         {/* 2-Column Grid: Goals + Newsletter */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
           {/* Learning Goals */}
-          <section className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4">
+          <section id="goals" className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 scroll-mt-20">
             <div className="flex items-center gap-2 mb-3">
               <div className="p-1.5 rounded-lg bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -343,7 +343,7 @@ export default function Settings() {
           </section>
 
           {/* Daily Wisdom */}
-          <section className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4">
+          <section id="newsletter" className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 scroll-mt-20">
             <div className="flex items-center gap-2 mb-3">
               <div className="p-1.5 rounded-lg bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400">
                 <SunIcon className="w-5 h-5" />
@@ -399,7 +399,7 @@ export default function Settings() {
                         onClick={() => {
                           setShowGoalsPrompt(false);
                           // Scroll to goals section
-                          document.querySelector('[data-section="goals"]')?.scrollIntoView({ behavior: "smooth" });
+                          document.getElementById("goals")?.scrollIntoView({ behavior: "smooth" });
                         }}
                         className="text-xs px-2 py-1 bg-purple-100 dark:bg-purple-800 text-purple-700 dark:text-purple-300 rounded"
                       >
@@ -486,7 +486,7 @@ export default function Settings() {
         {/* 2-Column Grid: Reading Preferences + Appearance */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
           {/* Reading Preferences */}
-          <section className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4" data-section="goals">
+          <section id="reading" className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 scroll-mt-20">
             <div className="flex items-center gap-2 mb-3">
               <div className="p-1.5 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -544,7 +544,7 @@ export default function Settings() {
           </section>
 
           {/* Appearance */}
-          <section className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4">
+          <section id="appearance" className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 scroll-mt-20">
             <div className="flex items-center gap-2 mb-3">
               <div className="p-1.5 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -581,7 +581,7 @@ export default function Settings() {
         </div>
 
         {/* Your Data (Full Width) */}
-        <section className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 mb-4">
+        <section id="data" className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 mb-4 scroll-mt-20">
           <div className="flex items-center gap-2 mb-3">
             <div className="p-1.5 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -626,7 +626,7 @@ export default function Settings() {
         </section>
 
         {/* Danger Zone */}
-        <section className="border border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-4">
+        <section id="danger" className="border border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-4 scroll-mt-20">
           <div className="flex items-center gap-2 mb-3">
             <div className="p-1.5 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
