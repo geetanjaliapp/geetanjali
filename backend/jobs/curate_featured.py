@@ -5,6 +5,16 @@ including AI analysis and follow-up discussions. Each case takes
 3-5 minutes due to LLM processing time.
 
 Triggered by GET /cases/featured when categories are missing.
+
+ARCHITECTURE NOTE - Inline Imports:
+This module uses inline imports for `api.outputs` and `api.follow_up` inside
+functions (not at module level). This is intentional to:
+1. Avoid circular import issues (api.cases imports from jobs, jobs imports from api)
+2. Reuse the same analysis/follow-up logic used by the API
+3. Keep the curation flow consistent with real user consultations
+
+The import chain: api.cases -> jobs.curate_featured -> api.outputs/follow_up
+All cross-boundary imports are deferred (inside functions) to break cycles.
 """
 
 import logging
