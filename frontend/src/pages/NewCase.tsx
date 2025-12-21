@@ -338,7 +338,6 @@ export default function NewCase() {
                     : "border-gray-300 dark:border-gray-600"
                 }`}
                 placeholder="e.g., I'm torn between pursuing a promotion that requires relocating, or staying in my current role to care for aging parents..."
-                autoFocus
               />
               <div className="flex justify-between items-center mt-1.5 sm:mt-2">
                 {errors.question ? (
