@@ -287,17 +287,23 @@ export function MobileDrawer({
                     <span>Create account — Sync across devices</span>
                   </Link>
 
-                  {/* Sign in link */}
-                  <p className="text-xs text-center text-gray-500 dark:text-gray-400">
-                    Already have one?{" "}
-                    <Link
-                      to="/login"
-                      onClick={onClose}
-                      className="text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 font-medium"
-                    >
-                      Sign in →
-                    </Link>
-                  </p>
+                  {/* Divider */}
+                  <div className="flex items-center gap-3 py-1">
+                    <div className="flex-1 border-t border-amber-200 dark:border-gray-700" />
+                    <span className="text-xs text-gray-400 dark:text-gray-500">
+                      or
+                    </span>
+                    <div className="flex-1 border-t border-amber-200 dark:border-gray-700" />
+                  </div>
+
+                  {/* Sign in button */}
+                  <Link
+                    to="/login"
+                    onClick={onClose}
+                    className="flex items-center justify-center w-full px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+                  >
+                    Sign in
+                  </Link>
                 </div>
               ) : (
                 <button

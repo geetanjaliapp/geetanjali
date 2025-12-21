@@ -94,6 +94,24 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const logout = useCallback(async () => {
     await authApi.logout();
+
+    // Clear all user data from localStorage for fresh guest state
+    // This ensures the next guest session starts clean
+    const keysToRemove = [
+      "geetanjali_favorites",
+      "geetanjali:learningGoals",
+      "geetanjali:readingPosition",
+      "geetanjali:readingSettings",
+      "geetanjali:theme",
+    ];
+    keysToRemove.forEach((key) => {
+      try {
+        localStorage.removeItem(key);
+      } catch {
+        // Ignore localStorage errors
+      }
+    });
+
     setUser(null);
   }, []);
 
