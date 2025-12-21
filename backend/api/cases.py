@@ -500,7 +500,9 @@ async def list_cases(
 
 
 @router.delete("/{case_id}", status_code=status.HTTP_204_NO_CONTENT)
+@limiter.limit("30/minute")
 async def delete_case(
+    request: Request,
     case_id: str,
     db: Session = Depends(get_db),
     case: Case = Depends(get_case_with_access),
@@ -544,7 +546,9 @@ async def delete_case(
 
 
 @router.post("/{case_id}/retry", response_model=CaseResponse)
+@limiter.limit("10/minute")
 async def retry_case_analysis(
+    request: Request,
     case_id: str,
     db: Session = Depends(get_db),
     case: Case = Depends(get_case_with_access),
@@ -582,7 +586,9 @@ async def retry_case_analysis(
 
 
 @router.post("/{case_id}/share", response_model=CaseResponse)
+@limiter.limit("20/minute")
 async def toggle_case_sharing(
+    request: Request,
     case_id: str,
     share_data: CaseShareToggle,
     db: Session = Depends(get_db),
