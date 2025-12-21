@@ -467,6 +467,72 @@ export function ImageIcon({ className = "w-5 h-5" }: IconProps) {
   );
 }
 
+export function SparklesIcon({ className = "w-5 h-5" }: IconProps) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
+      />
+    </svg>
+  );
+}
+
+export function TextSizeIcon({ className = "w-5 h-5" }: IconProps) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <text
+        x="4"
+        y="16"
+        fontSize="10"
+        fontWeight="600"
+        fill="currentColor"
+        stroke="none"
+      >
+        A
+      </text>
+      <text
+        x="13"
+        y="19"
+        fontSize="14"
+        fontWeight="600"
+        fill="currentColor"
+        stroke="none"
+      >
+        A
+      </text>
+    </svg>
+  );
+}
+
+export function GridIcon({ className = "w-5 h-5" }: IconProps) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <rect x="3" y="3" width="7" height="7" rx="1" strokeWidth={2} />
+      <rect x="14" y="3" width="7" height="7" rx="1" strokeWidth={2} />
+      <rect x="3" y="14" width="7" height="7" rx="1" strokeWidth={2} />
+      <rect x="14" y="14" width="7" height="7" rx="1" strokeWidth={2} />
+    </svg>
+  );
+}
+
 /**
  * Map goal ID directly to icon component (bypasses API icon field)
  */

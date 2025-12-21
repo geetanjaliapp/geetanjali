@@ -14,10 +14,15 @@ import {
   SpinnerIcon,
   HeartIcon,
   StarIcon,
+  SparklesIcon,
+  GridIcon,
+  SearchIcon,
+  BookOpenIcon,
 } from "../components/icons";
 import { errorMessages } from "../lib/errorMessages";
-import { useSEO, useSyncedFavorites, useSearch, useTaxonomy } from "../hooks";
+import { useSEO, useSyncedFavorites, useSyncedGoal, useSearch, useTaxonomy } from "../hooks";
 import { validateSearchQuery } from "../lib/contentFilter";
+import { STORAGE_KEYS, getStorageItem } from "../lib/storage";
 
 // Responsive page size: 16 for desktop (4x4 grid), 12 for mobile
 const getVersesPerPage = () => {
@@ -54,7 +59,8 @@ const gridComponents = {
 };
 
 // Filter modes: 'featured' shows curated verses, 'all' shows all 701 verses, 'favorites' shows user's favorites
-type FilterMode = "featured" | "all" | "favorites" | number; // number = specific chapter
+// 'recommended' shows verses matching any of the user's selected learning goals
+type FilterMode = "featured" | "all" | "favorites" | "recommended" | number; // number = specific chapter
 
 /**
  * Get human-readable label for search strategy
@@ -93,8 +99,26 @@ export default function Verses() {
   const { favorites, isFavorite, toggleFavorite, favoritesCount } =
     useSyncedFavorites();
 
+  // Learning goals hook for "Recommended" filter
+  const { selectedGoals } = useSyncedGoal();
+
   // Taxonomy hook for principles (single source of truth from backend)
   const { principles, getPrincipleShortLabel } = useTaxonomy();
+
+  // Compute recommended principles: union of all principles from non-exploring goals
+  const recommendedPrinciples = useMemo(() => {
+    const principleSet = new Set<string>();
+    selectedGoals.forEach((goal) => {
+      // "exploring" goal has no principles - skip it
+      if (goal.id !== "exploring" && goal.principles) {
+        goal.principles.forEach((p) => principleSet.add(p));
+      }
+    });
+    return Array.from(principleSet);
+  }, [selectedGoals]);
+
+  // Show "Recommended" tab only if user has selected non-exploring goals
+  const showRecommendedTab = recommendedPrinciples.length > 0;
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -171,7 +195,7 @@ export default function Verses() {
   // Responsive page size: 16 for desktop (4x4), 12 for mobile
   const pageSize = useMemo(() => getVersesPerPage(), []);
 
-  // Parse initial filter from URL
+  // Parse initial filter from URL, falling back to user's default preference
   const getInitialFilter = (): FilterMode => {
     const chapter = searchParams.get("chapter");
     if (chapter) return parseInt(chapter);
@@ -179,6 +203,16 @@ export default function Verses() {
     if (showAll === "true") return "all";
     const showFavs = searchParams.get("favorites");
     if (showFavs === "true") return "favorites";
+    const showRec = searchParams.get("recommended");
+    if (showRec === "true") return "recommended";
+
+    // No URL params - use user's default preference
+    const defaultTab = getStorageItem<string>(STORAGE_KEYS.defaultVersesTab, "default");
+    if (defaultTab === "for-you") return "recommended";
+    if (defaultTab === "favorites") return "favorites";
+    if (defaultTab === "all") return "all";
+    if (defaultTab === "featured") return "featured";
+    // "default" or unrecognized values fall through to system default (featured)
     return "featured";
   };
 
@@ -229,6 +263,7 @@ export default function Verses() {
     const urlChapter = searchParams.get("chapter");
     const urlAll = searchParams.get("all");
     const urlFavorites = searchParams.get("favorites");
+    const urlRecommended = searchParams.get("recommended");
 
     // Sync principle filter
     if (urlTopic !== selectedPrinciple) {
@@ -242,7 +277,9 @@ export default function Verses() {
         ? "all"
         : urlFavorites === "true"
           ? "favorites"
-          : "featured";
+          : urlRecommended === "true"
+            ? "recommended"
+            : "featured";
 
     if (newFilterMode !== filterMode) {
       setFilterMode(newFilterMode);
@@ -255,6 +292,7 @@ export default function Verses() {
   const showFeatured = filterMode === "featured";
   const showAll = filterMode === "all";
   const showFavorites = filterMode === "favorites";
+  const showRecommended = filterMode === "recommended";
 
   // Filter verses by favorites when in favorites mode
   const displayedVerses = useMemo(() => {
@@ -275,6 +313,17 @@ export default function Verses() {
       return;
     }
     try {
+      // For recommended mode, use the user's goal principles
+      if (filterMode === "recommended" && recommendedPrinciples.length > 0) {
+        const count = await versesApi.count(
+          undefined,
+          undefined,
+          recommendedPrinciples.join(","),
+        );
+        setTotalCount(count);
+        return;
+      }
+
       // When topic is selected, it's a standalone filter (don't combine with filterMode)
       const chapter = selectedPrinciple
         ? undefined
@@ -295,7 +344,7 @@ export default function Verses() {
     } catch {
       setTotalCount(null);
     }
-  }, [filterMode, selectedPrinciple, favoritesCount]);
+  }, [filterMode, selectedPrinciple, favoritesCount, recommendedPrinciples]);
 
   const loadVerses = useCallback(
     async (reset: boolean = false) => {
@@ -347,6 +396,22 @@ export default function Verses() {
         }
         setError(null);
 
+        // For recommended mode, use the user's goal principles (loadMore handles pagination)
+        if (filterMode === "recommended" && recommendedPrinciples.length > 0 && reset) {
+          const data = await versesApi.list(
+            0,
+            pageSize,
+            undefined,
+            undefined,
+            recommendedPrinciples.join(","),
+          );
+          setVerses(data);
+          setHasMore(data.length === pageSize);
+          setLoading(false);
+          setLoadingMore(false);
+          return;
+        }
+
         // When topic is selected, it's a standalone filter (don't combine with filterMode)
         const chapter = selectedPrinciple
           ? undefined
@@ -382,7 +447,7 @@ export default function Verses() {
         setLoadingMore(false);
       }
     },
-    [filterMode, selectedPrinciple, pageSize, favorites],
+    [filterMode, selectedPrinciple, pageSize, favorites, recommendedPrinciples],
   );
 
   useEffect(() => {
@@ -485,6 +550,26 @@ export default function Verses() {
     setError(null);
 
     try {
+      // For recommended mode, use the user's goal principles
+      if (filterMode === "recommended" && recommendedPrinciples.length > 0) {
+        const data = await versesApi.list(
+          verses.length,
+          pageSize,
+          undefined,
+          undefined,
+          recommendedPrinciples.join(","),
+        );
+
+        setVerses((prev) => {
+          const existingIds = new Set(prev.map((v) => v.id));
+          const newVerses = data.filter((v) => !existingIds.has(v.id));
+          return [...prev, ...newVerses];
+        });
+        setHasMore(data.length === pageSize);
+        setLoadingMore(false);
+        return;
+      }
+
       // When topic is selected, it's a standalone filter (don't combine with filterMode)
       const chapter = selectedPrinciple
         ? undefined
@@ -517,7 +602,7 @@ export default function Verses() {
     } finally {
       setLoadingMore(false);
     }
-  }, [filterMode, selectedPrinciple, verses.length, loadingMore, pageSize]);
+  }, [filterMode, selectedPrinciple, verses.length, loadingMore, pageSize, recommendedPrinciples]);
 
   const updateSearchParams = (filter: FilterMode, principle: string | null) => {
     const params: Record<string, string> = {};
@@ -527,6 +612,8 @@ export default function Verses() {
       params.all = "true";
     } else if (filter === "favorites") {
       params.favorites = "true";
+    } else if (filter === "recommended") {
+      params.recommended = "true";
     }
     if (principle) {
       params.topic = principle;
@@ -708,19 +795,41 @@ export default function Verses() {
                 <span className="hidden sm:inline">Featured</span>
               </button>
 
+              {/* Recommended Segment - only visible when user has selected learning goals */}
+              {showRecommendedTab && (
+                <>
+                  {/* Divider */}
+                  <div className="w-px bg-gray-200 dark:bg-gray-600 my-1" />
+
+                  <button
+                    onClick={() => handleFilterSelect("recommended")}
+                    className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 ${
+                      showRecommended && !selectedPrinciple && !isSearchMode
+                        ? "bg-orange-600 text-white shadow-sm"
+                        : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    }`}
+                    title="Verses matching your learning goals"
+                  >
+                    <SparklesIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    <span className="hidden sm:inline">For You</span>
+                  </button>
+                </>
+              )}
+
               {/* Divider */}
               <div className="w-px bg-gray-200 dark:bg-gray-600 my-1" />
 
               {/* All Segment */}
               <button
                 onClick={() => handleFilterSelect("all")}
-                className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 ${
+                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 ${
                   showAll && !selectedPrinciple && !isSearchMode
                     ? "bg-orange-600 text-white shadow-sm"
                     : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                 }`}
               >
-                All
+                <GridIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">All</span>
               </button>
 
               {/* Divider */}
@@ -764,7 +873,8 @@ export default function Verses() {
                     : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
                 }`}
               >
-                {selectedChapter ? `Ch ${selectedChapter}` : "Chapter"}
+                <BookOpenIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                {selectedChapter ? `Chapter ${selectedChapter}` : "Chapter"}
                 <ChevronDownIcon
                   className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform ${showChapterDropdown ? "rotate-180" : ""}`}
                 />
@@ -947,10 +1057,42 @@ export default function Verses() {
                 </button>
               </div>
             </div>
+          ) : showRecommended ? (
+            <div className="flex items-center gap-1.5">
+              <SparklesIcon className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+              <span className="text-xs sm:text-sm text-amber-600/70 dark:text-amber-400/70">
+                {totalCount !== null ? `${totalCount} ` : ""}
+                verses for your goals
+              </span>
+            </div>
+          ) : showFavorites ? (
+            <div className="flex items-center gap-1.5">
+              <HeartIcon className="w-3.5 h-3.5 text-red-400" filled />
+              <span className="text-xs sm:text-sm text-amber-600/70 dark:text-amber-400/70">
+                {totalCount !== null ? `${totalCount} ` : ""}
+                favorite{totalCount !== 1 ? "s" : ""}
+              </span>
+            </div>
+          ) : showFeatured ? (
+            <div className="flex items-center gap-1.5">
+              <StarIcon className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
+              <span className="text-xs sm:text-sm text-amber-600/70 dark:text-amber-400/70">
+                {totalCount !== null ? `${totalCount} ` : ""}
+                featured verses
+              </span>
+            </div>
+          ) : showAll ? (
+            <div className="flex items-center gap-1.5">
+              <GridIcon className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
+              <span className="text-xs sm:text-sm text-amber-600/70 dark:text-amber-400/70">
+                {totalCount !== null ? `${totalCount} ` : ""}
+                verses
+              </span>
+            </div>
           ) : (
             <div className="text-xs sm:text-sm text-amber-600/70 dark:text-amber-400/70">
               {totalCount !== null ? `${totalCount} ` : ""}
-              {showFeatured ? "featured verses" : "verses"}
+              verses
             </div>
           )}
         </div>
@@ -1005,7 +1147,7 @@ export default function Verses() {
 
                   {/* Virtualized Search Results Grid */}
                   {/* isolate creates a new stacking context so grid stays below sticky header */}
-                  <div className={`isolate pb-4 transition-opacity duration-200 ${searchLoading ? "opacity-50" : "opacity-100"}`}>
+                  <div className={`isolate transition-opacity duration-200 ${searchLoading ? "opacity-50" : "opacity-100"}`}>
                     <VirtuosoGrid
                       useWindowScroll
                       totalCount={searchData.results.length}
@@ -1041,60 +1183,59 @@ export default function Verses() {
                   </div>
 
                   {/* Load More / End of Search Results */}
-                  <div className="relative z-10 mt-8 sm:mt-12">
-                    {searchHasMore ? (
-                      <button
-                        onClick={searchLoadMore}
-                        disabled={searchLoadingMore}
-                        className="w-full group"
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-300/50 dark:via-amber-600/30 to-amber-300/70 dark:to-amber-600/50" />
-                          <div
-                            className={`flex flex-col items-center transition-all duration-300 ${searchLoadingMore ? "scale-95 opacity-70" : "group-hover:scale-105"}`}
-                          >
-                            {searchLoadingMore ? (
-                              <SpinnerIcon className="w-6 h-6 text-amber-500 dark:text-amber-400 mb-1.5" />
-                            ) : (
-                              <span className="text-amber-400/70 dark:text-amber-500/60 text-xl mb-1">
-                                ॰
-                              </span>
-                            )}
-                            <span className="flex items-center gap-1.5 text-base font-medium text-amber-700/80 dark:text-amber-400/80 group-hover:text-amber-800 dark:group-hover:text-amber-300 transition-colors">
+                  {searchData.results.length > 0 && (
+                    <div className="pt-12 sm:pt-16 pb-4">
+                      {searchHasMore ? (
+                        <button
+                          onClick={searchLoadMore}
+                          disabled={searchLoadingMore}
+                          className="w-full group"
+                        >
+                          <div className="flex items-center gap-4">
+                            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-300/50 dark:via-amber-600/30 to-amber-300/70 dark:to-amber-600/50" />
+                            <div
+                              className={`flex flex-col items-center transition-all duration-300 ${searchLoadingMore ? "scale-95 opacity-70" : "group-hover:scale-105"}`}
+                            >
                               {searchLoadingMore ? (
-                                "Loading"
+                                <SpinnerIcon className="w-6 h-6 text-amber-500 dark:text-amber-400 mb-1.5" />
                               ) : (
-                                <>
-                                  Load More
-                                  <ChevronDownIcon className="w-4 h-4" />
-                                </>
+                                <span className="text-amber-400/70 dark:text-amber-500/60 text-xl mb-1">
+                                  ॰
+                                </span>
                               )}
-                            </span>
-                            {!searchLoadingMore && searchData.total_count && (
-                              <span className="text-xs text-amber-600/70 dark:text-amber-500/70 mt-1">
-                                {searchData.total_count - searchData.results.length} more
+                              <span className="flex items-center gap-1.5 text-base font-medium text-amber-700/80 dark:text-amber-400/80 group-hover:text-amber-800 dark:group-hover:text-amber-300 transition-colors">
+                                {searchLoadingMore ? (
+                                  "Loading"
+                                ) : (
+                                  <>
+                                    Load More
+                                    <ChevronDownIcon className="w-4 h-4" />
+                                  </>
+                                )}
                               </span>
-                            )}
+                              {!searchLoadingMore && searchData.total_count && (
+                                <span className="text-xs text-amber-600/70 dark:text-amber-500/70 mt-1">
+                                  {searchData.total_count - searchData.results.length} more
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex-1 h-px bg-gradient-to-l from-transparent via-amber-300/50 dark:via-amber-600/30 to-amber-300/70 dark:to-amber-600/50" />
                           </div>
-                          <div className="flex-1 h-px bg-gradient-to-l from-transparent via-amber-300/50 dark:via-amber-600/30 to-amber-300/70 dark:to-amber-600/50" />
+                        </button>
+                      ) : (
+                        <div className="flex items-center gap-4">
+                          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-200/40 dark:via-amber-600/20 to-amber-200/60 dark:to-amber-600/40" />
+                          <div className="flex flex-col items-center">
+                            <SearchIcon className="w-5 h-5 text-amber-300/70 dark:text-amber-500/50" />
+                            <span className="text-xs text-amber-600/70 dark:text-amber-500/60 mt-1">
+                              {searchData.total_count ?? searchData.results.length} results
+                            </span>
+                          </div>
+                          <div className="flex-1 h-px bg-gradient-to-l from-transparent via-amber-200/40 dark:via-amber-600/20 to-amber-200/60 dark:to-amber-600/40" />
                         </div>
-                      </button>
-                    ) : searchData.results.length > 0 ? (
-                      <div className="flex items-center gap-4">
-                        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-200/40 dark:via-amber-600/20 to-amber-200/60 dark:to-amber-600/40" />
-                        <div className="flex flex-col items-center">
-                          <span className="text-amber-300/60 dark:text-amber-500/40 text-xl">
-                            ॐ
-                          </span>
-                          <span className="text-xs text-amber-600/70 dark:text-amber-500/60 mt-1">
-                            {searchData.total_count ?? searchData.total} results
-                            shown
-                          </span>
-                        </div>
-                        <div className="flex-1 h-px bg-gradient-to-l from-transparent via-amber-200/40 dark:via-amber-600/20 to-amber-200/60 dark:to-amber-600/40" />
-                      </div>
-                    ) : null}
-                  </div>
+                      )}
+                    </div>
+                  )}
                 </>
               )}
 
@@ -1168,12 +1309,20 @@ export default function Verses() {
                 <div className="text-center py-12 sm:py-16">
                   <div className="max-w-md mx-auto">
                     {/* Decorative element */}
-                    <div className="text-4xl sm:text-5xl text-amber-300/60 dark:text-amber-500/40 mb-4">
-                      {showFavorites ? "♡" : "ॐ"}
+                    <div className="mb-4 flex justify-center">
+                      {showFavorites ? (
+                        <HeartIcon className="w-10 h-10 sm:w-12 sm:h-12 text-red-300/60 dark:text-red-400/40" />
+                      ) : showRecommended ? (
+                        <SparklesIcon className="w-10 h-10 sm:w-12 sm:h-12 text-amber-300/60 dark:text-amber-500/40" />
+                      ) : showFeatured ? (
+                        <StarIcon className="w-10 h-10 sm:w-12 sm:h-12 text-amber-300/60 dark:text-amber-500/40" />
+                      ) : (
+                        <span className="text-4xl sm:text-5xl text-amber-300/60 dark:text-amber-500/40">ॐ</span>
+                      )}
                     </div>
 
                     <h3 className="text-lg sm:text-xl font-serif text-gray-700 dark:text-gray-300 mb-2">
-                      {showFavorites ? "No favorites yet" : "No verses found"}
+                      {showFavorites ? "No favorites yet" : showRecommended ? "No recommendations yet" : "No verses found"}
                     </h3>
 
                     <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mb-6">
@@ -1182,6 +1331,11 @@ export default function Verses() {
                           Browse verses and tap the{" "}
                           <HeartIcon className="w-4 h-4 inline-block align-text-bottom text-red-400" />{" "}
                           to save your favorites.
+                        </>
+                      ) : showRecommended ? (
+                        <>
+                          No verses match your current learning goals. Try selecting different goals in{" "}
+                          <a href="/settings#goals" className="text-orange-600 dark:text-orange-400 underline">Settings</a>.
                         </>
                       ) : selectedPrinciple && selectedChapter ? (
                         <>
@@ -1242,7 +1396,7 @@ export default function Verses() {
                 <>
                   {/* Virtualized Verse Grid - renders only visible items for performance */}
                   {/* isolate creates a new stacking context so grid stays below sticky header */}
-                  <div className={`isolate pb-4 transition-opacity duration-200 ${loading ? "opacity-50" : "opacity-100"}`}>
+                  <div className={`isolate transition-opacity duration-200 ${loading ? "opacity-50" : "opacity-100"}`}>
                     <VirtuosoGrid
                       useWindowScroll
                       totalCount={displayedVerses.length}
@@ -1269,63 +1423,70 @@ export default function Verses() {
                     />
                   </div>
 
-                  {/* Load More / End of Results */}
-                  <div className="relative z-10 mt-8 sm:mt-12">
-                    {hasMore ? (
-                      <button
-                        onClick={loadMore}
-                        disabled={loadingMore}
-                        className="w-full group"
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-300/50 dark:via-amber-600/30 to-amber-300/70 dark:to-amber-600/50" />
-                          <div
-                            className={`flex flex-col items-center transition-all duration-300 ${loadingMore ? "scale-95 opacity-70" : "group-hover:scale-105"}`}
-                          >
-                            {loadingMore ? (
-                              <SpinnerIcon className="w-6 h-6 text-amber-500 dark:text-amber-400 mb-1.5" />
-                            ) : (
-                              <span className="text-amber-400/70 dark:text-amber-500/60 text-xl mb-1">
-                                ॰
-                              </span>
-                            )}
-                            <span className="flex items-center gap-1.5 text-base font-medium text-amber-700/80 dark:text-amber-400/80 group-hover:text-amber-800 dark:group-hover:text-amber-300 transition-colors">
+                  {/* Load More / End of Results - positioned after grid with generous spacing */}
+                  {displayedVerses.length > 0 && (
+                    <div className="pt-12 sm:pt-16 pb-4">
+                      {hasMore ? (
+                        <button
+                          onClick={loadMore}
+                          disabled={loadingMore}
+                          className="w-full group"
+                        >
+                          <div className="flex items-center gap-4">
+                            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-300/50 dark:via-amber-600/30 to-amber-300/70 dark:to-amber-600/50" />
+                            <div
+                              className={`flex flex-col items-center transition-all duration-300 ${loadingMore ? "scale-95 opacity-70" : "group-hover:scale-105"}`}
+                            >
                               {loadingMore ? (
-                                "Loading"
+                                <SpinnerIcon className="w-6 h-6 text-amber-500 dark:text-amber-400 mb-1.5" />
                               ) : (
-                                <>
-                                  Load More
-                                  <ChevronDownIcon className="w-4 h-4" />
-                                </>
+                                <span className="text-amber-400/70 dark:text-amber-500/60 text-xl mb-1">
+                                  ॰
+                                </span>
                               )}
-                            </span>
-                            {!loadingMore && totalCount && (
-                              <span className="text-xs text-amber-600/70 dark:text-amber-500/70 mt-1">
-                                {totalCount - verses.length} more
+                              <span className="flex items-center gap-1.5 text-base font-medium text-amber-700/80 dark:text-amber-400/80 group-hover:text-amber-800 dark:group-hover:text-amber-300 transition-colors">
+                                {loadingMore ? (
+                                  "Loading"
+                                ) : (
+                                  <>
+                                    Load More
+                                    <ChevronDownIcon className="w-4 h-4" />
+                                  </>
+                                )}
                               </span>
-                            )}
+                              {!loadingMore && totalCount && (
+                                <span className="text-xs text-amber-600/70 dark:text-amber-500/70 mt-1">
+                                  {totalCount - verses.length} more
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex-1 h-px bg-gradient-to-l from-transparent via-amber-300/50 dark:via-amber-600/30 to-amber-300/70 dark:to-amber-600/50" />
                           </div>
-                          <div className="flex-1 h-px bg-gradient-to-l from-transparent via-amber-300/50 dark:via-amber-600/30 to-amber-300/70 dark:to-amber-600/50" />
+                        </button>
+                      ) : (
+                        <div className="flex items-center gap-4">
+                          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-200/40 dark:via-amber-600/20 to-amber-200/60 dark:to-amber-600/40" />
+                          <div className="flex flex-col items-center">
+                            {showFavorites ? (
+                              <HeartIcon className="w-5 h-5 text-red-300/70 dark:text-red-400/50" filled />
+                            ) : showRecommended ? (
+                              <SparklesIcon className="w-5 h-5 text-amber-300/70 dark:text-amber-500/50" />
+                            ) : showFeatured ? (
+                              <StarIcon className="w-5 h-5 text-amber-300/70 dark:text-amber-500/50" />
+                            ) : (
+                              <span className="text-amber-300/60 dark:text-amber-500/40 text-xl">ॐ</span>
+                            )}
+                            <span className="text-xs text-amber-600/70 dark:text-amber-500/60 mt-1">
+                              {displayedVerses.length}{" "}
+                              {showFavorites ? "favorite" : showRecommended ? "recommended" : showFeatured ? "featured" : "verse"}
+                              {displayedVerses.length !== 1 ? "s" : ""}
+                            </span>
+                          </div>
+                          <div className="flex-1 h-px bg-gradient-to-l from-transparent via-amber-200/40 dark:via-amber-600/20 to-amber-200/60 dark:to-amber-600/40" />
                         </div>
-                      </button>
-                    ) : displayedVerses.length > 0 ? (
-                      <div className="flex items-center gap-4">
-                        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-200/40 dark:via-amber-600/20 to-amber-200/60 dark:to-amber-600/40" />
-                        <div className="flex flex-col items-center">
-                          <span className="text-amber-300/60 dark:text-amber-500/40 text-xl">
-                            {showFavorites ? "♡" : "ॐ"}
-                          </span>
-                          <span className="text-xs text-amber-600/70 dark:text-amber-500/60 mt-1">
-                            {displayedVerses.length}{" "}
-                            {showFavorites ? "favorite" : "verse"}
-                            {displayedVerses.length !== 1 ? "s" : ""}
-                            {showFavorites ? "" : " explored"}
-                          </span>
-                        </div>
-                        <div className="flex-1 h-px bg-gradient-to-l from-transparent via-amber-200/40 dark:via-amber-600/20 to-amber-200/60 dark:to-amber-600/40" />
-                      </div>
-                    ) : null}
-                  </div>
+                      )}
+                    </div>
+                  )}
                 </>
               )}
             </>
