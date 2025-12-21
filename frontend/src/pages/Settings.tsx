@@ -551,7 +551,11 @@ export default function Settings() {
                   )}
 
                   {updateSuccess && (
-                    <p className="text-xs text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 rounded px-2 py-1">
+                    <p
+                      role="status"
+                      aria-live="polite"
+                      className="text-xs text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 rounded px-2 py-1"
+                    >
                       Preferences updated!
                     </p>
                   )}
@@ -628,7 +632,11 @@ export default function Settings() {
                       )}
 
                       {status === "pending" && (
-                        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-2 text-center">
+                        <div
+                          role="status"
+                          aria-live="polite"
+                          className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-2 text-center"
+                        >
                           <p className="text-xs text-amber-700 dark:text-amber-400">
                             Confirmation sent to <strong>{email}</strong>
                           </p>
@@ -648,7 +656,11 @@ export default function Settings() {
               </div>
             ) : status === "subscribed" ? (
               /* Just subscribed successfully (non-account email or guest) */
-              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
+              <div
+                role="status"
+                aria-live="polite"
+                className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3"
+              >
                 <div className="flex items-start gap-2">
                   <CheckIcon className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
                   <div>
@@ -669,7 +681,11 @@ export default function Settings() {
               </div>
             ) : status === "pending" ? (
               /* Awaiting email verification */
-              <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 text-center">
+              <div
+                role="status"
+                aria-live="polite"
+                className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 text-center"
+              >
                 <MailIcon className="w-6 h-6 text-amber-600 dark:text-amber-400 mx-auto mb-2" />
                 <p className="text-sm font-medium text-amber-900 dark:text-amber-300">Check your email</p>
                 <p className="text-xs text-amber-700 dark:text-amber-400 mt-1">
