@@ -92,7 +92,7 @@ export function MobileDrawer({
     ? `Continue Ch.${position.chapter}`
     : "Start Reading";
   const readingPath = hasReadingPosition
-    ? `/read/${position.chapter}/${position.verse}`
+    ? `/read?c=${position.chapter}&v=${position.verse}`
     : "/read";
 
   return (

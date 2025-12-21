@@ -93,7 +93,7 @@ export function UserMenu({
     ? `Continue Ch.${position.chapter} v.${position.verse}`
     : "Start Reading";
   const readingPath = hasReadingPosition
-    ? `/read/${position.chapter}/${position.verse}`
+    ? `/read?c=${position.chapter}&v=${position.verse}`
     : "/read";
 
   return (
