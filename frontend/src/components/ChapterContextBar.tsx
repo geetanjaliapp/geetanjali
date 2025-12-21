@@ -6,6 +6,7 @@
  * - Chapter name (full on desktop, abbreviated on mobile)
  * - Verse position (e.g., "Verse 47 of 72" or "47/72")
  * - Progress bar showing position in chapter
+ * - Optional: Font size toggle and reset (for VerseDetail)
  *
  * Used by: VerseDetail, Reading Mode
  */
@@ -14,12 +15,29 @@ import { useNavigate } from "react-router-dom";
 import { getChapterInfo, getVerseProgress } from "../constants/chapters";
 import { ProgressBar } from "./ProgressBar";
 
+type FontSize = "normal" | "large";
+
 interface ChapterContextBarProps {
   chapter: number;
   verse: number;
+  /** Optional font size for VerseDetail */
+  fontSize?: FontSize;
+  /** Callback to toggle font size */
+  onToggleFontSize?: () => void;
+  /** Callback to reset font size to default */
+  onResetFontSize?: () => void;
+  /** Whether font size is at default (hides reset button) */
+  isDefaultFontSize?: boolean;
 }
 
-export function ChapterContextBar({ chapter, verse }: ChapterContextBarProps) {
+export function ChapterContextBar({
+  chapter,
+  verse,
+  fontSize,
+  onToggleFontSize,
+  onResetFontSize,
+  isDefaultFontSize = true,
+}: ChapterContextBarProps) {
   const navigate = useNavigate();
   const chapterInfo = getChapterInfo(chapter);
   const progress = getVerseProgress(chapter, verse);
@@ -28,9 +46,11 @@ export function ChapterContextBar({ chapter, verse }: ChapterContextBarProps) {
     navigate(-1);
   };
 
+  const showFontControls = onToggleFontSize !== undefined;
+
   return (
     <div className="mb-4 sm:mb-6">
-      {/* Main row: Back button, Chapter name, Verse position */}
+      {/* Main row: Back button, Chapter name, Verse position + Font controls */}
       <div className="flex items-center justify-between gap-2 sm:gap-4">
         {/* Back button */}
         <button
@@ -58,16 +78,70 @@ export function ChapterContextBar({ chapter, verse }: ChapterContextBarProps) {
           </h1>
         </div>
 
-        {/* Verse position */}
-        <div className="flex-shrink-0 text-right">
-          {/* Desktop: "Verse 47 of 72" */}
-          <span className="hidden sm:inline text-sm text-amber-700 dark:text-amber-400">
-            Verse {progress.position} of {progress.total}
-          </span>
-          {/* Mobile: "47/72" */}
-          <span className="sm:hidden text-sm text-amber-700 dark:text-amber-400 font-medium">
-            {progress.position}/{progress.total}
-          </span>
+        {/* Right side: Verse position + Font controls */}
+        <div className="flex-shrink-0 flex items-center gap-2">
+          {/* Verse position */}
+          <div className="text-right">
+            {/* Desktop: "Verse 47 of 72" */}
+            <span className="hidden sm:inline text-sm text-amber-700 dark:text-amber-400">
+              Verse {progress.position} of {progress.total}
+            </span>
+            {/* Mobile: "47/72" */}
+            <span className="sm:hidden text-sm text-amber-700 dark:text-amber-400 font-medium">
+              {progress.position}/{progress.total}
+            </span>
+          </div>
+
+          {/* Font controls - only shown when props are provided */}
+          {showFontControls && (
+            <div className="flex items-center gap-1 ml-2 pl-2 border-l border-amber-200 dark:border-gray-700">
+              {/* Font size toggle */}
+              <button
+                onClick={onToggleFontSize}
+                className="flex items-center justify-center gap-1 px-2 py-1 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-gray-800 active:bg-amber-200 dark:active:bg-gray-700 rounded-md transition-colors"
+                aria-label={`Font size: ${fontSize}. Tap to change.`}
+                title={`Font size: ${fontSize}`}
+              >
+                <span className="text-xs font-serif">Aa</span>
+                <span className="flex items-center gap-0.5">
+                  <span className="w-1 h-1 rounded-full bg-amber-500 dark:bg-amber-400" />
+                  <span
+                    className={`w-1 h-1 rounded-full ${fontSize === "large" ? "bg-amber-500 dark:bg-amber-400" : "bg-amber-200 dark:bg-gray-600"}`}
+                  />
+                </span>
+              </button>
+
+              {/* Reset button - always visible for stable layout, disabled when at default */}
+              {onResetFontSize && (
+                <button
+                  onClick={onResetFontSize}
+                  disabled={isDefaultFontSize}
+                  className={`flex items-center justify-center p-1 rounded-md transition-colors ${
+                    isDefaultFontSize
+                      ? "text-amber-300 dark:text-gray-500 cursor-default"
+                      : "text-amber-500 dark:text-amber-400 hover:text-amber-600 dark:hover:text-amber-300 hover:bg-amber-100 dark:hover:bg-gray-800"
+                  }`}
+                  aria-label="Reset font size"
+                  title={isDefaultFontSize ? "Font size is default" : "Reset font size"}
+                >
+                  <svg
+                    className="w-3.5 h-3.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                    />
+                  </svg>
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

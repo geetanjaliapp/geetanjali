@@ -18,10 +18,25 @@ import {
   StickyBottomNav,
   FloatingNavArrow,
 } from "../components";
-import { HeartIcon, ShareIcon } from "../components/icons";
+import { HeartIcon, ShareIcon, ChevronDownIcon } from "../components/icons";
 import { ShareModal } from "../components/verse";
 import { errorMessages } from "../lib/errorMessages";
 import { useSEO, useAdjacentVerses, useSyncedFavorites } from "../hooks";
+import { STORAGE_KEYS, getStorageItem, setStorageItem } from "../lib/storage";
+
+type FontSize = "normal" | "large";
+
+interface SectionPrefs {
+  iast: boolean;
+  insight: boolean;
+  translations: boolean;
+}
+
+const DEFAULT_SECTION_PREFS: SectionPrefs = {
+  iast: true,
+  insight: true,
+  translations: true,
+};
 
 // localStorage key for newsletter subscription
 const NEWSLETTER_SUBSCRIBED_KEY = "geetanjali:newsletterSubscribed";
@@ -57,6 +72,37 @@ export default function VerseDetail() {
   const [showAllTranslations, setShowAllTranslations] = useState(false);
   const [showNewsletterNudge, setShowNewsletterNudge] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [fontSize, setFontSize] = useState<FontSize>(() =>
+    getStorageItem<FontSize>(STORAGE_KEYS.verseDetailFontSize, "normal")
+  );
+
+  // Toggle font size and persist preference
+  const toggleFontSize = () => {
+    const newSize = fontSize === "normal" ? "large" : "normal";
+    setFontSize(newSize);
+    setStorageItem(STORAGE_KEYS.verseDetailFontSize, newSize);
+  };
+
+  // Reset font size to default
+  const resetFontSize = () => {
+    setFontSize("normal");
+    setStorageItem(STORAGE_KEYS.verseDetailFontSize, "normal");
+  };
+
+  // Section visibility preferences
+  const [sectionPrefs, setSectionPrefs] = useState<SectionPrefs>(() =>
+    getStorageItem<SectionPrefs>(
+      STORAGE_KEYS.verseDetailSectionPrefs,
+      DEFAULT_SECTION_PREFS
+    )
+  );
+
+  // Toggle a section and persist
+  const toggleSection = (section: keyof SectionPrefs) => {
+    const newPrefs = { ...sectionPrefs, [section]: !sectionPrefs[section] };
+    setSectionPrefs(newPrefs);
+    setStorageItem(STORAGE_KEYS.verseDetailSectionPrefs, newPrefs);
+  };
 
   // Favorites (synced across devices for logged-in users)
   const { isFavorite, toggleFavorite } = useSyncedFavorites();
@@ -308,8 +354,15 @@ export default function VerseDetail() {
 
       <div className="flex-1 py-4 sm:py-6 lg:py-8">
         <div className="max-w-5xl mx-auto px-3 sm:px-4 lg:px-6">
-          {/* Chapter Context Bar */}
-          <ChapterContextBar chapter={verse.chapter} verse={verse.verse} />
+          {/* Chapter Context Bar with font controls */}
+          <ChapterContextBar
+            chapter={verse.chapter}
+            verse={verse.verse}
+            fontSize={fontSize}
+            onToggleFontSize={toggleFontSize}
+            onResetFontSize={resetFontSize}
+            isDefaultFontSize={fontSize === "normal"}
+          />
 
           {/* Main Spotlight Section */}
           <div className="animate-fade-in bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 dark:from-gray-800 dark:via-gray-800 dark:to-gray-800 rounded-xl sm:rounded-2xl lg:rounded-3xl shadow-xl sm:shadow-2xl p-4 sm:p-8 lg:p-12 mb-4 sm:mb-6 lg:mb-8 border border-amber-200/50 dark:border-gray-700">
@@ -321,13 +374,23 @@ export default function VerseDetail() {
                 </div>
                 <div
                   lang="sa"
-                  className="text-xl sm:text-3xl lg:text-4xl font-sanskrit text-amber-900/70 dark:text-amber-200 leading-relaxed tracking-wide mb-3 sm:mb-4 lg:mb-6"
+                  className={`font-sanskrit text-amber-900/70 dark:text-amber-200 leading-relaxed tracking-wide mb-3 sm:mb-4 lg:mb-6 transition-all duration-200 ${
+                    fontSize === "large"
+                      ? "text-2xl sm:text-4xl lg:text-5xl"
+                      : "text-xl sm:text-3xl lg:text-4xl"
+                  }`}
                 >
                   {formatSanskritLines(verse.sanskrit_devanagari).map(
                     (line, idx) => (
                       <p
                         key={idx}
-                        className={`${isSpeakerIntro(line) ? "text-lg sm:text-xl lg:text-2xl text-amber-700/60 dark:text-amber-400/60 mb-2 sm:mb-4" : "mb-1 sm:mb-2"}`}
+                        className={`${
+                          isSpeakerIntro(line)
+                            ? fontSize === "large"
+                              ? "text-xl sm:text-2xl lg:text-3xl text-amber-700/60 dark:text-amber-400/60 mb-2 sm:mb-4"
+                              : "text-lg sm:text-xl lg:text-2xl text-amber-700/60 dark:text-amber-400/60 mb-2 sm:mb-4"
+                            : "mb-1 sm:mb-2"
+                        }`}
                       >
                         {line}
                       </p>
@@ -381,27 +444,62 @@ export default function VerseDetail() {
               </div>
             )}
 
-            {/* IAST Transliteration - Subtle, for learners */}
+            {/* IAST Transliteration - Collapsible (fixed size, not affected by font toggle) */}
             {verse.sanskrit_iast && (
               <div className="text-center mb-4 sm:mb-6">
-                <p
-                  lang="sa"
-                  className="text-sm sm:text-base text-amber-700/60 dark:text-amber-400/50 italic font-serif leading-relaxed"
+                <button
+                  onClick={() => toggleSection("iast")}
+                  className="inline-flex items-center gap-1.5 text-xs font-medium text-amber-600/60 dark:text-amber-400/50 hover:text-amber-700 dark:hover:text-amber-300 transition-colors mb-2"
+                  aria-expanded={sectionPrefs.iast}
                 >
-                  {verse.sanskrit_iast}
-                </p>
+                  <span>IAST</span>
+                  <ChevronDownIcon
+                    className={`w-3 h-3 transition-transform duration-200 ${
+                      sectionPrefs.iast ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+                <div
+                  className={`transition-all duration-200 overflow-hidden ${
+                    sectionPrefs.iast ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
+                  }`}
+                >
+                  <p
+                    lang="sa"
+                    className="text-sm sm:text-base text-amber-700/60 dark:text-amber-400/50 italic font-serif leading-relaxed"
+                  >
+                    {verse.sanskrit_iast}
+                  </p>
+                </div>
               </div>
             )}
 
-            {/* Leadership Insight - Prominent */}
+            {/* Leadership Insight - Collapsible */}
             {verse.paraphrase_en && (
               <div className="bg-white/70 dark:bg-gray-900/50 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 border border-amber-100/50 dark:border-gray-700 mb-4 sm:mb-6 lg:mb-8">
-                <p className="text-xs font-semibold text-red-700/70 dark:text-red-400/70 uppercase tracking-widest mb-2 sm:mb-4">
-                  Leadership Insight
-                </p>
-                <p className="text-base sm:text-lg lg:text-xl text-gray-800 dark:text-gray-200 leading-relaxed italic">
-                  "{verse.paraphrase_en}"
-                </p>
+                <button
+                  onClick={() => toggleSection("insight")}
+                  className="w-full flex items-center justify-between text-left group"
+                  aria-expanded={sectionPrefs.insight}
+                >
+                  <span className="text-xs font-semibold text-red-700/70 dark:text-red-400/70 uppercase tracking-widest">
+                    Leadership Insight
+                  </span>
+                  <ChevronDownIcon
+                    className={`w-4 h-4 text-red-600/50 dark:text-red-400/50 group-hover:text-red-600 dark:group-hover:text-red-400 transition-all duration-200 ${
+                      sectionPrefs.insight ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+                <div
+                  className={`transition-all duration-200 overflow-hidden ${
+                    sectionPrefs.insight ? "max-h-96 opacity-100 mt-2 sm:mt-4" : "max-h-0 opacity-0"
+                  }`}
+                >
+                  <p className="text-base sm:text-lg lg:text-xl text-gray-800 dark:text-gray-200 leading-relaxed italic">
+                    "{verse.paraphrase_en}"
+                  </p>
+                </div>
               </div>
             )}
 
@@ -443,42 +541,66 @@ export default function VerseDetail() {
             {/* Divider */}
             <div className="my-4 sm:my-6 h-px bg-gradient-to-r from-transparent via-amber-300/50 dark:via-gray-600 to-transparent" />
 
-            {/* Translations - Side by side */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
-              {/* Hindi Translation */}
-              {primaryHindi && (
-                <div>
-                  <p className="text-xs font-semibold text-amber-700/70 dark:text-amber-400/70 uppercase tracking-widest mb-2 sm:mb-4">
-                    हिंदी अनुवाद
-                  </p>
-                  <p className="text-base sm:text-lg text-gray-800 dark:text-gray-200 leading-relaxed italic">
-                    "{primaryHindi.text}"
-                  </p>
-                  {primaryHindi.translator && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 sm:mt-4">
-                      — {primaryHindi.translator}
-                    </p>
-                  )}
-                </div>
-              )}
+            {/* Translations - Collapsible */}
+            {(primaryHindi || primaryEnglish) && (
+              <div>
+                <button
+                  onClick={() => toggleSection("translations")}
+                  className="w-full flex items-center justify-between text-left group mb-4"
+                  aria-expanded={sectionPrefs.translations}
+                >
+                  <span className="text-xs font-semibold text-amber-700/70 dark:text-amber-400/70 uppercase tracking-widest">
+                    Translations
+                  </span>
+                  <ChevronDownIcon
+                    className={`w-4 h-4 text-amber-600/50 dark:text-amber-400/50 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-all duration-200 ${
+                      sectionPrefs.translations ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+                <div
+                  className={`transition-all duration-200 overflow-hidden ${
+                    sectionPrefs.translations ? "max-h-[800px] opacity-100" : "max-h-0 opacity-0"
+                  }`}
+                >
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+                    {/* Hindi Translation */}
+                    {primaryHindi && (
+                      <div>
+                        <p className="text-xs font-semibold text-amber-700/70 dark:text-amber-400/70 uppercase tracking-widest mb-2 sm:mb-4">
+                          हिंदी अनुवाद
+                        </p>
+                        <p className="text-base sm:text-lg text-gray-800 dark:text-gray-200 leading-relaxed italic">
+                          "{primaryHindi.text}"
+                        </p>
+                        {primaryHindi.translator && (
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 sm:mt-4">
+                            — {primaryHindi.translator}
+                          </p>
+                        )}
+                      </div>
+                    )}
 
-              {/* English Translation */}
-              {primaryEnglish && (
-                <div>
-                  <p className="text-xs font-semibold text-amber-700/70 dark:text-amber-400/70 uppercase tracking-widest mb-2 sm:mb-4">
-                    English Translation
-                  </p>
-                  <p className="text-base sm:text-lg text-gray-800 dark:text-gray-200 leading-relaxed italic">
-                    "{primaryEnglish.text}"
-                  </p>
-                  {primaryEnglish.translator && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 sm:mt-4">
-                      — {primaryEnglish.translator}
-                    </p>
-                  )}
+                    {/* English Translation */}
+                    {primaryEnglish && (
+                      <div>
+                        <p className="text-xs font-semibold text-amber-700/70 dark:text-amber-400/70 uppercase tracking-widest mb-2 sm:mb-4">
+                          English Translation
+                        </p>
+                        <p className="text-base sm:text-lg text-gray-800 dark:text-gray-200 leading-relaxed italic">
+                          "{primaryEnglish.text}"
+                        </p>
+                        {primaryEnglish.translator && (
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 sm:mt-4">
+                            — {primaryEnglish.translator}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
           {/* More Translations Section - Collapsible */}
@@ -564,7 +686,7 @@ export default function VerseDetail() {
               <p className="text-gray-600 dark:text-gray-400 text-sm">
                 Enjoying the wisdom?{" "}
                 <Link
-                  to="/settings"
+                  to="/settings#newsletter"
                   className="text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 font-medium"
                 >
                   Get a verse like this in your inbox each day
