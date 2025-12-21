@@ -19,8 +19,8 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1/users/me", tags=["preferences"])
 
-# Maximum bookmarks per user
-MAX_BOOKMARKS = 500
+# Maximum favorites per user
+MAX_FAVORITES = 500
 
 # Valid canonical ID pattern (e.g., BG_2_47, BG_18_78)
 CANONICAL_ID_PATTERN = re.compile(r"^BG_\d{1,2}_\d{1,3}$")
@@ -29,8 +29,8 @@ CANONICAL_ID_PATTERN = re.compile(r"^BG_\d{1,2}_\d{1,3}$")
 # --- Response Schemas ---
 
 
-class BookmarksResponse(BaseModel):
-    """Bookmarks data in preferences response."""
+class FavoritesResponse(BaseModel):
+    """Favorites data in preferences response."""
 
     items: list[str] = Field(default_factory=list)
     updated_at: datetime
@@ -62,7 +62,7 @@ class LearningGoalResponse(BaseModel):
 class PreferencesResponse(BaseModel):
     """Full preferences response."""
 
-    bookmarks: BookmarksResponse
+    favorites: FavoritesResponse
     reading: ReadingProgressResponse
     learning_goal: LearningGoalResponse
 
@@ -72,8 +72,8 @@ class PreferencesResponse(BaseModel):
 # --- Request Schemas ---
 
 
-class BookmarksUpdate(BaseModel):
-    """Bookmarks update request."""
+class FavoritesUpdate(BaseModel):
+    """Favorites update request."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -81,13 +81,13 @@ class BookmarksUpdate(BaseModel):
 
     @field_validator("items")
     @classmethod
-    def validate_bookmarks(cls, v: list[str]) -> list[str]:
-        """Validate bookmark list length and format."""
-        if len(v) > MAX_BOOKMARKS:
-            raise ValueError(f"Cannot exceed {MAX_BOOKMARKS} bookmarks")
+    def validate_favorites(cls, v: list[str]) -> list[str]:
+        """Validate favorites list length and format."""
+        if len(v) > MAX_FAVORITES:
+            raise ValueError(f"Cannot exceed {MAX_FAVORITES} favorites")
         for item in v:
             if not CANONICAL_ID_PATTERN.match(item):
-                raise ValueError(f"Invalid bookmark format: {item}")
+                raise ValueError(f"Invalid verse ID format: {item}")
         return v
 
 
@@ -115,13 +115,13 @@ class PreferencesUpdate(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    bookmarks: Optional[BookmarksUpdate] = None
+    favorites: Optional[FavoritesUpdate] = None
     reading: Optional[ReadingProgressUpdate] = None
     learning_goal: Optional[LearningGoalUpdate] = None
 
 
-class LocalBookmarks(BaseModel):
-    """Local bookmarks for merge request."""
+class LocalFavorites(BaseModel):
+    """Local favorites for merge request."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -130,11 +130,11 @@ class LocalBookmarks(BaseModel):
 
     @field_validator("items")
     @classmethod
-    def validate_bookmarks(cls, v: list[str]) -> list[str]:
-        """Validate bookmark format (allow empty for merge)."""
+    def validate_favorites(cls, v: list[str]) -> list[str]:
+        """Validate favorites format (allow empty for merge)."""
         for item in v:
             if not CANONICAL_ID_PATTERN.match(item):
-                raise ValueError(f"Invalid bookmark format: {item}")
+                raise ValueError(f"Invalid verse ID format: {item}")
         return v
 
 
@@ -164,7 +164,7 @@ class LocalPreferences(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    bookmarks: Optional[LocalBookmarks] = None
+    favorites: Optional[LocalFavorites] = None
     reading: Optional[LocalReadingProgress] = None
     learning_goal: Optional[LocalLearningGoal] = None
 
@@ -189,9 +189,9 @@ def get_or_create_preferences(db: Session, user_id: str) -> UserPreferences:
 def build_preferences_response(prefs: UserPreferences) -> PreferencesResponse:
     """Build PreferencesResponse from UserPreferences model."""
     return PreferencesResponse(
-        bookmarks=BookmarksResponse(
-            items=prefs.bookmarks or [],
-            updated_at=prefs.bookmarks_updated_at,
+        favorites=FavoritesResponse(
+            items=prefs.favorites or [],
+            updated_at=prefs.favorites_updated_at,
         ),
         reading=ReadingProgressResponse(
             chapter=prefs.reading_chapter,
@@ -242,10 +242,10 @@ async def update_preferences(
     prefs = get_or_create_preferences(db, current_user.id)
     now = datetime.now(timezone.utc)
 
-    if data.bookmarks is not None:
-        prefs.bookmarks = data.bookmarks.items[:MAX_BOOKMARKS]
-        prefs.bookmarks_updated_at = now
-        logger.debug(f"Updated bookmarks for user {current_user.id}")
+    if data.favorites is not None:
+        prefs.favorites = data.favorites.items[:MAX_FAVORITES]
+        prefs.favorites_updated_at = now
+        logger.debug(f"Updated favorites for user {current_user.id}")
 
     if data.reading is not None:
         if data.reading.chapter is not None:
@@ -282,24 +282,24 @@ async def merge_preferences(
     Used on login to combine localStorage data with server data.
 
     Merge strategy:
-    - Bookmarks: Union (combine both sets, no duplicates)
+    - Favorites: Union (combine both sets, no duplicates)
     - Reading: Most recent timestamp wins
     - Goal: Most recent timestamp wins
     """
     prefs = get_or_create_preferences(db, current_user.id)
     now = datetime.now(timezone.utc)
 
-    # Bookmarks: Union merge
-    if local.bookmarks:
-        server_set = set(prefs.bookmarks or [])
-        local_set = set(local.bookmarks.items or [])
-        merged = list(server_set | local_set)[:MAX_BOOKMARKS]
+    # Favorites: Union merge
+    if local.favorites:
+        server_set = set(prefs.favorites or [])
+        local_set = set(local.favorites.items or [])
+        merged = list(server_set | local_set)[:MAX_FAVORITES]
 
-        if merged != (prefs.bookmarks or []):
-            prefs.bookmarks = merged
-            prefs.bookmarks_updated_at = now
+        if merged != (prefs.favorites or []):
+            prefs.favorites = merged
+            prefs.favorites_updated_at = now
             logger.info(
-                f"Merged bookmarks for user {current_user.id}: "
+                f"Merged favorites for user {current_user.id}: "
                 f"{len(server_set)} server + {len(local_set)} local = {len(merged)} merged"
             )
 

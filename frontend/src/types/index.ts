@@ -305,8 +305,8 @@ export interface FeaturedCasesResponse {
 
 // User Preferences Types (Cross-device sync)
 
-/** Bookmarks data in preferences */
-export interface BookmarksPrefs {
+/** Favorites data in preferences */
+export interface FavoritesPrefs {
   items: string[];
   updated_at: string;
 }
@@ -328,14 +328,14 @@ export interface LearningGoalPrefs {
 
 /** Full user preferences response */
 export interface UserPreferences {
-  bookmarks: BookmarksPrefs;
+  favorites: FavoritesPrefs;
   reading: ReadingPrefs;
   learning_goal: LearningGoalPrefs;
 }
 
 /** Partial preferences update request */
 export interface PreferencesUpdate {
-  bookmarks?: { items: string[] };
+  favorites?: { items: string[] };
   reading?: {
     chapter?: number;
     verse?: number;
@@ -347,7 +347,7 @@ export interface PreferencesUpdate {
 
 /** Local preferences for merge request */
 export interface LocalPreferences {
-  bookmarks?: { items: string[]; updated_at?: string };
+  favorites?: { items: string[]; updated_at?: string };
   reading?: {
     chapter?: number;
     verse?: number;

@@ -1,6 +1,6 @@
 """User preferences model for cross-device sync."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 import uuid
 
@@ -12,7 +12,7 @@ from models.base import Base, TimestampMixin
 
 
 class UserPreferences(Base, TimestampMixin):
-    """User preferences for bookmarks, reading progress, and learning goals.
+    """User preferences for favorites, reading progress, and learning goals.
 
     One row per user. Created lazily on first preferences access.
     Syncs with localStorage on frontend for cross-device experience.
@@ -34,15 +34,15 @@ class UserPreferences(Base, TimestampMixin):
         index=True,
     )
 
-    # Bookmarks - list of canonical IDs (e.g., "BG_2_47")
+    # Favorites - list of canonical IDs (e.g., "BG_2_47")
     # Using JSON for SQLite test compatibility (PostgreSQL also supports JSON)
-    bookmarks: Mapped[list[str]] = mapped_column(
+    favorites: Mapped[list[str]] = mapped_column(
         JSON,
         default=list,
         nullable=False,
     )
-    bookmarks_updated_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, nullable=False
+    favorites_updated_at: Mapped[datetime] = mapped_column(
+        DateTime, default=lambda: datetime.now(timezone.utc), nullable=False
     )
 
     # Reading progress (Phase 4b)
@@ -69,4 +69,4 @@ class UserPreferences(Base, TimestampMixin):
     user = relationship("User", back_populates="preferences")
 
     def __repr__(self) -> str:
-        return f"<UserPreferences(user_id={self.user_id}, bookmarks={len(self.bookmarks or [])})>"
+        return f"<UserPreferences(user_id={self.user_id}, favorites={len(self.favorites or [])})>"

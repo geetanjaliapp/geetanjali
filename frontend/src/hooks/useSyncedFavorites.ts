@@ -85,15 +85,15 @@ export function useSyncedFavorites(): UseSyncedFavoritesReturn {
       // Get current local favorites
       const localItems = Array.from(localFavorites.favorites);
 
-      // Merge with server (backend field is called "bookmarks")
+      // Merge with server
       const merged = await preferencesApi.merge({
-        bookmarks: { items: localItems },
+        favorites: { items: localItems },
       });
 
       // Update local storage with merged result
       // Clear and re-add to ensure we have the server's merged set
       localFavorites.clearFavorites();
-      for (const item of merged.bookmarks.items) {
+      for (const item of merged.favorites.items) {
         localFavorites.addFavorite(item);
       }
 
@@ -102,7 +102,7 @@ export function useSyncedFavorites(): UseSyncedFavoritesReturn {
       setDidInitialSync(true);
 
       console.debug(
-        `[SyncedFavorites] Merged: ${localItems.length} local + server = ${merged.bookmarks.items.length} total`,
+        `[SyncedFavorites] Merged: ${localItems.length} local + server = ${merged.favorites.items.length} total`,
       );
     } catch (error) {
       console.error("[SyncedFavorites] Merge failed:", error);
@@ -136,7 +136,7 @@ export function useSyncedFavorites(): UseSyncedFavoritesReturn {
         // Read current favorites from localStorage at sync time (not call time)
         const currentItems = Array.from(localFavorites.favorites);
         await preferencesApi.update({
-          bookmarks: { items: currentItems },
+          favorites: { items: currentItems },
         });
         setSyncStatus("synced");
         setLastSynced(new Date());

@@ -5,9 +5,9 @@ Revises: 015
 Create Date: 2025-12-21
 
 Adds:
-- user_preferences: Stores bookmarks, reading progress, and learning goals
+- user_preferences: Stores favorites, reading progress, and learning goals
   - One row per user (unique constraint on user_id)
-  - bookmarks: PostgreSQL ARRAY of canonical verse IDs
+  - favorites: JSON list of canonical verse IDs
   - reading_*: Chapter, verse, font size, section prefs
   - learning_goal_*: Goal ID with timestamp
 """
@@ -42,15 +42,15 @@ def upgrade() -> None:
                 nullable=False,
                 unique=True,
             ),
-            # Bookmarks (JSON for cross-database compatibility)
+            # Favorites (JSON for cross-database compatibility)
             sa.Column(
-                "bookmarks",
+                "favorites",
                 sa.JSON(),
                 nullable=False,
                 server_default="[]",
             ),
             sa.Column(
-                "bookmarks_updated_at",
+                "favorites_updated_at",
                 sa.DateTime(),
                 nullable=False,
                 server_default=sa.func.now(),
