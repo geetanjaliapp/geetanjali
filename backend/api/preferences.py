@@ -1,11 +1,12 @@
 """User preferences API for cross-device sync."""
 
 import logging
-from datetime import datetime
+import re
+from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends, Request
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from sqlalchemy.orm import Session
 
 from api.dependencies import limiter
@@ -20,6 +21,9 @@ router = APIRouter(prefix="/api/v1/users/me", tags=["preferences"])
 
 # Maximum bookmarks per user
 MAX_BOOKMARKS = 500
+
+# Valid canonical ID pattern (e.g., BG_2_47, BG_18_78)
+CANONICAL_ID_PATTERN = re.compile(r"^BG_\d{1,2}_\d{1,3}$")
 
 
 # --- Response Schemas ---
@@ -71,11 +75,26 @@ class PreferencesResponse(BaseModel):
 class BookmarksUpdate(BaseModel):
     """Bookmarks update request."""
 
-    items: list[str] = Field(max_length=MAX_BOOKMARKS)
+    model_config = ConfigDict(extra="forbid")
+
+    items: list[str] = Field(default_factory=list)
+
+    @field_validator("items")
+    @classmethod
+    def validate_bookmarks(cls, v: list[str]) -> list[str]:
+        """Validate bookmark list length and format."""
+        if len(v) > MAX_BOOKMARKS:
+            raise ValueError(f"Cannot exceed {MAX_BOOKMARKS} bookmarks")
+        for item in v:
+            if not CANONICAL_ID_PATTERN.match(item):
+                raise ValueError(f"Invalid bookmark format: {item}")
+        return v
 
 
 class ReadingProgressUpdate(BaseModel):
     """Reading progress update request (partial)."""
+
+    model_config = ConfigDict(extra="forbid")
 
     chapter: Optional[int] = None
     verse: Optional[int] = None
@@ -86,11 +105,15 @@ class ReadingProgressUpdate(BaseModel):
 class LearningGoalUpdate(BaseModel):
     """Learning goal update request."""
 
+    model_config = ConfigDict(extra="forbid")
+
     goal_id: Optional[str] = None
 
 
 class PreferencesUpdate(BaseModel):
     """Partial preferences update request."""
+
+    model_config = ConfigDict(extra="forbid")
 
     bookmarks: Optional[BookmarksUpdate] = None
     reading: Optional[ReadingProgressUpdate] = None
@@ -100,12 +123,25 @@ class PreferencesUpdate(BaseModel):
 class LocalBookmarks(BaseModel):
     """Local bookmarks for merge request."""
 
+    model_config = ConfigDict(extra="forbid")
+
     items: list[str] = Field(default_factory=list)
     updated_at: Optional[datetime] = None
+
+    @field_validator("items")
+    @classmethod
+    def validate_bookmarks(cls, v: list[str]) -> list[str]:
+        """Validate bookmark format (allow empty for merge)."""
+        for item in v:
+            if not CANONICAL_ID_PATTERN.match(item):
+                raise ValueError(f"Invalid bookmark format: {item}")
+        return v
 
 
 class LocalReadingProgress(BaseModel):
     """Local reading progress for merge request."""
+
+    model_config = ConfigDict(extra="forbid")
 
     chapter: Optional[int] = None
     verse: Optional[int] = None
@@ -117,12 +153,16 @@ class LocalReadingProgress(BaseModel):
 class LocalLearningGoal(BaseModel):
     """Local learning goal for merge request."""
 
+    model_config = ConfigDict(extra="forbid")
+
     goal_id: Optional[str] = None
     updated_at: Optional[datetime] = None
 
 
 class LocalPreferences(BaseModel):
     """Local preferences to merge with server."""
+
+    model_config = ConfigDict(extra="forbid")
 
     bookmarks: Optional[LocalBookmarks] = None
     reading: Optional[LocalReadingProgress] = None
@@ -200,7 +240,7 @@ async def update_preferences(
     Only updates fields that are provided.
     """
     prefs = get_or_create_preferences(db, current_user.id)
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
 
     if data.bookmarks is not None:
         prefs.bookmarks = data.bookmarks.items[:MAX_BOOKMARKS]
@@ -247,7 +287,7 @@ async def merge_preferences(
     - Goal: Most recent timestamp wins
     """
     prefs = get_or_create_preferences(db, current_user.id)
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
 
     # Bookmarks: Union merge
     if local.bookmarks:
