@@ -147,6 +147,7 @@ async def signup(
                 },
             )
             user = user_repo.get(existing_user.id)
+            assert user is not None  # Just updated, must exist
     else:
         # New user - create fresh account
         password_hash = hash_password(signup_data.password)

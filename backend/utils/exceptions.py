@@ -96,7 +96,7 @@ async def geetanjali_exception_handler(
 
 def _sanitize_error(error: dict) -> dict:
     """Remove non-JSON-serializable objects from validation error."""
-    sanitized = {}
+    sanitized: dict = {}
     for key, value in error.items():
         if key == "ctx":
             # Convert context values to strings (handles ValueError, etc.)
