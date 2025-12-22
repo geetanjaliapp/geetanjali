@@ -38,8 +38,8 @@ const READING_POSITION_KEY = "geetanjali:readingPosition";
 const READING_SETTINGS_KEY = "geetanjali:readingSettings";
 
 describe("useSyncedReading", () => {
-  const mockUseAuth = useAuth as ReturnType<typeof vi.fn>;
-  const mockPreferencesApi = preferencesApi as {
+  const mockUseAuth = useAuth as unknown as ReturnType<typeof vi.fn>;
+  const mockPreferencesApi = preferencesApi as unknown as {
     merge: ReturnType<typeof vi.fn>;
     update: ReturnType<typeof vi.fn>;
   };

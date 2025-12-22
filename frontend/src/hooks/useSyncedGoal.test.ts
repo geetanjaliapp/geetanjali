@@ -19,7 +19,7 @@ import { renderHook, act } from "@testing-library/react";
 const mockToggleGoal = vi.fn();
 const mockSetGoals = vi.fn();
 const mockClearGoals = vi.fn();
-const mockIsSelected = vi.fn((id: string) => false);
+const mockIsSelected = vi.fn((_id: string) => false);
 
 // Mock modules before importing the hook
 vi.mock("../contexts/AuthContext", () => ({
@@ -59,9 +59,9 @@ import { useLearningGoalContext } from "../contexts/LearningGoalContext";
 import { preferencesApi } from "../lib/api";
 
 describe("useSyncedGoal", () => {
-  const mockUseAuth = useAuth as ReturnType<typeof vi.fn>;
-  const mockUseLearningGoalContext = useLearningGoalContext as ReturnType<typeof vi.fn>;
-  const mockPreferencesApi = preferencesApi as {
+  const mockUseAuth = useAuth as unknown as ReturnType<typeof vi.fn>;
+  const mockUseLearningGoalContext = useLearningGoalContext as unknown as ReturnType<typeof vi.fn>;
+  const mockPreferencesApi = preferencesApi as unknown as {
     merge: ReturnType<typeof vi.fn>;
     update: ReturnType<typeof vi.fn>;
   };

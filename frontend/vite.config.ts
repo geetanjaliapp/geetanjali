@@ -13,6 +13,19 @@ export default defineConfig({
   },
   // Load .env from project root (one level up from frontend/)
   envDir: '..',
+  build: {
+    rollupOptions: {
+      output: {
+        // Separate vendor chunks for better caching
+        manualChunks: {
+          // React core (rarely changes)
+          'react-vendor': ['react', 'react-dom'],
+          // Router (changes infrequently)
+          'router': ['react-router-dom'],
+        },
+      },
+    },
+  },
   // Proxy API requests to backend in development (mirrors nginx in production)
   server: {
     proxy: {

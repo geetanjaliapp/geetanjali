@@ -1,15 +1,20 @@
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { checkHealth, casesApi, versesApi } from "../lib/api";
 import type { Case, Verse } from "../types";
 import { useAuth } from "../contexts/AuthContext";
 import { FeaturedVerse } from "../components/FeaturedVerse";
-import { FeaturedConsultations } from "../components/FeaturedConsultations";
 import { Footer } from "../components/Footer";
 import { Navbar, NewsletterCard } from "../components";
 import { useSEO } from "../hooks";
 import { trackEvent } from "../lib/experiment";
 import { errorMessages } from "../lib/errorMessages";
+
+// Lazy load FeaturedConsultations to reduce main bundle size
+// (includes react-markdown which adds ~100KB)
+const FeaturedConsultations = lazy(
+  () => import("../components/FeaturedConsultations")
+);
 
 export default function Home() {
   // SEO - uses defaults for homepage
@@ -189,9 +194,15 @@ export default function Home() {
             Get personalized guidance in minutes
           </p>
 
-          {/* Featured Consultations */}
+          {/* Featured Consultations - lazy loaded to reduce initial bundle */}
           <div className="mb-8 sm:mb-10 lg:mb-12">
-            <FeaturedConsultations />
+            <Suspense
+              fallback={
+                <div className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded-xl h-64" />
+              }
+            >
+              <FeaturedConsultations />
+            </Suspense>
           </div>
 
           {/* Daily Wisdom Discovery Card - dismissable */}

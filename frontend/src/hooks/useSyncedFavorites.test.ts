@@ -48,8 +48,8 @@ import { preferencesApi } from "../lib/api";
 const STORAGE_KEY = "geetanjali_favorites";
 
 describe("useSyncedFavorites", () => {
-  const mockUseAuth = useAuth as ReturnType<typeof vi.fn>;
-  const mockPreferencesApi = preferencesApi as {
+  const mockUseAuth = useAuth as unknown as ReturnType<typeof vi.fn>;
+  const mockPreferencesApi = preferencesApi as unknown as {
     merge: ReturnType<typeof vi.fn>;
     update: ReturnType<typeof vi.fn>;
   };
