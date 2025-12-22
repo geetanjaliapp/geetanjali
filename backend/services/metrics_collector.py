@@ -233,7 +233,7 @@ def _collect_engagement_metrics() -> None:
         total_feedback = db.query(func.count(Feedback.id)).scalar() or 0
         positive_feedback = (
             db.query(func.count(Feedback.id))
-            .filter(Feedback.is_positive.is_(True))
+            .filter(Feedback.rating.is_(True))
             .scalar()
             or 0
         )
