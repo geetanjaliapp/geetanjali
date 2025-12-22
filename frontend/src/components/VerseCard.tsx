@@ -157,7 +157,7 @@ export const VerseCard = memo(function VerseCard({
         {linkTo && (
           <Link
             to={linkTo}
-            className="absolute inset-0 z-0 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
+            className="absolute inset-0 z-0 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800"
             aria-label={`View verse ${formatVerseRef(verse)}`}
           />
         )}

@@ -82,7 +82,7 @@ export function IntroCard(props: IntroCardProps) {
         <div className="flex-shrink-0">
           <button
             onClick={handleToggle}
-            className="w-full text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-4 rounded-xl transition-transform active:scale-[0.99]"
+            className="w-full text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-4 dark:focus-visible:ring-offset-stone-900 rounded-xl transition-transform active:scale-[0.99]"
             aria-expanded={showDetails}
             aria-label={showDetails ? "Hide details" : "Show details"}
           >
@@ -175,7 +175,7 @@ export function IntroCard(props: IntroCardProps) {
       <div className="flex-shrink-0">
         <button
           onClick={handleToggle}
-          className="w-full text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-4 rounded-xl transition-transform active:scale-[0.99]"
+          className="w-full text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-4 dark:focus-visible:ring-offset-stone-900 rounded-xl transition-transform active:scale-[0.99]"
           aria-expanded={showDetails}
           aria-label={showDetails ? "Hide details" : "Show details"}
         >

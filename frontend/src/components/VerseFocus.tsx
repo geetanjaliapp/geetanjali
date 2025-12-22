@@ -328,7 +328,7 @@ export function VerseFocus({
       <div className="flex-shrink-0">
         <button
           onClick={handleToggle}
-          className="w-full text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-4 rounded-xl transition-transform active:scale-[0.99]"
+          className="w-full text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-4 dark:focus-visible:ring-offset-stone-900 rounded-xl transition-transform active:scale-[0.99]"
           aria-expanded={showTranslation}
           aria-label={showTranslation ? "Hide translation" : "Show translation"}
         >
@@ -381,7 +381,7 @@ export function VerseFocus({
         <div className="flex justify-center mt-4 mb-2">
           <button
             onClick={() => toggleFavorite(verse.canonical_id)}
-            className={`p-3 sm:p-1.5 rounded-full transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 ${
+            className={`p-3 sm:p-1.5 rounded-full transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-900 ${
               isFavorite(verse.canonical_id)
                 ? "text-red-500 dark:text-red-400"
                 : "text-gray-400/50 dark:text-gray-500/50 hover:text-red-400 dark:hover:text-red-400 hover:scale-110"
