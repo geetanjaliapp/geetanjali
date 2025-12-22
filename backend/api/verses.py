@@ -339,6 +339,69 @@ async def get_verse_of_the_day(request: Request, db: Session = Depends(get_db)):
     return verse
 
 
+@router.get("/batch", response_model=List[VerseResponse])
+@limiter.limit("30/minute")
+async def get_verses_batch(
+    request: Request,
+    ids: str = Query(..., description="Comma-separated canonical IDs (e.g., BG_2_47,BG_3_35)"),
+    db: Session = Depends(get_db),
+):
+    """
+    Get multiple verses by canonical IDs in a single request.
+
+    More efficient than N individual requests for favorites/bookmarks.
+    Returns verses in the same order as requested, skipping any not found.
+
+    Args:
+        ids: Comma-separated canonical IDs (max 100)
+        db: Database session
+
+    Returns:
+        List of verses in requested order (missing IDs are omitted)
+    """
+    canonical_ids = [id.strip() for id in ids.split(",") if id.strip()]
+
+    if not canonical_ids:
+        return []
+
+    # Limit to prevent abuse
+    if len(canonical_ids) > 100:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Maximum 100 verse IDs per request",
+        )
+
+    # Check cache for each ID
+    results = {}
+    uncached_ids = []
+
+    for cid in canonical_ids:
+        cache_key = verse_key(cid)
+        cached = cache.get(cache_key)
+        if cached:
+            results[cid] = cached
+        else:
+            uncached_ids.append(cid)
+
+    # Batch load uncached verses from DB
+    if uncached_ids:
+        repo = VerseRepository(db)
+        verses = (
+            db.query(Verse)
+            .filter(Verse.canonical_id.in_(uncached_ids))
+            .all()
+        )
+
+        for verse in verses:
+            verse_data = VerseResponse.model_validate(verse).model_dump()
+            # Cache for future requests
+            cache.set(verse_key(verse.canonical_id), verse_data, settings.CACHE_TTL_VERSE)
+            results[verse.canonical_id] = verse_data
+
+    # Return in requested order, skipping missing
+    return [results[cid] for cid in canonical_ids if cid in results]
+
+
 @router.get("/{canonical_id}", response_model=VerseResponse)
 @limiter.limit("60/minute")
 async def get_verse(request: Request, canonical_id: str, db: Session = Depends(get_db)):

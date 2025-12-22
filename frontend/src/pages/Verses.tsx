@@ -30,6 +30,12 @@ const getVersesPerPage = () => {
   return window.innerWidth >= 1024 ? 16 : 12;
 };
 
+// Responsive overscan: lower on mobile to reduce DOM nodes
+const getOverscan = () => {
+  if (typeof window === "undefined") return 100;
+  return window.innerWidth >= 768 ? 200 : 100;
+};
+
 // Shared grid layout classes
 const VERSE_GRID_CLASSES =
   "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 items-start";
@@ -135,6 +141,9 @@ export default function Verses() {
 
   // Responsive page size for search results
   const searchPageSize = useMemo(() => getVersesPerPage(), []);
+
+  // Responsive overscan: lower on mobile to reduce DOM nodes
+  const overscan = useMemo(() => getOverscan(), []);
 
   // Search hook
   const {
@@ -348,7 +357,7 @@ export default function Verses() {
 
   const loadVerses = useCallback(
     async (reset: boolean = false) => {
-      // For favorites mode, fetch each favorited verse by ID
+      // For favorites mode, fetch all favorited verses in a single batch request
       if (filterMode === "favorites") {
         if (!reset) {
           // No pagination for favorites
@@ -368,12 +377,8 @@ export default function Verses() {
             return;
           }
 
-          // Fetch all favorited verses in parallel
-          const versePromises = favoriteIds.map(
-            (id) => versesApi.get(id).catch(() => null), // Handle deleted/invalid verses gracefully
-          );
-          const results = await Promise.all(versePromises);
-          const validVerses = results.filter((v): v is Verse => v !== null);
+          // Batch fetch all favorited verses in a single request
+          const validVerses = await versesApi.getBatch(favoriteIds);
 
           setVerses(validVerses);
           setHasMore(false); // No pagination for favorites
@@ -1152,7 +1157,7 @@ export default function Verses() {
                     <VirtuosoGrid
                       useWindowScroll
                       totalCount={searchData.results.length}
-                      overscan={200}
+                      overscan={overscan}
                       components={gridComponents}
                       itemContent={(index) => {
                         const result = searchData.results[index];
@@ -1401,7 +1406,7 @@ export default function Verses() {
                     <VirtuosoGrid
                       useWindowScroll
                       totalCount={displayedVerses.length}
-                      overscan={200}
+                      overscan={overscan}
                       components={gridComponents}
                       itemContent={(index) => {
                         const verse = displayedVerses[index];

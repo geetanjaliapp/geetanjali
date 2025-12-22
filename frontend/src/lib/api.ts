@@ -305,6 +305,19 @@ export const versesApi = {
     return response.data;
   },
 
+  /**
+   * Get multiple verses by canonical IDs in a single request.
+   * More efficient than N individual requests for favorites.
+   * Returns verses in requested order, skipping any not found.
+   */
+  getBatch: async (canonicalIds: string[]): Promise<Verse[]> => {
+    if (canonicalIds.length === 0) return [];
+    const response = await api.get(`/verses/batch`, {
+      params: { ids: canonicalIds.join(",") },
+    });
+    return response.data;
+  },
+
   getTranslations: async (canonicalId: string): Promise<Translation[]> => {
     const response = await api.get(`/verses/${canonicalId}/translations`);
     return response.data;
