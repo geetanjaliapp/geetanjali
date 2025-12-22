@@ -137,5 +137,19 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Check bundle size
+        run: |
+          # Get main bundle size (the largest index-*.js file)
+          MAIN_BUNDLE=$(ls -S dist/assets/index-*.js | head -1)
+          SIZE_KB=$(du -k "$MAIN_BUNDLE" | cut -f1)
+          echo "Main bundle: $MAIN_BUNDLE ($SIZE_KB KB)"
+
+          # Fail if bundle exceeds 400KB (current: ~343KB, leaves room for growth)
+          if [ "$SIZE_KB" -gt 400 ]; then
+            echo "::error::Main bundle size ($SIZE_KB KB) exceeds 400KB limit"
+            exit 1
+          fi
+          echo "✓ Bundle size check passed"
+
       - name: Security audit
         run: npm audit --audit-level=high
