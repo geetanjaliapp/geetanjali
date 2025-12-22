@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { Virtuoso } from "react-virtuoso";
 import { casesApi } from "../lib/api";
 import type { Case, CaseStatus, ShareMode } from "../types";
 import { Navbar, ConfirmModal, Footer } from "../components";
@@ -531,15 +530,10 @@ export default function Consultations() {
             </div>
           ) : (
             <>
-              {/* Virtualized Consultations List */}
+              {/* Consultations List */}
               {/* isolate creates a new stacking context for proper z-index layering */}
-              <div className="isolate pb-4">
-                <Virtuoso
-                  useWindowScroll
-                  totalCount={cases.length}
-                  overscan={200}
-                itemContent={(index) => {
-                  const case_ = cases[index];
+              <div className="isolate pb-4 space-y-3 sm:space-y-4">
+                {cases.map((case_) => {
                   const isCompleted =
                     !case_.status ||
                     case_.status === "completed" ||
@@ -548,7 +542,7 @@ export default function Consultations() {
                     isCompleted && case_.status !== "policy_violation";
 
                   return (
-                    <div className="pb-3 sm:pb-4">
+                    <div key={case_.id}>
                       <div
                         className={`relative bg-white dark:bg-gray-800 rounded-lg sm:rounded-xl shadow-md hover:shadow-lg transition-all border overflow-visible ${
                           case_.is_public
@@ -723,8 +717,7 @@ export default function Consultations() {
                       </div>
                     </div>
                   );
-                }}
-                />
+                })}
               </div>
 
               {/* Load More / End of Results */}

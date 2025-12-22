@@ -38,7 +38,7 @@ export default defineConfig({
           // Router (changes infrequently)
           'router': ['react-router-dom'],
           // Virtualization library (used on Verses page)
-          'virtuoso': ['react-virtuoso'],
+          'virtual': ['@tanstack/react-virtual'],
         },
       },
     },

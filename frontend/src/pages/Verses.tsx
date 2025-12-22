@@ -1,6 +1,12 @@
-import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
+import {
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { VirtuosoGrid } from "react-virtuoso";
+import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { versesApi } from "../lib/api";
 import type { Verse, SearchResult } from "../types";
 import { Navbar, SearchInput, saveRecentSearch } from "../components";
@@ -24,45 +30,36 @@ import { useSEO, useSyncedFavorites, useSyncedGoal, useSearch, useTaxonomy } fro
 import { validateSearchQuery } from "../lib/contentFilter";
 import { STORAGE_KEYS, getStorageItem } from "../lib/storage";
 
-// Responsive page size: 16 for desktop (4x4 grid), 12 for mobile
-const getVersesPerPage = () => {
-  if (typeof window === "undefined") return 12;
-  return window.innerWidth >= 1024 ? 16 : 12;
-};
-
-// Responsive overscan: lower on mobile to reduce DOM nodes
-const getOverscan = () => {
-  if (typeof window === "undefined") return 100;
-  return window.innerWidth >= 768 ? 200 : 100;
-};
+// Page size: 12 works cleanly with 2, 3, and 4 column layouts
+const VERSES_PER_PAGE = 12;
 
 // Shared grid layout classes
 const VERSE_GRID_CLASSES =
   "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 items-start";
 
-// Animation timing constants - only for initial load (virtualized items don't animate)
-const SKELETON_COUNT = 8;
+// Animation timing constants - only for initial load (matches VERSES_PER_PAGE)
+const SKELETON_COUNT = 12;
 
-// VirtuosoGrid custom components for proper styling
-const gridComponents = {
-  List: React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-    ({ style, children, ...props }, ref) => (
-      <div
-        ref={ref}
-        {...props}
-        style={{ ...style, position: "relative", zIndex: 0 }}
-        className={VERSE_GRID_CLASSES}
-      >
-        {children}
-      </div>
-    )
-  ),
-  Item: ({ children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-    <div {...props} className="h-auto">
-      {children}
-    </div>
-  ),
-};
+// Virtualization threshold - below this, render without virtualization
+// Set to 60 (5 pages) to avoid mid-session switches when loading more
+const VIRTUALIZATION_THRESHOLD = 60;
+
+// Estimated row height for virtualization (includes gap)
+// Card ~260px + gap 16px = ~276px, round up for safety
+const ESTIMATED_ROW_HEIGHT = 290;
+
+// Gap between grid rows (matches gap-4 = 1rem = 16px)
+const ROW_GAP = 16;
+
+// Get number of columns based on viewport width (matches Tailwind breakpoints)
+function getColumnCount(): number {
+  if (typeof window === "undefined") return 1;
+  const width = window.innerWidth;
+  if (width >= 1280) return 4; // xl
+  if (width >= 1024) return 3; // lg
+  if (width >= 640) return 2;  // sm
+  return 1;
+}
 
 // Filter modes: 'featured' shows curated verses, 'all' shows all 701 verses, 'favorites' shows user's favorites
 // 'recommended' shows verses matching any of the user's selected learning goals
@@ -93,6 +90,218 @@ function toVerseMatch(match: SearchResult["match"]): VerseMatch {
   };
 }
 
+/**
+ * Browse Verse Grid - Uses virtualization for large datasets, simple grid for small ones
+ */
+interface BrowseVerseGridProps {
+  verses: Verse[];
+  columnCount: number;
+  loading: boolean;
+  isFavorite: (id: string) => boolean;
+  toggleFavorite: (id: string) => void;
+  onPrincipleClick: (principle: string | null) => void;
+}
+
+function BrowseVerseGrid({
+  verses,
+  columnCount,
+  loading,
+  isFavorite,
+  toggleFavorite,
+  onPrincipleClick,
+}: BrowseVerseGridProps) {
+  // Calculate row count for virtualization
+  const rowCount = Math.ceil(verses.length / columnCount);
+
+  // Use virtualization only for large datasets
+  const shouldVirtualize = verses.length > VIRTUALIZATION_THRESHOLD;
+
+  // Window virtualizer for row-based virtualization
+  const virtualizer = useWindowVirtualizer({
+    count: rowCount,
+    estimateSize: () => ESTIMATED_ROW_HEIGHT,
+    overscan: 3, // Render 3 extra rows above/below viewport
+  });
+
+  // Render a single verse card
+  const renderVerseCard = (verse: Verse) => (
+    <VerseCard
+      key={verse.id}
+      verse={verse}
+      displayMode="compact"
+      showSpeaker={false}
+      showCitation={true}
+      showTranslation={false}
+      showTranslationPreview={true}
+      onPrincipleClick={onPrincipleClick}
+      linkTo={`/verses/${verse.canonical_id}?from=browse`}
+      isFavorite={isFavorite(verse.canonical_id)}
+      onToggleFavorite={toggleFavorite}
+    />
+  );
+
+  // Simple grid for small datasets (no virtualization)
+  if (!shouldVirtualize) {
+    return (
+      <div className={`relative z-0 pb-4 ${loading ? "opacity-50" : "opacity-100"}`}>
+        <div className={VERSE_GRID_CLASSES}>
+          {verses.map(renderVerseCard)}
+        </div>
+      </div>
+    );
+  }
+
+  // Virtualized grid for large datasets
+  const virtualRows = virtualizer.getVirtualItems();
+
+  return (
+    <div className={`relative z-0 pb-4 ${loading ? "opacity-50" : "opacity-100"}`}>
+      <div
+        style={{
+          height: `${virtualizer.getTotalSize()}px`,
+          width: "100%",
+          position: "relative",
+        }}
+      >
+        {virtualRows.map((virtualRow) => {
+          const startIndex = virtualRow.index * columnCount;
+          const rowVerses = verses.slice(startIndex, startIndex + columnCount);
+
+          return (
+            <div
+              key={virtualRow.key}
+              data-index={virtualRow.index}
+              ref={virtualizer.measureElement}
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                transform: `translateY(${virtualRow.start}px)`,
+                paddingBottom: `${ROW_GAP}px`,
+              }}
+            >
+              <div className={VERSE_GRID_CLASSES}>
+                {rowVerses.map(renderVerseCard)}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Search Verse Grid - Uses virtualization for large result sets, simple grid for small ones
+ */
+interface SearchVerseGridProps {
+  results: SearchResult[];
+  columnCount: number;
+  loading: boolean;
+  isFavorite: (id: string) => boolean;
+  toggleFavorite: (id: string) => void;
+  onPrincipleClick: (principle: string | null) => void;
+}
+
+function SearchVerseGrid({
+  results,
+  columnCount,
+  loading,
+  isFavorite,
+  toggleFavorite,
+  onPrincipleClick,
+}: SearchVerseGridProps) {
+  // Calculate row count for virtualization
+  const rowCount = Math.ceil(results.length / columnCount);
+
+  // Use virtualization only for large datasets
+  const shouldVirtualize = results.length > VIRTUALIZATION_THRESHOLD;
+
+  // Window virtualizer for row-based virtualization
+  const virtualizer = useWindowVirtualizer({
+    count: rowCount,
+    estimateSize: () => ESTIMATED_ROW_HEIGHT,
+    overscan: 3,
+  });
+
+  // Render a single search result card
+  const renderResultCard = (result: SearchResult) => (
+    <VerseCard
+      key={result.canonical_id}
+      verse={
+        {
+          ...result,
+          id: result.canonical_id,
+          consulting_principles: result.principles,
+          created_at: "",
+        } as Verse
+      }
+      displayMode="compact"
+      showSpeaker={false}
+      showCitation={true}
+      showTranslation={false}
+      showTranslationPreview={!result.match.highlight}
+      onPrincipleClick={onPrincipleClick}
+      linkTo={`/verses/${result.canonical_id}?from=search`}
+      isFavorite={isFavorite(result.canonical_id)}
+      onToggleFavorite={toggleFavorite}
+      match={toVerseMatch(result.match)}
+    />
+  );
+
+  // Simple grid for small datasets (no virtualization)
+  if (!shouldVirtualize) {
+    return (
+      <div className={`relative z-0 pb-4 ${loading ? "opacity-50" : "opacity-100"}`}>
+        <div className={VERSE_GRID_CLASSES}>
+          {results.map(renderResultCard)}
+        </div>
+      </div>
+    );
+  }
+
+  // Virtualized grid for large datasets
+  const virtualRows = virtualizer.getVirtualItems();
+
+  return (
+    <div className={`relative z-0 pb-4 ${loading ? "opacity-50" : "opacity-100"}`}>
+      <div
+        style={{
+          height: `${virtualizer.getTotalSize()}px`,
+          width: "100%",
+          position: "relative",
+        }}
+      >
+        {virtualRows.map((virtualRow) => {
+          const startIndex = virtualRow.index * columnCount;
+          const rowResults = results.slice(startIndex, startIndex + columnCount);
+
+          return (
+            <div
+              key={virtualRow.key}
+              data-index={virtualRow.index}
+              ref={virtualizer.measureElement}
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                transform: `translateY(${virtualRow.start}px)`,
+                paddingBottom: `${ROW_GAP}px`,
+              }}
+            >
+              <div className={VERSE_GRID_CLASSES}>
+                {rowResults.map(renderResultCard)}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export default function Verses() {
   useSEO({
     title: "Browse Verses",
@@ -104,6 +313,11 @@ export default function Verses() {
   // Favorites hook for heart icon and filtering (synced across devices)
   const { favorites, isFavorite, toggleFavorite, favoritesCount } =
     useSyncedFavorites();
+
+  // Ref to access favorites without causing loadVerses callback recreation
+  // This prevents re-render loops when favorites Set changes
+  const favoritesRef = useRef(favorites);
+  favoritesRef.current = favorites;
 
   // Learning goals hook for "Recommended" filter
   const { selectedGoals } = useSyncedGoal();
@@ -139,11 +353,16 @@ export default function Verses() {
       : validation.reason || "Invalid search query";
   });
 
-  // Responsive page size for search results
-  const searchPageSize = useMemo(() => getVersesPerPage(), []);
+  // Page size for search results
+  const searchPageSize = VERSES_PER_PAGE;
 
-  // Responsive overscan: lower on mobile to reduce DOM nodes
-  const overscan = useMemo(() => getOverscan(), []);
+  // Column count for grid virtualization - updates on resize
+  const [columnCount, setColumnCount] = useState(getColumnCount);
+  useEffect(() => {
+    const handleResize = () => setColumnCount(getColumnCount());
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Search hook
   const {
@@ -201,8 +420,8 @@ export default function Verses() {
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
 
-  // Responsive page size: 16 for desktop (4x4), 12 for mobile
-  const pageSize = useMemo(() => getVersesPerPage(), []);
+  // Page size for browse results
+  const pageSize = VERSES_PER_PAGE;
 
   // Parse initial filter from URL, falling back to user's default preference
   const getInitialFilter = (): FilterMode => {
@@ -369,7 +588,7 @@ export default function Verses() {
         setError(null);
 
         try {
-          const favoriteIds = Array.from(favorites);
+          const favoriteIds = Array.from(favoritesRef.current);
           if (favoriteIds.length === 0) {
             setVerses([]);
             setLoading(false);
@@ -452,7 +671,7 @@ export default function Verses() {
         setLoadingMore(false);
       }
     },
-    [filterMode, selectedPrinciple, pageSize, favorites, recommendedPrinciples],
+    [filterMode, selectedPrinciple, pageSize, recommendedPrinciples],
   );
 
   useEffect(() => {
@@ -609,22 +828,25 @@ export default function Verses() {
     }
   }, [filterMode, selectedPrinciple, verses.length, loadingMore, pageSize, recommendedPrinciples]);
 
-  const updateSearchParams = (filter: FilterMode, principle: string | null) => {
-    const params: Record<string, string> = {};
-    if (typeof filter === "number") {
-      params.chapter = filter.toString();
-    } else if (filter === "all") {
-      params.all = "true";
-    } else if (filter === "favorites") {
-      params.favorites = "true";
-    } else if (filter === "recommended") {
-      params.recommended = "true";
-    }
-    if (principle) {
-      params.topic = principle;
-    }
-    setSearchParams(params);
-  };
+  const updateSearchParams = useCallback(
+    (filter: FilterMode, principle: string | null) => {
+      const params: Record<string, string> = {};
+      if (typeof filter === "number") {
+        params.chapter = filter.toString();
+      } else if (filter === "all") {
+        params.all = "true";
+      } else if (filter === "favorites") {
+        params.favorites = "true";
+      } else if (filter === "recommended") {
+        params.recommended = "true";
+      }
+      if (principle) {
+        params.topic = principle;
+      }
+      setSearchParams(params);
+    },
+    [setSearchParams],
+  );
 
   const handleFilterSelect = (filter: FilterMode) => {
     // Clear search mode when selecting a filter
@@ -638,23 +860,26 @@ export default function Verses() {
     updateSearchParams(filter, null);
   };
 
-  const handlePrincipleSelect = (principle: string | null) => {
-    // Clear search mode when selecting a principle
-    if (isSearchMode) {
-      setSearchInputValue("");
-      setValidationError(null);
-      clearSearch();
-    }
-    setSelectedPrinciple(principle);
-    // Reset filterMode to "featured" when selecting a topic (filters are independent)
-    // This ensures the "Filtering by:" banner doesn't show stale chapter info
-    if (principle) {
-      setFilterMode("featured");
-      updateSearchParams("featured", principle);
-    } else {
-      updateSearchParams(filterMode, principle);
-    }
-  };
+  const handlePrincipleSelect = useCallback(
+    (principle: string | null) => {
+      // Clear search mode when selecting a principle
+      if (isSearchMode) {
+        setSearchInputValue("");
+        setValidationError(null);
+        clearSearch();
+      }
+      setSelectedPrinciple(principle);
+      // Reset filterMode to "featured" when selecting a topic (filters are independent)
+      // This ensures the "Filtering by:" banner doesn't show stale chapter info
+      if (principle) {
+        setFilterMode("featured");
+        updateSearchParams("featured", principle);
+      } else {
+        updateSearchParams(filterMode, principle);
+      }
+    },
+    [isSearchMode, clearSearch, filterMode, updateSearchParams],
+  );
 
   // Search handlers
   const handleSearch = useCallback(
@@ -1151,46 +1376,19 @@ export default function Verses() {
                     </div>
                   )}
 
-                  {/* Virtualized Search Results Grid */}
-                  {/* isolate creates a new stacking context so grid stays below sticky header */}
-                  <div className={`isolate transition-opacity duration-200 ${searchLoading ? "opacity-50" : "opacity-100"}`}>
-                    <VirtuosoGrid
-                      useWindowScroll
-                      totalCount={searchData.results.length}
-                      overscan={overscan}
-                      components={gridComponents}
-                      itemContent={(index) => {
-                        const result = searchData.results[index];
-                        if (!result) return null;
-                        return (
-                          <VerseCard
-                            verse={
-                              {
-                                ...result,
-                                id: result.canonical_id,
-                                consulting_principles: result.principles,
-                                created_at: "",
-                              } as Verse
-                            }
-                            displayMode="compact"
-                            showSpeaker={false}
-                            showCitation={true}
-                            showTranslation={false}
-                            showTranslationPreview={!result.match.highlight}
-                            onPrincipleClick={handlePrincipleSelect}
-                            linkTo={`/verses/${result.canonical_id}?from=search`}
-                            isFavorite={isFavorite(result.canonical_id)}
-                            onToggleFavorite={toggleFavorite}
-                            match={toVerseMatch(result.match)}
-                          />
-                        );
-                      }}
-                    />
-                  </div>
+                  {/* Search Results Grid - virtualized only for large datasets */}
+                  <SearchVerseGrid
+                    results={searchData.results}
+                    columnCount={columnCount}
+                    loading={searchLoading}
+                    isFavorite={isFavorite}
+                    toggleFavorite={toggleFavorite}
+                    onPrincipleClick={handlePrincipleSelect}
+                  />
 
-                  {/* Load More / End of Search Results */}
+                  {/* Search Load More / End of Results */}
                   {searchData.results.length > 0 && (
-                    <div className="pt-12 sm:pt-16 pb-4">
+                    <div className="py-6">
                       {searchHasMore ? (
                         <button
                           onClick={searchLoadMore}
@@ -1400,38 +1598,19 @@ export default function Verses() {
                 </div>
               ) : (
                 <>
-                  {/* Virtualized Verse Grid - renders only visible items for performance */}
-                  {/* isolate creates a new stacking context so grid stays below sticky header */}
-                  <div className={`isolate transition-opacity duration-200 ${loading ? "opacity-50" : "opacity-100"}`}>
-                    <VirtuosoGrid
-                      useWindowScroll
-                      totalCount={displayedVerses.length}
-                      overscan={overscan}
-                      components={gridComponents}
-                      itemContent={(index) => {
-                        const verse = displayedVerses[index];
-                        if (!verse) return null;
-                        return (
-                          <VerseCard
-                            verse={verse}
-                            displayMode="compact"
-                            showSpeaker={false}
-                            showCitation={true}
-                            showTranslation={false}
-                            showTranslationPreview={true}
-                            onPrincipleClick={handlePrincipleSelect}
-                            linkTo={`/verses/${verse.canonical_id}?from=browse`}
-                            isFavorite={isFavorite(verse.canonical_id)}
-                            onToggleFavorite={toggleFavorite}
-                          />
-                        );
-                      }}
-                    />
-                  </div>
+                  {/* Verse Grid - virtualized only for large datasets */}
+                  <BrowseVerseGrid
+                    verses={displayedVerses}
+                    columnCount={columnCount}
+                    loading={loading}
+                    isFavorite={isFavorite}
+                    toggleFavorite={toggleFavorite}
+                    onPrincipleClick={handlePrincipleSelect}
+                  />
 
-                  {/* Load More / End of Results - positioned after grid with generous spacing */}
+                  {/* Load More / End of Results */}
                   {displayedVerses.length > 0 && (
-                    <div className="pt-12 sm:pt-16 pb-4">
+                    <div className="py-6">
                       {hasMore ? (
                         <button
                           onClick={loadMore}
