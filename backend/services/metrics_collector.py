@@ -198,10 +198,10 @@ def _collect_engagement_metrics() -> None:
             )
             newsletter_subscribers_by_time.labels(send_time=send_time).set(count)
 
-        # Emails sent in last 24h (count subscribers with recent last_sent_at)
+        # Emails sent in last 24h (count subscribers with recent last_verse_sent_at)
         emails_24h = (
             db.query(func.count(Subscriber.id))
-            .filter(Subscriber.last_sent_at >= yesterday)
+            .filter(Subscriber.last_verse_sent_at >= yesterday)
             .scalar()
             or 0
         )
