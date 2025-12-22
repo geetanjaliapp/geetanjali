@@ -819,22 +819,6 @@ export default function Verses() {
               {/* Divider */}
               <div className="w-px bg-gray-200 dark:bg-gray-600 my-1" />
 
-              {/* All Segment */}
-              <button
-                onClick={() => handleFilterSelect("all")}
-                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-800 ${
-                  showAll && !selectedPrinciple && !isSearchMode
-                    ? "bg-orange-600 text-white shadow-sm"
-                    : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                }`}
-              >
-                <GridIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span className="hidden sm:inline">All</span>
-              </button>
-
-              {/* Divider */}
-              <div className="w-px bg-gray-200 dark:bg-gray-600 my-1" />
-
               {/* Favorites Segment */}
               <button
                 onClick={() => handleFilterSelect("favorites")}
@@ -848,9 +832,10 @@ export default function Verses() {
                   className="w-3.5 h-3.5 sm:w-4 sm:h-4"
                   filled={showFavorites || favoritesCount > 0}
                 />
-                {/* Count badge with reserved width for 2-digit numbers */}
+                <span className="hidden sm:inline">Favorites</span>
+                {/* Count badge */}
                 <span
-                  className={`min-w-[1.25rem] text-center text-[10px] sm:text-xs tabular-nums ${
+                  className={`text-[10px] sm:text-xs tabular-nums ${
                     showFavorites && !selectedPrinciple && !isSearchMode
                       ? "text-white/80"
                       : favoritesCount > 0
@@ -860,6 +845,22 @@ export default function Verses() {
                 >
                   {favoritesCount}
                 </span>
+              </button>
+
+              {/* Divider */}
+              <div className="w-px bg-gray-200 dark:bg-gray-600 my-1" />
+
+              {/* All Segment */}
+              <button
+                onClick={() => handleFilterSelect("all")}
+                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-800 ${
+                  showAll && !selectedPrinciple && !isSearchMode
+                    ? "bg-orange-600 text-white shadow-sm"
+                    : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                }`}
+              >
+                <GridIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">All</span>
               </button>
             </div>
 
