@@ -39,6 +39,7 @@ The system uses retrieval-augmented generation (RAG) to ground responses in actu
 - **Reading Mode** - Distraction-free sequential reading, Sanskrit-first
 - **Search** - Find verses by reference, Sanskrit, keywords, or meaning
 - **Favorites** - Save verses for quick access
+- **Verse Sharing** - Generate shareable images with Sanskrit and translation
 
 **Platform**
 - **Dark Mode** - Full light/dark theme support

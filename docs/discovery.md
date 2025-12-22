@@ -132,6 +132,16 @@ Users can save verses for quick access later.
 - Toast notification confirms sync completion
 - Conflicts resolved by keeping both (union merge)
 
+## Sharing Verses
+
+Share verses as images for social media or messaging.
+
+**How it works:**
+- Share button on verse detail pages
+- Generates canvas-based image with Sanskrit text and translation
+- Copy to clipboard or download as PNG
+- Styled with verse reference and Geetanjali branding
+
 ## Reading Mode
 
 Sequential reading for scripture study.

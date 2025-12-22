@@ -76,6 +76,8 @@ Users start by describing their ethical dilemma.
 - Example questions appear when question < 10 chars (3 random from pool of 8)
 - Collapsible personalization: role selection + stakeholder multi-select
 - Content validation (gibberish/abuse detection)
+- Draft auto-save to localStorage (restored on return)
+- Character count with visual progress indicator
 
 **Roles:**
 Individual, Parent, Manager/Leader, Employee, Student, Entrepreneur

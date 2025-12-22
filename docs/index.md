@@ -33,6 +33,7 @@ Free. Open source. Private by default.
 - Subscribe to Daily Wisdom emails
 - Sync reading progress and preferences across devices
 - Share consultations publicly or via private link
+- Generate verse images for social sharing
 
 **Make It Yours**
 - Dark mode throughout
