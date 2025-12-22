@@ -2,6 +2,7 @@
 
 import logging
 import threading
+import time
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
@@ -532,6 +533,12 @@ def run_enrich_task(limit: int = 0, force: bool = False):
     """
     Background task to enrich database verses with LLM-generated content.
 
+    Robust implementation with:
+    - Rate limiting (3s between verses = ~20 verses/min, well under 50 req/min)
+    - Retry with exponential backoff for rate limit errors (429)
+    - Failed verse tracking for manual retry
+    - Per-verse commit to preserve progress
+
     Args:
         limit: Max verses to enrich (0 = all)
         force: Re-enrich even if already done
@@ -547,17 +554,53 @@ def run_enrich_task(limit: int = 0, force: bool = False):
     enriched_count = 0
     skipped_count = 0
     error_count = 0
+    failed_verses = []  # Track failed verse IDs for retry
 
-    # OPTIMIZATION: Batch commit every N verses instead of per-verse
-    # Reduces 700+ commits to ~15 commits for full enrichment
-    BATCH_SIZE = 50
-    pending_updates = 0
+    # Rate limiting configuration
+    # Anthropic: 50 req/min limit, each verse = 2 LLM calls
+    # 3s delay = 20 verses/min = 40 calls/min (safe margin)
+    DELAY_BETWEEN_VERSES = 3.0
+
+    # Retry configuration for rate limit errors
+    MAX_RETRIES = 3
+    INITIAL_BACKOFF = 30  # Start with 30s on first 429
+    BACKOFF_MULTIPLIER = 2  # Double each retry: 30s, 60s, 120s
+
+    def enrich_with_retry(verse_dict: dict, verse_id: str) -> dict:
+        """Enrich a verse with exponential backoff on rate limit errors."""
+        last_error = None
+        for attempt in range(MAX_RETRIES + 1):
+            try:
+                return enricher.enrich_verse(
+                    verse_dict,
+                    extract_principles=True,
+                    generate_paraphrase=True,
+                    transliterate=True,
+                )
+            except Exception as e:
+                last_error = e
+                error_str = str(e).lower()
+                # Check for rate limit error (429)
+                if "429" in error_str or "rate" in error_str or "too many" in error_str:
+                    if attempt < MAX_RETRIES:
+                        backoff = INITIAL_BACKOFF * (BACKOFF_MULTIPLIER ** attempt)
+                        logger.warning(
+                            f"Rate limit hit for {verse_id}, "
+                            f"retry {attempt + 1}/{MAX_RETRIES} after {backoff}s"
+                        )
+                        time.sleep(backoff)
+                        continue
+                # Non-rate-limit error or exhausted retries
+                raise last_error
+        raise last_error
 
     try:
         logger.info("=" * 80)
         logger.info("BACKGROUND ENRICHMENT OF EXISTING VERSES STARTED")
         logger.info(f"Limit: {limit or 'all'}")
         logger.info(f"Force re-enrich: {force}")
+        logger.info(f"Rate limiting: {DELAY_BETWEEN_VERSES}s delay (~20 verses/min)")
+        logger.info(f"Retry policy: {MAX_RETRIES} retries with {INITIAL_BACKOFF}s initial backoff")
         logger.info("=" * 80)
 
         # Load verses with translations
@@ -579,7 +622,11 @@ def run_enrich_task(limit: int = 0, force: bool = False):
 
         verses = query.all()
         total = len(verses)
+
+        # Estimate time: 3s per verse + processing time (~2s) = ~5s per verse
+        estimated_minutes = (total * 5) / 60
         logger.info(f"Found {total} verses to enrich")
+        logger.info(f"Estimated time: ~{estimated_minutes:.0f} minutes")
 
         for i, verse in enumerate(verses):
             try:
@@ -595,13 +642,8 @@ def run_enrich_task(limit: int = 0, force: bool = False):
                     ),
                 }
 
-                # Run enrichment
-                enriched = enricher.enrich_verse(
-                    verse_dict,
-                    extract_principles=True,
-                    generate_paraphrase=True,
-                    transliterate=True,
-                )
+                # Run enrichment with retry logic
+                enriched = enrich_with_retry(verse_dict, verse.canonical_id)
 
                 # Update database
                 updated = False
@@ -620,35 +662,35 @@ def run_enrich_task(limit: int = 0, force: bool = False):
 
                 if updated:
                     enriched_count += 1
-                    pending_updates += 1
+                    # Commit after each verse to preserve progress
+                    db.commit()
                 else:
                     skipped_count += 1
 
-                # OPTIMIZATION: Batch commit every BATCH_SIZE updates
-                if pending_updates >= BATCH_SIZE:
-                    db.commit()
-                    logger.info(f"Committed batch of {pending_updates} updates")
-                    pending_updates = 0
-
                 if (i + 1) % 10 == 0:
-                    logger.info(f"Progress: {i + 1}/{total} verses processed")
+                    elapsed_pct = ((i + 1) / total) * 100
+                    logger.info(
+                        f"Progress: {i + 1}/{total} ({elapsed_pct:.1f}%) - "
+                        f"enriched: {enriched_count}, skipped: {skipped_count}, errors: {error_count}"
+                    )
 
             except Exception as e:
                 logger.error(f"Failed to enrich {verse.canonical_id}: {e}")
                 error_count += 1
+                failed_verses.append(verse.canonical_id)
                 db.rollback()
-                pending_updates = 0  # Reset pending count after rollback
 
-        # Final commit for remaining updates
-        if pending_updates > 0:
-            db.commit()
-            logger.info(f"Committed final batch of {pending_updates} updates")
+            # Rate limiting: wait between verses to stay under API limits
+            if i < len(verses) - 1:  # Don't delay after last verse
+                time.sleep(DELAY_BETWEEN_VERSES)
 
         logger.info("=" * 80)
         logger.info("BACKGROUND ENRICHMENT COMPLETED")
         logger.info(f"Enriched: {enriched_count}")
         logger.info(f"Skipped: {skipped_count}")
         logger.info(f"Errors: {error_count}")
+        if failed_verses:
+            logger.warning(f"Failed verses ({len(failed_verses)}): {failed_verses}")
         logger.info("=" * 80)
 
     except Exception as e:
