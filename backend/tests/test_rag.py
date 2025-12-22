@@ -82,9 +82,18 @@ MOCK_LLM_RESPONSE = {
         {
             "canonical_id": "ch02_v47",
             "paraphrase": "Focus on your duty, not the results.",
+            "relevance": 0.9,
         },
-        {"canonical_id": "ch03_v35", "paraphrase": "Your own dharma is best."},
-        {"canonical_id": "ch18_v66", "paraphrase": "Surrender attachment to outcomes."},
+        {
+            "canonical_id": "ch03_v35",
+            "paraphrase": "Your own dharma is best.",
+            "relevance": 0.85,
+        },
+        {
+            "canonical_id": "ch18_v66",
+            "paraphrase": "Surrender attachment to outcomes.",
+            "relevance": 0.8,
+        },
     ],
     "confidence": 0.82,
 }
@@ -232,9 +241,9 @@ class TestRAGPipelineUnit:
                 incomplete_output = {"executive_summary": "Test"}
                 validated = pipeline.validate_output(incomplete_output)
 
-        # When all options are missing (num_options == 0), confidence is set to 0.4
-        # (lower confidence for completely generated default options)
-        assert validated["confidence"] == 0.4
+        # When sources are empty after validation, confidence is capped at 0.35
+        # and scholar_flag is set to True
+        assert validated["confidence"] == 0.35
         assert validated["scholar_flag"] is True
 
 
