@@ -2,6 +2,48 @@
 
 All notable changes to Geetanjali are documented here.
 
+## [1.12.0] - 2025-12-22
+
+Cross-device sync, Featured Cases, and account management.
+
+### Features
+- **Cross-device Sync** - Favorites, reading position, learning goals, and newsletter subscription sync across devices for logged-in users. Local data merges on login with conflict resolution.
+- **Featured Cases** - Curated example consultations appear on homepage. Background job selects high-quality completed cases based on confidence and feedback.
+- **Sharing Modes** - Cases can be private (default), unlisted (link-only), or public (discoverable). View counts tracked for shared cases.
+- **Account Deletion** - Users can delete accounts from Settings. Implements soft delete with data recovery option.
+- **Verse Sharing** - Generate shareable images with Sanskrit text and translation. Canvas-based rendering for social media.
+- **Newsletter Preferences** - Manage Daily Wisdom email subscription from Settings. Syncs across devices.
+- **Settings Redesign** - Compact layout with hash anchor IDs for direct linking to sections.
+- **Font Size Controls** - Adjustable font sizes in verse detail header, not just Reading Mode.
+- **Draft Auto-save** - Case form saves draft to localStorage. Resume where you left off.
+
+### Improvements
+- **Filter UI** - Icons and responsive design in verse browser filters
+- **Dark Mode** - Focus ring offset variants for accessibility
+- **Navigation** - Brand name linked to home in footer, simplified "About" label
+- **Confirmations** - Text confirmation for destructive actions (delete account, delete case)
+- **Storage Keys** - Centralized localStorage key management
+
+### Fixes
+- Fixed infinite re-render loop in Reading Mode
+- Fixed race condition in favorites sync with atomic update
+- Fixed timezone and validation issues in preferences API
+- Fixed cascading re-renders with useMemo
+- Fixed reading mode URL format to use query params
+- Fixed goal icon sizing and overflow in newsletter component
+
+### Documentation
+- Refreshed docs with feature coverage for v1.11.3+ changes
+- Added Favorites, Sharing, and Featured Cases sections
+- Updated API endpoint documentation
+
+### Technical
+- UserPreferences model with preferences API (GET/PUT)
+- Featured cases curation worker with test coverage
+- View deduplication per session for shared cases
+- Consolidated Phase 3/4 database migrations
+- Storage key constants in centralized module
+
 ## [1.11.3] - 2025-12-17
 
 Bug fixes and resilience improvements for RAG pipeline and content validation.
