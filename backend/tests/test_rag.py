@@ -45,21 +45,21 @@ MOCK_LLM_RESPONSE = {
             "description": "Have a private conversation with your colleague.",
             "pros": ["Clear communication", "Immediate resolution"],
             "cons": ["Potential conflict", "May strain relationship"],
-            "sources": ["ch02_v47"],
+            "sources": ["BG_2_47"],
         },
         {
             "title": "Document and Escalate",
             "description": "Document your contributions and discuss with your manager.",
             "pros": ["Official record", "Manager awareness"],
             "cons": ["May seem adversarial", "Office politics"],
-            "sources": ["ch03_v35"],
+            "sources": ["BG_3_35"],
         },
         {
             "title": "Focus on Future",
             "description": "Let go of past incidents and ensure proper attribution going forward.",
             "pros": ["Peace of mind", "Forward-looking"],
             "cons": ["Past injustice unaddressed"],
-            "sources": ["ch18_v66"],
+            "sources": ["BG_18_66"],
         },
     ],
     "recommended_action": {
@@ -71,7 +71,7 @@ MOCK_LLM_RESPONSE = {
             "Listen to their perspective",
             "Agree on fair attribution going forward",
         ],
-        "sources": ["ch02_v47", "ch03_v35"],
+        "sources": ["BG_2_47", "BG_3_35"],
     },
     "reflection_prompts": [
         "What outcome truly serves your growth?",
@@ -80,17 +80,17 @@ MOCK_LLM_RESPONSE = {
     ],
     "sources": [
         {
-            "canonical_id": "ch02_v47",
+            "canonical_id": "BG_2_47",
             "paraphrase": "Focus on your duty, not the results.",
             "relevance": 0.9,
         },
         {
-            "canonical_id": "ch03_v35",
+            "canonical_id": "BG_3_35",
             "paraphrase": "Your own dharma is best.",
             "relevance": 0.85,
         },
         {
-            "canonical_id": "ch18_v66",
+            "canonical_id": "BG_18_66",
             "paraphrase": "Surrender attachment to outcomes.",
             "relevance": 0.8,
         },
