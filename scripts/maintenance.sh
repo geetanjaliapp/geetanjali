@@ -2,27 +2,25 @@
 # Geetanjali Server Maintenance Script
 # Runs via cron on the server for automated maintenance
 #
-# Required environment variables (set in crontab or wrapper script):
-#   DEPLOY_DIR        - App directory
-#   DEPLOY_BACKUP_DIR - Backup directory
+# Optional environment variables (have sensible defaults):
+#   DEPLOY_DIR        - App directory (default: /opt/geetanjali)
+#   DEPLOY_BACKUP_DIR - Backup directory (default: /opt/backups/geetanjali)
 #
-# Installation:
-#   1. Create wrapper script that sets env vars and calls this script
-#   2. Add to crontab:
-#      0 3 * * * /path/to/wrapper.sh daily >> /var/log/geetanjali-maintenance.log 2>&1
-#      0 4 * * 0 /path/to/wrapper.sh weekly >> /var/log/geetanjali-maintenance.log 2>&1
+# Usage:
+#   ./maintenance.sh daily   # Run daily tasks
+#   ./maintenance.sh weekly  # Run weekly tasks
+#   ./maintenance.sh backup  # Run backup only
+#   ./maintenance.sh health  # Run health check only
+#
+# Crontab (use cron-maintenance.sh wrapper):
+#   0 3 * * * /opt/geetanjali/scripts/cron-maintenance.sh daily >> /var/log/geetanjali-maintenance.log 2>&1
+#   0 4 * * 0 /opt/geetanjali/scripts/cron-maintenance.sh weekly >> /var/log/geetanjali-maintenance.log 2>&1
 
 set -e
 
-# Validate required environment variables
-if [[ -z "${DEPLOY_DIR}" ]] || [[ -z "${DEPLOY_BACKUP_DIR}" ]]; then
-    echo "Error: DEPLOY_DIR and DEPLOY_BACKUP_DIR must be set"
-    exit 1
-fi
-
-# Configuration
-APP_DIR="${DEPLOY_DIR}"
-BACKUP_DIR="${DEPLOY_BACKUP_DIR}"
+# Configuration with defaults (can be overridden by environment)
+APP_DIR="${DEPLOY_DIR:-/opt/geetanjali}"
+BACKUP_DIR="${DEPLOY_BACKUP_DIR:-/opt/backups/geetanjali}"
 ALERT_ENDPOINT="http://localhost:8000/api/v1/admin/alert"
 
 # Thresholds
@@ -124,21 +122,45 @@ task_database_backup() {
 task_ssl_check() {
     log "Checking SSL certificate expiry..."
 
-    CERT_FILE="/etc/letsencrypt/live/geetanjaliapp.com/fullchain.pem"
+    # Try common SSL certificate paths
+    CERT_FILE=""
+    for path in \
+        "/etc/letsencrypt/live/geetanjaliapp.com/fullchain.pem" \
+        "/etc/letsencrypt/live/geetanjaliapp.com/cert.pem" \
+        "/etc/ssl/certs/geetanjaliapp.com.pem" \
+        "/etc/nginx/ssl/geetanjaliapp.com.pem"; do
+        if [[ -f "${path}" ]]; then
+            CERT_FILE="${path}"
+            break
+        fi
+    done
 
-    if [[ -f "${CERT_FILE}" ]]; then
+    if [[ -n "${CERT_FILE}" ]]; then
         EXPIRY_DATE=$(openssl x509 -enddate -noout -in "${CERT_FILE}" | cut -d= -f2)
         EXPIRY_EPOCH=$(date -d "${EXPIRY_DATE}" +%s)
         NOW_EPOCH=$(date +%s)
         DAYS_LEFT=$(( (EXPIRY_EPOCH - NOW_EPOCH) / 86400 ))
 
-        log "SSL certificate expires in ${DAYS_LEFT} days"
+        log "SSL certificate expires in ${DAYS_LEFT} days (${CERT_FILE})"
 
         if [[ ${DAYS_LEFT} -lt ${SSL_WARN_DAYS} ]]; then
             send_alert "SSL Certificate Expiring" "SSL certificate expires in ${DAYS_LEFT} days. Renew immediately!\n\nRun: certbot renew"
         fi
     else
-        log "SSL certificate file not found (may be using different path)"
+        # Try to get expiry via network as fallback
+        EXPIRY_DATE=$(echo | openssl s_client -servername geetanjaliapp.com -connect geetanjaliapp.com:443 2>/dev/null | openssl x509 -noout -enddate 2>/dev/null | cut -d= -f2) || true
+        if [[ -n "${EXPIRY_DATE}" ]]; then
+            EXPIRY_EPOCH=$(date -d "${EXPIRY_DATE}" +%s)
+            NOW_EPOCH=$(date +%s)
+            DAYS_LEFT=$(( (EXPIRY_EPOCH - NOW_EPOCH) / 86400 ))
+            log "SSL certificate expires in ${DAYS_LEFT} days (via network check)"
+
+            if [[ ${DAYS_LEFT} -lt ${SSL_WARN_DAYS} ]]; then
+                send_alert "SSL Certificate Expiring" "SSL certificate expires in ${DAYS_LEFT} days. Renew immediately!\n\nRun: certbot renew"
+            fi
+        else
+            log "SSL certificate check skipped (no local cert found, network check failed)"
+        fi
     fi
 }
 
@@ -190,16 +212,18 @@ task_health_check() {
 task_security_check() {
     log "Running security checks..."
 
-    # Check fail2ban status
-    BANNED_COUNT=$(fail2ban-client status sshd 2>/dev/null | grep "Currently banned" | awk '{print $NF}') || BANNED_COUNT=0
+    # Check fail2ban status (handle missing fail2ban gracefully)
+    BANNED_COUNT=$(fail2ban-client status sshd 2>/dev/null | grep "Currently banned" | awk '{print $NF}' | tr -d '[:space:]') || BANNED_COUNT=0
+    [[ -z "${BANNED_COUNT}" ]] && BANNED_COUNT=0
     log "Currently banned IPs: ${BANNED_COUNT}"
 
-    # Check for failed SSH attempts in last 24h using journalctl (more reliable than grepping auth.log)
-    # Try both 'ssh' and 'sshd' service names, use grep -c (returns 1 if no matches, so handle separately)
-    FAILED_SSH=$(journalctl -u ssh -u sshd --since "24 hours ago" 2>/dev/null | grep -c "Failed password" 2>/dev/null) || FAILED_SSH=0
+    # Check for failed SSH attempts in last 24h using journalctl
+    # Combine output and count, strip whitespace to ensure clean integer
+    FAILED_SSH=$(journalctl -u ssh -u sshd --since "24 hours ago" 2>/dev/null | grep -c "Failed password" | tr -d '[:space:]') || FAILED_SSH=0
+    [[ -z "${FAILED_SSH}" ]] && FAILED_SSH=0
     log "Failed SSH attempts (last 24h): ${FAILED_SSH}"
 
-    if [[ ${FAILED_SSH} -gt 100 ]]; then
+    if [[ "${FAILED_SSH}" -gt 100 ]]; then
         send_alert "High SSH Attack Volume" "Detected ${FAILED_SSH} failed SSH attempts in last 24h.\n\nCurrently banned IPs: ${BANNED_COUNT}\n\nfail2ban is active."
     fi
 }
