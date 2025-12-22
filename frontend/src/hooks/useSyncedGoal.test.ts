@@ -19,7 +19,8 @@ import { renderHook, act } from "@testing-library/react";
 const mockToggleGoal = vi.fn();
 const mockSetGoals = vi.fn();
 const mockClearGoals = vi.fn();
-const mockIsSelected = vi.fn(() => false);
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const mockIsSelected = vi.fn((_id: string) => false);
 
 // Mock modules before importing the hook
 vi.mock("../contexts/AuthContext", () => ({
