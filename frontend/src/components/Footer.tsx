@@ -15,6 +15,12 @@ export function Footer() {
           {/* Links */}
           <div className="flex justify-center gap-4 text-xs text-gray-600 dark:text-gray-400">
             <Link
+              to="/"
+              className="font-medium text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 transition-colors"
+            >
+              Geetanjali
+            </Link>
+            <Link
               to="/about"
               className="hover:text-orange-600 dark:hover:text-orange-400 transition-colors"
             >
@@ -60,6 +66,12 @@ export function Footer() {
         <div className="hidden sm:flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
           {/* Left: Links */}
           <div className="flex items-center gap-4">
+            <Link
+              to="/"
+              className="font-medium text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 transition-colors"
+            >
+              Geetanjali
+            </Link>
             <Link
               to="/about"
               className="hover:text-orange-600 dark:hover:text-orange-400 transition-colors"

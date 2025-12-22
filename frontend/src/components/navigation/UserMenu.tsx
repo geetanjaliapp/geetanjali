@@ -243,7 +243,7 @@ export function UserMenu({
               className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors focus:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-gray-700"
             >
               <NavIcon path={NAV_ICONS.about} />
-              <span>About Geetanjali</span>
+              <span>About</span>
             </Link>
           </div>
 
