@@ -1,7 +1,6 @@
 import { lazy } from "react";
 import type { ComponentType } from "react";
 import { SESSION_KEYS } from "./storage";
-import { captureException } from "./monitoring";
 
 /**
  * Configuration for chunk load retry behavior
@@ -91,11 +90,11 @@ function tryMarkReloadAttempt(): boolean {
 }
 
 /**
- * Log chunk loading events for debugging and report critical errors to Sentry
+ * Log chunk loading events for debugging
  */
 function logChunkEvent(
   event: "retry" | "reload" | "error",
-  details: { attempt?: number; error?: unknown; modulePath?: string }
+  details: { attempt?: number; error?: unknown }
 ): void {
   const prefix = "[lazyWithRetry]";
 
@@ -111,26 +110,12 @@ function logChunkEvent(
         `${prefix} All retries exhausted, reloading page to fetch new chunks...`,
         details.error
       );
-      // Report to Sentry for monitoring chunk failures in production
-      if (details.error instanceof Error) {
-        captureException(details.error, {
-          event: "chunk_load_reload",
-          message: "Chunk load failed after all retries, triggering page reload",
-        });
-      }
       break;
     case "error":
       console.error(
         `${prefix} Chunk load failed and reload not possible (recent reload detected)`,
         details.error
       );
-      // Report to Sentry - this is a critical error (user stuck in error state)
-      if (details.error instanceof Error) {
-        captureException(details.error, {
-          event: "chunk_load_failed",
-          message: "Chunk load failed and reload blocked (recent reload detected)",
-        });
-      }
       break;
   }
 }
