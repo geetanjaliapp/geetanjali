@@ -6,9 +6,13 @@
  * - Cache-first strategy for verses (rarely change)
  * - Network-first for API calls (fresh data preferred)
  * - App shell caching for instant loads
+ *
+ * Note: CACHE_VERSION is auto-replaced at build time by vite.config.ts versionPlugin
+ * to ensure unique cache names per deployment.
  */
 
-const CACHE_VERSION = 'v6';
+// This value is replaced at build time - see vite.config.ts versionPlugin
+const CACHE_VERSION = 'dev';
 const STATIC_CACHE = `geetanjali-static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `geetanjali-dynamic-${CACHE_VERSION}`;
 const VERSE_CACHE = `geetanjali-verses-${CACHE_VERSION}`;
@@ -178,35 +182,42 @@ self.addEventListener('message', (event) => {
   }
 
   if (event.data?.type === 'CACHE_VERSE') {
-    // Pre-cache a specific verse
+    // Pre-cache a specific verse - use waitUntil to ensure completion
     const verseUrl = event.data.url;
-    caches.open(VERSE_CACHE).then((cache) => {
-      cache.add(verseUrl);
-    });
+    event.waitUntil(
+      caches.open(VERSE_CACHE).then((cache) => cache.add(verseUrl))
+    );
   }
 
   if (event.data?.type === 'CLEAR_CACHES') {
     // Clear all geetanjali caches (used on version update)
-    console.log('[SW] Clearing all caches on request');
-    caches.keys().then((keys) => {
-      return Promise.all(
-        keys.filter((key) => key.startsWith('geetanjali-'))
-            .map((key) => {
+    // Use waitUntil to prevent SW termination during async operation
+    event.waitUntil(
+      (async () => {
+        console.log('[SW] Clearing all caches on request');
+        try {
+          const keys = await caches.keys();
+          const geetanjaliCaches = keys.filter((key) => key.startsWith('geetanjali-'));
+
+          await Promise.all(
+            geetanjaliCaches.map((key) => {
               console.log('[SW] Deleting cache:', key);
               return caches.delete(key);
             })
-      );
-    }).then(() => {
-      // Notify the app that caches are cleared
-      if (event.source) {
-        event.source.postMessage({ type: 'CACHES_CLEARED' });
-      }
-    }).catch((error) => {
-      console.error('[SW] Failed to clear caches:', error);
-      // Still notify the app, but with error status
-      if (event.source) {
-        event.source.postMessage({ type: 'CACHES_CLEAR_FAILED', error: error.message });
-      }
-    });
+          );
+
+          // Notify the app that caches are cleared
+          if (event.source) {
+            event.source.postMessage({ type: 'CACHES_CLEARED' });
+          }
+        } catch (error) {
+          console.error('[SW] Failed to clear caches:', error);
+          // Still notify the app, but with error status
+          if (event.source) {
+            event.source.postMessage({ type: 'CACHES_CLEAR_FAILED', error: error.message });
+          }
+        }
+      })()
+    );
   }
 });

@@ -1,14 +1,23 @@
 /**
- * Version Check Utility
+ * Version Check Utility (Proactive Cache Invalidation)
  *
  * Detects when a new app version is deployed and triggers cache invalidation.
- * This ensures users always get fresh chunks after deployments.
+ * This is a **supplementary optimization** for long-running sessions.
+ *
+ * ## Defense in Depth
+ * - **Primary defense**: `lazyWithRetry.ts` handles chunk 404s with automatic reload
+ * - **This utility**: Proactively clears caches to reduce unnecessary reload attempts
  *
  * ## How it works:
  * 1. On each build, Vite generates /version.json with build timestamp
- * 2. On app init, we fetch /version.json and compare with stored version
- * 3. If version changed (new deploy), we clear SW caches and stored version
- * 4. This ensures next navigation fetches fresh chunks
+ * 2. On app init + periodic checks, we fetch /version.json
+ * 3. If version changed (new deploy), we clear SW caches preemptively
+ * 4. This reduces (but doesn't eliminate) chunk 404s on next navigation
+ *
+ * ## Important Notes:
+ * - Version check is async and doesn't block first navigation
+ * - Users who navigate immediately after load may still hit chunk 404s
+ * - This is handled gracefully by lazyWithRetry's reload mechanism
  */
 
 import { INFRA_KEYS } from "./storage";

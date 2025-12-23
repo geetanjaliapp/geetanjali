@@ -60,32 +60,33 @@ function isChunkLoadError(error: unknown): boolean {
 }
 
 /**
- * Check if we should attempt a page reload (prevents infinite reload loops).
- * Returns true if last reload was more than RELOAD_EXPIRY ms ago.
+ * Atomically check if we should reload AND mark the attempt.
+ * This prevents race conditions where multiple failed lazy imports
+ * could all pass the check before any marks the attempt.
+ *
+ * Returns true if reload is allowed (and marks the attempt).
+ * Returns false if a recent reload was detected (cooldown active).
  */
-function shouldReload(): boolean {
+function tryMarkReloadAttempt(): boolean {
   try {
+    const now = Date.now();
     const lastAttempt = sessionStorage.getItem(CHUNK_RELOAD_KEY);
-    if (!lastAttempt) return true;
 
-    const timestamp = parseInt(lastAttempt, 10);
-    if (isNaN(timestamp)) return true;
+    if (lastAttempt) {
+      const timestamp = parseInt(lastAttempt, 10);
+      if (!isNaN(timestamp) && now - timestamp < CONFIG.RELOAD_EXPIRY) {
+        // Recent reload detected - don't allow another
+        return false;
+      }
+    }
 
-    return Date.now() - timestamp > CONFIG.RELOAD_EXPIRY;
-  } catch {
-    // sessionStorage might be unavailable (private browsing, etc.)
+    // Atomically mark the attempt immediately after check passes
+    sessionStorage.setItem(CHUNK_RELOAD_KEY, now.toString());
     return true;
-  }
-}
-
-/**
- * Mark that we're attempting a page reload
- */
-function markReloadAttempt(): void {
-  try {
-    sessionStorage.setItem(CHUNK_RELOAD_KEY, Date.now().toString());
   } catch {
-    // sessionStorage might be unavailable
+    // sessionStorage unavailable - allow reload but can't prevent loops
+    // This is acceptable as private browsing sessions are ephemeral anyway
+    return true;
   }
 }
 
@@ -184,10 +185,9 @@ export function lazyWithRetry<T extends ComponentType<unknown>>(
       }
     }
 
-    // All retries exhausted - check if we should reload the page
-    if (shouldReload()) {
+    // All retries exhausted - atomically check and mark reload attempt
+    if (tryMarkReloadAttempt()) {
       logChunkEvent("reload", { error: lastError });
-      markReloadAttempt();
 
       // Force page reload to get new chunks
       window.location.reload();

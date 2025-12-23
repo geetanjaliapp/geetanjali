@@ -70,7 +70,12 @@ export function useResendVerification(): UseResendVerificationResult {
               text: "Your email is already verified!",
             });
             // Refresh user state to update email_verified flag
-            await refreshUser();
+            // Wrapped in try-catch to ensure success message shows even if refresh fails
+            try {
+              await refreshUser();
+            } catch {
+              // Refresh failed (network error) - message still shows, user can refresh manually
+            }
             onSuccess?.();
             return;
           }

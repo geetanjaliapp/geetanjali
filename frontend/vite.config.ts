@@ -7,25 +7,41 @@ import fs from 'fs'
 import type { Plugin } from 'vite'
 
 /**
- * Vite plugin to generate version.json for cache invalidation.
+ * Vite plugin to generate version.json and update sw.js for cache invalidation.
  * Creates a file with build timestamp that the app checks to detect new deploys.
+ * Also injects the version into the service worker to ensure cache names are unique per build.
  */
 function versionPlugin(): Plugin {
   return {
     name: 'version-plugin',
     writeBundle(options) {
       const outDir = options.dir || 'dist'
+      const version = Date.now().toString(36) // Base36 timestamp as version
       const versionInfo = {
-        version: Date.now().toString(36), // Base36 timestamp as version
+        version,
         buildTime: new Date().toISOString(),
       }
 
+      // Write version.json for the app to check
       fs.writeFileSync(
         path.join(outDir, 'version.json'),
         JSON.stringify(versionInfo, null, 2)
       )
 
-      console.log(`[version-plugin] Generated version.json: ${versionInfo.version}`)
+      // Update sw.js with the build version to ensure unique cache names
+      const swPath = path.join(outDir, 'sw.js')
+      if (fs.existsSync(swPath)) {
+        let swContent = fs.readFileSync(swPath, 'utf-8')
+        // Replace the placeholder version with actual build version
+        swContent = swContent.replace(
+          /const CACHE_VERSION = '[^']+'/,
+          `const CACHE_VERSION = '${version}'`
+        )
+        fs.writeFileSync(swPath, swContent)
+        console.log(`[version-plugin] Updated sw.js CACHE_VERSION: ${version}`)
+      }
+
+      console.log(`[version-plugin] Generated version.json: ${version}`)
     },
   }
 }
