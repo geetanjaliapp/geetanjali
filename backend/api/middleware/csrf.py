@@ -54,6 +54,14 @@ class CSRFMiddleware(BaseHTTPMiddleware):
         if request.url.path.startswith(CSRF_EXEMPT_PREFIXES):
             return await call_next(request)
 
+        # Skip if request has Bearer token authentication
+        # Bearer tokens cannot be automatically sent by browsers (unlike cookies),
+        # so they provide equivalent CSRF protection. This also handles edge cases
+        # where privacy features (e.g., Data Saver) block JS cookie access.
+        auth_header = request.headers.get("authorization", "")
+        if auth_header.lower().startswith("bearer "):
+            return await call_next(request)
+
         # Skip if no cookies present (API key auth, first-time visitors)
         if not request.cookies:
             return await call_next(request)
