@@ -63,10 +63,7 @@ async function clearServiceWorkerCaches(): Promise<void> {
       await Promise.all(
         cacheNames
           .filter((name) => name.startsWith("geetanjali-"))
-          .map((name) => {
-            console.log("[VersionCheck] Clearing cache:", name);
-            return caches.delete(name);
-          })
+          .map((name) => caches.delete(name))
       );
     } catch (error) {
       console.warn("[VersionCheck] Failed to clear caches:", error);
@@ -131,7 +128,6 @@ export async function checkAppVersion(): Promise<boolean> {
 
   // First time visiting - just store the version
   if (!storedVersion) {
-    console.log("[VersionCheck] First visit, storing version:", currentVersion);
     storeVersion(currentVersion);
     return false;
   }
@@ -142,10 +138,6 @@ export async function checkAppVersion(): Promise<boolean> {
   }
 
   // Version changed - clear caches and update stored version
-  console.log(
-    `[VersionCheck] New version detected: ${storedVersion} → ${currentVersion}`
-  );
-
   // Clear service worker caches
   await clearServiceWorkerCaches();
 
@@ -185,12 +177,7 @@ export function startPeriodicVersionCheck(): () => void {
   let intervalId: ReturnType<typeof setInterval> | null = null;
 
   const runCheck = async () => {
-    const versionChanged = await checkAppVersion();
-    if (versionChanged) {
-      console.log(
-        "[VersionCheck] New version available - caches cleared for next navigation"
-      );
-    }
+    await checkAppVersion();
   };
 
   const startInterval = () => {

@@ -27,27 +27,19 @@ const STATIC_ASSETS = [
 
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing...');
   event.waitUntil(
     caches.open(STATIC_CACHE)
-      .then((cache) => {
-        console.log('[SW] Caching static assets');
-        return cache.addAll(STATIC_ASSETS);
-      })
-      .then(() => {
-        console.log('[SW] Install complete, skipping waiting');
-        return self.skipWaiting();  // Only skip AFTER caching completes
-      })
+      .then((cache) => cache.addAll(STATIC_ASSETS))
+      .then(() => self.skipWaiting())
       .catch((error) => {
         console.error('[SW] Install failed:', error);
-        throw error;  // Re-throw to fail the install
+        throw error;
       })
   );
 });
 
 // Activate event - clean old caches
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activating...');
   event.waitUntil(
     caches.keys()
       .then((keys) => {
@@ -57,18 +49,9 @@ self.addEventListener('activate', (event) => {
                  key !== DYNAMIC_CACHE &&
                  key !== VERSE_CACHE;
         });
-        console.log('[SW] Found', oldCaches.length, 'old caches to delete');
-        return Promise.all(
-          oldCaches.map((key) => {
-            console.log('[SW] Deleting old cache:', key);
-            return caches.delete(key);
-          })
-        );
+        return Promise.all(oldCaches.map((key) => caches.delete(key)));
       })
-      .then(() => {
-        console.log('[SW] Activation complete, claiming clients');
-        return self.clients.claim();
-      })
+      .then(() => self.clients.claim())
   );
 });
 
@@ -194,17 +177,10 @@ self.addEventListener('message', (event) => {
     // Use waitUntil to prevent SW termination during async operation
     event.waitUntil(
       (async () => {
-        console.log('[SW] Clearing all caches on request');
         try {
           const keys = await caches.keys();
           const geetanjaliCaches = keys.filter((key) => key.startsWith('geetanjali-'));
-
-          await Promise.all(
-            geetanjaliCaches.map((key) => {
-              console.log('[SW] Deleting cache:', key);
-              return caches.delete(key);
-            })
-          );
+          await Promise.all(geetanjaliCaches.map((key) => caches.delete(key)));
 
           // Notify the app that caches are cleared
           if (event.source) {

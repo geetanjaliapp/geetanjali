@@ -144,28 +144,7 @@ export function registerServiceWorker(): void {
   if ("serviceWorker" in navigator && import.meta.env.PROD) {
     window.addEventListener("load", async () => {
       try {
-        const registration = await navigator.serviceWorker.register("/sw.js", {
-          scope: "/",
-        });
-
-        console.log("[SW] Registered:", registration.scope);
-
-        // Handle updates
-        registration.addEventListener("updatefound", () => {
-          const newWorker = registration.installing;
-          if (newWorker) {
-            newWorker.addEventListener("statechange", () => {
-              if (
-                newWorker.state === "installed" &&
-                navigator.serviceWorker.controller
-              ) {
-                // New version available
-                console.log("[SW] New version available");
-                // Optionally show update prompt to user
-              }
-            });
-          }
-        });
+        await navigator.serviceWorker.register("/sw.js", { scope: "/" });
       } catch (error) {
         console.error("[SW] Registration failed:", error);
       }
@@ -180,7 +159,6 @@ export async function unregisterServiceWorker(): Promise<void> {
   if ("serviceWorker" in navigator) {
     const registration = await navigator.serviceWorker.ready;
     await registration.unregister();
-    console.log("[SW] Unregistered");
   }
 }
 
