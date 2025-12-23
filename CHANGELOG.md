@@ -2,6 +2,44 @@
 
 All notable changes to Geetanjali are documented here.
 
+## [1.13.0] - 2025-12-23
+
+Email verification, performance optimizations, and newsletter improvements.
+
+### Features
+- **Email Verification** - New accounts receive verification email. Soft enforcement with UI reminders (banner and Settings status). Password reset also verifies email ownership.
+- **Composable Email Templates** - "Quiet Library" design system for all emails with warm amber headers, reusable components, and optimized logo.
+- **Newsletter Metrics** - Dashboard metrics for subscriber engagement, open rates, and delivery stats.
+- **Cron Automation** - Setup scripts for newsletter delivery and maintenance jobs.
+
+### Performance
+- **Response Compression** - Gzip/Brotli compression for API responses
+- **Code Splitting** - Improved chunking strategy for frontend bundles
+- **Trigram Indexes** - PostgreSQL trigram indexes for faster text search
+- **Batch Verse API** - New endpoint for fetching multiple verses in single request
+- **Virtual Scrolling** - Replaced react-virtuoso with @tanstack/react-virtual for better performance
+
+### Improvements
+- **Newsletter Email Redesign** - Email template matches app design language with amber/orange branding
+- **Verse Filter Reorder** - Featured → For You → Favorites → All (most useful first)
+- **Rate Limiting** - Robust rate limiting for admin enrichment scripts
+
+### Fixes
+- Email logo uses PNG for better client compatibility
+- Metrics use correct field names (Feedback.rating, Subscriber.last_verse_sent_at)
+- RAG handles string sources in validation
+- Favorites callback references stabilized to prevent re-renders
+
+### Documentation
+- Added cron setup and newsletter operational docs
+- Updated feature documentation
+
+### Technical
+- Email verification database schema with indexed tokens
+- Typed API responses for email verification endpoints
+- Account reactivation clears old verification tokens
+- Security: is_active check prevents verification of deleted accounts
+
 ## [1.12.0] - 2025-12-22
 
 Cross-device sync, Featured Cases, and account management.
