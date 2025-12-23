@@ -23,15 +23,18 @@ CRONTAB_CONTENT="# Geetanjali Cron Jobs
 # Installed by: scripts/setup-crons.sh
 # Last updated: $(date -u +%Y-%m-%d)
 
+# Set PATH for cron environment (required for docker, etc.)
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
 # =============================================================================
 # Maintenance Jobs
 # =============================================================================
 
 # Daily maintenance: log rotation, cleanup (3 AM UTC)
-0 3 * * * ${GEETANJALI_DIR}/scripts/cron-maintenance.sh daily >> /var/log/geetanjali-maintenance.log 2>&1
+0 3 * * * ${GEETANJALI_DIR}/scripts/cron-maintenance.sh daily >> ${LOG_DIR}/maintenance.log 2>&1
 
 # Weekly maintenance: database vacuum, docker prune (4 AM UTC, Sundays)
-0 4 * * 0 ${GEETANJALI_DIR}/scripts/cron-maintenance.sh weekly >> /var/log/geetanjali-maintenance.log 2>&1
+0 4 * * 0 ${GEETANJALI_DIR}/scripts/cron-maintenance.sh weekly >> ${LOG_DIR}/maintenance.log 2>&1
 
 # =============================================================================
 # Newsletter Jobs (Daily Wisdom)
@@ -71,7 +74,7 @@ install_crontab() {
     echo ""
     echo "Verify with: crontab -l"
     echo "Logs:"
-    echo "  - Maintenance: /var/log/geetanjali-maintenance.log"
+    echo "  - Maintenance: ${LOG_DIR}/maintenance.log"
     echo "  - Newsletter:  ${LOG_DIR}/newsletter.log"
 }
 

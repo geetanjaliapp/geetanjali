@@ -558,6 +558,46 @@ Geetanjali - Ethical Guidance from the Bhagavad Geeta
         return False
 
 
+def _format_sanskrit_lines(text: str) -> list[str]:
+    """
+    Format Sanskrit text into properly separated lines for email display.
+
+    - Removes verse number at the end (e.g., ॥12.14॥)
+    - Splits on danda marks (।) for line breaks
+    - Uses alternating । and ॥ for line endings
+
+    Args:
+        text: Raw Sanskrit text in Devanagari script
+
+    Returns:
+        List of formatted lines
+    """
+    import re
+
+    if not text:
+        return []
+
+    # Remove verse number at the end (e.g., ।।2.52।। or ॥2.52॥ or ॥12.14॥॥)
+    clean_text = re.sub(r"[।॥]+\d+\.\d+[।॥]+\s*$", "", text)
+
+    # Split on single danda followed by non-danda (clause boundaries)
+    # This handles both "।" as separator and "॥" as verse-end marker
+    parts = re.split(r"[।॥]+", clean_text)
+    parts = [p.strip() for p in parts if p.strip()]
+
+    if not parts:
+        return [text.strip()]
+
+    # Format with alternating danda marks (। for odd lines, ॥ for even)
+    result = []
+    for i, part in enumerate(parts):
+        # Even index (0, 2, 4...) = odd line number (1, 3, 5...)
+        end_mark = "॥" if (i + 1) % 2 == 0 else "।"
+        result.append(f"{part} {end_mark}")
+
+    return result
+
+
 def send_newsletter_digest_email(
     email: str,
     name: str,
@@ -574,10 +614,10 @@ def send_newsletter_digest_email(
     Send daily digest email with personalized verse.
 
     This is the core daily email that subscribers receive. Design philosophy:
-    - Contemplative and unhurried ("quiet library" feel)
-    - Sanskrit first, honoring the source
-    - Warm amber/orange accents, not loud gradients
-    - Content-forward, minimal chrome
+    - Editorial structure with quiet library warmth
+    - Verse card matches app's detail card styling
+    - Sanskrit with proper line breaks, verse reference at bottom
+    - Warm amber/orange palette, content-forward
 
     Args:
         email: Subscriber's email address
@@ -612,20 +652,35 @@ def send_newsletter_digest_email(
     safe_name = html.escape(name)
     safe_goal_labels = html.escape(goal_labels)
 
-    # Verse content (already from trusted source, but escape just in case)
+    # Verse content
     verse_ref = f"{verse.chapter}.{verse.verse}"
-    sanskrit = verse.sanskrit_devanagari or ""
+    sanskrit_raw = verse.sanskrit_devanagari or ""
     translation = verse.translation_en or ""
     paraphrase = verse.paraphrase_en or ""
+
+    # Format Sanskrit with proper line breaks
+    sanskrit_lines = _format_sanskrit_lines(sanskrit_raw)
+    sanskrit_html = "".join(
+        f'<p style="margin: 0 0 4px 0;">{line}</p>' for line in sanskrit_lines
+    )
+    sanskrit_text = "\n".join(sanskrit_lines)
+
+    # Get current date for display
+    from datetime import datetime
+
+    current_date = datetime.utcnow().strftime("%B %d, %Y")
 
     # Build milestone section if applicable
     milestone_html = ""
     milestone_text = ""
     if milestone_message:
         milestone_html = f"""
-            <p style="color: #92400e; font-style: italic; text-align: center; margin: 16px 0; padding: 12px; background: #fffbeb; border-radius: 6px;">
-                ✦ {html.escape(milestone_message)} ✦
-            </p>
+                <!-- Milestone -->
+                <div style="margin-bottom: 24px; padding: 16px 20px; background: #fef3c7; border-radius: 10px; text-align: center;">
+                    <p style="color: #92400e; font-size: 14px; margin: 0; font-style: italic;">
+                        ✦ {html.escape(milestone_message)} ✦
+                    </p>
+                </div>
         """
         milestone_text = f"\n✦ {milestone_message} ✦\n"
 
@@ -634,13 +689,16 @@ def send_newsletter_digest_email(
     reflection_text = ""
     if reflection_prompt:
         reflection_html = f"""
-            <p style="color: #6b7280; font-style: italic; margin: 16px 0 0 0; padding-top: 12px; border-top: 1px dashed #e5e7eb;">
-                {html.escape(reflection_prompt)}
-            </p>
+                <!-- Reflection -->
+                <div style="margin-bottom: 24px; padding: 16px 20px; background: rgba(254, 243, 199, 0.3); border-radius: 10px; border: 1px dashed #fde68a;">
+                    <p style="color: #78716c; font-size: 14px; margin: 0; font-style: italic; text-align: center;">
+                        {html.escape(reflection_prompt)}
+                    </p>
+                </div>
         """
         reflection_text = f"\n{reflection_prompt}\n"
 
-    # Build HTML email body - contemplative, content-forward design
+    # Build HTML email body - Editorial Library design
     html_body = f"""
     <!DOCTYPE html>
     <html lang="en">
@@ -648,128 +706,153 @@ def send_newsletter_digest_email(
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
-    <body style="margin: 0; padding: 0; background-color: #fefce8;">
-        <div style="font-family: Georgia, 'Times New Roman', serif; max-width: 600px; margin: 0 auto; padding: 24px 16px;">
+    <body style="margin: 0; padding: 0; background-color: #fefce8; font-family: 'Source Sans 3', system-ui, -apple-system, sans-serif;">
+        <!-- Wrapper -->
+        <div style="max-width: 600px; margin: 0 auto;">
 
-            <!-- Header - minimal, warm -->
-            <div style="text-align: center; padding: 24px 0 32px 0; border-bottom: 1px solid #fde68a;">
-                <p style="color: #92400e; font-size: 14px; letter-spacing: 2px; margin: 0; text-transform: uppercase;">
+            <!-- HEADER -->
+            <div style="background: linear-gradient(to bottom, #fffbeb, #fef3c7); padding: 28px 24px; text-align: center; border-bottom: 1px solid #fde68a;">
+                <!-- Logo -->
+                <img src="https://geetanjaliapp.com/logo.svg" alt="" width="48" height="48" style="margin-bottom: 10px;">
+                <!-- Brand name -->
+                <h1 style="color: #78350f; font-size: 20px; margin: 0 0 4px 0; font-family: Georgia, 'Times New Roman', serif; font-weight: 500; letter-spacing: 0.5px;">
+                    Geetanjali
+                </h1>
+                <p style="color: #92400e; font-size: 11px; margin: 0; letter-spacing: 2px; text-transform: uppercase;">
                     Daily Wisdom
                 </p>
             </div>
 
-            <!-- Greeting -->
-            <div style="padding: 32px 0 24px 0;">
-                <p style="color: #78716c; font-size: 18px; margin: 0;">
+            <!-- BODY -->
+            <div style="background: #fffbeb; padding: 28px 24px;">
+
+                <!-- Greeting -->
+                <p style="color: #57534e; font-size: 16px; margin: 0 0 4px 0;">
                     {html.escape(greeting)}, {safe_name}
                 </p>
+                <p style="color: #a8a29e; font-size: 13px; margin: 0 0 24px 0;">
+                    {current_date}
+                </p>
+
+                <!-- Verse Card (matches app detail card styling) -->
+                <div style="background: linear-gradient(to bottom, #fff7ed, #fffbeb); border: 2px solid rgba(251, 191, 36, 0.35); border-radius: 16px; padding: 28px 24px; margin-bottom: 24px;">
+
+                    <!-- Decorative Om -->
+                    <div style="text-align: center; margin-bottom: 16px; font-size: 28px; color: rgba(251, 191, 36, 0.5); font-weight: 300;">
+                        ॐ
+                    </div>
+
+                    <!-- Sanskrit -->
+                    <div style="text-align: center; margin-bottom: 20px; font-family: 'Noto Serif Devanagari', Georgia, serif; font-size: 19px; line-height: 1.85; color: rgba(146, 64, 14, 0.7); letter-spacing: 0.025em;">
+                        {sanskrit_html}
+                    </div>
+
+                    <!-- Translation -->
+                    <p style="color: #374151; font-size: 15px; line-height: 1.7; margin: 0 0 20px 0; text-align: center; font-style: italic;">
+                        "{html.escape(translation)}"
+                    </p>
+
+                    <!-- Verse Reference (citation at bottom, like app) -->
+                    <div style="text-align: center; padding-top: 16px;">
+                        <span style="color: rgba(217, 119, 6, 0.7); font-size: 14px; font-family: Georgia, 'Times New Roman', serif; font-weight: 500;">
+                            ॥ {verse_ref} ॥
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Insight Section -->
+                <div style="margin-bottom: 24px; padding: 20px; background: #fefce8; border-radius: 12px; border-left: 3px solid #f59e0b;">
+                    <h2 style="color: #b45309; font-size: 11px; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600;">
+                        Today's Insight
+                    </h2>
+                    <p style="color: #57534e; font-size: 15px; line-height: 1.7; margin: 0;">
+                        {html.escape(paraphrase)}
+                    </p>
+                </div>
+
+                {milestone_html}
+
+                {reflection_html}
+
+                <!-- Why This Verse -->
+                <div style="padding: 16px 20px; background: rgba(254, 243, 199, 0.5); border-radius: 10px; margin-bottom: 24px;">
+                    <h2 style="color: #92400e; font-size: 11px; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600;">
+                        Selected For You
+                    </h2>
+                    <p style="color: #78716c; font-size: 14px; line-height: 1.6; margin: 0;">
+                        Based on your journey toward {safe_goal_labels}.
+                    </p>
+                </div>
+
+                <!-- CTA Button -->
+                <div style="text-align: center;">
+                    <a href="{verse_url}"
+                       style="display: inline-block; background: #ea580c; color: white; padding: 12px 28px; text-decoration: none; border-radius: 10px; font-weight: 500; font-size: 14px;">
+                        Read Full Verse →
+                    </a>
+                </div>
             </div>
 
-            <!-- Verse Reference -->
-            <div style="text-align: center; padding: 16px 0;">
-                <p style="color: #d97706; font-size: 16px; margin: 0; letter-spacing: 1px;">
-                    ॥ {verse_ref} ॥
+            <!-- FOOTER -->
+            <div style="background: #292524; padding: 24px; text-align: center;">
+                <p style="color: #d6d3d1; font-size: 13px; margin: 0 0 4px 0; font-family: Georgia, 'Times New Roman', serif;">
+                    Geetanjali
+                </p>
+                <p style="color: #78716c; font-size: 12px; margin: 0 0 16px 0;">
+                    Wisdom for modern life
+                </p>
+                <p style="margin: 0;">
+                    <a href="https://geetanjaliapp.com" style="color: #a8a29e; font-size: 12px; text-decoration: none;">Visit App</a>
+                    <span style="color: #525252; margin: 0 8px;">·</span>
+                    <a href="{preferences_url}" style="color: #a8a29e; font-size: 12px; text-decoration: none;">Preferences</a>
+                    <span style="color: #525252; margin: 0 8px;">·</span>
+                    <a href="{unsubscribe_url}" style="color: #a8a29e; font-size: 12px; text-decoration: none;">Unsubscribe</a>
                 </p>
             </div>
-
-            <!-- Sanskrit (Devanagari) -->
-            <div style="text-align: center; padding: 16px 24px; background: #fffbeb; border-radius: 8px; margin: 16px 0;">
-                <p style="color: #44403c; font-size: 20px; line-height: 1.8; margin: 0; font-family: 'Noto Sans Devanagari', Georgia, serif;">
-                    {sanskrit}
-                </p>
-            </div>
-
-            <!-- Translation -->
-            <div style="padding: 24px 0;">
-                <p style="color: #44403c; font-size: 17px; line-height: 1.7; margin: 0; text-align: center;">
-                    {html.escape(translation)}
-                </p>
-            </div>
-
-            <!-- Divider -->
-            <div style="text-align: center; padding: 8px 0;">
-                <span style="color: #d4d4d4;">❧</span>
-            </div>
-
-            <!-- Paraphrase / Commentary -->
-            <div style="padding: 16px 0 24px 0;">
-                <p style="color: #57534e; font-size: 15px; line-height: 1.8; margin: 0;">
-                    {html.escape(paraphrase)}
-                </p>
-            </div>
-
-            <!-- Read More Link -->
-            <div style="text-align: center; padding: 16px 0 24px 0;">
-                <a href="{verse_url}"
-                   style="color: #d97706; font-size: 14px; text-decoration: none; border-bottom: 1px solid #fde68a;">
-                    Read full verse →
-                </a>
-            </div>
-
-            <!-- Why This Verse -->
-            <div style="padding: 24px 0; border-top: 1px solid #fde68a;">
-                <p style="color: #78716c; font-size: 13px; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 1px;">
-                    Why this verse
-                </p>
-                <p style="color: #57534e; font-size: 14px; line-height: 1.6; margin: 0;">
-                    Selected for your journey toward {safe_goal_labels}.
-                </p>
-            </div>
-
-            {milestone_html}
-
-            {reflection_html}
-
-            <!-- Footer -->
-            <div style="padding: 32px 0 16px 0; border-top: 1px solid #fde68a; margin-top: 24px;">
-                <p style="color: #a8a29e; font-size: 12px; text-align: center; margin: 0 0 12px 0;">
-                    Geetanjali — Wisdom for modern life
-                </p>
-                <p style="text-align: center; margin: 0;">
-                    <a href="{unsubscribe_url}" style="color: #a8a29e; font-size: 11px; text-decoration: none;">Unsubscribe</a>
-                    <span style="color: #d4d4d4; margin: 0 8px;">·</span>
-                    <a href="{preferences_url}" style="color: #a8a29e; font-size: 11px; text-decoration: none;">Manage preferences</a>
-                </p>
-            </div>
-
         </div>
     </body>
     </html>
     """
 
-    # Plain text version - equally contemplative
+    # Plain text version
     text_body = f"""
-{greeting}, {name}
+{greeting}, {safe_name}
+{current_date}
 
-══════════════════════════════════════
+════════════════════════════════════════
+
+ॐ
+
+{sanskrit_text}
+
+"{translation}"
 
 ॥ {verse_ref} ॥
 
-{sanskrit}
+════════════════════════════════════════
 
-{translation}
-
----
+TODAY'S INSIGHT
 
 {paraphrase}
 
 Read full verse: {verse_url}
-
-══════════════════════════════════════
-
-Why this verse?
-Selected for your journey toward {goal_labels}.
 {milestone_text}{reflection_text}
----
+────────────────────────────────────────
+
+SELECTED FOR YOU
+Based on your journey toward {goal_labels}.
+
+────────────────────────────────────────
 
 Geetanjali — Wisdom for modern life
 
+Visit App: https://geetanjaliapp.com
+Preferences: {preferences_url}
 Unsubscribe: {unsubscribe_url}
-Manage preferences: {preferences_url}
     """.strip()
 
     # Subject line - personal, not promotional
-    subject = f"Your daily verse • {verse_ref}"
+    subject = f"Your daily verse · {verse_ref}"
 
     try:
         params = {
