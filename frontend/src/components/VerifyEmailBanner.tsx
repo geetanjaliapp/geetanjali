@@ -110,7 +110,7 @@ export function VerifyEmailBanner({ onVerified }: VerifyEmailBannerProps) {
                        hover:text-amber-800 dark:hover:text-amber-200
                        hover:bg-amber-100 dark:hover:bg-amber-800/30
                        rounded transition-colors
-                       focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-1"
+                       focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
             aria-label="Dismiss verification reminder"
           >
             <CloseIcon className="w-4 h-4" />
