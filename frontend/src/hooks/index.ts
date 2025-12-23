@@ -27,3 +27,4 @@ export { useFocusTrap } from "./useFocusTrap";
 export { useOnlineStatus } from "./useOnlineStatus";
 export { useFeedback } from "./useFeedback";
 export { useNewsletterSync } from "./useNewsletterSync";
+export { useResendVerification } from "./useResendVerification";
