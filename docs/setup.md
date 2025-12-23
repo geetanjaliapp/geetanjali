@@ -166,13 +166,51 @@ All environment variables with defaults. Only override what you need.
 | `CACHE_TTL_PUBLIC_CASE` | 3600 | Redis cache TTL for public cases (seconds) |
 | `CACHE_TTL_PUBLIC_CASE_HTTP` | 60 | HTTP cache header for public cases (seconds) |
 
-### Email (Optional)
+### Email & Newsletter
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `RESEND_API_KEY` | - | Resend API key for email |
 | `CONTACT_EMAIL_TO` | - | Contact form recipient |
 | `CONTACT_EMAIL_FROM` | - | Sender address (verified domain) |
+| `FRONTEND_URL` | http://localhost | Base URL for email links |
+
+## Production Cron Jobs
+
+Geetanjali uses cron for scheduled maintenance and newsletter delivery. The setup script configures all required jobs.
+
+### Installing Cron Jobs
+
+```bash
+# On production server
+cd /opt/geetanjali
+./scripts/setup-crons.sh          # Install crontab
+./scripts/setup-crons.sh --show   # Preview without installing
+```
+
+### Scheduled Jobs
+
+| Job | Schedule | Description |
+|-----|----------|-------------|
+| Daily maintenance | 3:00 UTC | Log rotation, temp cleanup |
+| Weekly maintenance | 4:00 UTC Sunday | Database vacuum, docker prune |
+| Morning newsletter | 0:30 UTC (6 AM IST) | Send morning digest emails |
+| Afternoon newsletter | 7:00 UTC (12:30 PM IST) | Send afternoon digest emails |
+| Evening newsletter | 12:30 UTC (6 PM IST) | Send evening digest emails |
+
+### Log Files
+
+```bash
+/var/log/geetanjali/maintenance.log  # Maintenance job output
+/var/log/geetanjali/newsletter.log   # Newsletter job output
+```
+
+### Manual Newsletter Trigger
+
+```bash
+# Test newsletter delivery (dry run on server)
+docker exec geetanjali-backend python -m jobs.newsletter_scheduler --send-time morning
+```
 
 ## Common Commands
 

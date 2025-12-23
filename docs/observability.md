@@ -45,6 +45,14 @@ Default Grafana login: admin / (set GRAFANA_ADMIN_PASSWORD in .env)
 | `geetanjali_feedback_helpful_pct` | Gauge | Percentage marked helpful |
 | `geetanjali_verses_referenced_unique` | Gauge | Unique verses cited in outputs |
 
+### Newsletter Metrics
+
+| Metric | Type | Labels | Description |
+|--------|------|--------|-------------|
+| `geetanjali_newsletter_subscribers_total` | Gauge | - | Active verified subscribers |
+| `geetanjali_newsletter_subscribers_by_time` | Gauge | `send_time` | Subscribers per time slot (morning/afternoon/evening) |
+| `geetanjali_newsletter_emails_sent_24h` | Gauge | - | Emails delivered in last 24 hours |
+
 ### Infrastructure Metrics
 
 | Metric | Type | Description |
@@ -137,6 +145,7 @@ Pre-configured dashboard at `monitoring/grafana/dashboards/geetanjali.json`:
 | LLM Unavailable | `geetanjali_ollama_up == 0` for 5m | Warning |
 | Queue Backlog | `geetanjali_queue_depth > 10` for 5m | Warning |
 | No Recent Activity | `geetanjali_consultations_24h == 0` for 24h | Info |
+| Newsletter Not Sent | `geetanjali_newsletter_emails_sent_24h == 0` for 24h | Warning |
 
 ## Prometheus Configuration
 
