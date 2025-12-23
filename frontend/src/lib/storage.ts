@@ -60,6 +60,15 @@ export const DYNAMIC_STORAGE_KEYS = {
 export const SESSION_KEYS = {
   sessionId: "geetanjali_session_id",
   readingVersesRead: "geetanjali:readingVersesRead", // Verses read in current session
+  chunkReloadAttempt: "geetanjali:chunkReloadAttempt", // Prevents infinite reload loops on chunk failure
+} as const;
+
+// ============================================================================
+// localStorage Keys (Infrastructure)
+// ============================================================================
+
+export const INFRA_KEYS = {
+  appVersion: "geetanjali:appVersion", // Tracks deployed version for cache invalidation
 } as const;
 
 // ============================================================================

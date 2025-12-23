@@ -1,5 +1,7 @@
 import { lazy } from "react";
 import type { ComponentType } from "react";
+import { SESSION_KEYS } from "./storage";
+import { captureException } from "./monitoring";
 
 /**
  * Configuration for chunk load retry behavior
@@ -9,11 +11,12 @@ const CONFIG = {
   MAX_RETRIES: 3,
   /** Base delay in ms for exponential backoff (doubles each retry) */
   RETRY_BASE_DELAY: 1000,
-  /** Key used in sessionStorage to track reload attempts */
-  RELOAD_KEY: "chunk_reload_attempt",
   /** Time window in ms before allowing another reload (prevents infinite loops) */
   RELOAD_EXPIRY: 30000, // 30 seconds
 };
+
+/** Storage key for tracking reload attempts (exported for use in versionCheck.ts) */
+export const CHUNK_RELOAD_KEY = SESSION_KEYS.chunkReloadAttempt;
 
 /**
  * Known chunk loading error patterns across different browsers.
@@ -62,7 +65,7 @@ function isChunkLoadError(error: unknown): boolean {
  */
 function shouldReload(): boolean {
   try {
-    const lastAttempt = sessionStorage.getItem(CONFIG.RELOAD_KEY);
+    const lastAttempt = sessionStorage.getItem(CHUNK_RELOAD_KEY);
     if (!lastAttempt) return true;
 
     const timestamp = parseInt(lastAttempt, 10);
@@ -80,14 +83,14 @@ function shouldReload(): boolean {
  */
 function markReloadAttempt(): void {
   try {
-    sessionStorage.setItem(CONFIG.RELOAD_KEY, Date.now().toString());
+    sessionStorage.setItem(CHUNK_RELOAD_KEY, Date.now().toString());
   } catch {
     // sessionStorage might be unavailable
   }
 }
 
 /**
- * Log chunk loading events for debugging
+ * Log chunk loading events for debugging and report critical errors to Sentry
  */
 function logChunkEvent(
   event: "retry" | "reload" | "error",
@@ -107,12 +110,26 @@ function logChunkEvent(
         `${prefix} All retries exhausted, reloading page to fetch new chunks...`,
         details.error
       );
+      // Report to Sentry for monitoring chunk failures in production
+      if (details.error instanceof Error) {
+        captureException(details.error, {
+          event: "chunk_load_reload",
+          message: "Chunk load failed after all retries, triggering page reload",
+        });
+      }
       break;
     case "error":
       console.error(
         `${prefix} Chunk load failed and reload not possible (recent reload detected)`,
         details.error
       );
+      // Report to Sentry - this is a critical error (user stuck in error state)
+      if (details.error instanceof Error) {
+        captureException(details.error, {
+          event: "chunk_load_failed",
+          message: "Chunk load failed and reload blocked (recent reload detected)",
+        });
+      }
       break;
   }
 }

@@ -11,7 +11,10 @@
  * 4. This ensures next navigation fetches fresh chunks
  */
 
-const VERSION_STORAGE_KEY = "app_version";
+import { INFRA_KEYS } from "./storage";
+import { CHUNK_RELOAD_KEY } from "./lazyWithRetry";
+
+const VERSION_STORAGE_KEY = INFRA_KEYS.appVersion;
 const VERSION_CHECK_INTERVAL = 5 * 60 * 1000; // 5 minutes
 
 interface VersionInfo {
@@ -145,7 +148,7 @@ export async function checkAppVersion(): Promise<boolean> {
 
   // Clear the chunk reload marker so fresh reload works if needed
   try {
-    sessionStorage.removeItem("chunk_reload_attempt");
+    sessionStorage.removeItem(CHUNK_RELOAD_KEY);
   } catch {
     // Ignore
   }
@@ -159,6 +162,10 @@ export async function checkAppVersion(): Promise<boolean> {
  * This is useful for users who keep the app open for a long time.
  * If a new version is detected during a check, caches are cleared
  * so the next navigation will get fresh chunks.
+ *
+ * Uses visibility API to:
+ * - Pause checks when tab is hidden (saves network requests)
+ * - Check immediately when tab becomes visible (catches deploys while away)
  */
 export function startPeriodicVersionCheck(): () => void {
   // Only run in production
@@ -166,17 +173,54 @@ export function startPeriodicVersionCheck(): () => void {
     return () => {};
   }
 
-  const intervalId = setInterval(async () => {
+  let intervalId: ReturnType<typeof setInterval> | null = null;
+
+  const runCheck = async () => {
     const versionChanged = await checkAppVersion();
     if (versionChanged) {
       console.log(
         "[VersionCheck] New version available - caches cleared for next navigation"
       );
     }
-  }, VERSION_CHECK_INTERVAL);
+  };
+
+  const startInterval = () => {
+    if (intervalId === null) {
+      intervalId = setInterval(runCheck, VERSION_CHECK_INTERVAL);
+    }
+  };
+
+  const stopInterval = () => {
+    if (intervalId !== null) {
+      clearInterval(intervalId);
+      intervalId = null;
+    }
+  };
+
+  const handleVisibilityChange = () => {
+    if (document.hidden) {
+      // Tab hidden - pause checks to save resources
+      stopInterval();
+    } else {
+      // Tab visible - check immediately and resume periodic checks
+      runCheck();
+      startInterval();
+    }
+  };
+
+  // Start checking if tab is visible
+  if (!document.hidden) {
+    startInterval();
+  }
+
+  // Listen for visibility changes
+  document.addEventListener("visibilitychange", handleVisibilityChange);
 
   // Return cleanup function
-  return () => clearInterval(intervalId);
+  return () => {
+    stopInterval();
+    document.removeEventListener("visibilitychange", handleVisibilityChange);
+  };
 }
 
 export default checkAppVersion;

@@ -201,6 +201,12 @@ self.addEventListener('message', (event) => {
       if (event.source) {
         event.source.postMessage({ type: 'CACHES_CLEARED' });
       }
+    }).catch((error) => {
+      console.error('[SW] Failed to clear caches:', error);
+      // Still notify the app, but with error status
+      if (event.source) {
+        event.source.postMessage({ type: 'CACHES_CLEAR_FAILED', error: error.message });
+      }
     });
   }
 });
