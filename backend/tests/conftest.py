@@ -13,6 +13,7 @@ Usage:
 """
 
 import os
+from unittest.mock import patch
 
 # Disable Redis caching before importing app (must be before config import)
 os.environ["REDIS_ENABLED"] = "false"
@@ -107,3 +108,18 @@ def client(db_session):
 
     # Clear overrides
     app.dependency_overrides.clear()
+
+
+@pytest.fixture(autouse=True)
+def mock_email_sending():
+    """
+    Globally mock all email sending functions to prevent real emails during tests.
+
+    This fixture runs automatically for all tests to ensure no actual emails
+    are sent to Resend or any other email service.
+    """
+    with patch("api.auth.send_account_verification_email", return_value=True), \
+         patch("api.auth.send_password_changed_email", return_value=True), \
+         patch("api.auth.send_account_deleted_email", return_value=True), \
+         patch("api.newsletter.send_newsletter_verification_email", return_value=True):
+        yield

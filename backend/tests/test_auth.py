@@ -347,8 +347,6 @@ def test_resend_verification_requires_auth(client):
 
 def test_resend_verification_success(client):
     """Test resend verification for authenticated user."""
-    from unittest.mock import patch
-
     # Signup and get token
     signup_data = {
         "email": "resend@example.com",
@@ -362,16 +360,15 @@ def test_resend_verification_success(client):
     if not token:
         pytest.skip("Token not returned in signup response")
 
-    # Request resend with CSRF token and mocked email
+    # Request resend with CSRF token (email sending mocked globally in conftest.py)
     headers = {"Authorization": f"Bearer {token}"}
     if csrf_token:
         headers["X-CSRF-Token"] = csrf_token
 
-    with patch("api.auth.send_account_verification_email", return_value=True):
-        response = client.post(
-            "/api/v1/auth/resend-verification",
-            headers=headers,
-        )
+    response = client.post(
+        "/api/v1/auth/resend-verification",
+        headers=headers,
+    )
 
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
