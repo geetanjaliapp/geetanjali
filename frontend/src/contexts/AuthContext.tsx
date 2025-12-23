@@ -17,6 +17,7 @@ interface AuthContextType {
   login: (credentials: LoginRequest) => Promise<void>;
   signup: (data: SignupRequest) => Promise<void>;
   logout: () => Promise<void>;
+  refreshUser: () => Promise<void>;
   isAuthenticated: boolean;
 }
 
@@ -104,6 +105,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setUser(null);
   }, []);
 
+  const refreshUser = useCallback(async () => {
+    try {
+      const currentUser = await authApi.getCurrentUser();
+      setUser(currentUser);
+    } catch {
+      // If refresh fails, user might have been logged out
+      tokenStorage.clearToken();
+      setUser(null);
+    }
+  }, []);
+
   // P2.5 FIX: Memoize context value to prevent re-renders when value object changes
   const value = useMemo<AuthContextType>(
     () => ({
@@ -112,9 +124,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       login,
       signup,
       logout,
+      refreshUser,
       isAuthenticated: !!user,
     }),
-    [user, loading, login, signup, logout],
+    [user, loading, login, signup, logout, refreshUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

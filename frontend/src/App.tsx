@@ -41,6 +41,7 @@ const NewsletterUnsubscribe = lazy(
 const NewsletterPreferences = lazy(
   () => import("./pages/NewsletterPreferences")
 );
+const VerifyEmail = lazy(() => import("./pages/VerifyEmail"));
 
 /**
  * Redirect from old /search to unified /verses page
@@ -160,6 +161,9 @@ function App() {
 
             {/* Public shared consultation view */}
             <Route path="/c/:slug" element={<PublicCaseView />} />
+
+            {/* Email verification route */}
+            <Route path="/verify-email/:token" element={<VerifyEmail />} />
 
             {/* Newsletter routes */}
             <Route path="/n/verify/:token" element={<NewsletterVerify />} />

@@ -60,3 +60,4 @@ export {
 export { Toast } from "./Toast";
 export { SyncToast } from "./SyncToast";
 export { OfflineIndicator } from "./OfflineIndicator";
+export { VerifyEmailBanner } from "./VerifyEmailBanner";
