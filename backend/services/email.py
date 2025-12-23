@@ -111,6 +111,213 @@ def _get_resend_or_raise():
     return client
 
 
+# =============================================================================
+# Composable Email Components (Quiet Library Design)
+# =============================================================================
+
+# Design tokens
+EMAIL_LOGO_URL = "https://geetanjaliapp.com/logo-email.png"
+EMAIL_APP_URL = "https://geetanjaliapp.com"
+
+
+def _email_header(subtitle: str) -> str:
+    """
+    Generate email header with logo, brand name, and subtitle.
+
+    Args:
+        subtitle: Contextual subtitle (e.g., "Daily Wisdom", "Account Security")
+
+    Returns:
+        HTML string for header section
+    """
+    return f"""
+            <!-- HEADER -->
+            <div style="background: linear-gradient(to bottom, #fffbeb, #fef3c7); padding: 28px 24px; text-align: center; border-bottom: 1px solid #fde68a;">
+                <!-- Logo -->
+                <img src="{EMAIL_LOGO_URL}" alt="Geetanjali" width="48" height="48" style="margin-bottom: 10px;">
+                <!-- Brand name -->
+                <h1 style="color: #78350f; font-size: 20px; margin: 0 0 4px 0; font-family: Georgia, 'Times New Roman', serif; font-weight: 500; letter-spacing: 0.5px;">
+                    Geetanjali
+                </h1>
+                <p style="color: #92400e; font-size: 11px; margin: 0; letter-spacing: 2px; text-transform: uppercase;">
+                    {subtitle}
+                </p>
+            </div>
+    """
+
+
+def _email_footer(links: list[tuple[str, str]]) -> str:
+    """
+    Generate dark email footer with links.
+
+    Args:
+        links: List of (label, url) tuples for footer links
+
+    Returns:
+        HTML string for footer section
+    """
+    if links:
+        link_html = '<span style="color: #525252; margin: 0 8px;">·</span>'.join(
+            f'<a href="{url}" style="color: #a8a29e; font-size: 12px; text-decoration: none;">{label}</a>'
+            for label, url in links
+        )
+    else:
+        link_html = ""
+
+    return f"""
+            <!-- FOOTER -->
+            <div style="background: #292524; padding: 24px; text-align: center;">
+                <p style="color: #d6d3d1; font-size: 13px; margin: 0 0 4px 0; font-family: Georgia, 'Times New Roman', serif;">
+                    Geetanjali
+                </p>
+                <p style="color: #78716c; font-size: 12px; margin: 0 0 16px 0;">
+                    Wisdom for modern life
+                </p>
+                {f'<p style="margin: 0;">{link_html}</p>' if link_html else ''}
+            </div>
+    """
+
+
+def _email_button(text: str, url: str) -> str:
+    """
+    Generate orange CTA button.
+
+    Args:
+        text: Button text
+        url: Button URL
+
+    Returns:
+        HTML string for button
+    """
+    return f"""
+                <div style="text-align: center; margin: 24px 0;">
+                    <a href="{url}"
+                       style="display: inline-block; background: #ea580c; color: white; padding: 12px 28px; text-decoration: none; border-radius: 10px; font-weight: 500; font-size: 14px;">
+                        {text}
+                    </a>
+                </div>
+    """
+
+
+def _email_section(title: str, content: str, accent: bool = False) -> str:
+    """
+    Generate content section with optional left border accent.
+
+    Args:
+        title: Section title (uppercase)
+        content: Section content HTML
+        accent: Whether to show left border accent
+
+    Returns:
+        HTML string for section
+    """
+    border_style = "border-left: 3px solid #f59e0b;" if accent else ""
+    bg_style = "background: #fefce8;" if accent else "background: rgba(254, 243, 199, 0.5);"
+
+    return f"""
+                <div style="margin-bottom: 24px; padding: 16px 20px; {bg_style} border-radius: 10px; {border_style}">
+                    <h2 style="color: #92400e; font-size: 11px; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600;">
+                        {title}
+                    </h2>
+                    {content}
+                </div>
+    """
+
+
+def _email_html_wrapper(body_content: str, header: str, footer: str) -> str:
+    """
+    Wrap email content in full HTML document structure.
+
+    Args:
+        body_content: Main body HTML content
+        header: Header HTML from _email_header()
+        footer: Footer HTML from _email_footer()
+
+    Returns:
+        Complete HTML email document
+    """
+    return f"""
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="margin: 0; padding: 0; background-color: #fefce8; font-family: 'Source Sans 3', system-ui, -apple-system, sans-serif;">
+        <!-- Wrapper -->
+        <div style="max-width: 600px; margin: 0 auto;">
+            {header}
+            <!-- BODY -->
+            <div style="background: #fffbeb; padding: 28px 24px;">
+                {body_content}
+            </div>
+            {footer}
+        </div>
+    </body>
+    </html>
+    """
+
+
+def _email_greeting(greeting: str, name: str, show_date: bool = False) -> str:
+    """
+    Generate greeting with optional date.
+
+    Args:
+        greeting: Greeting text (e.g., "Hello", "Good morning")
+        name: Recipient name
+        show_date: Whether to show current date
+
+    Returns:
+        HTML string for greeting
+    """
+    from datetime import datetime
+
+    date_html = ""
+    if show_date:
+        current_date = datetime.utcnow().strftime("%B %d, %Y")
+        date_html = f'<p style="color: #a8a29e; font-size: 13px; margin: 0 0 24px 0;">{current_date}</p>'
+
+    return f"""
+                <p style="color: #57534e; font-size: 16px; margin: 0 0 {'4px' if show_date else '16px'} 0;">
+                    {html.escape(greeting)}, {html.escape(name)}
+                </p>
+                {date_html}
+    """
+
+
+def _email_paragraph(text: str, muted: bool = False) -> str:
+    """
+    Generate paragraph with proper styling.
+
+    Args:
+        text: Paragraph text
+        muted: Whether to use muted color
+
+    Returns:
+        HTML string for paragraph
+    """
+    color = "#78716c" if muted else "#57534e"
+    return f'<p style="color: {color}; font-size: 15px; line-height: 1.7; margin: 0 0 16px 0;">{text}</p>'
+
+
+def _email_fallback_link(url: str) -> str:
+    """
+    Generate fallback link text for accessibility.
+
+    Args:
+        url: The URL to display
+
+    Returns:
+        HTML string for fallback link
+    """
+    return f"""
+                <p style="color: #a8a29e; font-size: 12px; margin: 16px 0 0 0;">
+                    If the button doesn't work, copy and paste this link:<br>
+                    <a href="{url}" style="color: #d97706; word-break: break-all;">{url}</a>
+                </p>
+    """
+
+
 def send_alert_email(subject: str, message: str) -> bool:
     """
     Send an alert/notification email to the configured admin.
@@ -134,11 +341,20 @@ def send_alert_email(subject: str, message: str) -> bool:
         logger.warning("Email configuration incomplete - alert not sent")
         return False
 
+    # Build HTML email using composable components
+    message_html = f'<pre style="color: #374151; font-size: 14px; line-height: 1.6; white-space: pre-wrap; margin: 0;">{html.escape(message)}</pre>'
+    body_content = _email_section("Alert Details", message_html, accent=True)
+
+    header = _email_header("System Alert")
+    footer = _email_footer([("Dashboard", EMAIL_APP_URL)])
+    html_body = _email_html_wrapper(body_content, header, footer)
+
     try:
         params = {
             "from": settings.CONTACT_EMAIL_FROM,
             "to": [settings.CONTACT_EMAIL_TO],
             "subject": f"[Geetanjali Alert] {subject}",
+            "html": html_body,
             "text": message,
         }
 
@@ -188,36 +404,44 @@ def send_contact_email(
     else:
         email_subject += f" from {name}"
 
-    # Build HTML email body
-    html_body = f"""
-    <div style="font-family: system-ui, -apple-system, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: linear-gradient(135deg, #f97316, #dc2626); padding: 20px; border-radius: 8px 8px 0 0;">
-            <h1 style="color: white; margin: 0; font-size: 24px;">New Contact Message</h1>
-        </div>
-        <div style="background: #fff; padding: 24px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px;">
-            <table style="width: 100%; border-collapse: collapse;">
-                <tr>
-                    <td style="padding: 8px 0; color: #6b7280; width: 100px;">From:</td>
-                    <td style="padding: 8px 0; color: #111827; font-weight: 500;">{name}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px 0; color: #6b7280;">Email:</td>
-                    <td style="padding: 8px 0;"><a href="mailto:{email}" style="color: #f97316;">{email}</a></td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px 0; color: #6b7280;">Type:</td>
-                    <td style="padding: 8px 0; color: #111827;">{message_type.replace('_', ' ').title()}</td>
-                </tr>
-                {f'<tr><td style="padding: 8px 0; color: #6b7280;">Subject:</td><td style="padding: 8px 0; color: #111827;">{subject}</td></tr>' if subject else ''}
-            </table>
-            <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 16px 0;">
-            <div style="color: #374151; line-height: 1.6; white-space: pre-wrap;">{message}</div>
-        </div>
-        <div style="text-align: center; padding: 16px; color: #9ca3af; font-size: 12px;">
-            Sent from Geetanjali Contact Form
-        </div>
-    </div>
+    # Escape user inputs
+    safe_name = html.escape(name)
+    safe_email = html.escape(email)
+    safe_type = html.escape(message_type.replace("_", " ").title())
+    safe_subject = html.escape(subject) if subject else None
+    safe_message = html.escape(message)
+
+    # Build contact details section
+    contact_html = f"""
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px;">
+            <tr>
+                <td style="padding: 8px 0; color: #78716c; width: 80px; vertical-align: top;">From:</td>
+                <td style="padding: 8px 0; color: #374151; font-weight: 500;">{safe_name}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px 0; color: #78716c; vertical-align: top;">Email:</td>
+                <td style="padding: 8px 0;"><a href="mailto:{safe_email}" style="color: #d97706;">{safe_email}</a></td>
+            </tr>
+            <tr>
+                <td style="padding: 8px 0; color: #78716c; vertical-align: top;">Type:</td>
+                <td style="padding: 8px 0; color: #374151;">{safe_type}</td>
+            </tr>
+            {f'<tr><td style="padding: 8px 0; color: #78716c; vertical-align: top;">Subject:</td><td style="padding: 8px 0; color: #374151;">{safe_subject}</td></tr>' if safe_subject else ''}
+        </table>
     """
+
+    # Build message section
+    message_html = f'<div style="color: #374151; line-height: 1.7; white-space: pre-wrap;">{safe_message}</div>'
+
+    # Compose body content
+    body_content = (
+        _email_section("Contact Details", contact_html)
+        + _email_section("Message", message_html, accent=True)
+    )
+
+    header = _email_header("Contact Form")
+    footer = _email_footer([("Dashboard", EMAIL_APP_URL)])
+    html_body = _email_html_wrapper(body_content, header, footer)
 
     # Plain text version
     text_body = f"""
@@ -275,40 +499,24 @@ def send_password_reset_email(email: str, reset_url: str) -> bool:
         logger.warning("CONTACT_EMAIL_FROM not configured - reset email not sent")
         return False
 
-    # Build HTML email body
-    html_body = """
-    <div style="font-family: system-ui, -apple-system, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: linear-gradient(135deg, #f97316, #dc2626); padding: 20px; border-radius: 8px 8px 0 0;">
-            <h1 style="color: white; margin: 0; font-size: 24px;">Reset Your Password</h1>
-        </div>
-        <div style="background: #fff; padding: 24px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px;">
-            <p style="color: #374151; line-height: 1.6; margin: 0 0 16px 0;">
-                You requested to reset your password for your Geetanjali account.
-                Click the button below to set a new password.
-            </p>
-            <div style="text-align: center; margin: 24px 0;">
-                <a href="{reset_url}"
-                   style="display: inline-block; background: #f97316; color: white; padding: 12px 32px;
-                          text-decoration: none; border-radius: 8px; font-weight: 500;">
-                    Reset Password
-                </a>
-            </div>
-            <p style="color: #6b7280; font-size: 14px; line-height: 1.6; margin: 16px 0 0 0;">
-                This link will expire in 1 hour. If you didn't request this, you can safely ignore this email.
-            </p>
-            <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;">
-            <p style="color: #9ca3af; font-size: 12px; margin: 0;">
-                If the button doesn't work, copy and paste this link into your browser:<br>
-                <a href="{reset_url}" style="color: #f97316; word-break: break-all;">{reset_url}</a>
-            </p>
-        </div>
-        <div style="text-align: center; padding: 16px; color: #9ca3af; font-size: 12px;">
-            Geetanjali - Ethical Guidance from the Bhagavad Geeta
-        </div>
-    </div>
-    """.format(
-        reset_url=reset_url
+    # Build body content using composable components
+    body_content = (
+        _email_paragraph(
+            "You requested to reset your password for your Geetanjali account. "
+            "Click the button below to set a new password."
+        )
+        + _email_button("Reset Password", reset_url)
+        + _email_paragraph(
+            "This link will expire in 1 hour. If you didn't request this, "
+            "you can safely ignore this email.",
+            muted=True,
+        )
+        + _email_fallback_link(reset_url)
     )
+
+    header = _email_header("Account Security")
+    footer = _email_footer([("Visit App", EMAIL_APP_URL)])
+    html_body = _email_html_wrapper(body_content, header, footer)
 
     # Plain text version
     text_body = f"""
@@ -370,47 +578,32 @@ def send_newsletter_verification_email(
         return False
 
     # HTML-escape name as defense-in-depth (regex already sanitizes, but be safe)
-    greeting = f"Hello {html.escape(name)}" if name else "Hello"
+    safe_name = html.escape(name) if name else ""
+    greeting_text = f"Hello, {safe_name}" if safe_name else "Hello"
 
-    # Build HTML email body
-    html_body = f"""
-    <div style="font-family: system-ui, -apple-system, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: linear-gradient(135deg, #f97316, #dc2626); padding: 20px; border-radius: 8px 8px 0 0;">
-            <h1 style="color: white; margin: 0; font-size: 24px;">🙏 Confirm Your Subscription</h1>
-        </div>
-        <div style="background: #fff; padding: 24px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px;">
-            <p style="color: #374151; line-height: 1.6; margin: 0 0 16px 0;">
-                {greeting},
-            </p>
-            <p style="color: #374151; line-height: 1.6; margin: 0 0 16px 0;">
-                Thank you for subscribing to <strong>Daily Wisdom</strong> from Geetanjali!
-                Please confirm your email address to start receiving daily verses from the Bhagavad Geeta.
-            </p>
-            <div style="text-align: center; margin: 24px 0;">
-                <a href="{verify_url}"
-                   style="display: inline-block; background: #f97316; color: white; padding: 12px 32px;
-                          text-decoration: none; border-radius: 8px; font-weight: 500;">
-                    Confirm Subscription
-                </a>
-            </div>
-            <p style="color: #6b7280; font-size: 14px; line-height: 1.6; margin: 16px 0 0 0;">
-                This link will expire in 24 hours. If you didn't request this, you can safely ignore this email.
-            </p>
-            <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;">
-            <p style="color: #9ca3af; font-size: 12px; margin: 0;">
-                If the button doesn't work, copy and paste this link into your browser:<br>
-                <a href="{verify_url}" style="color: #f97316; word-break: break-all;">{verify_url}</a>
-            </p>
-        </div>
-        <div style="text-align: center; padding: 16px; color: #9ca3af; font-size: 12px;">
-            Geetanjali - Ethical Guidance from the Bhagavad Geeta
-        </div>
-    </div>
-    """
+    # Build body content using composable components
+    body_content = (
+        _email_greeting("Hello", safe_name if safe_name else "there")
+        + _email_paragraph(
+            "Thank you for subscribing to <strong>Daily Wisdom</strong> from Geetanjali! "
+            "Please confirm your email address to start receiving daily verses from the Bhagavad Geeta."
+        )
+        + _email_button("Confirm Subscription", verify_url)
+        + _email_paragraph(
+            "This link will expire in 24 hours. If you didn't request this, "
+            "you can safely ignore this email.",
+            muted=True,
+        )
+        + _email_fallback_link(verify_url)
+    )
+
+    header = _email_header("Daily Wisdom")
+    footer = _email_footer([("Visit App", EMAIL_APP_URL)])
+    html_body = _email_html_wrapper(body_content, header, footer)
 
     # Plain text version
     text_body = f"""
-{greeting},
+{greeting_text},
 
 Thank you for subscribing to Daily Wisdom from Geetanjali!
 Please confirm your email address to start receiving daily verses from the Bhagavad Geeta.
@@ -474,52 +667,40 @@ def send_newsletter_welcome_email(
         return False
 
     # HTML-escape name as defense-in-depth (regex already sanitizes, but be safe)
-    greeting = f"Hello {html.escape(name)}" if name else "Hello"
+    safe_name = html.escape(name) if name else ""
+    greeting_text = f"Hello, {safe_name}" if safe_name else "Hello"
 
-    # Build HTML email body
-    html_body = f"""
-    <div style="font-family: system-ui, -apple-system, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: linear-gradient(135deg, #f97316, #dc2626); padding: 20px; border-radius: 8px 8px 0 0;">
-            <h1 style="color: white; margin: 0; font-size: 24px;">🎉 Welcome to Daily Wisdom!</h1>
-        </div>
-        <div style="background: #fff; padding: 24px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px;">
-            <p style="color: #374151; line-height: 1.6; margin: 0 0 16px 0;">
-                {greeting},
-            </p>
-            <p style="color: #374151; line-height: 1.6; margin: 0 0 16px 0;">
-                Your subscription is now confirmed! You'll receive a daily verse from the Bhagavad Geeta
-                at your preferred time, personalized based on your learning goals.
-            </p>
-            <p style="color: #374151; line-height: 1.6; margin: 0 0 16px 0;">
-                <strong>What to expect:</strong>
-            </p>
-            <ul style="color: #374151; line-height: 1.8; margin: 0 0 16px 0; padding-left: 24px;">
-                <li>A carefully selected verse from the Geeta</li>
-                <li>Sanskrit text with English translation</li>
-                <li>Practical wisdom for modern life</li>
-            </ul>
-            <div style="text-align: center; margin: 24px 0;">
-                <a href="{app_url}"
-                   style="display: inline-block; background: #f97316; color: white; padding: 12px 32px;
-                          text-decoration: none; border-radius: 8px; font-weight: 500;">
-                    Explore Geetanjali
-                </a>
-            </div>
-            <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;">
-            <p style="color: #9ca3af; font-size: 12px; margin: 0;">
-                <a href="{preferences_url}" style="color: #f97316;">Manage Preferences</a> |
-                <a href="{unsubscribe_url}" style="color: #f97316;">Unsubscribe</a>
-            </p>
-        </div>
-        <div style="text-align: center; padding: 16px; color: #9ca3af; font-size: 12px;">
-            Geetanjali - Ethical Guidance from the Bhagavad Geeta
-        </div>
-    </div>
+    # Build "What to expect" section
+    expectations_html = """
+        <ul style="color: #57534e; line-height: 1.8; margin: 0; padding-left: 24px;">
+            <li>A carefully selected verse from the Geeta</li>
+            <li>Sanskrit text with English translation</li>
+            <li>Practical wisdom for modern life</li>
+        </ul>
     """
+
+    # Build body content using composable components
+    body_content = (
+        _email_greeting("Hello", safe_name if safe_name else "there")
+        + _email_paragraph(
+            "Your subscription is now confirmed! You'll receive a daily verse from the Bhagavad Geeta "
+            "at your preferred time, personalized based on your learning goals."
+        )
+        + _email_section("What to Expect", expectations_html)
+        + _email_button("Explore Geetanjali", app_url)
+    )
+
+    header = _email_header("Daily Wisdom")
+    footer = _email_footer([
+        ("Visit App", EMAIL_APP_URL),
+        ("Preferences", preferences_url),
+        ("Unsubscribe", unsubscribe_url),
+    ])
+    html_body = _email_html_wrapper(body_content, header, footer)
 
     # Plain text version
     text_body = f"""
-{greeting},
+{greeting_text},
 
 Your subscription is now confirmed! You'll receive a daily verse from the Bhagavad Geeta
 at your preferred time, personalized based on your learning goals.
@@ -542,7 +723,7 @@ Geetanjali - Ethical Guidance from the Bhagavad Geeta
         params = {
             "from": settings.CONTACT_EMAIL_FROM,
             "to": [email],
-            "subject": "Welcome to Daily Wisdom! 🙏",
+            "subject": "Welcome to Daily Wisdom!",
             "html": html_body,
             "text": text_body,
         }
@@ -665,11 +846,6 @@ def send_newsletter_digest_email(
     )
     sanskrit_text = "\n".join(sanskrit_lines)
 
-    # Get current date for display
-    from datetime import datetime
-
-    current_date = datetime.utcnow().strftime("%B %d, %Y")
-
     # Build milestone section if applicable
     milestone_html = ""
     milestone_text = ""
@@ -698,60 +874,22 @@ def send_newsletter_digest_email(
         """
         reflection_text = f"\n{reflection_prompt}\n"
 
-    # Build HTML email body - Editorial Library design
-    html_body = f"""
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    </head>
-    <body style="margin: 0; padding: 0; background-color: #fefce8; font-family: 'Source Sans 3', system-ui, -apple-system, sans-serif;">
-        <!-- Wrapper -->
-        <div style="max-width: 600px; margin: 0 auto;">
-
-            <!-- HEADER -->
-            <div style="background: linear-gradient(to bottom, #fffbeb, #fef3c7); padding: 28px 24px; text-align: center; border-bottom: 1px solid #fde68a;">
-                <!-- Logo (PNG for email client compatibility) -->
-                <img src="https://geetanjaliapp.com/logo-email.png" alt="Geetanjali" width="48" height="48" style="margin-bottom: 10px;">
-                <!-- Brand name -->
-                <h1 style="color: #78350f; font-size: 20px; margin: 0 0 4px 0; font-family: Georgia, 'Times New Roman', serif; font-weight: 500; letter-spacing: 0.5px;">
-                    Geetanjali
-                </h1>
-                <p style="color: #92400e; font-size: 11px; margin: 0; letter-spacing: 2px; text-transform: uppercase;">
-                    Daily Wisdom
-                </p>
-            </div>
-
-            <!-- BODY -->
-            <div style="background: #fffbeb; padding: 28px 24px;">
-
-                <!-- Greeting -->
-                <p style="color: #57534e; font-size: 16px; margin: 0 0 4px 0;">
-                    {html.escape(greeting)}, {safe_name}
-                </p>
-                <p style="color: #a8a29e; font-size: 13px; margin: 0 0 24px 0;">
-                    {current_date}
-                </p>
-
+    # Build verse card (custom styling to match app's detail card)
+    verse_card_html = f"""
                 <!-- Verse Card (matches app detail card styling) -->
                 <div style="background: linear-gradient(to bottom, #fff7ed, #fffbeb); border: 2px solid rgba(251, 191, 36, 0.35); border-radius: 16px; padding: 28px 24px; margin-bottom: 24px;">
-
                     <!-- Decorative Om -->
                     <div style="text-align: center; margin-bottom: 16px; font-size: 28px; color: rgba(251, 191, 36, 0.5); font-weight: 300;">
                         ॐ
                     </div>
-
                     <!-- Sanskrit -->
                     <div style="text-align: center; margin-bottom: 20px; font-family: 'Noto Serif Devanagari', Georgia, serif; font-size: 19px; line-height: 1.85; color: rgba(146, 64, 14, 0.7); letter-spacing: 0.025em;">
                         {sanskrit_html}
                     </div>
-
                     <!-- Translation -->
                     <p style="color: #374151; font-size: 15px; line-height: 1.7; margin: 0 0 20px 0; text-align: center; font-style: italic;">
                         "{html.escape(translation)}"
                     </p>
-
                     <!-- Verse Reference (citation at bottom, like app) -->
                     <div style="text-align: center; padding-top: 16px;">
                         <span style="color: rgba(217, 119, 6, 0.7); font-size: 14px; font-family: Georgia, 'Times New Roman', serif; font-weight: 500;">
@@ -759,65 +897,39 @@ def send_newsletter_digest_email(
                         </span>
                     </div>
                 </div>
-
-                <!-- Insight Section -->
-                <div style="margin-bottom: 24px; padding: 20px; background: #fefce8; border-radius: 12px; border-left: 3px solid #f59e0b;">
-                    <h2 style="color: #b45309; font-size: 11px; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600;">
-                        Today's Insight
-                    </h2>
-                    <p style="color: #57534e; font-size: 15px; line-height: 1.7; margin: 0;">
-                        {html.escape(paraphrase)}
-                    </p>
-                </div>
-
-                {milestone_html}
-
-                {reflection_html}
-
-                <!-- Why This Verse -->
-                <div style="padding: 16px 20px; background: rgba(254, 243, 199, 0.5); border-radius: 10px; margin-bottom: 24px;">
-                    <h2 style="color: #92400e; font-size: 11px; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600;">
-                        Selected For You
-                    </h2>
-                    <p style="color: #78716c; font-size: 14px; line-height: 1.6; margin: 0;">
-                        Based on your journey toward {safe_goal_labels}.
-                    </p>
-                </div>
-
-                <!-- CTA Button -->
-                <div style="text-align: center;">
-                    <a href="{verse_url}"
-                       style="display: inline-block; background: #ea580c; color: white; padding: 12px 28px; text-decoration: none; border-radius: 10px; font-weight: 500; font-size: 14px;">
-                        Read Full Verse →
-                    </a>
-                </div>
-            </div>
-
-            <!-- FOOTER -->
-            <div style="background: #292524; padding: 24px; text-align: center;">
-                <p style="color: #d6d3d1; font-size: 13px; margin: 0 0 4px 0; font-family: Georgia, 'Times New Roman', serif;">
-                    Geetanjali
-                </p>
-                <p style="color: #78716c; font-size: 12px; margin: 0 0 16px 0;">
-                    Wisdom for modern life
-                </p>
-                <p style="margin: 0;">
-                    <a href="https://geetanjaliapp.com" style="color: #a8a29e; font-size: 12px; text-decoration: none;">Visit App</a>
-                    <span style="color: #525252; margin: 0 8px;">·</span>
-                    <a href="{preferences_url}" style="color: #a8a29e; font-size: 12px; text-decoration: none;">Preferences</a>
-                    <span style="color: #525252; margin: 0 8px;">·</span>
-                    <a href="{unsubscribe_url}" style="color: #a8a29e; font-size: 12px; text-decoration: none;">Unsubscribe</a>
-                </p>
-            </div>
-        </div>
-    </body>
-    </html>
     """
+
+    # Build insight section using shared component
+    insight_content = f'<p style="color: #57534e; font-size: 15px; line-height: 1.7; margin: 0;">{html.escape(paraphrase)}</p>'
+    insight_html = _email_section("Today's Insight", insight_content, accent=True)
+
+    # Build "Selected For You" section
+    goal_content = f'<p style="color: #78716c; font-size: 14px; line-height: 1.6; margin: 0;">Based on your journey toward {safe_goal_labels}.</p>'
+    goal_html = _email_section("Selected For You", goal_content)
+
+    # Build body content
+    body_content = (
+        _email_greeting(greeting, safe_name, show_date=True)
+        + verse_card_html
+        + insight_html
+        + milestone_html
+        + reflection_html
+        + goal_html
+        + _email_button("Read Full Verse →", verse_url)
+    )
+
+    # Compose final HTML using shared components
+    header = _email_header("Daily Wisdom")
+    footer = _email_footer([
+        ("Visit App", EMAIL_APP_URL),
+        ("Preferences", preferences_url),
+        ("Unsubscribe", unsubscribe_url),
+    ])
+    html_body = _email_html_wrapper(body_content, header, footer)
 
     # Plain text version
     text_body = f"""
 {greeting}, {safe_name}
-{current_date}
 
 ════════════════════════════════════════
 
@@ -873,4 +985,259 @@ Unsubscribe: {unsubscribe_url}
         # Log with categorized error type for easier debugging
         error = EmailSendError(f"Failed to send newsletter digest email: {e}", cause=e)
         logger.error(str(error))
+        return False
+
+
+# =============================================================================
+# Account Email Functions
+# =============================================================================
+
+
+def send_account_verification_email(
+    email: str, name: str, verify_url: str
+) -> bool:
+    """
+    Send email verification for new account signups.
+
+    Args:
+        email: User's email address
+        name: User's display name
+        verify_url: Full URL to verify email address
+
+    Returns:
+        True if email sent successfully, False otherwise
+    """
+    resend = _get_resend()
+
+    if not resend:
+        logger.warning("Email service not available - verification email not sent")
+        return False
+
+    if not settings.CONTACT_EMAIL_FROM:
+        logger.warning("CONTACT_EMAIL_FROM not configured - verification email not sent")
+        return False
+
+    # HTML-escape name
+    safe_name = html.escape(name) if name else ""
+
+    # Build body content using composable components
+    body_content = (
+        _email_greeting("Hello", safe_name if safe_name else "there")
+        + _email_paragraph(
+            "Welcome to Geetanjali! Please verify your email address to complete "
+            "your account setup and access all features."
+        )
+        + _email_button("Verify Email Address", verify_url)
+        + _email_paragraph(
+            "This link will expire in 24 hours. If you didn't create an account, "
+            "you can safely ignore this email.",
+            muted=True,
+        )
+        + _email_fallback_link(verify_url)
+    )
+
+    header = _email_header("Verify Your Email")
+    footer = _email_footer([("Visit App", EMAIL_APP_URL)])
+    html_body = _email_html_wrapper(body_content, header, footer)
+
+    # Plain text version
+    text_body = f"""
+Hello{f', {name}' if name else ''},
+
+Welcome to Geetanjali! Please verify your email address to complete your account setup.
+
+Click this link to verify your email:
+{verify_url}
+
+This link will expire in 24 hours. If you didn't create an account, you can safely ignore this email.
+
+---
+Geetanjali - Wisdom for modern life
+    """.strip()
+
+    try:
+        params = {
+            "from": settings.CONTACT_EMAIL_FROM,
+            "to": [email],
+            "subject": "Verify Your Geetanjali Account",
+            "html": html_body,
+            "text": text_body,
+        }
+
+        response = resend.Emails.send(params)
+        logger.info(
+            f"Account verification email sent to {email}: {response.get('id', 'unknown')}"
+        )
+        return True
+
+    except Exception as e:
+        logger.error(f"Failed to send account verification email: {e}")
+        return False
+
+
+def send_password_changed_email(email: str, name: str) -> bool:
+    """
+    Send confirmation when user's password is changed.
+
+    This is a security notification - no action required unless unauthorized.
+
+    Args:
+        email: User's email address
+        name: User's display name
+
+    Returns:
+        True if email sent successfully, False otherwise
+    """
+    resend = _get_resend()
+
+    if not resend:
+        logger.warning("Email service not available - password changed email not sent")
+        return False
+
+    if not settings.CONTACT_EMAIL_FROM:
+        logger.warning("CONTACT_EMAIL_FROM not configured - password changed email not sent")
+        return False
+
+    # HTML-escape name
+    safe_name = html.escape(name) if name else ""
+
+    # Get current timestamp for the email
+    from datetime import datetime
+    current_time = datetime.utcnow().strftime("%B %d, %Y at %H:%M UTC")
+
+    # Build body content using composable components
+    body_content = (
+        _email_greeting("Hello", safe_name if safe_name else "there")
+        + _email_paragraph(
+            f"Your Geetanjali account password was successfully changed on {current_time}."
+        )
+        + _email_paragraph(
+            "If you made this change, no further action is needed."
+        )
+        + _email_paragraph(
+            "<strong>If you did not make this change</strong>, please secure your account immediately "
+            "by resetting your password and contact us if you need assistance.",
+        )
+        + _email_button("Visit Geetanjali", EMAIL_APP_URL)
+    )
+
+    header = _email_header("Password Changed")
+    footer = _email_footer([("Visit App", EMAIL_APP_URL)])
+    html_body = _email_html_wrapper(body_content, header, footer)
+
+    # Plain text version
+    text_body = f"""
+Hello{f', {name}' if name else ''},
+
+Your Geetanjali account password was successfully changed on {current_time}.
+
+If you made this change, no further action is needed.
+
+If you did NOT make this change, please secure your account immediately by resetting your password.
+
+---
+Geetanjali - Wisdom for modern life
+    """.strip()
+
+    try:
+        params = {
+            "from": settings.CONTACT_EMAIL_FROM,
+            "to": [email],
+            "subject": "Your Geetanjali Password Was Changed",
+            "html": html_body,
+            "text": text_body,
+        }
+
+        response = resend.Emails.send(params)
+        logger.info(
+            f"Password changed email sent to {email}: {response.get('id', 'unknown')}"
+        )
+        return True
+
+    except Exception as e:
+        logger.error(f"Failed to send password changed email: {e}")
+        return False
+
+
+def send_account_deleted_email(email: str, name: str) -> bool:
+    """
+    Send confirmation when user's account is deleted.
+
+    This is a goodbye email with option to return.
+
+    Args:
+        email: User's email address
+        name: User's display name
+
+    Returns:
+        True if email sent successfully, False otherwise
+    """
+    resend = _get_resend()
+
+    if not resend:
+        logger.warning("Email service not available - account deleted email not sent")
+        return False
+
+    if not settings.CONTACT_EMAIL_FROM:
+        logger.warning("CONTACT_EMAIL_FROM not configured - account deleted email not sent")
+        return False
+
+    # HTML-escape name
+    safe_name = html.escape(name) if name else ""
+
+    # Build body content using composable components
+    body_content = (
+        _email_greeting("Hello", safe_name if safe_name else "there")
+        + _email_paragraph(
+            "Your Geetanjali account has been successfully deleted. We're sorry to see you go."
+        )
+        + _email_paragraph(
+            "All your personal data has been removed from our systems. If you subscribed to our "
+            "newsletter, that subscription remains separate and can be managed independently."
+        )
+        + _email_paragraph(
+            "If you ever wish to return, you're always welcome to create a new account. "
+            "The wisdom of the Bhagavad Geeta will be here waiting for you.",
+            muted=True,
+        )
+        + _email_button("Return to Geetanjali", EMAIL_APP_URL)
+    )
+
+    header = _email_header("Account Deleted")
+    footer = _email_footer([("Visit App", EMAIL_APP_URL)])
+    html_body = _email_html_wrapper(body_content, header, footer)
+
+    # Plain text version
+    text_body = f"""
+Hello{f', {name}' if name else ''},
+
+Your Geetanjali account has been successfully deleted. We're sorry to see you go.
+
+All your personal data has been removed from our systems. If you subscribed to our newsletter, that subscription remains separate and can be managed independently.
+
+If you ever wish to return, you're always welcome to create a new account. The wisdom of the Bhagavad Geeta will be here waiting for you.
+
+Visit Geetanjali: {EMAIL_APP_URL}
+
+---
+Geetanjali - Wisdom for modern life
+    """.strip()
+
+    try:
+        params = {
+            "from": settings.CONTACT_EMAIL_FROM,
+            "to": [email],
+            "subject": "Your Geetanjali Account Has Been Deleted",
+            "html": html_body,
+            "text": text_body,
+        }
+
+        response = resend.Emails.send(params)
+        logger.info(
+            f"Account deleted email sent to {email}: {response.get('id', 'unknown')}"
+        )
+        return True
+
+    except Exception as e:
+        logger.error(f"Failed to send account deleted email: {e}")
         return False

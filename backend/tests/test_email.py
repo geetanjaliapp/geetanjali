@@ -356,3 +356,165 @@ class TestDigestEmailFailures:
 
                 assert result is True
                 mock_resend.Emails.send.assert_called_once()
+
+
+class TestAccountVerificationEmail:
+    """Tests for account verification email."""
+
+    def test_send_account_verification_email_no_service(self):
+        """Test verification email returns False when service unavailable."""
+        with patch("services.email._get_resend", return_value=None):
+            from services.email import send_account_verification_email
+
+            result = send_account_verification_email(
+                email="user@example.com",
+                name="Test User",
+                verify_url="https://example.com/verify-email/abc123",
+            )
+
+            assert result is False
+
+    def test_send_account_verification_email_success(self):
+        """Test verification email returns True on success."""
+        mock_resend = MagicMock()
+        mock_resend.Emails.send.return_value = {"id": "verify-email-id"}
+
+        with patch("services.email._get_resend", return_value=mock_resend):
+            with patch("services.email.settings") as mock_settings:
+                mock_settings.CONTACT_EMAIL_FROM = "noreply@example.com"
+
+                from services.email import send_account_verification_email
+
+                result = send_account_verification_email(
+                    email="user@example.com",
+                    name="Test User",
+                    verify_url="https://example.com/verify-email/abc123",
+                )
+
+                assert result is True
+                mock_resend.Emails.send.assert_called_once()
+
+    def test_send_account_verification_email_exception(self):
+        """Test verification email handles exceptions gracefully."""
+        mock_resend = MagicMock()
+        mock_resend.Emails.send.side_effect = Exception("API Error")
+
+        with patch("services.email._get_resend", return_value=mock_resend):
+            with patch("services.email.settings") as mock_settings:
+                mock_settings.CONTACT_EMAIL_FROM = "noreply@example.com"
+
+                from services.email import send_account_verification_email
+
+                result = send_account_verification_email(
+                    email="user@example.com",
+                    name="Test User",
+                    verify_url="https://example.com/verify-email/abc123",
+                )
+
+                assert result is False
+
+
+class TestPasswordChangedEmail:
+    """Tests for password changed confirmation email."""
+
+    def test_send_password_changed_email_no_service(self):
+        """Test password changed email returns False when service unavailable."""
+        with patch("services.email._get_resend", return_value=None):
+            from services.email import send_password_changed_email
+
+            result = send_password_changed_email(
+                email="user@example.com",
+                name="Test User",
+            )
+
+            assert result is False
+
+    def test_send_password_changed_email_success(self):
+        """Test password changed email returns True on success."""
+        mock_resend = MagicMock()
+        mock_resend.Emails.send.return_value = {"id": "password-changed-id"}
+
+        with patch("services.email._get_resend", return_value=mock_resend):
+            with patch("services.email.settings") as mock_settings:
+                mock_settings.CONTACT_EMAIL_FROM = "noreply@example.com"
+
+                from services.email import send_password_changed_email
+
+                result = send_password_changed_email(
+                    email="user@example.com",
+                    name="Test User",
+                )
+
+                assert result is True
+                mock_resend.Emails.send.assert_called_once()
+
+    def test_send_password_changed_email_exception(self):
+        """Test password changed email handles exceptions gracefully."""
+        mock_resend = MagicMock()
+        mock_resend.Emails.send.side_effect = Exception("API Error")
+
+        with patch("services.email._get_resend", return_value=mock_resend):
+            with patch("services.email.settings") as mock_settings:
+                mock_settings.CONTACT_EMAIL_FROM = "noreply@example.com"
+
+                from services.email import send_password_changed_email
+
+                result = send_password_changed_email(
+                    email="user@example.com",
+                    name="Test User",
+                )
+
+                assert result is False
+
+
+class TestAccountDeletedEmail:
+    """Tests for account deleted confirmation email."""
+
+    def test_send_account_deleted_email_no_service(self):
+        """Test account deleted email returns False when service unavailable."""
+        with patch("services.email._get_resend", return_value=None):
+            from services.email import send_account_deleted_email
+
+            result = send_account_deleted_email(
+                email="user@example.com",
+                name="Test User",
+            )
+
+            assert result is False
+
+    def test_send_account_deleted_email_success(self):
+        """Test account deleted email returns True on success."""
+        mock_resend = MagicMock()
+        mock_resend.Emails.send.return_value = {"id": "account-deleted-id"}
+
+        with patch("services.email._get_resend", return_value=mock_resend):
+            with patch("services.email.settings") as mock_settings:
+                mock_settings.CONTACT_EMAIL_FROM = "noreply@example.com"
+
+                from services.email import send_account_deleted_email
+
+                result = send_account_deleted_email(
+                    email="user@example.com",
+                    name="Test User",
+                )
+
+                assert result is True
+                mock_resend.Emails.send.assert_called_once()
+
+    def test_send_account_deleted_email_exception(self):
+        """Test account deleted email handles exceptions gracefully."""
+        mock_resend = MagicMock()
+        mock_resend.Emails.send.side_effect = Exception("API Error")
+
+        with patch("services.email._get_resend", return_value=mock_resend):
+            with patch("services.email.settings") as mock_settings:
+                mock_settings.CONTACT_EMAIL_FROM = "noreply@example.com"
+
+                from services.email import send_account_deleted_email
+
+                result = send_account_deleted_email(
+                    email="user@example.com",
+                    name="Test User",
+                )
+
+                assert result is False
