@@ -712,8 +712,8 @@ def send_newsletter_digest_email(
 
             <!-- HEADER -->
             <div style="background: linear-gradient(to bottom, #fffbeb, #fef3c7); padding: 28px 24px; text-align: center; border-bottom: 1px solid #fde68a;">
-                <!-- Logo -->
-                <img src="https://geetanjaliapp.com/logo.svg" alt="" width="48" height="48" style="margin-bottom: 10px;">
+                <!-- Logo (PNG for email client compatibility) -->
+                <img src="https://geetanjaliapp.com/logo-email.png" alt="Geetanjali" width="48" height="48" style="margin-bottom: 10px;">
                 <!-- Brand name -->
                 <h1 style="color: #78350f; font-size: 20px; margin: 0 0 4px 0; font-family: Georgia, 'Times New Roman', serif; font-weight: 500; letter-spacing: 0.5px;">
                     Geetanjali
