@@ -1,16 +1,16 @@
 /**
- * VerifyEmailBanner - Reminder banner for users with unverified email
+ * VerifyEmailBanner - Subtle reminder for users with unverified email
  *
- * Shows a non-intrusive banner prompting users to verify their email.
- * Includes a button to resend the verification email and can be dismissed.
- * Dismissal is stored in localStorage with 7-day expiry (respects user choice
- * while gently reminding after a week).
+ * Shows a minimal inline notice below the navbar prompting email verification.
+ * Designed to be unobtrusive: no background color, small text, dismissible.
+ * Dismissal is stored in localStorage with 7-day expiry.
  */
 
 import { useState } from "react";
-import { MailIcon, SpinnerIcon, CloseIcon } from "./icons";
+import { SpinnerIcon, CloseIcon } from "./icons";
 import { STORAGE_KEYS } from "../lib/storage";
 import { useResendVerification } from "../hooks";
+import { useAuth } from "../contexts/AuthContext";
 
 const DISMISS_EXPIRY_DAYS = 7;
 const DISMISS_EXPIRY_MS = DISMISS_EXPIRY_DAYS * 24 * 60 * 60 * 1000;
@@ -42,11 +42,8 @@ function isDismissalValid(): boolean {
   }
 }
 
-interface VerifyEmailBannerProps {
-  onVerified?: () => void;
-}
-
-export function VerifyEmailBanner({ onVerified }: VerifyEmailBannerProps) {
+export function VerifyEmailBanner() {
+  const { user, refreshUser } = useAuth();
   const [isDismissed, setIsDismissed] = useState(isDismissalValid);
   const { resend, isResending, message } = useResendVerification();
 
@@ -60,77 +57,74 @@ export function VerifyEmailBanner({ onVerified }: VerifyEmailBannerProps) {
   };
 
   const handleResend = () => {
-    resend(onVerified);
+    resend(refreshUser);
   };
 
-  if (isDismissed) {
+  // Don't show if: not logged in, already verified, or dismissed
+  if (!user || user.email_verified || isDismissed) {
     return null;
   }
 
   return (
     <div
-      className="bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-800"
+      className="border-b border-gray-200 dark:border-gray-700"
       role="status"
       aria-label="Email verification reminder"
     >
-      <div className="max-w-7xl mx-auto px-4 py-3">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
-          {/* Icon and message */}
-          <div className="flex items-center gap-2 flex-1">
-            <MailIcon className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
-            <p className="text-sm text-amber-800 dark:text-amber-200">
-              Please verify your email address to access all features.
-            </p>
-          </div>
+      <div className="max-w-7xl mx-auto px-4 py-1.5">
+        <div className="flex items-center justify-center gap-2 text-xs">
+          {/* Message */}
+          <span className="text-gray-600 dark:text-gray-400">
+            Please verify your email.
+          </span>
 
-          {/* Resend button */}
+          {/* Resend link */}
           <button
             onClick={handleResend}
             disabled={isResending}
-            className="text-sm font-medium text-amber-700 dark:text-amber-300
-                       hover:text-amber-900 dark:hover:text-amber-100
+            className="font-medium text-orange-600 dark:text-orange-400
+                       hover:text-orange-700 dark:hover:text-orange-300
                        disabled:opacity-50 disabled:cursor-not-allowed
-                       flex items-center gap-1.5 whitespace-nowrap
+                       inline-flex items-center gap-1
                        focus:outline-none focus:underline"
           >
             {isResending ? (
               <>
-                <SpinnerIcon className="w-4 h-4 animate-spin" />
+                <SpinnerIcon className="w-3 h-3 animate-spin" />
                 Sending...
               </>
             ) : (
-              "Resend verification email"
+              "Resend"
             )}
           </button>
+
+          {/* Status message (inline) */}
+          {message && (
+            <span
+              role="alert"
+              aria-live={message.type === "error" ? "assertive" : "polite"}
+              className={
+                message.type === "success"
+                  ? "text-green-600 dark:text-green-400"
+                  : "text-red-600 dark:text-red-400"
+              }
+            >
+              {message.type === "success" ? "✓ Sent!" : message.text}
+            </span>
+          )}
 
           {/* Dismiss button */}
           <button
             onClick={handleDismiss}
-            className="p-1 text-amber-600 dark:text-amber-400
-                       hover:text-amber-800 dark:hover:text-amber-200
-                       hover:bg-amber-100 dark:hover:bg-amber-800/30
+            className="p-0.5 text-gray-400 dark:text-gray-500
+                       hover:text-gray-600 dark:hover:text-gray-300
                        rounded transition-colors
-                       focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
-            aria-label="Dismiss verification reminder"
+                       focus:outline-none focus:ring-1 focus:ring-gray-400"
+            aria-label="Dismiss"
           >
-            <CloseIcon className="w-4 h-4" />
+            <CloseIcon className="w-3.5 h-3.5" />
           </button>
         </div>
-
-        {/* Status message */}
-        {message && (
-          <p
-            role="alert"
-            aria-live={message.type === "error" ? "assertive" : "polite"}
-            className={`mt-2 text-sm ${
-              message.type === "success"
-                ? "text-green-700 dark:text-green-400"
-                : "text-red-700 dark:text-red-400"
-            }`}
-          >
-            {message.text}
-          </p>
-        )}
       </div>
     </div>
   );

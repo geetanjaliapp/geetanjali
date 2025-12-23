@@ -14,7 +14,6 @@ import {
   SkipLink,
   OfflineIndicator,
   SyncToast,
-  VerifyEmailBanner,
 } from "./components";
 import { lazyWithRetry } from "./lib/lazyWithRetry";
 
@@ -109,7 +108,7 @@ function PageLoader() {
 }
 
 function App() {
-  const { loading, user, refreshUser } = useAuth();
+  const { loading } = useAuth();
 
   // Sync newsletter subscription status on login
   useNewsletterSync();
@@ -132,9 +131,6 @@ function App() {
     <Router>
       <SkipLink />
       <OfflineIndicator />
-      {user && !user.email_verified && (
-        <VerifyEmailBanner onVerified={refreshUser} />
-      )}
       <SyncToast />
       <FloatingActionButton />
       <main id="main-content">
