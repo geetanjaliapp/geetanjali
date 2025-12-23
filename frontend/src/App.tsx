@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { Suspense } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -16,33 +16,35 @@ import {
   SyncToast,
   VerifyEmailBanner,
 } from "./components";
+import { lazyWithRetry } from "./lib/lazyWithRetry";
 
 // Eagerly loaded (critical path)
 import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
 
 // Lazy loaded pages (code splitting)
-const NewCase = lazy(() => import("./pages/NewCase"));
-const CaseView = lazy(() => import("./pages/CaseView"));
-const Consultations = lazy(() => import("./pages/Consultations"));
-const Verses = lazy(() => import("./pages/Verses"));
-const VerseDetail = lazy(() => import("./pages/VerseDetail"));
-const Login = lazy(() => import("./pages/Login"));
-const Signup = lazy(() => import("./pages/Signup"));
-const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
-const ResetPassword = lazy(() => import("./pages/ResetPassword"));
-const About = lazy(() => import("./pages/About"));
-const PublicCaseView = lazy(() => import("./pages/PublicCaseView"));
-const ReadingMode = lazy(() => import("./pages/ReadingMode"));
-const Settings = lazy(() => import("./pages/Settings"));
-const NewsletterVerify = lazy(() => import("./pages/NewsletterVerify"));
-const NewsletterUnsubscribe = lazy(
+// Uses lazyWithRetry to auto-reload on chunk load failure after deployments
+const NewCase = lazyWithRetry(() => import("./pages/NewCase"));
+const CaseView = lazyWithRetry(() => import("./pages/CaseView"));
+const Consultations = lazyWithRetry(() => import("./pages/Consultations"));
+const Verses = lazyWithRetry(() => import("./pages/Verses"));
+const VerseDetail = lazyWithRetry(() => import("./pages/VerseDetail"));
+const Login = lazyWithRetry(() => import("./pages/Login"));
+const Signup = lazyWithRetry(() => import("./pages/Signup"));
+const ForgotPassword = lazyWithRetry(() => import("./pages/ForgotPassword"));
+const ResetPassword = lazyWithRetry(() => import("./pages/ResetPassword"));
+const About = lazyWithRetry(() => import("./pages/About"));
+const PublicCaseView = lazyWithRetry(() => import("./pages/PublicCaseView"));
+const ReadingMode = lazyWithRetry(() => import("./pages/ReadingMode"));
+const Settings = lazyWithRetry(() => import("./pages/Settings"));
+const NewsletterVerify = lazyWithRetry(() => import("./pages/NewsletterVerify"));
+const NewsletterUnsubscribe = lazyWithRetry(
   () => import("./pages/NewsletterUnsubscribe")
 );
-const NewsletterPreferences = lazy(
+const NewsletterPreferences = lazyWithRetry(
   () => import("./pages/NewsletterPreferences")
 );
-const VerifyEmail = lazy(() => import("./pages/VerifyEmail"));
+const VerifyEmail = lazyWithRetry(() => import("./pages/VerifyEmail"));
 
 /**
  * Redirect from old /search to unified /verses page

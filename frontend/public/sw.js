@@ -184,4 +184,23 @@ self.addEventListener('message', (event) => {
       cache.add(verseUrl);
     });
   }
+
+  if (event.data?.type === 'CLEAR_CACHES') {
+    // Clear all geetanjali caches (used on version update)
+    console.log('[SW] Clearing all caches on request');
+    caches.keys().then((keys) => {
+      return Promise.all(
+        keys.filter((key) => key.startsWith('geetanjali-'))
+            .map((key) => {
+              console.log('[SW] Deleting cache:', key);
+              return caches.delete(key);
+            })
+      );
+    }).then(() => {
+      // Notify the app that caches are cleared
+      if (event.source) {
+        event.source.postMessage({ type: 'CACHES_CLEARED' });
+      }
+    });
+  }
 });

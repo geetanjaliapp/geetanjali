@@ -3,6 +3,32 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import compression from 'vite-plugin-compression'
 import path from 'path'
+import fs from 'fs'
+import type { Plugin } from 'vite'
+
+/**
+ * Vite plugin to generate version.json for cache invalidation.
+ * Creates a file with build timestamp that the app checks to detect new deploys.
+ */
+function versionPlugin(): Plugin {
+  return {
+    name: 'version-plugin',
+    writeBundle(options) {
+      const outDir = options.dir || 'dist'
+      const versionInfo = {
+        version: Date.now().toString(36), // Base36 timestamp as version
+        buildTime: new Date().toISOString(),
+      }
+
+      fs.writeFileSync(
+        path.join(outDir, 'version.json'),
+        JSON.stringify(versionInfo, null, 2)
+      )
+
+      console.log(`[version-plugin] Generated version.json: ${versionInfo.version}`)
+    },
+  }
+}
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -20,6 +46,8 @@ export default defineConfig({
       ext: '.br',
       threshold: 1024,
     }),
+    // Generate version.json for cache invalidation on deploy
+    versionPlugin(),
   ],
   resolve: {
     alias: {
