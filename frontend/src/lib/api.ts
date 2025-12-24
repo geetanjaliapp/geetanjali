@@ -153,13 +153,8 @@ export const casesApi = {
     return response.data;
   },
 
-  analyze: async (id: string): Promise<Output> => {
-    const response = await api.post(`/cases/${id}/analyze`);
-    return response.data;
-  },
-
-  // Async analyze - returns immediately, poll case status for completion
-  analyzeAsync: async (id: string): Promise<Case> => {
+  // Analyze case - returns immediately, poll case status for completion
+  analyze: async (id: string): Promise<Case> => {
     const response = await api.post(`/cases/${id}/analyze/async`);
     return response.data;
   },

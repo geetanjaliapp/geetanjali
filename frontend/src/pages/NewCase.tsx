@@ -246,7 +246,7 @@ export default function NewCase() {
       });
 
       try {
-        await casesApi.analyzeAsync(createdCase.id);
+        await casesApi.analyze(createdCase.id);
       } catch {
         // Silent fail
       }

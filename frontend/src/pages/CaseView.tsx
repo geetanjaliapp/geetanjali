@@ -233,7 +233,7 @@ export default function CaseView() {
       if (caseData.status === "failed") {
         await casesApi.retry(id);
       }
-      await casesApi.analyzeAsync(id);
+      await casesApi.analyze(id);
       const data = await casesApi.get(id);
       setCaseData(data);
       setError(null);
