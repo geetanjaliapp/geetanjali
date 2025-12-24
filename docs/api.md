@@ -69,7 +69,7 @@ Response headers include `X-RateLimit-*` when approaching limits.
 ```bash
 curl -X POST http://localhost:8000/api/v1/auth/signup \
   -H "Content-Type: application/json" \
-  -d '{"email": "user@example.com", "password": "securepass123", "name": "User"}'
+  -d '{"email": "user@example.com", "password": "yourpassword", "name": "Your Name"}'
 ```
 
 ### Cases
@@ -175,6 +175,7 @@ curl "http://localhost:8000/api/v1/search?q=karma&chapter=2"
 | POST | `/newsletter/subscribe` | Subscribe to daily verse |
 | POST | `/newsletter/verify/{token}` | Verify subscription |
 | POST | `/newsletter/unsubscribe` | Unsubscribe |
+| GET | `/newsletter/status` | Check subscription status |
 | GET | `/newsletter/preferences` | Get preferences |
 | PUT | `/newsletter/preferences` | Update preferences |
 
@@ -210,12 +211,14 @@ curl -H "X-API-Key: your-api-key" \
 
 ### Public Endpoints
 
+These endpoints are at the root level (not under `/api/v1/`):
+
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | `/health` | Health check |
 | GET | `/sitemap.xml` | XML sitemap |
 | GET | `/feed.xml` | RSS feed |
-| POST | `/contact` | Contact form |
+| POST | `/api/v1/contact` | Contact form |
 
 ---
 
