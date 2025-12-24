@@ -1,5 +1,5 @@
 # Geetanjali - Development Shortcuts
-# See docs/docker.md for detailed Docker configuration documentation
+# See docs/deployment.md for detailed deployment documentation
 
 .PHONY: help dev build up down clean logs test lint format
 

@@ -166,4 +166,4 @@ Consider prerendering if:
 ## See Also
 
 - [Architecture](architecture.md) — System components including frontend
-- [Docker Configuration](docker.md) — nginx routing for sitemap/feed
+- [Deployment](deployment.md) — nginx routing for sitemap/feed

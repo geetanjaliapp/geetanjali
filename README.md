@@ -5,60 +5,48 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![Node 20+](https://img.shields.io/badge/node-20+-green.svg)](https://nodejs.org/)
 
-Ethical leadership guidance from the Bhagavad Geeta.
+Ethical leadership guidance grounded in Bhagavad Geeta wisdom.
 
-Free. Open source. Private by default.
-
-**[Live Demo](https://geetanjaliapp.com)**
+**[Try it live](https://geetanjaliapp.com)** | **[Documentation](https://docs.geetanjaliapp.com)**
 
 ![Geetanjali Architecture](docs/screenshots/infographic-architecture.png)
 
-Geetanjali is a RAG-powered tool that transforms Bhagavad Geeta teachings into actionable guidance for ethical decisions in organizations.
+## Why Geetanjali?
 
-## Overview
+Leaders face ethical dilemmas without clear answers. Do you lay off staff to save the company? Confront a colleague's misconduct? Balance profit with purpose?
 
-Leaders face ethical dilemmas without clear answers. Geetanjali provides structured decision support by:
+The Bhagavad Geeta has guided ethical decision-making for millennia. Geetanjali makes this wisdom accessible through AI-powered consultation:
 
-- Analyzing ethical situations through Geeta's lens
-- Presenting multiple options with tradeoffs
-- Citing specific verses with commentary
-- Offering implementation steps and reflection prompts
+- **Structured analysis** of your ethical dilemma
+- **Multiple options** with honest tradeoffs
+- **Specific verse citations** grounding each recommendation
+- **Practical steps** for implementation
 
-The system uses retrieval-augmented generation (RAG) to ground responses in actual scripture rather than hallucinating advice.
+No hallucinated advice. Every recommendation traces back to actual scripture through retrieval-augmented generation (RAG).
+
+Free. Open source. Private by default.
 
 ## Features
 
-**Consultation**
+### Consultation
 - **Case Analysis** - Submit ethical dilemmas, get structured recommendations with verse citations
-- **Follow-up Conversations** - Ask clarifying questions after initial guidance
+- **Follow-up Conversations** - Ask clarifying questions to refine guidance
 - **Featured Cases** - Browse curated example consultations
 - **Sharing** - Share cases publicly or via private link
 
-**Discovery**
+### Discovery
 - **Verse Browser** - Explore 701 verses across 18 chapters with translations
 - **Reading Mode** - Distraction-free sequential reading, Sanskrit-first
 - **Search** - Find verses by reference, Sanskrit, keywords, or meaning
 - **Favorites** - Save verses for quick access
 - **Verse Sharing** - Generate shareable images with Sanskrit and translation
 
-**Platform**
+### Platform
 - **Dark Mode** - Full light/dark theme support
-- **Cross-device Sync** - Reading progress, favorites, and preferences sync for logged-in users
+- **Cross-device Sync** - Progress, favorites, and preferences sync for logged-in users
 - **Daily Wisdom** - Subscribe to daily verse emails
 - **Offline Support** - Works without network after first load
 - **Confidence Scoring** - Low-confidence responses flagged for review
-
-## Tech Stack
-
-| Component | Technology |
-|-----------|------------|
-| Backend | FastAPI (Python 3.10+) |
-| Frontend | React + TypeScript + Tailwind |
-| Database | PostgreSQL 15 |
-| Vector DB | ChromaDB |
-| Cache | Redis 7 |
-| LLM | Ollama (qwen2.5:3b) primary, Anthropic Claude fallback |
-| Embeddings | sentence-transformers/all-MiniLM-L6-v2 |
 
 ## Quick Start
 
@@ -82,6 +70,20 @@ Services:
 - Frontend: http://localhost
 - Backend API: http://localhost:8000
 - API Docs: http://localhost:8000/docs
+
+## Architecture
+
+| Component | Technology |
+|-----------|------------|
+| Backend | FastAPI (Python 3.10+) |
+| Frontend | React + TypeScript + Tailwind |
+| Database | PostgreSQL 15 |
+| Vector DB | ChromaDB |
+| Cache | Redis 7 |
+| LLM | Ollama (qwen2.5:3b) with Anthropic Claude fallback |
+| Embeddings | sentence-transformers/all-MiniLM-L6-v2 |
+
+The system uses circuit breakers for service resilience: Ollama falls back to Anthropic, ChromaDB falls back to SQL keyword search. See [Architecture](docs/architecture.md) for details.
 
 ## Configuration
 
@@ -143,21 +145,19 @@ Full API documentation at `/docs` when running.
 **[docs.geetanjaliapp.com](https://docs.geetanjaliapp.com)**
 
 **User Journeys:**
-- [Discovery Journey](docs/discovery.md) - Verse Browser and Reading Mode for exploring scripture
-- [Consultation Journey](docs/consultation.md) - Case analysis and follow-up conversations
-- [Search](docs/search.md) - Multi-strategy hybrid search across 701 verses
+- [Discovery Journey](docs/discovery.md) - Verse Browser and Reading Mode
+- [Consultation Journey](docs/consultation.md) - Case analysis and follow-up
+- [Search](docs/search.md) - Multi-strategy hybrid search
 
 **Reference:**
-- [Setup Guide](docs/setup.md) - Local development, Docker, environment
-- [Docker Configuration](docs/docker.md) - Compose files, deployment modes
-- [Architecture](docs/architecture.md) - System design, RAG pipeline, components
-- [Design](docs/design.md) - Frontend design language, colors, typography, patterns
-- [Content Moderation](docs/content-moderation.md) - Multi-layer filtering, abuse detection
-- [Observability](docs/observability.md) - Monitoring, metrics, Grafana dashboards
+- [Setup Guide](docs/setup.md) - Development environment and configuration
+- [Architecture](docs/architecture.md) - System design, RAG pipeline, resilience
+- [Deployment](docs/deployment.md) - Docker Compose and production setup
+- [Observability](docs/observability.md) - Metrics, dashboards, alerting
 - [Security](docs/security.md) - Container hardening, secrets management
-- [SEO](docs/seo.md) - Search engine setup, meta tags, crawlability trade-offs
-- [Data Sources](docs/data.md) - Geeta content, licensing, ingestion
-- [Building Geetanjali](docs/building-geetanjali.md) - Deep dive into the RAG system design
+- [Design](docs/design.md) - Frontend design language
+- [Content Moderation](docs/content-moderation.md) - Abuse detection
+- [Data Sources](docs/data.md) - Geeta content and licensing
 
 ## License
 
@@ -165,4 +165,4 @@ MIT
 
 ## Acknowledgments
 
-Built on the Bhagavad Geeta, using public domain Sanskrit texts and translations.
+Built with reverence for the Bhagavad Geeta. The Sanskrit texts and translations used are in the public domain. This project aims to make ancient wisdom accessible while respecting its sacred nature.

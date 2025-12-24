@@ -1,10 +1,10 @@
 ---
 layout: default
-title: Docker Configuration
+title: Deployment
 description: Docker Compose files, deployment modes, and container orchestration for Geetanjali.
 ---
 
-# Docker Configuration
+# Deployment
 
 Geetanjali uses a layered Docker Compose configuration for different environments.
 
@@ -53,7 +53,7 @@ Production is configured via `.env`:
 - `LOG_LEVEL=WARNING`
 - `COOKIE_SECURE=true`
 
-See [Deployment Guide](deployment.md) for full deployment workflow.
+See [Production Deployment](#production-deployment) section above for configuration.
 
 ### Monitoring Stack
 

@@ -42,7 +42,24 @@ Free. Open source. Private by default.
 
 ---
 
-## Start Here
+## Quick Start
+
+Run Geetanjali locally in under 5 minutes:
+
+```bash
+git clone https://github.com/geetanjaliapp/geetanjali.git
+cd geetanjali
+docker compose up -d
+docker exec geetanjali-ollama ollama pull qwen2.5:3b
+```
+
+Open http://localhost to start exploring.
+
+For development setup, see the [Setup Guide](setup.md).
+
+---
+
+## Deep Dive
 
 **[Building Geetanjali](building-geetanjali.md)** — The full story. How we built a RAG system that grounds ethical guidance in scripture. Two user journeys, architecture decisions, and why local-first matters.
 
@@ -74,7 +91,7 @@ How we built it:
 For operators and contributors:
 
 - **[Setup Guide](setup.md)** — Local development, environment variables, common commands
-- **[Docker](docker.md)** — Compose files, deployment modes, container orchestration
+- **[Deployment](deployment.md)** — Docker Compose, deployment modes, container orchestration
 - **[Security](security.md)** — Container hardening, secrets management, incident response
 - **[Observability](observability.md)** — Prometheus metrics, Grafana dashboards, alerting
 - **[Troubleshooting](troubleshooting.md)** — Common issues and quick fixes

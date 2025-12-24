@@ -177,7 +177,7 @@ curl http://localhost:8000/health
 curl http://localhost:8000/api/v1/
 
 # Database connectivity (from backend container)
-docker compose exec backend python -c "from db.connection import engine; print(engine.execute('SELECT 1').scalar())"
+docker compose exec backend python -c "from db.connection import engine; from sqlalchemy import text; print(engine.connect().execute(text('SELECT 1')).scalar())"
 ```
 
 ---

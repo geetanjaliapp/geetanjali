@@ -48,7 +48,7 @@ User Query → Embedding → Vector Search → LLM Generation → Structured Out
 │   │   │   :9090    │        │   :3000    │               │   │
 │   │   └─────┬──────┘        └────────────┘               │   │
 │   │         │                                            │   │
-│   │         └────── Scrapes /metrics from Backend        │   │
+│   │         └── Scrapes /metrics from Backend + Worker   │   │
 │   │                                                      │   │
 │   └──────────────────────────────────────────────────────┘   │
 │                                                              │
@@ -83,6 +83,56 @@ Retrieved verses are passed as context to the LLM with a structured prompt reque
 - Implementation steps
 - Reflection prompts
 - Verse citations with confidence scores
+
+## Resilience Patterns
+
+### Circuit Breakers
+
+External services are protected by circuit breakers that prevent cascading failures:
+
+```
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│   CLOSED    │────▶│  HALF_OPEN  │────▶│    OPEN     │
+│ (normal)    │     │   (probe)   │     │  (reject)   │
+└─────────────┘     └─────────────┘     └─────────────┘
+       ▲                  │                   │
+       └──────────────────┴───────────────────┘
+              success           timeout
+```
+
+| Service | Failure Threshold | Recovery Timeout | Fallback |
+|---------|-------------------|------------------|----------|
+| Ollama LLM | 3 consecutive | 60s | Anthropic Claude API |
+| Anthropic API | 5 consecutive | 120s | Error response |
+| ChromaDB | 3 consecutive | 60s | SQL keyword search |
+| Email (Resend) | 3 consecutive | 60s | Queue for retry |
+
+### Fallback Chains
+
+**LLM Inference:**
+```
+Ollama (local) ──[CB open]──▶ Anthropic Claude ──[CB open]──▶ Error
+      │                              │
+      └── qwen2.5:3b                 └── claude-3-5-haiku
+```
+
+**Vector Search:**
+```
+ChromaDB semantic search ──[CB open]──▶ PostgreSQL keyword search
+         │                                      │
+         └── cosine similarity                  └── ILIKE + ts_vector
+```
+
+### Retry Logic
+
+Operations use exponential backoff with jitter:
+- LLM requests: 3 attempts, 1-4s backoff
+- Database: 3 attempts, 0.5-2s backoff
+- ChromaDB: 3 attempts, 0.1-1s backoff
+
+### Cache Stampede Protection
+
+TTL values include ±10% jitter to prevent thundering herd on expiry. Daily verse cache expires around midnight UTC with randomized offset.
 
 ## Data Model
 
