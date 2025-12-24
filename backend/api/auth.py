@@ -4,7 +4,7 @@ import hashlib
 import logging
 import secrets
 from datetime import datetime, timedelta
-from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status, Response, Request
 from sqlalchemy.orm import Session
 
 from api.dependencies import limiter
@@ -514,6 +514,7 @@ async def reset_password(
 async def delete_account(
     request: Request,
     response: Response,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -525,6 +526,7 @@ async def delete_account(
     - Nullify user_id on feedback and subscriber records (SET NULL data)
     - Mark user as inactive with deleted_at timestamp
     - Clear password hash
+    - Send goodbye email (in background)
 
     The user can re-register with the same email later (fresh start).
 
@@ -570,10 +572,9 @@ async def delete_account(
 
     db.commit()
 
-    # Send account deleted confirmation email
-    email_sent = send_account_deleted_email(user_email, user_name)
-    if not email_sent:
-        logger.warning(f"Failed to send account deleted email to {user_email}")
+    # Send account deleted confirmation email in background
+    # User has already left, so we don't need to wait for this
+    background_tasks.add_task(send_account_deleted_email, user_email, user_name)
 
     # Clear auth cookies
     response.delete_cookie(key=REFRESH_TOKEN_COOKIE_KEY, path="/")
