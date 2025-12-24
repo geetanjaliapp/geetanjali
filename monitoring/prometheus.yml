@@ -10,16 +10,12 @@ rule_files:
   - "alerts/*.yml"
 
 scrape_configs:
-  # Backend FastAPI metrics
+  # Backend FastAPI metrics (includes all business + infra metrics)
+  # Worker not scraped separately - shares same Prometheus registry,
+  # and LLM metrics are tracked in backend when processing RQ jobs
   - job_name: 'backend'
     static_configs:
       - targets: ['backend:8000']
-    metrics_path: /metrics
-
-  # Worker FastAPI metrics (LLM request/token tracking)
-  - job_name: 'worker'
-    static_configs:
-      - targets: ['worker:8001']
     metrics_path: /metrics
 
   # Prometheus self-monitoring
