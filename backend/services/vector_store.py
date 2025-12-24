@@ -57,7 +57,7 @@ class VectorStore:
     def __init__(self):
         """Initialize ChromaDB client and collection with built-in embeddings."""
         # Circuit breaker for ChromaDB operations (uses config settings)
-        self._circuit_breaker = VectorStoreCircuitBreaker(
+        self._circuit_breaker: VectorStoreCircuitBreaker = VectorStoreCircuitBreaker(
             failure_threshold=settings.CB_CHROMADB_FAILURE_THRESHOLD,
             recovery_timeout=float(settings.CB_CHROMADB_RECOVERY_TIMEOUT),
         )

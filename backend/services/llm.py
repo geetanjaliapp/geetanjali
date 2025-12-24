@@ -397,7 +397,7 @@ class LLMService:
             )
 
         # Try primary provider
-        primary_error = None
+        primary_error: Exception | None = None
         try:
             if self.primary_provider == LLMProvider.ANTHROPIC:
                 return self._generate_anthropic(

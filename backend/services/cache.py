@@ -315,7 +315,7 @@ class CacheService:
             return 0
 
         try:
-            value = client.incr(key)
+            value: int = client.incr(key)
             # Set expiry only on first increment (when value is 1)
             if value == 1 and ttl > 0:
                 client.expire(key, ttl)
