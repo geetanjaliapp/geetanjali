@@ -4,10 +4,10 @@ import html
 import logging
 import time
 from functools import wraps
-from threading import Lock
 from typing import Callable, Optional, TYPE_CHECKING, TypeVar
 
 from config import settings
+from utils.circuit_breaker import CircuitBreaker, CircuitBreakerOpen
 from utils.metrics import (
     email_sends_total,
     email_send_duration_seconds,
@@ -85,16 +85,16 @@ class EmailCircuitOpenError(EmailError):
 # =============================================================================
 
 
-class EmailCircuitBreaker:
+class EmailCircuitBreaker(CircuitBreaker):
     """
     Circuit breaker for email service resilience.
+
+    Extends the base CircuitBreaker with email-specific Prometheus metrics.
 
     States:
     - CLOSED: Normal operation, emails sent normally
     - OPEN: Too many failures, emails rejected immediately
     - HALF_OPEN: Testing if service recovered (one request allowed)
-
-    Thread-safe implementation using locks.
     """
 
     def __init__(
@@ -103,89 +103,21 @@ class EmailCircuitBreaker:
         recovery_timeout: float = 60.0,
     ):
         """
-        Initialize circuit breaker.
+        Initialize email circuit breaker.
 
         Args:
             failure_threshold: Consecutive failures before opening circuit
             recovery_timeout: Seconds to wait before testing recovery
         """
-        self.failure_threshold = failure_threshold
-        self.recovery_timeout = recovery_timeout
-        self._failure_count = 0
-        self._last_failure_time: Optional[float] = None
-        self._state = "closed"
-        self._lock = Lock()
-
-    @property
-    def state(self) -> str:
-        """Get current circuit state (closed, open, half_open)."""
-        with self._lock:
-            self._check_recovery_timeout()
-            return self._state
-
-    def _check_recovery_timeout(self) -> None:
-        """Check if recovery timeout has passed and transition to half_open.
-
-        Must be called while holding self._lock.
-        """
-        if self._state == "open":
-            if (
-                self._last_failure_time
-                and time.time() - self._last_failure_time >= self.recovery_timeout
-            ):
-                self._state = "half_open"
-                self._update_metric(self._state)
-
-    def record_success(self) -> None:
-        """Record successful email send - reset circuit."""
-        with self._lock:
-            self._failure_count = 0
-            self._state = "closed"
-            self._update_metric(self._state)
-
-    def record_failure(self) -> None:
-        """Record failed email send - may open circuit."""
-        with self._lock:
-            self._failure_count += 1
-            self._last_failure_time = time.time()
-            if self._failure_count >= self.failure_threshold:
-                if self._state != "open":
-                    logger.warning(
-                        f"Email circuit breaker OPEN after {self._failure_count} failures. "
-                        f"Will retry in {self.recovery_timeout}s"
-                    )
-                self._state = "open"
-            self._update_metric(self._state)
+        super().__init__(
+            name="email",
+            failure_threshold=failure_threshold,
+            recovery_timeout=recovery_timeout,
+        )
 
     def _update_metric(self, state: str) -> None:
-        """Update Prometheus metric for circuit breaker state.
-
-        Args:
-            state: Current state to record (passed explicitly for thread safety)
-        """
-        state_map = {"closed": 0, "half_open": 1, "open": 2}
-        email_circuit_breaker_state.set(state_map.get(state, 0))
-
-    def allow_request(self) -> bool:
-        """
-        Check if request should be allowed through.
-
-        Thread-safe: all state checks and transitions happen under lock.
-
-        Note: In half_open state, we allow multiple concurrent requests rather
-        than a single probe. This is a simplification acceptable for low-volume
-        email sending. A strict implementation would use a semaphore.
-        """
-        with self._lock:
-            self._check_recovery_timeout()
-            return self._state in ("closed", "half_open")
-
-    def reset(self) -> None:
-        """Manually reset circuit (for testing)."""
-        with self._lock:
-            self._failure_count = 0
-            self._last_failure_time = None
-            self._state = "closed"
+        """Update Prometheus metric for email circuit breaker state."""
+        email_circuit_breaker_state.set(self.STATE_VALUES.get(state, 0))
 
 
 # Global circuit breaker instance
