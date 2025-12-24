@@ -172,14 +172,15 @@ async def analyze_case_async(
     db: Session = Depends(get_db),
 ):
     """
-    Start async analysis of a case using the RAG pipeline.
+    Analyze a case using the RAG pipeline (async).
 
-    This endpoint returns immediately with status 202 Accepted.
-    The analysis runs in the background and updates the case status.
-    Poll GET /cases/{case_id} to check status (pending -> processing -> completed/failed).
+    Returns immediately with status 202 Accepted. The analysis runs in the
+    background and updates the case status. Poll GET /cases/{case_id} to
+    check status (pending -> processing -> completed/failed).
 
-    Uses RQ (Redis Queue) when available for reliable background processing with
-    automatic retries. Falls back to FastAPI BackgroundTasks if Redis is unavailable.
+    Uses RQ (Redis Queue) when available for reliable background processing
+    with automatic retries. Falls back to FastAPI BackgroundTasks if Redis
+    is unavailable.
 
     Returns:
         Case with status 'pending'
@@ -217,93 +218,6 @@ async def analyze_case_async(
         logger.info(f"Analysis queued via BackgroundTasks for case {case.id}")
 
     return case
-
-
-@router.post(
-    "/cases/{case_id}/analyze",
-    response_model=OutputResponse,
-    status_code=status.HTTP_201_CREATED,
-)
-@limiter.limit(settings.ANALYZE_RATE_LIMIT)
-async def analyze_case(
-    request: Request,
-    case: Case = Depends(get_case_with_access),
-    db: Session = Depends(get_db),
-):
-    """
-    Analyze a case using the RAG pipeline (synchronous, supports anonymous users).
-
-    This endpoint waits for the analysis to complete before returning.
-    For async processing, use POST /cases/{case_id}/analyze/async instead.
-
-    Returns:
-        Generated output with consulting brief
-
-    Raises:
-        HTTPException: If case not found, access denied, or RAG pipeline fails
-    """
-    logger.info(f"Analyzing case: {case.id}")
-
-    try:
-        # Clean up orphaned assistant messages from previous failed attempts
-        message_repo = MessageRepository(db)
-        last_user_msg = message_repo.get_last_user_message(case.id)
-        if last_user_msg:
-            deleted = message_repo.delete_assistant_messages_after(
-                case.id, last_user_msg.created_at
-            )
-            if deleted > 0:
-                logger.info(
-                    f"Cleaned up {deleted} orphaned assistant message(s) for case {case.id}"
-                )
-
-        # Build case data and run RAG pipeline
-        case_data = _build_case_data(case)
-        rag_pipeline = get_rag_pipeline()
-        result, is_policy_violation = rag_pipeline.run(case_data)
-
-        # Create output record
-        try:
-            output = _create_output_from_result(case.id, result, db)
-
-            # Update case title if LLM provided one (not for policy violations)
-            if result.get("suggested_title") and not is_policy_violation:
-                case.title = result["suggested_title"]
-
-            # Set appropriate status based on policy violation
-            if is_policy_violation:
-                case.status = CaseStatus.POLICY_VIOLATION.value
-                logger.warning(f"Case {case.id} flagged as policy violation")
-            else:
-                case.status = CaseStatus.COMPLETED.value
-
-            db.commit()
-            db.refresh(output)
-
-            # Create assistant message
-            _create_assistant_message(case.id, output, result, db)
-
-            logger.info(
-                f"Analysis complete. Output ID: {output.id}, Confidence: {output.confidence}"
-            )
-            return output
-
-        except SQLAlchemyError as db_error:
-            db.rollback()
-            logger.error(f"Database error saving output for case {case.id}: {db_error}")
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Unable to save your consultation. Please try again.",
-            )
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Analysis failed for case {case.id}: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Unable to complete your consultation right now. Please try again later.",
-        )
 
 
 @router.get("/outputs/{output_id}", response_model=OutputResponse)

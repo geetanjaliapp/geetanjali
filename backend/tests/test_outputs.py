@@ -56,12 +56,6 @@ def mock_rag_result():
     }
 
 
-def test_analyze_case_not_found(client):
-    """Test analyzing a non-existent case."""
-    response = client.post("/api/v1/cases/nonexistent-id/analyze")
-    assert response.status_code == status.HTTP_404_NOT_FOUND
-
-
 def test_get_output_not_found(client):
     """Test getting a non-existent output."""
     response = client.get("/api/v1/outputs/nonexistent-id")
