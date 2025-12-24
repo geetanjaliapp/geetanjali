@@ -428,6 +428,25 @@ class LLMService:
 
         return str(result["response"])
 
+    def cleanup(self) -> None:
+        """
+        Clean up resources held by the LLM service.
+
+        Closes HTTP clients and releases any other resources.
+        Should be called during application shutdown.
+        """
+        if hasattr(self, "ollama_client") and self.ollama_client is not None:
+            try:
+                self.ollama_client.close()
+                logger.info("Ollama HTTP client closed")
+            except Exception as e:
+                logger.warning(f"Error closing Ollama client: {e}")
+
+        # Note: Anthropic SDK client doesn't require explicit cleanup
+        # as it uses httpx internally with proper context management
+
+        logger.debug("LLM service cleanup complete")
+
 
 # Global LLM service instance
 _llm_service = None
@@ -444,3 +463,16 @@ def get_llm_service() -> LLMService:
     if _llm_service is None:
         _llm_service = LLMService()
     return _llm_service
+
+
+def cleanup_llm_service() -> None:
+    """
+    Clean up the global LLM service instance.
+
+    Should be called during application shutdown.
+    """
+    global _llm_service
+    if _llm_service is not None:
+        _llm_service.cleanup()
+        _llm_service = None
+        logger.info("LLM service cleaned up")

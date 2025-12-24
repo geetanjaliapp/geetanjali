@@ -240,6 +240,29 @@ class VectorStore:
         )
         logger.warning("Vector store reset - all verses deleted")
 
+    def cleanup(self) -> None:
+        """
+        Clean up resources held by the vector store.
+
+        Releases the embedding model and closes client connections.
+        Should be called during application shutdown.
+        """
+        try:
+            # Release embedding function reference (allows GC of model)
+            if hasattr(self, "embedding_function"):
+                self.embedding_function = None
+
+            # ChromaDB HTTP client cleanup (if using HTTP client)
+            if hasattr(self, "client") and self.client is not None:
+                # Note: ChromaDB HttpClient doesn't have an explicit close method,
+                # but setting to None allows garbage collection
+                self.client = None
+
+            self.collection = None
+            logger.debug("Vector store cleanup complete")
+        except Exception as e:
+            logger.warning(f"Error during vector store cleanup: {e}")
+
 
 # Global vector store instance
 _vector_store = None
@@ -256,3 +279,16 @@ def get_vector_store() -> VectorStore:
     if _vector_store is None:
         _vector_store = VectorStore()
     return _vector_store
+
+
+def cleanup_vector_store() -> None:
+    """
+    Clean up the global vector store instance.
+
+    Should be called during application shutdown.
+    """
+    global _vector_store
+    if _vector_store is not None:
+        _vector_store.cleanup()
+        _vector_store = None
+        logger.info("Vector store cleaned up")
