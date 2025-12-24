@@ -130,6 +130,11 @@ chromadb_collection_count = Gauge(
     "Number of vectors in ChromaDB collection",
 )
 
+chromadb_circuit_breaker_state = Gauge(
+    "geetanjali_chromadb_circuit_breaker_state",
+    "ChromaDB circuit breaker state (0=closed, 1=half_open, 2=open)",
+)
+
 # Newsletter & Engagement Metrics
 newsletter_subscribers_total = Gauge(
     "geetanjali_newsletter_subscribers_total",

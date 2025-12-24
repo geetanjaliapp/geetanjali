@@ -2,6 +2,8 @@
 
 These tests require ChromaDB and are skipped in CI environments.
 Run locally with: pytest tests/test_vector_store.py -v
+
+Circuit breaker tests are unit tests and run without ChromaDB.
 """
 
 import os
@@ -249,3 +251,7 @@ class TestVectorStore:
         store2 = get_vector_store()
 
         assert store1 is store2
+
+
+# Circuit breaker tests are in test_vector_store_circuit_breaker.py
+# (separate file to avoid module-level skip markers)

@@ -5,6 +5,8 @@ Queries are embedded using all-MiniLM-L6-v2 and matched against
 pre-computed verse embeddings.
 
 This is the most flexible but slowest strategy.
+When ChromaDB circuit breaker is open, returns empty results
+and lets other strategies (keyword) provide results.
 """
 
 import logging
@@ -14,6 +16,7 @@ from sqlalchemy.orm import Session
 
 from models.verse import Verse
 from services.vector_store import get_vector_store
+from utils.circuit_breaker import CircuitBreakerOpen
 from ..config import SearchConfig
 from ..types import MatchType, SearchMatch, SearchResult
 from ..utils import verse_to_result
@@ -58,6 +61,10 @@ def semantic_search(
             top_k=config.semantic_top_k,
             where=where_filter,
         )
+    except CircuitBreakerOpen:
+        # Circuit breaker open - gracefully degrade, let keyword search handle it
+        logger.info("Semantic search skipped: ChromaDB circuit breaker open")
+        return []
     except Exception as e:
         logger.error(f"Semantic search failed: {e}")
         return []

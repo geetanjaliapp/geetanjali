@@ -14,8 +14,41 @@ from tenacity import (
 )
 
 from config import settings
+from utils.circuit_breaker import CircuitBreaker, CircuitBreakerOpen
+from utils.metrics import chromadb_circuit_breaker_state
 
 logger = logging.getLogger(__name__)
+
+
+class VectorStoreCircuitBreaker(CircuitBreaker):
+    """
+    Circuit breaker for ChromaDB vector store.
+
+    When ChromaDB fails repeatedly, the circuit opens and callers
+    should fall back to SQL-based keyword search.
+    """
+
+    def __init__(
+        self,
+        failure_threshold: int = 3,
+        recovery_timeout: float = 60.0,
+    ):
+        """
+        Initialize vector store circuit breaker.
+
+        Args:
+            failure_threshold: Consecutive failures before opening (default: 3)
+            recovery_timeout: Seconds before testing recovery (default: 60)
+        """
+        super().__init__(
+            name="chromadb",
+            failure_threshold=failure_threshold,
+            recovery_timeout=recovery_timeout,
+        )
+
+    def _update_metric(self, state: str) -> None:
+        """Update Prometheus gauge for circuit breaker state."""
+        chromadb_circuit_breaker_state.set(self.STATE_VALUES.get(state, 0))
 
 
 class VectorStore:
@@ -23,6 +56,12 @@ class VectorStore:
 
     def __init__(self):
         """Initialize ChromaDB client and collection with built-in embeddings."""
+        # Circuit breaker for ChromaDB operations
+        self._circuit_breaker = VectorStoreCircuitBreaker(
+            failure_threshold=3,
+            recovery_timeout=60.0,
+        )
+
         # Create embedding function - ChromaDB will handle embeddings internally
         # Using the same model as before: all-MiniLM-L6-v2
         self.embedding_function = (
@@ -60,6 +99,11 @@ class VectorStore:
         logger.info(
             f"ChromaDB collection '{settings.CHROMA_COLLECTION_NAME}' ready with built-in embeddings"
         )
+
+    @property
+    def circuit_breaker(self) -> VectorStoreCircuitBreaker:
+        """Get the circuit breaker instance for external status checks."""
+        return self._circuit_breaker
 
     def add_verse(
         self,
@@ -142,15 +186,6 @@ class VectorStore:
 
         logger.info(f"Added {len(canonical_ids)} verses to vector store")
 
-    @retry(
-        stop=stop_after_attempt(settings.CHROMA_MAX_RETRIES),
-        wait=wait_exponential(
-            min=settings.CHROMA_RETRY_MIN_WAIT, max=settings.CHROMA_RETRY_MAX_WAIT
-        ),
-        retry=retry_if_exception_type((chromadb.errors.ChromaError, ConnectionError)),
-        before_sleep=before_sleep_log(logger, logging.WARNING),
-        reraise=True,
-    )
     def search(
         self, query: str, top_k: int = 5, where: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
@@ -166,7 +201,43 @@ class VectorStore:
             Search results with ids, distances, documents, metadatas
 
         Raises:
+            CircuitBreakerOpen: If circuit breaker is open (caller should use SQL fallback)
             ChromaError: If search fails after retries
+        """
+        # Check circuit breaker before attempting search
+        if not self._circuit_breaker.allow_request():
+            raise CircuitBreakerOpen(
+                self._circuit_breaker.name,
+                self._circuit_breaker.recovery_timeout,
+            )
+
+        try:
+            result = self._search_with_retry(query, top_k, where)
+            self._circuit_breaker.record_success()
+            return result
+        except (chromadb.errors.ChromaError, ConnectionError) as e:
+            # Record failure after retries exhaust
+            self._circuit_breaker.record_failure()
+            logger.warning(f"ChromaDB search failed after retries: {e}")
+            raise
+
+    @retry(
+        stop=stop_after_attempt(settings.CHROMA_MAX_RETRIES),
+        wait=wait_exponential(
+            min=settings.CHROMA_RETRY_MIN_WAIT, max=settings.CHROMA_RETRY_MAX_WAIT
+        ),
+        retry=retry_if_exception_type((chromadb.errors.ChromaError, ConnectionError)),
+        before_sleep=before_sleep_log(logger, logging.WARNING),
+        reraise=True,
+    )
+    def _search_with_retry(
+        self, query: str, top_k: int = 5, where: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        """
+        Internal search method with retry logic.
+
+        This is separated from search() so circuit breaker failures are only
+        recorded after all retries are exhausted.
         """
         # Search using query text - ChromaDB's embedding function handles embedding
         results = self.collection.query(
