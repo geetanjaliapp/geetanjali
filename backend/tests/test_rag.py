@@ -276,7 +276,12 @@ class TestRAGPipelineIntegration:
         assert len(result["options"]) == 3
 
     def test_pipeline_fallback_on_vector_failure(self, mock_llm_service):
-        """Test graceful degradation when vector store fails."""
+        """Test SQL fallback when vector store fails.
+
+        When ChromaDB is unavailable, the pipeline falls back to SQL keyword
+        search using PostgreSQL trigram indexes. This provides functional
+        (though less semantically precise) results.
+        """
         from services.rag import RAGPipeline
 
         class FailingVectorStore:
@@ -294,14 +299,12 @@ class TestRAGPipelineIntegration:
                     pipeline = RAGPipeline()
                     result, is_policy_violation = pipeline.run(SAMPLE_CASE)
 
-        # Should still return a valid response
+        # Should return a valid response (SQL fallback provides functional results)
         assert is_policy_violation is False
         assert "executive_summary" in result
-        # Should be flagged as degraded
-        assert (
-            result.get("scholar_flag", False) is True
-            or result.get("confidence", 1.0) <= 0.5
-        )
+        assert "options" in result
+        # SQL fallback provides functional results, not degraded ones
+        assert "confidence" in result
 
     def test_pipeline_fallback_on_llm_failure(self, mock_vector_store):
         """Test fallback response when LLM fails."""

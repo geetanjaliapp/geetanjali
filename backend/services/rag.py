@@ -6,6 +6,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from config import settings
 from services.vector_store import get_vector_store
+from utils.circuit_breaker import CircuitBreakerOpen
 from services.llm import get_llm_service
 from services.prompts import (
     SYSTEM_PROMPT,
@@ -601,7 +602,10 @@ class RAGPipeline:
         self, query: str, top_k: Optional[int] = None
     ) -> List[Dict[str, Any]]:
         """
-        Retrieve relevant verses using vector similarity.
+        Retrieve relevant verses using vector similarity with SQL fallback.
+
+        When ChromaDB circuit breaker is open, falls back to SQL keyword search
+        using PostgreSQL trigram indexes for resilience.
 
         Args:
             query: Query text (case description)
@@ -615,10 +619,29 @@ class RAGPipeline:
 
         logger.info(f"Retrieving top {top_k} verses for query")
 
-        # Search vector store
-        results = self.vector_store.search(query, top_k=top_k)
+        try:
+            # Primary: Vector similarity search
+            results = self.vector_store.search(query, top_k=top_k)
+            return self._format_vector_results(results)
 
-        # Format results
+        except CircuitBreakerOpen:
+            # Fallback: SQL keyword search when ChromaDB is unavailable
+            logger.warning(
+                "ChromaDB circuit breaker open, falling back to SQL keyword search"
+            )
+            return self._retrieve_verses_sql_fallback(query, top_k)
+
+        except Exception as e:
+            # Other errors: try SQL fallback as well
+            logger.warning(
+                f"Vector search failed ({e}), falling back to SQL keyword search"
+            )
+            return self._retrieve_verses_sql_fallback(query, top_k)
+
+    def _format_vector_results(
+        self, results: Dict[str, Any]
+    ) -> List[Dict[str, Any]]:
+        """Format vector search results into verse dicts."""
         verses = []
         for i in range(len(results["ids"])):
             verse = {
@@ -631,9 +654,53 @@ class RAGPipeline:
             }
             verses.append(verse)
 
-        logger.debug(f"Retrieved verses: {[v['canonical_id'] for v in verses]}")
-
+        logger.debug(f"Retrieved verses (vector): {[v['canonical_id'] for v in verses]}")
         return verses
+
+    def _retrieve_verses_sql_fallback(
+        self, query: str, top_k: int
+    ) -> List[Dict[str, Any]]:
+        """
+        Fallback verse retrieval using SQL keyword search.
+
+        Uses PostgreSQL trigram indexes for efficient ILIKE matching.
+        Results are less semantically precise but functional when
+        ChromaDB is unavailable.
+        """
+        from db.connection import SessionLocal
+        from services.search.strategies.keyword import keyword_search
+        from services.search.config import SearchConfig
+
+        db = SessionLocal()
+        try:
+            config = SearchConfig(limit=top_k)
+            results = keyword_search(db, query, config)
+
+            # Convert SearchResult objects to verse dicts matching vector format
+            verses = []
+            for result in results[:top_k]:
+                verse = {
+                    "canonical_id": result.canonical_id,
+                    "document": result.paraphrase_en or result.translation_en or "",
+                    "distance": 1.0 - result.match.score,  # Convert score to distance
+                    "relevance": result.match.score,
+                    "metadata": {
+                        "chapter": result.chapter,
+                        "verse": result.verse,
+                        "paraphrase_en": result.paraphrase_en,
+                        "translation_en": result.translation_en,
+                    },
+                }
+                verses.append(verse)
+
+            logger.info(
+                f"Retrieved {len(verses)} verses via SQL fallback: "
+                f"{[v['canonical_id'] for v in verses]}"
+            )
+            return verses
+
+        finally:
+            db.close()
 
     def enrich_verses_with_translations(
         self, verses: List[Dict[str, Any]]
