@@ -108,7 +108,7 @@
       "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "center", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
       "title": "Worker",
       "type": "stat",
-      "targets": [{ "expr": "geetanjali_worker_count > 0 or vector(0)", "refId": "A" }]
+      "targets": [{ "expr": "clamp_max(sum(geetanjali_worker_count), 1) or vector(0)", "refId": "A" }]
     },
     {
       "collapsed": false,
@@ -187,7 +187,7 @@
       "options": { "colorMode": "value", "graphMode": "area", "justifyMode": "center", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
       "title": "Failed Jobs",
       "type": "stat",
-      "targets": [{ "expr": "geetanjali_failed_jobs or vector(0)", "refId": "A" }]
+      "targets": [{ "expr": "sum(geetanjali_failed_jobs) or vector(0)", "refId": "A" }]
     },
     {
       "collapsed": false,
