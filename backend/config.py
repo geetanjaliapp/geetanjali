@@ -51,11 +51,16 @@ class Settings(BaseSettings):
 
     # LLM Configuration
     # Primary LLM Provider: anthropic, ollama, or mock
+    # Recommended setup:
+    #   Development: LLM_PROVIDER=ollama (local-first, no API costs)
+    #   Production:  LLM_PROVIDER=anthropic (best quality responses)
     LLM_PROVIDER: str = "anthropic"  # Primary provider
     LLM_USE_FEW_SHOTS: bool = (
         False  # Include few-shot example in prompts (increases tokens)
     )
-    LLM_FALLBACK_PROVIDER: str = "mock"  # Fallback provider: anthropic, ollama, or mock
+    # Fallback provider: anthropic, ollama, or mock
+    # Provides resilience when primary provider fails or circuit breaker opens
+    LLM_FALLBACK_PROVIDER: str = "mock"  # Fallback provider
     LLM_FALLBACK_ENABLED: bool = True  # Enable fallback to secondary provider
     USE_MOCK_LLM: bool = False  # Use mock LLM for testing (overrides provider setting)
 
