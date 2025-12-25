@@ -1,0 +1,130 @@
+/**
+ * PRIMITIVES.CSS - Tier 1: Raw Color Scales
+ *
+ * These are the user-customizable color primitives that form the foundation
+ * of the theming system. When users customize their theme, these values change.
+ *
+ * 5 scales × 10 shades = 50 tokens
+ *
+ * References Tailwind v4's built-in CSS variables (--color-X-Y)
+ * Usage: These should ONLY be referenced by semantic.css, never directly in components.
+ */
+
+:root {
+  /* ============================================
+     PRIMARY SCALE (Orange by default)
+     Usage: Buttons, links, CTAs, primary actions
+     ============================================ */
+  --color-primary-50: var(--color-orange-50);
+  --color-primary-100: var(--color-orange-100);
+  --color-primary-200: var(--color-orange-200);
+  --color-primary-300: var(--color-orange-300);
+  --color-primary-400: var(--color-orange-400);
+  --color-primary-500: var(--color-orange-500);
+  --color-primary-600: var(--color-orange-600);
+  --color-primary-700: var(--color-orange-700);
+  --color-primary-800: var(--color-orange-800);
+  --color-primary-900: var(--color-orange-900);
+
+  /* ============================================
+     WARM SCALE (Amber by default)
+     Usage: Cards, warm surfaces, highlights
+     ============================================ */
+  --color-warm-50: var(--color-amber-50);
+  --color-warm-100: var(--color-amber-100);
+  --color-warm-200: var(--color-amber-200);
+  --color-warm-300: var(--color-amber-300);
+  --color-warm-400: var(--color-amber-400);
+  --color-warm-500: var(--color-amber-500);
+  --color-warm-600: var(--color-amber-600);
+  --color-warm-700: var(--color-amber-700);
+  --color-warm-800: var(--color-amber-800);
+  --color-warm-900: var(--color-amber-900);
+
+  /* ============================================
+     NEUTRAL SCALE (Gray by default)
+     Usage: Text, borders, backgrounds, UI chrome
+     ============================================ */
+  --color-neutral-50: var(--color-gray-50);
+  --color-neutral-100: var(--color-gray-100);
+  --color-neutral-200: var(--color-gray-200);
+  --color-neutral-300: var(--color-gray-300);
+  --color-neutral-400: var(--color-gray-400);
+  --color-neutral-500: var(--color-gray-500);
+  --color-neutral-600: var(--color-gray-600);
+  --color-neutral-700: var(--color-gray-700);
+  --color-neutral-800: var(--color-gray-800);
+  --color-neutral-900: var(--color-gray-900);
+
+  /* ============================================
+     ACCENT SCALE (Amber by default)
+     Usage: Sanskrit text, decorative elements, sacred highlights
+     Note: Intentionally same as warm by default, but can be customized independently
+     ============================================ */
+  --color-accent-50: var(--color-amber-50);
+  --color-accent-100: var(--color-amber-100);
+  --color-accent-200: var(--color-amber-200);
+  --color-accent-300: var(--color-amber-300);
+  --color-accent-400: var(--color-amber-400);
+  --color-accent-500: var(--color-amber-500);
+  --color-accent-600: var(--color-amber-600);
+  --color-accent-700: var(--color-amber-700);
+  --color-accent-800: var(--color-amber-800);
+  --color-accent-900: var(--color-amber-900);
+
+  /* ============================================
+     READING SCALE (Stone by default)
+     Usage: Reading mode backgrounds, focused reading surfaces
+     ============================================ */
+  --color-reading-50: var(--color-stone-50);
+  --color-reading-100: var(--color-stone-100);
+  --color-reading-200: var(--color-stone-200);
+  --color-reading-300: var(--color-stone-300);
+  --color-reading-400: var(--color-stone-400);
+  --color-reading-500: var(--color-stone-500);
+  --color-reading-600: var(--color-stone-600);
+  --color-reading-700: var(--color-stone-700);
+  --color-reading-800: var(--color-stone-800);
+  --color-reading-900: var(--color-stone-900);
+
+  /* ============================================
+     STATUS: ERROR SCALE (Red by default)
+     Usage: Error states, validation failures, destructive actions
+     ============================================ */
+  --color-error-50: var(--color-red-50);
+  --color-error-100: var(--color-red-100);
+  --color-error-200: var(--color-red-200);
+  --color-error-300: var(--color-red-300);
+  --color-error-400: var(--color-red-400);
+  --color-error-500: var(--color-red-500);
+  --color-error-600: var(--color-red-600);
+  --color-error-700: var(--color-red-700);
+  --color-error-800: var(--color-red-800);
+  --color-error-900: var(--color-red-900);
+
+  /* ============================================
+     STATUS: SUCCESS SCALE (Green by default)
+     Usage: Success states, confirmations, positive feedback
+     ============================================ */
+  --color-success-50: var(--color-green-50);
+  --color-success-100: var(--color-green-100);
+  --color-success-200: var(--color-green-200);
+  --color-success-300: var(--color-green-300);
+  --color-success-400: var(--color-green-400);
+  --color-success-500: var(--color-green-500);
+  --color-success-600: var(--color-green-600);
+  --color-success-700: var(--color-green-700);
+  --color-success-800: var(--color-green-800);
+  --color-success-900: var(--color-green-900);
+
+  /* ============================================
+     STATUS: WARNING SCALE (Yellow by default)
+     Usage: Warning states, caution indicators
+     ============================================ */
+  --color-warning-100: var(--color-yellow-100);
+  --color-warning-300: var(--color-yellow-300);
+  --color-warning-500: var(--color-yellow-500);
+  --color-warning-600: var(--color-yellow-600);
+  --color-warning-700: var(--color-yellow-700);
+  --color-warning-900: var(--color-yellow-900);
+}

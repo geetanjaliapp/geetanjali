@@ -1,0 +1,271 @@
+/**
+ * SEMANTIC.CSS - Tier 2: Semantic Tokens
+ *
+ * These tokens provide stable, meaningful names that reference primitives.
+ * Components use these tokens, not primitives directly.
+ *
+ * Dark mode is handled here - same token name, different value in .dark
+ *
+ * Categories:
+ * - Surface: Background colors
+ * - Text: Text colors
+ * - Border: Border colors
+ * - Interactive: Buttons, links, form elements
+ * - Section: Page section backgrounds
+ * - Gradient: Gradient endpoints
+ */
+
+:root {
+  /* ============================================
+     SURFACE TOKENS - Background colors
+     ============================================ */
+
+  /* Base page background */
+  --surface-base: var(--color-neutral-50);
+
+  /* Warm surface (cards with amber tint) */
+  --surface-warm: var(--color-warm-50);
+  --surface-warm-subtle: color-mix(in srgb, var(--color-warm-50) 50%, white);
+
+  /* Elevated surfaces (modals, dropdowns) */
+  --surface-elevated: white;
+
+  /* Muted/secondary backgrounds */
+  --surface-muted: var(--color-neutral-100);
+
+  /* Reading mode surface */
+  --surface-reading: var(--color-reading-50);
+  --surface-reading-elevated: white;
+
+  /* ============================================
+     TEXT TOKENS - Text colors
+     ============================================ */
+
+  /* Primary text (headings, body) */
+  --text-primary: var(--color-neutral-900);
+
+  /* Secondary text (descriptions, metadata) */
+  --text-secondary: var(--color-neutral-600);
+
+  /* Tertiary/muted text (placeholders, hints) */
+  --text-tertiary: var(--color-neutral-500);
+  --text-muted: var(--color-neutral-400);
+
+  /* Sanskrit/sacred text */
+  --text-sanskrit: var(--color-accent-900);
+  --text-sanskrit-secondary: var(--color-accent-700);
+
+  /* Link colors */
+  --text-link: var(--color-primary-600);
+  --text-link-hover: var(--color-primary-700);
+
+  /* Inverted text (on dark backgrounds) */
+  --text-inverted: white;
+
+  /* ============================================
+     BORDER TOKENS - Border colors
+     ============================================ */
+
+  /* Default border */
+  --border-default: var(--color-neutral-200);
+
+  /* Warm border (amber-tinted cards) */
+  --border-warm: var(--color-warm-200);
+  --border-warm-subtle: color-mix(in srgb, var(--color-warm-200) 50%, transparent);
+
+  /* Subtle/faint borders */
+  --border-subtle: var(--color-neutral-100);
+
+  /* Focus rings */
+  --border-focus: var(--color-primary-500);
+
+  /* Reading mode borders */
+  --border-reading: var(--color-reading-200);
+
+  /* ============================================
+     INTERACTIVE TOKENS - Buttons, links, inputs
+     ============================================ */
+
+  /* Primary action (main CTA buttons) */
+  --interactive-primary: var(--color-primary-600);
+  --interactive-primary-text: white;
+
+  /* Secondary action (outline buttons) */
+  --interactive-secondary-bg: white;
+  --interactive-secondary-text: var(--color-neutral-700);
+  --interactive-secondary-border: var(--color-neutral-300);
+
+  /* Ghost/text buttons */
+  --interactive-ghost-text: var(--color-primary-600);
+
+  /* Contextual actions (amber-themed) */
+  --interactive-contextual: var(--color-warm-600);
+  --interactive-contextual-text: white;
+
+  /* ============================================
+     SECTION TOKENS - Semantic page sections
+     ============================================ */
+
+  /* Verse/scripture sections */
+  --section-verse-bg: var(--color-warm-50);
+  --section-verse-border: var(--color-warm-200);
+
+  /* Reflection/insight sections */
+  --section-reflection-bg: color-mix(in srgb, var(--color-warm-100) 30%, white);
+
+  /* Navigation sections */
+  --section-nav-bg: white;
+  --section-nav-border: var(--color-neutral-200);
+
+  /* ============================================
+     GRADIENT TOKENS - Page gradients
+     ============================================ */
+
+  /* Main page gradient (orange to red/error) */
+  --gradient-page-from: var(--color-primary-50);
+  --gradient-page-to: var(--color-error-50);
+
+  /* Warm gradient */
+  --gradient-warm-from: var(--color-warm-50);
+  --gradient-warm-to: var(--color-primary-50);
+
+  /* ============================================
+     DECORATIVE TOKENS
+     ============================================ */
+
+  /* Om symbol and decorative elements */
+  --decorative-om: color-mix(in srgb, var(--color-warm-400) 50%, transparent);
+
+  /* Badges and tags */
+  --badge-default-bg: var(--color-neutral-100);
+  --badge-default-text: var(--color-neutral-700);
+  --badge-warm-bg: var(--color-warm-100);
+  --badge-warm-text: var(--color-warm-700);
+
+  /* Domain-specific badges */
+  --badge-principle-bg: var(--color-warm-100);
+  --badge-principle-text: var(--color-warm-800);
+  --badge-match-bg: var(--color-primary-100);
+  --badge-match-text: var(--color-primary-800);
+  --badge-featured-bg: var(--color-accent-100);
+  --badge-featured-text: var(--color-accent-800);
+
+  /* ============================================
+     OVERLAY & SKELETON TOKENS
+     ============================================ */
+
+  /* Modal overlay */
+  --overlay-bg: color-mix(in srgb, black 50%, transparent);
+
+  /* Skeleton loading */
+  --skeleton-bg: var(--color-neutral-200);
+  --skeleton-highlight: var(--color-neutral-100);
+
+  /* ============================================
+     STATUS TOKENS - Error, Warning, Success
+     ============================================ */
+
+  /* Error states */
+  --status-error-bg: var(--color-error-50);
+  --status-error-text: var(--color-error-600);
+  --status-error-border: var(--color-error-200);
+
+  /* Warning states */
+  --status-warning-bg: var(--color-warning-100);
+  --status-warning-text: var(--color-warning-700);
+  --status-warning-border: var(--color-warning-300);
+
+  /* Success states */
+  --status-success-bg: var(--color-success-50);
+  --status-success-text: var(--color-success-600);
+  --status-success-border: var(--color-success-200);
+}
+
+/* ============================================
+   DARK MODE OVERRIDES
+   ============================================ */
+.dark {
+  /* Surface tokens */
+  --surface-base: var(--color-neutral-900);
+  /* Maintain warmth in dark mode with subtle amber tint */
+  --surface-warm: color-mix(in srgb, var(--color-warm-900) 15%, var(--color-neutral-800));
+  --surface-warm-subtle: color-mix(in srgb, var(--color-warm-900) 8%, var(--color-neutral-850, var(--color-neutral-800)));
+  --surface-elevated: var(--color-neutral-800);
+  --surface-muted: var(--color-neutral-800);
+  --surface-reading: var(--color-reading-900);
+  --surface-reading-elevated: var(--color-reading-800);
+
+  /* Text tokens */
+  --text-primary: var(--color-neutral-100);
+  --text-secondary: var(--color-neutral-400);
+  --text-tertiary: var(--color-neutral-500);
+  --text-muted: var(--color-neutral-600);
+  --text-sanskrit: var(--color-accent-200);
+  --text-sanskrit-secondary: var(--color-accent-300);
+  --text-link: var(--color-primary-400);
+  --text-link-hover: var(--color-primary-300);
+
+  /* Border tokens */
+  --border-default: var(--color-neutral-700);
+  --border-warm: var(--color-neutral-700);
+  --border-warm-subtle: color-mix(in srgb, var(--color-neutral-700) 50%, transparent);
+  --border-subtle: var(--color-neutral-800);
+  --border-focus: var(--color-primary-400);
+  --border-reading: var(--color-reading-700);
+
+  /* Interactive tokens */
+  --interactive-primary: var(--color-primary-600);
+  --interactive-primary-text: white;
+  --interactive-secondary-bg: var(--color-neutral-800);
+  --interactive-secondary-text: var(--color-neutral-200);
+  --interactive-secondary-border: var(--color-neutral-600);
+  --interactive-ghost-text: var(--color-primary-400);
+  --interactive-contextual: var(--color-warm-500);
+  --interactive-contextual-text: white;
+
+  /* Section tokens */
+  --section-verse-bg: var(--color-neutral-800);
+  --section-verse-border: var(--color-neutral-700);
+  --section-reflection-bg: color-mix(in srgb, var(--color-neutral-800) 50%, var(--color-neutral-900));
+  --section-nav-bg: var(--color-neutral-900);
+  --section-nav-border: var(--color-neutral-800);
+
+  /* Gradient tokens - subtle transitions in dark mode */
+  --gradient-page-from: var(--color-neutral-900);
+  --gradient-page-to: color-mix(in srgb, var(--color-neutral-800) 30%, var(--color-neutral-900));
+  --gradient-warm-from: var(--color-neutral-900);
+  --gradient-warm-to: color-mix(in srgb, var(--color-warm-900) 10%, var(--color-neutral-900));
+
+  /* Decorative tokens */
+  --decorative-om: color-mix(in srgb, var(--color-warm-400) 50%, transparent);
+
+  /* Badge tokens */
+  --badge-default-bg: var(--color-neutral-700);
+  --badge-default-text: var(--color-neutral-300);
+  --badge-warm-bg: var(--color-neutral-700);
+  --badge-warm-text: var(--color-warm-300);
+
+  /* Domain-specific badges (dark mode) */
+  --badge-principle-bg: var(--color-neutral-700);
+  --badge-principle-text: var(--color-warm-300);
+  --badge-match-bg: var(--color-neutral-700);
+  --badge-match-text: var(--color-primary-300);
+  --badge-featured-bg: var(--color-neutral-700);
+  --badge-featured-text: var(--color-accent-300);
+
+  /* Overlay & Skeleton (dark mode) */
+  --overlay-bg: color-mix(in srgb, black 70%, transparent);
+  --skeleton-bg: var(--color-neutral-700);
+  --skeleton-highlight: var(--color-neutral-600);
+
+  /* Status tokens */
+  --status-error-bg: var(--color-error-900);
+  --status-error-text: var(--color-error-300);
+  --status-error-border: var(--color-error-700);
+  --status-warning-bg: var(--color-warning-900);
+  --status-warning-text: var(--color-warning-300);
+  --status-warning-border: var(--color-warning-700);
+  --status-success-bg: var(--color-success-900);
+  --status-success-text: var(--color-success-300);
+  --status-success-border: var(--color-success-700);
+}

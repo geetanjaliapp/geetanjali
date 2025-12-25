@@ -1,0 +1,147 @@
+/**
+ * DERIVED.CSS - Tier 3: State-Specific Tokens
+ *
+ * These tokens represent interactive states (hover, focus, active, disabled).
+ * They derive from semantic tokens and enable state changes without dark: prefixes.
+ *
+ * Usage in components:
+ *   hover:bg-[--interactive-primary-hover]
+ *   focus:ring-[--focus-ring]
+ *   disabled:bg-[--interactive-disabled-bg]
+ */
+
+:root {
+  /* ============================================
+     PRIMARY BUTTON STATES
+     ============================================ */
+  --interactive-primary-hover: var(--color-primary-700);
+  --interactive-primary-active: var(--color-primary-800);
+  --interactive-primary-disabled-bg: var(--color-primary-300);
+  --interactive-primary-disabled-text: white;
+
+  /* ============================================
+     SECONDARY BUTTON STATES
+     ============================================ */
+  --interactive-secondary-hover-bg: var(--color-neutral-50);
+  --interactive-secondary-hover-border: var(--color-neutral-400);
+  --interactive-secondary-active-bg: var(--color-neutral-100);
+  --interactive-secondary-disabled-bg: var(--color-neutral-100);
+  --interactive-secondary-disabled-text: var(--color-neutral-400);
+  --interactive-secondary-disabled-border: var(--color-neutral-200);
+
+  /* ============================================
+     GHOST BUTTON STATES
+     ============================================ */
+  --interactive-ghost-hover-text: var(--color-primary-700);
+  --interactive-ghost-hover-bg: color-mix(in srgb, var(--color-primary-50) 50%, transparent);
+  --interactive-ghost-active-bg: var(--color-primary-100);
+  --interactive-ghost-disabled-text: var(--color-neutral-400);
+
+  /* ============================================
+     CONTEXTUAL BUTTON STATES (Amber)
+     ============================================ */
+  --interactive-contextual-hover: var(--color-warm-700);
+  --interactive-contextual-active: var(--color-warm-800);
+  --interactive-contextual-disabled-bg: var(--color-warm-300);
+  --interactive-contextual-disabled-text: white;
+
+  /* ============================================
+     LINK STATES
+     ============================================ */
+  --text-link-active: var(--color-primary-800);
+  --text-link-visited: var(--color-primary-700);
+
+  /* ============================================
+     FOCUS STATES
+     ============================================ */
+  --focus-ring: var(--color-primary-500);
+  --focus-ring-offset: white;
+  --focus-ring-width: 2px;
+
+  /* ============================================
+     CARD HOVER STATES
+     ============================================ */
+  --surface-warm-hover: var(--color-warm-100);
+  --border-warm-hover: var(--color-warm-300);
+  --surface-elevated-hover: var(--color-neutral-50);
+
+  /* ============================================
+     INPUT STATES
+     ============================================ */
+  --input-border: var(--color-neutral-300);
+  --input-border-hover: var(--color-neutral-400);
+  --input-border-focus: var(--color-primary-500);
+  --input-border-error: var(--color-error-500);
+  --input-bg: white;
+  --input-bg-disabled: var(--color-neutral-100);
+  --input-text: var(--color-neutral-900);
+  --input-text-placeholder: var(--color-neutral-400);
+  --input-text-disabled: var(--color-neutral-500);
+
+  /* ============================================
+     GENERAL DISABLED STATE
+     ============================================ */
+  --interactive-disabled-bg: var(--color-neutral-200);
+  --interactive-disabled-text: var(--color-neutral-500);
+  --interactive-disabled-border: var(--color-neutral-200);
+}
+
+/* ============================================
+   DARK MODE STATE OVERRIDES
+   ============================================ */
+.dark {
+  /* Primary button states */
+  --interactive-primary-hover: var(--color-primary-500);
+  --interactive-primary-active: var(--color-primary-400);
+  --interactive-primary-disabled-bg: var(--color-neutral-700);
+  --interactive-primary-disabled-text: var(--color-neutral-500);
+
+  /* Secondary button states */
+  --interactive-secondary-hover-bg: var(--color-neutral-700);
+  --interactive-secondary-hover-border: var(--color-neutral-500);
+  --interactive-secondary-active-bg: var(--color-neutral-600);
+  --interactive-secondary-disabled-bg: var(--color-neutral-800);
+  --interactive-secondary-disabled-text: var(--color-neutral-600);
+  --interactive-secondary-disabled-border: var(--color-neutral-700);
+
+  /* Ghost button states */
+  --interactive-ghost-hover-text: var(--color-primary-300);
+  --interactive-ghost-hover-bg: color-mix(in srgb, var(--color-primary-900) 30%, transparent);
+  --interactive-ghost-active-bg: color-mix(in srgb, var(--color-primary-800) 40%, transparent);
+  --interactive-ghost-disabled-text: var(--color-neutral-600);
+
+  /* Contextual button states */
+  --interactive-contextual-hover: var(--color-warm-400);
+  --interactive-contextual-active: var(--color-warm-300);
+  --interactive-contextual-disabled-bg: var(--color-neutral-700);
+  --interactive-contextual-disabled-text: var(--color-neutral-500);
+
+  /* Link states */
+  --text-link-active: var(--color-primary-200);
+  --text-link-visited: var(--color-primary-300);
+
+  /* Focus states */
+  --focus-ring: var(--color-primary-400);
+  --focus-ring-offset: var(--color-neutral-900);
+
+  /* Card hover states */
+  --surface-warm-hover: var(--color-neutral-700);
+  --border-warm-hover: var(--color-neutral-600);
+  --surface-elevated-hover: var(--color-neutral-700);
+
+  /* Input states */
+  --input-border: var(--color-neutral-600);
+  --input-border-hover: var(--color-neutral-500);
+  --input-border-focus: var(--color-primary-400);
+  --input-border-error: var(--color-error-400);
+  --input-bg: var(--color-neutral-800);
+  --input-bg-disabled: var(--color-neutral-800);
+  --input-text: var(--color-neutral-100);
+  --input-text-placeholder: var(--color-neutral-500);
+  --input-text-disabled: var(--color-neutral-600);
+
+  /* General disabled state */
+  --interactive-disabled-bg: var(--color-neutral-800);
+  --interactive-disabled-text: var(--color-neutral-600);
+  --interactive-disabled-border: var(--color-neutral-700);
+}

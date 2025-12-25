@@ -1,6 +1,21 @@
 @import 'tailwindcss';
+@import './styles/tokens/primitives.css';
+@import './styles/tokens/semantic.css';
+@import './styles/tokens/derived.css';
 
 @config '../tailwind.config.js';
+
+/*
+ * Design Token System (v1.16.0)
+ *
+ * 3-Tier Architecture:
+ * 1. Primitives: Raw color scales (user-customizable)
+ * 2. Semantic: Meaningful names referencing primitives
+ * 3. Derived: State-specific tokens (hover, focus, etc.)
+ *
+ * Usage: Components use semantic/derived tokens via Tailwind arbitrary values
+ * Example: bg-[--surface-warm] or hover:bg-[--interactive-primary-hover]
+ */
 
 /*
   The default border color has changed to `currentcolor` in Tailwind CSS v4,
@@ -16,8 +31,17 @@
   ::before,
   ::backdrop,
   ::file-selector-button {
-    border-color: var(--color-gray-200, currentcolor);
+    border-color: rgb(229 231 235); /* gray-200 - hardcoded for v4 compatibility */
   }
+}
+
+/* Dark mode border color override (class-based dark mode) */
+.dark *,
+.dark ::after,
+.dark ::before,
+.dark ::backdrop,
+.dark ::file-selector-button {
+  border-color: rgb(55 65 81); /* gray-700 */
 }
 
 /*
