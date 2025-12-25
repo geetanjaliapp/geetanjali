@@ -268,7 +268,7 @@ export const SearchInput = forwardRef<SearchInputHandle, SearchInputProps>(
               }
               onKeyDown={handleKeyDown}
               placeholder={placeholder}
-              className="w-full pl-10 pr-10 py-3 sm:py-3.5 border border-amber-200 dark:border-gray-600 rounded-l-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-xs focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:z-10 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 shadow-xs transition-shadow"
+              className="w-full pl-10 pr-10 py-3 sm:py-3.5 border border-[var(--border-warm)] rounded-l-full bg-[var(--surface-elevated)]/80 backdrop-blur-xs focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-[var(--focus-ring)] focus:z-10 text-[var(--input-text)] placeholder:text-[var(--input-text-placeholder)] shadow-xs transition-shadow"
               aria-label="Search query"
               aria-expanded={showRecentDropdown || showExamplesDropdown}
               aria-haspopup="listbox"
@@ -276,7 +276,7 @@ export const SearchInput = forwardRef<SearchInputHandle, SearchInputProps>(
                 selectedIndex >= 0 ? `search-item-${selectedIndex}` : undefined
               }
             />
-            <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-amber-500 dark:text-amber-400" />
+            <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--text-accent)]" />
 
             {/* Clear button or keyboard hint */}
             <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -284,13 +284,13 @@ export const SearchInput = forwardRef<SearchInputHandle, SearchInputProps>(
                 <button
                   type="button"
                   onClick={handleClear}
-                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-3 sm:p-1 -m-2 sm:m-0 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  className="text-[var(--text-muted)] hover:text-[var(--text-secondary)] p-3 sm:p-1 -m-2 sm:m-0 rounded-full hover:bg-[var(--interactive-secondary-hover-bg)] transition-colors"
                   aria-label="Clear search"
                 >
                   <CloseIcon className="w-4 h-4" />
                 </button>
               ) : (
-                <kbd className="hidden lg:inline-flex items-center px-1.5 py-0.5 text-[10px] text-amber-600/70 dark:text-amber-400/70 bg-amber-50 dark:bg-amber-900/30 rounded-sm border border-amber-200/50 dark:border-amber-700/50">
+                <kbd className="hidden lg:inline-flex items-center px-1.5 py-0.5 text-[10px] text-[var(--text-accent-muted)] bg-[var(--surface-warm)] rounded-sm border border-[var(--border-warm-subtle)]">
                   ⌘K
                 </kbd>
               )}
@@ -298,15 +298,15 @@ export const SearchInput = forwardRef<SearchInputHandle, SearchInputProps>(
 
             {/* Recent Searches Dropdown */}
             {showRecentDropdown && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 border border-amber-200 dark:border-gray-600 rounded-xl shadow-lg z-20 overflow-hidden">
-                <div className="flex items-center justify-between px-4 py-2 border-b border-amber-100 dark:border-gray-700 bg-amber-50/50 dark:bg-gray-700/50">
-                  <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+              <div className="absolute top-full left-0 right-0 mt-2 bg-[var(--surface-elevated)] border border-[var(--border-default)] rounded-xl shadow-lg z-20 overflow-hidden">
+                <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--border-subtle)] bg-[var(--surface-muted)]/50">
+                  <span className="text-xs font-medium text-[var(--text-tertiary)]">
                     Recent
                   </span>
                   <button
                     type="button"
                     onClick={handleClearRecent}
-                    className="text-xs text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
+                    className="text-xs text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
                   >
                     Clear
                   </button>
@@ -324,20 +324,20 @@ export const SearchInput = forwardRef<SearchInputHandle, SearchInputProps>(
                         onClick={() => handleSelect(query)}
                         className={`w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 transition-colors ${
                           index === selectedIndex
-                            ? "bg-orange-100 dark:bg-orange-900/40 text-orange-900 dark:text-orange-200"
-                            : "text-gray-700 dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-gray-700"
+                            ? "bg-[var(--menu-item-selected-bg)] text-[var(--menu-item-selected-text)]"
+                            : "text-[var(--text-secondary)] hover:bg-[var(--menu-item-hover-bg)]"
                         }`}
                       >
                         <SearchIcon
-                          className={`w-4 h-4 ${index === selectedIndex ? "text-orange-500 dark:text-orange-400" : "text-amber-400 dark:text-amber-500"}`}
+                          className={`w-4 h-4 ${index === selectedIndex ? "text-[var(--interactive-primary)]" : "text-[var(--text-accent)]"}`}
                         />
                         {query}
                       </button>
                     </li>
                   ))}
                 </ul>
-                <div className="px-4 py-1.5 border-t border-amber-100 dark:border-gray-700 bg-amber-50/30 dark:bg-gray-700/30">
-                  <span className="text-[10px] text-gray-400 dark:text-gray-500">
+                <div className="px-4 py-1.5 border-t border-[var(--border-subtle)] bg-[var(--surface-muted)]/30">
+                  <span className="text-[10px] text-[var(--text-muted)]">
                     ↑↓ to navigate · Enter to select
                   </span>
                 </div>
@@ -346,9 +346,9 @@ export const SearchInput = forwardRef<SearchInputHandle, SearchInputProps>(
 
             {/* Search Examples Dropdown (when no recent searches) */}
             {showExamplesDropdown && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 border border-amber-200 dark:border-gray-600 rounded-xl shadow-lg z-20 overflow-hidden">
-                <div className="px-4 py-2 border-b border-amber-100 dark:border-gray-700 bg-amber-50/50 dark:bg-gray-700/50">
-                  <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+              <div className="absolute top-full left-0 right-0 mt-2 bg-[var(--surface-elevated)] border border-[var(--border-default)] rounded-xl shadow-lg z-20 overflow-hidden">
+                <div className="px-4 py-2 border-b border-[var(--border-subtle)] bg-[var(--surface-muted)]/50">
+                  <span className="text-xs font-medium text-[var(--text-tertiary)]">
                     Try searching for
                   </span>
                 </div>
@@ -365,20 +365,20 @@ export const SearchInput = forwardRef<SearchInputHandle, SearchInputProps>(
                         onClick={() => handleSelect(example.query)}
                         className={`w-full px-4 py-2.5 text-left text-sm flex items-center justify-between gap-3 transition-colors ${
                           index === selectedIndex
-                            ? "bg-orange-100 dark:bg-orange-900/40 text-orange-900 dark:text-orange-200"
-                            : "text-gray-700 dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-gray-700"
+                            ? "bg-[var(--menu-item-selected-bg)] text-[var(--menu-item-selected-text)]"
+                            : "text-[var(--text-secondary)] hover:bg-[var(--menu-item-hover-bg)]"
                         }`}
                       >
                         <span className="font-medium">{example.query}</span>
-                        <span className="text-xs text-gray-400 dark:text-gray-500">
+                        <span className="text-xs text-[var(--text-muted)]">
                           {example.label}
                         </span>
                       </button>
                     </li>
                   ))}
                 </ul>
-                <div className="px-4 py-1.5 border-t border-amber-100 dark:border-gray-700 bg-amber-50/30 dark:bg-gray-700/30">
-                  <span className="text-[10px] text-gray-400 dark:text-gray-500">
+                <div className="px-4 py-1.5 border-t border-[var(--border-subtle)] bg-[var(--surface-muted)]/30">
+                  <span className="text-[10px] text-[var(--text-muted)]">
                     ↑↓ to navigate · Enter to select
                   </span>
                 </div>

@@ -11,34 +11,34 @@ import type { Verse } from "../types";
  */
 export function VerseCardSkeleton() {
   return (
-    <div className="bg-amber-50 dark:bg-gray-800 rounded-xl p-3 sm:p-4 border border-amber-200 dark:border-gray-700 shadow-xs animate-pulse">
+    <div className="bg-[var(--surface-warm)] rounded-xl p-3 sm:p-4 border border-[var(--border-warm)] shadow-xs animate-pulse">
       {/* Verse Reference skeleton */}
       <div className="flex justify-center mb-2 sm:mb-3">
-        <div className="h-4 w-16 bg-amber-200/60 dark:bg-gray-700 rounded-sm" />
+        <div className="h-4 w-16 bg-[var(--skeleton-bg)] rounded-sm" />
       </div>
 
       {/* Sanskrit lines skeleton */}
       <div className="space-y-2 flex flex-col items-center">
-        <div className="h-4 w-4/5 bg-amber-200/50 dark:bg-gray-700 rounded-sm" />
-        <div className="h-4 w-3/4 bg-amber-200/50 dark:bg-gray-700 rounded-sm" />
-        <div className="h-4 w-4/5 bg-amber-200/50 dark:bg-gray-700 rounded-sm" />
-        <div className="h-4 w-2/3 bg-amber-200/50 dark:bg-gray-700 rounded-sm" />
+        <div className="h-4 w-4/5 bg-[var(--skeleton-bg)] rounded-sm" />
+        <div className="h-4 w-3/4 bg-[var(--skeleton-bg)] rounded-sm" />
+        <div className="h-4 w-4/5 bg-[var(--skeleton-bg)] rounded-sm" />
+        <div className="h-4 w-2/3 bg-[var(--skeleton-bg)] rounded-sm" />
       </div>
 
       {/* Divider skeleton */}
-      <div className="my-2 sm:my-3 border-t border-amber-200/30 dark:border-gray-700" />
+      <div className="my-2 sm:my-3 border-t border-[var(--border-warm-subtle)]" />
 
       {/* Translation skeleton */}
       <div className="space-y-1.5 flex flex-col items-center">
-        <div className="h-3 w-11/12 bg-gray-200/60 dark:bg-gray-700 rounded-sm" />
-        <div className="h-3 w-4/5 bg-gray-200/60 dark:bg-gray-700 rounded-sm" />
-        <div className="h-3 w-3/4 bg-gray-200/60 dark:bg-gray-700 rounded-sm" />
+        <div className="h-3 w-11/12 bg-[var(--skeleton-bg)] rounded-sm" />
+        <div className="h-3 w-4/5 bg-[var(--skeleton-bg)] rounded-sm" />
+        <div className="h-3 w-3/4 bg-[var(--skeleton-bg)] rounded-sm" />
       </div>
 
       {/* Tags skeleton */}
       <div className="mt-2 sm:mt-3 flex justify-center gap-1">
-        <div className="h-5 w-14 bg-amber-100 dark:bg-gray-700 rounded-full" />
-        <div className="h-5 w-12 bg-amber-100 dark:bg-gray-700 rounded-full" />
+        <div className="h-5 w-14 bg-[var(--skeleton-bg)] rounded-full" />
+        <div className="h-5 w-12 bg-[var(--skeleton-bg)] rounded-full" />
       </div>
     </div>
   );
@@ -103,7 +103,7 @@ function HighlightedText({ text }: { text: string }) {
           return (
             <mark
               key={i}
-              className="bg-amber-200 dark:bg-amber-800/50 text-amber-900 dark:text-amber-200 px-0.5 rounded-sm"
+              className="bg-[var(--badge-match-bg)] text-[var(--badge-match-text)] px-0.5 rounded-sm"
             >
               {content}
             </mark>
@@ -152,12 +152,12 @@ export const VerseCard = memo(function VerseCard({
       : "";
 
     return (
-      <div className="relative bg-amber-50 dark:bg-gray-800 rounded-xl p-3 sm:p-4 border border-amber-200 dark:border-gray-700 shadow-xs hover:shadow-md hover:border-amber-300 dark:hover:border-gray-600 hover:-translate-y-0.5 transition-all duration-150">
+      <div className="relative bg-[var(--surface-warm)] rounded-xl p-3 sm:p-4 border border-[var(--border-warm)] shadow-xs hover:shadow-md hover:border-[var(--border-warm-hover)] hover:-translate-y-0.5 transition-all duration-150">
         {/* Stretched link - covers entire card for navigation (accessibility pattern) */}
         {linkTo && (
           <Link
             to={linkTo}
-            className="absolute inset-0 z-0 rounded-xl focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800"
+            className="absolute inset-0 z-0 rounded-xl focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
             aria-label={`View verse ${formatVerseRef(verse)}`}
           />
         )}
@@ -165,7 +165,7 @@ export const VerseCard = memo(function VerseCard({
         {/* Featured Badge - top LEFT corner (moved from right to make room for match badge) */}
         {verse.is_featured && (
           <div className="absolute top-2 left-2 sm:top-3 sm:left-3 z-10">
-            <span className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400">
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-[var(--badge-featured-bg)] text-[var(--badge-featured-text)]">
               <StarIcon className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
             </span>
           </div>
@@ -174,7 +174,7 @@ export const VerseCard = memo(function VerseCard({
         {/* Top-right: Match badge + Heart (flex row, heart always rightmost) */}
         <div className="absolute top-2 right-2 sm:top-3 sm:right-3 z-10 flex items-center gap-1.5">
           {match && (
-            <span className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-400 text-[10px] sm:text-xs font-medium">
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-[var(--badge-match-bg)] text-[var(--badge-match-text)] text-[10px] sm:text-xs font-medium">
               {MATCH_TYPE_LABELS[match.type] || match.type}
             </span>
           )}
@@ -185,10 +185,10 @@ export const VerseCard = memo(function VerseCard({
                 e.stopPropagation();
                 onToggleFavorite(verse.canonical_id);
               }}
-              className={`p-2.5 sm:p-1 -m-1.5 sm:m-0 rounded-full transition-all duration-150 pointer-events-auto focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-900 ${
+              className={`p-2.5 sm:p-1 -m-1.5 sm:m-0 rounded-full transition-all duration-150 pointer-events-auto focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                 isFavorite
-                  ? "text-red-500 dark:text-red-400"
-                  : "text-gray-400 dark:text-gray-500 hover:text-red-400 dark:hover:text-red-400 hover:scale-110"
+                  ? "text-[var(--status-error-text)]"
+                  : "text-[var(--text-muted)] hover:text-[var(--status-error-text)] hover:scale-110"
               }`}
               aria-label={
                 isFavorite ? "Remove from favorites" : "Add to favorites"
@@ -206,7 +206,7 @@ export const VerseCard = memo(function VerseCard({
         <div className={linkTo ? "relative z-10 pointer-events-none" : ""}>
           {/* Verse Reference - centered, mt-6 clears space for absolute badges */}
           <div className="flex items-center justify-center mt-6 sm:mt-5 mb-2 sm:mb-3">
-            <span className="text-amber-600 dark:text-amber-400 font-serif font-medium text-xs sm:text-sm">
+            <span className="text-[var(--text-accent)] font-serif font-medium text-xs sm:text-sm">
               ॥ {formatVerseRef(verse)} ॥
             </span>
           </div>
@@ -214,7 +214,7 @@ export const VerseCard = memo(function VerseCard({
           {/* Full Sanskrit Verse */}
           <div
             lang="sa"
-            className="text-amber-900 dark:text-amber-200 font-sanskrit text-sm sm:text-base leading-relaxed text-center"
+            className="text-[var(--text-sanskrit)] font-sanskrit text-sm sm:text-base leading-relaxed text-center"
           >
             {sanskritLines.map((line, idx) => (
               <p key={idx} className="mb-0.5">
@@ -228,22 +228,22 @@ export const VerseCard = memo(function VerseCard({
             (showTranslationPreview && translationText)) && (
             <>
               {/* Subtle divider */}
-              <div className="my-2 sm:my-3 border-t border-amber-200/50 dark:border-gray-700" />
+              <div className="my-2 sm:my-3 border-t border-[var(--border-warm-subtle)]" />
               {/* Translation with highlighting or line-clamp */}
               {match?.highlight ? (
-                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 text-center leading-relaxed">
+                <p className="text-xs sm:text-sm text-[var(--text-secondary)] text-center leading-relaxed">
                   {'"'}
                   <HighlightedText text={match.highlight} />
                   {'"'}
                 </p>
               ) : (
-                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 text-center leading-relaxed line-clamp-2 sm:line-clamp-3">
+                <p className="text-xs sm:text-sm text-[var(--text-secondary)] text-center leading-relaxed line-clamp-2 sm:line-clamp-3">
                   "{translationText}"
                 </p>
               )}
               {/* "Matched in" indicator for search results */}
               {match?.field && (
-                <p className="mt-1 text-center text-[10px] text-gray-400 dark:text-gray-500">
+                <p className="mt-1 text-center text-[10px] text-[var(--text-muted)]">
                   Matched in: {match.field}
                 </p>
               )}
@@ -267,9 +267,9 @@ export const VerseCard = memo(function VerseCard({
                       onPrincipleClick(principle);
                     }
                   }}
-                  className={`px-2 py-0.5 rounded-full bg-amber-100/70 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 text-[10px] sm:text-xs font-medium pointer-events-auto focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-900 ${
+                  className={`px-2 py-0.5 rounded-full bg-[var(--badge-principle-bg)] text-[var(--badge-principle-text)] text-[10px] sm:text-xs font-medium pointer-events-auto focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                     onPrincipleClick
-                      ? "hover:bg-amber-200 dark:hover:bg-amber-800/40 cursor-pointer transition-colors"
+                      ? "hover:bg-[var(--surface-warm-hover)] cursor-pointer transition-colors"
                       : ""
                   }`}
                 >
@@ -277,7 +277,7 @@ export const VerseCard = memo(function VerseCard({
                 </button>
               ))}
               {verse.consulting_principles.length > 2 && (
-                <span className="px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-[10px] sm:text-xs font-medium">
+                <span className="px-2 py-0.5 rounded-full bg-[var(--badge-default-bg)] text-[var(--badge-default-text)] text-[10px] sm:text-xs font-medium">
                   +{verse.consulting_principles.length - 2}
                 </span>
               )}
@@ -295,9 +295,9 @@ export const VerseCard = memo(function VerseCard({
   // Detail mode: original layout
   return (
     <div className="relative">
-      <div className="bg-linear-to-b from-orange-50 to-amber-50 dark:from-gray-800 dark:to-gray-800 rounded-xl p-5 sm:p-6 lg:p-8 border-2 border-amber-200/50 dark:border-gray-700 shadow-inner">
+      <div className="bg-linear-to-b from-[var(--gradient-warm-from)] to-[var(--gradient-warm-to)] rounded-xl p-5 sm:p-6 lg:p-8 border-2 border-[var(--border-warm-subtle)] shadow-inner">
         {/* Decorative Om */}
-        <div className="text-center mb-3 sm:mb-4 text-2xl sm:text-3xl text-amber-400/50 dark:text-amber-500/40 font-light">
+        <div className="text-center mb-3 sm:mb-4 text-2xl sm:text-3xl text-[var(--decorative-om)] font-light">
           ॐ
         </div>
 
@@ -307,14 +307,14 @@ export const VerseCard = memo(function VerseCard({
           {displayLines.length > 0 && (
             <div
               lang="sa"
-              className="text-base sm:text-xl lg:text-2xl text-amber-800/60 dark:text-amber-300/80 font-sanskrit text-center leading-relaxed tracking-wide mb-4 sm:mb-6"
+              className="text-base sm:text-xl lg:text-2xl text-[var(--text-sanskrit-secondary)] font-sanskrit text-center leading-relaxed tracking-wide mb-4 sm:mb-6"
             >
               {displayLines.map((line, idx) => (
                 <p
                   key={idx}
                   className={
                     isSpeakerIntro(line)
-                      ? "text-lg text-amber-600/60 dark:text-amber-400/60 mb-2"
+                      ? "text-lg text-[var(--text-accent-muted)] mb-2"
                       : "mb-1"
                   }
                 >
@@ -326,7 +326,7 @@ export const VerseCard = memo(function VerseCard({
 
           {/* English Translation */}
           {showTranslation && (verse.translation_en || verse.paraphrase_en) && (
-            <p className="text-sm sm:text-base lg:text-lg text-gray-700 dark:text-gray-300 text-center leading-relaxed italic">
+            <p className="text-sm sm:text-base lg:text-lg text-[var(--text-secondary)] text-center leading-relaxed italic">
               "{verse.translation_en || verse.paraphrase_en}"
             </p>
           )}
@@ -337,7 +337,7 @@ export const VerseCard = memo(function VerseCard({
           <div className="text-center pt-4 sm:pt-6">
             <Link
               to={`/verses/${verse.canonical_id}`}
-              className="inline-block transition-colors text-amber-600/70 dark:text-amber-400/70 hover:text-amber-700 dark:hover:text-amber-300 text-xs sm:text-sm font-medium"
+              className="inline-block transition-colors text-[var(--text-accent-muted)] hover:text-[var(--text-accent)] text-xs sm:text-sm font-medium"
             >
               ॥ {formatVerseRef(verse)} ॥
             </Link>

@@ -82,7 +82,7 @@ export function IntroCard(props: IntroCardProps) {
         <div className="shrink-0">
           <button
             onClick={handleToggle}
-            className="w-full text-center focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-4 dark:focus-visible:ring-offset-stone-900 rounded-xl transition-transform active:scale-[0.99]"
+            className="w-full text-center focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-4 focus-visible:ring-offset-[var(--focus-ring-offset)] rounded-xl transition-transform active:scale-[0.99]"
             aria-expanded={showDetails}
             aria-label={showDetails ? "Hide details" : "Show details"}
           >
@@ -94,33 +94,33 @@ export function IntroCard(props: IntroCardProps) {
             {/* Sanskrit title - hero display */}
             <div
               lang="sa"
-              className={`${FONT_SIZE_CLASSES[fontSize]} font-sanskrit text-amber-900 dark:text-amber-200 leading-relaxed tracking-wide mb-2 sm:mb-3`}
+              className={`${FONT_SIZE_CLASSES[fontSize]} font-sanskrit text-[var(--text-sanskrit)] leading-relaxed tracking-wide mb-2 sm:mb-3`}
             >
               <p>{book.sanskrit_title}</p>
             </div>
 
             {/* Transliteration */}
-            <div className="text-gray-500 dark:text-gray-400 text-base sm:text-lg font-serif italic mb-2">
+            <div className="text-[var(--text-tertiary)] text-base sm:text-lg font-serif italic mb-2">
               {book.transliteration}
             </div>
 
             {/* English title with stats */}
-            <div className="text-gray-700 dark:text-gray-300 text-base sm:text-lg font-serif mb-1">
+            <div className="text-[var(--text-secondary)] text-base sm:text-lg font-serif mb-1">
               ॥ {book.english_title} ॥
             </div>
 
             {/* Stats - moved up for visibility */}
-            <div className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+            <div className="text-sm text-[var(--text-tertiary)] mb-2">
               {book.chapter_count} Chapters · {book.verse_count} Verses
             </div>
 
             {/* Hints (only show when details hidden) */}
             {!showDetails && (
               <div className="space-y-2">
-                <div className="text-sm text-amber-600/70 dark:text-amber-400/70 italic animate-pulse">
+                <div className="text-sm text-[var(--text-accent-muted)] italic animate-pulse">
                   Tap to begin
                 </div>
-                <div className="sm:hidden text-xs text-amber-600/60 dark:text-amber-400/60">
+                <div className="sm:hidden text-xs text-[var(--text-accent-muted)]">
                   ← swipe →
                 </div>
               </div>
@@ -136,10 +136,10 @@ export function IntroCard(props: IntroCardProps) {
               : "max-h-0 opacity-0 mt-0"
           }`}
         >
-          <div className="border-t border-amber-200/50 dark:border-stone-700 pt-4 space-y-3">
+          <div className="border-t border-[var(--border-warm-subtle)] pt-4 space-y-3">
             {/* Tagline */}
-            <div className="bg-amber-100/30 dark:bg-stone-800/50 rounded-xl p-3 border border-amber-200/30 dark:border-stone-700">
-              <p className="text-sm sm:text-base text-amber-800/80 dark:text-amber-300/90 leading-relaxed italic font-serif text-center">
+            <div className="bg-[var(--surface-warm-subtle)] rounded-xl p-3 border border-[var(--border-warm-subtle)]">
+              <p className="text-sm sm:text-base text-[var(--text-sanskrit-secondary)] leading-relaxed italic font-serif text-center">
                 "{book.tagline}"
               </p>
             </div>
@@ -149,7 +149,7 @@ export function IntroCard(props: IntroCardProps) {
               <div className="text-center">
                 <button
                   onClick={onBegin}
-                  className="px-8 py-2.5 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 dark:bg-amber-700 dark:hover:bg-amber-600 dark:active:bg-amber-500 text-white font-medium rounded-xl transition-colors shadow-md hover:shadow-lg"
+                  className="px-8 py-2.5 bg-[var(--interactive-contextual)] hover:bg-[var(--interactive-contextual-hover)] active:bg-[var(--interactive-contextual-active)] text-[var(--interactive-contextual-text)] font-medium rounded-xl transition-colors shadow-md hover:shadow-lg"
                 >
                   Begin Journey
                 </button>
@@ -157,8 +157,8 @@ export function IntroCard(props: IntroCardProps) {
             )}
 
             {/* Intro text */}
-            <div className="bg-white/70 dark:bg-stone-800/60 rounded-xl p-3 border border-amber-200/50 dark:border-stone-700">
-              <p className="text-sm sm:text-base text-gray-800 dark:text-gray-200 leading-relaxed">
+            <div className="bg-[var(--surface-elevated)]/70 rounded-xl p-3 border border-[var(--border-warm-subtle)]">
+              <p className="text-sm sm:text-base text-[var(--text-primary)] leading-relaxed">
                 {book.intro_text}
               </p>
             </div>
@@ -175,7 +175,7 @@ export function IntroCard(props: IntroCardProps) {
       <div className="shrink-0">
         <button
           onClick={handleToggle}
-          className="w-full text-center focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-4 dark:focus-visible:ring-offset-stone-900 rounded-xl transition-transform active:scale-[0.99]"
+          className="w-full text-center focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-4 focus-visible:ring-offset-[var(--focus-ring-offset)] rounded-xl transition-transform active:scale-[0.99]"
           aria-expanded={showDetails}
           aria-label={showDetails ? "Hide details" : "Show details"}
         >
@@ -185,40 +185,40 @@ export function IntroCard(props: IntroCardProps) {
           </div>
 
           {/* Chapter badge */}
-          <div className="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">
+          <div className="text-sm text-[var(--text-tertiary)] uppercase tracking-widest mb-2">
             Chapter {chapter.chapter_number}
           </div>
 
           {/* Sanskrit name - hero display */}
           <div
             lang="sa"
-            className={`${FONT_SIZE_CLASSES[fontSize]} font-sanskrit text-amber-900 dark:text-amber-200 leading-relaxed tracking-wide mb-2 sm:mb-3`}
+            className={`${FONT_SIZE_CLASSES[fontSize]} font-sanskrit text-[var(--text-sanskrit)] leading-relaxed tracking-wide mb-2 sm:mb-3`}
           >
             <p>{chapter.sanskrit_name}</p>
           </div>
 
           {/* Transliteration */}
-          <div className="text-gray-500 dark:text-gray-400 text-base sm:text-lg font-serif italic mb-2">
+          <div className="text-[var(--text-tertiary)] text-base sm:text-lg font-serif italic mb-2">
             {chapter.transliteration}
           </div>
 
           {/* English title */}
-          <div className="text-gray-700 dark:text-gray-300 text-base sm:text-lg font-serif mb-1">
+          <div className="text-[var(--text-secondary)] text-base sm:text-lg font-serif mb-1">
             ॥ {chapter.english_title} ॥
           </div>
 
           {/* Verse count - moved up for visibility */}
-          <div className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+          <div className="text-sm text-[var(--text-tertiary)] mb-2">
             {chapter.verse_count} verses
           </div>
 
           {/* Hints (only show when details hidden) */}
           {!showDetails && (
             <div className="space-y-2">
-              <div className="text-sm text-amber-600/70 dark:text-amber-400/70 italic animate-pulse">
+              <div className="text-sm text-[var(--text-accent-muted)] italic animate-pulse">
                 Tap for summary
               </div>
-              <div className="sm:hidden text-xs text-amber-600/60 dark:text-amber-400/60">
+              <div className="sm:hidden text-xs text-[var(--text-accent-muted)]">
                 ← swipe →
               </div>
             </div>
@@ -234,11 +234,11 @@ export function IntroCard(props: IntroCardProps) {
             : "max-h-0 opacity-0 mt-0"
         }`}
       >
-        <div className="border-t border-amber-200/50 dark:border-stone-700 pt-4 space-y-3">
+        <div className="border-t border-[var(--border-warm-subtle)] pt-4 space-y-3">
           {/* Subtitle if present */}
           {chapter.subtitle && (
-            <div className="bg-amber-100/30 dark:bg-stone-800/50 rounded-xl p-3 border border-amber-200/30 dark:border-stone-700">
-              <p className="text-sm sm:text-base text-amber-800/80 dark:text-amber-300/90 leading-relaxed italic font-serif text-center">
+            <div className="bg-[var(--surface-warm-subtle)] rounded-xl p-3 border border-[var(--border-warm-subtle)]">
+              <p className="text-sm sm:text-base text-[var(--text-sanskrit-secondary)] leading-relaxed italic font-serif text-center">
                 "{chapter.subtitle}"
               </p>
             </div>
@@ -249,7 +249,7 @@ export function IntroCard(props: IntroCardProps) {
             <div className="text-center">
               <button
                 onClick={onBegin}
-                className="px-6 py-2 text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 font-medium border border-amber-300 dark:border-amber-600 hover:border-amber-400 dark:hover:border-amber-500 hover:bg-amber-50 dark:hover:bg-stone-800 rounded-lg transition-colors"
+                className="px-6 py-2 text-[var(--interactive-ghost-text)] hover:text-[var(--interactive-ghost-hover-text)] font-medium border border-[var(--border-warm)] hover:border-[var(--border-warm-hover)] hover:bg-[var(--interactive-ghost-hover-bg)] rounded-lg transition-colors"
               >
                 {resumeVerse && resumeVerse > 1
                   ? `Continue from ${chapter.chapter_number}.${resumeVerse}`
@@ -259,8 +259,8 @@ export function IntroCard(props: IntroCardProps) {
           )}
 
           {/* Summary */}
-          <div className="bg-white/70 dark:bg-stone-800/60 rounded-xl p-3 border border-amber-200/50 dark:border-stone-700">
-            <p className="text-sm sm:text-base text-gray-800 dark:text-gray-200 leading-relaxed">
+          <div className="bg-[var(--surface-elevated)]/70 rounded-xl p-3 border border-[var(--border-warm-subtle)]">
+            <p className="text-sm sm:text-base text-[var(--text-primary)] leading-relaxed">
               {chapter.summary}
             </p>
           </div>
@@ -271,7 +271,7 @@ export function IntroCard(props: IntroCardProps) {
               {chapter.key_themes.map((theme, index) => (
                 <span
                   key={index}
-                  className="px-2.5 py-0.5 bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 text-xs rounded-full"
+                  className="px-2.5 py-0.5 bg-[var(--badge-warm-bg)] text-[var(--badge-warm-text)] text-xs rounded-full"
                 >
                   {theme}
                 </span>

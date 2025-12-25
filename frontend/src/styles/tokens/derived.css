@@ -66,6 +66,13 @@
   --surface-elevated-hover: var(--color-neutral-50);
 
   /* ============================================
+     MENU/DROPDOWN STATES
+     ============================================ */
+  --menu-item-hover-bg: var(--color-primary-50);
+  --menu-item-selected-bg: var(--color-primary-100);
+  --menu-item-selected-text: var(--color-primary-900);
+
+  /* ============================================
      INPUT STATES
      ============================================ */
   --input-border: var(--color-neutral-300);
@@ -128,6 +135,11 @@
   --surface-warm-hover: var(--color-neutral-700);
   --border-warm-hover: var(--color-neutral-600);
   --surface-elevated-hover: var(--color-neutral-700);
+
+  /* Menu/dropdown states */
+  --menu-item-hover-bg: var(--color-neutral-700);
+  --menu-item-selected-bg: color-mix(in srgb, var(--color-primary-900) 40%, transparent);
+  --menu-item-selected-text: var(--color-primary-200);
 
   /* Input states */
   --input-border: var(--color-neutral-600);

@@ -59,6 +59,10 @@
   --text-link: var(--color-primary-600);
   --text-link-hover: var(--color-primary-700);
 
+  /* Accent text (decorative icons, highlights) */
+  --text-accent: var(--color-warm-500);
+  --text-accent-muted: color-mix(in srgb, var(--color-warm-600) 70%, transparent);
+
   /* Inverted text (on dark backgrounds) */
   --text-inverted: white;
 
@@ -204,6 +208,8 @@
   --text-sanskrit-secondary: var(--color-accent-300);
   --text-link: var(--color-primary-400);
   --text-link-hover: var(--color-primary-300);
+  --text-accent: var(--color-warm-400);
+  --text-accent-muted: color-mix(in srgb, var(--color-warm-400) 70%, transparent);
 
   /* Border tokens */
   --border-default: var(--color-neutral-700);
