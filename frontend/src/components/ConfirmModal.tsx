@@ -1,3 +1,9 @@
+/**
+ * ConfirmModal Component - Migrated to Token System (v1.16.0)
+ *
+ * Uses design tokens via CSS custom properties for theming support.
+ * No `dark:` prefixes - dark mode handled automatically via token system.
+ */
 import { useEffect, useRef, useState } from "react";
 import { useFocusTrap } from "../hooks";
 
@@ -83,7 +89,7 @@ export function ConfirmModal({
     danger: {
       icon: (
         <svg
-          className="w-5 h-5 sm:w-6 sm:h-6 text-red-600 dark:text-red-500"
+          className="w-5 h-5 sm:w-6 sm:h-6 text-[var(--status-error-text)]"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -96,13 +102,13 @@ export function ConfirmModal({
           />
         </svg>
       ),
-      iconBg: "bg-red-100 dark:bg-red-900/40",
-      confirmButton: "bg-red-600 hover:bg-red-700 focus:ring-red-500",
+      iconBg: "bg-[var(--status-error-bg)]",
+      confirmButton: "bg-[var(--status-error-text)] hover:opacity-90 focus-visible:ring-[var(--status-error-border)]",
     },
     warning: {
       icon: (
         <svg
-          className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600 dark:text-amber-500"
+          className="w-5 h-5 sm:w-6 sm:h-6 text-[var(--status-warning-text)]"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -115,13 +121,13 @@ export function ConfirmModal({
           />
         </svg>
       ),
-      iconBg: "bg-amber-100 dark:bg-amber-900/40",
-      confirmButton: "bg-amber-600 hover:bg-amber-700 focus:ring-amber-500",
+      iconBg: "bg-[var(--status-warning-bg)]",
+      confirmButton: "bg-[var(--status-warning-text)] hover:opacity-90 focus-visible:ring-[var(--status-warning-border)]",
     },
     default: {
       icon: (
         <svg
-          className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600 dark:text-gray-400"
+          className="w-5 h-5 sm:w-6 sm:h-6 text-[var(--text-secondary)]"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -134,8 +140,8 @@ export function ConfirmModal({
           />
         </svg>
       ),
-      iconBg: "bg-gray-100 dark:bg-gray-700",
-      confirmButton: "bg-orange-600 hover:bg-orange-700 focus:ring-orange-500",
+      iconBg: "bg-[var(--surface-muted)]",
+      confirmButton: "bg-[var(--interactive-primary)] hover:bg-[var(--interactive-primary-hover)] focus-visible:ring-[var(--focus-ring)]",
     },
   };
 
@@ -145,7 +151,7 @@ export function ConfirmModal({
     <div className="fixed inset-0 z-50 overflow-y-auto">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/50 transition-opacity"
+        className="fixed inset-0 bg-[var(--overlay-bg)] transition-opacity"
         onClick={loading ? undefined : handleCancel}
       />
 
@@ -153,7 +159,7 @@ export function ConfirmModal({
       <div className="flex min-h-full items-center justify-center p-4">
         <div
           ref={modalRef}
-          className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-sm w-full p-4 sm:p-6 transform transition-all"
+          className="relative bg-[var(--surface-elevated)] rounded-2xl shadow-xl max-w-sm w-full p-4 sm:p-6 transform transition-all border border-[var(--border-default)]"
           role="dialog"
           aria-modal="true"
           aria-labelledby="modal-title"
@@ -169,11 +175,11 @@ export function ConfirmModal({
           <div className="text-center">
             <h3
               id="modal-title"
-              className="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1.5 sm:mb-2"
+              className="text-base sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-2"
             >
               {title}
             </h3>
-            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-4 sm:mb-6">
+            <p className="text-xs sm:text-sm text-[var(--text-secondary)] mb-4 sm:mb-6">
               {message}
             </p>
           </div>
@@ -183,9 +189,9 @@ export function ConfirmModal({
             <div className="mb-4">
               <label
                 htmlFor="confirm-text-input"
-                className="block text-xs text-gray-500 dark:text-gray-400 mb-1.5 text-center"
+                className="block text-xs text-[var(--text-tertiary)] mb-1.5 text-center"
               >
-                Type <span className="font-semibold text-gray-700 dark:text-gray-300">{requireText}</span> to confirm
+                Type <span className="font-semibold text-[var(--text-primary)]">{requireText}</span> to confirm
               </label>
               <input
                 id="confirm-text-input"
@@ -195,7 +201,7 @@ export function ConfirmModal({
                 placeholder={requireTextHint || requireText}
                 disabled={loading}
                 aria-invalid={confirmInput.length > 0 && !textMatches ? true : undefined}
-                className="w-full px-3 py-2 text-sm text-center border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent disabled:opacity-50"
+                className="w-full px-3 py-2 text-sm text-center border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--input-text)] placeholder:text-[var(--input-text-placeholder)] rounded-lg focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-transparent disabled:opacity-50 disabled:bg-[var(--input-bg-disabled)]"
                 autoComplete="off"
                 spellCheck={false}
               />
@@ -208,7 +214,7 @@ export function ConfirmModal({
               type="button"
               onClick={handleCancel}
               disabled={loading}
-              className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 focus:ring-gray-500 disabled:opacity-50 transition-colors"
+              className="flex-1 px-4 py-2.5 text-sm font-medium text-[var(--interactive-secondary-text)] bg-[var(--interactive-secondary-bg)] border border-[var(--interactive-secondary-border)] rounded-xl hover:bg-[var(--interactive-secondary-hover-bg)] hover:border-[var(--interactive-secondary-hover-border)] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] focus-visible:ring-[var(--focus-ring)] disabled:opacity-50 transition-colors"
             >
               {cancelLabel}
             </button>
@@ -216,7 +222,7 @@ export function ConfirmModal({
               type="button"
               onClick={handleConfirm}
               disabled={loading || !textMatches}
-              className={`flex-1 px-4 py-2.5 text-sm font-medium text-white rounded-xl focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${styles.confirmButton}`}
+              className={`flex-1 px-4 py-2.5 text-sm font-medium text-white rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${styles.confirmButton}`}
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
