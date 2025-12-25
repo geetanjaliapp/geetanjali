@@ -54,27 +54,27 @@ export default function NewsletterUnsubscribe() {
   }, [token]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 px-4">
-      <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 text-center">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-[var(--gradient-page-from)] to-[var(--gradient-page-to)] px-4">
+      <div className="max-w-md w-full bg-[var(--surface-elevated)] rounded-2xl shadow-xl p-8 text-center">
         {state === "confirm" && (
           <>
             <MailIcon className="w-16 h-16 text-orange-500 mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+            <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
               Unsubscribe from Daily Wisdom?
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
+            <p className="text-[var(--text-tertiary)] mb-6">
               You'll stop receiving daily verse emails. You can always subscribe again later.
             </p>
             <div className="space-y-3">
               <button
                 onClick={handleConfirm}
-                className="w-full px-6 py-3 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition-all focus:outline-hidden focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+                className="w-full px-6 py-3 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition-all focus:outline-hidden focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-[var(--focus-ring-offset)]"
               >
                 Yes, Unsubscribe
               </button>
               <Link
                 to="/"
-                className="block px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
+                className="block px-6 py-3 border border-[var(--border-default)] text-[var(--text-secondary)] font-medium rounded-lg hover:bg-[var(--surface-muted)] transition-all"
               >
                 Cancel
               </Link>
@@ -85,10 +85,10 @@ export default function NewsletterUnsubscribe() {
         {state === "loading" && (
           <>
             <SpinnerIcon className="w-16 h-16 text-orange-500 animate-spin mx-auto mb-4" />
-            <h1 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+            <h1 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
               Processing your request...
             </h1>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-[var(--text-tertiary)]">
               Please wait while we update your subscription.
             </p>
           </>
@@ -97,20 +97,20 @@ export default function NewsletterUnsubscribe() {
         {state === "success" && (
           <>
             <CheckCircleIcon className="w-16 h-16 text-green-500 mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+            <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
               Unsubscribed
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
+            <p className="text-[var(--text-tertiary)] mb-6">
               You've been unsubscribed from Daily Wisdom. We're sorry to see you
               go!
             </p>
             {email && (
-              <p className="text-sm text-gray-500 dark:text-gray-500 mb-6">
+              <p className="text-sm text-[var(--text-muted)] mb-6">
                 Unsubscribed: {email}
               </p>
             )}
             <div className="space-y-3">
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+              <p className="text-sm text-[var(--text-muted)]">
                 Changed your mind?
               </p>
               <Link
@@ -126,19 +126,19 @@ export default function NewsletterUnsubscribe() {
         {state === "already_unsubscribed" && (
           <>
             <CheckCircleIcon className="w-16 h-16 text-blue-500 mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+            <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
               Already Unsubscribed
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
+            <p className="text-[var(--text-tertiary)] mb-6">
               You've already been unsubscribed from Daily Wisdom.
             </p>
             {email && (
-              <p className="text-sm text-gray-500 dark:text-gray-500 mb-6">
+              <p className="text-sm text-[var(--text-muted)] mb-6">
                 Email: {email}
               </p>
             )}
             <div className="space-y-3">
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+              <p className="text-sm text-[var(--text-muted)]">
                 Want to come back?
               </p>
               <Link
@@ -154,10 +154,10 @@ export default function NewsletterUnsubscribe() {
         {state === "error" && (
           <>
             <XCircleIcon className="w-16 h-16 text-red-500 mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+            <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
               Something Went Wrong
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
+            <p className="text-[var(--text-tertiary)] mb-6">
               {errorMessage}
             </p>
             <Link

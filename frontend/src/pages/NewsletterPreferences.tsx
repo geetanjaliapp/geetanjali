@@ -116,27 +116,27 @@ export default function NewsletterPreferences() {
   }, [preferences, name, sendTime, selectedGoalIds]);
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 px-4 py-8">
+    <div className="min-h-screen bg-linear-to-br from-[var(--gradient-page-from)] to-[var(--gradient-page-to)] px-4 py-8">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 mb-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[var(--option-selected-bg)] text-[var(--option-selected-text)] mb-4">
             <SettingsIcon className="w-8 h-8" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-2xl font-bold text-[var(--text-primary)]">
             Manage Preferences
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
+          <p className="text-[var(--text-tertiary)] mt-2">
             Customize your Daily Wisdom experience
           </p>
         </div>
 
         {/* Content */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 sm:p-8">
+        <div className="bg-[var(--surface-elevated)] rounded-2xl shadow-xl p-6 sm:p-8">
           {pageState === "loading" && (
             <div className="text-center py-12">
               <SpinnerIcon className="w-12 h-12 text-orange-500 animate-spin mx-auto mb-4" />
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-[var(--text-tertiary)]">
                 Loading your preferences...
               </p>
             </div>
@@ -145,10 +145,10 @@ export default function NewsletterPreferences() {
           {pageState === "error" && (
             <div className="text-center py-12">
               <XCircleIcon className="w-16 h-16 text-red-500 mx-auto mb-4" />
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+              <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">
                 Something Went Wrong
               </h2>
-              <p className="text-gray-600 dark:text-gray-400 mb-6">
+              <p className="text-[var(--text-tertiary)] mb-6">
                 {errorMessage}
               </p>
               <Link
@@ -163,10 +163,10 @@ export default function NewsletterPreferences() {
           {pageState === "saved" && (
             <div className="text-center py-12">
               <CheckCircleIcon className="w-16 h-16 text-green-500 mx-auto mb-4" />
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+              <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">
                 Preferences Saved!
               </h2>
-              <p className="text-gray-600 dark:text-gray-400 mb-6">
+              <p className="text-[var(--text-tertiary)] mb-6">
                 Your Daily Wisdom will be personalized with your new settings.
               </p>
               <div className="space-y-3">
@@ -178,7 +178,7 @@ export default function NewsletterPreferences() {
                 </button>
                 <Link
                   to="/"
-                  className="block w-full sm:w-auto sm:inline-block sm:ml-3 px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
+                  className="block w-full sm:w-auto sm:inline-block sm:ml-3 px-6 py-3 border border-[var(--border-default)] text-[var(--text-secondary)] font-medium rounded-lg hover:bg-[var(--surface-muted)] transition-all"
                 >
                   Explore Geetanjali
                 </Link>
@@ -190,10 +190,10 @@ export default function NewsletterPreferences() {
             <div className="space-y-6">
               {/* Email (read-only) */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
                   Email
                 </label>
-                <div className="px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-lg">
+                <div className="px-4 py-2.5 bg-[var(--surface-muted)] text-[var(--text-tertiary)] rounded-lg">
                   {preferences.email}
                 </div>
               </div>
@@ -202,7 +202,7 @@ export default function NewsletterPreferences() {
               <div>
                 <label
                   htmlFor="pref-name"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                  className="block text-sm font-medium text-[var(--text-secondary)] mb-1"
                 >
                   Your name
                 </label>
@@ -213,13 +213,13 @@ export default function NewsletterPreferences() {
                   onChange={(e) => setName(e.target.value)}
                   placeholder="How should we greet you?"
                   disabled={pageState === "saving"}
-                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:opacity-50"
+                  className="w-full px-4 py-2.5 border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:opacity-50"
                 />
               </div>
 
               {/* Goals */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                <label className="block text-sm font-medium text-[var(--text-secondary)] mb-3">
                   What brings you to the Geeta?
                 </label>
                 <GoalSelector />
@@ -227,7 +227,7 @@ export default function NewsletterPreferences() {
 
               {/* Send Time */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                <label className="block text-sm font-medium text-[var(--text-secondary)] mb-3">
                   When would you like to receive verses?
                 </label>
                 <TimeSelector
@@ -239,7 +239,7 @@ export default function NewsletterPreferences() {
 
               {/* Error message */}
               {errorMessage && pageState === "loaded" && (
-                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 text-red-600 dark:text-red-400 text-sm">
+                <div className="bg-[var(--status-error-bg)] border border-[var(--status-error-border)] rounded-lg p-4 text-[var(--status-error-text)] text-sm">
                   {errorMessage}
                 </div>
               )}
@@ -249,13 +249,13 @@ export default function NewsletterPreferences() {
                 <button
                   onClick={handleSave}
                   disabled={pageState === "saving" || !hasChanges}
-                  className="bg-orange-600 hover:bg-orange-700 disabled:bg-orange-400 disabled:cursor-not-allowed text-white font-semibold px-6 py-3 rounded-lg transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+                  className="bg-orange-600 hover:bg-orange-700 disabled:bg-orange-400 disabled:cursor-not-allowed text-white font-semibold px-6 py-3 rounded-lg transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
                 >
                   {pageState === "saving" ? "Saving..." : "Save Preferences"}
                 </button>
                 <Link
                   to="/"
-                  className="text-center text-gray-600 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 text-sm"
+                  className="text-center text-[var(--text-tertiary)] hover:text-[var(--interactive-ghost-text)] text-sm"
                 >
                   Cancel and go home
                 </Link>
@@ -269,7 +269,7 @@ export default function NewsletterPreferences() {
           <div className="text-center mt-6">
             <Link
               to={`/n/unsubscribe/${token}`}
-              className="inline-flex items-center justify-center min-h-[44px] px-4 py-2 text-sm text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 active:bg-gray-200 dark:active:bg-gray-600 rounded-lg transition-colors"
+              className="inline-flex items-center justify-center min-h-[44px] px-4 py-2 text-sm text-[var(--text-muted)] hover:text-[var(--status-error-text)] hover:bg-[var(--surface-muted)] active:bg-[var(--surface-muted)] rounded-lg transition-colors"
             >
               Unsubscribe from Daily Wisdom
             </Link>
