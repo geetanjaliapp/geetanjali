@@ -60,3 +60,43 @@ export {
 export { Toast } from "./Toast";
 export { OfflineIndicator } from "./OfflineIndicator";
 export { VerifyEmailBanner } from "./VerifyEmailBanner";
+
+// UI Foundation Components (v1.16.0)
+export {
+  Button,
+  buttonVariants,
+  Card,
+  CardHeader,
+  CardContent,
+  CardFooter,
+  CardTitle,
+  CardDescription,
+  cardVariants,
+  Input,
+  inputVariants,
+  Badge,
+  badgeVariants,
+  Skeleton,
+  skeletonVariants,
+  IconButton,
+  iconButtonVariants,
+  Link,
+  linkVariants,
+  Modal,
+  ModalHeader,
+  ModalTitle,
+  ModalDescription,
+  ModalContent,
+  ModalFooter,
+  modalContentVariants,
+} from "./ui";
+export type {
+  ButtonProps,
+  CardProps,
+  InputProps,
+  BadgeProps,
+  SkeletonProps,
+  IconButtonProps,
+  LinkProps,
+  ModalProps,
+} from "./ui";
