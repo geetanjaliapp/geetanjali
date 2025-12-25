@@ -89,7 +89,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen w-full max-w-full bg-linear-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col">
+    <div className="min-h-screen w-full max-w-full bg-linear-to-br from-[var(--gradient-page-from)] to-[var(--gradient-page-to)] flex flex-col">
       <Navbar />
 
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 lg:py-12">
@@ -106,22 +106,22 @@ export default function Home() {
             </div>
 
             {/* Main Tagline */}
-            <h1 className="text-xl sm:text-3xl lg:text-4xl font-bold font-heading text-gray-900 dark:text-gray-100 mb-2">
+            <h1 className="text-xl sm:text-3xl lg:text-4xl font-bold font-heading text-[var(--text-primary)] mb-2">
               Wisdom for Life's{" "}
-              <span className="bg-linear-to-r from-orange-600 to-red-600 dark:from-orange-400 dark:to-red-400 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-[var(--interactive-primary)] to-red-600 bg-clip-text text-transparent">
                 Difficult Decisions
               </span>
             </h1>
 
             {/* Subtitle */}
-            <p className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg lg:text-xl text-[var(--text-tertiary)] max-w-2xl mx-auto">
               Ethical guidance grounded in the timeless teachings of the
               Bhagavad Geeta
             </p>
 
             {/* Signup prompt for guests */}
             {!isAuthenticated && (
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-3 sm:mt-4">
+              <p className="text-sm text-[var(--text-muted)] mt-3 sm:mt-4">
                 Try it free — no signup required
               </p>
             )}
@@ -132,7 +132,7 @@ export default function Home() {
             <div
               role="alert"
               aria-live="assertive"
-              className="mb-6 sm:mb-8 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 sm:px-6 py-3 sm:py-4 rounded-lg max-w-2xl mx-auto"
+              className="mb-6 sm:mb-8 bg-[var(--status-error-bg)] border border-[var(--status-error-border)] text-[var(--status-error-text)] px-4 sm:px-6 py-3 sm:py-4 rounded-lg max-w-2xl mx-auto"
             >
               <div className="flex items-start gap-3">
                 <span className="text-lg sm:text-xl">⚠️</span>
@@ -140,7 +140,7 @@ export default function Home() {
                   <p className="font-semibold mb-1 text-sm sm:text-base">
                     Service Unavailable
                   </p>
-                  <p className="text-xs sm:text-sm text-red-600 dark:text-red-400">
+                  <p className="text-xs sm:text-sm text-[var(--status-error-text)]">
                     Unable to connect to the service. Please try again later.
                   </p>
                 </div>
@@ -165,7 +165,7 @@ export default function Home() {
             <Link
               to="/cases/new"
               onClick={handlePrimaryCTA}
-              className="inline-flex items-center gap-2 bg-orange-600 hover:bg-orange-700 dark:bg-orange-600 dark:hover:bg-orange-500 text-white font-semibold px-6 py-3 sm:px-8 sm:py-3.5 rounded-xl transition-all shadow-lg hover:shadow-xl text-base sm:text-lg group"
+              className="inline-flex items-center gap-2 bg-[var(--interactive-primary)] hover:bg-[var(--interactive-primary-hover)] text-white font-semibold px-6 py-3 sm:px-8 sm:py-3.5 rounded-xl transition-all shadow-lg hover:shadow-xl text-base sm:text-lg group"
             >
               <span>Ask a Question</span>
               <svg
@@ -185,12 +185,12 @@ export default function Home() {
             <Link
               to="/verses"
               onClick={handleExploreCTA}
-              className="inline-flex items-center gap-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 font-medium px-6 py-3 sm:px-8 sm:py-3.5 rounded-xl transition-all border border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 text-base sm:text-lg"
+              className="inline-flex items-center gap-2 bg-[var(--surface-elevated)] hover:bg-[var(--surface-muted)] text-[var(--text-secondary)] font-medium px-6 py-3 sm:px-8 sm:py-3.5 rounded-xl transition-all border border-[var(--border-default)] hover:border-[var(--border-default)] text-base sm:text-lg"
             >
               <span>Explore Verses</span>
             </Link>
           </div>
-          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mb-8 lg:mb-10">
+          <p className="text-xs sm:text-sm text-[var(--text-muted)] mb-8 lg:mb-10">
             Get personalized guidance in minutes
           </p>
 
@@ -198,7 +198,7 @@ export default function Home() {
           <div className="mb-8 sm:mb-10 lg:mb-12">
             <Suspense
               fallback={
-                <div className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded-xl h-64" />
+                <div className="animate-pulse bg-[var(--skeleton-bg)] rounded-xl h-64" />
               }
             >
               <FeaturedConsultations />
@@ -212,12 +212,12 @@ export default function Home() {
           {!casesLoading && recentCases.length > 0 && (
             <div className="mb-8 sm:mb-10 max-w-4xl mx-auto">
               <div className="flex justify-between items-center mb-3">
-                <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100">
+                <h2 className="text-base sm:text-lg font-semibold text-[var(--text-primary)]">
                   Continue where you left off
                 </h2>
                 <Link
                   to="/consultations"
-                  className="text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 font-medium text-sm shrink-0"
+                  className="text-[var(--interactive-ghost-text)] hover:text-[var(--text-link-hover)] font-medium text-sm shrink-0"
                 >
                   View all →
                 </Link>
@@ -227,12 +227,12 @@ export default function Home() {
                   <Link
                     key={case_.id}
                     to={`/cases/${case_.id}`}
-                    className="flex items-center justify-between gap-4 p-3 bg-amber-50/50 dark:bg-gray-800/50 rounded-lg border border-amber-200 dark:border-gray-700 hover:border-orange-300 dark:hover:border-orange-600 hover:bg-orange-50 dark:hover:bg-gray-800 transition-all group"
+                    className="flex items-center justify-between gap-4 p-3 bg-[var(--surface-warm-subtle)] rounded-lg border border-[var(--border-warm)] hover:border-[var(--option-selected-border)] hover:bg-[var(--surface-warm)] transition-all group"
                   >
-                    <h3 className="font-medium text-gray-900 dark:text-gray-100 text-sm sm:text-base truncate group-hover:text-orange-700 dark:group-hover:text-orange-400 transition-colors min-w-0">
+                    <h3 className="font-medium text-[var(--text-primary)] text-sm sm:text-base truncate group-hover:text-[var(--option-selected-text)] transition-colors min-w-0">
                       {case_.title}
                     </h3>
-                    <span className="text-xs text-gray-400 dark:text-gray-500 shrink-0">
+                    <span className="text-xs text-[var(--text-muted)] shrink-0">
                       {new Date(case_.created_at || "").toLocaleDateString()}
                     </span>
                   </Link>
@@ -244,12 +244,12 @@ export default function Home() {
           {/* Consultations Error State */}
           {!casesLoading && casesError && isAuthenticated && (
             <div className="mb-8 sm:mb-10 max-w-4xl mx-auto">
-              <div className="p-4 bg-amber-50/50 dark:bg-gray-800/50 rounded-lg border border-amber-200 dark:border-gray-700 text-center">
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+              <div className="p-4 bg-[var(--surface-warm-subtle)] rounded-lg border border-[var(--border-warm)] text-center">
+                <p className="text-sm text-[var(--text-muted)]">
                   Unable to load your consultations.{" "}
                   <Link
                     to="/consultations"
-                    className="text-orange-600 dark:text-orange-400 hover:underline"
+                    className="text-[var(--interactive-ghost-text)] hover:underline"
                   >
                     View all consultations →
                   </Link>
@@ -260,10 +260,10 @@ export default function Home() {
 
           {/* Feature Overview - Problem-oriented copy */}
           <div className="mt-4 sm:mt-6 grid grid-cols-3 gap-2 sm:gap-4 lg:gap-6 max-w-4xl mx-auto">
-            <div className="bg-linear-to-br from-amber-50 to-orange-50 dark:from-gray-800 dark:to-gray-800 p-3 sm:p-6 rounded-xl border border-amber-100 dark:border-gray-700 text-center">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center mb-2 sm:mb-4 mx-auto">
+            <div className="bg-linear-to-br from-[var(--gradient-warm-from)] to-[var(--gradient-warm-to)] p-3 sm:p-6 rounded-xl border border-[var(--border-warm)] text-center">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[var(--section-icon-newsletter-bg)] rounded-lg flex items-center justify-center mb-2 sm:mb-4 mx-auto">
                 <svg
-                  className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600 dark:text-amber-400"
+                  className="w-5 h-5 sm:w-6 sm:h-6 text-[var(--text-accent)]"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -276,18 +276,18 @@ export default function Home() {
                   />
                 </svg>
               </div>
-              <h3 className="text-xs sm:text-lg font-semibold text-gray-900 dark:text-gray-100 sm:mb-1.5">
+              <h3 className="text-xs sm:text-lg font-semibold text-[var(--text-primary)] sm:mb-1.5">
                 <span className="sm:hidden">Navigate</span>
                 <span className="hidden sm:inline">Navigate Tough Choices</span>
               </h3>
-              <p className="hidden sm:block text-gray-600 dark:text-gray-400 text-sm sm:text-base leading-relaxed">
+              <p className="hidden sm:block text-[var(--text-tertiary)] text-sm sm:text-base leading-relaxed">
                 Get clarity when the right path isn't obvious
               </p>
             </div>
-            <div className="bg-linear-to-br from-orange-50 to-red-50 dark:from-gray-800 dark:to-gray-800 p-3 sm:p-6 rounded-xl border border-orange-100 dark:border-gray-700 text-center">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center mb-2 sm:mb-4 mx-auto">
+            <div className="bg-linear-to-br from-[var(--gradient-page-from)] to-[var(--gradient-page-to)] p-3 sm:p-6 rounded-xl border border-[var(--option-selected-border)] text-center">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[var(--option-selected-bg)] rounded-lg flex items-center justify-center mb-2 sm:mb-4 mx-auto">
                 <svg
-                  className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600 dark:text-orange-400"
+                  className="w-5 h-5 sm:w-6 sm:h-6 text-[var(--option-selected-text)]"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -300,18 +300,18 @@ export default function Home() {
                   />
                 </svg>
               </div>
-              <h3 className="text-xs sm:text-lg font-semibold text-gray-900 dark:text-gray-100 sm:mb-1.5">
+              <h3 className="text-xs sm:text-lg font-semibold text-[var(--text-primary)] sm:mb-1.5">
                 <span className="sm:hidden">Options</span>
                 <span className="hidden sm:inline">See All Your Options</span>
               </h3>
-              <p className="hidden sm:block text-gray-600 dark:text-gray-400 text-sm sm:text-base leading-relaxed">
+              <p className="hidden sm:block text-[var(--text-tertiary)] text-sm sm:text-base leading-relaxed">
                 Compare approaches with honest trade-offs
               </p>
             </div>
-            <div className="bg-linear-to-br from-red-50 to-rose-50 dark:from-gray-800 dark:to-gray-800 p-3 sm:p-6 rounded-xl border border-red-100 dark:border-gray-700 text-center">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center mb-2 sm:mb-4 mx-auto">
+            <div className="bg-linear-to-br from-[var(--status-error-bg)] to-[var(--gradient-page-to)] p-3 sm:p-6 rounded-xl border border-[var(--status-error-border)] text-center">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[var(--status-error-bg)] rounded-lg flex items-center justify-center mb-2 sm:mb-4 mx-auto">
                 <svg
-                  className="w-5 h-5 sm:w-6 sm:h-6 text-red-600 dark:text-red-400"
+                  className="w-5 h-5 sm:w-6 sm:h-6 text-[var(--status-error-text)]"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -324,11 +324,11 @@ export default function Home() {
                   />
                 </svg>
               </div>
-              <h3 className="text-xs sm:text-lg font-semibold text-gray-900 dark:text-gray-100 sm:mb-1.5">
+              <h3 className="text-xs sm:text-lg font-semibold text-[var(--text-primary)] sm:mb-1.5">
                 <span className="sm:hidden">Trusted</span>
                 <span className="hidden sm:inline">Wisdom You Can Trust</span>
               </h3>
-              <p className="hidden sm:block text-gray-600 dark:text-gray-400 text-sm sm:text-base leading-relaxed">
+              <p className="hidden sm:block text-[var(--text-tertiary)] text-sm sm:text-base leading-relaxed">
                 Every recommendation cites its source
               </p>
             </div>

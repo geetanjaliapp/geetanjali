@@ -67,7 +67,7 @@ export default function NotFound() {
   );
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900">
+    <div className="min-h-screen bg-linear-to-br from-[var(--gradient-page-from)] to-[var(--gradient-page-to)]">
       <Navbar />
       <div
         className="flex items-center justify-center"
@@ -83,14 +83,14 @@ export default function NotFound() {
           />
 
           {/* Heading */}
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold font-heading text-gray-900 dark:text-gray-100 mb-4 sm:mb-6 lg:mb-8">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold font-heading text-[var(--text-primary)] mb-4 sm:mb-6 lg:mb-8">
             The Path You Seek is Elsewhere
           </h1>
 
           {/* Verse Card - Clickable */}
           <Link
             to={`/verses/${verse.canonical_id}`}
-            className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xs rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 border border-amber-200/50 dark:border-gray-700 mb-4 sm:mb-6 lg:mb-8 hover:bg-white/90 dark:hover:bg-gray-800/90 hover:border-amber-300/70 dark:hover:border-gray-600 transition-all shadow-lg hover:shadow-xl block cursor-pointer"
+            className="bg-[var(--surface-elevated)]/70 backdrop-blur-xs rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 border border-[var(--border-warm-subtle)] mb-4 sm:mb-6 lg:mb-8 hover:bg-[var(--surface-elevated)]/90 hover:border-[var(--border-warm)] transition-all shadow-lg hover:shadow-xl block cursor-pointer"
           >
             {/* Om Symbol */}
             <div className="text-3xl sm:text-4xl text-amber-400/50 mb-3 sm:mb-4 font-light">
@@ -101,32 +101,32 @@ export default function NotFound() {
             <div className="mb-4 sm:mb-6 text-center">
               <div
                 lang="sa"
-                className="text-lg sm:text-2xl lg:text-3xl font-sanskrit text-amber-900 dark:text-amber-200 leading-relaxed tracking-wide mb-3 sm:mb-4"
+                className="text-lg sm:text-2xl lg:text-3xl font-sanskrit text-[var(--text-sanskrit)] leading-relaxed tracking-wide mb-3 sm:mb-4"
               >
                 {formatSanskritLines(verse.sanskrit_devanagari).map(
                   (line, idx) => (
                     <p
                       key={idx}
-                      className={`${isSpeakerIntro(line) ? "text-base sm:text-xl text-amber-700/60 dark:text-amber-400/60 mb-2 sm:mb-3" : "mb-1 sm:mb-2"}`}
+                      className={`${isSpeakerIntro(line) ? "text-base sm:text-xl text-[var(--text-sanskrit-secondary)]/60 mb-2 sm:mb-3" : "mb-1 sm:mb-2"}`}
                     >
                       {line}
                     </p>
                   ),
                 )}
               </div>
-              <div className="text-amber-600/70 dark:text-amber-400/70 text-xs sm:text-sm font-serif">
+              <div className="text-[var(--text-accent)]/70 text-xs sm:text-sm font-serif">
                 ॥ {verse.chapter}.{verse.verse} ॥
               </div>
             </div>
 
             {/* English paraphrase */}
-            <p className="text-sm sm:text-base text-gray-800 dark:text-gray-200 leading-relaxed italic border-t border-amber-200/50 dark:border-gray-700 pt-3 sm:pt-4">
+            <p className="text-sm sm:text-base text-[var(--text-secondary)] leading-relaxed italic border-t border-[var(--border-warm-subtle)] pt-3 sm:pt-4">
               "{verse.paraphrase_en}"
             </p>
           </Link>
 
           {/* Philosophical Message */}
-          <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 leading-relaxed mb-4 sm:mb-6 lg:mb-8 max-w-xl mx-auto">
+          <p className="text-sm sm:text-base text-[var(--text-secondary)] leading-relaxed mb-4 sm:mb-6 lg:mb-8 max-w-xl mx-auto">
             Uncertainty is the first step toward clarity.
           </p>
 
