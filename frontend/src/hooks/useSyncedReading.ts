@@ -21,6 +21,15 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { preferencesApi } from "../lib/api";
+import { tokenStorage } from "../api/auth";
+
+/**
+ * Read CSRF token from cookie (for native fetch calls)
+ */
+function getCsrfToken(): string | null {
+  const match = document.cookie.match(/(?:^|;\s*)csrf_token=([^;]*)/);
+  return match ? decodeURIComponent(match[1]) : null;
+}
 
 export type SyncStatus = "idle" | "syncing" | "synced" | "error";
 
@@ -271,13 +280,30 @@ export function useSyncedReading(): UseSyncedReadingReturn {
     if (!data || (!data.chapter && !data.verse && !data.font_size)) return;
 
     // Use fetch with keepalive (supports cookies/auth, outlives page)
+    // Must manually add headers since axios interceptors don't apply to native fetch
     try {
       const payload = JSON.stringify({ reading: data });
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+
+      // Add Authorization header if token available
+      const token = tokenStorage.getToken();
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      // Add CSRF token for the state-changing request
+      const csrfToken = getCsrfToken();
+      if (csrfToken) {
+        headers["X-CSRF-Token"] = csrfToken;
+      }
+
       fetch("/api/v1/users/me/preferences", {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: payload,
-        credentials: "include", // Include auth cookies
+        credentials: "include", // Include cookies as fallback
         keepalive: true, // Allow request to outlive page
       });
       console.debug("[SyncedReading] Flushed via keepalive fetch");
