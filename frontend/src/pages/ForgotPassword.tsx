@@ -35,7 +35,7 @@ export default function ForgotPassword() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen flex flex-col bg-linear-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900">
+      <div className="min-h-screen flex flex-col bg-linear-to-br from-[var(--gradient-page-from)] to-[var(--gradient-page-to)]">
         <Navbar />
         <div className="flex-1 flex items-center justify-center px-4 py-8 sm:py-12">
           <div className="max-w-md w-full space-y-6 sm:space-y-8 text-center">
@@ -51,9 +51,9 @@ export default function ForgotPassword() {
                   className="h-12 w-12 sm:h-16 sm:w-16 mx-auto"
                 />
               </Link>
-              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-[var(--status-success-bg)] rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg
-                  className="w-6 h-6 sm:w-8 sm:h-8 text-green-600 dark:text-green-400"
+                  className="w-6 h-6 sm:w-8 sm:h-8 text-[var(--status-success-text)]"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -66,17 +66,17 @@ export default function ForgotPassword() {
                   />
                 </svg>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-bold font-heading text-gray-900 dark:text-gray-100">
+              <h2 className="text-2xl sm:text-3xl font-bold font-heading text-[var(--text-primary)]">
                 Check Your Email
               </h2>
-              <p className="mt-3 text-sm text-gray-600 dark:text-gray-400 max-w-sm mx-auto">
+              <p className="mt-3 text-sm text-[var(--text-tertiary)] max-w-sm mx-auto">
                 If an account exists with{" "}
-                <span className="font-medium text-gray-900 dark:text-gray-100">
+                <span className="font-medium text-[var(--text-primary)]">
                   {email}
                 </span>
                 , you will receive a password reset link shortly.
               </p>
-              <p className="mt-4 text-xs text-gray-500 dark:text-gray-400">
+              <p className="mt-4 text-xs text-[var(--text-muted)]">
                 Don't see the email? Check your spam folder.
               </p>
             </div>
@@ -84,7 +84,7 @@ export default function ForgotPassword() {
             <div className="pt-4">
               <Link
                 to="/login"
-                className="text-sm font-medium text-orange-600 dark:text-orange-400 hover:text-orange-500 dark:hover:text-orange-300"
+                className="text-sm font-medium text-[var(--interactive-ghost-text)] hover:text-[var(--text-link-hover)]"
               >
                 Back to Sign In
               </Link>
@@ -96,7 +96,7 @@ export default function ForgotPassword() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-linear-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900">
+    <div className="min-h-screen flex flex-col bg-linear-to-br from-[var(--gradient-page-from)] to-[var(--gradient-page-to)]">
       <Navbar />
       <div className="flex-1 flex items-center justify-center px-4 py-8 sm:py-12">
         <div className="max-w-md w-full space-y-6 sm:space-y-8">
@@ -112,10 +112,10 @@ export default function ForgotPassword() {
                 className="h-12 w-12 sm:h-16 sm:w-16 mx-auto"
               />
             </Link>
-            <h2 className="text-2xl sm:text-3xl font-bold font-heading text-gray-900 dark:text-gray-100">
+            <h2 className="text-2xl sm:text-3xl font-bold font-heading text-[var(--text-primary)]">
               Reset Password
             </h2>
-            <p className="mt-1.5 sm:mt-2 text-sm text-gray-600 dark:text-gray-400">
+            <p className="mt-1.5 sm:mt-2 text-sm text-[var(--text-tertiary)]">
               Enter your email and we'll send you a reset link
             </p>
           </div>
@@ -125,9 +125,9 @@ export default function ForgotPassword() {
               <div
                 role="alert"
                 aria-live="assertive"
-                className="rounded-lg bg-red-50 dark:bg-red-900/20 p-3 sm:p-4"
+                className="rounded-lg bg-[var(--status-error-bg)] p-3 sm:p-4"
               >
-                <div className="text-sm text-red-600 dark:text-red-400">
+                <div className="text-sm text-[var(--status-error-text)]">
                   {error}
                 </div>
               </div>
@@ -136,7 +136,7 @@ export default function ForgotPassword() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                className="block text-sm font-medium text-[var(--text-secondary)] mb-1"
               >
                 Email address
               </label>
@@ -148,7 +148,7 @@ export default function ForgotPassword() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="block w-full px-3 py-2.5 sm:py-2 border border-amber-200 dark:border-gray-600 bg-white dark:bg-gray-800 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-gray-100 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-orange-500 focus:border-transparent text-base sm:text-sm"
+                className="block w-full px-3 py-2.5 sm:py-2 border border-[var(--input-border)] bg-[var(--input-bg)] placeholder-[var(--text-muted)] text-[var(--text-primary)] rounded-lg focus:outline-hidden focus:ring-2 focus:ring-orange-500 focus:border-transparent text-base sm:text-sm"
                 placeholder="your@email.com"
               />
             </div>
@@ -157,7 +157,7 @@ export default function ForgotPassword() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-2.5 sm:py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-orange-600 hover:bg-orange-700 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="w-full flex justify-center py-2.5 sm:py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-orange-600 hover:bg-orange-700 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--focus-ring-offset)] focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {loading ? "Sending..." : "Send Reset Link"}
               </button>
@@ -166,14 +166,14 @@ export default function ForgotPassword() {
             <div className="text-center text-sm">
               <Link
                 to="/login"
-                className="font-medium text-orange-600 dark:text-orange-400 hover:text-orange-500 dark:hover:text-orange-300"
+                className="font-medium text-[var(--interactive-ghost-text)] hover:text-[var(--text-link-hover)]"
               >
                 Back to Sign In
               </Link>
             </div>
           </form>
 
-          <div className="text-center text-xs text-gray-500 dark:text-gray-400">
+          <div className="text-center text-xs text-[var(--text-muted)]">
             <p>Ethical guidance rooted in timeless wisdom</p>
           </div>
         </div>
