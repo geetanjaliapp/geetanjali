@@ -165,6 +165,42 @@
   --skeleton-bg: var(--color-neutral-200);
   --skeleton-highlight: var(--color-neutral-100);
 
+  /* Field surfaces (selection areas, input containers) */
+  --surface-field: var(--color-neutral-50);
+
+  /* Selection chips/pills (e.g., tab selections) */
+  --chip-selected-bg: var(--color-warm-100);
+  --chip-selected-text: var(--color-warm-800);
+  --chip-selected-ring: var(--color-warm-300);
+
+  /* Selected button/option (primary-colored) */
+  --option-selected-bg: var(--color-primary-100);
+  --option-selected-text: var(--color-primary-700);
+  --option-selected-border: var(--color-primary-300);
+
+  /* Goal indicators (circular badges) */
+  --goal-indicator-bg: var(--color-warm-200);
+  --goal-indicator-text: var(--color-warm-700);
+
+  /* Avatar placeholder */
+  --avatar-placeholder-bg: var(--color-neutral-400);
+
+  /* Section icon decorations (categorical) */
+  --section-icon-goals-bg: var(--color-purple-100);
+  --section-icon-goals-text: var(--color-purple-600);
+  --section-icon-newsletter-bg: var(--color-warm-100);
+  --section-icon-reading-bg: var(--color-blue-100);
+  --section-icon-reading-text: var(--color-blue-600);
+  --section-icon-appearance-bg: var(--color-indigo-100);
+  --section-icon-appearance-text: var(--color-indigo-600);
+
+  /* Info/prompt sections (purple tint) */
+  --prompt-bg: var(--color-purple-50);
+  --prompt-border: var(--color-purple-200);
+  --prompt-text: var(--color-purple-800);
+  --prompt-button-bg: var(--color-purple-100);
+  --prompt-button-text: var(--color-purple-700);
+
   /* ============================================
      STATUS TOKENS - Error, Warning, Success
      ============================================ */
@@ -263,6 +299,42 @@
   --overlay-bg: color-mix(in srgb, black 70%, transparent);
   --skeleton-bg: var(--color-neutral-700);
   --skeleton-highlight: var(--color-neutral-600);
+
+  /* Field surfaces */
+  --surface-field: color-mix(in srgb, var(--color-neutral-700) 50%, var(--color-neutral-800));
+
+  /* Selection chips/pills */
+  --chip-selected-bg: color-mix(in srgb, var(--color-warm-900) 40%, transparent);
+  --chip-selected-text: var(--color-warm-300);
+  --chip-selected-ring: var(--color-warm-700);
+
+  /* Selected button/option (primary-colored) */
+  --option-selected-bg: color-mix(in srgb, var(--color-primary-900) 30%, transparent);
+  --option-selected-text: var(--color-primary-400);
+  --option-selected-border: var(--color-primary-700);
+
+  /* Goal indicators */
+  --goal-indicator-bg: color-mix(in srgb, var(--color-warm-700) 50%, transparent);
+  --goal-indicator-text: var(--color-warm-300);
+
+  /* Avatar placeholder */
+  --avatar-placeholder-bg: var(--color-neutral-600);
+
+  /* Section icon decorations (categorical) */
+  --section-icon-goals-bg: color-mix(in srgb, var(--color-purple-900) 30%, transparent);
+  --section-icon-goals-text: var(--color-purple-400);
+  --section-icon-newsletter-bg: color-mix(in srgb, var(--color-warm-900) 30%, transparent);
+  --section-icon-reading-bg: color-mix(in srgb, var(--color-blue-900) 30%, transparent);
+  --section-icon-reading-text: var(--color-blue-400);
+  --section-icon-appearance-bg: color-mix(in srgb, var(--color-indigo-900) 30%, transparent);
+  --section-icon-appearance-text: var(--color-indigo-400);
+
+  /* Info/prompt sections (purple tint) */
+  --prompt-bg: color-mix(in srgb, var(--color-purple-900) 20%, transparent);
+  --prompt-border: var(--color-purple-800);
+  --prompt-text: var(--color-purple-300);
+  --prompt-button-bg: var(--color-purple-800);
+  --prompt-button-text: var(--color-purple-300);
 
   /* Status tokens */
   --status-error-bg: var(--color-error-900);

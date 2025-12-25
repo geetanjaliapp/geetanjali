@@ -342,29 +342,29 @@ export default function Settings() {
     : "Not started";
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col">
+    <div className="min-h-screen bg-[var(--surface-page)] flex flex-col">
       <Navbar />
 
       <main className="flex-1 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 animate-fadeIn">
         {/* Page Header */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold font-heading text-gray-900 dark:text-gray-100 mb-1">
+          <h1 className="text-2xl font-bold font-heading text-[var(--text-primary)] mb-1">
             Settings
           </h1>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+          <p className="text-sm text-[var(--text-tertiary)]">
             Manage your account and preferences
           </p>
         </div>
 
         {/* Section 1: Account (Full Width) */}
-        <section id="account" className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 mb-4 scroll-mt-20">
+        <section id="account" className="bg-[var(--surface-elevated)] rounded-xl shadow-md p-4 mb-4 scroll-mt-20">
           <div className="flex items-center gap-2 mb-4">
-            <div className="p-1.5 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400">
+            <div className="p-1.5 rounded-lg bg-[var(--surface-muted)] text-[var(--text-tertiary)]">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
             </div>
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Account</h2>
+            <h2 className="text-lg font-semibold text-[var(--text-primary)]">Account</h2>
           </div>
 
           {isAuthenticated ? (
@@ -373,12 +373,12 @@ export default function Settings() {
                 {getInitials(user?.name)}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-medium text-gray-900 dark:text-gray-100">
+                <p className="font-medium text-[var(--text-primary)]">
                   {user?.name || user?.email?.split("@")[0]}
                 </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{user?.email}</p>
+                <p className="text-sm text-[var(--text-muted)] truncate">{user?.email}</p>
                 {user?.email_verified ? (
-                  <p className="text-xs text-green-600 dark:text-green-400 mt-0.5 flex items-center gap-1">
+                  <p className="text-xs text-[var(--status-success-text)] mt-0.5 flex items-center gap-1">
                     <CheckIcon className="w-3 h-3" />
                     Verified · Synced across devices
                   </p>
@@ -387,7 +387,7 @@ export default function Settings() {
                     <button
                       onClick={() => resendVerification()}
                       disabled={isResendingVerification}
-                      className="text-xs text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 flex items-center gap-1 disabled:opacity-50"
+                      className="text-xs text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] flex items-center gap-1 disabled:opacity-50"
                     >
                       {isResendingVerification ? (
                         <>
@@ -409,8 +409,8 @@ export default function Settings() {
                         aria-live={verificationMessage.type === "error" ? "assertive" : "polite"}
                         className={`text-xs mt-1 ${
                           verificationMessage.type === "success"
-                            ? "text-green-600 dark:text-green-400"
-                            : "text-red-600 dark:text-red-400"
+                            ? "text-[var(--status-success-text)]"
+                            : "text-[var(--status-error-text)]"
                         }`}
                       >
                         {verificationMessage.text}
@@ -421,21 +421,21 @@ export default function Settings() {
               </div>
               <button
                 onClick={handleLogout}
-                className="px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="px-3 py-1.5 text-sm text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-muted)] rounded-lg transition-colors"
               >
                 Sign out
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
-              <div className="w-10 h-10 rounded-full bg-gray-400 dark:bg-gray-600 text-white flex items-center justify-center shrink-0">
+            <div className="flex items-center gap-3 bg-[var(--surface-warm)] border border-[var(--border-warm)] rounded-lg p-3">
+              <div className="w-10 h-10 rounded-full bg-[var(--avatar-placeholder-bg)] text-white flex items-center justify-center shrink-0">
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
                 </svg>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">Guest</p>
-                <p className="text-xs text-gray-600 dark:text-gray-400">Data saved locally on this device</p>
+                <p className="font-medium text-[var(--text-primary)] text-sm">Guest</p>
+                <p className="text-xs text-[var(--text-tertiary)]">Data saved locally on this device</p>
               </div>
               <div className="flex gap-2">
                 <Link
@@ -446,7 +446,7 @@ export default function Settings() {
                 </Link>
                 <Link
                   to="/login"
-                  className="px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  className="px-3 py-1.5 text-sm text-[var(--text-secondary)] hover:bg-[var(--surface-muted)] rounded-lg transition-colors"
                 >
                   Sign in
                 </Link>
@@ -458,27 +458,27 @@ export default function Settings() {
         {/* 2-Column Grid: Goals + Newsletter */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
           {/* Learning Goals */}
-          <section id="goals" className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 scroll-mt-20">
+          <section id="goals" className="bg-[var(--surface-elevated)] rounded-xl shadow-md p-4 scroll-mt-20">
             <div className="flex items-center gap-2 mb-3">
-              <div className="p-1.5 rounded-lg bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400">
+              <div className="p-1.5 rounded-lg bg-[var(--section-icon-goals-bg)] text-[var(--section-icon-goals-text)]">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
                 </svg>
               </div>
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Learning Goals</h2>
+              <h2 className="text-lg font-semibold text-[var(--text-primary)]">Learning Goals</h2>
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+            <p className="text-sm text-[var(--text-tertiary)] mb-3">
               What brings you to the Geeta?
             </p>
             <GoalSelector />
 
             {/* Default Verses Tab */}
-            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="mt-4 pt-4 border-t border-[var(--border-default)]">
               <div>
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label className="text-sm font-medium text-[var(--text-secondary)]">
                   Default Verses tab
                 </label>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 mb-3">
+                <p className="text-xs text-[var(--text-muted)] mt-0.5 mb-3">
                   When you open Verses
                 </p>
                 <div className="flex flex-wrap sm:flex-nowrap gap-1.5 sm:gap-2">
@@ -495,8 +495,8 @@ export default function Settings() {
                       key={option.value}
                       className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs sm:text-sm cursor-pointer transition-colors whitespace-nowrap ${
                         defaultVersesTab === option.value
-                          ? "bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 ring-1 ring-amber-300 dark:ring-amber-700"
-                          : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600"
+                          ? "bg-[var(--chip-selected-bg)] text-[var(--chip-selected-text)] ring-1 ring-[var(--chip-selected-ring)]"
+                          : "bg-[var(--surface-muted)] text-[var(--text-tertiary)] hover:bg-[var(--interactive-secondary-hover-bg)]"
                       }`}
                     >
                       <input
@@ -516,12 +516,12 @@ export default function Settings() {
           </section>
 
           {/* Daily Wisdom */}
-          <section id="newsletter" className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 scroll-mt-20">
+          <section id="newsletter" className="bg-[var(--surface-elevated)] rounded-xl shadow-md p-4 scroll-mt-20">
             <div className="flex items-center gap-2 mb-3">
-              <div className="p-1.5 rounded-lg bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400">
+              <div className="p-1.5 rounded-lg bg-[var(--section-icon-newsletter-bg)] text-[var(--text-accent)]">
                 <SunIcon className="w-5 h-5" />
               </div>
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Daily Wisdom</h2>
+              <h2 className="text-lg font-semibold text-[var(--text-primary)]">Daily Wisdom</h2>
             </div>
 
             {/* Loading state while fetching subscription status */}
@@ -533,9 +533,9 @@ export default function Settings() {
               /* Authenticated user with existing subscription - show update form */
               <div className="space-y-3">
                 {/* Subscribed status badge */}
-                <div className="flex items-center gap-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg px-3 py-2">
-                  <CheckIcon className="w-4 h-4 text-green-600 dark:text-green-400" />
-                  <span className="text-sm text-green-800 dark:text-green-300">
+                <div className="flex items-center gap-2 bg-[var(--status-success-bg)] border border-[var(--status-success-border)] rounded-lg px-3 py-2">
+                  <CheckIcon className="w-4 h-4 text-[var(--status-success-text)]" />
+                  <span className="text-sm text-[var(--status-success-text)]">
                     Subscribed as <strong>{existingSubscription.email}</strong>
                   </span>
                 </div>
@@ -543,8 +543,8 @@ export default function Settings() {
                 {/* Update preferences form */}
                 <form onSubmit={handleUpdatePreferences} className="space-y-3">
                   {/* Goals display */}
-                  <div className="flex items-center gap-2 h-10 bg-gray-50 dark:bg-gray-700/50 rounded-lg px-2.5">
-                    <span className="text-xs text-gray-500 dark:text-gray-400 shrink-0">Goals:</span>
+                  <div className="flex items-center gap-2 h-10 bg-[var(--surface-field)] rounded-lg px-2.5">
+                    <span className="text-xs text-[var(--text-muted)] shrink-0">Goals:</span>
                     {selectedGoals.length > 0 ? (
                       <div className="flex items-center gap-1.5 flex-wrap">
                         {selectedGoals.map((goal) => {
@@ -552,7 +552,7 @@ export default function Settings() {
                           return (
                             <div
                               key={goal.id}
-                              className="w-7 h-7 rounded-full bg-amber-200 dark:bg-amber-700/50 text-amber-700 dark:text-amber-300 flex items-center justify-center shadow-xs"
+                              className="w-7 h-7 rounded-full bg-[var(--goal-indicator-bg)] text-[var(--goal-indicator-text)] flex items-center justify-center shadow-xs"
                               title={goal.label}
                             >
                               {IconComponent && <IconComponent className="w-4 h-4" />}
@@ -561,7 +561,7 @@ export default function Settings() {
                         })}
                       </div>
                     ) : (
-                      <span className="text-xs text-gray-400 dark:text-gray-500">
+                      <span className="text-xs text-[var(--text-muted)]">
                         Select above for personalized verses
                       </span>
                     )}
@@ -579,7 +579,7 @@ export default function Settings() {
                       onChange={(e) => setName(e.target.value)}
                       placeholder={derivedName || "Your name"}
                       aria-describedby={updateError ? "newsletter-prefs-error" : undefined}
-                      className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      className="w-full px-3 py-2 text-sm border border-[var(--border-default)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     />
                   </div>
 
@@ -589,7 +589,7 @@ export default function Settings() {
                     <p
                       id="newsletter-prefs-error"
                       role="alert"
-                      className="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-sm px-2 py-1"
+                      className="text-xs text-[var(--status-error-text)] bg-[var(--status-error-bg)] rounded-sm px-2 py-1"
                     >
                       {updateError}
                     </p>
@@ -599,7 +599,7 @@ export default function Settings() {
                     <p
                       role="status"
                       aria-live="polite"
-                      className="text-xs text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 rounded-sm px-2 py-1"
+                      className="text-xs text-[var(--status-success-text)] bg-[var(--status-success-bg)] rounded-sm px-2 py-1"
                     >
                       Preferences updated!
                     </p>
@@ -615,11 +615,11 @@ export default function Settings() {
                 </form>
 
                 {/* Expandable: Subscribe another email */}
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
+                <div className="border-t border-[var(--border-default)] pt-3">
                   <button
                     type="button"
                     onClick={() => setShowSubscribeOther(!showSubscribeOther)}
-                    className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+                    className="flex items-center gap-1 text-xs text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
                   >
                     <svg
                       className={`w-3 h-3 transition-transform ${showSubscribeOther ? "rotate-90" : ""}`}
@@ -645,7 +645,7 @@ export default function Settings() {
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             placeholder="Name"
-                            className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                            className="w-full px-3 py-2 text-sm border border-[var(--border-default)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                           />
                         </div>
                         <div>
@@ -661,7 +661,7 @@ export default function Settings() {
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="Different email"
                             aria-describedby={error ? "subscribe-other-error" : undefined}
-                            className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                            className="w-full px-3 py-2 text-sm border border-[var(--border-default)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                           />
                         </div>
                       </div>
@@ -670,7 +670,7 @@ export default function Settings() {
                         <p
                           id="subscribe-other-error"
                           role="alert"
-                          className="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-sm px-2 py-1"
+                          className="text-xs text-[var(--status-error-text)] bg-[var(--status-error-bg)] rounded-sm px-2 py-1"
                         >
                           {error}
                         </p>
@@ -680,9 +680,9 @@ export default function Settings() {
                         <div
                           role="status"
                           aria-live="polite"
-                          className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-2 text-center"
+                          className="bg-[var(--surface-warm)] border border-[var(--border-warm)] rounded-lg p-2 text-center"
                         >
-                          <p className="text-xs text-amber-700 dark:text-amber-400">
+                          <p className="text-xs text-[var(--text-accent)]">
                             Confirmation sent to <strong>{email}</strong>
                           </p>
                         </div>
@@ -704,20 +704,20 @@ export default function Settings() {
               <div
                 role="status"
                 aria-live="polite"
-                className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3"
+                className="bg-[var(--status-success-bg)] border border-[var(--status-success-border)] rounded-lg p-3"
               >
                 <div className="flex items-start gap-2">
-                  <CheckIcon className="w-5 h-5 text-green-600 dark:text-green-400 shrink-0 mt-0.5" />
+                  <CheckIcon className="w-5 h-5 text-[var(--status-success-text)] shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-sm font-medium text-green-800 dark:text-green-300">
+                    <p className="text-sm font-medium text-[var(--status-success-text)]">
                       Subscribed{effectiveName ? ` as ${effectiveName}` : ""}
                     </p>
-                    <p className="text-xs text-green-700 dark:text-green-400 mt-0.5">
+                    <p className="text-xs text-[var(--status-success-text)] mt-0.5">
                       Verses arrive at {getTimeLabel(sendTime)}
                     </p>
                     <button
                       onClick={() => setStatus("idle")}
-                      className="text-xs text-green-600 dark:text-green-500 hover:underline mt-1"
+                      className="text-xs text-[var(--status-success-text)] hover:underline mt-1"
                     >
                       Change preferences
                     </button>
@@ -729,16 +729,16 @@ export default function Settings() {
               <div
                 role="status"
                 aria-live="polite"
-                className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 text-center"
+                className="bg-[var(--surface-warm)] border border-[var(--border-warm)] rounded-lg p-3 text-center"
               >
-                <MailIcon className="w-6 h-6 text-amber-600 dark:text-amber-400 mx-auto mb-2" />
-                <p className="text-sm font-medium text-amber-900 dark:text-amber-300">Check your email</p>
-                <p className="text-xs text-amber-700 dark:text-amber-400 mt-1">
+                <MailIcon className="w-6 h-6 text-[var(--text-accent)] mx-auto mb-2" />
+                <p className="text-sm font-medium text-[var(--chip-selected-text)]">Check your email</p>
+                <p className="text-xs text-[var(--text-accent)] mt-1">
                   Confirmation sent to <strong>{email}</strong>
                 </p>
                 <button
                   onClick={() => setStatus("idle")}
-                  className="text-xs text-amber-600 dark:text-amber-500 hover:underline mt-2"
+                  className="text-xs text-[var(--text-accent)] hover:underline mt-2"
                 >
                   Use different email
                 </button>
@@ -748,8 +748,8 @@ export default function Settings() {
               <form onSubmit={handleSubscribe} className="space-y-3">
                 {/* Goals prompt */}
                 {showGoalsPrompt && (
-                  <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-3">
-                    <p className="text-sm text-purple-800 dark:text-purple-300 mb-2">
+                  <div className="bg-[var(--prompt-bg)] border border-[var(--prompt-border)] rounded-lg p-3">
+                    <p className="text-sm text-[var(--prompt-text)] mb-2">
                       Select learning goals for personalized verses
                     </p>
                     <div className="flex gap-2">
@@ -760,13 +760,13 @@ export default function Settings() {
                           // Scroll to goals section
                           document.getElementById("goals")?.scrollIntoView({ behavior: "smooth" });
                         }}
-                        className="text-xs px-2 py-1 bg-purple-100 dark:bg-purple-800 text-purple-700 dark:text-purple-300 rounded-sm"
+                        className="text-xs px-2 py-1 bg-[var(--prompt-button-bg)] text-[var(--prompt-button-text)] rounded-sm"
                       >
                         Select goals
                       </button>
                       <button
                         type="submit"
-                        className="text-xs px-2 py-1 text-purple-600 dark:text-purple-400 hover:underline"
+                        className="text-xs px-2 py-1 text-[var(--section-icon-goals-text)] hover:underline"
                       >
                         Subscribe anyway
                       </button>
@@ -775,8 +775,8 @@ export default function Settings() {
                 )}
 
                 {/* Reserved space for selected goals - always visible */}
-                <div className="flex items-center gap-2 h-10 bg-gray-50 dark:bg-gray-700/50 rounded-lg px-2.5">
-                  <span className="text-xs text-gray-500 dark:text-gray-400 shrink-0">Goals:</span>
+                <div className="flex items-center gap-2 h-10 bg-[var(--surface-field)] rounded-lg px-2.5">
+                  <span className="text-xs text-[var(--text-muted)] shrink-0">Goals:</span>
                   {selectedGoals.length > 0 ? (
                     <div className="flex items-center gap-1.5 flex-wrap">
                       {selectedGoals.map((goal) => {
@@ -784,7 +784,7 @@ export default function Settings() {
                         return (
                           <div
                             key={goal.id}
-                            className="w-7 h-7 rounded-full bg-amber-200 dark:bg-amber-700/50 text-amber-700 dark:text-amber-300 flex items-center justify-center shadow-xs"
+                            className="w-7 h-7 rounded-full bg-[var(--goal-indicator-bg)] text-[var(--goal-indicator-text)] flex items-center justify-center shadow-xs"
                             title={goal.label}
                           >
                             {IconComponent && <IconComponent className="w-4 h-4" />}
@@ -795,8 +795,8 @@ export default function Settings() {
                   ) : (
                     <div className="flex items-center gap-1.5">
                       {/* Placeholder circles to match height */}
-                      <div className="w-7 h-7 rounded-full border-2 border-dashed border-gray-300 dark:border-gray-600" />
-                      <span className="text-xs text-gray-400 dark:text-gray-500">
+                      <div className="w-7 h-7 rounded-full border-2 border-dashed border-[var(--border-default)]" />
+                      <span className="text-xs text-[var(--text-muted)]">
                         Select above
                       </span>
                     </div>
@@ -814,7 +814,7 @@ export default function Settings() {
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder={derivedName || "Your name"}
-                      className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      className="w-full px-3 py-2 text-sm border border-[var(--border-default)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     />
                   </div>
                   <div>
@@ -830,7 +830,7 @@ export default function Settings() {
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="Email"
                       aria-describedby={error ? "newsletter-anon-error" : undefined}
-                      className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      className="w-full px-3 py-2 text-sm border border-[var(--border-default)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     />
                   </div>
                 </div>
@@ -841,7 +841,7 @@ export default function Settings() {
                   <p
                     id="newsletter-anon-error"
                     role="alert"
-                    className="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-sm px-2 py-1"
+                    className="text-xs text-[var(--status-error-text)] bg-[var(--status-error-bg)] rounded-sm px-2 py-1"
                   >
                     {error}
                   </p>
@@ -862,20 +862,20 @@ export default function Settings() {
         {/* 2-Column Grid: Reading Preferences + Appearance */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
           {/* Reading Preferences */}
-          <section id="reading" className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 scroll-mt-20">
+          <section id="reading" className="bg-[var(--surface-elevated)] rounded-xl shadow-md p-4 scroll-mt-20">
             <div className="flex items-center gap-2 mb-3">
-              <div className="p-1.5 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
+              <div className="p-1.5 rounded-lg bg-[var(--section-icon-reading-bg)] text-[var(--section-icon-reading-text)]">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
               </div>
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Reading Preferences</h2>
+              <h2 className="text-lg font-semibold text-[var(--text-primary)]">Reading Preferences</h2>
             </div>
 
             <div className="space-y-3">
               {/* Font Size */}
               <div>
-                <label className="text-sm text-gray-700 dark:text-gray-300 block mb-1.5">Font size</label>
+                <label className="text-sm text-[var(--text-secondary)] block mb-1.5">Font size</label>
                 <div className="flex gap-1">
                   {(["small", "medium", "large"] as FontSize[]).map((size) => (
                     <button
@@ -883,8 +883,8 @@ export default function Settings() {
                       onClick={() => setFontSize(size)}
                       className={`flex-1 px-3 py-1.5 text-sm rounded-lg border transition-colors ${
                         readingSettings.fontSize === size
-                          ? "bg-orange-100 dark:bg-orange-900/30 border-orange-300 dark:border-orange-700 text-orange-700 dark:text-orange-400"
-                          : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600"
+                          ? "bg-[var(--option-selected-bg)] border-[var(--option-selected-border)] text-[var(--option-selected-text)]"
+                          : "bg-[var(--input-bg)] border-[var(--border-default)] text-[var(--text-tertiary)] hover:border-[var(--border-default)]"
                       }`}
                     >
                       {size.charAt(0).toUpperCase() + size.slice(1)}
@@ -896,12 +896,12 @@ export default function Settings() {
               {/* Section toggles - controls which sections are expanded by default in Reading Mode */}
               <div>
                 <div className="flex items-center gap-1.5 mb-1.5">
-                  <label className="text-sm text-gray-700 dark:text-gray-300">Default sections</label>
-                  <span className="text-[10px] text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded-sm">
+                  <label className="text-sm text-[var(--text-secondary)]">Default sections</label>
+                  <span className="text-[10px] text-[var(--text-muted)] bg-[var(--surface-muted)] px-1.5 py-0.5 rounded-sm">
                     This device
                   </span>
                 </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                <p className="text-xs text-[var(--text-muted)] mb-2">
                   Unchecked sections will start collapsed in Reading Mode
                 </p>
                 <div className="space-y-1.5">
@@ -918,9 +918,9 @@ export default function Settings() {
                         onChange={(e) =>
                           setSectionPrefs((p) => ({ ...p, [key]: e.target.checked }))
                         }
-                        className="w-4 h-4 rounded-sm border-gray-300 dark:border-gray-600 text-orange-600 focus:ring-orange-500"
+                        className="w-4 h-4 rounded-sm border-[var(--border-default)] text-orange-600 focus:ring-orange-500"
                       />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">{label}</span>
+                      <span className="text-sm text-[var(--text-secondary)]">{label}</span>
                     </label>
                   ))}
                 </div>
@@ -929,18 +929,18 @@ export default function Settings() {
           </section>
 
           {/* Appearance */}
-          <section id="appearance" className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 scroll-mt-20">
+          <section id="appearance" className="bg-[var(--surface-elevated)] rounded-xl shadow-md p-4 scroll-mt-20">
             <div className="flex items-center gap-2 mb-3">
-              <div className="p-1.5 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400">
+              <div className="p-1.5 rounded-lg bg-[var(--section-icon-appearance-bg)] text-[var(--section-icon-appearance-text)]">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
                 </svg>
               </div>
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Appearance</h2>
+              <h2 className="text-lg font-semibold text-[var(--text-primary)]">Appearance</h2>
             </div>
 
             <div>
-              <label className="text-sm text-gray-700 dark:text-gray-300 block mb-1.5">Theme</label>
+              <label className="text-sm text-[var(--text-secondary)] block mb-1.5">Theme</label>
               <div className="flex gap-1">
                 {(["system", "light", "dark"] as Theme[]).map((t) => (
                   <button
@@ -948,15 +948,15 @@ export default function Settings() {
                     onClick={() => setTheme(t)}
                     className={`flex-1 px-3 py-1.5 text-sm rounded-lg border transition-colors ${
                       theme === t
-                        ? "bg-orange-100 dark:bg-orange-900/30 border-orange-300 dark:border-orange-700 text-orange-700 dark:text-orange-400"
-                        : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600"
+                        ? "bg-[var(--option-selected-bg)] border-[var(--option-selected-border)] text-[var(--option-selected-text)]"
+                        : "bg-[var(--input-bg)] border-[var(--border-default)] text-[var(--text-tertiary)] hover:border-[var(--border-default)]"
                     }`}
                   >
                     {t === "system" ? "System" : t.charAt(0).toUpperCase() + t.slice(1)}
                   </button>
                 ))}
               </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+              <p className="text-xs text-[var(--text-muted)] mt-2">
                 {theme === "system"
                   ? "Following your device settings"
                   : `Always use ${theme} mode`}
@@ -966,21 +966,21 @@ export default function Settings() {
         </div>
 
         {/* Your Data (Full Width) */}
-        <section id="data" className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 mb-4 scroll-mt-20">
+        <section id="data" className="bg-[var(--surface-elevated)] rounded-xl shadow-md p-4 mb-4 scroll-mt-20">
           <div className="flex items-center gap-2 mb-3">
-            <div className="p-1.5 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400">
+            <div className="p-1.5 rounded-lg bg-[var(--status-success-bg)] text-[var(--status-success-text)]">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
             </div>
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Your Data</h2>
+            <h2 className="text-lg font-semibold text-[var(--text-primary)]">Your Data</h2>
           </div>
 
           {/* Stats row */}
           <div className="flex flex-wrap gap-4 mb-3 text-sm">
             <div className="flex items-center gap-2">
               <HeartIcon className="w-4 h-4 text-red-400" filled />
-              <span className="text-gray-700 dark:text-gray-300">
+              <span className="text-[var(--text-secondary)]">
                 {favoritesCount} {favoritesCount === 1 ? "favorite" : "favorites"}
               </span>
             </div>
@@ -988,56 +988,56 @@ export default function Settings() {
               <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
               </svg>
-              <span className="text-gray-700 dark:text-gray-300">{readingDisplay}</span>
+              <span className="text-[var(--text-secondary)]">{readingDisplay}</span>
             </div>
             <div className="flex items-center gap-2">
               <svg className="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
               </svg>
-              <span className="text-gray-700 dark:text-gray-300">{selectedGoals.length} goals</span>
+              <span className="text-[var(--text-secondary)]">{selectedGoals.length} goals</span>
             </div>
           </div>
 
-          <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+          <p className="text-xs text-[var(--text-muted)] mb-3">
             {isAuthenticated ? "Synced securely in the cloud" : "Stored locally on this device"}
           </p>
 
           <button
             onClick={handleExportData}
-            className="px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+            className="px-3 py-1.5 text-sm font-medium text-[var(--text-secondary)] bg-[var(--surface-muted)] hover:bg-[var(--interactive-secondary-hover-bg)] rounded-lg transition-colors"
           >
             Export my data
           </button>
         </section>
 
         {/* Danger Zone */}
-        <section id="danger" className="border border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-4 scroll-mt-20">
+        <section id="danger" className="border border-dashed border-[var(--border-default)] rounded-xl p-4 scroll-mt-20">
           <div className="flex items-center gap-2 mb-3">
-            <div className="p-1.5 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400">
+            <div className="p-1.5 rounded-lg bg-[var(--status-error-bg)] text-[var(--status-error-text)]">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
             </div>
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Danger Zone</h2>
+            <h2 className="text-lg font-semibold text-[var(--text-primary)]">Danger Zone</h2>
           </div>
 
           <div className="flex flex-wrap gap-3">
             <button
               onClick={() => setShowDeleteConfirm(true)}
-              className="px-3 py-1.5 text-sm font-medium text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg transition-colors"
+              className="px-3 py-1.5 text-sm font-medium text-[var(--status-error-text)] hover:text-[var(--status-error-text)] bg-[var(--status-error-bg)] hover:bg-[var(--status-error-bg)] border border-[var(--status-error-border)] rounded-lg transition-colors"
             >
               Delete local data
             </button>
             {isAuthenticated && (
               <button
                 onClick={() => setShowDeleteAccountConfirm(true)}
-                className="px-3 py-1.5 text-sm font-medium text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg transition-colors"
+                className="px-3 py-1.5 text-sm font-medium text-[var(--status-error-text)] hover:text-[var(--status-error-text)] bg-[var(--status-error-bg)] hover:bg-[var(--status-error-bg)] border border-[var(--status-error-border)] rounded-lg transition-colors"
               >
                 Delete account
               </button>
             )}
           </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+          <p className="text-xs text-[var(--text-muted)] mt-2">
             {isAuthenticated
               ? "Delete local data clears this device only. Delete account removes all data from the cloud permanently."
               : "Deleting local data will clear favorites, reading progress, and preferences from this device."
