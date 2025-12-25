@@ -49,10 +49,10 @@ export function DesktopNav({
       {homeItem && (
         <Link
           to={homeItem.to}
-          className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:scale-[1.02] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 ${
+          className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:scale-[1.02] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
             isNavItemActive(homeItem, pathname)
-              ? "text-orange-700 bg-orange-100 shadow-xs dark:text-orange-400 dark:bg-orange-900/30"
-              : "text-gray-600 hover:text-orange-600 hover:bg-orange-50 dark:text-gray-300 dark:hover:text-orange-400 dark:hover:bg-gray-800"
+              ? "text-[var(--interactive-primary)] bg-[var(--menu-item-selected-bg)] shadow-xs"
+              : "text-[var(--text-secondary)] hover:text-[var(--interactive-primary)] hover:bg-[var(--menu-item-hover-bg)]"
           }`}
         >
           {homeItem.label}
@@ -62,10 +62,10 @@ export function DesktopNav({
       {/* Ask CTA with icon */}
       <Link
         to={PRIMARY_CTA.to}
-        className={`flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:scale-[1.02] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 ${
+        className={`flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:scale-[1.02] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
           isAskActive
-            ? "text-orange-700 bg-orange-100 shadow-xs dark:text-orange-400 dark:bg-orange-900/30"
-            : "text-gray-600 hover:text-orange-600 hover:bg-orange-50 dark:text-gray-300 dark:hover:text-orange-400 dark:hover:bg-gray-800"
+            ? "text-[var(--interactive-primary)] bg-[var(--menu-item-selected-bg)] shadow-xs"
+            : "text-[var(--text-secondary)] hover:text-[var(--interactive-primary)] hover:bg-[var(--menu-item-hover-bg)]"
         }`}
       >
         <svg
@@ -92,10 +92,10 @@ export function DesktopNav({
           <Link
             key={item.to}
             to={item.to}
-            className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:scale-[1.02] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 ${
+            className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:scale-[1.02] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
               isActive
-                ? "text-orange-700 bg-orange-100 shadow-xs dark:text-orange-400 dark:bg-orange-900/30"
-                : "text-gray-600 hover:text-orange-600 hover:bg-orange-50 dark:text-gray-300 dark:hover:text-orange-400 dark:hover:bg-gray-800"
+                ? "text-[var(--interactive-primary)] bg-[var(--menu-item-selected-bg)] shadow-xs"
+                : "text-[var(--text-secondary)] hover:text-[var(--interactive-primary)] hover:bg-[var(--menu-item-hover-bg)]"
             }`}
           >
             {item.label}
@@ -107,7 +107,7 @@ export function DesktopNav({
       <ThemeToggle />
 
       {/* Account dropdown - always shown (handles guest + authenticated states) */}
-      <div className="relative ml-2 pl-3 border-l border-gray-200 dark:border-gray-700">
+      <div className="relative ml-2 pl-3 border-l border-[var(--border-default)]">
         <UserMenu
           user={user}
           isAuthenticated={isAuthenticated}
