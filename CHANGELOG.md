@@ -2,6 +2,30 @@
 
 All notable changes to Geetanjali are documented here.
 
+## [1.15.1] - 2025-12-25
+
+Patch release with critical bug fix, dependency updates, and documentation improvements.
+
+### Fixes
+- **CSRF Fix** - Add missing auth headers to `flushSync` fetch call. Native fetch on page unload was missing Authorization and X-CSRF-Token headers, causing CSRF validation failures.
+- **UX** - Remove distracting auto-sync toast on login
+- **Metrics** - Split into modules to prevent worker gauge duplicates
+- **Dashboard** - Use `sum()` to prevent duplicate stat panels
+
+### Features
+- **Docs** - Dark mode support for Mermaid diagrams with theme-aware rendering
+- **Metrics** - Standardized dual-service (backend + worker) metrics collection
+
+### Documentation
+- New API reference, environment reference, and about pages
+- Redesigned "What You Can Do" section with visual journey infographic
+- Technical accuracy fixes from peer review
+
+### Dependencies
+- **Frontend**: React 19.2.3, Vite 7.3.0, web-vitals 5.1.0, @types/node 25
+- **Backend**: FastAPI 0.127, Sentry 2.48, SQLAlchemy 2.0.45, pytest-cov 7.0
+- **CI**: actions/checkout v6, setup-python v6, codeql-action v4
+
 ## [1.15.0] - 2025-12-24
 
 Circuit breaker resilience, comprehensive observability, and operational metrics.
