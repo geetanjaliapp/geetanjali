@@ -19,7 +19,7 @@ function GoalCard({ goal, isSelected, onToggle }: GoalCardProps) {
       className={`
         relative flex items-center gap-2 p-2 sm:flex-col sm:p-2.5 sm:gap-1
         rounded-lg sm:rounded-xl border transition-all duration-150 w-full
-        focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2
+        focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2
         dark:focus-visible:ring-offset-gray-900
         ${
           isSelected
@@ -32,7 +32,7 @@ function GoalCard({ goal, isSelected, onToggle }: GoalCardProps) {
     >
       {/* Selection badge - only on sm+ */}
       {isSelected && (
-        <div className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-amber-500 dark:bg-amber-600 flex items-center justify-center shadow-sm">
+        <div className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-amber-500 dark:bg-amber-600 flex items-center justify-center shadow-xs">
           <CheckIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />
         </div>
       )}
@@ -145,8 +145,8 @@ export function GoalSelector({
           >
             <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gray-200 dark:bg-gray-700 rounded-full shrink-0" />
             <div className="flex-1 sm:w-full">
-              <div className="h-3 sm:h-4 bg-gray-200 dark:bg-gray-700 rounded w-16 sm:w-full sm:mx-auto" />
-              <div className="hidden sm:block h-3 bg-gray-200 dark:bg-gray-700 rounded w-20 mx-auto mt-1" />
+              <div className="h-3 sm:h-4 bg-gray-200 dark:bg-gray-700 rounded-sm w-16 sm:w-full sm:mx-auto" />
+              <div className="hidden sm:block h-3 bg-gray-200 dark:bg-gray-700 rounded-sm w-20 mx-auto mt-1" />
             </div>
           </div>
         ))}

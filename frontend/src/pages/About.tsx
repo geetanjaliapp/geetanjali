@@ -98,7 +98,7 @@ export default function About() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col">
+    <div className="min-h-screen bg-linear-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col">
       <Navbar />
 
       <main className="flex-1 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
@@ -418,7 +418,7 @@ export default function About() {
               </p>
               <button
                 onClick={() => setSubmitStatus("idle")}
-                className="mt-4 text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 rounded"
+                className="mt-4 text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 font-medium focus:outline-hidden focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 rounded-sm"
               >
                 Send another message
               </button>
@@ -544,7 +544,7 @@ export default function About() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full sm:w-auto bg-orange-600 hover:bg-orange-700 disabled:bg-orange-400 text-white font-semibold px-6 py-3 sm:px-8 sm:py-3 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 text-base"
+                className="w-full sm:w-auto bg-orange-600 hover:bg-orange-700 disabled:bg-orange-400 text-white font-semibold px-6 py-3 sm:px-8 sm:py-3 rounded-lg transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 text-base"
               >
                 {isSubmitting ? "Sending..." : "Send Message"}
               </button>
@@ -553,7 +553,7 @@ export default function About() {
         </section>
 
         {/* Final CTA Section */}
-        <section className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-gray-800 dark:to-gray-800 rounded-xl sm:rounded-2xl p-6 sm:p-8 mb-6 sm:mb-8 text-center border border-amber-200 dark:border-gray-700">
+        <section className="bg-linear-to-br from-amber-50 to-orange-50 dark:from-gray-800 dark:to-gray-800 rounded-xl sm:rounded-2xl p-6 sm:p-8 mb-6 sm:mb-8 text-center border border-amber-200 dark:border-gray-700">
           <h2 className="text-xl sm:text-2xl font-bold font-heading text-gray-900 dark:text-gray-100 mb-2">
             Ready to Explore?
           </h2>

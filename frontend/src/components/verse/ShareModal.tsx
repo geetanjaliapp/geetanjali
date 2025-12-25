@@ -294,7 +294,7 @@ export function ShareModal({
             className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
               linkCopied
                 ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300"
-                : "bg-white dark:bg-gray-600 text-gray-600 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-500 shadow-sm"
+                : "bg-white dark:bg-gray-600 text-gray-600 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-500 shadow-xs"
             }`}
           >
             {linkCopied ? "Copied!" : "Copy Link"}
@@ -331,7 +331,7 @@ export function ShareModal({
               <img
                 src={previewUrl}
                 alt="Verse card preview"
-                className="max-w-full max-h-full rounded-lg shadow-sm object-contain"
+                className="max-w-full max-h-full rounded-lg shadow-xs object-contain"
               />
             ) : (
               <span className="text-gray-400 dark:text-gray-500 text-xs">
@@ -359,7 +359,7 @@ export function ShareModal({
                   onClick={() => setTheme(t.id)}
                   className={`flex-1 py-1.5 rounded-md text-xs font-medium transition-all ${
                     theme === t.id
-                      ? "bg-white dark:bg-gray-600 text-orange-600 dark:text-orange-400 shadow-sm"
+                      ? "bg-white dark:bg-gray-600 text-orange-600 dark:text-orange-400 shadow-xs"
                       : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
                   }`}
                   title={t.label}
@@ -379,7 +379,7 @@ export function ShareModal({
                   onClick={() => setFormat(f.id)}
                   className={`flex-1 py-1.5 rounded-md text-[10px] font-medium transition-all ${
                     format === f.id
-                      ? "bg-white dark:bg-gray-600 text-orange-600 dark:text-orange-400 shadow-sm"
+                      ? "bg-white dark:bg-gray-600 text-orange-600 dark:text-orange-400 shadow-xs"
                       : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
                   }`}
                   title={f.label}

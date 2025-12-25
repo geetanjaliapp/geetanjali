@@ -67,7 +67,7 @@ export default function NotFound() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900">
+    <div className="min-h-screen bg-linear-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900">
       <Navbar />
       <div
         className="flex items-center justify-center"
@@ -90,7 +90,7 @@ export default function NotFound() {
           {/* Verse Card - Clickable */}
           <Link
             to={`/verses/${verse.canonical_id}`}
-            className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 border border-amber-200/50 dark:border-gray-700 mb-4 sm:mb-6 lg:mb-8 hover:bg-white/90 dark:hover:bg-gray-800/90 hover:border-amber-300/70 dark:hover:border-gray-600 transition-all shadow-lg hover:shadow-xl block cursor-pointer"
+            className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xs rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 border border-amber-200/50 dark:border-gray-700 mb-4 sm:mb-6 lg:mb-8 hover:bg-white/90 dark:hover:bg-gray-800/90 hover:border-amber-300/70 dark:hover:border-gray-600 transition-all shadow-lg hover:shadow-xl block cursor-pointer"
           >
             {/* Om Symbol */}
             <div className="text-3xl sm:text-4xl text-amber-400/50 mb-3 sm:mb-4 font-light">

@@ -80,7 +80,7 @@ export function CompletionBanner({
       </div>
       <button
         onClick={onDismiss}
-        className={`rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 ${
+        className={`rounded focus:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 ${
           isPolicyViolation
             ? "text-amber-500 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 focus-visible:ring-amber-500"
             : "text-green-500 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 focus-visible:ring-green-500"

@@ -80,7 +80,7 @@ export function NewsletterCard() {
     <div className="mb-8 sm:mb-10 max-w-4xl mx-auto">
       <Link
         to="/settings#newsletter"
-        className="block p-4 sm:p-5 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-gray-800/80 dark:to-gray-800/80 rounded-xl border border-amber-200/60 dark:border-gray-700 hover:border-amber-300 dark:hover:border-amber-700 transition-all group relative"
+        className="block p-4 sm:p-5 bg-linear-to-r from-amber-50 to-orange-50 dark:from-gray-800/80 dark:to-gray-800/80 rounded-xl border border-amber-200/60 dark:border-gray-700 hover:border-amber-300 dark:hover:border-amber-700 transition-all group relative"
       >
         {/* Dismiss button - 44px touch target */}
         <button
@@ -105,7 +105,7 @@ export function NewsletterCard() {
 
         <div className="flex items-center gap-4 pr-8">
           {/* Sun icon */}
-          <div className="flex-shrink-0 p-2.5 rounded-lg bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400">
+          <div className="shrink-0 p-2.5 rounded-lg bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400">
             <svg
               className="w-5 h-5"
               fill="none"
@@ -130,7 +130,7 @@ export function NewsletterCard() {
           </div>
           {/* Arrow */}
           <svg
-            className="w-5 h-5 text-gray-400 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors flex-shrink-0"
+            className="w-5 h-5 text-gray-400 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors shrink-0"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"

@@ -89,7 +89,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen w-full max-w-full bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col">
+    <div className="min-h-screen w-full max-w-full bg-linear-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col">
       <Navbar />
 
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 lg:py-12">
@@ -108,7 +108,7 @@ export default function Home() {
             {/* Main Tagline */}
             <h1 className="text-xl sm:text-3xl lg:text-4xl font-bold font-heading text-gray-900 dark:text-gray-100 mb-2">
               Wisdom for Life's{" "}
-              <span className="bg-gradient-to-r from-orange-600 to-red-600 dark:from-orange-400 dark:to-red-400 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-orange-600 to-red-600 dark:from-orange-400 dark:to-red-400 bg-clip-text text-transparent">
                 Difficult Decisions
               </span>
             </h1>
@@ -217,7 +217,7 @@ export default function Home() {
                 </h2>
                 <Link
                   to="/consultations"
-                  className="text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 font-medium text-sm flex-shrink-0"
+                  className="text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 font-medium text-sm shrink-0"
                 >
                   View all →
                 </Link>
@@ -232,7 +232,7 @@ export default function Home() {
                     <h3 className="font-medium text-gray-900 dark:text-gray-100 text-sm sm:text-base truncate group-hover:text-orange-700 dark:group-hover:text-orange-400 transition-colors min-w-0">
                       {case_.title}
                     </h3>
-                    <span className="text-xs text-gray-400 dark:text-gray-500 flex-shrink-0">
+                    <span className="text-xs text-gray-400 dark:text-gray-500 shrink-0">
                       {new Date(case_.created_at || "").toLocaleDateString()}
                     </span>
                   </Link>
@@ -260,7 +260,7 @@ export default function Home() {
 
           {/* Feature Overview - Problem-oriented copy */}
           <div className="mt-4 sm:mt-6 grid grid-cols-3 gap-2 sm:gap-4 lg:gap-6 max-w-4xl mx-auto">
-            <div className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-gray-800 dark:to-gray-800 p-3 sm:p-6 rounded-xl border border-amber-100 dark:border-gray-700 text-center">
+            <div className="bg-linear-to-br from-amber-50 to-orange-50 dark:from-gray-800 dark:to-gray-800 p-3 sm:p-6 rounded-xl border border-amber-100 dark:border-gray-700 text-center">
               <div className="w-10 h-10 sm:w-12 sm:h-12 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center mb-2 sm:mb-4 mx-auto">
                 <svg
                   className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600 dark:text-amber-400"
@@ -284,7 +284,7 @@ export default function Home() {
                 Get clarity when the right path isn't obvious
               </p>
             </div>
-            <div className="bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-800 dark:to-gray-800 p-3 sm:p-6 rounded-xl border border-orange-100 dark:border-gray-700 text-center">
+            <div className="bg-linear-to-br from-orange-50 to-red-50 dark:from-gray-800 dark:to-gray-800 p-3 sm:p-6 rounded-xl border border-orange-100 dark:border-gray-700 text-center">
               <div className="w-10 h-10 sm:w-12 sm:h-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center mb-2 sm:mb-4 mx-auto">
                 <svg
                   className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600 dark:text-orange-400"
@@ -308,7 +308,7 @@ export default function Home() {
                 Compare approaches with honest trade-offs
               </p>
             </div>
-            <div className="bg-gradient-to-br from-red-50 to-rose-50 dark:from-gray-800 dark:to-gray-800 p-3 sm:p-6 rounded-xl border border-red-100 dark:border-gray-700 text-center">
+            <div className="bg-linear-to-br from-red-50 to-rose-50 dark:from-gray-800 dark:to-gray-800 p-3 sm:p-6 rounded-xl border border-red-100 dark:border-gray-700 text-center">
               <div className="w-10 h-10 sm:w-12 sm:h-12 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center mb-2 sm:mb-4 mx-auto">
                 <svg
                   className="w-5 h-5 sm:w-6 sm:h-6 text-red-600 dark:text-red-400"

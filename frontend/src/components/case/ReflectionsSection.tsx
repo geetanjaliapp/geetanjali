@@ -30,7 +30,7 @@ export function ReflectionsSection({
       </div>
 
       <button onClick={onToggle} className="w-full text-left">
-        <div className="flex items-center justify-between bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30 rounded-xl p-3 sm:p-4 shadow-sm border border-purple-100 dark:border-purple-800 hover:shadow-md transition-shadow">
+        <div className="flex items-center justify-between bg-linear-to-r from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30 rounded-xl p-3 sm:p-4 shadow-xs border border-purple-100 dark:border-purple-800 hover:shadow-md transition-shadow">
           <div>
             <div className="text-xs font-semibold text-purple-700 dark:text-purple-400 uppercase tracking-wide">
               Questions for Reflection
@@ -56,7 +56,7 @@ export function ReflectionsSection({
       </button>
 
       {showReflections && (
-        <div className="mt-2 sm:mt-3 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl p-3 sm:p-4 border border-purple-100 dark:border-purple-800">
+        <div className="mt-2 sm:mt-3 bg-linear-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl p-3 sm:p-4 border border-purple-100 dark:border-purple-800">
           <ul className="space-y-2.5 sm:space-y-3">
             {prompts.map((prompt, idx) => (
               <li

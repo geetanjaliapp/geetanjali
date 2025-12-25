@@ -268,7 +268,7 @@ export const SearchInput = forwardRef<SearchInputHandle, SearchInputProps>(
               }
               onKeyDown={handleKeyDown}
               placeholder={placeholder}
-              className="w-full pl-10 pr-10 py-3 sm:py-3.5 border border-amber-200 dark:border-gray-600 rounded-l-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:z-10 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 shadow-sm transition-shadow"
+              className="w-full pl-10 pr-10 py-3 sm:py-3.5 border border-amber-200 dark:border-gray-600 rounded-l-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-xs focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:z-10 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 shadow-xs transition-shadow"
               aria-label="Search query"
               aria-expanded={showRecentDropdown || showExamplesDropdown}
               aria-haspopup="listbox"
@@ -290,7 +290,7 @@ export const SearchInput = forwardRef<SearchInputHandle, SearchInputProps>(
                   <CloseIcon className="w-4 h-4" />
                 </button>
               ) : (
-                <kbd className="hidden lg:inline-flex items-center px-1.5 py-0.5 text-[10px] text-amber-600/70 dark:text-amber-400/70 bg-amber-50 dark:bg-amber-900/30 rounded border border-amber-200/50 dark:border-amber-700/50">
+                <kbd className="hidden lg:inline-flex items-center px-1.5 py-0.5 text-[10px] text-amber-600/70 dark:text-amber-400/70 bg-amber-50 dark:bg-amber-900/30 rounded-sm border border-amber-200/50 dark:border-amber-700/50">
                   ⌘K
                 </kbd>
               )}
@@ -390,7 +390,7 @@ export const SearchInput = forwardRef<SearchInputHandle, SearchInputProps>(
           <button
             type="submit"
             disabled={loading}
-            className="px-4 sm:px-6 py-3 sm:py-3.5 bg-orange-600 text-white font-medium rounded-r-full hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 shadow-sm hover:shadow-md border border-orange-600 hover:border-orange-700 -ml-px"
+            className="px-4 sm:px-6 py-3 sm:py-3.5 bg-orange-600 text-white font-medium rounded-r-full hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 shadow-xs hover:shadow-md border border-orange-600 hover:border-orange-700 -ml-px"
           >
             {loading ? (
               <SpinnerIcon className="w-5 h-5" />

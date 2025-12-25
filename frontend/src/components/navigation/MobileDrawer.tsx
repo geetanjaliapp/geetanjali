@@ -105,7 +105,7 @@ export function MobileDrawer({
         aria-hidden="true"
       >
         <div
-          className="fixed inset-0 bg-black/20 backdrop-blur-sm"
+          className="fixed inset-0 bg-black/20 backdrop-blur-xs"
           onClick={onClose}
         />
       </div>
@@ -127,7 +127,7 @@ export function MobileDrawer({
             <Link
               to={PRIMARY_CTA.to}
               onClick={onClose}
-              className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-lg shadow-md transition-all duration-200 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+              className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-linear-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-lg shadow-md transition-all duration-200 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
             >
               <NavIcon path={NAV_ICONS[PRIMARY_CTA.icon]} className="w-5 h-5" />
               <span>{PRIMARY_CTA.mobileLabel}</span>
@@ -147,9 +147,9 @@ export function MobileDrawer({
                     key={item.to}
                     to={item.to}
                     onClick={onClose}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-inset ${
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-inset ${
                       isActive
-                        ? "text-orange-700 bg-orange-100 shadow-sm dark:text-orange-400 dark:bg-orange-900/30"
+                        ? "text-orange-700 bg-orange-100 shadow-xs dark:text-orange-400 dark:bg-orange-900/30"
                         : "text-gray-600 hover:text-orange-600 hover:bg-orange-50 dark:text-gray-300 dark:hover:text-orange-400 dark:hover:bg-gray-800"
                     }`}
                   >
@@ -171,7 +171,7 @@ export function MobileDrawer({
               <div
                 className={`w-10 h-10 rounded-full ${
                   isGuest ? "bg-gray-400 dark:bg-gray-600" : "bg-orange-600"
-                } text-white flex items-center justify-center text-sm font-medium shadow-sm`}
+                } text-white flex items-center justify-center text-sm font-medium shadow-xs`}
               >
                 {isGuest ? (
                   <svg
@@ -281,7 +281,7 @@ export function MobileDrawer({
                   <Link
                     to="/signup"
                     onClick={onClose}
-                    className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-amber-100 dark:bg-amber-900/30 hover:bg-amber-200 dark:hover:bg-amber-900/50 border border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-300 font-medium rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+                    className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-amber-100 dark:bg-amber-900/30 hover:bg-amber-200 dark:hover:bg-amber-900/50 border border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-300 font-medium rounded-lg transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500"
                   >
                     <span>✨</span>
                     <span>Create account — Sync across devices</span>
@@ -300,7 +300,7 @@ export function MobileDrawer({
                   <Link
                     to="/login"
                     onClick={onClose}
-                    className="flex items-center justify-center w-full px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+                    className="flex items-center justify-center w-full px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500"
                   >
                     Sign in
                   </Link>
@@ -308,7 +308,7 @@ export function MobileDrawer({
               ) : (
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg transition-all duration-200 hover:shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg transition-all duration-200 hover:shadow-xs focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
                 >
                   <NavIcon path={NAV_ICONS.logout} className="w-4 h-4" />
                   Sign out

@@ -79,10 +79,10 @@ export function IntroCard(props: IntroCardProps) {
     const { book, onBegin } = props;
     return (
       <div className="w-full max-w-2xl mx-auto flex flex-col">
-        <div className="flex-shrink-0">
+        <div className="shrink-0">
           <button
             onClick={handleToggle}
-            className="w-full text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-4 dark:focus-visible:ring-offset-stone-900 rounded-xl transition-transform active:scale-[0.99]"
+            className="w-full text-center focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-4 dark:focus-visible:ring-offset-stone-900 rounded-xl transition-transform active:scale-[0.99]"
             aria-expanded={showDetails}
             aria-label={showDetails ? "Hide details" : "Show details"}
           >
@@ -130,7 +130,7 @@ export function IntroCard(props: IntroCardProps) {
 
         {/* Details panel - expands downward */}
         <div
-          className={`flex-shrink-0 overflow-hidden transition-all duration-300 ease-in-out ${
+          className={`shrink-0 overflow-hidden transition-all duration-300 ease-in-out ${
             showDetails
               ? "max-h-[1000px] opacity-100 mt-4"
               : "max-h-0 opacity-0 mt-0"
@@ -172,10 +172,10 @@ export function IntroCard(props: IntroCardProps) {
   const { chapter, onBegin, resumeVerse } = props;
   return (
     <div className="w-full max-w-2xl mx-auto flex flex-col">
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         <button
           onClick={handleToggle}
-          className="w-full text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-4 dark:focus-visible:ring-offset-stone-900 rounded-xl transition-transform active:scale-[0.99]"
+          className="w-full text-center focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-4 dark:focus-visible:ring-offset-stone-900 rounded-xl transition-transform active:scale-[0.99]"
           aria-expanded={showDetails}
           aria-label={showDetails ? "Hide details" : "Show details"}
         >
@@ -228,7 +228,7 @@ export function IntroCard(props: IntroCardProps) {
 
       {/* Details panel - expands downward */}
       <div
-        className={`flex-shrink-0 overflow-hidden transition-all duration-300 ease-in-out ${
+        className={`shrink-0 overflow-hidden transition-all duration-300 ease-in-out ${
           showDetails
             ? "max-h-[1000px] opacity-100 mt-4"
             : "max-h-0 opacity-0 mt-0"

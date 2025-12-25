@@ -40,7 +40,7 @@ export function PathsSection({
       </div>
 
       <button onClick={onToggle} className="w-full text-left">
-        <div className="flex items-center justify-between bg-white dark:bg-gray-800 rounded-xl p-3 sm:p-4 shadow-sm border border-orange-100 dark:border-orange-900 hover:shadow-md transition-shadow">
+        <div className="flex items-center justify-between bg-white dark:bg-gray-800 rounded-xl p-3 sm:p-4 shadow-xs border border-orange-100 dark:border-orange-900 hover:shadow-md transition-shadow">
           <div>
             <div className="text-xs font-semibold text-orange-700 dark:text-orange-400 uppercase tracking-wide">
               Paths Before You
@@ -73,7 +73,7 @@ export function PathsSection({
               <button
                 key={idx}
                 onClick={() => onSelectOption(idx)}
-                className={`flex-shrink-0 w-28 sm:w-auto p-2.5 sm:p-3 rounded-xl border-2 text-left transition-all h-full ${
+                className={`shrink-0 w-28 sm:w-auto p-2.5 sm:p-3 rounded-xl border-2 text-left transition-all h-full ${
                   selectedOption === idx
                     ? "bg-orange-50 dark:bg-orange-900/30 border-orange-400 dark:border-orange-600 shadow-md"
                     : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-orange-200 dark:hover:border-orange-700"
@@ -94,7 +94,7 @@ export function PathsSection({
           </div>
 
           {/* Selected path details */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-3 sm:p-4 border border-orange-100 dark:border-orange-900">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xs p-3 sm:p-4 border border-orange-100 dark:border-orange-900">
             <h4 className="font-semibold text-gray-900 dark:text-gray-100 text-sm sm:text-base">
               {options[selectedOption].title}
             </h4>
@@ -109,7 +109,7 @@ export function PathsSection({
                     key={i}
                     className="text-sm sm:text-base text-gray-700 dark:text-gray-300 flex items-start gap-1 mb-0.5"
                   >
-                    <span className="text-green-500 dark:text-green-400 mt-0.5 text-xs flex-shrink-0">
+                    <span className="text-green-500 dark:text-green-400 mt-0.5 text-xs shrink-0">
                       +
                     </span>
                     <span>{pro}</span>
@@ -125,7 +125,7 @@ export function PathsSection({
                     key={i}
                     className="text-sm sm:text-base text-gray-700 dark:text-gray-300 flex items-start gap-1 mb-0.5"
                   >
-                    <span className="text-amber-500 dark:text-amber-400 mt-0.5 text-xs flex-shrink-0">
+                    <span className="text-amber-500 dark:text-amber-400 mt-0.5 text-xs shrink-0">
                       -
                     </span>
                     <span>{con}</span>

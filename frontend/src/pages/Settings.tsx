@@ -342,7 +342,7 @@ export default function Settings() {
     : "Not started";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col">
+    <div className="min-h-screen bg-linear-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col">
       <Navbar />
 
       <main className="flex-1 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 animate-fadeIn">
@@ -369,7 +369,7 @@ export default function Settings() {
 
           {isAuthenticated ? (
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-orange-600 text-white flex items-center justify-center text-base font-medium flex-shrink-0">
+              <div className="w-12 h-12 rounded-full bg-orange-600 text-white flex items-center justify-center text-base font-medium shrink-0">
                 {getInitials(user?.name)}
               </div>
               <div className="flex-1 min-w-0">
@@ -428,7 +428,7 @@ export default function Settings() {
             </div>
           ) : (
             <div className="flex items-center gap-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
-              <div className="w-10 h-10 rounded-full bg-gray-400 dark:bg-gray-600 text-white flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 rounded-full bg-gray-400 dark:bg-gray-600 text-white flex items-center justify-center shrink-0">
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
                 </svg>
@@ -552,7 +552,7 @@ export default function Settings() {
                           return (
                             <div
                               key={goal.id}
-                              className="w-7 h-7 rounded-full bg-amber-200 dark:bg-amber-700/50 text-amber-700 dark:text-amber-300 flex items-center justify-center shadow-sm"
+                              className="w-7 h-7 rounded-full bg-amber-200 dark:bg-amber-700/50 text-amber-700 dark:text-amber-300 flex items-center justify-center shadow-xs"
                               title={goal.label}
                             >
                               {IconComponent && <IconComponent className="w-4 h-4" />}
@@ -589,7 +589,7 @@ export default function Settings() {
                     <p
                       id="newsletter-prefs-error"
                       role="alert"
-                      className="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded px-2 py-1"
+                      className="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-sm px-2 py-1"
                     >
                       {updateError}
                     </p>
@@ -599,7 +599,7 @@ export default function Settings() {
                     <p
                       role="status"
                       aria-live="polite"
-                      className="text-xs text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 rounded px-2 py-1"
+                      className="text-xs text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 rounded-sm px-2 py-1"
                     >
                       Preferences updated!
                     </p>
@@ -670,7 +670,7 @@ export default function Settings() {
                         <p
                           id="subscribe-other-error"
                           role="alert"
-                          className="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded px-2 py-1"
+                          className="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-sm px-2 py-1"
                         >
                           {error}
                         </p>
@@ -707,7 +707,7 @@ export default function Settings() {
                 className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3"
               >
                 <div className="flex items-start gap-2">
-                  <CheckIcon className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+                  <CheckIcon className="w-5 h-5 text-green-600 dark:text-green-400 shrink-0 mt-0.5" />
                   <div>
                     <p className="text-sm font-medium text-green-800 dark:text-green-300">
                       Subscribed{effectiveName ? ` as ${effectiveName}` : ""}
@@ -760,7 +760,7 @@ export default function Settings() {
                           // Scroll to goals section
                           document.getElementById("goals")?.scrollIntoView({ behavior: "smooth" });
                         }}
-                        className="text-xs px-2 py-1 bg-purple-100 dark:bg-purple-800 text-purple-700 dark:text-purple-300 rounded"
+                        className="text-xs px-2 py-1 bg-purple-100 dark:bg-purple-800 text-purple-700 dark:text-purple-300 rounded-sm"
                       >
                         Select goals
                       </button>
@@ -784,7 +784,7 @@ export default function Settings() {
                         return (
                           <div
                             key={goal.id}
-                            className="w-7 h-7 rounded-full bg-amber-200 dark:bg-amber-700/50 text-amber-700 dark:text-amber-300 flex items-center justify-center shadow-sm"
+                            className="w-7 h-7 rounded-full bg-amber-200 dark:bg-amber-700/50 text-amber-700 dark:text-amber-300 flex items-center justify-center shadow-xs"
                             title={goal.label}
                           >
                             {IconComponent && <IconComponent className="w-4 h-4" />}
@@ -841,7 +841,7 @@ export default function Settings() {
                   <p
                     id="newsletter-anon-error"
                     role="alert"
-                    className="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded px-2 py-1"
+                    className="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-sm px-2 py-1"
                   >
                     {error}
                   </p>
@@ -897,7 +897,7 @@ export default function Settings() {
               <div>
                 <div className="flex items-center gap-1.5 mb-1.5">
                   <label className="text-sm text-gray-700 dark:text-gray-300">Default sections</label>
-                  <span className="text-[10px] text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">
+                  <span className="text-[10px] text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded-sm">
                     This device
                   </span>
                 </div>
@@ -918,7 +918,7 @@ export default function Settings() {
                         onChange={(e) =>
                           setSectionPrefs((p) => ({ ...p, [key]: e.target.checked }))
                         }
-                        className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-orange-600 focus:ring-orange-500"
+                        className="w-4 h-4 rounded-sm border-gray-300 dark:border-gray-600 text-orange-600 focus:ring-orange-500"
                       />
                       <span className="text-sm text-gray-700 dark:text-gray-300">{label}</span>
                     </label>

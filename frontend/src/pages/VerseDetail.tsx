@@ -222,46 +222,46 @@ export default function VerseDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col">
+      <div className="min-h-screen bg-linear-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col">
         <Navbar />
         <div className="flex-1 py-4 sm:py-6 lg:py-8">
           <div className="max-w-5xl mx-auto px-3 sm:px-4 lg:px-6">
             {/* Skeleton: Chapter Context Bar */}
-            <div className="flex items-center gap-3 mb-4 sm:mb-6 bg-white/80 dark:bg-gray-800/80 rounded-lg sm:rounded-xl p-3 sm:p-4 shadow-sm">
+            <div className="flex items-center gap-3 mb-4 sm:mb-6 bg-white/80 dark:bg-gray-800/80 rounded-lg sm:rounded-xl p-3 sm:p-4 shadow-xs">
               <div className="w-8 h-8 bg-amber-200/50 dark:bg-gray-700 rounded-full animate-pulse" />
               <div className="flex-1">
-                <div className="h-4 bg-amber-200/50 dark:bg-gray-700 rounded w-32 mb-2 animate-pulse" />
-                <div className="h-2 bg-amber-200/50 dark:bg-gray-700 rounded w-full animate-pulse" />
+                <div className="h-4 bg-amber-200/50 dark:bg-gray-700 rounded-sm w-32 mb-2 animate-pulse" />
+                <div className="h-2 bg-amber-200/50 dark:bg-gray-700 rounded-sm w-full animate-pulse" />
               </div>
-              <div className="h-4 bg-amber-200/50 dark:bg-gray-700 rounded w-16 animate-pulse" />
+              <div className="h-4 bg-amber-200/50 dark:bg-gray-700 rounded-sm w-16 animate-pulse" />
             </div>
 
             {/* Skeleton: Main Spotlight Section */}
-            <div className="bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 dark:from-gray-800 dark:via-gray-800 dark:to-gray-800 rounded-xl sm:rounded-2xl lg:rounded-3xl shadow-xl sm:shadow-2xl p-4 sm:p-8 lg:p-12 mb-4 sm:mb-6 lg:mb-8 border border-amber-200/50 dark:border-gray-700">
+            <div className="bg-linear-to-br from-amber-50 via-orange-50 to-red-50 dark:from-gray-800 dark:via-gray-800 dark:to-gray-800 rounded-xl sm:rounded-2xl lg:rounded-3xl shadow-xl sm:shadow-2xl p-4 sm:p-8 lg:p-12 mb-4 sm:mb-6 lg:mb-8 border border-amber-200/50 dark:border-gray-700">
               {/* Sanskrit Skeleton */}
               <div className="mb-4 sm:mb-6 lg:mb-8 text-center pt-2 sm:pt-4">
                 <div className="w-8 h-8 bg-amber-200/40 dark:bg-gray-700 rounded-full mx-auto mb-4 animate-pulse" />
                 <div className="space-y-3 max-w-xl mx-auto">
-                  <div className="h-8 bg-amber-200/40 dark:bg-gray-700 rounded animate-pulse" />
-                  <div className="h-8 bg-amber-200/40 dark:bg-gray-700 rounded animate-pulse w-4/5 mx-auto" />
-                  <div className="h-8 bg-amber-200/40 dark:bg-gray-700 rounded animate-pulse w-3/4 mx-auto" />
+                  <div className="h-8 bg-amber-200/40 dark:bg-gray-700 rounded-sm animate-pulse" />
+                  <div className="h-8 bg-amber-200/40 dark:bg-gray-700 rounded-sm animate-pulse w-4/5 mx-auto" />
+                  <div className="h-8 bg-amber-200/40 dark:bg-gray-700 rounded-sm animate-pulse w-3/4 mx-auto" />
                 </div>
-                <div className="h-4 bg-amber-200/40 dark:bg-gray-700 rounded w-20 mx-auto mt-4 animate-pulse" />
+                <div className="h-4 bg-amber-200/40 dark:bg-gray-700 rounded-sm w-20 mx-auto mt-4 animate-pulse" />
               </div>
 
               {/* Leadership Insight Skeleton */}
-              <div className="bg-white/70 dark:bg-gray-900/50 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 border border-amber-100/50 dark:border-gray-700 mb-4 sm:mb-6 lg:mb-8">
-                <div className="h-3 bg-red-200/40 dark:bg-gray-700 rounded w-32 mb-4 animate-pulse" />
+              <div className="bg-white/70 dark:bg-gray-900/50 backdrop-blur-xs rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 border border-amber-100/50 dark:border-gray-700 mb-4 sm:mb-6 lg:mb-8">
+                <div className="h-3 bg-red-200/40 dark:bg-gray-700 rounded-sm w-32 mb-4 animate-pulse" />
                 <div className="space-y-2">
-                  <div className="h-5 bg-gray-200/60 dark:bg-gray-700 rounded animate-pulse" />
-                  <div className="h-5 bg-gray-200/60 dark:bg-gray-700 rounded animate-pulse w-5/6" />
-                  <div className="h-5 bg-gray-200/60 dark:bg-gray-700 rounded animate-pulse w-4/5" />
+                  <div className="h-5 bg-gray-200/60 dark:bg-gray-700 rounded-sm animate-pulse" />
+                  <div className="h-5 bg-gray-200/60 dark:bg-gray-700 rounded-sm animate-pulse w-5/6" />
+                  <div className="h-5 bg-gray-200/60 dark:bg-gray-700 rounded-sm animate-pulse w-4/5" />
                 </div>
               </div>
 
               {/* Principles Skeleton */}
               <div className="mb-4 sm:mb-6 lg:mb-8">
-                <div className="h-3 bg-amber-200/40 dark:bg-gray-700 rounded w-40 mb-4 animate-pulse" />
+                <div className="h-3 bg-amber-200/40 dark:bg-gray-700 rounded-sm w-40 mb-4 animate-pulse" />
                 <div className="flex flex-wrap gap-2">
                   <div className="h-8 bg-amber-200/40 dark:bg-gray-700 rounded-full w-28 animate-pulse" />
                   <div className="h-8 bg-amber-200/40 dark:bg-gray-700 rounded-full w-32 animate-pulse" />
@@ -270,22 +270,22 @@ export default function VerseDetail() {
               </div>
 
               {/* Divider */}
-              <div className="my-4 sm:my-6 h-px bg-gradient-to-r from-transparent via-amber-300/50 to-transparent" />
+              <div className="my-4 sm:my-6 h-px bg-linear-to-r from-transparent via-amber-300/50 to-transparent" />
 
               {/* Translations Skeleton */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
                 <div>
-                  <div className="h-3 bg-amber-200/40 dark:bg-gray-700 rounded w-24 mb-4 animate-pulse" />
+                  <div className="h-3 bg-amber-200/40 dark:bg-gray-700 rounded-sm w-24 mb-4 animate-pulse" />
                   <div className="space-y-2">
-                    <div className="h-4 bg-gray-200/50 dark:bg-gray-700 rounded animate-pulse" />
-                    <div className="h-4 bg-gray-200/50 dark:bg-gray-700 rounded animate-pulse w-5/6" />
+                    <div className="h-4 bg-gray-200/50 dark:bg-gray-700 rounded-sm animate-pulse" />
+                    <div className="h-4 bg-gray-200/50 dark:bg-gray-700 rounded-sm animate-pulse w-5/6" />
                   </div>
                 </div>
                 <div>
-                  <div className="h-3 bg-amber-200/40 dark:bg-gray-700 rounded w-28 mb-4 animate-pulse" />
+                  <div className="h-3 bg-amber-200/40 dark:bg-gray-700 rounded-sm w-28 mb-4 animate-pulse" />
                   <div className="space-y-2">
-                    <div className="h-4 bg-gray-200/50 dark:bg-gray-700 rounded animate-pulse" />
-                    <div className="h-4 bg-gray-200/50 dark:bg-gray-700 rounded animate-pulse w-4/5" />
+                    <div className="h-4 bg-gray-200/50 dark:bg-gray-700 rounded-sm animate-pulse" />
+                    <div className="h-4 bg-gray-200/50 dark:bg-gray-700 rounded-sm animate-pulse w-4/5" />
                   </div>
                 </div>
               </div>
@@ -299,7 +299,7 @@ export default function VerseDetail() {
 
   if (error || !verse) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col">
+      <div className="min-h-screen bg-linear-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col">
         <Navbar />
         <div className="flex-1 flex items-center justify-center">
           <ContentNotFound variant="verse" />
@@ -333,7 +333,7 @@ export default function VerseDetail() {
   const isAtEnd = verse.chapter === 18 && verse.verse === 78;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col">
+    <div className="min-h-screen bg-linear-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col">
       <Navbar />
 
       {/* Desktop Floating Navigation Arrows (only when browsing) */}
@@ -365,7 +365,7 @@ export default function VerseDetail() {
           />
 
           {/* Main Spotlight Section */}
-          <div className="animate-fade-in bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 dark:from-gray-800 dark:via-gray-800 dark:to-gray-800 rounded-xl sm:rounded-2xl lg:rounded-3xl shadow-xl sm:shadow-2xl p-4 sm:p-8 lg:p-12 mb-4 sm:mb-6 lg:mb-8 border border-amber-200/50 dark:border-gray-700">
+          <div className="animate-fade-in bg-linear-to-br from-amber-50 via-orange-50 to-red-50 dark:from-gray-800 dark:via-gray-800 dark:to-gray-800 rounded-xl sm:rounded-2xl lg:rounded-3xl shadow-xl sm:shadow-2xl p-4 sm:p-8 lg:p-12 mb-4 sm:mb-6 lg:mb-8 border border-amber-200/50 dark:border-gray-700">
             {/* Sanskrit Spotlight */}
             {verse.sanskrit_devanagari && (
               <div className="mb-4 sm:mb-6 lg:mb-8 text-center pt-2 sm:pt-4">
@@ -402,7 +402,7 @@ export default function VerseDetail() {
                   {/* Favorite button */}
                   <button
                     onClick={() => toggleFavorite(verse.canonical_id)}
-                    className={`p-3 sm:p-1.5 rounded-full transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 ${
+                    className={`p-3 sm:p-1.5 rounded-full transition-all duration-150 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 ${
                       isFavorite(verse.canonical_id)
                         ? "text-red-500 dark:text-red-400"
                         : "text-amber-600/50 dark:text-amber-400/60 hover:text-red-400 dark:hover:text-red-400 hover:scale-110"
@@ -427,7 +427,7 @@ export default function VerseDetail() {
                   {/* Share button - opens unified share modal */}
                   <button
                     onClick={() => setShowShareModal(true)}
-                    className="p-3 sm:p-1.5 rounded-full transition-all duration-150 text-amber-600/50 dark:text-amber-400/60 hover:text-amber-600 dark:hover:text-amber-400 hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+                    className="p-3 sm:p-1.5 rounded-full transition-all duration-150 text-amber-600/50 dark:text-amber-400/60 hover:text-amber-600 dark:hover:text-amber-400 hover:scale-110 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
                     aria-label="Share verse"
                   >
                     <ShareIcon className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -476,7 +476,7 @@ export default function VerseDetail() {
 
             {/* Leadership Insight - Collapsible */}
             {verse.paraphrase_en && (
-              <div className="bg-white/70 dark:bg-gray-900/50 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 border border-amber-100/50 dark:border-gray-700 mb-4 sm:mb-6 lg:mb-8">
+              <div className="bg-white/70 dark:bg-gray-900/50 backdrop-blur-xs rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 border border-amber-100/50 dark:border-gray-700 mb-4 sm:mb-6 lg:mb-8">
                 <button
                   onClick={() => toggleSection("insight")}
                   className="w-full flex items-center justify-between text-left group"
@@ -517,11 +517,11 @@ export default function VerseDetail() {
                         to={`/verses?topic=${principleId}`}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2
                                    bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 rounded-full text-sm sm:text-base
-                                   font-medium shadow-sm
+                                   font-medium shadow-xs
                                    hover:bg-amber-200 dark:hover:bg-amber-800/50 hover:shadow-md
                                    active:bg-amber-300 dark:active:bg-amber-700/50
                                    transition-all duration-150
-                                   focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500
+                                   focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500
                                    focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
                         aria-label={`View all verses about ${getPrincipleLabel(principleId)}`}
                       >
@@ -539,7 +539,7 @@ export default function VerseDetail() {
               )}
 
             {/* Divider */}
-            <div className="my-4 sm:my-6 h-px bg-gradient-to-r from-transparent via-amber-300/50 dark:via-gray-600 to-transparent" />
+            <div className="my-4 sm:my-6 h-px bg-linear-to-r from-transparent via-amber-300/50 dark:via-gray-600 to-transparent" />
 
             {/* Translations - Collapsible */}
             {(primaryHindi || primaryEnglish) && (
@@ -612,7 +612,7 @@ export default function VerseDetail() {
               {/* Collapsible Header */}
               <button
                 onClick={() => setShowAllTranslations(!showAllTranslations)}
-                className="w-full flex items-center justify-between p-4 sm:p-6 lg:p-8 text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-amber-500"
+                className="w-full flex items-center justify-between p-4 sm:p-6 lg:p-8 text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-amber-500"
                 aria-expanded={showAllTranslations}
                 aria-controls="more-translations-content"
               >

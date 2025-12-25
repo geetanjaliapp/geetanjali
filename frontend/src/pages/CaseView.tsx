@@ -544,7 +544,7 @@ ${messages
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col">
+      <div className="min-h-screen bg-linear-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col">
         <Navbar />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-gray-600 dark:text-gray-400">
@@ -557,7 +557,7 @@ ${messages
 
   if (!caseData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col">
+      <div className="min-h-screen bg-linear-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col">
         <Navbar />
         <div className="flex-1 flex items-center justify-center">
           <ContentNotFound variant="case" isAuthenticated={isAuthenticated} />
@@ -567,7 +567,7 @@ ${messages
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col">
+    <div className="min-h-screen bg-linear-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col">
       <Navbar />
 
       <CaseHeader
@@ -620,7 +620,7 @@ ${messages
               </p>
               <button
                 onClick={() => setShowSignupPrompt(false)}
-                className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 ml-4 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+                className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 ml-4 rounded-sm focus:outline-hidden focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
               >
                 <svg
                   className="w-4 h-4"
@@ -644,7 +644,7 @@ ${messages
           {messages.length > 0 && (
             <div className="relative">
               {/* Vertical Line */}
-              <div className="absolute left-2.5 sm:left-3 top-6 bottom-0 w-0.5 bg-gradient-to-b from-amber-300 via-orange-300 to-red-300 dark:from-amber-600 dark:via-orange-600 dark:to-red-600" />
+              <div className="absolute left-2.5 sm:left-3 top-6 bottom-0 w-0.5 bg-linear-to-b from-amber-300 via-orange-300 to-red-300 dark:from-amber-600 dark:via-orange-600 dark:to-red-600" />
 
               {/* Exchanges */}
               {exchanges.map((exchange, exchangeIdx) => {
@@ -860,7 +860,7 @@ ${messages
                                       "Can you provide more detail or clarify the recommended approach?",
                                     )
                                   }
-                                  className="mt-2 text-sm text-amber-700 dark:text-amber-400 hover:text-amber-900 dark:hover:text-amber-300 hover:underline flex items-center gap-1 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+                                  className="mt-2 text-sm text-amber-700 dark:text-amber-400 hover:text-amber-900 dark:hover:text-amber-300 hover:underline flex items-center gap-1 rounded-sm focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
                                 >
                                   <svg
                                     className="w-3.5 h-3.5"
@@ -890,7 +890,7 @@ ${messages
                                     exchange.output &&
                                     toggleSources(exchange.output.id)
                                   }
-                                  className="text-xs font-medium text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 flex items-center gap-1 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+                                  className="text-xs font-medium text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 flex items-center gap-1 rounded-sm focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
                                 >
                                   <svg
                                     className={`w-3 h-3 transition-transform ${isSourcesExpanded ? "rotate-90" : ""}`}
@@ -919,7 +919,7 @@ ${messages
                                       (source) => (
                                         <div
                                           key={source.canonical_id}
-                                          className="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 rounded-lg p-3 border border-orange-100 dark:border-orange-800"
+                                          className="bg-linear-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 rounded-lg p-3 border border-orange-100 dark:border-orange-800"
                                         >
                                           <div className="flex items-center justify-between">
                                             <Link
@@ -1043,7 +1043,7 @@ ${messages
               <div className="mt-8 pt-6 border-t border-orange-200/50 dark:border-orange-800/50">
                 {/* Section Header */}
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/40 dark:to-orange-900/40 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-full bg-linear-to-br from-amber-100 to-orange-100 dark:from-amber-900/40 dark:to-orange-900/40 flex items-center justify-center">
                     <svg
                       className="w-4 h-4 text-orange-600 dark:text-orange-400"
                       fill="none"

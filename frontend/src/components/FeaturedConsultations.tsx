@@ -115,9 +115,9 @@ export function FeaturedConsultations({
         </h2>
         <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-md border border-amber-200 dark:border-gray-700 p-6 sm:p-8">
           <div className="animate-pulse space-y-4">
-            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
-            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
-            <div className="h-20 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded-sm w-3/4"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded-sm w-1/2"></div>
+            <div className="h-20 bg-gray-200 dark:bg-gray-700 rounded-sm"></div>
           </div>
         </div>
       </section>
@@ -138,7 +138,7 @@ export function FeaturedConsultations({
           </p>
           <Link
             to="/cases/new"
-            className="inline-flex items-center gap-2 text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800 rounded"
+            className="inline-flex items-center gap-2 text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 font-medium focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800 rounded-sm"
           >
             <span>Ask your own question</span>
             <svg
@@ -173,7 +173,7 @@ export function FeaturedConsultations({
           <button
             key={cat}
             onClick={() => handleCategoryChange(cat)}
-            className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 ${
+            className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 ${
               selected === cat
                 ? "bg-orange-600 text-white"
                 : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
@@ -221,14 +221,14 @@ export function FeaturedConsultations({
             <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
               Geetanjali suggests:
             </p>
-            <div className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-gray-700/50 dark:to-gray-700/30 rounded-lg p-3 sm:p-4">
+            <div className="bg-linear-to-br from-amber-50 to-orange-50 dark:from-gray-700/50 dark:to-gray-700/30 rounded-lg p-3 sm:p-4">
               <ul className="space-y-2">
                 {currentCase.recommended_steps.map((step, idx) => (
                   <li
                     key={idx}
                     className="flex items-start gap-2 text-sm sm:text-base text-gray-700 dark:text-gray-300"
                   >
-                    <span className="flex-shrink-0 w-5 h-5 bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-400 rounded-full flex items-center justify-center text-xs font-medium mt-0.5">
+                    <span className="shrink-0 w-5 h-5 bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-400 rounded-full flex items-center justify-center text-xs font-medium mt-0.5">
                       {idx + 1}
                     </span>
                     <span>{step}</span>
@@ -255,7 +255,7 @@ export function FeaturedConsultations({
               <span key={ref.canonical_id}>
                 <Link
                   to={getVersePath(ref.display)}
-                  className="text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 hover:underline focus-visible:outline-none focus-visible:underline focus-visible:ring-1 focus-visible:ring-orange-500 rounded"
+                  className="text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 hover:underline focus-visible:outline-hidden focus-visible:underline focus-visible:ring-1 focus-visible:ring-orange-500 rounded-sm"
                 >
                   {ref.display}
                 </Link>
@@ -270,7 +270,7 @@ export function FeaturedConsultations({
           <p className="text-sm text-center mt-3">
             <button
               onClick={() => handleViewFull(currentCase.slug!)}
-              className="text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 hover:underline focus-visible:outline-none focus-visible:underline focus-visible:ring-1 focus-visible:ring-orange-500 rounded font-medium"
+              className="text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 hover:underline focus-visible:outline-hidden focus-visible:underline focus-visible:ring-1 focus-visible:ring-orange-500 rounded-sm font-medium"
             >
               View full consultation →
             </button>
@@ -282,7 +282,7 @@ export function FeaturedConsultations({
       <div className="mt-4 flex justify-center">
         <button
           onClick={handleAskSimilar}
-          className="inline-flex items-center gap-2 border-2 border-orange-600 dark:border-orange-500 text-orange-600 dark:text-orange-400 hover:bg-orange-600 hover:text-white dark:hover:bg-orange-500 dark:hover:text-white font-medium px-6 py-2.5 rounded-xl transition-colors text-sm sm:text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+          className="inline-flex items-center gap-2 border-2 border-orange-600 dark:border-orange-500 text-orange-600 dark:text-orange-400 hover:bg-orange-600 hover:text-white dark:hover:bg-orange-500 dark:hover:text-white font-medium px-6 py-2.5 rounded-xl transition-colors text-sm sm:text-base focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
         >
           <span>Ask a similar question</span>
           <svg

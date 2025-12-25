@@ -55,8 +55,8 @@ export function ChapterContextBar({
         {/* Back button */}
         <button
           onClick={handleBack}
-          className="flex-shrink-0 text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 font-medium text-sm
-                     focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500
+          className="shrink-0 text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 font-medium text-sm
+                     focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500
                      focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 rounded transition-colors"
           aria-label="Go back to previous page"
         >
@@ -79,7 +79,7 @@ export function ChapterContextBar({
         </div>
 
         {/* Right side: Verse position + Font controls */}
-        <div className="flex-shrink-0 flex items-center gap-2">
+        <div className="shrink-0 flex items-center gap-2">
           {/* Verse position */}
           <div className="text-right">
             {/* Desktop: "Verse 47 of 72" */}

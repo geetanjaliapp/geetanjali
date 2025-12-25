@@ -959,7 +959,7 @@ export default function Verses() {
   }, [clearSearch, filterMode, selectedPrinciple, setSearchParams]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col">
+    <div className="min-h-screen bg-linear-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col">
       {/* Screen reader announcements for search results */}
       <div
         role="status"
@@ -987,7 +987,7 @@ export default function Verses() {
       </div>
 
       {/* Sticky Search + Filter Bar */}
-      <div className="sticky top-14 sm:top-16 z-10 bg-amber-50/95 dark:bg-gray-900/95 backdrop-blur-sm shadow-sm border-b border-amber-200/50 dark:border-gray-700/50">
+      <div className="sticky top-14 sm:top-16 z-10 bg-amber-50/95 dark:bg-gray-900/95 backdrop-blur-xs shadow-xs border-b border-amber-200/50 dark:border-gray-700/50">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2 sm:py-3">
           {/* Row 1: Search Input - compact */}
           <div className="max-w-2xl mx-auto mb-2 sm:mb-3">
@@ -1004,20 +1004,20 @@ export default function Verses() {
               loading={searchLoading}
               showExamples={true}
               autoFocus={false}
-              className="[&_input]:py-2 [&_input]:sm:py-2.5 [&_button]:py-2 [&_button]:sm:py-2.5"
+              className="[&_input]:py-2 sm:[&_input]:py-2.5 [&_button]:py-2 sm:[&_button]:py-2.5"
             />
           </div>
 
           {/* Row 2: Mode Filters - Segmented Control + Chapter Dropdown */}
           <div className="flex items-center gap-2 sm:gap-3 mb-2">
             {/* Segmented Control: Featured | All | Favorites */}
-            <div className="inline-flex rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 p-0.5 shadow-sm">
+            <div className="inline-flex rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 p-0.5 shadow-xs">
               {/* Featured Segment */}
               <button
                 onClick={() => handleFilterSelect("featured")}
-                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-800 ${
+                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-800 ${
                   showFeatured && !selectedPrinciple && !isSearchMode
-                    ? "bg-orange-600 text-white shadow-sm"
+                    ? "bg-orange-600 text-white shadow-xs"
                     : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                 }`}
               >
@@ -1033,9 +1033,9 @@ export default function Verses() {
 
                   <button
                     onClick={() => handleFilterSelect("recommended")}
-                    className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-800 ${
+                    className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-800 ${
                       showRecommended && !selectedPrinciple && !isSearchMode
-                        ? "bg-orange-600 text-white shadow-sm"
+                        ? "bg-orange-600 text-white shadow-xs"
                         : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                     }`}
                     title="Verses matching your learning goals"
@@ -1052,9 +1052,9 @@ export default function Verses() {
               {/* Favorites Segment */}
               <button
                 onClick={() => handleFilterSelect("favorites")}
-                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-800 ${
+                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-800 ${
                   showFavorites && !selectedPrinciple && !isSearchMode
-                    ? "bg-orange-600 text-white shadow-sm"
+                    ? "bg-orange-600 text-white shadow-xs"
                     : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                 }`}
               >
@@ -1083,9 +1083,9 @@ export default function Verses() {
               {/* All Segment */}
               <button
                 onClick={() => handleFilterSelect("all")}
-                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-800 ${
+                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-800 ${
                   showAll && !selectedPrinciple && !isSearchMode
-                    ? "bg-orange-600 text-white shadow-sm"
+                    ? "bg-orange-600 text-white shadow-xs"
                     : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                 }`}
               >
@@ -1098,7 +1098,7 @@ export default function Verses() {
             <div className="relative">
               <button
                 onClick={() => setShowChapterDropdown(!showChapterDropdown)}
-                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-sm font-medium transition-colors border focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 ${
+                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-sm font-medium transition-colors border focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 ${
                   selectedChapter && !selectedPrinciple && !isSearchMode
                     ? "bg-orange-600 text-white border-orange-600 shadow-md"
                     : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -1147,8 +1147,8 @@ export default function Verses() {
           {/* Row 3: Topic/Principle Pills - scrollable */}
           <div className="relative">
             {/* Scroll fade indicators */}
-            <div className="absolute left-0 top-0 bottom-0 w-4 bg-gradient-to-r from-amber-50/95 dark:from-gray-900/95 to-transparent z-10 pointer-events-none" />
-            <div className="absolute right-0 top-0 bottom-0 w-4 bg-gradient-to-l from-amber-50/95 dark:from-gray-900/95 to-transparent z-10 pointer-events-none" />
+            <div className="absolute left-0 top-0 bottom-0 w-4 bg-linear-to-r from-amber-50/95 dark:from-gray-900/95 to-transparent z-10 pointer-events-none" />
+            <div className="absolute right-0 top-0 bottom-0 w-4 bg-linear-to-l from-amber-50/95 dark:from-gray-900/95 to-transparent z-10 pointer-events-none" />
 
             <div
               ref={principlesContainerRef}
@@ -1163,7 +1163,7 @@ export default function Verses() {
                       selectedPrinciple === principle.id ? null : principle.id,
                     )
                   }
-                  className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-900 ${
+                  className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors whitespace-nowrap shrink-0 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-900 ${
                     selectedPrinciple === principle.id && !isSearchMode
                       ? "bg-amber-600 text-white shadow-md"
                       : "bg-amber-100/80 dark:bg-gray-700 text-amber-800 dark:text-amber-300 hover:bg-amber-200 dark:hover:bg-gray-600 border border-amber-200/50 dark:border-gray-600"
@@ -1361,7 +1361,7 @@ export default function Verses() {
                 <>
                   {/* Consultation Suggestion Banner */}
                   {searchData.suggestion && (
-                    <div className="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 border border-orange-200 dark:border-orange-800 rounded-xl p-4 mb-6">
+                    <div className="bg-linear-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 border border-orange-200 dark:border-orange-800 rounded-xl p-4 mb-6">
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                         <p className="text-sm text-orange-800 dark:text-orange-300">
                           {searchData.suggestion.message}
@@ -1396,7 +1396,7 @@ export default function Verses() {
                           className="w-full group"
                         >
                           <div className="flex items-center gap-4">
-                            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-300/50 dark:via-amber-600/30 to-amber-300/70 dark:to-amber-600/50" />
+                            <div className="flex-1 h-px bg-linear-to-r from-transparent via-amber-300/50 dark:via-amber-600/30 to-amber-300/70 dark:to-amber-600/50" />
                             <div
                               className={`flex flex-col items-center transition-all duration-300 ${searchLoadingMore ? "scale-95 opacity-70" : "group-hover:scale-105"}`}
                             >
@@ -1423,19 +1423,19 @@ export default function Verses() {
                                 </span>
                               )}
                             </div>
-                            <div className="flex-1 h-px bg-gradient-to-l from-transparent via-amber-300/50 dark:via-amber-600/30 to-amber-300/70 dark:to-amber-600/50" />
+                            <div className="flex-1 h-px bg-linear-to-l from-transparent via-amber-300/50 dark:via-amber-600/30 to-amber-300/70 dark:to-amber-600/50" />
                           </div>
                         </button>
                       ) : (
                         <div className="flex items-center gap-4">
-                          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-200/40 dark:via-amber-600/20 to-amber-200/60 dark:to-amber-600/40" />
+                          <div className="flex-1 h-px bg-linear-to-r from-transparent via-amber-200/40 dark:via-amber-600/20 to-amber-200/60 dark:to-amber-600/40" />
                           <div className="flex flex-col items-center">
                             <SearchIcon className="w-5 h-5 text-amber-300/70 dark:text-amber-500/50" />
                             <span className="text-xs text-amber-600/70 dark:text-amber-500/60 mt-1">
                               {searchData.total_count ?? searchData.results.length} results
                             </span>
                           </div>
-                          <div className="flex-1 h-px bg-gradient-to-l from-transparent via-amber-200/40 dark:via-amber-600/20 to-amber-200/60 dark:to-amber-600/40" />
+                          <div className="flex-1 h-px bg-linear-to-l from-transparent via-amber-200/40 dark:via-amber-600/20 to-amber-200/60 dark:to-amber-600/40" />
                         </div>
                       )}
                     </div>
@@ -1618,7 +1618,7 @@ export default function Verses() {
                           className="w-full group"
                         >
                           <div className="flex items-center gap-4">
-                            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-300/50 dark:via-amber-600/30 to-amber-300/70 dark:to-amber-600/50" />
+                            <div className="flex-1 h-px bg-linear-to-r from-transparent via-amber-300/50 dark:via-amber-600/30 to-amber-300/70 dark:to-amber-600/50" />
                             <div
                               className={`flex flex-col items-center transition-all duration-300 ${loadingMore ? "scale-95 opacity-70" : "group-hover:scale-105"}`}
                             >
@@ -1645,12 +1645,12 @@ export default function Verses() {
                                 </span>
                               )}
                             </div>
-                            <div className="flex-1 h-px bg-gradient-to-l from-transparent via-amber-300/50 dark:via-amber-600/30 to-amber-300/70 dark:to-amber-600/50" />
+                            <div className="flex-1 h-px bg-linear-to-l from-transparent via-amber-300/50 dark:via-amber-600/30 to-amber-300/70 dark:to-amber-600/50" />
                           </div>
                         </button>
                       ) : (
                         <div className="flex items-center gap-4">
-                          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-200/40 dark:via-amber-600/20 to-amber-200/60 dark:to-amber-600/40" />
+                          <div className="flex-1 h-px bg-linear-to-r from-transparent via-amber-200/40 dark:via-amber-600/20 to-amber-200/60 dark:to-amber-600/40" />
                           <div className="flex flex-col items-center">
                             {showFavorites ? (
                               <HeartIcon className="w-5 h-5 text-red-300/70 dark:text-red-400/50" filled />
@@ -1667,7 +1667,7 @@ export default function Verses() {
                               {displayedVerses.length !== 1 ? "s" : ""}
                             </span>
                           </div>
-                          <div className="flex-1 h-px bg-gradient-to-l from-transparent via-amber-200/40 dark:via-amber-600/20 to-amber-200/60 dark:to-amber-600/40" />
+                          <div className="flex-1 h-px bg-linear-to-l from-transparent via-amber-200/40 dark:via-amber-600/20 to-amber-200/60 dark:to-amber-600/40" />
                         </div>
                       )}
                     </div>

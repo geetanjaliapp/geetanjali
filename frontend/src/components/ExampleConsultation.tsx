@@ -130,7 +130,7 @@ export function ExampleConsultation({
                 key={idx}
                 className="flex items-start gap-2 text-sm sm:text-base text-gray-700 dark:text-gray-300"
               >
-                <span className="flex-shrink-0 w-5 h-5 bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-400 rounded-full flex items-center justify-center text-xs font-medium">
+                <span className="shrink-0 w-5 h-5 bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-400 rounded-full flex items-center justify-center text-xs font-medium">
                   {idx + 1}
                 </span>
                 <span>{option}</span>

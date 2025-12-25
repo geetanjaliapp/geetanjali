@@ -25,7 +25,7 @@ export function NavLogo({
     return (
       <Link
         to={backTo}
-        className="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 rounded-md"
+        className="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 rounded-md"
       >
         <svg
           className="w-5 h-5"
@@ -49,7 +49,7 @@ export function NavLogo({
   return (
     <Link
       to="/"
-      className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 rounded-md"
+      className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 rounded-md"
     >
       <img
         src="/logo.svg"

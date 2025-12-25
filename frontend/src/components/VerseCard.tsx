@@ -11,18 +11,18 @@ import type { Verse } from "../types";
  */
 export function VerseCardSkeleton() {
   return (
-    <div className="bg-amber-50 dark:bg-gray-800 rounded-xl p-3 sm:p-4 border border-amber-200 dark:border-gray-700 shadow-sm animate-pulse">
+    <div className="bg-amber-50 dark:bg-gray-800 rounded-xl p-3 sm:p-4 border border-amber-200 dark:border-gray-700 shadow-xs animate-pulse">
       {/* Verse Reference skeleton */}
       <div className="flex justify-center mb-2 sm:mb-3">
-        <div className="h-4 w-16 bg-amber-200/60 dark:bg-gray-700 rounded" />
+        <div className="h-4 w-16 bg-amber-200/60 dark:bg-gray-700 rounded-sm" />
       </div>
 
       {/* Sanskrit lines skeleton */}
       <div className="space-y-2 flex flex-col items-center">
-        <div className="h-4 w-4/5 bg-amber-200/50 dark:bg-gray-700 rounded" />
-        <div className="h-4 w-3/4 bg-amber-200/50 dark:bg-gray-700 rounded" />
-        <div className="h-4 w-4/5 bg-amber-200/50 dark:bg-gray-700 rounded" />
-        <div className="h-4 w-2/3 bg-amber-200/50 dark:bg-gray-700 rounded" />
+        <div className="h-4 w-4/5 bg-amber-200/50 dark:bg-gray-700 rounded-sm" />
+        <div className="h-4 w-3/4 bg-amber-200/50 dark:bg-gray-700 rounded-sm" />
+        <div className="h-4 w-4/5 bg-amber-200/50 dark:bg-gray-700 rounded-sm" />
+        <div className="h-4 w-2/3 bg-amber-200/50 dark:bg-gray-700 rounded-sm" />
       </div>
 
       {/* Divider skeleton */}
@@ -30,9 +30,9 @@ export function VerseCardSkeleton() {
 
       {/* Translation skeleton */}
       <div className="space-y-1.5 flex flex-col items-center">
-        <div className="h-3 w-11/12 bg-gray-200/60 dark:bg-gray-700 rounded" />
-        <div className="h-3 w-4/5 bg-gray-200/60 dark:bg-gray-700 rounded" />
-        <div className="h-3 w-3/4 bg-gray-200/60 dark:bg-gray-700 rounded" />
+        <div className="h-3 w-11/12 bg-gray-200/60 dark:bg-gray-700 rounded-sm" />
+        <div className="h-3 w-4/5 bg-gray-200/60 dark:bg-gray-700 rounded-sm" />
+        <div className="h-3 w-3/4 bg-gray-200/60 dark:bg-gray-700 rounded-sm" />
       </div>
 
       {/* Tags skeleton */}
@@ -103,7 +103,7 @@ function HighlightedText({ text }: { text: string }) {
           return (
             <mark
               key={i}
-              className="bg-amber-200 dark:bg-amber-800/50 text-amber-900 dark:text-amber-200 px-0.5 rounded"
+              className="bg-amber-200 dark:bg-amber-800/50 text-amber-900 dark:text-amber-200 px-0.5 rounded-sm"
             >
               {content}
             </mark>
@@ -152,12 +152,12 @@ export const VerseCard = memo(function VerseCard({
       : "";
 
     return (
-      <div className="relative bg-amber-50 dark:bg-gray-800 rounded-xl p-3 sm:p-4 border border-amber-200 dark:border-gray-700 shadow-sm hover:shadow-md hover:border-amber-300 dark:hover:border-gray-600 hover:-translate-y-0.5 transition-all duration-150">
+      <div className="relative bg-amber-50 dark:bg-gray-800 rounded-xl p-3 sm:p-4 border border-amber-200 dark:border-gray-700 shadow-xs hover:shadow-md hover:border-amber-300 dark:hover:border-gray-600 hover:-translate-y-0.5 transition-all duration-150">
         {/* Stretched link - covers entire card for navigation (accessibility pattern) */}
         {linkTo && (
           <Link
             to={linkTo}
-            className="absolute inset-0 z-0 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800"
+            className="absolute inset-0 z-0 rounded-xl focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800"
             aria-label={`View verse ${formatVerseRef(verse)}`}
           />
         )}
@@ -185,7 +185,7 @@ export const VerseCard = memo(function VerseCard({
                 e.stopPropagation();
                 onToggleFavorite(verse.canonical_id);
               }}
-              className={`p-2.5 sm:p-1 -m-1.5 sm:m-0 rounded-full transition-all duration-150 pointer-events-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-900 ${
+              className={`p-2.5 sm:p-1 -m-1.5 sm:m-0 rounded-full transition-all duration-150 pointer-events-auto focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-900 ${
                 isFavorite
                   ? "text-red-500 dark:text-red-400"
                   : "text-gray-400 dark:text-gray-500 hover:text-red-400 dark:hover:text-red-400 hover:scale-110"
@@ -267,7 +267,7 @@ export const VerseCard = memo(function VerseCard({
                       onPrincipleClick(principle);
                     }
                   }}
-                  className={`px-2 py-0.5 rounded-full bg-amber-100/70 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 text-[10px] sm:text-xs font-medium pointer-events-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-900 ${
+                  className={`px-2 py-0.5 rounded-full bg-amber-100/70 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 text-[10px] sm:text-xs font-medium pointer-events-auto focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-900 ${
                     onPrincipleClick
                       ? "hover:bg-amber-200 dark:hover:bg-amber-800/40 cursor-pointer transition-colors"
                       : ""
@@ -295,14 +295,14 @@ export const VerseCard = memo(function VerseCard({
   // Detail mode: original layout
   return (
     <div className="relative">
-      <div className="bg-gradient-to-b from-orange-50 to-amber-50 dark:from-gray-800 dark:to-gray-800 rounded-xl p-5 sm:p-6 lg:p-8 border-2 border-amber-200/50 dark:border-gray-700 shadow-inner">
+      <div className="bg-linear-to-b from-orange-50 to-amber-50 dark:from-gray-800 dark:to-gray-800 rounded-xl p-5 sm:p-6 lg:p-8 border-2 border-amber-200/50 dark:border-gray-700 shadow-inner">
         {/* Decorative Om */}
         <div className="text-center mb-3 sm:mb-4 text-2xl sm:text-3xl text-amber-400/50 dark:text-amber-500/40 font-light">
           ॐ
         </div>
 
         {/* Verses centered */}
-        <div className="flex-grow flex flex-col justify-center">
+        <div className="grow flex flex-col justify-center">
           {/* Sanskrit Text */}
           {displayLines.length > 0 && (
             <div

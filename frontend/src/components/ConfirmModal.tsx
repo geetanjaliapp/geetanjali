@@ -208,7 +208,7 @@ export function ConfirmModal({
               type="button"
               onClick={handleCancel}
               disabled={loading}
-              className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 focus:ring-gray-500 disabled:opacity-50 transition-colors"
+              className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 focus:ring-gray-500 disabled:opacity-50 transition-colors"
             >
               {cancelLabel}
             </button>
@@ -216,7 +216,7 @@ export function ConfirmModal({
               type="button"
               onClick={handleConfirm}
               disabled={loading || !textMatches}
-              className={`flex-1 px-4 py-2.5 text-sm font-medium text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${styles.confirmButton}`}
+              className={`flex-1 px-4 py-2.5 text-sm font-medium text-white rounded-xl focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${styles.confirmButton}`}
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">

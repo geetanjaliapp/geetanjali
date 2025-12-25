@@ -52,12 +52,12 @@ export function FloatingNavArrow({
                   ${isPrev ? "left-2 lg:left-4" : "right-2 lg:right-4"}
                   items-center justify-center
                   p-3 lg:p-4
-                  bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg
+                  bg-white/80 dark:bg-gray-800/80 backdrop-blur-xs rounded-xl shadow-lg
                   border border-amber-200/50 dark:border-gray-600
                   opacity-70 hover:opacity-100
                   hover:bg-white dark:hover:bg-gray-800 hover:scale-105 hover:shadow-xl
                   transition-all duration-200
-                  focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500
+                  focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500
                   focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900`}
       aria-label={`${isPrev ? "Previous" : "Next"} verse: ${formatVerseRef(verse)}`}
     >

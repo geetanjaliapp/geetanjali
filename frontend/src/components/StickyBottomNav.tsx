@@ -46,7 +46,7 @@ export function StickyBottomNav({
 
   return (
     <nav
-      className="sm:hidden fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm
+      className="sm:hidden fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xs
                  border-t border-amber-200 dark:border-gray-700 shadow-lg z-40"
       aria-label="Verse navigation"
     >
@@ -57,7 +57,7 @@ export function StickyBottomNav({
             to={`/verses/${prevVerse.canonical_id}?from=browse`}
             className="flex-1 flex items-center justify-start gap-2 p-4 min-h-[56px]
                        hover:bg-amber-50 dark:hover:bg-gray-700 active:bg-amber-100 dark:active:bg-gray-600 transition-colors
-                       focus:outline-none focus-visible:ring-2 focus-visible:ring-inset
+                       focus:outline-hidden focus-visible:ring-2 focus-visible:ring-inset
                        focus-visible:ring-amber-500"
             aria-label={`Previous verse: ${formatVerseRef(prevVerse)}`}
           >
@@ -93,7 +93,7 @@ export function StickyBottomNav({
             to={`/verses/${nextVerse.canonical_id}?from=browse`}
             className="flex-1 flex items-center justify-end gap-2 p-4 min-h-[56px]
                        hover:bg-amber-50 dark:hover:bg-gray-700 active:bg-amber-100 dark:active:bg-gray-600 transition-colors
-                       focus:outline-none focus-visible:ring-2 focus-visible:ring-inset
+                       focus:outline-hidden focus-visible:ring-2 focus-visible:ring-inset
                        focus-visible:ring-amber-500"
             aria-label={`Next verse: ${formatVerseRef(nextVerse)}`}
           >

@@ -113,7 +113,7 @@ export function Toast({
           className="min-w-11 min-h-11 flex items-center justify-center -m-2
                      text-gray-400 dark:text-gray-500
                      hover:text-white dark:hover:text-gray-900
-                     focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500
+                     focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500
                      focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900
                      dark:focus-visible:ring-offset-gray-100
                      rounded-lg transition-colors"

@@ -30,7 +30,7 @@ export function StepsSection({
       </div>
 
       <button onClick={onToggle} className="w-full text-left">
-        <div className="flex items-center justify-between bg-white dark:bg-gray-800 rounded-xl p-3 sm:p-4 shadow-sm border border-green-100 dark:border-green-900 hover:shadow-md transition-shadow">
+        <div className="flex items-center justify-between bg-white dark:bg-gray-800 rounded-xl p-3 sm:p-4 shadow-xs border border-green-100 dark:border-green-900 hover:shadow-md transition-shadow">
           <div>
             <div className="text-xs font-semibold text-green-700 dark:text-green-400 uppercase tracking-wide">
               Recommended Steps
@@ -56,11 +56,11 @@ export function StepsSection({
       </button>
 
       {showSteps && (
-        <div className="mt-2 sm:mt-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm p-3 sm:p-4 border border-green-100 dark:border-green-900">
+        <div className="mt-2 sm:mt-3 bg-white dark:bg-gray-800 rounded-xl shadow-xs p-3 sm:p-4 border border-green-100 dark:border-green-900">
           <div className="space-y-2.5 sm:space-y-3">
             {steps.map((step, idx) => (
               <div key={idx} className="flex items-start gap-2 sm:gap-3">
-                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 flex items-center justify-center flex-shrink-0 text-xs font-medium">
+                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 flex items-center justify-center shrink-0 text-xs font-medium">
                   {idx + 1}
                 </div>
                 <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 pt-0.5">

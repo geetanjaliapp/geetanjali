@@ -96,7 +96,7 @@ export function ContentNotFound({
   return (
     <div className="text-center max-w-md mx-auto px-4">
       {/* Icon */}
-      <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gradient-to-br from-amber-50 to-orange-100 dark:from-gray-800 dark:to-gray-700 flex items-center justify-center">
+      <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-linear-to-br from-amber-50 to-orange-100 dark:from-gray-800 dark:to-gray-700 flex items-center justify-center">
         {content.icon}
       </div>
 

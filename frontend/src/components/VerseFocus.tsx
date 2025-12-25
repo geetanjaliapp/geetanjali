@@ -99,7 +99,7 @@ function CollapsibleSection({
       {/* Tappable header */}
       <button
         onClick={() => onToggle(id)}
-        className="w-full flex items-center justify-between p-4 text-left hover:bg-amber-100/30 dark:hover:bg-stone-700/50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-amber-500"
+        className="w-full flex items-center justify-between p-4 text-left hover:bg-amber-100/30 dark:hover:bg-stone-700/50 transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-amber-500"
         aria-expanded={isExpanded}
         aria-controls={`section-${id}`}
       >
@@ -325,10 +325,10 @@ export function VerseFocus({
   return (
     <div className="w-full max-w-2xl mx-auto flex flex-col">
       {/* Fixed Sanskrit area - stays in place */}
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         <button
           onClick={handleToggle}
-          className="w-full text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-4 dark:focus-visible:ring-offset-stone-900 rounded-xl transition-transform active:scale-[0.99]"
+          className="w-full text-center focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-4 dark:focus-visible:ring-offset-stone-900 rounded-xl transition-transform active:scale-[0.99]"
           aria-expanded={showTranslation}
           aria-label={showTranslation ? "Hide translation" : "Show translation"}
         >
@@ -381,7 +381,7 @@ export function VerseFocus({
         <div className="flex justify-center mt-4 mb-2">
           <button
             onClick={() => toggleFavorite(verse.canonical_id)}
-            className={`p-3 sm:p-1.5 rounded-full transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-900 ${
+            className={`p-3 sm:p-1.5 rounded-full transition-all duration-150 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-900 ${
               isFavorite(verse.canonical_id)
                 ? "text-red-500 dark:text-red-400"
                 : "text-gray-400/50 dark:text-gray-500/50 hover:text-red-400 dark:hover:text-red-400 hover:scale-110"
@@ -402,7 +402,7 @@ export function VerseFocus({
 
       {/* Translation panel - expands downward only */}
       <div
-        className={`flex-shrink-0 overflow-hidden transition-all duration-300 ease-in-out ${
+        className={`shrink-0 overflow-hidden transition-all duration-300 ease-in-out ${
           showTranslation
             ? "max-h-[1000px] opacity-100 mt-6"
             : "max-h-0 opacity-0 mt-0"
@@ -455,7 +455,7 @@ export function VerseFocus({
                   label="Leadership Insight"
                   isExpanded={sectionPrefs.insight}
                   onToggle={toggleSection}
-                  bgClass="bg-gradient-to-br from-amber-50 to-orange-50/50 dark:from-stone-800 dark:to-stone-800/80"
+                  bgClass="bg-linear-to-br from-amber-50 to-orange-50/50 dark:from-stone-800 dark:to-stone-800/80"
                 >
                   <p className="text-base text-gray-800 dark:text-gray-200 leading-relaxed">
                     {verse.paraphrase_en}

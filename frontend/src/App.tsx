@@ -88,7 +88,7 @@ function ReadingModePathRedirect() {
 function PageLoader() {
   return (
     <div
-      className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900"
+      className="min-h-screen flex items-center justify-center bg-linear-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900"
       role="status"
       aria-live="polite"
       aria-label="Loading page content"
@@ -116,7 +116,7 @@ function App() {
   if (loading) {
     return (
       <div
-        className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900"
+        className="min-h-screen flex items-center justify-center bg-linear-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900"
         role="status"
         aria-live="polite"
         aria-label="Checking authentication"

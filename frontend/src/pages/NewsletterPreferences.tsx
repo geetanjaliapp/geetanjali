@@ -116,7 +116,7 @@ export default function NewsletterPreferences() {
   }, [preferences, name, sendTime, selectedGoalIds]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 px-4 py-8">
+    <div className="min-h-screen bg-linear-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 px-4 py-8">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
@@ -153,7 +153,7 @@ export default function NewsletterPreferences() {
               </p>
               <Link
                 to="/"
-                className="inline-block px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white font-medium rounded-lg hover:from-orange-600 hover:to-red-600 transition-all"
+                className="inline-block px-6 py-3 bg-linear-to-r from-orange-500 to-red-500 text-white font-medium rounded-lg hover:from-orange-600 hover:to-red-600 transition-all"
               >
                 Go Home
               </Link>
@@ -172,7 +172,7 @@ export default function NewsletterPreferences() {
               <div className="space-y-3">
                 <button
                   onClick={() => setPageState("loaded")}
-                  className="block w-full sm:w-auto sm:inline-block px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white font-medium rounded-lg hover:from-orange-600 hover:to-red-600 transition-all"
+                  className="block w-full sm:w-auto sm:inline-block px-6 py-3 bg-linear-to-r from-orange-500 to-red-500 text-white font-medium rounded-lg hover:from-orange-600 hover:to-red-600 transition-all"
                 >
                   Edit Again
                 </button>
@@ -249,7 +249,7 @@ export default function NewsletterPreferences() {
                 <button
                   onClick={handleSave}
                   disabled={pageState === "saving" || !hasChanges}
-                  className="bg-orange-600 hover:bg-orange-700 disabled:bg-orange-400 disabled:cursor-not-allowed text-white font-semibold px-6 py-3 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+                  className="bg-orange-600 hover:bg-orange-700 disabled:bg-orange-400 disabled:cursor-not-allowed text-white font-semibold px-6 py-3 rounded-lg transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
                 >
                   {pageState === "saving" ? "Saving..." : "Save Preferences"}
                 </button>

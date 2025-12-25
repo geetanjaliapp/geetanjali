@@ -109,7 +109,7 @@ export function ThinkingIndicator({
         </div>
 
         {/* Enhanced container with glow and shimmer */}
-        <div className="relative rounded-xl p-4 sm:p-5 bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/30 dark:to-amber-900/30 border border-orange-300 dark:border-orange-700 animate-glow-pulse overflow-hidden">
+        <div className="relative rounded-xl p-4 sm:p-5 bg-linear-to-br from-orange-50 to-amber-50 dark:from-orange-900/30 dark:to-amber-900/30 border border-orange-300 dark:border-orange-700 animate-glow-pulse overflow-hidden">
           {/* Shimmer overlay - warm amber */}
           <div className="absolute inset-0 animate-shimmer pointer-events-none" />
 

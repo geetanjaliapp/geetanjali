@@ -39,7 +39,7 @@ function isChunkLoadError(error: Error | null): boolean {
  */
 function ErrorNavbar() {
   return (
-    <nav className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-700 h-14 sm:h-16 flex-shrink-0">
+    <nav className="bg-white dark:bg-gray-900 shadow-xs border-b border-gray-200 dark:border-gray-700 h-14 sm:h-16 shrink-0">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
         <div className="flex justify-between items-center h-full">
           <a
@@ -95,7 +95,7 @@ export class ErrorBoundary extends Component<Props, State> {
       // Special UI for chunk load errors (stale app after deployment)
       if (isChunkError) {
         return (
-          <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col">
+          <div className="min-h-screen bg-linear-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col">
             <ErrorNavbar />
             <div className="flex-1 flex items-center justify-center">
               <div className="max-w-md mx-auto px-4 text-center">
@@ -125,7 +125,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 </div>
                 <button
                   onClick={this.handleRefresh}
-                  className="inline-block bg-amber-600 hover:bg-amber-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+                  className="inline-block bg-amber-600 hover:bg-amber-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
                 >
                   Refresh Now
                 </button>
@@ -137,7 +137,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
       // Generic error UI for other errors
       return (
-        <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col">
+        <div className="min-h-screen bg-linear-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col">
           <ErrorNavbar />
           <div className="flex-1 flex items-center justify-center">
             <div className="max-w-md mx-auto px-4 text-center">
@@ -153,7 +153,7 @@ export class ErrorBoundary extends Component<Props, State> {
                     <summary className="cursor-pointer text-sm font-semibold text-red-700 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300">
                       Error details (development only)
                     </summary>
-                    <pre className="mt-2 overflow-auto bg-white dark:bg-gray-800 p-2 rounded text-xs text-red-900 dark:text-red-300 border border-red-200 dark:border-red-700">
+                    <pre className="mt-2 overflow-auto bg-white dark:bg-gray-800 p-2 rounded-sm text-xs text-red-900 dark:text-red-300 border border-red-200 dark:border-red-700">
                       {this.state.error.toString()}
                     </pre>
                   </details>
@@ -162,13 +162,13 @@ export class ErrorBoundary extends Component<Props, State> {
               <div className="flex gap-3 justify-center">
                 <button
                   onClick={this.reset}
-                  className="inline-block bg-gray-600 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+                  className="inline-block bg-gray-600 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
                 >
                   Try Again
                 </button>
                 <button
                   onClick={this.handleRefresh}
-                  className="inline-block bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+                  className="inline-block bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
                 >
                   Refresh Page
                 </button>

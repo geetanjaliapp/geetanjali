@@ -64,7 +64,7 @@ export function CaseHeader({
           {canSave && (
             <button
               onClick={onSave}
-              className="p-2 sm:px-3 sm:py-1.5 bg-white dark:bg-gray-700 rounded-lg shadow-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600 flex items-center gap-1.5 transition-colors"
+              className="p-2 sm:px-3 sm:py-1.5 bg-white dark:bg-gray-700 rounded-lg shadow-xs text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600 flex items-center gap-1.5 transition-colors"
               aria-label="Save consultation as file"
             >
               <svg
@@ -91,7 +91,7 @@ export function CaseHeader({
               <button
                 onClick={handleShareClick}
                 disabled={shareLoading}
-                className={`p-2 sm:px-3 sm:py-1.5 rounded-lg shadow-sm flex items-center gap-1.5 transition-all duration-200 ${
+                className={`p-2 sm:px-3 sm:py-1.5 rounded-lg shadow-xs flex items-center gap-1.5 transition-all duration-200 ${
                   caseData.is_public
                     ? "bg-green-600 text-white hover:bg-green-700"
                     : "bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600"
@@ -167,7 +167,7 @@ export function CaseHeader({
             <div className="relative">
               <button
                 onClick={() => setShowOverflowMenu(!showOverflowMenu)}
-                className="p-2 bg-white dark:bg-gray-700 rounded-lg shadow-sm text-gray-400 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600 transition-colors"
+                className="p-2 bg-white dark:bg-gray-700 rounded-lg shadow-xs text-gray-400 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600 transition-colors"
                 aria-label="More options"
                 aria-expanded={showOverflowMenu}
               >

@@ -160,7 +160,7 @@ export function ShareBar({
         <div className="flex items-center gap-1">
           <button
             onClick={handleViewClick}
-            className={`p-1 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-800/50 rounded transition-colors`}
+            className={`p-1 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-800/50 rounded-sm transition-colors`}
             title="View public page"
           >
             <svg
@@ -179,7 +179,7 @@ export function ShareBar({
           </button>
           <button
             onClick={handleCopyClick}
-            className={`px-2 py-0.5 bg-green-600 text-white rounded font-medium hover:bg-green-700 transition-colors ${compact ? "text-[10px]" : "text-xs"}`}
+            className={`px-2 py-0.5 bg-green-600 text-white rounded-sm font-medium hover:bg-green-700 transition-colors ${compact ? "text-[10px]" : "text-xs"}`}
           >
             {copySuccess ? "Copied!" : "Copy"}
           </button>

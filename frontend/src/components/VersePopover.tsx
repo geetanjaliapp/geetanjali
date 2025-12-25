@@ -118,7 +118,7 @@ export function VersePopover({
         className="inline-flex items-center text-orange-700 dark:text-orange-400 font-mono text-sm
                    bg-orange-50 dark:bg-orange-900/30 px-1.5 py-0.5 rounded border border-orange-200 dark:border-orange-800
                    hover:bg-orange-100 dark:hover:bg-orange-900/50 hover:border-orange-300 dark:hover:border-orange-700
-                   focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500
+                   focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500
                    transition-colors duration-150 cursor-pointer"
         aria-expanded={isOpen}
         aria-haspopup="dialog"
@@ -152,7 +152,7 @@ export function VersePopover({
             <button
               onClick={() => setIsOpen(false)}
               className="p-3 sm:p-1 -m-2 sm:m-0 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 rounded
-                         focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+                         focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500"
               aria-label="Close"
             >
               <svg
@@ -207,7 +207,7 @@ export function VersePopover({
               to={`/verses/${canonicalId}`}
               className="flex items-center justify-center gap-1.5 text-sm text-orange-600 dark:text-orange-400
                          hover:text-orange-700 dark:hover:text-orange-300 font-medium transition-colors
-                         focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500
+                         focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500
                          focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 rounded py-1"
               onClick={() => setIsOpen(false)}
             >

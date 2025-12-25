@@ -579,11 +579,11 @@ export default function ReadingMode() {
   }, [canGoPrev, canGoNext, prevPage, nextPage]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 dark:from-stone-900 dark:to-stone-900 flex flex-col">
+    <div className="min-h-screen bg-linear-to-br from-orange-50 to-red-50 dark:from-stone-900 dark:to-stone-900 flex flex-col">
       <Navbar />
 
       {/* Chapter Header */}
-      <header className="sticky top-14 sm:top-16 z-10 bg-amber-50/95 dark:bg-stone-900/95 backdrop-blur-sm border-b border-amber-200/50 dark:border-stone-700/50">
+      <header className="sticky top-14 sm:top-16 z-10 bg-amber-50/95 dark:bg-stone-900/95 backdrop-blur-xs border-b border-amber-200/50 dark:border-stone-700/50">
         <div className="max-w-4xl mx-auto px-4 py-3">
           {/* Chapter info */}
           <div className="flex items-center justify-between mb-2">
@@ -726,7 +726,7 @@ export default function ReadingMode() {
 
       {/* Bottom Navigation Bar */}
       <nav
-        className="sticky bottom-0 bg-white/95 dark:bg-stone-900/95 backdrop-blur-sm border-t border-amber-200 dark:border-stone-700 shadow-lg"
+        className="sticky bottom-0 bg-white/95 dark:bg-stone-900/95 backdrop-blur-xs border-t border-amber-200 dark:border-stone-700 shadow-lg"
         aria-label="Verse navigation"
       >
         <div className="max-w-4xl mx-auto px-4 py-2">
@@ -805,7 +805,7 @@ export default function ReadingMode() {
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50"
             onClick={dismissOnboarding}
             aria-hidden="true"
           />

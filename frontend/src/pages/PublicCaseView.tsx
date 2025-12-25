@@ -112,7 +112,7 @@ export default function PublicCaseView() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col overflow-x-hidden">
+      <div className="min-h-screen bg-linear-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col overflow-x-hidden">
         <Navbar />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-gray-600 dark:text-gray-400">
@@ -125,7 +125,7 @@ export default function PublicCaseView() {
 
   if (error || !caseData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col overflow-x-hidden">
+      <div className="min-h-screen bg-linear-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col overflow-x-hidden">
         <Navbar />
         <div className="flex-1 flex items-center justify-center">
           <ContentNotFound variant="shared" />
@@ -135,11 +135,11 @@ export default function PublicCaseView() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col overflow-x-hidden">
+    <div className="min-h-screen bg-linear-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col overflow-x-hidden">
       <Navbar />
 
       {/* Header */}
-      <div className="border-b border-amber-200/50 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
+      <div className="border-b border-amber-200/50 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 backdrop-blur-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
           <Link
             to="/"
@@ -147,7 +147,7 @@ export default function PublicCaseView() {
           >
             ← Home
           </Link>
-          <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
+          <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-sm">
             Shared Consultation
           </div>
         </div>
@@ -156,7 +156,7 @@ export default function PublicCaseView() {
       <div className="flex-1 py-4 sm:py-6">
         <div className="max-w-2xl mx-auto px-3 sm:px-4">
           {/* Call to action for starting own consultation */}
-          <div className="mb-4 sm:mb-6 bg-gradient-to-r from-orange-100 to-amber-100 dark:from-gray-800 dark:to-gray-800 border border-orange-200 dark:border-gray-700 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3">
+          <div className="mb-4 sm:mb-6 bg-linear-to-r from-orange-100 to-amber-100 dark:from-gray-800 dark:to-gray-800 border border-orange-200 dark:border-gray-700 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3">
             <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">
               Want guidance for your own situation?{" "}
               <Link
@@ -171,7 +171,7 @@ export default function PublicCaseView() {
           {/* Main Content - Timeline */}
           <div className="relative">
             {/* Vertical Line */}
-            <div className="absolute left-2.5 sm:left-3 top-6 bottom-0 w-0.5 bg-gradient-to-b from-amber-300 via-orange-300 to-red-300 dark:from-amber-600/50 dark:via-orange-600/50 dark:to-red-600/50" />
+            <div className="absolute left-2.5 sm:left-3 top-6 bottom-0 w-0.5 bg-linear-to-b from-amber-300 via-orange-300 to-red-300 dark:from-amber-600/50 dark:via-orange-600/50 dark:to-red-600/50" />
 
             {/* Exchanges */}
             {exchanges.map((exchange, exchangeIdx) => {
@@ -325,7 +325,7 @@ export default function PublicCaseView() {
                                     (source) => (
                                       <div
                                         key={source.canonical_id}
-                                        className="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 rounded-lg p-2.5 sm:p-3 border border-orange-100 dark:border-orange-800"
+                                        className="bg-linear-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 rounded-lg p-2.5 sm:p-3 border border-orange-100 dark:border-orange-800"
                                       >
                                         <div className="flex items-center justify-between">
                                           <Link
@@ -403,7 +403,7 @@ export default function PublicCaseView() {
               <div className="mt-8 pt-6 border-t border-orange-200/50 dark:border-gray-700">
                 {/* Section Header */}
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/40 dark:to-orange-900/40 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-full bg-linear-to-br from-amber-100 to-orange-100 dark:from-amber-900/40 dark:to-orange-900/40 flex items-center justify-center">
                     <svg
                       className="w-4 h-4 text-orange-600 dark:text-orange-400"
                       fill="none"
@@ -435,7 +435,7 @@ export default function PublicCaseView() {
                       onClick={() => setShowPaths(!showPaths)}
                       className="w-full text-left"
                     >
-                      <div className="flex items-center justify-between bg-white dark:bg-gray-800 rounded-xl p-3 sm:p-4 shadow-sm border border-orange-100 dark:border-orange-900 hover:shadow-md transition-shadow">
+                      <div className="flex items-center justify-between bg-white dark:bg-gray-800 rounded-xl p-3 sm:p-4 shadow-xs border border-orange-100 dark:border-orange-900 hover:shadow-md transition-shadow">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-full bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center">
                             <svg
@@ -485,7 +485,7 @@ export default function PublicCaseView() {
                             <button
                               key={idx}
                               onClick={() => setSelectedOption(idx)}
-                              className={`flex-shrink-0 w-[140px] sm:w-auto p-2.5 sm:p-3 rounded-xl border-2 text-left transition-all h-full ${
+                              className={`shrink-0 w-[140px] sm:w-auto p-2.5 sm:p-3 rounded-xl border-2 text-left transition-all h-full ${
                                 selectedOption === idx
                                   ? "bg-orange-50 dark:bg-orange-900/30 border-orange-400 dark:border-orange-600 shadow-md"
                                   : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-orange-200 dark:hover:border-orange-700"
@@ -505,7 +505,7 @@ export default function PublicCaseView() {
                           ))}
                         </div>
 
-                        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-3 sm:p-4 border border-red-100 dark:border-gray-700">
+                        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xs p-3 sm:p-4 border border-red-100 dark:border-gray-700">
                           <h4 className="font-semibold text-gray-900 dark:text-gray-100 text-sm sm:text-base">
                             {
                               firstOutput.result_json.options[selectedOption]
@@ -566,7 +566,7 @@ export default function PublicCaseView() {
                         onClick={() => setShowSteps(!showSteps)}
                         className="w-full text-left"
                       >
-                        <div className="flex items-center justify-between bg-white dark:bg-gray-800 rounded-xl p-3 sm:p-4 shadow-sm border border-green-100 dark:border-green-900 hover:shadow-md transition-shadow">
+                        <div className="flex items-center justify-between bg-white dark:bg-gray-800 rounded-xl p-3 sm:p-4 shadow-xs border border-green-100 dark:border-green-900 hover:shadow-md transition-shadow">
                           <div className="flex items-center gap-3">
                             <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/40 flex items-center justify-center">
                               <svg
@@ -615,7 +615,7 @@ export default function PublicCaseView() {
                       </button>
 
                       {showSteps && (
-                        <div className="mt-2 sm:mt-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm p-3 sm:p-4 border border-green-100 dark:border-green-900">
+                        <div className="mt-2 sm:mt-3 bg-white dark:bg-gray-800 rounded-xl shadow-xs p-3 sm:p-4 border border-green-100 dark:border-green-900">
                           <div className="space-y-2.5 sm:space-y-3">
                             {(
                               firstOutput.result_json.recommended_action as {
@@ -626,7 +626,7 @@ export default function PublicCaseView() {
                                 key={idx}
                                 className="flex items-start gap-2 sm:gap-3"
                               >
-                                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 flex items-center justify-center flex-shrink-0 text-xs font-medium">
+                                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 flex items-center justify-center shrink-0 text-xs font-medium">
                                   {idx + 1}
                                 </div>
                                 <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 pt-0.5">
@@ -647,7 +647,7 @@ export default function PublicCaseView() {
                       onClick={() => setShowReflections(!showReflections)}
                       className="w-full text-left"
                     >
-                      <div className="flex items-center justify-between bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30 rounded-xl p-3 sm:p-4 shadow-sm border border-purple-100 dark:border-purple-800 hover:shadow-md transition-shadow">
+                      <div className="flex items-center justify-between bg-linear-to-r from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30 rounded-xl p-3 sm:p-4 shadow-xs border border-purple-100 dark:border-purple-800 hover:shadow-md transition-shadow">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center">
                             <svg
@@ -694,7 +694,7 @@ export default function PublicCaseView() {
                     </button>
 
                     {showReflections && (
-                      <div className="mt-2 sm:mt-3 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30 rounded-xl p-3 sm:p-4 border border-purple-100 dark:border-purple-800">
+                      <div className="mt-2 sm:mt-3 bg-linear-to-br from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30 rounded-xl p-3 sm:p-4 border border-purple-100 dark:border-purple-800">
                         <ul className="space-y-2.5 sm:space-y-3">
                           {firstOutput.result_json.reflection_prompts.map(
                             (prompt, idx) => (

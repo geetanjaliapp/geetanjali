@@ -103,8 +103,8 @@ export function UserMenu({
         onClick={() => setIsOpen(!isOpen)}
         className={
           isDesktop
-            ? "flex items-center gap-2 px-2 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
-            : "p-1 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+            ? "flex items-center gap-2 px-2 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+            : "p-1 rounded-full focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
         }
         aria-label="Open account menu"
         aria-expanded={isOpen}
@@ -190,7 +190,7 @@ export function UserMenu({
               role="menuitem"
               to="/verses?favorites=true"
               onClick={handleLinkClick}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors focus:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-gray-700"
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors focus:outline-hidden focus-visible:bg-gray-100 dark:focus-visible:bg-gray-700"
             >
               <HeartIcon className="w-4 h-4 text-red-400" filled />
               <span>My Favorites</span>
@@ -206,7 +206,7 @@ export function UserMenu({
               role="menuitem"
               to={readingPath}
               onClick={handleLinkClick}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors focus:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-gray-700"
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors focus:outline-hidden focus-visible:bg-gray-100 dark:focus-visible:bg-gray-700"
             >
               <NavIcon path={NAV_ICONS.read} />
               <span>{readingLabel}</span>
@@ -217,7 +217,7 @@ export function UserMenu({
               role="menuitem"
               to="/consultations"
               onClick={handleLinkClick}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors focus:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-gray-700"
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors focus:outline-hidden focus-visible:bg-gray-100 dark:focus-visible:bg-gray-700"
             >
               <NavIcon path={NAV_ICONS.cases} />
               <span>My Guidance</span>
@@ -230,7 +230,7 @@ export function UserMenu({
               role="menuitem"
               to="/settings"
               onClick={handleLinkClick}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors focus:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-gray-700"
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors focus:outline-hidden focus-visible:bg-gray-100 dark:focus-visible:bg-gray-700"
             >
               <NavIcon path={NAV_ICONS.settings} />
               <span>Settings</span>
@@ -240,7 +240,7 @@ export function UserMenu({
               role="menuitem"
               to="/about"
               onClick={handleLinkClick}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors focus:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-gray-700"
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors focus:outline-hidden focus-visible:bg-gray-100 dark:focus-visible:bg-gray-700"
             >
               <NavIcon path={NAV_ICONS.about} />
               <span>About</span>
@@ -256,7 +256,7 @@ export function UserMenu({
                   role="menuitem"
                   to="/signup"
                   onClick={handleLinkClick}
-                  className="flex flex-col items-center gap-0.5 w-full px-4 py-2.5 bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+                  className="flex flex-col items-center gap-0.5 w-full px-4 py-2.5 bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-lg transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500"
                 >
                   <span className="text-sm font-medium text-amber-800 dark:text-amber-300">
                     ✨ Create account
@@ -280,7 +280,7 @@ export function UserMenu({
                   role="menuitem"
                   to="/login"
                   onClick={handleLinkClick}
-                  className="flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+                  className="flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500"
                 >
                   Sign in
                 </Link>
@@ -289,7 +289,7 @@ export function UserMenu({
               <button
                 role="menuitem"
                 onClick={handleLogout}
-                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors focus:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-gray-700"
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors focus:outline-hidden focus-visible:bg-gray-100 dark:focus-visible:bg-gray-700"
               >
                 <NavIcon path={NAV_ICONS.logout} />
                 <span>Sign out</span>

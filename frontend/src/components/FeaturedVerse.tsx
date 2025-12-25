@@ -16,10 +16,10 @@ export function FeaturedVerse({
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto">
-        <div className="bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 dark:from-gray-800 dark:via-gray-800 dark:to-gray-800 rounded-xl sm:rounded-2xl p-6 sm:p-8 lg:p-12 border border-amber-200/50 dark:border-gray-700 shadow-xl">
+        <div className="bg-linear-to-br from-amber-50 via-orange-50 to-red-50 dark:from-gray-800 dark:via-gray-800 dark:to-gray-800 rounded-xl sm:rounded-2xl p-6 sm:p-8 lg:p-12 border border-amber-200/50 dark:border-gray-700 shadow-xl">
           <div className="text-center space-y-4">
-            <div className="h-6 sm:h-8 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-20 sm:w-24 mx-auto" />
-            <div className="h-24 sm:h-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+            <div className="h-6 sm:h-8 bg-gray-200 dark:bg-gray-700 rounded-sm animate-pulse w-20 sm:w-24 mx-auto" />
+            <div className="h-24 sm:h-32 bg-gray-200 dark:bg-gray-700 rounded-sm animate-pulse" />
           </div>
         </div>
       </div>
@@ -29,7 +29,7 @@ export function FeaturedVerse({
   if (error) {
     return (
       <div className="max-w-4xl mx-auto">
-        <div className="bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 dark:from-gray-800 dark:via-gray-800 dark:to-gray-800 rounded-xl sm:rounded-2xl p-6 sm:p-8 lg:p-12 border border-amber-200/50 dark:border-gray-700 shadow-lg">
+        <div className="bg-linear-to-br from-amber-50 via-orange-50 to-red-50 dark:from-gray-800 dark:via-gray-800 dark:to-gray-800 rounded-xl sm:rounded-2xl p-6 sm:p-8 lg:p-12 border border-amber-200/50 dark:border-gray-700 shadow-lg">
           <div className="text-center space-y-3">
             <div className="text-3xl text-amber-400/50 dark:text-amber-500/40">
               ॐ
@@ -58,7 +58,7 @@ export function FeaturedVerse({
       className="block max-w-4xl mx-auto"
     >
       {/* Main Featured Verse Container - Clickable */}
-      <div className="bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 dark:from-gray-800 dark:via-gray-800 dark:to-gray-800 rounded-xl sm:rounded-2xl p-6 sm:p-8 lg:p-12 border border-amber-200/50 dark:border-gray-700 shadow-xl hover:shadow-2xl hover:border-amber-300 dark:hover:border-gray-600 transition-all cursor-pointer">
+      <div className="bg-linear-to-br from-amber-50 via-orange-50 to-red-50 dark:from-gray-800 dark:via-gray-800 dark:to-gray-800 rounded-xl sm:rounded-2xl p-6 sm:p-8 lg:p-12 border border-amber-200/50 dark:border-gray-700 shadow-xl hover:shadow-2xl hover:border-amber-300 dark:hover:border-gray-600 transition-all cursor-pointer">
         {/* Sanskrit Devanagari - Spotlight */}
         {verse.sanskrit_devanagari && (
           <div className="text-center mb-4 sm:mb-6 lg:mb-8">

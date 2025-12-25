@@ -71,7 +71,7 @@ export function ChapterSelector({
       {/* Compact popover - positioned above bottom nav */}
       <div
         className="fixed bottom-16 left-1/2 -translate-x-1/2 z-50
-                   bg-amber-50/95 dark:bg-stone-800/95 backdrop-blur-sm border border-amber-200/60 dark:border-stone-600
+                   bg-amber-50/95 dark:bg-stone-800/95 backdrop-blur-xs border border-amber-200/60 dark:border-stone-600
                    rounded-xl shadow-lg p-3 w-[280px] sm:w-[320px]"
         role="dialog"
         aria-modal="true"
@@ -90,7 +90,7 @@ export function ChapterSelector({
                   flex items-center justify-center
                   w-10 h-10 rounded-lg text-sm font-medium
                   transition-colors duration-150
-                  focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500
+                  focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500
                   ${
                     isCurrentChapter
                       ? "bg-amber-600 dark:bg-amber-700 text-white"
