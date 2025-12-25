@@ -579,18 +579,18 @@ export default function ReadingMode() {
   }, [canGoPrev, canGoNext, prevPage, nextPage]);
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-orange-50 to-red-50 dark:from-stone-900 dark:to-stone-900 flex flex-col">
+    <div className="min-h-screen bg-linear-to-br from-[var(--gradient-page-from)] to-[var(--gradient-page-to)] flex flex-col">
       <Navbar />
 
       {/* Chapter Header */}
-      <header className="sticky top-14 sm:top-16 z-10 bg-amber-50/95 dark:bg-stone-900/95 backdrop-blur-xs border-b border-amber-200/50 dark:border-stone-700/50">
+      <header className="sticky top-14 sm:top-16 z-10 bg-[var(--surface-reading-header)] backdrop-blur-xs border-b border-[var(--border-reading-header)]">
         <div className="max-w-4xl mx-auto px-4 py-3">
           {/* Chapter info */}
           <div className="flex items-center justify-between mb-2">
-            <div className="text-sm text-amber-700 dark:text-amber-400 font-medium">
+            <div className="text-sm text-[var(--text-reading-primary)] font-medium">
               Chapter {state.chapter}
-              <span className="mx-2 text-amber-300 dark:text-stone-600">·</span>
-              <span className="text-amber-600/80 dark:text-amber-500/80">
+              <span className="mx-2 text-[var(--text-reading-muted)]">·</span>
+              <span className="text-[var(--text-reading-secondary)]">
                 {getChapterName(state.chapter)}
               </span>
             </div>
@@ -598,25 +598,25 @@ export default function ReadingMode() {
               {/* Font size toggle - Aa + filled circles */}
               <button
                 onClick={cycleFontSize}
-                className="flex items-center justify-center gap-1.5 min-w-[44px] min-h-[44px] px-3 py-2 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-stone-800 active:bg-amber-200 dark:active:bg-stone-700 rounded-lg transition-colors"
+                className="flex items-center justify-center gap-1.5 min-w-[44px] min-h-[44px] px-3 py-2 text-[var(--text-reading-primary)] hover:bg-[var(--interactive-reading-hover-bg)] active:bg-[var(--interactive-reading-active-bg)] rounded-lg transition-colors"
                 aria-label={`Font size: ${settings.fontSize}. Tap to change.`}
                 title={`Font size: ${settings.fontSize}`}
               >
                 <span className="text-sm font-serif">Aa</span>
                 <span className="flex items-center gap-0.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 dark:bg-amber-400" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--reading-indicator-active)]" />
                   <span
-                    className={`w-1.5 h-1.5 rounded-full ${settings.fontSize !== "small" ? "bg-amber-500 dark:bg-amber-400" : "bg-amber-200 dark:bg-stone-600"}`}
+                    className={`w-1.5 h-1.5 rounded-full ${settings.fontSize !== "small" ? "bg-[var(--reading-indicator-active)]" : "bg-[var(--reading-indicator-inactive)]"}`}
                   />
                   <span
-                    className={`w-1.5 h-1.5 rounded-full ${settings.fontSize === "large" ? "bg-amber-500 dark:bg-amber-400" : "bg-amber-200 dark:bg-stone-600"}`}
+                    className={`w-1.5 h-1.5 rounded-full ${settings.fontSize === "large" ? "bg-[var(--reading-indicator-active)]" : "bg-[var(--reading-indicator-inactive)]"}`}
                   />
                 </span>
               </button>
               {/* Reset progress button */}
               <button
                 onClick={resetProgress}
-                className="flex items-center justify-center min-w-[44px] min-h-[44px] p-2 text-amber-400 dark:text-stone-500 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-100 dark:hover:bg-stone-800 active:bg-amber-200 dark:active:bg-stone-700 rounded-lg transition-colors"
+                className="flex items-center justify-center min-w-[44px] min-h-[44px] p-2 text-[var(--text-reading-muted)] hover:text-[var(--text-reading-primary)] hover:bg-[var(--interactive-reading-hover-bg)] active:bg-[var(--interactive-reading-active-bg)] rounded-lg transition-colors"
                 aria-label="Start over from beginning"
                 title="Start over"
               >
@@ -637,7 +637,7 @@ export default function ReadingMode() {
               </button>
               {/* Verse counter */}
               {currentVerse && (
-                <div className="text-sm text-amber-600 dark:text-amber-400/80 ml-1">
+                <div className="text-sm text-[var(--text-reading-primary)]/80 ml-1">
                   {currentVerse.verse}/{getChapterVerseCount(state.chapter)}
                 </div>
               )}
@@ -662,20 +662,20 @@ export default function ReadingMode() {
         {state.isLoading ? (
           // Loading state
           <div className="text-center">
-            <div className="text-4xl text-amber-300/60 dark:text-amber-500/40 mb-4 animate-pulse">
+            <div className="text-4xl text-[var(--decorative-om)] mb-4 animate-pulse">
               ॐ
             </div>
-            <p className="text-amber-600/70 dark:text-amber-400/70">
+            <p className="text-[var(--text-reading-secondary)]">
               Loading chapter...
             </p>
           </div>
         ) : state.error ? (
           // Error state
           <div className="text-center max-w-md">
-            <div className="text-4xl text-red-300/60 dark:text-red-400/50 mb-4">
+            <div className="text-4xl text-[var(--status-error-text)]/60 mb-4">
               ⚠
             </div>
-            <p className="text-red-600 dark:text-red-400 mb-4">{state.error}</p>
+            <p className="text-[var(--status-error-text)] mb-4">{state.error}</p>
             <button
               onClick={() => loadChapter(state.chapter)}
               className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
@@ -714,10 +714,10 @@ export default function ReadingMode() {
         ) : (
           // Fallback: No content available
           <div className="text-center">
-            <div className="text-4xl text-amber-300/60 dark:text-amber-500/40 mb-4">
+            <div className="text-4xl text-[var(--decorative-om)] mb-4">
               ॐ
             </div>
-            <p className="text-amber-600/70 dark:text-amber-400/70">
+            <p className="text-[var(--text-reading-secondary)]">
               Loading...
             </p>
           </div>
@@ -726,7 +726,7 @@ export default function ReadingMode() {
 
       {/* Bottom Navigation Bar */}
       <nav
-        className="sticky bottom-0 bg-white/95 dark:bg-stone-900/95 backdrop-blur-xs border-t border-amber-200 dark:border-stone-700 shadow-lg"
+        className="sticky bottom-0 bg-[var(--surface-reading-header)] backdrop-blur-xs border-t border-[var(--border-reading)] shadow-lg"
         aria-label="Verse navigation"
       >
         <div className="max-w-4xl mx-auto px-4 py-2">
@@ -737,8 +737,8 @@ export default function ReadingMode() {
               disabled={!canGoPrev}
               className={`flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-lg transition-colors ${
                 canGoPrev
-                  ? "text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-stone-800 active:bg-amber-100 dark:active:bg-stone-700"
-                  : "text-gray-300 dark:text-stone-600 cursor-not-allowed"
+                  ? "text-[var(--text-reading-primary)] hover:bg-[var(--interactive-reading-hover-bg)] active:bg-[var(--interactive-reading-active-bg)]"
+                  : "text-[var(--interactive-reading-disabled)] cursor-not-allowed"
               }`}
               aria-label="Previous"
             >
@@ -749,7 +749,7 @@ export default function ReadingMode() {
             {/* Chapter selector button */}
             <button
               onClick={() => setShowChapterSelector(true)}
-              className="flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-stone-800 active:bg-amber-100 dark:active:bg-stone-700 rounded-lg transition-colors"
+              className="flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 text-[var(--text-reading-primary)] hover:bg-[var(--interactive-reading-hover-bg)] active:bg-[var(--interactive-reading-active-bg)] rounded-lg transition-colors"
               aria-label="Select chapter"
             >
               <span className="text-sm font-medium">
@@ -759,7 +759,7 @@ export default function ReadingMode() {
               </span>
               {/* Dropdown indicator */}
               <svg
-                className="w-4 h-4 text-amber-500 dark:text-amber-400"
+                className="w-4 h-4 text-[var(--reading-indicator-active)]"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -780,8 +780,8 @@ export default function ReadingMode() {
               disabled={!canGoNext}
               className={`flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-lg transition-colors ${
                 canGoNext
-                  ? "text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-stone-800 active:bg-amber-100 dark:active:bg-stone-700"
-                  : "text-gray-300 dark:text-stone-600 cursor-not-allowed"
+                  ? "text-[var(--text-reading-primary)] hover:bg-[var(--interactive-reading-hover-bg)] active:bg-[var(--interactive-reading-active-bg)]"
+                  : "text-[var(--interactive-reading-disabled)] cursor-not-allowed"
               }`}
               aria-label="Next"
             >
@@ -813,24 +813,24 @@ export default function ReadingMode() {
           {/* Onboarding Card */}
           <div
             className="fixed inset-x-4 top-1/2 -translate-y-1/2 z-50 max-w-sm mx-auto
-                       bg-white dark:bg-stone-800 rounded-2xl shadow-2xl p-6 animate-fade-in"
+                       bg-[var(--surface-elevated)] rounded-2xl shadow-2xl p-6 animate-fade-in"
             role="dialog"
             aria-modal="true"
             aria-label="Reading Mode tips"
           >
-            <h2 className="text-lg font-semibold font-heading text-gray-900 dark:text-gray-100 text-center mb-4">
+            <h2 className="text-lg font-semibold font-heading text-[var(--text-primary)] text-center mb-4">
               Welcome to Reading Mode
             </h2>
 
-            <div className="space-y-4 text-sm text-gray-700 dark:text-gray-300">
+            <div className="space-y-4 text-sm text-[var(--text-secondary)]">
               {/* Tap hint */}
               <div className="flex items-start gap-3">
                 <span className="text-xl">👆</span>
                 <div>
-                  <p className="font-medium text-gray-900 dark:text-gray-100">
+                  <p className="font-medium text-[var(--text-primary)]">
                     Tap for translation
                   </p>
-                  <p className="text-gray-500 dark:text-gray-400">
+                  <p className="text-[var(--text-muted)]">
                     Tap the verse to reveal Hindi, English & IAST
                   </p>
                 </div>
@@ -840,10 +840,10 @@ export default function ReadingMode() {
               <div className="flex items-start gap-3">
                 <span className="text-xl">👈👉</span>
                 <div>
-                  <p className="font-medium text-gray-900 dark:text-gray-100">
+                  <p className="font-medium text-[var(--text-primary)]">
                     Swipe to navigate
                   </p>
-                  <p className="text-gray-500 dark:text-gray-400">
+                  <p className="text-[var(--text-muted)]">
                     Swipe left/right to move between verses
                   </p>
                 </div>
@@ -853,10 +853,10 @@ export default function ReadingMode() {
               <div className="hidden sm:flex items-start gap-3">
                 <span className="text-xl">⌨️</span>
                 <div>
-                  <p className="font-medium text-gray-900 dark:text-gray-100">
+                  <p className="font-medium text-[var(--text-primary)]">
                     Keyboard shortcuts
                   </p>
-                  <p className="text-gray-500 dark:text-gray-400">
+                  <p className="text-[var(--text-muted)]">
                     ← → or J/K to navigate, Space for translation
                   </p>
                 </div>

@@ -58,20 +58,20 @@ export default function VerifyEmail() {
   }, [token, refreshUser]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 px-4">
-      <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 text-center">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-[var(--gradient-page-from)] to-[var(--gradient-page-to)] px-4">
+      <div className="max-w-md w-full bg-[var(--surface-elevated)] rounded-2xl shadow-xl p-8 text-center">
         {state === "confirm" && (
           <>
             <MailIcon className="w-16 h-16 text-orange-500 mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+            <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
               Verify Your Email
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
+            <p className="text-[var(--text-tertiary)] mb-6">
               Click the button below to verify your email address and complete your account setup.
             </p>
             <button
               onClick={handleConfirm}
-              className="w-full px-6 py-3 bg-linear-to-r from-orange-500 to-red-500 text-white font-medium rounded-lg hover:from-orange-600 hover:to-red-600 transition-all focus:outline-hidden focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+              className="w-full px-6 py-3 bg-linear-to-r from-orange-500 to-red-500 text-white font-medium rounded-lg hover:from-orange-600 hover:to-red-600 transition-all focus:outline-hidden focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-[var(--focus-ring-offset)]"
             >
               Verify Email Address
             </button>
@@ -81,10 +81,10 @@ export default function VerifyEmail() {
         {state === "loading" && (
           <div role="status" aria-live="polite" aria-label="Verifying email">
             <SpinnerIcon className="w-16 h-16 text-orange-500 animate-spin mx-auto mb-4" />
-            <h1 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+            <h1 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
               Verifying your email...
             </h1>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-[var(--text-tertiary)]">
               Please wait while we confirm your email address.
             </p>
           </div>
@@ -93,10 +93,10 @@ export default function VerifyEmail() {
         {state === "success" && (
           <>
             <CheckCircleIcon className="w-16 h-16 text-green-500 mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+            <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
               Email Verified!
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
+            <p className="text-[var(--text-tertiary)] mb-6">
               Your email has been verified successfully. You now have full access to all features.
             </p>
             <Link
@@ -111,10 +111,10 @@ export default function VerifyEmail() {
         {state === "already_verified" && (
           <>
             <CheckCircleIcon className="w-16 h-16 text-blue-500 mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+            <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
               Already Verified
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
+            <p className="text-[var(--text-tertiary)] mb-6">
               Your email address is already verified. You're all set!
             </p>
             <Link
@@ -129,10 +129,10 @@ export default function VerifyEmail() {
         {state === "error" && (
           <>
             <XCircleIcon className="w-16 h-16 text-red-500 mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+            <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
               Verification Failed
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
+            <p className="text-[var(--text-tertiary)] mb-6">
               {errorMessage}
             </p>
             <div className="space-y-3">
@@ -144,7 +144,7 @@ export default function VerifyEmail() {
               </Link>
               <Link
                 to="/"
-                className="block px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
+                className="block px-6 py-3 border border-[var(--border-default)] text-[var(--text-secondary)] font-medium rounded-lg hover:bg-[var(--surface-muted)] transition-all"
               >
                 Go Home
               </Link>

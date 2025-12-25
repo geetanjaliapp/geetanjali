@@ -36,6 +36,27 @@
   /* Reading mode surface */
   --surface-reading: var(--color-reading-50);
   --surface-reading-elevated: white;
+  --surface-reading-header: color-mix(in srgb, var(--color-warm-50) 95%, transparent);
+  --surface-reading-header-solid: var(--color-warm-50);
+
+  /* Reading mode text */
+  --text-reading-primary: var(--color-warm-700);
+  --text-reading-secondary: var(--color-warm-600);
+  --text-reading-muted: var(--color-warm-400);
+  --text-reading-accent: var(--color-warm-600);
+
+  /* Reading mode interactive */
+  --interactive-reading: var(--color-warm-700);
+  --interactive-reading-hover-bg: var(--color-warm-100);
+  --interactive-reading-active-bg: var(--color-warm-200);
+  --interactive-reading-disabled: var(--color-neutral-300);
+
+  /* Reading mode indicators */
+  --reading-indicator-active: var(--color-warm-500);
+  --reading-indicator-inactive: var(--color-warm-200);
+
+  /* Reading mode borders */
+  --border-reading-header: color-mix(in srgb, var(--color-warm-200) 50%, transparent);
 
   /* ============================================
      TEXT TOKENS - Text colors
@@ -105,6 +126,9 @@
   /* Contextual actions (amber-themed) */
   --interactive-contextual: var(--color-warm-600);
   --interactive-contextual-text: white;
+
+  /* Disabled state */
+  --interactive-disabled: var(--color-neutral-400);
 
   /* ============================================
      SECTION TOKENS - Semantic page sections
@@ -234,6 +258,27 @@
   --surface-muted: var(--color-neutral-800);
   --surface-reading: var(--color-reading-900);
   --surface-reading-elevated: var(--color-reading-800);
+  --surface-reading-header: color-mix(in srgb, var(--color-reading-900) 95%, transparent);
+  --surface-reading-header-solid: var(--color-reading-900);
+
+  /* Reading mode text (dark) */
+  --text-reading-primary: var(--color-warm-400);
+  --text-reading-secondary: var(--color-warm-500);
+  --text-reading-muted: var(--color-reading-600);
+  --text-reading-accent: var(--color-warm-500);
+
+  /* Reading mode interactive (dark) */
+  --interactive-reading: var(--color-warm-400);
+  --interactive-reading-hover-bg: var(--color-reading-800);
+  --interactive-reading-active-bg: var(--color-reading-700);
+  --interactive-reading-disabled: var(--color-reading-600);
+
+  /* Reading mode indicators (dark) */
+  --reading-indicator-active: var(--color-warm-400);
+  --reading-indicator-inactive: var(--color-reading-600);
+
+  /* Reading mode borders (dark) */
+  --border-reading-header: color-mix(in srgb, var(--color-reading-700) 50%, transparent);
 
   /* Text tokens */
   --text-primary: var(--color-neutral-100);
@@ -264,6 +309,7 @@
   --interactive-ghost-text: var(--color-primary-400);
   --interactive-contextual: var(--color-warm-500);
   --interactive-contextual-text: white;
+  --interactive-disabled: var(--color-neutral-600);
 
   /* Section tokens */
   --section-verse-bg: var(--color-neutral-800);
