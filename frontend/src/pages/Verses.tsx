@@ -959,7 +959,7 @@ export default function Verses() {
   }, [clearSearch, filterMode, selectedPrinciple, setSearchParams]);
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col">
+    <div className="min-h-screen bg-linear-to-br from-[var(--gradient-page-from)] to-[var(--gradient-page-to)] flex flex-col">
       {/* Screen reader announcements for search results */}
       <div
         role="status"
@@ -978,16 +978,16 @@ export default function Verses() {
 
       {/* Page Header - scrolls away, content-first */}
       <div className="py-4 sm:py-6 text-center">
-        <h1 className="text-xl sm:text-2xl font-bold font-heading text-gray-900 dark:text-gray-100">
+        <h1 className="text-xl sm:text-2xl font-bold font-heading text-[var(--text-primary)]">
           Explore the Bhagavad Geeta
         </h1>
-        <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mt-1">
+        <p className="text-sm sm:text-base text-[var(--text-secondary)] mt-1">
           701 verses of timeless wisdom
         </p>
       </div>
 
       {/* Sticky Search + Filter Bar */}
-      <div className="sticky top-14 sm:top-16 z-10 bg-amber-50/95 dark:bg-gray-900/95 backdrop-blur-xs shadow-xs border-b border-amber-200/50 dark:border-gray-700/50">
+      <div className="sticky top-14 sm:top-16 z-10 bg-[var(--surface-sticky)] backdrop-blur-xs shadow-xs border-b border-[var(--border-warm-subtle)]">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2 sm:py-3">
           {/* Row 1: Search Input - compact */}
           <div className="max-w-2xl mx-auto mb-2 sm:mb-3">
@@ -1011,14 +1011,14 @@ export default function Verses() {
           {/* Row 2: Mode Filters - Segmented Control + Chapter Dropdown */}
           <div className="flex items-center gap-2 sm:gap-3 mb-2">
             {/* Segmented Control: Featured | All | Favorites */}
-            <div className="inline-flex rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 p-0.5 shadow-xs">
+            <div className="inline-flex rounded-lg border border-[var(--border-default)] bg-[var(--surface-elevated)] p-0.5 shadow-xs">
               {/* Featured Segment */}
               <button
                 onClick={() => handleFilterSelect("featured")}
-                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-800 ${
+                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                   showFeatured && !selectedPrinciple && !isSearchMode
                     ? "bg-orange-600 text-white shadow-xs"
-                    : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    : "text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]"
                 }`}
               >
                 <StarIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -1029,14 +1029,14 @@ export default function Verses() {
               {showRecommendedTab && (
                 <>
                   {/* Divider */}
-                  <div className="w-px bg-gray-200 dark:bg-gray-600 my-1" />
+                  <div className="w-px bg-[var(--border-default)] my-1" />
 
                   <button
                     onClick={() => handleFilterSelect("recommended")}
-                    className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-800 ${
+                    className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                       showRecommended && !selectedPrinciple && !isSearchMode
                         ? "bg-orange-600 text-white shadow-xs"
-                        : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        : "text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]"
                     }`}
                     title="Verses matching your learning goals"
                   >
@@ -1047,15 +1047,15 @@ export default function Verses() {
               )}
 
               {/* Divider */}
-              <div className="w-px bg-gray-200 dark:bg-gray-600 my-1" />
+              <div className="w-px bg-[var(--border-default)] my-1" />
 
               {/* Favorites Segment */}
               <button
                 onClick={() => handleFilterSelect("favorites")}
-                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-800 ${
+                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                   showFavorites && !selectedPrinciple && !isSearchMode
                     ? "bg-orange-600 text-white shadow-xs"
-                    : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    : "text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]"
                 }`}
               >
                 <HeartIcon
@@ -1069,8 +1069,8 @@ export default function Verses() {
                     showFavorites && !selectedPrinciple && !isSearchMode
                       ? "text-white/80"
                       : favoritesCount > 0
-                        ? "text-red-500 dark:text-red-400"
-                        : "text-gray-400 dark:text-gray-500"
+                        ? "text-[var(--status-error-text)]"
+                        : "text-[var(--text-muted)]"
                   }`}
                 >
                   {favoritesCount}
@@ -1078,15 +1078,15 @@ export default function Verses() {
               </button>
 
               {/* Divider */}
-              <div className="w-px bg-gray-200 dark:bg-gray-600 my-1" />
+              <div className="w-px bg-[var(--border-default)] my-1" />
 
               {/* All Segment */}
               <button
                 onClick={() => handleFilterSelect("all")}
-                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-800 ${
+                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                   showAll && !selectedPrinciple && !isSearchMode
                     ? "bg-orange-600 text-white shadow-xs"
-                    : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    : "text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]"
                 }`}
               >
                 <GridIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -1098,10 +1098,10 @@ export default function Verses() {
             <div className="relative">
               <button
                 onClick={() => setShowChapterDropdown(!showChapterDropdown)}
-                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-sm font-medium transition-colors border focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 ${
+                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-sm font-medium transition-colors border focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                   selectedChapter && !selectedPrinciple && !isSearchMode
                     ? "bg-orange-600 text-white border-orange-600 shadow-md"
-                    : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    : "bg-[var(--surface-elevated)] text-[var(--text-primary)] border-[var(--border-default)] hover:bg-[var(--surface-muted)]"
                 }`}
               >
                 <BookOpenIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -1117,7 +1117,7 @@ export default function Verses() {
                     className="fixed inset-0 z-10"
                     onClick={() => setShowChapterDropdown(false)}
                   />
-                  <div className="absolute left-0 mt-2 p-2 sm:p-3 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 z-20 w-48 sm:w-64">
+                  <div className="absolute left-0 mt-2 p-2 sm:p-3 bg-[var(--surface-elevated)] rounded-xl shadow-xl border border-[var(--border-default)] z-20 w-48 sm:w-64">
                     <div className="grid grid-cols-6 gap-1.5 sm:gap-2">
                       {Array.from({ length: 18 }, (_, i) => i + 1).map(
                         (chapter) => (
@@ -1130,7 +1130,7 @@ export default function Verses() {
                             className={`h-8 sm:h-9 rounded-lg text-xs sm:text-sm font-medium transition-all ${
                               selectedChapter === chapter
                                 ? "bg-orange-600 text-white shadow-md"
-                                : "bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-orange-50 dark:hover:bg-orange-900/30 hover:text-orange-700 dark:hover:text-orange-400 border border-gray-200 dark:border-gray-600"
+                                : "bg-[var(--surface-muted)] text-[var(--text-primary)] hover:bg-[var(--badge-primary-bg)] hover:text-[var(--interactive-ghost-text)] border border-[var(--border-default)]"
                             }`}
                           >
                             {chapter}
@@ -1147,8 +1147,8 @@ export default function Verses() {
           {/* Row 3: Topic/Principle Pills - scrollable */}
           <div className="relative">
             {/* Scroll fade indicators */}
-            <div className="absolute left-0 top-0 bottom-0 w-4 bg-linear-to-r from-amber-50/95 dark:from-gray-900/95 to-transparent z-10 pointer-events-none" />
-            <div className="absolute right-0 top-0 bottom-0 w-4 bg-linear-to-l from-amber-50/95 dark:from-gray-900/95 to-transparent z-10 pointer-events-none" />
+            <div className="absolute left-0 top-0 bottom-0 w-4 bg-linear-to-r from-[var(--surface-sticky)] to-transparent z-10 pointer-events-none" />
+            <div className="absolute right-0 top-0 bottom-0 w-4 bg-linear-to-l from-[var(--surface-sticky)] to-transparent z-10 pointer-events-none" />
 
             <div
               ref={principlesContainerRef}
@@ -1163,10 +1163,10 @@ export default function Verses() {
                       selectedPrinciple === principle.id ? null : principle.id,
                     )
                   }
-                  className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors whitespace-nowrap shrink-0 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-900 ${
+                  className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors whitespace-nowrap shrink-0 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                     selectedPrinciple === principle.id && !isSearchMode
                       ? "bg-amber-600 text-white shadow-md"
-                      : "bg-amber-100/80 dark:bg-gray-700 text-amber-800 dark:text-amber-300 hover:bg-amber-200 dark:hover:bg-gray-600 border border-amber-200/50 dark:border-gray-600"
+                      : "bg-[var(--badge-warm-bg)] text-[var(--badge-warm-text)] hover:bg-[var(--badge-warm-hover)] border border-[var(--border-warm-subtle)]"
                   }`}
                 >
                   {principle.shortLabel}
@@ -1178,32 +1178,32 @@ export default function Verses() {
       </div>
 
       {/* Active Filter Banner (Browse mode) or Search Results Header (Search mode) */}
-      <div className="bg-amber-50/80 dark:bg-gray-800/50 border-b border-amber-100 dark:border-gray-700 min-h-[36px] sm:min-h-[40px]">
+      <div className="bg-[var(--surface-sticky)] border-b border-[var(--border-warm-subtle)] min-h-[36px] sm:min-h-[40px]">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2 sm:py-2.5">
           {isSearchMode ? (
             /* Search Results Header */
             <div className="flex items-center justify-between">
               {searchLoading ? (
-                <span className="text-sm text-gray-500 dark:text-gray-400">
+                <span className="text-sm text-[var(--text-tertiary)]">
                   Searching...
                 </span>
               ) : searchData ? (
                 <>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-sm text-[var(--text-secondary)]">
                     {searchData.total === 0 ? (
                       "No results found"
                     ) : (
                       <>
-                        <span className="font-medium text-gray-800 dark:text-gray-200">
+                        <span className="font-medium text-[var(--text-primary)]">
                           {searchData.total}
                         </span>
                         {searchHasMore && searchData.total_count && (
                           <>
-                            <span className="text-gray-400 dark:text-gray-500">
+                            <span className="text-[var(--text-muted)]">
                               {" "}
                               of{" "}
                             </span>
-                            <span className="font-medium text-gray-800 dark:text-gray-200">
+                            <span className="font-medium text-[var(--text-primary)]">
                               {searchData.total_count}
                             </span>
                           </>
@@ -1217,37 +1217,37 @@ export default function Verses() {
                   </p>
                   <div className="flex items-center gap-2">
                     {searchData.total > 0 && (
-                      <span className="text-xs text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/40 px-2.5 py-1 rounded-full font-medium">
+                      <span className="text-xs text-[var(--badge-warm-text)] bg-[var(--badge-warm-bg)] px-2.5 py-1 rounded-full font-medium">
                         {getStrategyLabel(searchData.strategy)}
                       </span>
                     )}
                     <button
                       onClick={handleClearSearch}
-                      className="text-xs sm:text-sm text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 font-medium underline underline-offset-2"
+                      className="text-xs sm:text-sm text-[var(--text-accent)] hover:text-[var(--badge-warm-text)] font-medium underline underline-offset-2"
                     >
                       Clear search
                     </button>
                   </div>
                 </>
               ) : (
-                <span className="text-sm text-gray-500 dark:text-gray-400">
+                <span className="text-sm text-[var(--text-tertiary)]">
                   Enter a search query
                 </span>
               )}
             </div>
           ) : selectedChapter || selectedPrinciple ? (
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs sm:text-sm text-amber-700 dark:text-amber-400">
+              <span className="text-xs sm:text-sm text-[var(--text-accent)]">
                 Filtering by:
               </span>
 
               {/* Chapter filter tag */}
               {selectedChapter && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-100 dark:bg-orange-900/40 text-orange-800 dark:text-orange-300 text-xs sm:text-sm font-medium">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[var(--badge-primary-bg)] text-[var(--badge-primary-text)] text-xs sm:text-sm font-medium">
                   Chapter {selectedChapter}
                   <button
                     onClick={() => handleFilterSelect("featured")}
-                    className="ml-0.5 hover:bg-orange-200 dark:hover:bg-orange-800/40 rounded-full p-0.5 transition-colors"
+                    className="ml-0.5 hover:bg-[var(--badge-primary-hover)] rounded-full p-0.5 transition-colors"
                     aria-label="Clear chapter filter"
                   >
                     <CloseIcon />
@@ -1257,11 +1257,11 @@ export default function Verses() {
 
               {/* Principle filter tag */}
               {selectedPrinciple && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 text-xs sm:text-sm font-medium">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[var(--badge-warm-bg)] text-[var(--badge-warm-text)] text-xs sm:text-sm font-medium">
                   {getPrincipleShortLabel(selectedPrinciple)}
                   <button
                     onClick={() => handlePrincipleSelect(null)}
-                    className="ml-0.5 hover:bg-amber-200 dark:hover:bg-amber-800/40 rounded-full p-0.5 transition-colors"
+                    className="ml-0.5 hover:bg-[var(--badge-warm-hover)] rounded-full p-0.5 transition-colors"
                     aria-label="Clear topic filter"
                   >
                     <CloseIcon />
@@ -1272,7 +1272,7 @@ export default function Verses() {
               {/* Count + Clear all */}
               <div className="flex items-center gap-2 ml-auto">
                 {totalCount !== null && (
-                  <span className="text-xs sm:text-sm text-amber-600/70 dark:text-amber-400/70">
+                  <span className="text-xs sm:text-sm text-[var(--text-accent-muted)]">
                     {totalCount} verse{totalCount !== 1 ? "s" : ""}
                   </span>
                 )}
@@ -1282,7 +1282,7 @@ export default function Verses() {
                     setSelectedPrinciple(null);
                     updateSearchParams("featured", null);
                   }}
-                  className="text-xs sm:text-sm text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 font-medium underline underline-offset-2"
+                  className="text-xs sm:text-sm text-[var(--text-accent)] hover:text-[var(--badge-warm-text)] font-medium underline underline-offset-2"
                 >
                   Clear
                 </button>
@@ -1290,8 +1290,8 @@ export default function Verses() {
             </div>
           ) : showRecommended ? (
             <div className="flex items-center gap-1.5">
-              <SparklesIcon className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-              <span className="text-xs sm:text-sm text-amber-600/70 dark:text-amber-400/70">
+              <SparklesIcon className="w-3.5 h-3.5 text-[var(--text-accent)]" />
+              <span className="text-xs sm:text-sm text-[var(--text-accent-muted)]">
                 {totalCount !== null ? `${totalCount} ` : ""}
                 verses for your goals
               </span>
@@ -1299,29 +1299,29 @@ export default function Verses() {
           ) : showFavorites ? (
             <div className="flex items-center gap-1.5">
               <HeartIcon className="w-3.5 h-3.5 text-red-400" filled />
-              <span className="text-xs sm:text-sm text-amber-600/70 dark:text-amber-400/70">
+              <span className="text-xs sm:text-sm text-[var(--text-accent-muted)]">
                 {totalCount !== null ? `${totalCount} ` : ""}
                 favorite{totalCount !== 1 ? "s" : ""}
               </span>
             </div>
           ) : showFeatured ? (
             <div className="flex items-center gap-1.5">
-              <StarIcon className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
-              <span className="text-xs sm:text-sm text-amber-600/70 dark:text-amber-400/70">
+              <StarIcon className="w-3.5 h-3.5 text-[var(--text-accent)]" />
+              <span className="text-xs sm:text-sm text-[var(--text-accent-muted)]">
                 {totalCount !== null ? `${totalCount} ` : ""}
                 featured verses
               </span>
             </div>
           ) : showAll ? (
             <div className="flex items-center gap-1.5">
-              <GridIcon className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
-              <span className="text-xs sm:text-sm text-amber-600/70 dark:text-amber-400/70">
+              <GridIcon className="w-3.5 h-3.5 text-[var(--text-accent)]" />
+              <span className="text-xs sm:text-sm text-[var(--text-accent-muted)]">
                 {totalCount !== null ? `${totalCount} ` : ""}
                 verses
               </span>
             </div>
           ) : (
-            <div className="text-xs sm:text-sm text-amber-600/70 dark:text-amber-400/70">
+            <div className="text-xs sm:text-sm text-[var(--text-accent-muted)]">
               {totalCount !== null ? `${totalCount} ` : ""}
               verses
             </div>
@@ -1334,7 +1334,7 @@ export default function Verses() {
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
           {/* Error States */}
           {(validationError || searchError || error) && (
-            <div className="mb-4 sm:mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg">
+            <div className="mb-4 sm:mb-6 bg-[var(--status-error-bg)] border border-[var(--status-error-border)] text-[var(--status-error-text)] px-4 py-3 rounded-lg">
               <p className="font-semibold text-sm sm:text-base">
                 {validationError ? "Invalid search" : "Error"}
               </p>
@@ -1361,9 +1361,9 @@ export default function Verses() {
                 <>
                   {/* Consultation Suggestion Banner */}
                   {searchData.suggestion && (
-                    <div className="bg-linear-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 border border-orange-200 dark:border-orange-800 rounded-xl p-4 mb-6">
+                    <div className="bg-linear-to-r from-[var(--gradient-warm-from)] to-[var(--gradient-warm-to)] border border-[var(--border-warm)] rounded-xl p-4 mb-6">
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                        <p className="text-sm text-orange-800 dark:text-orange-300">
+                        <p className="text-sm text-[var(--badge-primary-text)]">
                           {searchData.suggestion.message}
                         </p>
                         <Link
@@ -1396,18 +1396,18 @@ export default function Verses() {
                           className="w-full group"
                         >
                           <div className="flex items-center gap-4">
-                            <div className="flex-1 h-px bg-linear-to-r from-transparent via-amber-300/50 dark:via-amber-600/30 to-amber-300/70 dark:to-amber-600/50" />
+                            <div className="flex-1 h-px bg-linear-to-r from-transparent via-[var(--divider-warm)] to-[var(--divider-warm)]" />
                             <div
                               className={`flex flex-col items-center transition-all duration-300 ${searchLoadingMore ? "scale-95 opacity-70" : "group-hover:scale-105"}`}
                             >
                               {searchLoadingMore ? (
-                                <SpinnerIcon className="w-6 h-6 text-amber-500 dark:text-amber-400 mb-1.5" />
+                                <SpinnerIcon className="w-6 h-6 text-[var(--text-accent)] mb-1.5" />
                               ) : (
-                                <span className="text-amber-400/70 dark:text-amber-500/60 text-xl mb-1">
+                                <span className="text-[var(--decorative-om)] text-xl mb-1">
                                   ॰
                                 </span>
                               )}
-                              <span className="flex items-center gap-1.5 text-base font-medium text-amber-700/80 dark:text-amber-400/80 group-hover:text-amber-800 dark:group-hover:text-amber-300 transition-colors">
+                              <span className="flex items-center gap-1.5 text-base font-medium text-[var(--text-accent)] group-hover:text-[var(--badge-warm-text)] transition-colors">
                                 {searchLoadingMore ? (
                                   "Loading"
                                 ) : (
@@ -1418,24 +1418,24 @@ export default function Verses() {
                                 )}
                               </span>
                               {!searchLoadingMore && searchData.total_count && (
-                                <span className="text-xs text-amber-600/70 dark:text-amber-500/70 mt-1">
+                                <span className="text-xs text-[var(--text-accent-muted)] mt-1">
                                   {searchData.total_count - searchData.results.length} more
                                 </span>
                               )}
                             </div>
-                            <div className="flex-1 h-px bg-linear-to-l from-transparent via-amber-300/50 dark:via-amber-600/30 to-amber-300/70 dark:to-amber-600/50" />
+                            <div className="flex-1 h-px bg-linear-to-l from-transparent via-[var(--divider-warm)] to-[var(--divider-warm)]" />
                           </div>
                         </button>
                       ) : (
                         <div className="flex items-center gap-4">
-                          <div className="flex-1 h-px bg-linear-to-r from-transparent via-amber-200/40 dark:via-amber-600/20 to-amber-200/60 dark:to-amber-600/40" />
+                          <div className="flex-1 h-px bg-linear-to-r from-transparent via-[var(--divider-warm-subtle)] to-[var(--divider-warm-subtle)]" />
                           <div className="flex flex-col items-center">
-                            <SearchIcon className="w-5 h-5 text-amber-300/70 dark:text-amber-500/50" />
-                            <span className="text-xs text-amber-600/70 dark:text-amber-500/60 mt-1">
+                            <SearchIcon className="w-5 h-5 text-[var(--decorative-om)]" />
+                            <span className="text-xs text-[var(--text-accent-muted)] mt-1">
                               {searchData.total_count ?? searchData.results.length} results
                             </span>
                           </div>
-                          <div className="flex-1 h-px bg-linear-to-l from-transparent via-amber-200/40 dark:via-amber-600/20 to-amber-200/60 dark:to-amber-600/40" />
+                          <div className="flex-1 h-px bg-linear-to-l from-transparent via-[var(--divider-warm-subtle)] to-[var(--divider-warm-subtle)]" />
                         </div>
                       )}
                     </div>
@@ -1445,11 +1445,11 @@ export default function Verses() {
 
               {/* Empty Search Results */}
               {searchData && searchData.results.length === 0 && (
-                <div className="text-center py-12 bg-white/50 dark:bg-gray-800/50 rounded-2xl border border-amber-100 dark:border-gray-700">
-                  <div className="text-4xl text-amber-300/60 dark:text-amber-500/50 mb-4">
+                <div className="text-center py-12 bg-[var(--surface-warm-subtle)] rounded-2xl border border-[var(--border-warm-subtle)]">
+                  <div className="text-4xl text-[var(--decorative-om)] mb-4">
                     ॐ
                   </div>
-                  <h3 className="text-lg font-serif text-gray-700 dark:text-gray-300 mb-2">
+                  <h3 className="text-lg font-serif text-[var(--text-primary)] mb-2">
                     No verses found
                   </h3>
 
@@ -1457,7 +1457,7 @@ export default function Verses() {
                   {searchData.suggestion ||
                   searchData.query.split(" ").length >= 5 ? (
                     <>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
+                      <p className="text-sm text-[var(--text-secondary)] mb-6 max-w-md mx-auto">
                         Your question sounds like you're seeking personal
                         guidance. Our consultation feature can provide tailored
                         insights from the Geeta.
@@ -1470,7 +1470,7 @@ export default function Verses() {
                       </Link>
                     </>
                   ) : (
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 max-w-sm mx-auto">
+                    <p className="text-sm text-[var(--text-tertiary)] mb-6 max-w-sm mx-auto">
                       Try different keywords or a verse reference (e.g.,
                       "2.47").
                     </p>
@@ -1479,19 +1479,19 @@ export default function Verses() {
                   <div className="flex flex-wrap justify-center gap-2 mt-4">
                     <button
                       onClick={() => handleSearch("karma")}
-                      className="px-3 py-1.5 bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 text-sm rounded-full hover:bg-amber-200 dark:hover:bg-amber-900/60 transition-colors"
+                      className="px-3 py-1.5 bg-[var(--badge-warm-bg)] text-[var(--badge-warm-text)] text-sm rounded-full hover:bg-[var(--badge-warm-hover)] transition-colors"
                     >
                       Try "karma"
                     </button>
                     <button
                       onClick={() => handleSearch("2.47")}
-                      className="px-3 py-1.5 bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 text-sm rounded-full hover:bg-amber-200 dark:hover:bg-amber-900/60 transition-colors"
+                      className="px-3 py-1.5 bg-[var(--badge-warm-bg)] text-[var(--badge-warm-text)] text-sm rounded-full hover:bg-[var(--badge-warm-hover)] transition-colors"
                     >
                       Try "2.47"
                     </button>
                     <button
                       onClick={handleClearSearch}
-                      className="px-3 py-1.5 bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 text-sm rounded-full hover:bg-orange-200 dark:hover:bg-orange-900/60 transition-colors"
+                      className="px-3 py-1.5 bg-[var(--badge-primary-bg)] text-[var(--badge-primary-text)] text-sm rounded-full hover:bg-[var(--badge-primary-hover)] transition-colors"
                     >
                       Browse all verses
                     </button>
@@ -1515,21 +1515,21 @@ export default function Verses() {
                     {/* Decorative element */}
                     <div className="mb-4 flex justify-center">
                       {showFavorites ? (
-                        <HeartIcon className="w-10 h-10 sm:w-12 sm:h-12 text-red-300/60 dark:text-red-400/40" />
+                        <HeartIcon className="w-10 h-10 sm:w-12 sm:h-12 text-[var(--decorative-heart)]" />
                       ) : showRecommended ? (
-                        <SparklesIcon className="w-10 h-10 sm:w-12 sm:h-12 text-amber-300/60 dark:text-amber-500/40" />
+                        <SparklesIcon className="w-10 h-10 sm:w-12 sm:h-12 text-[var(--decorative-om)]" />
                       ) : showFeatured ? (
-                        <StarIcon className="w-10 h-10 sm:w-12 sm:h-12 text-amber-300/60 dark:text-amber-500/40" />
+                        <StarIcon className="w-10 h-10 sm:w-12 sm:h-12 text-[var(--decorative-om)]" />
                       ) : (
-                        <span className="text-4xl sm:text-5xl text-amber-300/60 dark:text-amber-500/40">ॐ</span>
+                        <span className="text-4xl sm:text-5xl text-[var(--decorative-om)]">ॐ</span>
                       )}
                     </div>
 
-                    <h3 className="text-lg sm:text-xl font-serif text-gray-700 dark:text-gray-300 mb-2">
+                    <h3 className="text-lg sm:text-xl font-serif text-[var(--text-primary)] mb-2">
                       {showFavorites ? "No favorites yet" : showRecommended ? "No recommendations yet" : "No verses found"}
                     </h3>
 
-                    <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mb-6">
+                    <p className="text-sm sm:text-base text-[var(--text-tertiary)] mb-6">
                       {showFavorites ? (
                         <>
                           Browse verses and tap the{" "}
@@ -1539,7 +1539,7 @@ export default function Verses() {
                       ) : showRecommended ? (
                         <>
                           No verses match your current learning goals. Try selecting different goals in{" "}
-                          <a href="/settings#goals" className="text-orange-600 dark:text-orange-400 underline">Settings</a>.
+                          <a href="/settings#goals" className="text-[var(--interactive-ghost-text)] underline">Settings</a>.
                         </>
                       ) : selectedPrinciple && selectedChapter ? (
                         <>
@@ -1587,7 +1587,7 @@ export default function Verses() {
                           )}
                           <button
                             onClick={() => handleFilterSelect("all")}
-                            className="px-4 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-lg text-sm font-medium border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                            className="px-4 py-2 bg-[var(--surface-elevated)] text-[var(--text-primary)] rounded-lg text-sm font-medium border border-[var(--border-default)] hover:bg-[var(--surface-muted)] transition-colors"
                           >
                             Browse all 701 verses
                           </button>
@@ -1618,18 +1618,18 @@ export default function Verses() {
                           className="w-full group"
                         >
                           <div className="flex items-center gap-4">
-                            <div className="flex-1 h-px bg-linear-to-r from-transparent via-amber-300/50 dark:via-amber-600/30 to-amber-300/70 dark:to-amber-600/50" />
+                            <div className="flex-1 h-px bg-linear-to-r from-transparent via-[var(--divider-warm)] to-[var(--divider-warm)]" />
                             <div
                               className={`flex flex-col items-center transition-all duration-300 ${loadingMore ? "scale-95 opacity-70" : "group-hover:scale-105"}`}
                             >
                               {loadingMore ? (
-                                <SpinnerIcon className="w-6 h-6 text-amber-500 dark:text-amber-400 mb-1.5" />
+                                <SpinnerIcon className="w-6 h-6 text-[var(--text-accent)] mb-1.5" />
                               ) : (
-                                <span className="text-amber-400/70 dark:text-amber-500/60 text-xl mb-1">
+                                <span className="text-[var(--decorative-om)] text-xl mb-1">
                                   ॰
                                 </span>
                               )}
-                              <span className="flex items-center gap-1.5 text-base font-medium text-amber-700/80 dark:text-amber-400/80 group-hover:text-amber-800 dark:group-hover:text-amber-300 transition-colors">
+                              <span className="flex items-center gap-1.5 text-base font-medium text-[var(--text-accent)] group-hover:text-[var(--badge-warm-text)] transition-colors">
                                 {loadingMore ? (
                                   "Loading"
                                 ) : (
@@ -1640,34 +1640,34 @@ export default function Verses() {
                                 )}
                               </span>
                               {!loadingMore && totalCount && (
-                                <span className="text-xs text-amber-600/70 dark:text-amber-500/70 mt-1">
+                                <span className="text-xs text-[var(--text-accent-muted)] mt-1">
                                   {totalCount - verses.length} more
                                 </span>
                               )}
                             </div>
-                            <div className="flex-1 h-px bg-linear-to-l from-transparent via-amber-300/50 dark:via-amber-600/30 to-amber-300/70 dark:to-amber-600/50" />
+                            <div className="flex-1 h-px bg-linear-to-l from-transparent via-[var(--divider-warm)] to-[var(--divider-warm)]" />
                           </div>
                         </button>
                       ) : (
                         <div className="flex items-center gap-4">
-                          <div className="flex-1 h-px bg-linear-to-r from-transparent via-amber-200/40 dark:via-amber-600/20 to-amber-200/60 dark:to-amber-600/40" />
+                          <div className="flex-1 h-px bg-linear-to-r from-transparent via-[var(--divider-warm-subtle)] to-[var(--divider-warm-subtle)]" />
                           <div className="flex flex-col items-center">
                             {showFavorites ? (
-                              <HeartIcon className="w-5 h-5 text-red-300/70 dark:text-red-400/50" filled />
+                              <HeartIcon className="w-5 h-5 text-[var(--decorative-heart)]" filled />
                             ) : showRecommended ? (
-                              <SparklesIcon className="w-5 h-5 text-amber-300/70 dark:text-amber-500/50" />
+                              <SparklesIcon className="w-5 h-5 text-[var(--decorative-om)]" />
                             ) : showFeatured ? (
-                              <StarIcon className="w-5 h-5 text-amber-300/70 dark:text-amber-500/50" />
+                              <StarIcon className="w-5 h-5 text-[var(--decorative-om)]" />
                             ) : (
-                              <span className="text-amber-300/60 dark:text-amber-500/40 text-xl">ॐ</span>
+                              <span className="text-[var(--decorative-om)] text-xl">ॐ</span>
                             )}
-                            <span className="text-xs text-amber-600/70 dark:text-amber-500/60 mt-1">
+                            <span className="text-xs text-[var(--text-accent-muted)] mt-1">
                               {displayedVerses.length}{" "}
                               {showFavorites ? "favorite" : showRecommended ? "recommended" : showFeatured ? "featured" : "verse"}
                               {displayedVerses.length !== 1 ? "s" : ""}
                             </span>
                           </div>
-                          <div className="flex-1 h-px bg-linear-to-l from-transparent via-amber-200/40 dark:via-amber-600/20 to-amber-200/60 dark:to-amber-600/40" />
+                          <div className="flex-1 h-px bg-linear-to-l from-transparent via-[var(--divider-warm-subtle)] to-[var(--divider-warm-subtle)]" />
                         </div>
                       )}
                     </div>

@@ -33,6 +33,9 @@
   /* Muted/secondary backgrounds */
   --surface-muted: var(--color-neutral-100);
 
+  /* Sticky header/bar surfaces (with transparency for blur) */
+  --surface-sticky: color-mix(in srgb, var(--color-warm-50) 95%, transparent);
+
   /* Reading mode surface */
   --surface-reading: var(--color-reading-50);
   --surface-reading-elevated: white;
@@ -163,12 +166,22 @@
 
   /* Om symbol and decorative elements */
   --decorative-om: color-mix(in srgb, var(--color-warm-400) 50%, transparent);
+  --decorative-heart: color-mix(in srgb, var(--color-red-300) 60%, transparent);
+  --decorative-sparkle: color-mix(in srgb, var(--color-warm-300) 60%, transparent);
+
+  /* Decorative dividers */
+  --divider-warm: var(--color-warm-300);
+  --divider-warm-subtle: var(--color-warm-200);
 
   /* Badges and tags */
   --badge-default-bg: var(--color-neutral-100);
   --badge-default-text: var(--color-neutral-700);
   --badge-warm-bg: var(--color-warm-100);
   --badge-warm-text: var(--color-warm-700);
+  --badge-warm-hover: var(--color-warm-200);
+  --badge-primary-bg: var(--color-primary-100);
+  --badge-primary-text: var(--color-primary-800);
+  --badge-primary-hover: var(--color-primary-200);
 
   /* Domain-specific badges */
   --badge-principle-bg: var(--color-warm-100);
@@ -234,6 +247,11 @@
   --status-error-text: var(--color-error-600);
   --status-error-border: var(--color-error-200);
 
+  /* Info states (blue) */
+  --status-info-bg: var(--color-blue-100);
+  --status-info-text: var(--color-blue-700);
+  --status-info-border: var(--color-blue-400);
+
   /* Warning states */
   --status-warning-bg: var(--color-warning-100);
   --status-warning-text: var(--color-warning-700);
@@ -256,6 +274,7 @@
   --surface-warm-subtle: color-mix(in srgb, var(--color-warm-900) 8%, var(--color-neutral-850, var(--color-neutral-800)));
   --surface-elevated: var(--color-neutral-800);
   --surface-muted: var(--color-neutral-800);
+  --surface-sticky: color-mix(in srgb, var(--color-neutral-900) 95%, transparent);
   --surface-reading: var(--color-reading-900);
   --surface-reading-elevated: var(--color-reading-800);
   --surface-reading-header: color-mix(in srgb, var(--color-reading-900) 95%, transparent);
@@ -326,12 +345,22 @@
 
   /* Decorative tokens */
   --decorative-om: color-mix(in srgb, var(--color-warm-400) 50%, transparent);
+  --decorative-heart: color-mix(in srgb, var(--color-red-400) 50%, transparent);
+  --decorative-sparkle: color-mix(in srgb, var(--color-warm-500) 50%, transparent);
+
+  /* Decorative dividers */
+  --divider-warm: var(--color-warm-600);
+  --divider-warm-subtle: var(--color-warm-600);
 
   /* Badge tokens */
   --badge-default-bg: var(--color-neutral-700);
   --badge-default-text: var(--color-neutral-300);
   --badge-warm-bg: var(--color-neutral-700);
   --badge-warm-text: var(--color-warm-300);
+  --badge-warm-hover: var(--color-neutral-600);
+  --badge-primary-bg: var(--color-neutral-700);
+  --badge-primary-text: var(--color-primary-300);
+  --badge-primary-hover: var(--color-neutral-600);
 
   /* Domain-specific badges (dark mode) */
   --badge-principle-bg: var(--color-neutral-700);
@@ -386,6 +415,9 @@
   --status-error-bg: var(--color-error-900);
   --status-error-text: var(--color-error-300);
   --status-error-border: var(--color-error-700);
+  --status-info-bg: color-mix(in srgb, var(--color-blue-900) 40%, transparent);
+  --status-info-text: var(--color-blue-400);
+  --status-info-border: var(--color-blue-600);
   --status-warning-bg: var(--color-warning-900);
   --status-warning-text: var(--color-warning-300);
   --status-warning-border: var(--color-warning-700);
