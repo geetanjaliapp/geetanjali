@@ -39,7 +39,7 @@ function isChunkLoadError(error: Error | null): boolean {
  */
 function ErrorNavbar() {
   return (
-    <nav className="bg-white dark:bg-gray-900 shadow-xs border-b border-gray-200 dark:border-gray-700 h-14 sm:h-16 shrink-0">
+    <nav className="bg-[var(--surface-elevated)] shadow-xs border-b border-[var(--border-default)] h-14 sm:h-16 shrink-0">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
         <div className="flex justify-between items-center h-full">
           <a
@@ -51,7 +51,7 @@ function ErrorNavbar() {
               alt="Geetanjali"
               className="h-8 w-8 sm:h-10 sm:w-10"
             />
-            <span className="text-xl sm:text-2xl font-heading font-bold text-orange-600 dark:text-orange-400">
+            <span className="text-xl sm:text-2xl font-heading font-bold text-[var(--text-accent)]">
               Geetanjali
             </span>
           </a>
@@ -95,14 +95,14 @@ export class ErrorBoundary extends Component<Props, State> {
       // Special UI for chunk load errors (stale app after deployment)
       if (isChunkError) {
         return (
-          <div className="min-h-screen bg-linear-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col">
+          <div className="min-h-screen bg-linear-to-br from-[var(--gradient-page-from)] to-[var(--gradient-page-to)] flex flex-col">
             <ErrorNavbar />
             <div className="flex-1 flex items-center justify-center">
               <div className="max-w-md mx-auto px-4 text-center">
-                <div className="mb-6 p-6 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-lg">
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-amber-100 dark:bg-amber-800/50 flex items-center justify-center">
+                <div className="mb-6 p-6 bg-[var(--status-warning-bg)] border border-[var(--status-warning-border)] rounded-lg">
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--status-warning-bg)] flex items-center justify-center">
                     <svg
-                      className="w-8 h-8 text-amber-600 dark:text-amber-400"
+                      className="w-8 h-8 text-[var(--status-warning-text)]"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -115,17 +115,17 @@ export class ErrorBoundary extends Component<Props, State> {
                       />
                     </svg>
                   </div>
-                  <h1 className="text-2xl font-bold text-amber-800 dark:text-amber-300 mb-2">
+                  <h1 className="text-2xl font-bold text-[var(--status-warning-text)] mb-2">
                     Update Available
                   </h1>
-                  <p className="text-amber-700 dark:text-amber-400">
+                  <p className="text-[var(--status-warning-text)]">
                     A new version of Geetanjali is available. Please refresh to
                     get the latest updates.
                   </p>
                 </div>
                 <button
                   onClick={this.handleRefresh}
-                  className="inline-block bg-amber-600 hover:bg-amber-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+                  className="inline-block bg-amber-600 hover:bg-amber-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:ring-offset-[var(--focus-ring-offset)]"
                 >
                   Refresh Now
                 </button>
@@ -137,23 +137,23 @@ export class ErrorBoundary extends Component<Props, State> {
 
       // Generic error UI for other errors
       return (
-        <div className="min-h-screen bg-linear-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col">
+        <div className="min-h-screen bg-linear-to-br from-[var(--gradient-page-from)] to-[var(--gradient-page-to)] flex flex-col">
           <ErrorNavbar />
           <div className="flex-1 flex items-center justify-center">
             <div className="max-w-md mx-auto px-4 text-center">
-              <div className="mb-6 p-6 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg">
-                <h1 className="text-2xl font-bold text-red-800 dark:text-red-300 mb-2">
+              <div className="mb-6 p-6 bg-[var(--status-error-bg)] border border-[var(--status-error-border)] rounded-lg">
+                <h1 className="text-2xl font-bold text-[var(--status-error-text)] mb-2">
                   Oops, something went wrong
                 </h1>
-                <p className="text-red-700 dark:text-red-400 mb-4">
+                <p className="text-[var(--status-error-text)] mb-4">
                   We encountered an unexpected error. Please try again.
                 </p>
                 {process.env.NODE_ENV === "development" && this.state.error && (
                   <details className="mt-4 text-left">
-                    <summary className="cursor-pointer text-sm font-semibold text-red-700 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300">
+                    <summary className="cursor-pointer text-sm font-semibold text-[var(--status-error-text)] hover:text-[var(--status-error-text)]">
                       Error details (development only)
                     </summary>
-                    <pre className="mt-2 overflow-auto bg-white dark:bg-gray-800 p-2 rounded-sm text-xs text-red-900 dark:text-red-300 border border-red-200 dark:border-red-700">
+                    <pre className="mt-2 overflow-auto bg-[var(--surface-elevated)] p-2 rounded-sm text-xs text-[var(--status-error-text)] border border-[var(--status-error-border)]">
                       {this.state.error.toString()}
                     </pre>
                   </details>
@@ -162,13 +162,13 @@ export class ErrorBoundary extends Component<Props, State> {
               <div className="flex gap-3 justify-center">
                 <button
                   onClick={this.reset}
-                  className="inline-block bg-gray-600 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+                  className="inline-block bg-gray-600 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-[var(--focus-ring-offset)]"
                 >
                   Try Again
                 </button>
                 <button
                   onClick={this.handleRefresh}
-                  className="inline-block bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+                  className="inline-block bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-[var(--focus-ring-offset)]"
                 >
                   Refresh Page
                 </button>

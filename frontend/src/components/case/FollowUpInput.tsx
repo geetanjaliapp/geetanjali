@@ -22,21 +22,21 @@ export function FollowUpInput({
 
   return (
     <div
-      className={`mt-4 bg-white dark:bg-gray-800 rounded-xl shadow-md p-3 sm:p-4 transition-opacity ${disabled ? "opacity-75" : ""}`}
+      className={`mt-4 bg-[var(--surface-elevated)] rounded-xl shadow-md p-3 sm:p-4 transition-opacity ${disabled ? "opacity-75" : ""}`}
     >
       {/* Inline error message */}
       {error && (
         <div
           id="followup-error"
           role="alert"
-          className="mb-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-3 py-2 rounded-lg text-sm"
+          className="mb-3 bg-[var(--status-error-bg)] border border-[var(--status-error-border)] text-[var(--status-error-text)] px-3 py-2 rounded-lg text-sm"
         >
           {error}
         </div>
       )}
       {/* Processing indicator */}
       {disabled && (
-        <div className="flex items-center gap-2 mb-3 text-orange-600 dark:text-orange-400">
+        <div className="flex items-center gap-2 mb-3 text-[var(--text-accent)]">
           <div className="flex space-x-1">
             <span
               className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-bounce"
@@ -79,10 +79,10 @@ export function FollowUpInput({
             rows={2}
             aria-invalid={error ? true : undefined}
             aria-describedby={error ? "followup-error" : undefined}
-            className={`flex-1 px-3 sm:px-4 py-2.5 sm:py-3 border rounded-xl text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors resize-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 ${
+            className={`flex-1 px-3 sm:px-4 py-2.5 sm:py-3 border rounded-xl text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors resize-none bg-[var(--surface-elevated)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] ${
               disabled
-                ? "border-orange-200 dark:border-orange-800 bg-orange-50/50 dark:bg-orange-900/20"
-                : "border-gray-200 dark:border-gray-700"
+                ? "border-[var(--border-warm)] bg-[var(--surface-warm-subtle)]"
+                : "border-[var(--border-default)]"
             }`}
             disabled={isDisabled}
           />
@@ -91,8 +91,8 @@ export function FollowUpInput({
             disabled={!value.trim() || isDisabled}
             className={`self-end px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl font-medium text-sm flex items-center gap-1.5 transition-colors ${
               disabled
-                ? "bg-orange-200 dark:bg-orange-900/40 text-orange-700 dark:text-orange-400 cursor-not-allowed"
-                : "bg-orange-600 text-white hover:bg-orange-700 disabled:bg-gray-300 dark:disabled:bg-gray-700 disabled:cursor-not-allowed"
+                ? "bg-[var(--badge-warm-bg)] text-[var(--badge-warm-text)] cursor-not-allowed"
+                : "bg-orange-600 text-white hover:bg-orange-700 disabled:bg-[var(--interactive-disabled)] disabled:cursor-not-allowed"
             }`}
           >
             <span className="hidden sm:inline">
@@ -116,13 +116,13 @@ export function FollowUpInput({
       </form>
 
       {/* New Consultation link */}
-      <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
-        <p className="text-xs text-gray-500 dark:text-gray-400">
+      <div className="mt-3 pt-3 border-t border-[var(--border-default)] flex items-center justify-between">
+        <p className="text-xs text-[var(--text-tertiary)]">
           Need a fresh perspective with new options?
         </p>
         <Link
           to="/cases/new"
-          className="text-xs text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 font-medium flex items-center gap-1"
+          className="text-xs text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] font-medium flex items-center gap-1"
         >
           <svg
             className="w-3.5 h-3.5"

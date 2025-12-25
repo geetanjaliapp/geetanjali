@@ -50,12 +50,12 @@ export function CaseHeader({
   };
 
   return (
-    <div className="border-b border-amber-200/50 dark:border-gray-700 bg-amber-50 dark:bg-gray-800 sticky top-14 sm:top-16 z-10">
+    <div className="border-b border-[var(--border-warm)] bg-[var(--surface-warm)] sticky top-14 sm:top-16 z-10">
       {/* Main header row */}
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3 flex items-center justify-between">
         <Link
           to="/consultations"
-          className="text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 text-sm flex items-center gap-1"
+          className="text-[var(--badge-warm-text)] hover:text-[var(--text-accent-hover)] text-sm flex items-center gap-1"
         >
           ← <span className="hidden sm:inline">Back</span>
         </Link>
@@ -64,7 +64,7 @@ export function CaseHeader({
           {canSave && (
             <button
               onClick={onSave}
-              className="p-2 sm:px-3 sm:py-1.5 bg-white dark:bg-gray-700 rounded-lg shadow-xs text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600 flex items-center gap-1.5 transition-colors"
+              className="p-2 sm:px-3 sm:py-1.5 bg-[var(--surface-elevated)] rounded-lg shadow-xs text-[var(--text-secondary)] hover:bg-[var(--interactive-ghost-hover-bg)] border border-[var(--border-default)] flex items-center gap-1.5 transition-colors"
               aria-label="Save consultation as file"
             >
               <svg
@@ -94,7 +94,7 @@ export function CaseHeader({
                 className={`p-2 sm:px-3 sm:py-1.5 rounded-lg shadow-xs flex items-center gap-1.5 transition-all duration-200 ${
                   caseData.is_public
                     ? "bg-green-600 text-white hover:bg-green-700"
-                    : "bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600"
+                    : "bg-[var(--surface-elevated)] text-[var(--text-secondary)] hover:bg-[var(--interactive-ghost-hover-bg)] border border-[var(--border-default)]"
                 } ${shareLoading ? "opacity-50 cursor-not-allowed" : ""}`}
                 aria-label={
                   caseData.is_public ? "Toggle share options" : "Share consultation"
@@ -167,7 +167,7 @@ export function CaseHeader({
             <div className="relative">
               <button
                 onClick={() => setShowOverflowMenu(!showOverflowMenu)}
-                className="p-2 bg-white dark:bg-gray-700 rounded-lg shadow-xs text-gray-400 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600 transition-colors"
+                className="p-2 bg-[var(--surface-elevated)] rounded-lg shadow-xs text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:bg-[var(--interactive-ghost-hover-bg)] border border-[var(--border-default)] transition-colors"
                 aria-label="More options"
                 aria-expanded={showOverflowMenu}
               >
@@ -194,13 +194,13 @@ export function CaseHeader({
                     className="fixed inset-0 z-10"
                     onClick={() => setShowOverflowMenu(false)}
                   />
-                  <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-20 py-1">
+                  <div className="absolute right-0 mt-2 w-40 bg-[var(--surface-elevated)] rounded-lg shadow-xl border border-[var(--border-default)] z-20 py-1">
                     <button
                       onClick={() => {
                         setShowOverflowMenu(false);
                         onDeleteClick();
                       }}
-                      className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 flex items-center gap-2"
+                      className="w-full px-4 py-2 text-left text-sm text-[var(--status-error-text)] hover:bg-[var(--status-error-bg)] flex items-center gap-2"
                     >
                       <svg
                         className="w-4 h-4"

@@ -91,7 +91,7 @@ export function ExampleConsultation({
   return (
     <section className="max-w-4xl mx-auto">
       {/* Section Header */}
-      <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4 text-center">
+      <h2 className="text-lg sm:text-xl font-semibold text-[var(--text-primary)] mb-4 text-center">
         See how Geetanjali helps
       </h2>
 
@@ -104,7 +104,7 @@ export function ExampleConsultation({
             className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
               selected === cat
                 ? "bg-orange-600 text-white"
-                : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                : "bg-[var(--surface-muted)] text-[var(--text-secondary)] hover:bg-[var(--interactive-ghost-hover-bg)]"
             }`}
           >
             {CATEGORY_LABELS[cat]}
@@ -113,24 +113,24 @@ export function ExampleConsultation({
       </div>
 
       {/* Example Content Card */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-md border border-gray-100 dark:border-gray-700 p-4 sm:p-6">
+      <div className="bg-[var(--surface-elevated)] rounded-xl sm:rounded-2xl shadow-md border border-[var(--border-default)] p-4 sm:p-6">
         {/* Dilemma Quote */}
-        <blockquote className="text-gray-800 dark:text-gray-200 text-base sm:text-lg italic mb-4 sm:mb-5 border-l-4 border-orange-400 dark:border-orange-500 pl-4">
+        <blockquote className="text-[var(--text-primary)] text-base sm:text-lg italic mb-4 sm:mb-5 border-l-4 border-[var(--border-accent)] pl-4">
           "{example.dilemma}"
         </blockquote>
 
         {/* Suggestions */}
         <div className="mb-4 sm:mb-5">
-          <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+          <p className="text-sm font-semibold text-[var(--text-secondary)] mb-2">
             Geetanjali suggests:
           </p>
           <ul className="space-y-2">
             {example.options.map((option, idx) => (
               <li
                 key={idx}
-                className="flex items-start gap-2 text-sm sm:text-base text-gray-700 dark:text-gray-300"
+                className="flex items-start gap-2 text-sm sm:text-base text-[var(--text-secondary)]"
               >
-                <span className="shrink-0 w-5 h-5 bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-400 rounded-full flex items-center justify-center text-xs font-medium">
+                <span className="shrink-0 w-5 h-5 bg-[var(--badge-warm-bg)] text-[var(--badge-warm-text)] rounded-full flex items-center justify-center text-xs font-medium">
                   {idx + 1}
                 </span>
                 <span>{option}</span>
@@ -140,13 +140,13 @@ export function ExampleConsultation({
         </div>
 
         {/* Verse References */}
-        <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mb-4 sm:mb-5">
+        <p className="text-xs sm:text-sm text-[var(--text-tertiary)] mb-4 sm:mb-5">
           Based on:{" "}
           {example.verses.map((verse, idx) => (
             <span key={verse}>
               <Link
                 to={getVersePath(verse)}
-                className="text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 hover:underline"
+                className="text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] hover:underline"
               >
                 {verse}
               </Link>
@@ -156,10 +156,10 @@ export function ExampleConsultation({
         </p>
 
         {/* Secondary CTAs */}
-        <div className="flex flex-col sm:flex-row gap-3 items-center pt-3 border-t border-gray-100 dark:border-gray-700">
+        <div className="flex flex-col sm:flex-row gap-3 items-center pt-3 border-t border-[var(--border-default)]">
           <button
             onClick={handleAskSimilar}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 font-medium text-sm sm:text-base"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] font-medium text-sm sm:text-base"
           >
             <span>Ask a similar question</span>
             <svg

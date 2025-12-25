@@ -15,8 +15,8 @@ export function CompletionBanner({
     <div
       className={`mb-6 rounded-xl px-4 py-3 flex items-center justify-between animate-in slide-in-from-top-2 duration-300 ${
         isPolicyViolation
-          ? "bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800"
-          : "bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800"
+          ? "bg-[var(--status-warning-bg)] border border-[var(--status-warning-border)]"
+          : "bg-[var(--status-success-bg)] border border-[var(--status-success-border)]"
       }`}
     >
       <div className="flex items-center gap-3">
@@ -59,8 +59,8 @@ export function CompletionBanner({
           <p
             className={
               isPolicyViolation
-                ? "text-amber-800 dark:text-amber-300 font-medium"
-                : "text-green-800 dark:text-green-300 font-medium"
+                ? "text-[var(--status-warning-text)] font-medium"
+                : "text-[var(--status-success-text)] font-medium"
             }
           >
             {isPolicyViolation ? "Unable to Provide Guidance" : "Analysis Complete"}
@@ -68,8 +68,8 @@ export function CompletionBanner({
           <p
             className={
               isPolicyViolation
-                ? "text-amber-600 dark:text-amber-400 text-sm"
-                : "text-green-600 dark:text-green-400 text-sm"
+                ? "text-[var(--status-warning-text)] text-sm"
+                : "text-[var(--status-success-text)] text-sm"
             }
           >
             {isPolicyViolation
@@ -80,10 +80,10 @@ export function CompletionBanner({
       </div>
       <button
         onClick={onDismiss}
-        className={`rounded focus:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 ${
+        className={`rounded focus:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
           isPolicyViolation
-            ? "text-amber-500 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 focus-visible:ring-amber-500"
-            : "text-green-500 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 focus-visible:ring-green-500"
+            ? "text-[var(--status-warning-text)] hover:text-[var(--status-warning-text)] focus-visible:ring-amber-500"
+            : "text-[var(--status-success-text)] hover:text-[var(--status-success-text)] focus-visible:ring-green-500"
         }`}
       >
         <svg

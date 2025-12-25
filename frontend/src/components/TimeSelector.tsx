@@ -84,12 +84,12 @@ export function TimeSelector({ value, onChange, disabled }: TimeSelectorProps) {
           className={`
             flex flex-col items-center p-2 rounded-lg border transition-all duration-150
             focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2
-            dark:focus-visible:ring-offset-gray-900
+            focus-visible:ring-offset-[var(--focus-ring-offset)]
             ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
             ${
               value === option.id
-                ? "border-amber-500 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-600"
-                : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-amber-300 dark:hover:border-amber-700"
+                ? "border-[var(--border-accent)] bg-[var(--surface-warm)]"
+                : "border-[var(--border-default)] bg-[var(--surface-elevated)] hover:border-[var(--border-warm)]"
             }
           `}
           role="radio"
@@ -101,8 +101,8 @@ export function TimeSelector({ value, onChange, disabled }: TimeSelectorProps) {
               w-8 h-8 rounded-full flex items-center justify-center mb-1
               ${
                 value === option.id
-                  ? "bg-amber-100 dark:bg-amber-800/40 text-amber-700 dark:text-amber-400"
-                  : "bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
+                  ? "bg-[var(--badge-warm-bg)] text-[var(--badge-warm-text)]"
+                  : "bg-[var(--surface-muted)] text-[var(--text-tertiary)]"
               }
             `}
           >
@@ -115,13 +115,13 @@ export function TimeSelector({ value, onChange, disabled }: TimeSelectorProps) {
               text-xs font-medium text-center
               ${
                 value === option.id
-                  ? "text-amber-900 dark:text-amber-300"
-                  : "text-gray-900 dark:text-gray-100"
+                  ? "text-[var(--badge-warm-text)]"
+                  : "text-[var(--text-primary)]"
               }
             `}
           >
             {option.label}
-            <span className="text-gray-500 dark:text-gray-400 font-normal block text-[10px]">
+            <span className="text-[var(--text-tertiary)] font-normal block text-[10px]">
               {option.time}
             </span>
           </div>
@@ -132,8 +132,8 @@ export function TimeSelector({ value, onChange, disabled }: TimeSelectorProps) {
               text-[10px] text-center mt-0.5 leading-tight hidden sm:block
               ${
                 value === option.id
-                  ? "text-amber-600 dark:text-amber-400"
-                  : "text-gray-400 dark:text-gray-500"
+                  ? "text-[var(--badge-warm-text)]"
+                  : "text-[var(--text-muted)]"
               }
             `}
           >

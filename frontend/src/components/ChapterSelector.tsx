@@ -63,7 +63,7 @@ export function ChapterSelector({
     <>
       {/* Subtle backdrop */}
       <div
-        className="fixed inset-0 bg-amber-900/20 dark:bg-black/40 z-50"
+        className="fixed inset-0 bg-black/20 z-50"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -71,7 +71,7 @@ export function ChapterSelector({
       {/* Compact popover - positioned above bottom nav */}
       <div
         className="fixed bottom-16 left-1/2 -translate-x-1/2 z-50
-                   bg-amber-50/95 dark:bg-stone-800/95 backdrop-blur-xs border border-amber-200/60 dark:border-stone-600
+                   bg-[var(--surface-warm)]/95 backdrop-blur-xs border border-[var(--border-warm)]
                    rounded-xl shadow-lg p-3 w-[280px] sm:w-[320px]"
         role="dialog"
         aria-modal="true"
@@ -93,8 +93,8 @@ export function ChapterSelector({
                   focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500
                   ${
                     isCurrentChapter
-                      ? "bg-amber-600 dark:bg-amber-700 text-white"
-                      : "text-amber-800 dark:text-amber-300 hover:bg-amber-200/70 dark:hover:bg-stone-700 active:bg-amber-300/70 dark:active:bg-stone-600"
+                      ? "bg-[var(--interactive-primary)] text-white"
+                      : "text-[var(--badge-warm-text)] hover:bg-[var(--interactive-ghost-hover-bg)] active:bg-[var(--surface-warm)]"
                   }
                 `}
                 aria-current={isCurrentChapter ? "true" : undefined}

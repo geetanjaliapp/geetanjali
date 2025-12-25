@@ -245,7 +245,7 @@ export function ShareModal({
       {/* Modal - compact width */}
       <div
         ref={modalRef}
-        className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-md p-4 transform transition-all"
+        className="relative bg-[var(--surface-elevated)] rounded-2xl shadow-xl w-full max-w-md p-4 transform transition-all"
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
@@ -254,13 +254,13 @@ export function ShareModal({
         <div className="flex items-center justify-between mb-3">
           <h2
             id="modal-title"
-            className="text-base font-semibold text-gray-900 dark:text-gray-100"
+            className="text-base font-semibold text-[var(--text-primary)]"
           >
             Share
           </h2>
           <button
             onClick={onClose}
-            className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="p-1 text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] rounded-lg hover:bg-[var(--interactive-ghost-hover-bg)] transition-colors"
             aria-label="Close"
           >
             <svg
@@ -280,12 +280,12 @@ export function ShareModal({
         </div>
 
         {/* Quote + Copy Link - compact inline */}
-        <div className="flex items-start gap-3 mb-3 p-3 bg-amber-50/70 dark:bg-gray-700/40 rounded-xl border border-amber-100/50 dark:border-gray-600/50">
+        <div className="flex items-start gap-3 mb-3 p-3 bg-[var(--surface-warm-subtle)] rounded-xl border border-[var(--border-warm)]">
           <div className="flex-1 min-w-0">
-            <p className="text-gray-700 dark:text-gray-300 text-sm italic leading-snug truncate">
+            <p className="text-[var(--text-secondary)] text-sm italic leading-snug truncate">
               "{shortQuote}"
             </p>
-            <p className="text-amber-700 dark:text-amber-400 text-xs mt-1 font-medium">
+            <p className="text-[var(--badge-warm-text)] text-xs mt-1 font-medium">
               ॥ {verse.chapter}.{verse.verse} ॥
             </p>
           </div>
@@ -293,8 +293,8 @@ export function ShareModal({
             onClick={handleCopyLink}
             className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
               linkCopied
-                ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300"
-                : "bg-white dark:bg-gray-600 text-gray-600 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-500 shadow-xs"
+                ? "bg-[var(--status-success-bg)] text-[var(--status-success-text)]"
+                : "bg-[var(--surface-elevated)] text-[var(--text-secondary)] hover:bg-[var(--interactive-ghost-hover-bg)] shadow-xs"
             }`}
           >
             {linkCopied ? "Copied!" : "Copy Link"}
@@ -302,10 +302,10 @@ export function ShareModal({
         </div>
 
         {/* Image Preview - fixed size canvas */}
-        <div className="mb-3 bg-gray-100 dark:bg-gray-900 rounded-xl p-2">
+        <div className="mb-3 bg-[var(--surface-muted)] rounded-xl p-2">
           <div className="relative w-full h-48 flex items-center justify-center overflow-hidden rounded-lg">
             {generating ? (
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 text-gray-500 dark:text-gray-400">
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 text-[var(--text-tertiary)]">
                 <svg
                   className="animate-spin w-6 h-6"
                   fill="none"
@@ -334,7 +334,7 @@ export function ShareModal({
                 className="max-w-full max-h-full rounded-lg shadow-xs object-contain"
               />
             ) : (
-              <span className="text-gray-400 dark:text-gray-500 text-xs">
+              <span className="text-[var(--text-muted)] text-xs">
                 Preview
               </span>
             )}
@@ -343,7 +343,7 @@ export function ShareModal({
 
         {/* Error message */}
         {error && (
-          <div className="mb-3 p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400 text-xs">
+          <div className="mb-3 p-2 bg-[var(--status-error-bg)] border border-[var(--status-error-border)] rounded-lg text-[var(--status-error-text)] text-xs">
             {error}
           </div>
         )}
@@ -352,15 +352,15 @@ export function ShareModal({
         <div className="flex gap-2 mb-3">
           {/* Theme segmented control */}
           <div className="flex-1">
-            <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-0.5">
+            <div className="flex bg-[var(--surface-muted)] rounded-lg p-0.5">
               {THEMES.map((t) => (
                 <button
                   key={t.id}
                   onClick={() => setTheme(t.id)}
                   className={`flex-1 py-1.5 rounded-md text-xs font-medium transition-all ${
                     theme === t.id
-                      ? "bg-white dark:bg-gray-600 text-orange-600 dark:text-orange-400 shadow-xs"
-                      : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                      ? "bg-[var(--surface-elevated)] text-[var(--text-accent)] shadow-xs"
+                      : "text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
                   }`}
                   title={t.label}
                 >
@@ -372,15 +372,15 @@ export function ShareModal({
 
           {/* Format segmented control */}
           <div className="flex-1">
-            <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-0.5">
+            <div className="flex bg-[var(--surface-muted)] rounded-lg p-0.5">
               {FORMATS.map((f) => (
                 <button
                   key={f.id}
                   onClick={() => setFormat(f.id)}
                   className={`flex-1 py-1.5 rounded-md text-[10px] font-medium transition-all ${
                     format === f.id
-                      ? "bg-white dark:bg-gray-600 text-orange-600 dark:text-orange-400 shadow-xs"
-                      : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                      ? "bg-[var(--surface-elevated)] text-[var(--text-accent)] shadow-xs"
+                      : "text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
                   }`}
                   title={f.label}
                 >
@@ -405,7 +405,7 @@ export function ShareModal({
               <button
                 onClick={handleDownload}
                 disabled={generating || downloading || !previewUrl}
-                className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors disabled:opacity-40"
+                className="p-2 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--interactive-ghost-hover-bg)] rounded-xl transition-colors disabled:opacity-40"
                 aria-label="Download"
                 title="Download"
               >

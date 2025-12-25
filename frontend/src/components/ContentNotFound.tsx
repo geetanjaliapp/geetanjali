@@ -11,7 +11,7 @@ const CONTENT = {
   verse: {
     icon: (
       <svg
-        className="w-8 h-8 text-amber-600 dark:text-amber-400"
+        className="w-8 h-8 text-[var(--badge-warm-text)]"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -32,7 +32,7 @@ const CONTENT = {
   case: {
     icon: (
       <svg
-        className="w-8 h-8 text-gray-500 dark:text-gray-400"
+        className="w-8 h-8 text-[var(--text-tertiary)]"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -54,7 +54,7 @@ const CONTENT = {
   shared: {
     icon: (
       <svg
-        className="w-8 h-8 text-orange-500 dark:text-orange-400"
+        className="w-8 h-8 text-[var(--text-accent)]"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -96,21 +96,21 @@ export function ContentNotFound({
   return (
     <div className="text-center max-w-md mx-auto px-4">
       {/* Icon */}
-      <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-linear-to-br from-amber-50 to-orange-100 dark:from-gray-800 dark:to-gray-700 flex items-center justify-center">
+      <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[var(--surface-warm)] flex items-center justify-center">
         {content.icon}
       </div>
 
       {/* Title */}
-      <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">
+      <h1 className="text-xl font-semibold text-[var(--text-primary)] mb-3">
         {content.title}
       </h1>
 
       {/* Message */}
-      <p className="text-gray-600 dark:text-gray-400 mb-2">{content.message}</p>
+      <p className="text-[var(--text-secondary)] mb-2">{content.message}</p>
 
       {/* Subtext (for shared variant) */}
       {"subtext" in content && content.subtext && (
-        <p className="text-sm text-gray-500 dark:text-gray-500 mb-6">
+        <p className="text-sm text-[var(--text-tertiary)] mb-6">
           {content.subtext}
         </p>
       )}
@@ -129,7 +129,7 @@ export function ContentNotFound({
       <div className="mt-4">
         <Link
           to={secondaryCta.to}
-          className="text-sm text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 font-medium"
+          className="text-sm text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] font-medium"
         >
           {secondaryCta.label}
         </Link>
@@ -137,11 +137,11 @@ export function ContentNotFound({
 
       {/* Auth hint for case variant */}
       {variant === "case" && !isAuthenticated && "authHint" in content && (
-        <p className="mt-6 text-xs text-gray-500 dark:text-gray-500">
+        <p className="mt-6 text-xs text-[var(--text-tertiary)]">
           Have an account?{" "}
           <Link
             to="/login"
-            className="text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300"
+            className="text-[var(--text-accent)] hover:text-[var(--text-accent-hover)]"
           >
             Log in
           </Link>{" "}

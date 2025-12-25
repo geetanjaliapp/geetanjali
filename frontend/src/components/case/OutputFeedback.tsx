@@ -38,11 +38,11 @@ export const OutputFeedback = memo(
     const hasExistingComment = feedback === "down" && savedComment[output.id];
 
     return (
-      <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
+      <div className="mt-4 pt-3 border-t border-[var(--border-default)]">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+          <div className="flex items-center gap-2 text-xs text-[var(--text-tertiary)]">
             <span>Confidence:</span>
-            <div className="w-12 bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+            <div className="w-12 bg-[var(--surface-muted)] rounded-full h-1.5">
               <div
                 className={`h-1.5 rounded-full ${
                   output.confidence >= 0.8
@@ -66,7 +66,7 @@ export const OutputFeedback = memo(
               className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
                 feedback === "up" && !isExpanded
                   ? "bg-green-500 text-white"
-                  : "bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 hover:bg-green-100 dark:hover:bg-green-900/40 hover:text-green-600 dark:hover:text-green-400"
+                  : "bg-[var(--surface-muted)] text-[var(--text-muted)] hover:bg-[var(--status-success-bg)] hover:text-[var(--status-success-text)]"
               }`}
             >
               <svg
@@ -90,7 +90,7 @@ export const OutputFeedback = memo(
               className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
                 feedback === "down" || isExpanded
                   ? "bg-red-500 text-white"
-                  : "bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 hover:bg-red-100 dark:hover:bg-red-900/40 hover:text-red-600 dark:hover:text-red-400"
+                  : "bg-[var(--surface-muted)] text-[var(--text-muted)] hover:bg-[var(--status-error-bg)] hover:text-[var(--status-error-text)]"
               }`}
             >
               <svg
@@ -112,14 +112,14 @@ export const OutputFeedback = memo(
 
         {/* Show existing comment in read-only mode when not editing */}
         {hasExistingComment && !isExpanded && (
-          <div className="mt-3 p-2.5 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-100 dark:border-red-800/50">
+          <div className="mt-3 p-2.5 bg-[var(--status-error-bg)] rounded-lg border border-[var(--status-error-border)]">
             <div className="flex items-start justify-between gap-2">
-              <p className="text-xs text-gray-600 dark:text-gray-400 italic flex-1">
+              <p className="text-xs text-[var(--text-secondary)] italic flex-1">
                 "{savedComment[output.id]}"
               </p>
               <button
                 onClick={() => onEditFeedback(output.id)}
-                className="text-xs text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 whitespace-nowrap"
+                className="text-xs text-[var(--status-error-text)] hover:text-[var(--status-error-text)] whitespace-nowrap"
               >
                 Edit
               </button>
@@ -130,7 +130,7 @@ export const OutputFeedback = memo(
         {/* Expanded feedback form for new/editing comment */}
         {isExpanded && (
           <div className="mt-3 animate-in slide-in-from-top-2 duration-200">
-            <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+            <p className="text-xs text-[var(--text-secondary)] mb-2">
               {savedComment[output.id]
                 ? "Edit your feedback:"
                 : "What could be improved? (optional)"}
@@ -139,7 +139,7 @@ export const OutputFeedback = memo(
               value={feedbackText[output.id] || ""}
               onChange={(e) => onFeedbackTextChange(output.id, e.target.value)}
               placeholder="Tell us what wasn't helpful..."
-              className="w-full px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none placeholder:text-gray-400 dark:placeholder:text-gray-500"
+              className="w-full px-3 py-2 text-sm bg-[var(--surface-elevated)] text-[var(--text-primary)] border border-[var(--border-default)] rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none placeholder:text-[var(--text-muted)]"
               rows={2}
               maxLength={1000}
             />
@@ -148,7 +148,7 @@ export const OutputFeedback = memo(
                 <button
                   onClick={() => onCancelFeedback(output.id)}
                   disabled={feedbackLoading === output.id}
-                  className="px-3 py-1.5 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 disabled:opacity-50"
+                  className="px-3 py-1.5 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:opacity-50"
                 >
                   Cancel
                 </button>

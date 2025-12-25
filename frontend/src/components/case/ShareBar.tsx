@@ -111,17 +111,17 @@ export function ShareBar({
   if (showStopConfirm) {
     return (
       <div
-        className={`${barSize} bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg transition-all duration-200 ease-out ${compact ? "p-2.5" : "p-3"} flex flex-col justify-between`}
+        className={`${barSize} bg-[var(--surface-warm)] border border-[var(--border-warm)] rounded-lg transition-all duration-200 ease-out ${compact ? "p-2.5" : "p-3"} flex flex-col justify-between`}
         onClick={(e) => e.stopPropagation()}
       >
         <div>
           <p
-            className={`font-medium text-gray-700 dark:text-gray-300 ${compact ? "text-xs" : "text-sm"}`}
+            className={`font-medium text-[var(--text-secondary)] ${compact ? "text-xs" : "text-sm"}`}
           >
             Stop sharing?
           </p>
           <p
-            className={`text-gray-500 dark:text-gray-400 mt-0.5 ${compact ? "text-[10px]" : "text-xs"}`}
+            className={`text-[var(--text-tertiary)] mt-0.5 ${compact ? "text-[10px]" : "text-xs"}`}
           >
             The link will stop working.
           </p>
@@ -129,7 +129,7 @@ export function ShareBar({
         <div className="flex gap-2">
           <button
             onClick={handleCancelStop}
-            className={`text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 ${compact ? "text-xs" : "text-sm"}`}
+            className={`text-[var(--text-secondary)] hover:text-[var(--text-primary)] ${compact ? "text-xs" : "text-sm"}`}
           >
             Cancel
           </button>
@@ -147,20 +147,20 @@ export function ShareBar({
 
   return (
     <div
-      className={`${barSize} bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg transition-all duration-200 ease-out ${compact ? "p-2.5" : "p-3"} flex flex-col justify-between`}
+      className={`${barSize} bg-[var(--status-success-bg)] border border-[var(--status-success-border)] rounded-lg transition-all duration-200 ease-out ${compact ? "p-2.5" : "p-3"} flex flex-col justify-between`}
       onClick={(e) => e.stopPropagation()}
     >
       {/* Header row: URL + actions */}
       <div className="flex items-center gap-2">
         <code
-          className={`text-green-700 dark:text-green-300 font-mono truncate flex-1 ${compact ? "text-[10px]" : "text-xs"}`}
+          className={`text-[var(--status-success-text)] font-mono truncate flex-1 ${compact ? "text-[10px]" : "text-xs"}`}
         >
-          <span className="text-green-600/70 dark:text-green-400/70">geetanjaliapp.com</span>/c/{publicSlug}
+          <span className="text-[var(--status-success-text)]/70">geetanjaliapp.com</span>/c/{publicSlug}
         </code>
         <div className="flex items-center gap-1">
           <button
             onClick={handleViewClick}
-            className={`p-1 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-800/50 rounded-sm transition-colors`}
+            className={`p-1 text-[var(--status-success-text)] hover:bg-[var(--status-success-bg)] rounded-sm transition-colors`}
             title="View public page"
           >
             <svg
@@ -185,7 +185,7 @@ export function ShareBar({
           </button>
           {viewCount !== undefined && viewCount > 0 && (
             <span
-              className={`text-gray-500 dark:text-gray-400 flex items-center gap-0.5 ${compact ? "text-[10px]" : "text-xs"}`}
+              className={`text-[var(--text-tertiary)] flex items-center gap-0.5 ${compact ? "text-[10px]" : "text-xs"}`}
             >
               <svg
                 className={compact ? "w-2.5 h-2.5" : "w-3 h-3"}
@@ -216,18 +216,18 @@ export function ShareBar({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <span
-            className={`text-gray-500 dark:text-gray-400 ${compact ? "text-[10px]" : "text-xs"}`}
+            className={`text-[var(--text-tertiary)] ${compact ? "text-[10px]" : "text-xs"}`}
           >
             Show:
           </span>
-          <div className="flex rounded-md overflow-hidden border border-green-300 dark:border-green-700">
+          <div className="flex rounded-md overflow-hidden border border-[var(--status-success-border)]">
             <button
               onClick={(e) => handleModeChange(e, "full")}
               disabled={isLoading}
               className={`px-2 py-0.5 transition-colors disabled:opacity-50 ${compact ? "text-[10px]" : "text-xs"} ${
                 currentMode === "full"
                   ? "bg-green-600 text-white"
-                  : "bg-white dark:bg-gray-800 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/50"
+                  : "bg-[var(--surface-elevated)] text-[var(--status-success-text)] hover:bg-[var(--status-success-bg)]"
               }`}
             >
               Full
@@ -235,20 +235,20 @@ export function ShareBar({
             <button
               onClick={(e) => handleModeChange(e, "essential")}
               disabled={isLoading}
-              className={`px-2 py-0.5 border-l border-green-300 dark:border-green-700 transition-colors disabled:opacity-50 ${compact ? "text-[10px]" : "text-xs"} ${
+              className={`px-2 py-0.5 border-l border-[var(--status-success-border)] transition-colors disabled:opacity-50 ${compact ? "text-[10px]" : "text-xs"} ${
                 currentMode === "essential"
                   ? "bg-green-600 text-white"
-                  : "bg-white dark:bg-gray-800 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/50"
+                  : "bg-[var(--surface-elevated)] text-[var(--status-success-text)] hover:bg-[var(--status-success-bg)]"
               }`}
             >
               Essential
             </button>
             {/* Divider */}
-            <div className="w-px bg-green-400 dark:bg-green-600 mx-0.5" />
+            <div className="w-px bg-[var(--status-success-border)] mx-0.5" />
             <button
               onClick={handleStopClick}
               disabled={isLoading}
-              className={`px-2 py-0.5 transition-colors disabled:opacity-50 bg-white dark:bg-gray-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 ${compact ? "text-[10px]" : "text-xs"}`}
+              className={`px-2 py-0.5 transition-colors disabled:opacity-50 bg-[var(--surface-elevated)] text-[var(--status-error-text)] hover:bg-[var(--status-error-bg)] ${compact ? "text-[10px]" : "text-xs"}`}
             >
               Stop
             </button>

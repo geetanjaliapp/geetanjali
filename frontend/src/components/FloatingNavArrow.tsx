@@ -52,17 +52,17 @@ export function FloatingNavArrow({
                   ${isPrev ? "left-2 lg:left-4" : "right-2 lg:right-4"}
                   items-center justify-center
                   p-3 lg:p-4
-                  bg-white/80 dark:bg-gray-800/80 backdrop-blur-xs rounded-xl shadow-lg
-                  border border-amber-200/50 dark:border-gray-600
+                  bg-[var(--surface-elevated)]/80 backdrop-blur-xs rounded-xl shadow-lg
+                  border border-[var(--border-warm)]
                   opacity-70 hover:opacity-100
-                  hover:bg-white dark:hover:bg-gray-800 hover:scale-105 hover:shadow-xl
+                  hover:bg-[var(--surface-elevated)] hover:scale-105 hover:shadow-xl
                   transition-all duration-200
                   focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500
-                  focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900`}
+                  focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]`}
       aria-label={`${isPrev ? "Previous" : "Next"} verse: ${formatVerseRef(verse)}`}
     >
       <div
-        className={`flex items-center gap-1.5 text-amber-700 dark:text-amber-400 font-medium text-sm lg:text-base
+        className={`flex items-center gap-1.5 text-[var(--badge-warm-text)] font-medium text-sm lg:text-base
                        ${isPrev ? "flex-row" : "flex-row-reverse"}`}
       >
         <span aria-hidden="true" className="text-lg lg:text-xl">

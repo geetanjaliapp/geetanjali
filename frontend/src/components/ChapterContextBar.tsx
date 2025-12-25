@@ -55,9 +55,9 @@ export function ChapterContextBar({
         {/* Back button */}
         <button
           onClick={handleBack}
-          className="shrink-0 text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 font-medium text-sm
+          className="shrink-0 text-[var(--badge-warm-text)] hover:text-[var(--text-accent-hover)] font-medium text-sm
                      focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500
-                     focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 rounded transition-colors"
+                     focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] rounded transition-colors"
           aria-label="Go back to previous page"
         >
           <span className="flex items-center gap-1">
@@ -69,11 +69,11 @@ export function ChapterContextBar({
         {/* Chapter name - centered */}
         <div className="flex-1 min-w-0 text-center">
           {/* Desktop: Full chapter name */}
-          <h1 className="hidden sm:block text-base lg:text-lg font-semibold text-amber-900 dark:text-amber-200 truncate">
+          <h1 className="hidden sm:block text-base lg:text-lg font-semibold text-[var(--text-primary)] truncate">
             Chapter {chapter}: {chapterInfo?.name ?? "Unknown"}
           </h1>
           {/* Mobile: Abbreviated */}
-          <h1 className="sm:hidden text-sm font-semibold text-amber-900 dark:text-amber-200 truncate">
+          <h1 className="sm:hidden text-sm font-semibold text-[var(--text-primary)] truncate">
             Ch.{chapter} {chapterInfo?.shortName ?? ""}
           </h1>
         </div>
@@ -83,30 +83,30 @@ export function ChapterContextBar({
           {/* Verse position */}
           <div className="text-right">
             {/* Desktop: "Verse 47 of 72" */}
-            <span className="hidden sm:inline text-sm text-amber-700 dark:text-amber-400">
+            <span className="hidden sm:inline text-sm text-[var(--badge-warm-text)]">
               Verse {progress.position} of {progress.total}
             </span>
             {/* Mobile: "47/72" */}
-            <span className="sm:hidden text-sm text-amber-700 dark:text-amber-400 font-medium">
+            <span className="sm:hidden text-sm text-[var(--badge-warm-text)] font-medium">
               {progress.position}/{progress.total}
             </span>
           </div>
 
           {/* Font controls - only shown when props are provided */}
           {showFontControls && (
-            <div className="flex items-center gap-1 ml-2 pl-2 border-l border-amber-200 dark:border-gray-700">
+            <div className="flex items-center gap-1 ml-2 pl-2 border-l border-[var(--border-warm)]">
               {/* Font size toggle */}
               <button
                 onClick={onToggleFontSize}
-                className="flex items-center justify-center gap-1 px-2 py-1 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-gray-800 active:bg-amber-200 dark:active:bg-gray-700 rounded-md transition-colors"
+                className="flex items-center justify-center gap-1 px-2 py-1 text-[var(--text-accent)] hover:bg-[var(--surface-warm)] active:bg-[var(--badge-warm-bg)] rounded-md transition-colors"
                 aria-label={`Font size: ${fontSize}. Tap to change.`}
                 title={`Font size: ${fontSize}`}
               >
                 <span className="text-xs font-serif">Aa</span>
                 <span className="flex items-center gap-0.5">
-                  <span className="w-1 h-1 rounded-full bg-amber-500 dark:bg-amber-400" />
+                  <span className="w-1 h-1 rounded-full bg-[var(--interactive-primary)]" />
                   <span
-                    className={`w-1 h-1 rounded-full ${fontSize === "large" ? "bg-amber-500 dark:bg-amber-400" : "bg-amber-200 dark:bg-gray-600"}`}
+                    className={`w-1 h-1 rounded-full ${fontSize === "large" ? "bg-[var(--interactive-primary)]" : "bg-[var(--badge-warm-bg)]"}`}
                   />
                 </span>
               </button>
@@ -118,8 +118,8 @@ export function ChapterContextBar({
                   disabled={isDefaultFontSize}
                   className={`flex items-center justify-center p-1 rounded-md transition-colors ${
                     isDefaultFontSize
-                      ? "text-amber-300 dark:text-gray-500 cursor-default"
-                      : "text-amber-500 dark:text-amber-400 hover:text-amber-600 dark:hover:text-amber-300 hover:bg-amber-100 dark:hover:bg-gray-800"
+                      ? "text-[var(--interactive-disabled)] cursor-default"
+                      : "text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] hover:bg-[var(--surface-warm)]"
                   }`}
                   aria-label="Reset font size"
                   title={isDefaultFontSize ? "Font size is default" : "Reset font size"}

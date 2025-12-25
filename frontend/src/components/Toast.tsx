@@ -89,7 +89,7 @@ export function Toast({
       aria-live="polite"
     >
       <div
-        className="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900
+        className="bg-[var(--text-primary)] text-[var(--surface-elevated)]
                    rounded-xl shadow-lg px-4 py-3 flex items-center gap-3"
       >
         {/* Message */}
@@ -99,8 +99,8 @@ export function Toast({
         {linkText && linkTo && (
           <Link
             to={linkTo}
-            className="text-orange-400 dark:text-orange-600 font-medium text-base sm:text-sm
-                       hover:text-orange-300 dark:hover:text-orange-700 transition-colors whitespace-nowrap"
+            className="text-[var(--text-accent)] font-medium text-base sm:text-sm
+                       hover:text-[var(--text-accent-hover)] transition-colors whitespace-nowrap"
             onClick={handleDismiss}
           >
             {linkText}
@@ -111,11 +111,10 @@ export function Toast({
         <button
           onClick={handleDismiss}
           className="min-w-11 min-h-11 flex items-center justify-center -m-2
-                     text-gray-400 dark:text-gray-500
-                     hover:text-white dark:hover:text-gray-900
+                     text-[var(--text-muted)]
+                     hover:text-[var(--surface-elevated)]
                      focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500
-                     focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900
-                     dark:focus-visible:ring-offset-gray-100
+                     focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]
                      rounded-lg transition-colors"
           aria-label="Dismiss notification"
         >

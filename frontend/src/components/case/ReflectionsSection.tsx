@@ -13,9 +13,9 @@ export function ReflectionsSection({
 
   return (
     <div className="relative pl-8 sm:pl-10 pb-4 sm:pb-6">
-      <div className="absolute left-0 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-purple-100 dark:bg-purple-900/40 border-2 border-purple-300 dark:border-purple-700 flex items-center justify-center">
+      <div className="absolute left-0 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[var(--status-info-bg)] border-2 border-[var(--status-info-border)] flex items-center justify-center">
         <svg
-          className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-purple-600 dark:text-purple-400"
+          className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[var(--status-info-text)]"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -30,17 +30,17 @@ export function ReflectionsSection({
       </div>
 
       <button onClick={onToggle} className="w-full text-left">
-        <div className="flex items-center justify-between bg-linear-to-r from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30 rounded-xl p-3 sm:p-4 shadow-xs border border-purple-100 dark:border-purple-800 hover:shadow-md transition-shadow">
+        <div className="flex items-center justify-between bg-[var(--status-info-bg)] rounded-xl p-3 sm:p-4 shadow-xs border border-[var(--status-info-border)] hover:shadow-md transition-shadow">
           <div>
-            <div className="text-xs font-semibold text-purple-700 dark:text-purple-400 uppercase tracking-wide">
+            <div className="text-xs font-semibold text-[var(--status-info-text)] uppercase tracking-wide">
               Questions for Reflection
             </div>
-            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-0.5 sm:mt-1">
+            <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-0.5 sm:mt-1">
               {prompts.length} prompts for deeper insight
             </p>
           </div>
           <svg
-            className={`w-5 h-5 text-gray-400 dark:text-gray-500 transition-transform ${showReflections ? "rotate-180" : ""}`}
+            className={`w-5 h-5 text-[var(--text-muted)] transition-transform ${showReflections ? "rotate-180" : ""}`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -56,14 +56,14 @@ export function ReflectionsSection({
       </button>
 
       {showReflections && (
-        <div className="mt-2 sm:mt-3 bg-linear-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl p-3 sm:p-4 border border-purple-100 dark:border-purple-800">
+        <div className="mt-2 sm:mt-3 bg-[var(--status-info-bg)] rounded-xl p-3 sm:p-4 border border-[var(--status-info-border)]">
           <ul className="space-y-2.5 sm:space-y-3">
             {prompts.map((prompt, idx) => (
               <li
                 key={idx}
-                className="flex items-start gap-2 text-gray-700 dark:text-gray-300"
+                className="flex items-start gap-2 text-[var(--text-secondary)]"
               >
-                <span className="text-purple-400 dark:text-purple-500 mt-0.5 text-xs sm:text-sm">
+                <span className="text-[var(--status-info-text)] mt-0.5 text-xs sm:text-sm">
                   ◆
                 </span>
                 <span className="text-sm sm:text-base italic">{prompt}</span>

@@ -67,14 +67,14 @@ export function VerifyEmailBanner() {
 
   return (
     <div
-      className="border-b border-gray-200 dark:border-gray-700"
+      className="border-b border-[var(--border-default)]"
       role="status"
       aria-label="Email verification reminder"
     >
       <div className="max-w-7xl mx-auto px-4 py-1.5">
         <div className="flex items-center justify-center gap-2 text-xs">
           {/* Message */}
-          <span className="text-gray-600 dark:text-gray-400">
+          <span className="text-[var(--text-secondary)]">
             Please verify your email.
           </span>
 
@@ -82,8 +82,8 @@ export function VerifyEmailBanner() {
           <button
             onClick={handleResend}
             disabled={isResending}
-            className="font-medium text-orange-600 dark:text-orange-400
-                       hover:text-orange-700 dark:hover:text-orange-300
+            className="font-medium text-[var(--text-accent)]
+                       hover:text-[var(--text-accent-hover)]
                        disabled:opacity-50 disabled:cursor-not-allowed
                        inline-flex items-center gap-1 py-1 -my-1
                        focus:outline-hidden focus:underline"
@@ -105,8 +105,8 @@ export function VerifyEmailBanner() {
               aria-live={message.type === "error" ? "assertive" : "polite"}
               className={
                 message.type === "success"
-                  ? "text-green-600 dark:text-green-400"
-                  : "text-red-600 dark:text-red-400"
+                  ? "text-[var(--status-success-text)]"
+                  : "text-[var(--status-error-text)]"
               }
             >
               {message.type === "success" ? "✓ Sent!" : message.text}
@@ -116,10 +116,10 @@ export function VerifyEmailBanner() {
           {/* Dismiss button - min 44px touch target */}
           <button
             onClick={handleDismiss}
-            className="p-2 -m-1.5 text-gray-400 dark:text-gray-500
-                       hover:text-gray-600 dark:hover:text-gray-300
+            className="p-2 -m-1.5 text-[var(--text-muted)]
+                       hover:text-[var(--text-secondary)]
                        rounded transition-colors
-                       focus:outline-hidden focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 dark:focus:ring-offset-gray-900"
+                       focus:outline-hidden focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 focus:ring-offset-[var(--focus-ring-offset)]"
             aria-label="Dismiss"
           >
             <CloseIcon className="w-3.5 h-3.5" />

@@ -23,12 +23,12 @@ export function InspirationVerse({ className = "" }: InspirationVerseProps) {
 
   return (
     <div className={`text-center max-w-2xl mx-auto ${className}`}>
-      <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base leading-relaxed">
+      <p className="text-[var(--text-secondary)] text-sm sm:text-base leading-relaxed">
         <span className="italic">"{verse.text}"</span>
         <span className="mx-1">—</span>
         <Link
           to={verseLink}
-          className="text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 hover:underline whitespace-nowrap"
+          className="text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] hover:underline whitespace-nowrap"
         >
           {verse.ref}
         </Link>

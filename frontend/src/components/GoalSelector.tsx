@@ -20,11 +20,11 @@ function GoalCard({ goal, isSelected, onToggle }: GoalCardProps) {
         relative flex items-center gap-2 p-2 sm:flex-col sm:p-2.5 sm:gap-1
         rounded-lg sm:rounded-xl border transition-all duration-150 w-full
         focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2
-        dark:focus-visible:ring-offset-gray-900
+        focus-visible:ring-offset-[var(--focus-ring-offset)]
         ${
           isSelected
-            ? "border-amber-500 dark:border-amber-600 bg-amber-50 dark:bg-amber-900/20"
-            : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-amber-300 dark:hover:border-amber-700"
+            ? "border-[var(--border-accent)] bg-[var(--surface-warm)]"
+            : "border-[var(--border-default)] bg-[var(--surface-elevated)] hover:border-[var(--border-warm)]"
         }
       `}
       aria-pressed={isSelected}
@@ -32,7 +32,7 @@ function GoalCard({ goal, isSelected, onToggle }: GoalCardProps) {
     >
       {/* Selection badge - only on sm+ */}
       {isSelected && (
-        <div className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-amber-500 dark:bg-amber-600 flex items-center justify-center shadow-xs">
+        <div className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[var(--interactive-primary)] flex items-center justify-center shadow-xs">
           <CheckIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />
         </div>
       )}
@@ -43,8 +43,8 @@ function GoalCard({ goal, isSelected, onToggle }: GoalCardProps) {
           w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0 transition-colors
           ${
             isSelected
-              ? "bg-amber-200 dark:bg-amber-700/50 text-amber-700 dark:text-amber-300"
-              : "bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
+              ? "bg-[var(--badge-warm-bg)] text-[var(--badge-warm-text)]"
+              : "bg-[var(--surface-muted)] text-[var(--text-tertiary)]"
           }
         `}
       >
@@ -65,15 +65,15 @@ function GoalCard({ goal, isSelected, onToggle }: GoalCardProps) {
             font-medium text-xs sm:text-sm leading-tight transition-colors truncate sm:whitespace-normal
             ${
               isSelected
-                ? "text-amber-700 dark:text-amber-400"
-                : "text-gray-900 dark:text-gray-100"
+                ? "text-[var(--badge-warm-text)]"
+                : "text-[var(--text-primary)]"
             }
           `}
         >
           {goal.label}
         </h3>
         {/* Description - hidden on mobile */}
-        <p className="hidden sm:block text-[11px] text-center leading-snug text-gray-500 dark:text-gray-400 line-clamp-2 mt-0.5">
+        <p className="hidden sm:block text-[11px] text-center leading-snug text-[var(--text-tertiary)] line-clamp-2 mt-0.5">
           {goal.description}
         </p>
       </div>
@@ -141,12 +141,12 @@ export function GoalSelector({
         {Array.from({ length: 8 }).map((_, i) => (
           <div
             key={i}
-            className="flex items-center gap-2 p-2 sm:flex-col sm:p-2.5 rounded-lg sm:rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 animate-pulse"
+            className="flex items-center gap-2 p-2 sm:flex-col sm:p-2.5 rounded-lg sm:rounded-xl border border-[var(--border-default)] bg-[var(--surface-elevated)] animate-pulse"
           >
-            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gray-200 dark:bg-gray-700 rounded-full shrink-0" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-[var(--surface-muted)] rounded-full shrink-0" />
             <div className="flex-1 sm:w-full">
-              <div className="h-3 sm:h-4 bg-gray-200 dark:bg-gray-700 rounded-sm w-16 sm:w-full sm:mx-auto" />
-              <div className="hidden sm:block h-3 bg-gray-200 dark:bg-gray-700 rounded-sm w-20 mx-auto mt-1" />
+              <div className="h-3 sm:h-4 bg-[var(--surface-muted)] rounded-sm w-16 sm:w-full sm:mx-auto" />
+              <div className="hidden sm:block h-3 bg-[var(--surface-muted)] rounded-sm w-20 mx-auto mt-1" />
             </div>
           </div>
         ))}
@@ -158,7 +158,7 @@ export function GoalSelector({
     <div>
       {/* Selection helpers */}
       <div className="flex items-center justify-between mb-2 text-xs">
-        <span className="text-gray-500 dark:text-gray-400 py-2">
+        <span className="text-[var(--text-tertiary)] py-2">
           {selectedCount === 0
             ? "Select one or more"
             : `${selectedCount} selected`}
@@ -168,7 +168,7 @@ export function GoalSelector({
             <button
               type="button"
               onClick={handleSelectAll}
-              className="min-h-[44px] px-3 py-2 text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 hover:bg-amber-50 dark:hover:bg-gray-700 active:bg-amber-100 dark:active:bg-gray-600 rounded-lg transition-colors"
+              className="min-h-[44px] px-3 py-2 text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] hover:bg-[var(--surface-warm)] active:bg-[var(--badge-warm-bg)] rounded-lg transition-colors"
             >
               Select all
             </button>
@@ -177,7 +177,7 @@ export function GoalSelector({
             <button
               type="button"
               onClick={handleClearAll}
-              className="min-h-[44px] px-3 py-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 active:bg-gray-200 dark:active:bg-gray-600 rounded-lg transition-colors"
+              className="min-h-[44px] px-3 py-2 text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] hover:bg-[var(--interactive-ghost-hover-bg)] active:bg-[var(--surface-muted)] rounded-lg transition-colors"
             >
               Clear
             </button>

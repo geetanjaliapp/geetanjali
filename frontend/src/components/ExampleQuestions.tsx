@@ -47,7 +47,7 @@ export function ExampleQuestions({ onSelect }: ExampleQuestionsProps) {
 
   return (
     <div className="mb-4">
-      <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+      <p className="text-xs text-[var(--text-tertiary)] mb-2">
         Need inspiration? Try one:
       </p>
       <div className="flex flex-wrap gap-2">
@@ -56,7 +56,7 @@ export function ExampleQuestions({ onSelect }: ExampleQuestionsProps) {
             key={idx}
             type="button"
             onClick={() => handleSelect(question, idx)}
-            className="text-left text-xs px-3 py-1.5 bg-orange-50 dark:bg-orange-900/30 hover:bg-orange-100 dark:hover:bg-orange-900/50 text-orange-700 dark:text-orange-400 rounded-full border border-orange-200 dark:border-orange-800 transition-colors max-w-full sm:max-w-none"
+            className="text-left text-xs px-3 py-1.5 bg-[var(--surface-warm)] hover:bg-[var(--interactive-ghost-hover-bg)] text-[var(--badge-warm-text)] rounded-full border border-[var(--border-warm)] transition-colors max-w-full sm:max-w-none"
             title={question}
           >
             {/* Show more on desktop, truncate only on mobile */}
