@@ -222,70 +222,70 @@ export default function VerseDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-linear-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col">
+      <div className="min-h-screen bg-[var(--surface-page)] flex flex-col">
         <Navbar />
         <div className="flex-1 py-4 sm:py-6 lg:py-8">
           <div className="max-w-5xl mx-auto px-3 sm:px-4 lg:px-6">
             {/* Skeleton: Chapter Context Bar */}
-            <div className="flex items-center gap-3 mb-4 sm:mb-6 bg-white/80 dark:bg-gray-800/80 rounded-lg sm:rounded-xl p-3 sm:p-4 shadow-xs">
-              <div className="w-8 h-8 bg-amber-200/50 dark:bg-gray-700 rounded-full animate-pulse" />
+            <div className="flex items-center gap-3 mb-4 sm:mb-6 bg-[var(--surface-elevated)] rounded-lg sm:rounded-xl p-3 sm:p-4 shadow-xs">
+              <div className="w-8 h-8 bg-[var(--skeleton-bg)] rounded-full animate-pulse" />
               <div className="flex-1">
-                <div className="h-4 bg-amber-200/50 dark:bg-gray-700 rounded-sm w-32 mb-2 animate-pulse" />
-                <div className="h-2 bg-amber-200/50 dark:bg-gray-700 rounded-sm w-full animate-pulse" />
+                <div className="h-4 bg-[var(--skeleton-bg)] rounded-sm w-32 mb-2 animate-pulse" />
+                <div className="h-2 bg-[var(--skeleton-bg)] rounded-sm w-full animate-pulse" />
               </div>
-              <div className="h-4 bg-amber-200/50 dark:bg-gray-700 rounded-sm w-16 animate-pulse" />
+              <div className="h-4 bg-[var(--skeleton-bg)] rounded-sm w-16 animate-pulse" />
             </div>
 
             {/* Skeleton: Main Spotlight Section */}
-            <div className="bg-linear-to-br from-amber-50 via-orange-50 to-red-50 dark:from-gray-800 dark:via-gray-800 dark:to-gray-800 rounded-xl sm:rounded-2xl lg:rounded-3xl shadow-xl sm:shadow-2xl p-4 sm:p-8 lg:p-12 mb-4 sm:mb-6 lg:mb-8 border border-amber-200/50 dark:border-gray-700">
+            <div className="bg-linear-to-br from-[var(--gradient-warm-from)] via-[var(--gradient-warm-via)] to-[var(--gradient-warm-to)] rounded-xl sm:rounded-2xl lg:rounded-3xl shadow-xl sm:shadow-2xl p-4 sm:p-8 lg:p-12 mb-4 sm:mb-6 lg:mb-8 border border-[var(--border-warm-subtle)]">
               {/* Sanskrit Skeleton */}
               <div className="mb-4 sm:mb-6 lg:mb-8 text-center pt-2 sm:pt-4">
-                <div className="w-8 h-8 bg-amber-200/40 dark:bg-gray-700 rounded-full mx-auto mb-4 animate-pulse" />
+                <div className="w-8 h-8 bg-[var(--skeleton-bg)] rounded-full mx-auto mb-4 animate-pulse" />
                 <div className="space-y-3 max-w-xl mx-auto">
-                  <div className="h-8 bg-amber-200/40 dark:bg-gray-700 rounded-sm animate-pulse" />
-                  <div className="h-8 bg-amber-200/40 dark:bg-gray-700 rounded-sm animate-pulse w-4/5 mx-auto" />
-                  <div className="h-8 bg-amber-200/40 dark:bg-gray-700 rounded-sm animate-pulse w-3/4 mx-auto" />
+                  <div className="h-8 bg-[var(--skeleton-bg)] rounded-sm animate-pulse" />
+                  <div className="h-8 bg-[var(--skeleton-bg)] rounded-sm animate-pulse w-4/5 mx-auto" />
+                  <div className="h-8 bg-[var(--skeleton-bg)] rounded-sm animate-pulse w-3/4 mx-auto" />
                 </div>
-                <div className="h-4 bg-amber-200/40 dark:bg-gray-700 rounded-sm w-20 mx-auto mt-4 animate-pulse" />
+                <div className="h-4 bg-[var(--skeleton-bg)] rounded-sm w-20 mx-auto mt-4 animate-pulse" />
               </div>
 
               {/* Leadership Insight Skeleton */}
-              <div className="bg-white/70 dark:bg-gray-900/50 backdrop-blur-xs rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 border border-amber-100/50 dark:border-gray-700 mb-4 sm:mb-6 lg:mb-8">
-                <div className="h-3 bg-red-200/40 dark:bg-gray-700 rounded-sm w-32 mb-4 animate-pulse" />
+              <div className="bg-[var(--surface-elevated)]/70 backdrop-blur-xs rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 border border-[var(--border-warm-subtle)] mb-4 sm:mb-6 lg:mb-8">
+                <div className="h-3 bg-[var(--skeleton-bg)] rounded-sm w-32 mb-4 animate-pulse" />
                 <div className="space-y-2">
-                  <div className="h-5 bg-gray-200/60 dark:bg-gray-700 rounded-sm animate-pulse" />
-                  <div className="h-5 bg-gray-200/60 dark:bg-gray-700 rounded-sm animate-pulse w-5/6" />
-                  <div className="h-5 bg-gray-200/60 dark:bg-gray-700 rounded-sm animate-pulse w-4/5" />
+                  <div className="h-5 bg-[var(--skeleton-bg)] rounded-sm animate-pulse" />
+                  <div className="h-5 bg-[var(--skeleton-bg)] rounded-sm animate-pulse w-5/6" />
+                  <div className="h-5 bg-[var(--skeleton-bg)] rounded-sm animate-pulse w-4/5" />
                 </div>
               </div>
 
               {/* Principles Skeleton */}
               <div className="mb-4 sm:mb-6 lg:mb-8">
-                <div className="h-3 bg-amber-200/40 dark:bg-gray-700 rounded-sm w-40 mb-4 animate-pulse" />
+                <div className="h-3 bg-[var(--skeleton-bg)] rounded-sm w-40 mb-4 animate-pulse" />
                 <div className="flex flex-wrap gap-2">
-                  <div className="h-8 bg-amber-200/40 dark:bg-gray-700 rounded-full w-28 animate-pulse" />
-                  <div className="h-8 bg-amber-200/40 dark:bg-gray-700 rounded-full w-32 animate-pulse" />
-                  <div className="h-8 bg-amber-200/40 dark:bg-gray-700 rounded-full w-24 animate-pulse" />
+                  <div className="h-8 bg-[var(--skeleton-bg)] rounded-full w-28 animate-pulse" />
+                  <div className="h-8 bg-[var(--skeleton-bg)] rounded-full w-32 animate-pulse" />
+                  <div className="h-8 bg-[var(--skeleton-bg)] rounded-full w-24 animate-pulse" />
                 </div>
               </div>
 
               {/* Divider */}
-              <div className="my-4 sm:my-6 h-px bg-linear-to-r from-transparent via-amber-300/50 to-transparent" />
+              <div className="my-4 sm:my-6 h-px bg-linear-to-r from-transparent via-[var(--border-warm)] to-transparent" />
 
               {/* Translations Skeleton */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
                 <div>
-                  <div className="h-3 bg-amber-200/40 dark:bg-gray-700 rounded-sm w-24 mb-4 animate-pulse" />
+                  <div className="h-3 bg-[var(--skeleton-bg)] rounded-sm w-24 mb-4 animate-pulse" />
                   <div className="space-y-2">
-                    <div className="h-4 bg-gray-200/50 dark:bg-gray-700 rounded-sm animate-pulse" />
-                    <div className="h-4 bg-gray-200/50 dark:bg-gray-700 rounded-sm animate-pulse w-5/6" />
+                    <div className="h-4 bg-[var(--skeleton-bg)] rounded-sm animate-pulse" />
+                    <div className="h-4 bg-[var(--skeleton-bg)] rounded-sm animate-pulse w-5/6" />
                   </div>
                 </div>
                 <div>
-                  <div className="h-3 bg-amber-200/40 dark:bg-gray-700 rounded-sm w-28 mb-4 animate-pulse" />
+                  <div className="h-3 bg-[var(--skeleton-bg)] rounded-sm w-28 mb-4 animate-pulse" />
                   <div className="space-y-2">
-                    <div className="h-4 bg-gray-200/50 dark:bg-gray-700 rounded-sm animate-pulse" />
-                    <div className="h-4 bg-gray-200/50 dark:bg-gray-700 rounded-sm animate-pulse w-4/5" />
+                    <div className="h-4 bg-[var(--skeleton-bg)] rounded-sm animate-pulse" />
+                    <div className="h-4 bg-[var(--skeleton-bg)] rounded-sm animate-pulse w-4/5" />
                   </div>
                 </div>
               </div>
@@ -299,7 +299,7 @@ export default function VerseDetail() {
 
   if (error || !verse) {
     return (
-      <div className="min-h-screen bg-linear-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col">
+      <div className="min-h-screen bg-[var(--surface-page)] flex flex-col">
         <Navbar />
         <div className="flex-1 flex items-center justify-center">
           <ContentNotFound variant="verse" />
@@ -333,7 +333,7 @@ export default function VerseDetail() {
   const isAtEnd = verse.chapter === 18 && verse.verse === 78;
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900 flex flex-col">
+    <div className="min-h-screen bg-[var(--surface-page)] flex flex-col">
       <Navbar />
 
       {/* Desktop Floating Navigation Arrows (only when browsing) */}
@@ -365,16 +365,16 @@ export default function VerseDetail() {
           />
 
           {/* Main Spotlight Section */}
-          <div className="animate-fade-in bg-linear-to-br from-amber-50 via-orange-50 to-red-50 dark:from-gray-800 dark:via-gray-800 dark:to-gray-800 rounded-xl sm:rounded-2xl lg:rounded-3xl shadow-xl sm:shadow-2xl p-4 sm:p-8 lg:p-12 mb-4 sm:mb-6 lg:mb-8 border border-amber-200/50 dark:border-gray-700">
+          <div className="animate-fade-in bg-linear-to-br from-[var(--gradient-warm-from)] via-[var(--gradient-warm-via)] to-[var(--gradient-warm-to)] rounded-xl sm:rounded-2xl lg:rounded-3xl shadow-xl sm:shadow-2xl p-4 sm:p-8 lg:p-12 mb-4 sm:mb-6 lg:mb-8 border border-[var(--border-warm-subtle)]">
             {/* Sanskrit Spotlight */}
             {verse.sanskrit_devanagari && (
               <div className="mb-4 sm:mb-6 lg:mb-8 text-center pt-2 sm:pt-4">
-                <div className="text-3xl sm:text-4xl text-amber-400/50 mb-3 sm:mb-4 lg:mb-6 font-light">
+                <div className="text-3xl sm:text-4xl text-[var(--decorative-om)] mb-3 sm:mb-4 lg:mb-6 font-light">
                   ॐ
                 </div>
                 <div
                   lang="sa"
-                  className={`font-sanskrit text-amber-900/70 dark:text-amber-200 leading-relaxed tracking-wide mb-3 sm:mb-4 lg:mb-6 transition-all duration-200 ${
+                  className={`font-sanskrit text-[var(--text-sanskrit)] leading-relaxed tracking-wide mb-3 sm:mb-4 lg:mb-6 transition-all duration-200 ${
                     fontSize === "large"
                       ? "text-2xl sm:text-4xl lg:text-5xl"
                       : "text-xl sm:text-3xl lg:text-4xl"
@@ -387,8 +387,8 @@ export default function VerseDetail() {
                         className={`${
                           isSpeakerIntro(line)
                             ? fontSize === "large"
-                              ? "text-xl sm:text-2xl lg:text-3xl text-amber-700/60 dark:text-amber-400/60 mb-2 sm:mb-4"
-                              : "text-lg sm:text-xl lg:text-2xl text-amber-700/60 dark:text-amber-400/60 mb-2 sm:mb-4"
+                              ? "text-xl sm:text-2xl lg:text-3xl text-[var(--text-accent-muted)] mb-2 sm:mb-4"
+                              : "text-lg sm:text-xl lg:text-2xl text-[var(--text-accent-muted)] mb-2 sm:mb-4"
                             : "mb-1 sm:mb-2"
                         }`}
                       >
@@ -402,10 +402,10 @@ export default function VerseDetail() {
                   {/* Favorite button */}
                   <button
                     onClick={() => toggleFavorite(verse.canonical_id)}
-                    className={`p-3 sm:p-1.5 rounded-full transition-all duration-150 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 ${
+                    className={`p-3 sm:p-1.5 rounded-full transition-all duration-150 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                       isFavorite(verse.canonical_id)
-                        ? "text-red-500 dark:text-red-400"
-                        : "text-amber-600/50 dark:text-amber-400/60 hover:text-red-400 dark:hover:text-red-400 hover:scale-110"
+                        ? "text-[var(--status-error-text)]"
+                        : "text-[var(--text-accent-muted)] hover:text-[var(--status-error-text)] hover:scale-110"
                     }`}
                     aria-label={
                       isFavorite(verse.canonical_id)
@@ -420,14 +420,14 @@ export default function VerseDetail() {
                   </button>
 
                   {/* Verse reference */}
-                  <span className="text-amber-600/70 dark:text-amber-400/70 text-base sm:text-lg font-serif">
+                  <span className="text-[var(--text-accent-muted)] text-base sm:text-lg font-serif">
                     ॥ {verse.chapter}.{verse.verse} ॥
                   </span>
 
                   {/* Share button - opens unified share modal */}
                   <button
                     onClick={() => setShowShareModal(true)}
-                    className="p-3 sm:p-1.5 rounded-full transition-all duration-150 text-amber-600/50 dark:text-amber-400/60 hover:text-amber-600 dark:hover:text-amber-400 hover:scale-110 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+                    className="p-3 sm:p-1.5 rounded-full transition-all duration-150 text-[var(--text-accent-muted)] hover:text-[var(--text-accent)] hover:scale-110 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
                     aria-label="Share verse"
                   >
                     <ShareIcon className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -437,7 +437,7 @@ export default function VerseDetail() {
                 {/* Reading Mode link - subtle, non-intrusive */}
                 <Link
                   to={`/read?c=${verse.chapter}&v=${verse.verse}`}
-                  className="inline-block mt-3 text-xs text-amber-600/60 dark:text-amber-400/50 hover:text-amber-700 dark:hover:text-amber-300 transition-colors"
+                  className="inline-block mt-3 text-xs text-[var(--text-accent-muted)] hover:text-[var(--text-accent)] transition-colors"
                 >
                   Read in context →
                 </Link>
@@ -449,7 +449,7 @@ export default function VerseDetail() {
               <div className="text-center mb-4 sm:mb-6">
                 <button
                   onClick={() => toggleSection("iast")}
-                  className="inline-flex items-center gap-1.5 text-xs font-medium text-amber-600/60 dark:text-amber-400/50 hover:text-amber-700 dark:hover:text-amber-300 transition-colors mb-2"
+                  className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--text-accent-muted)] hover:text-[var(--text-accent)] transition-colors mb-2"
                   aria-expanded={sectionPrefs.iast}
                 >
                   <span>IAST</span>
@@ -466,7 +466,7 @@ export default function VerseDetail() {
                 >
                   <p
                     lang="sa"
-                    className="text-sm sm:text-base text-amber-700/60 dark:text-amber-400/50 italic font-serif leading-relaxed"
+                    className="text-sm sm:text-base text-[var(--text-accent-muted)] italic font-serif leading-relaxed"
                   >
                     {verse.sanskrit_iast}
                   </p>
@@ -476,17 +476,17 @@ export default function VerseDetail() {
 
             {/* Leadership Insight - Collapsible */}
             {verse.paraphrase_en && (
-              <div className="bg-white/70 dark:bg-gray-900/50 backdrop-blur-xs rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 border border-amber-100/50 dark:border-gray-700 mb-4 sm:mb-6 lg:mb-8">
+              <div className="bg-[var(--surface-elevated)]/70 backdrop-blur-xs rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 border border-[var(--border-warm-subtle)] mb-4 sm:mb-6 lg:mb-8">
                 <button
                   onClick={() => toggleSection("insight")}
                   className="w-full flex items-center justify-between text-left group"
                   aria-expanded={sectionPrefs.insight}
                 >
-                  <span className="text-xs font-semibold text-red-700/70 dark:text-red-400/70 uppercase tracking-widest">
+                  <span className="text-xs font-semibold text-[var(--badge-insight-text)] uppercase tracking-widest">
                     Leadership Insight
                   </span>
                   <ChevronDownIcon
-                    className={`w-4 h-4 text-red-600/50 dark:text-red-400/50 group-hover:text-red-600 dark:group-hover:text-red-400 transition-all duration-200 ${
+                    className={`w-4 h-4 text-[var(--text-muted)] group-hover:text-[var(--text-secondary)] transition-all duration-200 ${
                       sectionPrefs.insight ? "rotate-180" : ""
                     }`}
                   />
@@ -496,7 +496,7 @@ export default function VerseDetail() {
                     sectionPrefs.insight ? "max-h-96 opacity-100 mt-2 sm:mt-4" : "max-h-0 opacity-0"
                   }`}
                 >
-                  <p className="text-base sm:text-lg lg:text-xl text-gray-800 dark:text-gray-200 leading-relaxed italic">
+                  <p className="text-base sm:text-lg lg:text-xl text-[var(--text-primary)] leading-relaxed italic">
                     "{verse.paraphrase_en}"
                   </p>
                 </div>
@@ -507,7 +507,7 @@ export default function VerseDetail() {
             {verse.consulting_principles &&
               verse.consulting_principles.length > 0 && (
                 <div className="mb-4 sm:mb-6 lg:mb-8">
-                  <p className="text-xs font-semibold text-amber-700/70 dark:text-amber-400/70 uppercase tracking-widest mb-3 sm:mb-4">
+                  <p className="text-xs font-semibold text-[var(--text-accent-muted)] uppercase tracking-widest mb-3 sm:mb-4">
                     Consulting Principles
                   </p>
                   <div className="flex flex-wrap gap-2 sm:gap-3">
@@ -516,19 +516,19 @@ export default function VerseDetail() {
                         key={principleId}
                         to={`/verses?topic=${principleId}`}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2
-                                   bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 rounded-full text-sm sm:text-base
+                                   bg-[var(--badge-principle-bg)] text-[var(--badge-principle-text)] rounded-full text-sm sm:text-base
                                    font-medium shadow-xs
-                                   hover:bg-amber-200 dark:hover:bg-amber-800/50 hover:shadow-md
-                                   active:bg-amber-300 dark:active:bg-amber-700/50
+                                   hover:bg-[var(--surface-warm-hover)] hover:shadow-md
+                                   active:bg-[var(--surface-warm)]
                                    transition-all duration-150
-                                   focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500
-                                   focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+                                   focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]
+                                   focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
                         aria-label={`View all verses about ${getPrincipleLabel(principleId)}`}
                       >
                         <span>{getPrincipleShortLabel(principleId)}</span>
                         <span
                           aria-hidden="true"
-                          className="text-amber-600 dark:text-amber-400"
+                          className="text-[var(--text-accent)]"
                         >
                           →
                         </span>
@@ -539,7 +539,7 @@ export default function VerseDetail() {
               )}
 
             {/* Divider */}
-            <div className="my-4 sm:my-6 h-px bg-linear-to-r from-transparent via-amber-300/50 dark:via-gray-600 to-transparent" />
+            <div className="my-4 sm:my-6 h-px bg-linear-to-r from-transparent via-[var(--border-warm)] to-transparent" />
 
             {/* Translations - Collapsible */}
             {(primaryHindi || primaryEnglish) && (
@@ -549,11 +549,11 @@ export default function VerseDetail() {
                   className="w-full flex items-center justify-between text-left group mb-4"
                   aria-expanded={sectionPrefs.translations}
                 >
-                  <span className="text-xs font-semibold text-amber-700/70 dark:text-amber-400/70 uppercase tracking-widest">
+                  <span className="text-xs font-semibold text-[var(--text-accent-muted)] uppercase tracking-widest">
                     Translations
                   </span>
                   <ChevronDownIcon
-                    className={`w-4 h-4 text-amber-600/50 dark:text-amber-400/50 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-all duration-200 ${
+                    className={`w-4 h-4 text-[var(--text-muted)] group-hover:text-[var(--text-accent)] transition-all duration-200 ${
                       sectionPrefs.translations ? "rotate-180" : ""
                     }`}
                   />
@@ -567,14 +567,14 @@ export default function VerseDetail() {
                     {/* Hindi Translation */}
                     {primaryHindi && (
                       <div>
-                        <p className="text-xs font-semibold text-amber-700/70 dark:text-amber-400/70 uppercase tracking-widest mb-2 sm:mb-4">
+                        <p className="text-xs font-semibold text-[var(--text-accent-muted)] uppercase tracking-widest mb-2 sm:mb-4">
                           हिंदी अनुवाद
                         </p>
-                        <p className="text-base sm:text-lg text-gray-800 dark:text-gray-200 leading-relaxed italic">
+                        <p className="text-base sm:text-lg text-[var(--text-primary)] leading-relaxed italic">
                           "{primaryHindi.text}"
                         </p>
                         {primaryHindi.translator && (
-                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 sm:mt-4">
+                          <p className="text-sm text-[var(--text-tertiary)] mt-2 sm:mt-4">
                             — {primaryHindi.translator}
                           </p>
                         )}
@@ -584,14 +584,14 @@ export default function VerseDetail() {
                     {/* English Translation */}
                     {primaryEnglish && (
                       <div>
-                        <p className="text-xs font-semibold text-amber-700/70 dark:text-amber-400/70 uppercase tracking-widest mb-2 sm:mb-4">
+                        <p className="text-xs font-semibold text-[var(--text-accent-muted)] uppercase tracking-widest mb-2 sm:mb-4">
                           English Translation
                         </p>
-                        <p className="text-base sm:text-lg text-gray-800 dark:text-gray-200 leading-relaxed italic">
+                        <p className="text-base sm:text-lg text-[var(--text-primary)] leading-relaxed italic">
                           "{primaryEnglish.text}"
                         </p>
                         {primaryEnglish.translator && (
-                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 sm:mt-4">
+                          <p className="text-sm text-[var(--text-tertiary)] mt-2 sm:mt-4">
                             — {primaryEnglish.translator}
                           </p>
                         )}
@@ -606,27 +606,27 @@ export default function VerseDetail() {
           {/* More Translations Section - Collapsible */}
           {otherTranslations.length > 0 && (
             <div
-              className="animate-fade-in bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-lg overflow-hidden mb-4 sm:mb-6 lg:mb-8"
+              className="animate-fade-in bg-[var(--surface-elevated)] rounded-xl sm:rounded-2xl shadow-lg overflow-hidden mb-4 sm:mb-6 lg:mb-8"
               style={{ animationDelay: "100ms" }}
             >
               {/* Collapsible Header */}
               <button
                 onClick={() => setShowAllTranslations(!showAllTranslations)}
-                className="w-full flex items-center justify-between p-4 sm:p-6 lg:p-8 text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-amber-500"
+                className="w-full flex items-center justify-between p-4 sm:p-6 lg:p-8 text-left hover:bg-[var(--surface-muted)] transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)]"
                 aria-expanded={showAllTranslations}
                 aria-controls="more-translations-content"
               >
                 <div className="flex items-baseline gap-2">
-                  <h2 className="text-lg sm:text-xl font-bold font-heading text-gray-900 dark:text-gray-100">
+                  <h2 className="text-lg sm:text-xl font-bold font-heading text-[var(--text-primary)]">
                     More Translations
                   </h2>
-                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                  <span className="text-sm text-[var(--text-muted)]">
                     ({otherTranslations.length})
                   </span>
                 </div>
                 {/* Chevron indicator */}
                 <svg
-                  className={`w-5 h-5 sm:w-6 sm:h-6 text-gray-400 dark:text-gray-500 transition-transform duration-200 ${
+                  className={`w-5 h-5 sm:w-6 sm:h-6 text-[var(--text-muted)] transition-transform duration-200 ${
                     showAllTranslations ? "rotate-180" : ""
                   }`}
                   fill="none"
@@ -655,11 +655,11 @@ export default function VerseDetail() {
                 <div className="px-4 sm:px-6 lg:px-8 pb-4 sm:pb-6 lg:pb-8 space-y-4 sm:space-y-6 lg:space-y-8">
                   {otherTranslations.map((translation, index) => (
                     <div key={translation.id}>
-                      <div className="border-l-4 border-amber-300 dark:border-amber-600 pl-4 sm:pl-6 py-2 sm:py-3">
-                        <p className="text-base sm:text-lg text-gray-800 dark:text-gray-200 leading-relaxed mb-2 sm:mb-3">
+                      <div className="border-l-4 border-[var(--border-warm)] pl-4 sm:pl-6 py-2 sm:py-3">
+                        <p className="text-base sm:text-lg text-[var(--text-primary)] leading-relaxed mb-2 sm:mb-3">
                           "{translation.text}"
                         </p>
-                        <div className="flex flex-wrap items-center gap-x-3 sm:gap-x-4 gap-y-1 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+                        <div className="flex flex-wrap items-center gap-x-3 sm:gap-x-4 gap-y-1 text-xs sm:text-sm text-[var(--text-tertiary)]">
                           {translation.translator && (
                             <span className="font-medium">
                               — {translation.translator}
@@ -671,7 +671,7 @@ export default function VerseDetail() {
                         </div>
                       </div>
                       {index < otherTranslations.length - 1 && (
-                        <div className="mt-4 sm:mt-6 border-b border-gray-100 dark:border-gray-700" />
+                        <div className="mt-4 sm:mt-6 border-b border-[var(--border-subtle)]" />
                       )}
                     </div>
                   ))}
@@ -683,11 +683,11 @@ export default function VerseDetail() {
           {/* Newsletter Nudge - shown after 3+ verses viewed */}
           {showNewsletterNudge && (
             <div className="animate-fade-in text-center py-6">
-              <p className="text-gray-600 dark:text-gray-400 text-sm">
+              <p className="text-[var(--text-tertiary)] text-sm">
                 Enjoying the wisdom?{" "}
                 <Link
                   to="/settings#newsletter"
-                  className="text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 font-medium"
+                  className="text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] font-medium"
                 >
                   Get a verse like this in your inbox each day
                 </Link>

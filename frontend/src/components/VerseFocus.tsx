@@ -94,28 +94,28 @@ function CollapsibleSection({
 }: CollapsibleSectionProps) {
   return (
     <div
-      className={`${bgClass} rounded-xl border border-amber-200/50 dark:border-stone-600 overflow-hidden`}
+      className={`${bgClass} rounded-xl border border-[var(--border-warm-subtle)] overflow-hidden`}
     >
       {/* Tappable header */}
       <button
         onClick={() => onToggle(id)}
-        className="w-full flex items-center justify-between p-4 text-left hover:bg-amber-100/30 dark:hover:bg-stone-700/50 transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-amber-500"
+        className="w-full flex items-center justify-between p-4 text-left hover:bg-[var(--surface-warm-hover)] transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)]"
         aria-expanded={isExpanded}
         aria-controls={`section-${id}`}
       >
         <div className="flex items-baseline gap-2">
-          <span className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-widest">
+          <span className="text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-widest">
             {label}
           </span>
           {subtitle && (
-            <span className="text-xs font-normal normal-case tracking-normal text-gray-500 dark:text-gray-500">
+            <span className="text-xs font-normal normal-case tracking-normal text-[var(--text-muted)]">
               — {subtitle}
             </span>
           )}
         </div>
         {/* Chevron indicator */}
         <svg
-          className={`w-4 h-4 text-gray-400 dark:text-gray-500 transition-transform duration-200 ${
+          className={`w-4 h-4 text-[var(--text-muted)] transition-transform duration-200 ${
             isExpanded ? "rotate-180" : ""
           }`}
           fill="none"
@@ -328,26 +328,26 @@ export function VerseFocus({
       <div className="shrink-0">
         <button
           onClick={handleToggle}
-          className="w-full text-center focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-4 dark:focus-visible:ring-offset-stone-900 rounded-xl transition-transform active:scale-[0.99]"
+          className="w-full text-center focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-4 focus-visible:ring-offset-[var(--focus-ring-offset)] rounded-xl transition-transform active:scale-[0.99]"
           aria-expanded={showTranslation}
           aria-label={showTranslation ? "Hide translation" : "Show translation"}
         >
           {/* Om symbol - matching VerseDetail styling */}
-          <div className="text-3xl sm:text-4xl text-amber-400/50 mb-3 sm:mb-4 lg:mb-6 font-light">
+          <div className="text-3xl sm:text-4xl text-[var(--decorative-om)] mb-3 sm:mb-4 lg:mb-6 font-light">
             ॐ
           </div>
 
           {/* Sanskrit verse - hero display with formatSanskritLines */}
           <div
             lang="sa"
-            className={`${FONT_SIZE_CLASSES[fontSize]} font-sanskrit text-amber-900 dark:text-amber-200 leading-relaxed tracking-wide mb-3 sm:mb-4`}
+            className={`${FONT_SIZE_CLASSES[fontSize]} font-sanskrit text-[var(--text-sanskrit)] leading-relaxed tracking-wide mb-3 sm:mb-4`}
           >
             {sanskritLines.map((line, idx) => (
               <p
                 key={idx}
                 className={
                   isSpeakerIntro(line)
-                    ? `${SPEAKER_FONT_SIZE_CLASSES[fontSize]} text-gray-500 dark:text-gray-400 mb-2 sm:mb-3 italic`
+                    ? `${SPEAKER_FONT_SIZE_CLASSES[fontSize]} text-[var(--text-muted)] mb-2 sm:mb-3 italic`
                     : "mb-1 sm:mb-2"
                 }
               >
@@ -358,7 +358,7 @@ export function VerseFocus({
 
           {/* Verse reference - centered */}
           <div className="text-center mb-2">
-            <span className="text-gray-600 dark:text-gray-400 text-base sm:text-lg font-serif">
+            <span className="text-[var(--text-tertiary)] text-base sm:text-lg font-serif">
               ॥ {verse.chapter}.{verse.verse} ॥
             </span>
           </div>
@@ -366,11 +366,11 @@ export function VerseFocus({
           {/* Hints (only show when translation is hidden) */}
           {!showTranslation && (
             <div className="space-y-2">
-              <div className="text-sm text-amber-600/70 dark:text-amber-400/70 italic animate-pulse">
+              <div className="text-sm text-[var(--text-accent-muted)] italic animate-pulse">
                 Tap for translation
               </div>
               {/* Swipe hint - mobile only */}
-              <div className="sm:hidden text-xs text-amber-600/60 dark:text-amber-400/60">
+              <div className="sm:hidden text-xs text-[var(--text-accent-muted)]">
                 ← swipe →
               </div>
             </div>
@@ -381,10 +381,10 @@ export function VerseFocus({
         <div className="flex justify-center mt-4 mb-2">
           <button
             onClick={() => toggleFavorite(verse.canonical_id)}
-            className={`p-3 sm:p-1.5 rounded-full transition-all duration-150 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-900 ${
+            className={`p-3 sm:p-1.5 rounded-full transition-all duration-150 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
               isFavorite(verse.canonical_id)
-                ? "text-red-500 dark:text-red-400"
-                : "text-gray-400/50 dark:text-gray-500/50 hover:text-red-400 dark:hover:text-red-400 hover:scale-110"
+                ? "text-[var(--status-error-text)]"
+                : "text-[var(--text-muted)] hover:text-[var(--status-error-text)] hover:scale-110"
             }`}
             aria-label={
               isFavorite(verse.canonical_id)
@@ -408,24 +408,24 @@ export function VerseFocus({
             : "max-h-0 opacity-0 mt-0"
         }`}
       >
-        <div className="border-t border-amber-200/50 dark:border-stone-700 pt-6">
+        <div className="border-t border-[var(--border-warm-subtle)] pt-6">
           {loadingTranslations ? (
             // Loading state
             <div className="text-center py-4">
-              <div className="w-5 h-5 border-2 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-              <p className="text-sm text-amber-600/70 dark:text-amber-400/70">
+              <div className="w-5 h-5 border-2 border-[var(--interactive-primary)] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+              <p className="text-sm text-[var(--text-accent-muted)]">
                 Loading translations...
               </p>
             </div>
           ) : translationError ? (
             // Error state
             <div className="text-center py-4">
-              <p className="text-sm text-red-600 dark:text-red-400">
+              <p className="text-sm text-[var(--status-error-text)]">
                 {translationError}
               </p>
               <button
                 onClick={loadTranslations}
-                className="mt-2 text-sm text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 underline"
+                className="mt-2 text-sm text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] underline"
               >
                 Try again
               </button>
@@ -440,9 +440,9 @@ export function VerseFocus({
                   label="IAST"
                   isExpanded={sectionPrefs.iast}
                   onToggle={toggleSection}
-                  bgClass="bg-amber-100/30 dark:bg-stone-800/50"
+                  bgClass="bg-[var(--surface-warm-subtle)]"
                 >
-                  <p className="text-base text-gray-700 dark:text-gray-300 leading-relaxed italic font-serif">
+                  <p className="text-base text-[var(--text-secondary)] leading-relaxed italic font-serif">
                     {verse.sanskrit_iast}
                   </p>
                 </CollapsibleSection>
@@ -455,9 +455,9 @@ export function VerseFocus({
                   label="Leadership Insight"
                   isExpanded={sectionPrefs.insight}
                   onToggle={toggleSection}
-                  bgClass="bg-linear-to-br from-amber-50 to-orange-50/50 dark:from-stone-800 dark:to-stone-800/80"
+                  bgClass="bg-linear-to-br from-[var(--gradient-warm-from)] to-[var(--gradient-warm-to)]"
                 >
-                  <p className="text-base text-gray-800 dark:text-gray-200 leading-relaxed">
+                  <p className="text-base text-[var(--text-primary)] leading-relaxed">
                     {verse.paraphrase_en}
                   </p>
                 </CollapsibleSection>
@@ -471,10 +471,10 @@ export function VerseFocus({
                   subtitle={hindiTranslation.translator}
                   isExpanded={sectionPrefs.hindi}
                   onToggle={toggleSection}
-                  bgClass="bg-amber-50/50 dark:bg-stone-800/50"
+                  bgClass="bg-[var(--surface-warm-subtle)]"
                 >
                   <p
-                    className="text-base text-gray-800 dark:text-gray-200 leading-relaxed"
+                    className="text-base text-[var(--text-primary)] leading-relaxed"
                     lang="hi"
                   >
                     {hindiTranslation.text}
@@ -490,9 +490,9 @@ export function VerseFocus({
                   subtitle={englishTranslation.translator}
                   isExpanded={sectionPrefs.english}
                   onToggle={toggleSection}
-                  bgClass="bg-amber-50/50 dark:bg-stone-800/50"
+                  bgClass="bg-[var(--surface-warm-subtle)]"
                 >
-                  <p className="text-base text-gray-800 dark:text-gray-200 leading-relaxed">
+                  <p className="text-base text-[var(--text-primary)] leading-relaxed">
                     {englishTranslation.text}
                   </p>
                 </CollapsibleSection>
@@ -507,9 +507,9 @@ export function VerseFocus({
                     label="English"
                     isExpanded={sectionPrefs.english}
                     onToggle={toggleSection}
-                    bgClass="bg-amber-50/50 dark:bg-stone-800/50"
+                    bgClass="bg-[var(--surface-warm-subtle)]"
                   >
-                    <p className="text-base text-gray-800 dark:text-gray-200 leading-relaxed">
+                    <p className="text-base text-[var(--text-primary)] leading-relaxed">
                       {verse.translation_en}
                     </p>
                   </CollapsibleSection>
@@ -521,7 +521,7 @@ export function VerseFocus({
                 !verse.translation_en &&
                 !verse.paraphrase_en &&
                 !verse.sanskrit_iast && (
-                  <div className="text-center py-4 text-amber-600/60 dark:text-amber-400/60 text-sm">
+                  <div className="text-center py-4 text-[var(--text-accent-muted)] text-sm">
                     No translations available
                   </div>
                 )}
@@ -530,7 +530,7 @@ export function VerseFocus({
               <div className="text-center pt-2">
                 <Link
                   to={`/verses/${verse.canonical_id}`}
-                  className="inline-flex items-center gap-1.5 text-sm text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 transition-colors"
+                  className="inline-flex items-center gap-1.5 text-sm text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] transition-colors"
                 >
                   Explore this verse
                   <span aria-hidden="true">→</span>
