@@ -51,6 +51,7 @@ export { GoalSelector } from "./GoalSelector";
 export { TimeSelector } from "./TimeSelector";
 export type { SendTime } from "./TimeSelector";
 export { NewsletterCard } from "./NewsletterCard";
+export { ThemeSelector } from "./ThemeSelector";
 export {
   markNewsletterSubscribed,
   clearNewsletterSubscribed,

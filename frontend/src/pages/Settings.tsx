@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Navbar, markNewsletterSubscribed, ConfirmModal } from "../components";
+import { Navbar, markNewsletterSubscribed, ConfirmModal, ThemeSelector } from "../components";
 import { Footer } from "../components/Footer";
 import { GoalSelector } from "../components/GoalSelector";
 import { TimeSelector, type SendTime } from "../components/TimeSelector";
@@ -939,8 +939,9 @@ export default function Settings() {
               <h2 className="text-lg font-semibold text-[var(--text-primary)]">Appearance</h2>
             </div>
 
+            {/* Theme Mode (Light/Dark/System) */}
             <div>
-              <label className="text-sm text-[var(--text-secondary)] block mb-1.5">Theme</label>
+              <label className="text-sm text-[var(--text-secondary)] block mb-1.5">Mode</label>
               <div className="flex gap-1">
                 {(["system", "light", "dark"] as Theme[]).map((t) => (
                   <button
@@ -961,6 +962,11 @@ export default function Settings() {
                   ? "Following your device settings"
                   : `Always use ${theme} mode`}
               </p>
+            </div>
+
+            {/* Color Palette Selector */}
+            <div className="pt-3 border-t border-[var(--border-default)]">
+              <ThemeSelector />
             </div>
           </section>
         </div>
