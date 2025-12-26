@@ -125,7 +125,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 </div>
                 <button
                   onClick={this.handleRefresh}
-                  className="inline-block bg-amber-600 hover:bg-amber-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:ring-offset-[var(--focus-ring-offset)]"
+                  className="inline-block bg-[var(--interactive-contextual)] hover:opacity-90 text-white font-semibold px-6 py-3 rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-[var(--border-focus)] focus:ring-offset-2 focus:ring-offset-[var(--focus-ring-offset)]"
                 >
                   Refresh Now
                 </button>

@@ -678,7 +678,7 @@ export default function ReadingMode() {
             <p className="text-[var(--status-error-text)] mb-4">{state.error}</p>
             <button
               onClick={() => loadChapter(state.chapter)}
-              className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
+              className="px-4 py-2 bg-[var(--interactive-contextual)] text-[var(--interactive-contextual-text)] rounded-lg hover:opacity-90 transition-colors"
             >
               Try Again
             </button>
@@ -865,7 +865,7 @@ export default function ReadingMode() {
 
             <button
               onClick={dismissOnboarding}
-              className="w-full mt-6 py-3 bg-amber-600 hover:bg-amber-700 text-white font-medium rounded-xl transition-colors"
+              className="w-full mt-6 py-3 bg-[var(--interactive-contextual)] hover:opacity-90 text-[var(--interactive-contextual-text)] font-medium rounded-xl transition-colors"
             >
               Got it!
             </button>

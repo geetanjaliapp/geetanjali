@@ -1015,9 +1015,9 @@ export default function Verses() {
               {/* Featured Segment */}
               <button
                 onClick={() => handleFilterSelect("featured")}
-                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
+                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                   showFeatured && !selectedPrinciple && !isSearchMode
-                    ? "bg-orange-600 text-white shadow-xs"
+                    ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-xs"
                     : "text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]"
                 }`}
               >
@@ -1033,9 +1033,9 @@ export default function Verses() {
 
                   <button
                     onClick={() => handleFilterSelect("recommended")}
-                    className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
+                    className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                       showRecommended && !selectedPrinciple && !isSearchMode
-                        ? "bg-orange-600 text-white shadow-xs"
+                        ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-xs"
                         : "text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]"
                     }`}
                     title="Verses matching your learning goals"
@@ -1052,9 +1052,9 @@ export default function Verses() {
               {/* Favorites Segment */}
               <button
                 onClick={() => handleFilterSelect("favorites")}
-                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
+                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                   showFavorites && !selectedPrinciple && !isSearchMode
-                    ? "bg-orange-600 text-white shadow-xs"
+                    ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-xs"
                     : "text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]"
                 }`}
               >
@@ -1083,9 +1083,9 @@ export default function Verses() {
               {/* All Segment */}
               <button
                 onClick={() => handleFilterSelect("all")}
-                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
+                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                   showAll && !selectedPrinciple && !isSearchMode
-                    ? "bg-orange-600 text-white shadow-xs"
+                    ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-xs"
                     : "text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]"
                 }`}
               >
@@ -1098,9 +1098,9 @@ export default function Verses() {
             <div className="relative">
               <button
                 onClick={() => setShowChapterDropdown(!showChapterDropdown)}
-                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-sm font-medium transition-colors border focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
+                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-sm font-medium transition-colors border focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                   selectedChapter && !selectedPrinciple && !isSearchMode
-                    ? "bg-orange-600 text-white border-orange-600 shadow-md"
+                    ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] border-[var(--interactive-primary)] shadow-md"
                     : "bg-[var(--surface-elevated)] text-[var(--text-primary)] border-[var(--border-default)] hover:bg-[var(--surface-muted)]"
                 }`}
               >
@@ -1129,7 +1129,7 @@ export default function Verses() {
                             }}
                             className={`h-8 sm:h-9 rounded-lg text-xs sm:text-sm font-medium transition-all ${
                               selectedChapter === chapter
-                                ? "bg-orange-600 text-white shadow-md"
+                                ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-md"
                                 : "bg-[var(--surface-muted)] text-[var(--text-primary)] hover:bg-[var(--badge-primary-bg)] hover:text-[var(--interactive-ghost-text)] border border-[var(--border-default)]"
                             }`}
                           >
@@ -1163,9 +1163,9 @@ export default function Verses() {
                       selectedPrinciple === principle.id ? null : principle.id,
                     )
                   }
-                  className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors whitespace-nowrap shrink-0 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
+                  className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors whitespace-nowrap shrink-0 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                     selectedPrinciple === principle.id && !isSearchMode
-                      ? "bg-amber-600 text-white shadow-md"
+                      ? "bg-[var(--interactive-contextual)] text-[var(--interactive-contextual-text)] shadow-md"
                       : "bg-[var(--badge-warm-bg)] text-[var(--badge-warm-text)] hover:bg-[var(--badge-warm-hover)] border border-[var(--border-warm-subtle)]"
                   }`}
                 >
@@ -1298,7 +1298,7 @@ export default function Verses() {
             </div>
           ) : showFavorites ? (
             <div className="flex items-center gap-1.5">
-              <HeartIcon className="w-3.5 h-3.5 text-red-400" filled />
+              <HeartIcon className="w-3.5 h-3.5 text-[var(--decorative-heart)]" filled />
               <span className="text-xs sm:text-sm text-[var(--text-accent-muted)]">
                 {totalCount !== null ? `${totalCount} ` : ""}
                 favorite{totalCount !== 1 ? "s" : ""}
@@ -1368,7 +1368,7 @@ export default function Verses() {
                         </p>
                         <Link
                           to={`/cases/new?prefill=${encodeURIComponent(searchData.query)}`}
-                          className="inline-flex items-center justify-center px-4 py-2 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 transition-colors whitespace-nowrap"
+                          className="inline-flex items-center justify-center px-4 py-2 bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] text-sm font-medium rounded-lg hover:opacity-90 transition-colors whitespace-nowrap"
                         >
                           {searchData.suggestion.cta}
                         </Link>
@@ -1464,7 +1464,7 @@ export default function Verses() {
                       </p>
                       <Link
                         to={`/cases/new?prefill=${encodeURIComponent(searchData.query)}`}
-                        className="inline-flex items-center gap-2 px-6 py-3 bg-orange-600 text-white font-medium rounded-xl hover:bg-orange-700 transition-colors shadow-lg hover:shadow-xl mb-6"
+                        className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] font-medium rounded-xl hover:opacity-90 transition-colors shadow-lg hover:shadow-xl mb-6"
                       >
                         Get Personal Guidance
                       </Link>
@@ -1533,7 +1533,7 @@ export default function Verses() {
                       {showFavorites ? (
                         <>
                           Browse verses and tap the{" "}
-                          <HeartIcon className="w-4 h-4 inline-block align-text-bottom text-red-400" />{" "}
+                          <HeartIcon className="w-4 h-4 inline-block align-text-bottom text-[var(--decorative-heart)]" />{" "}
                           to save your favorites.
                         </>
                       ) : showRecommended ? (
@@ -1567,7 +1567,7 @@ export default function Verses() {
                       {showFavorites ? (
                         <button
                           onClick={() => handleFilterSelect("featured")}
-                          className="px-4 py-2 bg-orange-600 text-white rounded-lg text-sm font-medium hover:bg-orange-700 transition-colors"
+                          className="px-4 py-2 bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] rounded-lg text-sm font-medium hover:opacity-90 transition-colors"
                         >
                           Browse featured verses
                         </button>
@@ -1580,7 +1580,7 @@ export default function Verses() {
                                 setSelectedPrinciple(null);
                                 updateSearchParams("featured", null);
                               }}
-                              className="px-4 py-2 bg-amber-600 text-white rounded-lg text-sm font-medium hover:bg-amber-700 transition-colors"
+                              className="px-4 py-2 bg-[var(--interactive-contextual)] text-[var(--interactive-contextual-text)] rounded-lg text-sm font-medium hover:opacity-90 transition-colors"
                             >
                               Clear filters
                             </button>

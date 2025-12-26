@@ -370,7 +370,7 @@ export default function Settings() {
 
           {isAuthenticated ? (
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-orange-600 text-white flex items-center justify-center text-base font-medium shrink-0">
+              <div className="w-12 h-12 rounded-full bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] flex items-center justify-center text-base font-medium shrink-0">
                 {getInitials(user?.name)}
               </div>
               <div className="flex-1 min-w-0">
@@ -441,7 +441,7 @@ export default function Settings() {
               <div className="flex gap-2">
                 <Link
                   to="/signup"
-                  className="px-3 py-1.5 text-sm bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors"
+                  className="px-3 py-1.5 text-sm bg-[var(--interactive-primary)] hover:opacity-90 text-[var(--interactive-primary-text)] font-medium rounded-lg transition-colors"
                 >
                   Create account
                 </Link>
@@ -528,7 +528,7 @@ export default function Settings() {
             {/* Loading state while fetching subscription status */}
             {isFetchingStatus ? (
               <div className="flex items-center justify-center py-4">
-                <div className="w-5 h-5 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+                <div className="w-5 h-5 border-2 border-[var(--interactive-contextual)] border-t-transparent rounded-full animate-spin" />
               </div>
             ) : existingSubscription ? (
               /* Authenticated user with existing subscription - show update form */
@@ -580,7 +580,7 @@ export default function Settings() {
                       onChange={(e) => setName(e.target.value)}
                       placeholder={derivedName || "Your name"}
                       aria-describedby={updateError ? "newsletter-prefs-error" : undefined}
-                      className="w-full px-3 py-2 text-sm border border-[var(--border-default)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      className="w-full px-3 py-2 text-sm border border-[var(--border-default)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-lg focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent"
                     />
                   </div>
 
@@ -609,7 +609,7 @@ export default function Settings() {
                   <button
                     type="submit"
                     disabled={isUpdatingPrefs}
-                    className="w-full bg-orange-600 hover:bg-orange-700 disabled:bg-orange-400 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+                    className="w-full bg-[var(--interactive-primary)] hover:opacity-90 disabled:opacity-60 text-[var(--interactive-primary-text)] text-sm font-medium px-4 py-2 rounded-lg transition-colors"
                   >
                     {isUpdatingPrefs ? "Saving..." : "Update preferences"}
                   </button>
@@ -646,7 +646,7 @@ export default function Settings() {
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             placeholder="Name"
-                            className="w-full px-3 py-2 text-sm border border-[var(--border-default)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                            className="w-full px-3 py-2 text-sm border border-[var(--border-default)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-lg focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent"
                           />
                         </div>
                         <div>
@@ -662,7 +662,7 @@ export default function Settings() {
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="Different email"
                             aria-describedby={error ? "subscribe-other-error" : undefined}
-                            className="w-full px-3 py-2 text-sm border border-[var(--border-default)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                            className="w-full px-3 py-2 text-sm border border-[var(--border-default)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-lg focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent"
                           />
                         </div>
                       </div>
@@ -692,7 +692,7 @@ export default function Settings() {
                       <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 text-white text-sm font-medium px-4 py-1.5 rounded-lg transition-colors"
+                        className="w-full bg-[var(--interactive-secondary-bg)] hover:opacity-90 disabled:opacity-60 text-[var(--interactive-secondary-text)] border border-[var(--interactive-secondary-border)] text-sm font-medium px-4 py-1.5 rounded-lg transition-colors"
                       >
                         {isSubmitting ? "Subscribing..." : "Subscribe this email"}
                       </button>
@@ -815,7 +815,7 @@ export default function Settings() {
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder={derivedName || "Your name"}
-                      className="w-full px-3 py-2 text-sm border border-[var(--border-default)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      className="w-full px-3 py-2 text-sm border border-[var(--border-default)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-lg focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent"
                     />
                   </div>
                   <div>
@@ -831,7 +831,7 @@ export default function Settings() {
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="Email"
                       aria-describedby={error ? "newsletter-anon-error" : undefined}
-                      className="w-full px-3 py-2 text-sm border border-[var(--border-default)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      className="w-full px-3 py-2 text-sm border border-[var(--border-default)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-lg focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent"
                     />
                   </div>
                 </div>
@@ -851,7 +851,7 @@ export default function Settings() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-orange-600 hover:bg-orange-700 disabled:bg-orange-400 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+                  className="w-full bg-[var(--interactive-primary)] hover:opacity-90 disabled:opacity-60 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
                 >
                   {isSubmitting ? "Subscribing..." : "Subscribe"}
                 </button>
@@ -940,7 +940,7 @@ export default function Settings() {
                         onChange={(e) =>
                           setSectionPrefs((p) => ({ ...p, [key]: e.target.checked }))
                         }
-                        className="w-4 h-4 rounded-sm border-[var(--border-default)] text-orange-600 focus:ring-orange-500"
+                        className="w-4 h-4 rounded-sm border-[var(--border-default)] text-[var(--interactive-primary)] focus:ring-[var(--border-focus)]"
                       />
                       <span className="text-sm text-[var(--text-secondary)]">{label}</span>
                     </label>
@@ -1007,19 +1007,19 @@ export default function Settings() {
           {/* Stats row */}
           <div className="flex flex-wrap gap-4 mb-3 text-sm">
             <div className="flex items-center gap-2">
-              <HeartIcon className="w-4 h-4 text-red-400" filled />
+              <HeartIcon className="w-4 h-4 text-[var(--decorative-heart)]" filled />
               <span className="text-[var(--text-secondary)]">
                 {favoritesCount} {favoritesCount === 1 ? "favorite" : "favorites"}
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-[var(--section-icon-reading-text)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
               </svg>
               <span className="text-[var(--text-secondary)]">{readingDisplay}</span>
             </div>
             <div className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-[var(--section-icon-goals-text)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
               </svg>
               <span className="text-[var(--text-secondary)]">{selectedGoals.length} goals</span>

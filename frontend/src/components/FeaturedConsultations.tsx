@@ -138,7 +138,7 @@ export function FeaturedConsultations({
           </p>
           <Link
             to="/cases/new"
-            className="inline-flex items-center gap-2 text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] font-medium focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] rounded-sm"
+            className="inline-flex items-center gap-2 text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] font-medium focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] rounded-sm"
           >
             <span>Ask your own question</span>
             <svg
@@ -173,9 +173,9 @@ export function FeaturedConsultations({
           <button
             key={cat}
             onClick={() => handleCategoryChange(cat)}
-            className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
+            className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
               selected === cat
-                ? "bg-orange-600 text-white"
+                ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)]"
                 : "bg-[var(--surface-muted)] text-[var(--text-secondary)] hover:bg-[var(--interactive-ghost-hover-bg)]"
             }`}
           >
@@ -255,7 +255,7 @@ export function FeaturedConsultations({
               <span key={ref.canonical_id}>
                 <Link
                   to={getVersePath(ref.display)}
-                  className="text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] hover:underline focus-visible:outline-hidden focus-visible:underline focus-visible:ring-1 focus-visible:ring-orange-500 rounded-sm"
+                  className="text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] hover:underline focus-visible:outline-hidden focus-visible:underline focus-visible:ring-1 focus-visible:ring-[var(--border-focus)] rounded-sm"
                 >
                   {ref.display}
                 </Link>
@@ -270,7 +270,7 @@ export function FeaturedConsultations({
           <p className="text-sm text-center mt-3">
             <button
               onClick={() => handleViewFull(currentCase.slug!)}
-              className="text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] hover:underline focus-visible:outline-hidden focus-visible:underline focus-visible:ring-1 focus-visible:ring-orange-500 rounded-sm font-medium"
+              className="text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] hover:underline focus-visible:outline-hidden focus-visible:underline focus-visible:ring-1 focus-visible:ring-[var(--border-focus)] rounded-sm font-medium"
             >
               View full consultation →
             </button>
@@ -282,7 +282,7 @@ export function FeaturedConsultations({
       <div className="mt-4 flex justify-center">
         <button
           onClick={handleAskSimilar}
-          className="inline-flex items-center gap-2 border-2 border-[var(--interactive-primary)] text-[var(--text-accent)] hover:bg-orange-600 hover:text-white hover:text-white font-medium px-6 py-2.5 rounded-xl transition-colors text-sm sm:text-base focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
+          className="inline-flex items-center gap-2 border-2 border-[var(--interactive-primary)] text-[var(--text-accent)] hover:bg-[var(--interactive-primary)] hover:text-white hover:text-white font-medium px-6 py-2.5 rounded-xl transition-colors text-sm sm:text-base focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
         >
           <span>Ask a similar question</span>
           <svg

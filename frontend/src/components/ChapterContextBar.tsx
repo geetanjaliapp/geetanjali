@@ -56,7 +56,7 @@ export function ChapterContextBar({
         <button
           onClick={handleBack}
           className="shrink-0 text-[var(--badge-warm-text)] hover:text-[var(--text-accent-hover)] font-medium text-sm
-                     focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500
+                     focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)]
                      focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] rounded transition-colors"
           aria-label="Go back to previous page"
         >

@@ -311,7 +311,7 @@ export default function Consultations() {
               {/* CTA visible on tablet+ only, FAB handles mobile */}
               <Link
                 to="/cases/new"
-                className="hidden sm:inline-block bg-orange-600 hover:bg-orange-700 text-white font-semibold px-5 py-2.5 sm:px-6 sm:py-3 rounded-lg transition-colors text-sm sm:text-base shrink-0"
+                className="hidden sm:inline-block bg-[var(--interactive-primary)] hover:opacity-90 text-white font-semibold px-5 py-2.5 sm:px-6 sm:py-3 rounded-lg transition-colors text-sm sm:text-base shrink-0"
               >
                 Ask a Question
               </Link>
@@ -324,9 +324,9 @@ export default function Consultations() {
                   {/* All Segment */}
                   <button
                     onClick={() => handleFilterChange("all")}
-                    className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
+                    className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                       filterMode === "all"
-                        ? "bg-orange-600 text-white shadow-xs"
+                        ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-xs"
                         : "text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]"
                     }`}
                   >
@@ -349,9 +349,9 @@ export default function Consultations() {
                       <div className="w-px bg-[var(--border-default)] my-1" />
                       <button
                         onClick={() => handleFilterChange("in-progress")}
-                        className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
+                        className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                           filterMode === "in-progress"
-                            ? "bg-orange-600 text-white shadow-xs"
+                            ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-xs"
                             : "text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]"
                         }`}
                       >
@@ -376,9 +376,9 @@ export default function Consultations() {
                   {/* Done Segment (includes completed + policy_violation) */}
                   <button
                     onClick={() => handleFilterChange("completed")}
-                    className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
+                    className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                       filterMode === "completed"
-                        ? "bg-orange-600 text-white shadow-xs"
+                        ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-xs"
                         : "text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]"
                     }`}
                   >
@@ -403,9 +403,9 @@ export default function Consultations() {
                       <div className="w-px bg-[var(--border-default)] my-1" />
                       <button
                         onClick={() => handleFilterChange("failed")}
-                        className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
+                        className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                           filterMode === "failed"
-                            ? "bg-orange-600 text-white shadow-xs"
+                            ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-xs"
                             : "text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]"
                         }`}
                       >
@@ -430,9 +430,9 @@ export default function Consultations() {
                   {/* Shared Segment */}
                   <button
                     onClick={() => handleFilterChange("shared")}
-                    className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
+                    className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                       filterMode === "shared"
-                        ? "bg-orange-600 text-white shadow-xs"
+                        ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-xs"
                         : "text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]"
                     }`}
                   >
@@ -502,7 +502,7 @@ export default function Consultations() {
               </p>
               <Link
                 to="/cases/new"
-                className="inline-block bg-orange-600 hover:bg-orange-700 text-white font-semibold px-6 py-2.5 sm:px-8 sm:py-3 rounded-lg transition-colors text-sm sm:text-base"
+                className="inline-block bg-[var(--interactive-primary)] hover:opacity-90 text-white font-semibold px-6 py-2.5 sm:px-8 sm:py-3 rounded-lg transition-colors text-sm sm:text-base"
               >
                 Ask Your First Question
               </Link>
@@ -577,7 +577,7 @@ export default function Consultations() {
                               <button
                                 onClick={(e) => handleRetry(e, case_.id)}
                                 disabled={actionLoading === case_.id}
-                                className="px-2 sm:px-3 py-1 text-xs font-medium text-[var(--text-accent)] bg-[var(--badge-warm-bg)] hover:bg-[var(--badge-warm-hover)] rounded-full transition-colors disabled:opacity-50 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)]"
+                                className="px-2 sm:px-3 py-1 text-xs font-medium text-[var(--text-accent)] bg-[var(--badge-warm-bg)] hover:bg-[var(--badge-warm-hover)] rounded-full transition-colors disabled:opacity-50 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)]"
                                 title="Retry analysis"
                               >
                                 {actionLoading === case_.id ? "..." : "Retry"}
@@ -614,7 +614,7 @@ export default function Consultations() {
                             <button
                               onClick={(e) => handleShare(e, case_)}
                               disabled={shareLoading === case_.id}
-                              className="px-3 py-1.5 text-xs font-medium rounded-lg transition-colors flex items-center gap-1.5 disabled:opacity-50 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] text-[var(--text-accent)] bg-[var(--badge-warm-bg)] hover:bg-[var(--badge-warm-hover)] focus-visible:ring-amber-500"
+                              className="px-3 py-1.5 text-xs font-medium rounded-lg transition-colors flex items-center gap-1.5 disabled:opacity-50 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] text-[var(--text-accent)] bg-[var(--badge-warm-bg)] hover:bg-[var(--badge-warm-hover)] focus-visible:ring-[var(--border-focus)]"
                               title="Share consultation"
                             >
                               <svg

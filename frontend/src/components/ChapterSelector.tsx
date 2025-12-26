@@ -90,7 +90,7 @@ export function ChapterSelector({
                   flex items-center justify-center
                   w-10 h-10 rounded-lg text-sm font-medium
                   transition-colors duration-150
-                  focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500
+                  focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)]
                   ${
                     isCurrentChapter
                       ? "bg-[var(--interactive-primary)] text-white"

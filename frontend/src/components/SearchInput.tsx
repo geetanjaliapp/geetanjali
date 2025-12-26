@@ -390,7 +390,7 @@ export const SearchInput = forwardRef<SearchInputHandle, SearchInputProps>(
           <button
             type="submit"
             disabled={loading}
-            className="px-4 sm:px-6 py-3 sm:py-3.5 bg-orange-600 text-white font-medium rounded-r-full hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 shadow-xs hover:shadow-md border border-orange-600 hover:border-orange-700 -ml-px"
+            className="px-4 sm:px-6 py-3 sm:py-3.5 bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] font-medium rounded-r-full hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 shadow-xs hover:shadow-md border border-[var(--interactive-primary)] hover:border-[var(--interactive-primary)] -ml-px"
           >
             {loading ? (
               <SpinnerIcon className="w-5 h-5" />

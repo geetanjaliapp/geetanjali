@@ -144,7 +144,7 @@ export default function NewsletterPreferences() {
 
           {pageState === "error" && (
             <div className="text-center py-12">
-              <XCircleIcon className="w-16 h-16 text-red-500 mx-auto mb-4" />
+              <XCircleIcon className="w-16 h-16 text-[var(--status-error-text)] mx-auto mb-4" />
               <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">
                 Something Went Wrong
               </h2>
@@ -162,7 +162,7 @@ export default function NewsletterPreferences() {
 
           {pageState === "saved" && (
             <div className="text-center py-12">
-              <CheckCircleIcon className="w-16 h-16 text-green-500 mx-auto mb-4" />
+              <CheckCircleIcon className="w-16 h-16 text-[var(--status-success-text)] mx-auto mb-4" />
               <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">
                 Preferences Saved!
               </h2>
@@ -213,7 +213,7 @@ export default function NewsletterPreferences() {
                   onChange={(e) => setName(e.target.value)}
                   placeholder="How should we greet you?"
                   disabled={pageState === "saving"}
-                  className="w-full px-4 py-2.5 border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:opacity-50"
+                  className="w-full px-4 py-2.5 border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-lg focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent disabled:opacity-50"
                 />
               </div>
 
@@ -249,7 +249,7 @@ export default function NewsletterPreferences() {
                 <button
                   onClick={handleSave}
                   disabled={pageState === "saving" || !hasChanges}
-                  className="bg-orange-600 hover:bg-orange-700 disabled:bg-orange-400 disabled:cursor-not-allowed text-white font-semibold px-6 py-3 rounded-lg transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
+                  className="bg-[var(--interactive-primary)] hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold px-6 py-3 rounded-lg transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
                 >
                   {pageState === "saving" ? "Saving..." : "Save Preferences"}
                 </button>

@@ -79,7 +79,7 @@ export function FollowUpInput({
             rows={2}
             aria-invalid={error ? true : undefined}
             aria-describedby={error ? "followup-error" : undefined}
-            className={`flex-1 px-3 sm:px-4 py-2.5 sm:py-3 border rounded-xl text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors resize-none bg-[var(--surface-elevated)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] ${
+            className={`flex-1 px-3 sm:px-4 py-2.5 sm:py-3 border rounded-xl text-sm focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent transition-colors resize-none bg-[var(--surface-elevated)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] ${
               disabled
                 ? "border-[var(--border-warm)] bg-[var(--surface-warm-subtle)]"
                 : "border-[var(--border-default)]"
@@ -92,7 +92,7 @@ export function FollowUpInput({
             className={`self-end px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl font-medium text-sm flex items-center gap-1.5 transition-colors ${
               disabled
                 ? "bg-[var(--badge-warm-bg)] text-[var(--badge-warm-text)] cursor-not-allowed"
-                : "bg-orange-600 text-white hover:bg-orange-700 disabled:bg-[var(--interactive-disabled)] disabled:cursor-not-allowed"
+                : "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] hover:opacity-90 disabled:bg-[var(--interactive-disabled)] disabled:cursor-not-allowed"
             }`}
           >
             <span className="hidden sm:inline">

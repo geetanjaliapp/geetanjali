@@ -139,7 +139,7 @@ export const OutputFeedback = memo(
               value={feedbackText[output.id] || ""}
               onChange={(e) => onFeedbackTextChange(output.id, e.target.value)}
               placeholder="Tell us what wasn't helpful..."
-              className="w-full px-3 py-2 text-sm bg-[var(--surface-elevated)] text-[var(--text-primary)] border border-[var(--border-default)] rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none placeholder:text-[var(--text-muted)]"
+              className="w-full px-3 py-2 text-sm bg-[var(--surface-elevated)] text-[var(--text-primary)] border border-[var(--border-default)] rounded-lg focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent resize-none placeholder:text-[var(--text-muted)]"
               rows={2}
               maxLength={1000}
             />

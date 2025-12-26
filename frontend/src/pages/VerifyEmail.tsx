@@ -71,7 +71,7 @@ export default function VerifyEmail() {
             </p>
             <button
               onClick={handleConfirm}
-              className="w-full px-6 py-3 bg-linear-to-r from-orange-500 to-red-500 text-white font-medium rounded-lg hover:from-orange-600 hover:to-red-600 transition-all focus:outline-hidden focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-[var(--focus-ring-offset)]"
+              className="w-full px-6 py-3 bg-linear-to-r from-orange-500 to-red-500 text-white font-medium rounded-lg hover:from-orange-600 hover:to-red-600 transition-all focus:outline-hidden focus:ring-2 focus:ring-[var(--border-focus)] focus:ring-offset-2 focus:ring-offset-[var(--focus-ring-offset)]"
             >
               Verify Email Address
             </button>
@@ -92,7 +92,7 @@ export default function VerifyEmail() {
 
         {state === "success" && (
           <>
-            <CheckCircleIcon className="w-16 h-16 text-green-500 mx-auto mb-4" />
+            <CheckCircleIcon className="w-16 h-16 text-[var(--status-success-text)] mx-auto mb-4" />
             <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
               Email Verified!
             </h1>
@@ -128,7 +128,7 @@ export default function VerifyEmail() {
 
         {state === "error" && (
           <>
-            <XCircleIcon className="w-16 h-16 text-red-500 mx-auto mb-4" />
+            <XCircleIcon className="w-16 h-16 text-[var(--status-error-text)] mx-auto mb-4" />
             <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
               Verification Failed
             </h1>

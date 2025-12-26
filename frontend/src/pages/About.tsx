@@ -124,7 +124,7 @@ export default function About() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mt-6 sm:mt-8">
             <Link
               to="/cases/new"
-              className="inline-flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold px-6 py-3 sm:px-8 sm:py-3.5 rounded-xl transition-all shadow-lg hover:shadow-xl text-base sm:text-lg"
+              className="inline-flex items-center gap-2 bg-[var(--interactive-primary)] hover:opacity-90 text-white font-semibold px-6 py-3 sm:px-8 sm:py-3.5 rounded-xl transition-all shadow-lg hover:shadow-xl text-base sm:text-lg"
             >
               <span>Start a Consultation</span>
               <svg
@@ -441,7 +441,7 @@ export default function About() {
                     onChange={(e) =>
                       setFormData({ ...formData, name: e.target.value })
                     }
-                    className="w-full px-3 sm:px-4 py-2.5 sm:py-2 border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-base sm:text-sm"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-2 border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-lg focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent text-base sm:text-sm"
                     placeholder="Your name"
                   />
                 </div>
@@ -460,7 +460,7 @@ export default function About() {
                     onChange={(e) =>
                       setFormData({ ...formData, email: e.target.value })
                     }
-                    className="w-full px-3 sm:px-4 py-2.5 sm:py-2 border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-base sm:text-sm"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-2 border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-lg focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent text-base sm:text-sm"
                     placeholder="you@example.com"
                   />
                 </div>
@@ -483,7 +483,7 @@ export default function About() {
                         message_type: e.target.value as ContactType,
                       })
                     }
-                    className="w-full px-3 sm:px-4 py-2.5 sm:py-2 border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-base sm:text-sm"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-2 border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-lg focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent text-base sm:text-sm"
                   >
                     <option value="feedback">General Feedback</option>
                     <option value="question">Question</option>
@@ -509,7 +509,7 @@ export default function About() {
                     onChange={(e) =>
                       setFormData({ ...formData, subject: e.target.value })
                     }
-                    className="w-full px-3 sm:px-4 py-2.5 sm:py-2 border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-base sm:text-sm"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-2 border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-lg focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent text-base sm:text-sm"
                     placeholder="Brief subject"
                   />
                 </div>
@@ -530,7 +530,7 @@ export default function About() {
                   onChange={(e) =>
                     setFormData({ ...formData, message: e.target.value })
                   }
-                  className="w-full px-3 sm:px-4 py-2.5 sm:py-2 border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 resize-none text-base sm:text-sm"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-2 border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-lg focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent resize-none text-base sm:text-sm"
                   placeholder="Share your thoughts..."
                 />
               </div>
@@ -544,7 +544,7 @@ export default function About() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full sm:w-auto bg-orange-600 hover:bg-orange-700 disabled:bg-orange-400 text-white font-semibold px-6 py-3 sm:px-8 sm:py-3 rounded-lg transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] text-base"
+                className="w-full sm:w-auto bg-[var(--interactive-primary)] hover:opacity-90 disabled:opacity-60 text-white font-semibold px-6 py-3 sm:px-8 sm:py-3 rounded-lg transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] text-base"
               >
                 {isSubmitting ? "Sending..." : "Send Message"}
               </button>
@@ -564,7 +564,7 @@ export default function About() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
             <Link
               to="/cases/new"
-              className="inline-flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold px-6 py-3 sm:px-8 sm:py-3.5 rounded-xl transition-all shadow-lg hover:shadow-xl text-base sm:text-lg"
+              className="inline-flex items-center gap-2 bg-[var(--interactive-primary)] hover:opacity-90 text-white font-semibold px-6 py-3 sm:px-8 sm:py-3.5 rounded-xl transition-all shadow-lg hover:shadow-xl text-base sm:text-lg"
             >
               <span>Ask a Question</span>
               <svg

@@ -117,7 +117,7 @@ export default function ResetPassword() {
             <div className="pt-4">
               <Link
                 to="/login"
-                className="w-full inline-flex justify-center py-2.5 sm:py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-orange-600 hover:bg-orange-700 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--focus-ring-offset)] focus:ring-orange-500 transition-colors"
+                className="w-full inline-flex justify-center py-2.5 sm:py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-[var(--interactive-primary)] hover:opacity-90 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--focus-ring-offset)] focus:ring-[var(--border-focus)] transition-colors"
               >
                 Sign In
               </Link>
@@ -182,7 +182,7 @@ export default function ResetPassword() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full px-3 py-2.5 sm:py-2 border border-[var(--input-border)] bg-[var(--input-bg)] placeholder-[var(--text-muted)] text-[var(--text-primary)] rounded-lg focus:outline-hidden focus:ring-2 focus:ring-orange-500 focus:border-transparent text-base sm:text-sm"
+                  className="block w-full px-3 py-2.5 sm:py-2 border border-[var(--input-border)] bg-[var(--input-bg)] placeholder-[var(--text-muted)] text-[var(--text-primary)] rounded-lg focus:outline-hidden focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent text-base sm:text-sm"
                   placeholder="••••••••"
                 />
                 <p className="mt-1 text-xs text-[var(--text-muted)]">
@@ -204,7 +204,7 @@ export default function ResetPassword() {
                   required
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="block w-full px-3 py-2.5 sm:py-2 border border-[var(--input-border)] bg-[var(--input-bg)] placeholder-[var(--text-muted)] text-[var(--text-primary)] rounded-lg focus:outline-hidden focus:ring-2 focus:ring-orange-500 focus:border-transparent text-base sm:text-sm"
+                  className="block w-full px-3 py-2.5 sm:py-2 border border-[var(--input-border)] bg-[var(--input-bg)] placeholder-[var(--text-muted)] text-[var(--text-primary)] rounded-lg focus:outline-hidden focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent text-base sm:text-sm"
                   placeholder="Re-enter your password"
                 />
               </div>
@@ -214,7 +214,7 @@ export default function ResetPassword() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-2.5 sm:py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-orange-600 hover:bg-orange-700 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--focus-ring-offset)] focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="w-full flex justify-center py-2.5 sm:py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-[var(--interactive-primary)] hover:opacity-90 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--focus-ring-offset)] focus:ring-[var(--border-focus)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {loading ? "Resetting..." : "Reset Password"}
               </button>

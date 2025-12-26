@@ -113,7 +113,7 @@ export function Toast({
           className="min-w-11 min-h-11 flex items-center justify-center -m-2
                      text-[var(--text-muted)]
                      hover:text-[var(--surface-elevated)]
-                     focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500
+                     focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)]
                      focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]
                      rounded-lg transition-colors"
           aria-label="Dismiss notification"

@@ -57,7 +57,7 @@ export function FloatingNavArrow({
                   opacity-70 hover:opacity-100
                   hover:bg-[var(--surface-elevated)] hover:scale-105 hover:shadow-xl
                   transition-all duration-200
-                  focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500
+                  focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)]
                   focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]`}
       aria-label={`${isPrev ? "Previous" : "Next"} verse: ${formatVerseRef(verse)}`}
     >

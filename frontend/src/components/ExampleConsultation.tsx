@@ -103,7 +103,7 @@ export function ExampleConsultation({
             onClick={() => handleCategoryChange(cat)}
             className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
               selected === cat
-                ? "bg-orange-600 text-white"
+                ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)]"
                 : "bg-[var(--surface-muted)] text-[var(--text-secondary)] hover:bg-[var(--interactive-ghost-hover-bg)]"
             }`}
           >

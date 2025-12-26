@@ -332,7 +332,7 @@ export default function NewCase() {
                 value={formData.question}
                 onChange={handleChange}
                 rows={4}
-                className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base sm:text-lg border rounded-lg sm:rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-[var(--input-bg)] text-[var(--text-primary)] placeholder-[var(--text-muted)] ${
+                className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base sm:text-lg border rounded-lg sm:rounded-xl focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent bg-[var(--input-bg)] text-[var(--text-primary)] placeholder-[var(--text-muted)] ${
                   errors.question
                     ? "border-[var(--status-error-border)]"
                     : "border-[var(--input-border)]"
@@ -397,7 +397,7 @@ export default function NewCase() {
                 value={formData.context}
                 onChange={handleChange}
                 rows={2}
-                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm border border-[var(--input-border)] rounded-lg sm:rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-[var(--surface-field)] text-[var(--text-primary)] placeholder-[var(--text-muted)]"
+                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm border border-[var(--input-border)] rounded-lg sm:rounded-xl focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent bg-[var(--surface-field)] text-[var(--text-primary)] placeholder-[var(--text-muted)]"
                 placeholder="What makes this difficult? Competing values, fears, past experiences..."
               />
             </div>
@@ -407,7 +407,7 @@ export default function NewCase() {
               <button
                 type="button"
                 onClick={handlePersonalizationToggle}
-                className="text-sm text-[var(--interactive-ghost-text)] hover:text-[var(--text-link-hover)] font-medium flex items-center gap-1 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] rounded-sm"
+                className="text-sm text-[var(--interactive-ghost-text)] hover:text-[var(--text-link-hover)] font-medium flex items-center gap-1 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] rounded-sm"
               >
                 <span>{showAdvanced ? "−" : "+"}</span>
                 <span>Personalize your guidance</span>
@@ -430,7 +430,7 @@ export default function NewCase() {
                         onClick={() =>
                           toggleSelection(opt.value, setSelectedRoles)
                         }
-                        className={`px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm rounded-full border transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
+                        className={`px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm rounded-full border transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                           selectedRoles.has(opt.value)
                             ? "bg-[var(--option-selected-bg)] border-[var(--option-selected-border)] text-[var(--option-selected-text)]"
                             : "bg-[var(--surface-field)] border-[var(--border-default)] text-[var(--text-tertiary)] hover:bg-[var(--surface-muted)]"
@@ -458,7 +458,7 @@ export default function NewCase() {
                         onClick={() =>
                           toggleSelection(opt.value, setSelectedStakeholders)
                         }
-                        className={`px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm rounded-full border transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
+                        className={`px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm rounded-full border transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                           selectedStakeholders.has(opt.value)
                             ? "bg-[var(--option-selected-bg)] border-[var(--option-selected-border)] text-[var(--option-selected-text)]"
                             : "bg-[var(--surface-field)] border-[var(--border-default)] text-[var(--text-tertiary)] hover:bg-[var(--surface-muted)]"
@@ -488,7 +488,7 @@ export default function NewCase() {
               <button
                 type="submit"
                 disabled={loading}
-                className="px-6 sm:px-8 py-2.5 sm:py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:bg-[var(--interactive-disabled)] disabled:cursor-not-allowed transition-colors font-medium shadow-lg hover:shadow-xl text-sm sm:text-base"
+                className="px-6 sm:px-8 py-2.5 sm:py-3 bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] rounded-lg hover:opacity-90 disabled:bg-[var(--interactive-disabled)] disabled:cursor-not-allowed transition-colors font-medium shadow-lg hover:shadow-xl text-sm sm:text-base"
               >
                 {loading ? "Getting guidance..." : "Get Guidance"}
               </button>

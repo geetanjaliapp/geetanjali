@@ -58,7 +58,7 @@ export function StickyBottomNav({
             className="flex-1 flex items-center justify-start gap-2 p-4 min-h-[56px]
                        hover:bg-[var(--surface-warm)] active:bg-[var(--badge-warm-bg)] transition-colors
                        focus:outline-hidden focus-visible:ring-2 focus-visible:ring-inset
-                       focus-visible:ring-amber-500"
+                       focus-visible:ring-[var(--border-focus)]"
             aria-label={`Previous verse: ${formatVerseRef(prevVerse)}`}
           >
             <span
@@ -94,7 +94,7 @@ export function StickyBottomNav({
             className="flex-1 flex items-center justify-end gap-2 p-4 min-h-[56px]
                        hover:bg-[var(--surface-warm)] active:bg-[var(--badge-warm-bg)] transition-colors
                        focus:outline-hidden focus-visible:ring-2 focus-visible:ring-inset
-                       focus-visible:ring-amber-500"
+                       focus-visible:ring-[var(--border-focus)]"
             aria-label={`Next verse: ${formatVerseRef(nextVerse)}`}
           >
             <span className="text-[var(--badge-warm-text)] font-medium">

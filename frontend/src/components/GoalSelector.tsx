@@ -19,7 +19,7 @@ function GoalCard({ goal, isSelected, onToggle }: GoalCardProps) {
       className={`
         relative flex items-center gap-2 p-2 sm:flex-col sm:p-2.5 sm:gap-1
         rounded-lg sm:rounded-xl border transition-all duration-150 w-full
-        focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2
+        focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2
         focus-visible:ring-offset-[var(--focus-ring-offset)]
         ${
           isSelected

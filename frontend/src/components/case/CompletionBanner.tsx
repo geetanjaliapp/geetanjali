@@ -82,7 +82,7 @@ export function CompletionBanner({
         onClick={onDismiss}
         className={`rounded focus:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
           isPolicyViolation
-            ? "text-[var(--status-warning-text)] hover:text-[var(--status-warning-text)] focus-visible:ring-amber-500"
+            ? "text-[var(--status-warning-text)] hover:text-[var(--status-warning-text)] focus-visible:ring-[var(--border-focus)]"
             : "text-[var(--status-success-text)] hover:text-[var(--status-success-text)] focus-visible:ring-green-500"
         }`}
       >

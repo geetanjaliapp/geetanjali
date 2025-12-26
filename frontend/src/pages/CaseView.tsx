@@ -663,7 +663,7 @@ ${messages
                       <div
                         className={`absolute left-0 w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center ${
                           isFirst
-                            ? "bg-amber-600 text-white"
+                            ? "bg-[var(--interactive-contextual)] text-[var(--interactive-contextual-text)]"
                             : "bg-[var(--status-info-bg)] border-2 border-[var(--status-info-border)]"
                         }`}
                       >
@@ -754,7 +754,7 @@ ${messages
                               </p>
                               <button
                                 onClick={handleRetry}
-                                className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium rounded-lg transition-colors"
+                                className="px-4 py-2 bg-[var(--interactive-primary)] hover:opacity-90 text-white text-sm font-medium rounded-lg transition-colors"
                               >
                                 Get Guidance
                               </button>
@@ -783,7 +783,7 @@ ${messages
                               </p>
                               <button
                                 onClick={handleRetry}
-                                className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium rounded-lg transition-colors"
+                                className="px-4 py-2 bg-[var(--interactive-primary)] hover:opacity-90 text-white text-sm font-medium rounded-lg transition-colors"
                               >
                                 Get Guidance
                               </button>
@@ -860,7 +860,7 @@ ${messages
                                       "Can you provide more detail or clarify the recommended approach?",
                                     )
                                   }
-                                  className="mt-2 text-sm text-[var(--text-accent)] hover:text-[var(--text-link-hover)] hover:underline flex items-center gap-1 rounded-sm focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
+                                  className="mt-2 text-sm text-[var(--text-accent)] hover:text-[var(--text-link-hover)] hover:underline flex items-center gap-1 rounded-sm focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
                                 >
                                   <svg
                                     className="w-3.5 h-3.5"
@@ -890,7 +890,7 @@ ${messages
                                     exchange.output &&
                                     toggleSources(exchange.output.id)
                                   }
-                                  className="text-xs font-medium text-[var(--interactive-ghost-text)] hover:text-[var(--text-link-hover)] flex items-center gap-1 rounded-sm focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
+                                  className="text-xs font-medium text-[var(--interactive-ghost-text)] hover:text-[var(--text-link-hover)] flex items-center gap-1 rounded-sm focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
                                 >
                                   <svg
                                     className={`w-3 h-3 transition-transform ${isSourcesExpanded ? "rotate-90" : ""}`}

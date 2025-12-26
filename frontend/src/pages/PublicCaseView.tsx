@@ -187,7 +187,7 @@ export default function PublicCaseView() {
                     <div
                       className={`absolute left-0 w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center ${
                         isFirst
-                          ? "bg-amber-600 text-white"
+                          ? "bg-[var(--interactive-contextual)] text-[var(--interactive-contextual-text)]"
                           : "bg-[var(--status-info-bg)] border-2 border-[var(--status-info-border)]"
                       }`}
                     >
@@ -730,7 +730,7 @@ export default function PublicCaseView() {
             </p>
             <Link
               to="/cases/new"
-              className="inline-block px-4 sm:px-6 py-2.5 sm:py-3 bg-orange-600 text-white rounded-xl hover:bg-orange-700 transition-colors font-medium text-sm sm:text-base"
+              className="inline-block px-4 sm:px-6 py-2.5 sm:py-3 bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] rounded-xl hover:opacity-90 transition-colors font-medium text-sm sm:text-base"
             >
               Start a Consultation
             </Link>

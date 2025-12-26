@@ -375,8 +375,8 @@
   /* Text tokens */
   --text-primary: var(--color-neutral-100);
   --text-secondary: var(--color-neutral-400);
-  --text-tertiary: var(--color-neutral-500);
-  --text-muted: var(--color-neutral-600);
+  --text-tertiary: var(--color-neutral-400); /* Was neutral-500 - improved contrast for WCAG AA */
+  --text-muted: var(--color-neutral-500); /* Shifted up for better contrast */
   --text-sanskrit: var(--color-accent-200);
   --text-sanskrit-secondary: var(--color-accent-300);
   --text-link: var(--color-primary-400);
@@ -386,8 +386,8 @@
 
   /* Border tokens */
   --border-default: var(--color-neutral-700);
-  --border-warm: var(--color-neutral-700);
-  --border-warm-subtle: color-mix(in srgb, var(--color-neutral-700) 50%, transparent);
+  --border-warm: color-mix(in srgb, var(--color-warm-600) 60%, var(--color-neutral-700)); /* Retain warmth */
+  --border-warm-subtle: color-mix(in srgb, var(--color-warm-700) 40%, transparent);
   --border-subtle: var(--color-neutral-800);
   --border-focus: var(--color-primary-400);
   --border-accent: var(--color-accent-500);
@@ -426,22 +426,22 @@
   --divider-warm: var(--color-warm-600);
   --divider-warm-subtle: var(--color-warm-600);
 
-  /* Badge tokens */
+  /* Badge tokens - retain semantic color identity with subtle tinting */
   --badge-default-bg: var(--color-neutral-700);
   --badge-default-text: var(--color-neutral-300);
-  --badge-warm-bg: var(--color-neutral-700);
+  --badge-warm-bg: color-mix(in srgb, var(--color-warm-800) 40%, var(--color-neutral-700));
   --badge-warm-text: var(--color-warm-300);
-  --badge-warm-hover: var(--color-neutral-600);
-  --badge-primary-bg: var(--color-neutral-700);
+  --badge-warm-hover: color-mix(in srgb, var(--color-warm-700) 50%, var(--color-neutral-600));
+  --badge-primary-bg: color-mix(in srgb, var(--color-primary-800) 40%, var(--color-neutral-700));
   --badge-primary-text: var(--color-primary-300);
-  --badge-primary-hover: var(--color-neutral-600);
+  --badge-primary-hover: color-mix(in srgb, var(--color-primary-700) 50%, var(--color-neutral-600));
 
-  /* Domain-specific badges (dark mode) */
-  --badge-principle-bg: var(--color-neutral-700);
+  /* Domain-specific badges (dark mode) - retain semantic color identity */
+  --badge-principle-bg: color-mix(in srgb, var(--color-warm-800) 40%, var(--color-neutral-700));
   --badge-principle-text: var(--color-warm-300);
-  --badge-match-bg: var(--color-neutral-700);
+  --badge-match-bg: color-mix(in srgb, var(--color-primary-800) 40%, var(--color-neutral-700));
   --badge-match-text: var(--color-primary-300);
-  --badge-featured-bg: var(--color-neutral-700);
+  --badge-featured-bg: color-mix(in srgb, var(--color-accent-800) 40%, var(--color-neutral-700));
   --badge-featured-text: var(--color-accent-300);
 
   /* Overlay & Skeleton (dark mode) */

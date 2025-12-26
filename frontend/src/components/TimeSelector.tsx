@@ -83,7 +83,7 @@ export function TimeSelector({ value, onChange, disabled }: TimeSelectorProps) {
           tabIndex={index === currentIndex ? 0 : -1}
           className={`
             flex flex-col items-center p-2 rounded-lg border transition-all duration-150
-            focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2
+            focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2
             focus-visible:ring-offset-[var(--focus-ring-offset)]
             ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
             ${

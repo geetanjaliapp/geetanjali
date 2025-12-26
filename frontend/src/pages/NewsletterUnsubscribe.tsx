@@ -96,7 +96,7 @@ export default function NewsletterUnsubscribe() {
 
         {state === "success" && (
           <>
-            <CheckCircleIcon className="w-16 h-16 text-green-500 mx-auto mb-4" />
+            <CheckCircleIcon className="w-16 h-16 text-[var(--status-success-text)] mx-auto mb-4" />
             <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
               Unsubscribed
             </h1>
@@ -153,7 +153,7 @@ export default function NewsletterUnsubscribe() {
 
         {state === "error" && (
           <>
-            <XCircleIcon className="w-16 h-16 text-red-500 mx-auto mb-4" />
+            <XCircleIcon className="w-16 h-16 text-[var(--status-error-text)] mx-auto mb-4" />
             <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
               Something Went Wrong
             </h1>
