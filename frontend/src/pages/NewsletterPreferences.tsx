@@ -153,7 +153,7 @@ export default function NewsletterPreferences() {
               </p>
               <Link
                 to="/"
-                className="inline-block px-6 py-3 bg-linear-to-r from-orange-500 to-red-500 text-white font-medium rounded-[var(--radius-button)] hover:from-orange-600 hover:to-red-600 transition-all"
+                className="inline-block px-6 py-3 bg-linear-to-r from-[var(--interactive-gradient-from)] to-[var(--interactive-gradient-to)] text-white font-medium rounded-[var(--radius-button)] hover:from-[var(--interactive-gradient-from-hover)] hover:to-[var(--interactive-gradient-to-hover)] transition-[var(--transition-all)]"
               >
                 Go Home
               </Link>
@@ -172,7 +172,7 @@ export default function NewsletterPreferences() {
               <div className="space-y-3">
                 <button
                   onClick={() => setPageState("loaded")}
-                  className="block w-full sm:w-auto sm:inline-block px-6 py-3 bg-linear-to-r from-orange-500 to-red-500 text-white font-medium rounded-[var(--radius-button)] hover:from-orange-600 hover:to-red-600 transition-all"
+                  className="block w-full sm:w-auto sm:inline-block px-6 py-3 bg-linear-to-r from-[var(--interactive-gradient-from)] to-[var(--interactive-gradient-to)] text-white font-medium rounded-[var(--radius-button)] hover:from-[var(--interactive-gradient-from-hover)] hover:to-[var(--interactive-gradient-to-hover)] transition-[var(--transition-all)]"
                 >
                   Edit Again
                 </button>

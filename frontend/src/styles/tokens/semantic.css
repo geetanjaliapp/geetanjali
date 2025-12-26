@@ -133,6 +133,12 @@
   --interactive-primary-text: white;
   --interactive-primary-text-muted: color-mix(in srgb, white 80%, transparent);
 
+  /* Primary gradient (hero/featured CTAs) */
+  --interactive-gradient-from: var(--color-primary-500);
+  --interactive-gradient-to: var(--color-red-500);
+  --interactive-gradient-from-hover: var(--color-primary-600);
+  --interactive-gradient-to-hover: var(--color-red-600);
+
   /* Secondary action (outline buttons) */
   --interactive-secondary-bg: white;
   --interactive-secondary-text: var(--color-neutral-700);
@@ -196,8 +202,8 @@
   --decorative-sparkle: color-mix(in srgb, var(--color-warm-300) 60%, transparent);
 
   /* Logo colors - themeable via LogoIcon component */
-  --logo-bg-start: #ea580c;
-  --logo-bg-end: #f97316;
+  --logo-bg-start: var(--interactive-primary);
+  --logo-bg-end: var(--color-primary-500);
   --logo-petal-outer: #FFF8E7;
   --logo-petal-inner: #FFEDD5;
   --logo-sun-glow: #FCD34D;

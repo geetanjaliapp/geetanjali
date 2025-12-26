@@ -87,7 +87,7 @@ export function IntroCard(props: IntroCardProps) {
             aria-label={showDetails ? "Hide details" : "Show details"}
           >
             {/* Om symbol */}
-            <div className="text-3xl sm:text-4xl text-amber-400/50 mb-2 sm:mb-3 font-light">
+            <div className="text-3xl sm:text-4xl text-[var(--decorative-om)] mb-2 sm:mb-3 font-light">
               ॐ
             </div>
 
@@ -180,7 +180,7 @@ export function IntroCard(props: IntroCardProps) {
           aria-label={showDetails ? "Hide details" : "Show details"}
         >
           {/* Om symbol */}
-          <div className="text-3xl sm:text-4xl text-amber-400/50 mb-2 sm:mb-3 font-light">
+          <div className="text-3xl sm:text-4xl text-[var(--decorative-om)] mb-2 sm:mb-3 font-light">
             ॐ
           </div>
 

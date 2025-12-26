@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { LogoIcon } from "../icons";
 
 interface NavLogoProps {
   /** Show back button instead of logo */
@@ -51,11 +52,7 @@ export function NavLogo({
       to="/"
       className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-[var(--transition-opacity)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] rounded-[var(--radius-nav)]"
     >
-      <img
-        src="/logo.svg"
-        alt="Geetanjali"
-        className="h-8 w-8 sm:h-10 sm:w-10"
-      />
+      <LogoIcon size={32} className="sm:w-10 sm:h-10" />
       <span className="text-xl sm:text-2xl font-heading font-bold text-[var(--text-accent)]">
         Geetanjali
       </span>

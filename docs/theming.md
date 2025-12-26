@@ -44,7 +44,11 @@ Meaningful names that map to primitives. Used throughout components.
 /* Colors */
 --text-primary: var(--color-neutral-900);
 --surface-warm: var(--color-amber-50);
---interactive-primary: var(--color-orange-600);
+--interactive-primary: var(--color-primary-600);
+
+/* Gradient buttons (hero CTAs) */
+--interactive-gradient-from: var(--color-primary-500);
+--interactive-gradient-to: var(--color-red-500);
 
 /* Shapes */
 --radius-button: var(--radius-lg);      /* 8px */
