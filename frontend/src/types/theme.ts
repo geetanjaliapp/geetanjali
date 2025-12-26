@@ -115,7 +115,7 @@ export interface ThemeConfig {
 /**
  * Built-in theme IDs
  */
-export type BuiltInThemeId = "default" | "high-contrast" | "sepia";
+export type BuiltInThemeId = "default" | "high-contrast" | "sepia" | "ocean";
 
 /**
  * Theme mode (light/dark/system)

@@ -56,12 +56,13 @@ function ThemeOptionCard({
   return (
     <button
       onClick={onSelect}
+      role="radio"
+      aria-checked={isSelected}
       className={`relative flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${
         isSelected
           ? "border-[var(--border-focus)] bg-[var(--surface-warm)] ring-2 ring-[var(--border-focus)] ring-offset-2 ring-offset-[var(--surface-elevated)]"
           : "border-[var(--border-default)] bg-[var(--surface-muted)] hover:border-[var(--border-warm)]"
       }`}
-      aria-pressed={isSelected}
       aria-label={label}
     >
       {/* Color swatches */}
@@ -112,10 +113,17 @@ export function ThemeSelector() {
 
   return (
     <div>
-      <label className="text-sm text-[var(--text-secondary)] block mb-1.5">
+      <label
+        id="theme-palette-label"
+        className="text-sm text-[var(--text-secondary)] block mb-1.5"
+      >
         Color Palette
       </label>
-      <div className="flex flex-wrap gap-2">
+      <div
+        role="radiogroup"
+        aria-labelledby="theme-palette-label"
+        className="flex flex-wrap gap-2"
+      >
         {/* Default theme */}
         <ThemeOptionCard
           name="Geetanjali"
