@@ -1,14 +1,20 @@
 /**
- * Theme Selector Component (v1.17.0)
+ * Theme Selector Component (v1.18.0)
  *
  * Compact circular theme selector with conic gradient previews.
  * Shows theme colors at a glance with selected theme description below.
+ *
+ * Themes:
+ * - Geetanjali: Warm amber/orange (default)
+ * - Sutra: Monochrome slate/black/white
+ * - Serenity: Deep violet/lavender/rose
+ * - Forest: Emerald/sage/teal
  */
 
 import { useTheme } from "../contexts/ThemeContext";
 import type { ThemeConfig } from "../types/theme";
 
-/** Default theme color values (matches primitives.css) */
+/** Geetanjali (default) theme colors (matches primitives.css) */
 const DEFAULT_COLORS = {
   primary: "#ea580c", // orange-600
   warm: "#fef3c7", // amber-100
@@ -140,7 +146,7 @@ export function ThemeSelector() {
           {selectedTheme?.name ?? "Geetanjali"}
         </span>
         {" — "}
-        {selectedTheme?.description ?? "Warm amber inspired by ancient manuscripts"}
+        {selectedTheme?.description ?? "Temple lamp glow, ancient manuscript warmth"}
       </p>
     </div>
   );

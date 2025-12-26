@@ -127,12 +127,14 @@ export interface ThemeConfig {
   spacing?: ThemeSpacing;
   /** Border radius overrides */
   radius?: ThemeRadius;
+  /** Suggested default font family for this theme */
+  defaultFontFamily?: FontFamily;
 }
 
 /**
  * Built-in theme IDs
  */
-export type BuiltInThemeId = "default" | "high-contrast" | "serenity" | "forest";
+export type BuiltInThemeId = "default" | "sutra" | "serenity" | "forest";
 
 /**
  * Font family preference
