@@ -181,3 +181,24 @@
   --tw-prose-th-borders: var(--color-neutral-600);
   --tw-prose-td-borders: var(--color-neutral-700);
 }
+
+/* ============================================
+   REDUCED MOTION PREFERENCES
+   Respects user accessibility settings
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-75: 0ms;
+    --duration-100: 0ms;
+    --duration-150: 0ms;
+    --duration-200: 0ms;
+    --duration-300: 0ms;
+    --duration-500: 0ms;
+    --duration-700: 0ms;
+    --duration-1000: 0ms;
+
+    --transition-fast: 0ms;
+    --transition-normal: 0ms;
+    --transition-slow: 0ms;
+  }
+}

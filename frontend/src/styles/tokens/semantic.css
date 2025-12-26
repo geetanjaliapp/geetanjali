@@ -13,6 +13,9 @@
  * - Interactive: Buttons, links, form elements
  * - Section: Page section backgrounds
  * - Gradient: Gradient endpoints
+ * - Typography: Font styles, sizes, spacing
+ * - Layout: Spacing, radius, shadows
+ * - Motion: Transitions, animations
  */
 
 :root {
@@ -261,6 +264,73 @@
   --status-success-bg: var(--color-success-50);
   --status-success-text: var(--color-success-600);
   --status-success-border: var(--color-success-200);
+
+  /* ============================================
+     TYPOGRAPHY TOKENS - Semantic font styles
+     ============================================ */
+
+  /* Heading typography */
+  --font-heading: var(--font-family-display);
+  --font-heading-weight: var(--font-weight-bold);
+  --font-heading-tracking: var(--letter-spacing-tight);
+  --font-heading-line-height: var(--line-height-tight);
+
+  /* Body typography */
+  --font-body: var(--font-family-body);
+  --font-body-weight: var(--font-weight-normal);
+  --font-body-line-height: var(--line-height-normal);
+
+  /* Sanskrit/Devanagari typography */
+  --font-sanskrit: var(--font-family-sanskrit);
+  --font-sanskrit-weight: var(--font-weight-medium);
+  --font-sanskrit-line-height: var(--line-height-relaxed);
+
+  /* Monospace/code typography */
+  --font-code: var(--font-family-mono);
+  --font-code-weight: var(--font-weight-normal);
+
+  /* ============================================
+     LAYOUT TOKENS - Semantic spacing & radii
+     ============================================ */
+
+  /* Component spacing */
+  --spacing-card: var(--spacing-4);
+  --spacing-card-sm: var(--spacing-3);
+  --spacing-section: var(--spacing-8);
+  --spacing-element: var(--spacing-3);
+  --spacing-inline: var(--spacing-2);
+
+  /* Component radii */
+  --radius-button: var(--radius-lg);
+  --radius-card: var(--radius-xl);
+  --radius-input: var(--radius-lg);
+  --radius-badge: var(--radius-full);
+  --radius-modal: var(--radius-2xl);
+  --radius-tooltip: var(--radius-md);
+
+  /* Shadows */
+  --shadow-card: var(--shadow-sm);
+  --shadow-card-hover: var(--shadow-md);
+  --shadow-dropdown: var(--shadow-lg);
+  --shadow-modal: var(--shadow-xl);
+  --shadow-button: var(--shadow-xs);
+  --shadow-input-focus: 0 0 0 3px color-mix(in srgb, var(--color-primary-500) 20%, transparent);
+
+  /* ============================================
+     MOTION TOKENS - Semantic transitions
+     ============================================ */
+
+  /* Transition presets */
+  --transition-fast: var(--duration-100) var(--ease-out);
+  --transition-normal: var(--duration-200) var(--ease-in-out);
+  --transition-slow: var(--duration-300) var(--ease-in-out);
+
+  /* Component-specific transitions */
+  --transition-button: var(--transition-fast);
+  --transition-card: var(--transition-normal);
+  --transition-modal: var(--transition-slow);
+  --transition-color: color var(--duration-150) var(--ease-in-out);
+  --transition-transform: transform var(--duration-200) var(--ease-out);
 }
 
 /* ============================================
