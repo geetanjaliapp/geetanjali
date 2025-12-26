@@ -70,18 +70,19 @@ export const sutraTheme: ThemeConfig = {
         800: "#1e293b",
         900: "#0f172a",
       },
-      // Pure neutrals for warm surfaces
+      // Warm surfaces with subtle cream tint for card differentiation
+      // Slight warm undertone distinguishes cards from pure neutral page
       warm: {
-        50: "#fafafa",
-        100: "#f5f5f5",
-        200: "#e5e5e5",
-        300: "#d4d4d4",
-        400: "#a3a3a3",
-        500: "#737373",
-        600: "#525252",
-        700: "#404040",
-        800: "#262626",
-        900: "#171717",
+        50: "#fafaf8", // Subtle cream tint (was #fafafa - pure neutral)
+        100: "#f5f5f2", // Warm off-white
+        200: "#e8e8e3", // Soft cream
+        300: "#d4d4cd", // Warm gray
+        400: "#a3a39c",
+        500: "#737370",
+        600: "#52524f",
+        700: "#40403d",
+        800: "#262624",
+        900: "#171716",
       },
       // Pure neutrals
       neutral: {
@@ -111,68 +112,72 @@ export const sutraTheme: ThemeConfig = {
       },
     },
     dark: {
+      // Sutra Dark: Crisp monochrome with clear surface hierarchy
+      // Key insight: 900 values must be DARK for semantic.css surface-base
+      // 100-300 values must be LIGHT for text tokens
       primary: {
         50: "#0f172a",
-        100: "#1e293b",
-        200: "#334155",
-        300: "#475569",
-        400: "#94a3b8",
-        500: "#cbd5e1",
-        600: "#e2e8f0",
-        700: "#f1f5f9",
-        800: "#f8fafc",
-        900: "#ffffff",
+        100: "#e2e8f0", // Light slate for text-primary
+        200: "#cbd5e1", // For text-secondary
+        300: "#94a3b8", // For text-tertiary
+        400: "#64748b", // Mid-tone
+        500: "#475569",
+        600: "#334155",
+        700: "#1e293b",
+        800: "#0f172a",
+        900: "#0a0a0a", // Darkest for surface-base
       },
       warm: {
+        // Warm scale for dark mode - 900 must be dark for color-mix surfaces
         50: "#0a0a0a",
         100: "#171717",
         200: "#262626",
-        300: "#404040",
-        400: "#a3a3a3",
-        500: "#d4d4d4",
-        600: "#e5e5e5",
-        700: "#f5f5f5",
-        800: "#fafafa",
-        900: "#ffffff",
+        300: "#363636", // Added intermediate
+        400: "#525252",
+        500: "#737373",
+        600: "#a3a3a3",
+        700: "#d4d4d4",
+        800: "#e5e5e5",
+        900: "#0a0a0a", // DARK - critical for surface-warm mixing
       },
       neutral: {
-        50: "#0a0a0a",
-        100: "#fafafa",
-        200: "#f5f5f5",
-        300: "#e5e5e5",
-        400: "#a3a3a3",
-        500: "#737373",
-        600: "#525252",
-        700: "#404040",
-        800: "#262626",
-        900: "#171717",
+        // Proper dark mode scale: 100 light for text, 900 dark for surfaces
+        50: "#0a0a0a", // Darkest background
+        100: "#e5e5e5", // Light for text-primary (was #fafafa - too bright)
+        200: "#d4d4d4", // For text-secondary
+        300: "#a3a3a3", // For text-tertiary
+        400: "#737373", // Mid-tone muted
+        500: "#525252",
+        600: "#404040",
+        700: "#303030", // Lighter card surface
+        800: "#1f1f1f", // Card/elevated
+        900: "#0a0a0a", // Darkest - matches 50 for semantic compatibility
       },
       accent: {
         50: "#0f172a",
-        100: "#1e293b",
-        200: "#e2e8f0",
-        300: "#cbd5e1",
-        400: "#94a3b8",
-        500: "#64748b",
-        600: "#475569",
-        700: "#cbd5e1",
-        800: "#e2e8f0",
-        900: "#f8fafc",
+        100: "#e2e8f0", // Light for text
+        200: "#cbd5e1",
+        300: "#94a3b8",
+        400: "#64748b",
+        500: "#475569",
+        600: "#334155",
+        700: "#1e293b",
+        800: "#0f172a",
+        900: "#0a0a0a", // Dark for surfaces
       },
       // WCAG AA compliant: dark buttons with white text
-      // Since scale is inverted, use darker shades (lower numbers) for buttons
       contrast: {
-        onPrimary: "#ffffff", // white text on dark buttons
-        surfacePure: "#0a0a0a", // near-black for dark mode surfaces
-        // Semantic overrides using dark slate values for button backgrounds
-        interactivePrimary: "#334155", // slate-700 (primary-200 in this scale)
-        interactivePrimaryHover: "#475569", // slate-600 (primary-300)
-        interactivePrimaryActive: "#64748b", // slate-500 (primary-400)
+        onPrimary: "#ffffff",
+        surfacePure: "#0a0a0a",
+        // Dark slate buttons with clear hover states
+        interactivePrimary: "#334155",
+        interactivePrimaryHover: "#475569",
+        interactivePrimaryActive: "#64748b",
         // Light link colors for dark backgrounds
-        textLink: "#cbd5e1", // slate-300 (primary-500)
-        textLinkHover: "#e2e8f0", // slate-200 (primary-600)
-        interactiveGhostText: "#cbd5e1", // slate-300
-        borderFocus: "#94a3b8", // slate-400
+        textLink: "#cbd5e1",
+        textLinkHover: "#e2e8f0",
+        interactiveGhostText: "#cbd5e1",
+        borderFocus: "#94a3b8",
       },
     },
   },
@@ -254,68 +259,72 @@ export const serenityTheme: ThemeConfig = {
       },
     },
     dark: {
+      // Serenity Dark: Muted violet twilight - calming, not garish
+      // Desaturated purple tones for comfortable dark mode viewing
       primary: {
-        50: "#2e1065",
-        100: "#3b0764",
-        200: "#581c87",
-        300: "#7e22ce",
-        400: "#a855f7",
-        500: "#c084fc",
-        600: "#d8b4fe",
-        700: "#e9d5ff",
-        800: "#f3e8ff",
-        900: "#faf5ff",
+        50: "#1a1625", // Subtle purple-tinted charcoal (was #2e1065 - too saturated)
+        100: "#e9d5ff", // Light lavender for text-primary
+        200: "#d8b4fe", // For text-secondary
+        300: "#c4a5e0", // Muted purple for text-tertiary (was #7e22ce)
+        400: "#9370db", // Medium purple - less saturated (was #a855f7)
+        500: "#7c5cad", // Muted violet
+        600: "#6b4d96",
+        700: "#5a3d7f",
+        800: "#2d2438", // Soft purple-gray
+        900: "#1a1625", // Darkest - matches 50
       },
       warm: {
-        50: "#1a0a1f",
-        100: "#2e1538",
-        200: "#4a1d5c",
-        300: "#86198f",
-        400: "#d946ef",
-        500: "#e879f9",
-        600: "#f0abfc",
-        700: "#f5d0fe",
-        800: "#fae8ff",
-        900: "#fdf4ff",
+        // Muted lavender warmth - NOT neon fuchsia
+        50: "#1a1520", // Dark purple-brown
+        100: "#2a2030",
+        200: "#3a2d45",
+        300: "#5c4a6e", // Muted purple (was #86198f - too bright)
+        400: "#9678b0", // Soft lavender (was #d946ef - neon!)
+        500: "#b095c8", // Gentle purple
+        600: "#c8b0d8",
+        700: "#e0cce8",
+        800: "#f0e5f5",
+        900: "#1a1520", // DARK - critical for surface-warm mixing
       },
       neutral: {
-        50: "#1c1917",
-        100: "#fafaf9",
-        200: "#f5f5f4",
-        300: "#e7e5e4",
-        400: "#a8a29e",
-        500: "#78716c",
-        600: "#57534e",
-        700: "#44403c",
-        800: "#292524",
-        900: "#1c1917",
+        // Stone-based neutrals with warm undertone
+        50: "#1c1917", // Darkest - stone-900
+        100: "#e7e5e4", // Light stone for text (was #fafaf9 - too bright)
+        200: "#d6d3d1", // For text-secondary
+        300: "#a8a29e", // For text-tertiary
+        400: "#78716c", // Mid-tone
+        500: "#57534e",
+        600: "#44403c",
+        700: "#353230", // Card surface
+        800: "#292524", // Elevated surface
+        900: "#1c1917", // Darkest - matches 50
       },
       accent: {
-        50: "#881337",
-        100: "#9f1239",
-        200: "#fecdd3",
-        300: "#fda4af",
-        400: "#fb7185",
-        500: "#f43f5e",
-        600: "#e11d48",
-        700: "#fda4af",
-        800: "#fecdd3",
-        900: "#fff1f2",
+        // Rose accents - shifted away from error-red overlap
+        50: "#2a1520",
+        100: "#f5d0dc", // Light rose for text
+        200: "#f0b8c8",
+        300: "#e89aaf",
+        400: "#d97892", // Muted rose (was #fb7185)
+        500: "#c45a78",
+        600: "#a8445e",
+        700: "#8a3048",
+        800: "#6c2038",
+        900: "#2a1520", // Dark for surfaces
       },
       // WCAG AA compliant: dark buttons with white text
-      // Since scale is inverted, use darker shades (lower numbers) for buttons
       contrast: {
-        onPrimary: "#ffffff", // white text on dark buttons
-        surfacePure: "#1c1917", // stone-900 for dark mode surfaces
-        // Semantic overrides using dark violet values for button backgrounds
-        interactivePrimary: "#581c87", // purple-800 (primary-200 in this scale)
-        interactivePrimaryHover: "#7e22ce", // purple-700 (primary-300)
-        interactivePrimaryActive: "#9333ea", // purple-600
+        onPrimary: "#ffffff",
+        surfacePure: "#1c1917",
+        // Muted violet buttons - easier on eyes
+        interactivePrimary: "#5a3d7f", // Muted purple
+        interactivePrimaryHover: "#6b4d96",
+        interactivePrimaryActive: "#7c5cad",
         // Light link colors for dark backgrounds
-        textLink: "#c084fc", // purple-400 (primary-500)
-        textLinkHover: "#d8b4fe", // purple-300 (primary-600)
-        interactiveGhostText: "#c084fc", // purple-400
-        borderFocus: "#a855f7", // purple-500
+        textLink: "#c4a5e0", // Soft lavender
+        textLinkHover: "#d8b4fe",
+        interactiveGhostText: "#c4a5e0",
+        borderFocus: "#9370db",
       },
     },
   },
@@ -397,69 +406,72 @@ export const forestTheme: ThemeConfig = {
       },
     },
     dark: {
+      // Forest Dark: Moonlit grove - natural, grounded, not neon
+      // Earthy greens with subtle blue undertone for depth
       primary: {
-        50: "#022c22",
-        100: "#064e3b",
-        200: "#065f46",
-        300: "#047857",
-        400: "#10b981",
-        500: "#34d399",
-        600: "#6ee7b7",
-        700: "#a7f3d0",
-        800: "#d1fae5",
-        900: "#ecfdf5",
+        50: "#0c1810", // Dark forest floor
+        100: "#a7f3d0", // Light emerald for text-primary
+        200: "#6ee7b7", // For text-secondary
+        300: "#4abe8a", // Muted emerald for text-tertiary (less saturated)
+        400: "#10b981", // Emerald-500
+        500: "#059669",
+        600: "#047857",
+        700: "#065f46",
+        800: "#064e3b",
+        900: "#0c1810", // Darkest - matches 50
       },
       warm: {
-        50: "#052e16",
-        100: "#14532d",
-        200: "#166534",
-        300: "#15803d",
-        400: "#4ade80",
-        500: "#86efac",
-        600: "#bbf7d0",
-        700: "#dcfce7",
-        800: "#f0fdf4",
-        900: "#f7fff9",
+        // Moss/sage warmth - earthy, not lime-neon
+        50: "#0a150e", // Dark moss
+        100: "#142a1c",
+        200: "#1e3f2a",
+        300: "#2d5a3e", // Moss green (was #15803d)
+        400: "#5a9b6f", // Sage (was #4ade80 - too bright)
+        500: "#7ab88c", // Soft sage
+        600: "#9ad0a8",
+        700: "#bae4c5",
+        800: "#dcf5e3",
+        900: "#0a150e", // DARK - critical for surface-warm mixing
       },
       neutral: {
-        50: "#111827",
-        100: "#f3f4f6",
-        200: "#e5e7eb",
-        300: "#d1d5db",
-        400: "#9ca3af",
-        500: "#6b7280",
-        600: "#4b5563",
-        700: "#374151",
-        800: "#1f2937",
-        900: "#111827",
+        // Cool gray with subtle green undertone
+        50: "#0f1410", // Darkest - forest night (subtle green)
+        100: "#e5e7eb", // Light gray for text (was #f3f4f6 - slight reduction)
+        200: "#d1d5db", // For text-secondary
+        300: "#9ca3af", // For text-tertiary
+        400: "#6b7280", // Mid-tone
+        500: "#4b5563",
+        600: "#374151",
+        700: "#283530", // Card surface with green tint
+        800: "#1a2420", // Elevated surface
+        900: "#0f1410", // Darkest - matches 50
       },
       accent: {
-        50: "#134e4a",
-        100: "#115e59",
-        200: "#99f6e4",
-        300: "#5eead4",
+        // Teal accents - slightly softened
+        50: "#0c1815",
+        100: "#99f6e4", // Light teal for text
+        200: "#5eead4",
+        300: "#3bc9b2", // Muted teal (was #5eead4)
         400: "#2dd4bf",
         500: "#14b8a6",
         600: "#0d9488",
-        700: "#5eead4",
-        800: "#ccfbf1",
-        900: "#f0fdfa",
+        700: "#0f766e",
+        800: "#115e59",
+        900: "#0c1815", // Dark for surfaces
       },
       // WCAG AA compliant: dark buttons with white text
-      // Since scale is inverted, use darker shades (lower numbers) for buttons
       contrast: {
-        onPrimary: "#ffffff", // white text on dark buttons
-        surfacePure: "#111827", // gray-900 for dark mode surfaces
-        // Semantic overrides using dark emerald values for button backgrounds
-        interactivePrimary: "#065f46", // emerald-800 (primary-200 in this scale)
-        interactivePrimaryHover: "#047857", // emerald-700 (primary-300)
-        interactivePrimaryActive: "#059669", // emerald-600
-        // Light link colors for dark backgrounds - WCAG AA: 4.5:1 minimum
-        // emerald-300 (#6ee7b7) on gray-900 provides ~5.5:1 ✓
-        textLink: "#6ee7b7", // emerald-300 (was emerald-400, now lighter for 5.5:1)
-        textLinkHover: "#a7f3d0", // emerald-200 for hover state
-        interactiveGhostText: "#6ee7b7", // emerald-300 (matches links)
-        borderFocus: "#10b981", // emerald-500
+        onPrimary: "#ffffff",
+        surfacePure: "#0f1410", // Forest night
+        // Emerald buttons - natural tones
+        interactivePrimary: "#065f46",
+        interactivePrimaryHover: "#047857",
+        interactivePrimaryActive: "#059669",
+        // Light link colors for dark backgrounds
+        textLink: "#6ee7b7",
+        textLinkHover: "#a7f3d0",
+        interactiveGhostText: "#6ee7b7",
+        borderFocus: "#10b981",
       },
     },
   },

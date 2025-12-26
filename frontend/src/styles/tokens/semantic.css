@@ -23,12 +23,12 @@
      SURFACE TOKENS - Background colors
      ============================================ */
 
-  /* Base page background */
-  --surface-base: var(--color-neutral-50);
+  /* Base page background - slightly darker for card contrast */
+  --surface-base: var(--color-neutral-100);
 
-  /* Warm surface (cards with amber tint) */
+  /* Warm surface (cards with amber tint) - lighter than base for elevation */
   --surface-warm: var(--color-warm-50);
-  --surface-warm-subtle: color-mix(in srgb, var(--color-warm-50) 50%, white);
+  --surface-warm-subtle: color-mix(in srgb, var(--color-warm-100) 50%, white);
 
   /* Elevated surfaces (modals, dropdowns) */
   --surface-elevated: var(--color-surface-pure);
@@ -111,9 +111,8 @@
      ============================================ */
 
   /* Default border - WCAG 3:1 for UI components */
-  /* neutral-300 (#d1d5db) on white provides ~1.8:1 - decorative only */
-  /* neutral-400 (#9ca3af) on white provides ~3.0:1 - for interactive elements */
-  --border-default: var(--color-neutral-300);
+  /* neutral-400 (#9ca3af) on white provides ~3.0:1 for proper visibility */
+  --border-default: var(--color-neutral-400);
   --border-default-hover: var(--color-neutral-500);
 
   /* Warm border (amber-tinted cards) */
@@ -514,14 +513,15 @@
    DARK MODE OVERRIDES
    ============================================ */
 .dark {
-  /* Surface tokens - improved hierarchy for dark mode */
+  /* Surface tokens - IMPROVED hierarchy with clear visual layers */
   --surface-base: var(--color-neutral-900);
-  /* Maintain warmth in dark mode with subtle amber tint */
-  --surface-warm: color-mix(in srgb, var(--color-warm-900) 15%, var(--color-neutral-800));
-  --surface-warm-subtle: color-mix(in srgb, var(--color-warm-900) 8%, var(--color-neutral-850, var(--color-neutral-800)));
-  --surface-elevated: color-mix(in srgb, var(--color-neutral-800) 80%, var(--color-neutral-700));
-  --surface-card: color-mix(in srgb, var(--color-neutral-800) 60%, var(--color-neutral-700));
-  --surface-muted: var(--color-neutral-800);
+  /* Maintain warmth in dark mode - increased from 15% to 35% for visible theme identity */
+  --surface-warm: color-mix(in srgb, var(--color-warm-900) 35%, var(--color-neutral-800));
+  --surface-warm-subtle: color-mix(in srgb, var(--color-warm-900) 20%, var(--color-neutral-800));
+  /* Clearer surface hierarchy: base → card → elevated with visible contrast */
+  --surface-elevated: var(--color-neutral-700);
+  --surface-card: var(--color-neutral-800);
+  --surface-muted: color-mix(in srgb, var(--color-neutral-800) 60%, var(--color-neutral-900));
   --input-bg: var(--color-neutral-800);
   --input-bg-focus: var(--color-neutral-750, var(--color-neutral-700));
   /* Input border - lighter shade for better visibility in dark mode */
@@ -532,11 +532,11 @@
   --surface-reading-header: color-mix(in srgb, var(--color-reading-900) 95%, transparent);
   --surface-reading-header-solid: var(--color-reading-900);
 
-  /* Reading mode text (dark) */
-  --text-reading-primary: var(--color-warm-400);
-  --text-reading-secondary: var(--color-warm-500);
+  /* Reading mode text (dark) - quiet library feel */
+  --text-reading-primary: var(--color-warm-500);
+  --text-reading-secondary: var(--color-warm-600);
   --text-reading-muted: var(--color-reading-600);
-  --text-reading-accent: var(--color-warm-500);
+  --text-reading-accent: var(--color-warm-600);
 
   /* Reading mode interactive (dark) */
   --interactive-reading: var(--color-warm-400);
@@ -552,20 +552,23 @@
   --border-reading-header: color-mix(in srgb, var(--color-reading-700) 50%, transparent);
 
   /* Text tokens - WCAG AA: 4.5:1 min on dark backgrounds */
-  --text-primary: var(--color-neutral-100);
-  /* neutral-300 (#d1d5db) on neutral-900 provides ~10:1 ✓ */
+  /* Quiet library feel: softer off-white instead of harsh pure white */
+  --text-primary: var(--color-neutral-200);
+  /* Secondary text: neutral-300 gives ~9:1 contrast (readable but softer) */
+  /* NOTE: neutral-400 was too dark (~#737373) causing "dark text on dark" */
   --text-secondary: var(--color-neutral-300);
   --text-tertiary: var(--color-neutral-400);
-  /* neutral-400 (#9ca3af) on neutral-900 provides ~6.5:1 ✓ */
-  --text-muted: var(--color-neutral-400);
-  --text-sanskrit: var(--color-accent-200);
-  --text-sanskrit-secondary: var(--color-accent-300);
-  /* primary-300 for links on dark bg - provides good contrast */
-  --text-link: var(--color-primary-300);
-  --text-link-hover: var(--color-primary-200);
-  --text-accent: var(--color-warm-300);
-  --text-accent-hover: var(--color-warm-200);
-  --text-accent-muted: color-mix(in srgb, var(--color-warm-400) 70%, transparent);
+  /* Muted text - gentle, easy on eyes */
+  --text-muted: var(--color-neutral-500);
+  --text-sanskrit: var(--color-accent-300);
+  --text-sanskrit-secondary: var(--color-accent-400);
+  /* Links - subdued, not glowing. 500 level for quiet presence */
+  --text-link: var(--color-primary-500);
+  --text-link-hover: var(--color-primary-400);
+  /* Accent text - muted warmth for quiet library feel */
+  --text-accent: var(--color-warm-500);
+  --text-accent-hover: var(--color-warm-400);
+  --text-accent-muted: color-mix(in srgb, var(--color-warm-600) 60%, transparent);
 
   /* Border tokens */
   --border-default: var(--color-neutral-700);
@@ -595,12 +598,14 @@
   --interactive-secondary-disabled-bg: var(--color-neutral-800);
   --interactive-secondary-disabled-text: var(--color-neutral-500);
   --interactive-secondary-disabled-border: var(--color-neutral-600);
-  --interactive-ghost-text: var(--color-primary-300);
-  --interactive-ghost-hover-bg: color-mix(in srgb, var(--color-primary-800) 50%, transparent);
-  --interactive-contextual: var(--color-warm-500);
-  --interactive-contextual-hover: var(--color-warm-400);
+  /* Ghost buttons: subdued presence, not glowing */
+  --interactive-ghost-text: var(--color-primary-400);
+  --interactive-ghost-hover-bg: color-mix(in srgb, var(--color-primary-800) 40%, transparent);
+  /* Contextual actions: muted warmth */
+  --interactive-contextual: var(--color-warm-600);
+  --interactive-contextual-hover: var(--color-warm-500);
   --interactive-contextual-text: var(--color-on-primary);
-  --interactive-disabled: var(--color-neutral-500);
+  --interactive-disabled: var(--color-neutral-600);
 
   /* Section tokens */
   --section-verse-bg: var(--color-neutral-800);
@@ -615,10 +620,10 @@
   --gradient-warm-from: var(--color-neutral-900);
   --gradient-warm-to: color-mix(in srgb, var(--color-warm-900) 10%, var(--color-neutral-900));
 
-  /* Decorative tokens - lighter shades with higher opacity for dark mode visibility */
-  --decorative-om: color-mix(in srgb, var(--color-warm-300) 70%, transparent);
-  --decorative-heart: color-mix(in srgb, var(--color-red-300) 70%, transparent);
-  --decorative-sparkle: color-mix(in srgb, var(--color-warm-200) 70%, transparent);
+  /* Decorative tokens - subtle presence for quiet ambiance */
+  --decorative-om: color-mix(in srgb, var(--color-warm-400) 50%, transparent);
+  --decorative-heart: color-mix(in srgb, var(--color-red-400) 50%, transparent);
+  --decorative-sparkle: color-mix(in srgb, var(--color-warm-300) 50%, transparent);
 
   /* Favorite/like indicator - lighter shades for dark mode */
   --icon-favorite: var(--color-red-400);
