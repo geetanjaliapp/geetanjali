@@ -573,6 +573,8 @@ export const GoalIcons: Record<
  * LogoIcon - Themeable Geetanjali logo as inline SVG
  *
  * Uses CSS custom properties for full theme control:
+ * - --logo-bg-start: Background gradient start (default: #ea580c)
+ * - --logo-bg-end: Background gradient end (default: #f97316)
  * - --logo-petal-outer: Outer lotus petal color (default: #FFF8E7)
  * - --logo-petal-inner: Inner lotus petal color (default: #FFEDD5)
  * - --logo-sun-glow: Sun outer glow (default: #FCD34D)
@@ -588,10 +590,16 @@ export function LogoIcon({
   size = 64,
   themed = true,
 }: LogoIconProps) {
+  const bgStart = themed ? "var(--logo-bg-start, #ea580c)" : "#ea580c";
+  const bgEnd = themed ? "var(--logo-bg-end, #f97316)" : "#f97316";
   const petalOuter = themed ? "var(--logo-petal-outer, #FFF8E7)" : "#FFF8E7";
   const petalInner = themed ? "var(--logo-petal-inner, #FFEDD5)" : "#FFEDD5";
   const sunGlow = themed ? "var(--logo-sun-glow, #FCD34D)" : "#FCD34D";
   const sunCore = themed ? "var(--logo-sun-core, #991B1B)" : "#991B1B";
+
+  // Generate unique IDs to avoid conflicts when multiple logos on page
+  const gradientId = `logoGrad-${Math.random().toString(36).slice(2, 9)}`;
+  const sunGradId = `logoSunGrad-${Math.random().toString(36).slice(2, 9)}`;
 
   return (
     <svg
@@ -604,21 +612,21 @@ export function LogoIcon({
       role="img"
     >
       <defs>
-        <radialGradient id="logoSunGrad" cx="50%" cy="50%" r="50%">
+        <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor={bgStart} stopOpacity={1} />
+          <stop offset="100%" stopColor={bgEnd} stopOpacity={1} />
+        </linearGradient>
+        <radialGradient id={sunGradId} cx="50%" cy="50%" r="50%">
           <stop offset="0%" stopColor="#FEF3C7" stopOpacity={1} />
           <stop offset="40%" stopColor={sunGlow} stopOpacity={1} />
           <stop offset="100%" stopColor="#DC2626" stopOpacity={1} />
         </radialGradient>
-        <filter id="logoGlow" x="-20%" y="-20%" width="140%" height="140%">
-          <feGaussianBlur stdDeviation="8" result="blur" />
-          <feMerge>
-            <feMergeNode in="blur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
       </defs>
 
-      <g transform="translate(256, 256)" filter="url(#logoGlow)">
+      {/* Background circle - provides contrast */}
+      <circle cx="256" cy="256" r="240" fill={`url(#${gradientId})`} />
+
+      <g transform="translate(256, 256)">
         {/* Outer petals */}
         {[0, 45, 90, 135, 180, 225, 270, 315].map((angle) => (
           <ellipse
@@ -662,7 +670,7 @@ export function LogoIcon({
         </g>
 
         {/* Sun center */}
-        <circle cx="0" cy="0" r="55" fill="url(#logoSunGrad)" />
+        <circle cx="0" cy="0" r="55" fill={`url(#${sunGradId})`} />
         <circle cx="0" cy="0" r="25" fill={sunCore} />
 
         {/* Highlight */}

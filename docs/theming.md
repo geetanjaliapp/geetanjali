@@ -131,15 +131,17 @@ className="gap-2 sm:gap-4"
 
 ## Logo Theming
 
+The logo features an orange gradient background circle that provides contrast against warm surface colors (amber-50, cream). The lotus petals and sun elements sit on top of this background.
+
 The logo supports two usage modes:
 
-### 1. Static SVG (Transparent Background)
+### 1. Static SVG
 
 ```html
 <img src="/logo.svg" alt="Geetanjali" />
 ```
 
-The logo has a transparent background and adapts to any surface color.
+The static SVG uses fixed orange gradient background (#ea580c → #f97316) with cream petals.
 
 ### 2. Themeable React Component
 
@@ -153,6 +155,8 @@ import { LogoIcon } from "../components/icons";
 Logo CSS variables (can be overridden per theme):
 
 ```css
+--logo-bg-start: #ea580c;     /* Background gradient start */
+--logo-bg-end: #f97316;       /* Background gradient end */
 --logo-petal-outer: #FFF8E7;  /* Outer lotus petals */
 --logo-petal-inner: #FFEDD5;  /* Inner lotus petals */
 --logo-sun-glow: #FCD34D;     /* Sun outer glow */

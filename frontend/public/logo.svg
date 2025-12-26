@@ -1,25 +1,22 @@
 <svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-  <!-- Geetanjali Logo - Transparent background for theming -->
+  <!-- Geetanjali Logo - Contrasting background for visibility -->
   <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ea580c;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f97316;stop-opacity:1" />
+    </linearGradient>
     <radialGradient id="sunGrad" cx="50%" cy="50%" r="50%">
       <stop offset="0%" style="stop-color:#FEF3C7;stop-opacity:1" />
       <stop offset="40%" style="stop-color:#FCD34D;stop-opacity:1" />
       <stop offset="100%" style="stop-color:#DC2626;stop-opacity:1" />
     </radialGradient>
-    <!-- Subtle outer glow for visibility on dark backgrounds -->
-    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="8" result="blur"/>
-      <feMerge>
-        <feMergeNode in="blur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
   </defs>
 
-  <!-- No background circle - transparent -->
+  <!-- Background circle - provides contrast -->
+  <circle cx="256" cy="256" r="240" fill="url(#bgGrad)"/>
 
-  <!-- Lotus petals with subtle glow -->
-  <g transform="translate(256, 256)" filter="url(#glow)">
+  <!-- Lotus petals -->
+  <g transform="translate(256, 256)">
     <!-- Outer petals - cream white -->
     <ellipse cx="0" cy="-80" rx="40" ry="100" fill="#FFF8E7" opacity="0.95" transform="rotate(0)"/>
     <ellipse cx="0" cy="-80" rx="40" ry="100" fill="#FFF8E7" opacity="0.95" transform="rotate(45)"/>
