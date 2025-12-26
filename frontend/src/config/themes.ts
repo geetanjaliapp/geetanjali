@@ -52,6 +52,13 @@ export const highContrastTheme: ThemeConfig = {
         50: "#ffffff",
         100: "#fafafa",
         200: "#f5f5f5",
+        300: "#e5e5e5",
+        400: "#a3a3a3",
+        500: "#737373",
+        600: "#525252",
+        700: "#404040",
+        800: "#262626",
+        900: "#171717",
       },
       // Light mode: dark values at high numbers (for text)
       neutral: {
@@ -87,6 +94,13 @@ export const highContrastTheme: ThemeConfig = {
         50: "#0a0a0a",
         100: "#171717",
         200: "#262626",
+        300: "#404040",
+        400: "#a3a3a3",
+        500: "#d4d4d4",
+        600: "#e5e5e5",
+        700: "#f5f5f5",
+        800: "#fafafa",
+        900: "#ffffff",
       },
       // Dark mode: LIGHT values at LOW numbers (for text on dark bg)
       neutral: {
@@ -135,10 +149,16 @@ export const serenityTheme: ThemeConfig = {
         900: "#581c87",
       },
       warm: {
-        50: "#faf5ff",
-        100: "#f3e8ff",
-        200: "#e9d5ff",
-        300: "#d8b4fe",
+        50: "#faf5ff",   // fuchsia-50
+        100: "#f3e8ff",  // violet-100
+        200: "#e9d5ff",  // violet-200
+        300: "#d8b4fe",  // violet-300
+        400: "#c084fc",  // violet-400
+        500: "#a855f7",  // violet-500
+        600: "#9333ea",  // violet-600
+        700: "#7e22ce",  // violet-700
+        800: "#6b21a8",  // violet-800
+        900: "#581c87",  // violet-900
       },
       // Light mode: dark text colors at high numbers
       neutral: {
@@ -171,9 +191,16 @@ export const serenityTheme: ThemeConfig = {
         600: "#9333ea",
       },
       warm: {
-        50: "#1c1917",
-        100: "#292524",
-        200: "#3d3350",
+        50: "#1a1523",   // dark purple base
+        100: "#2e1f3d",  // dark violet
+        200: "#3d3350",  // muted violet
+        300: "#5b21b6",  // violet-800
+        400: "#c084fc",  // violet-400 (accent)
+        500: "#d8b4fe",  // violet-300
+        600: "#e9d5ff",  // violet-200
+        700: "#f3e8ff",  // violet-100
+        800: "#faf5ff",  // fuchsia-50
+        900: "#fefcff",  // near white
       },
       // Dark mode: LIGHT text colors at LOW numbers
       neutral: {
@@ -222,10 +249,16 @@ export const forestTheme: ThemeConfig = {
         900: "#064e3b",
       },
       warm: {
-        50: "#f0fdf4",
-        100: "#dcfce7",
-        200: "#bbf7d0",
-        300: "#86efac",
+        50: "#f0fdf4",   // green-50
+        100: "#dcfce7",  // green-100
+        200: "#bbf7d0",  // green-200
+        300: "#86efac",  // green-300
+        400: "#4ade80",  // green-400
+        500: "#22c55e",  // green-500
+        600: "#16a34a",  // green-600
+        700: "#15803d",  // green-700
+        800: "#166534",  // green-800
+        900: "#14532d",  // green-900
       },
       // Light mode: dark text colors at high numbers
       neutral: {
@@ -258,9 +291,16 @@ export const forestTheme: ThemeConfig = {
         600: "#059669",
       },
       warm: {
-        50: "#14261b",
-        100: "#1e3528",
-        200: "#274536",
+        50: "#0f1f17",   // deep forest base
+        100: "#14261b",  // dark forest
+        200: "#1e3528",  // forest shadow
+        300: "#166534",  // green-800
+        400: "#4ade80",  // green-400 (accent)
+        500: "#86efac",  // green-300
+        600: "#bbf7d0",  // green-200
+        700: "#dcfce7",  // green-100
+        800: "#f0fdf4",  // green-50
+        900: "#f7fff9",  // near white
       },
       // Dark mode: LIGHT text colors at LOW numbers
       neutral: {
