@@ -195,6 +195,12 @@
   --decorative-heart: color-mix(in srgb, var(--color-red-300) 60%, transparent);
   --decorative-sparkle: color-mix(in srgb, var(--color-warm-300) 60%, transparent);
 
+  /* Logo colors - themeable via LogoIcon component */
+  --logo-petal-outer: #FFF8E7;
+  --logo-petal-inner: #FFEDD5;
+  --logo-sun-glow: #FCD34D;
+  --logo-sun-core: #991B1B;
+
   /* Decorative dividers */
   --divider-warm: var(--color-warm-300);
   --divider-warm-subtle: var(--color-warm-200);

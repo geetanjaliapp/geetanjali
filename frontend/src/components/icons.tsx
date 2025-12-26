@@ -568,3 +568,106 @@ export const GoalIcons: Record<
   mountain: MountainIcon,
   "book-open": BookOpenIcon,
 };
+
+/**
+ * LogoIcon - Themeable Geetanjali logo as inline SVG
+ *
+ * Uses CSS custom properties for full theme control:
+ * - --logo-petal-outer: Outer lotus petal color (default: #FFF8E7)
+ * - --logo-petal-inner: Inner lotus petal color (default: #FFEDD5)
+ * - --logo-sun-glow: Sun outer glow (default: #FCD34D)
+ * - --logo-sun-core: Sun center core (default: #991B1B)
+ */
+interface LogoIconProps extends IconProps {
+  size?: number | string;
+  themed?: boolean;
+}
+
+export function LogoIcon({
+  className = "",
+  size = 64,
+  themed = true,
+}: LogoIconProps) {
+  const petalOuter = themed ? "var(--logo-petal-outer, #FFF8E7)" : "#FFF8E7";
+  const petalInner = themed ? "var(--logo-petal-inner, #FFEDD5)" : "#FFEDD5";
+  const sunGlow = themed ? "var(--logo-sun-glow, #FCD34D)" : "#FCD34D";
+  const sunCore = themed ? "var(--logo-sun-core, #991B1B)" : "#991B1B";
+
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 512 512"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      aria-label="Geetanjali logo"
+      role="img"
+    >
+      <defs>
+        <radialGradient id="logoSunGrad" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#FEF3C7" stopOpacity={1} />
+          <stop offset="40%" stopColor={sunGlow} stopOpacity={1} />
+          <stop offset="100%" stopColor="#DC2626" stopOpacity={1} />
+        </radialGradient>
+        <filter id="logoGlow" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="8" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+
+      <g transform="translate(256, 256)" filter="url(#logoGlow)">
+        {/* Outer petals */}
+        {[0, 45, 90, 135, 180, 225, 270, 315].map((angle) => (
+          <ellipse
+            key={`outer-${angle}`}
+            cx="0"
+            cy="-80"
+            rx="40"
+            ry="100"
+            fill={petalOuter}
+            opacity={0.95}
+            transform={`rotate(${angle})`}
+          />
+        ))}
+
+        {/* Inner petals */}
+        {[0, 60, 120, 180, 240, 300].map((angle) => (
+          <ellipse
+            key={`inner-${angle}`}
+            cx="0"
+            cy="-50"
+            rx="30"
+            ry="70"
+            fill={petalInner}
+            opacity={0.98}
+            transform={`rotate(${angle})`}
+          />
+        ))}
+
+        {/* Sun rays */}
+        <g opacity={0.5}>
+          {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map(
+            (angle) => (
+              <path
+                key={`ray-${angle}`}
+                d="M 0,-35 L 6,-45 L -6,-45 Z"
+                fill={sunGlow}
+                transform={`rotate(${angle})`}
+              />
+            ),
+          )}
+        </g>
+
+        {/* Sun center */}
+        <circle cx="0" cy="0" r="55" fill="url(#logoSunGrad)" />
+        <circle cx="0" cy="0" r="25" fill={sunCore} />
+
+        {/* Highlight */}
+        <circle cx="-8" cy="-8" r="6" fill="#FEF3C7" opacity={0.8} />
+      </g>
+    </svg>
+  );
+}
