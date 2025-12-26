@@ -33,8 +33,15 @@
   /* Elevated surfaces (modals, dropdowns) */
   --surface-elevated: white;
 
+  /* Card surfaces (distinct from base) */
+  --surface-card: var(--surface-warm);
+
   /* Muted/secondary backgrounds */
   --surface-muted: var(--color-neutral-100);
+
+  /* Input backgrounds (warm off-white for visual distinction) */
+  --input-bg: var(--color-warm-50);
+  --input-bg-focus: white;
 
   /* Sticky header/bar surfaces (with transparency for blur) */
   --surface-sticky: color-mix(in srgb, var(--color-warm-50) 95%, transparent);
@@ -88,6 +95,7 @@
 
   /* Accent text (decorative icons, highlights) */
   --text-accent: var(--color-warm-500);
+  --text-accent-hover: var(--color-warm-600);
   --text-accent-muted: color-mix(in srgb, var(--color-warm-600) 70%, transparent);
 
   /* Inverted text (on dark backgrounds) */
@@ -123,6 +131,7 @@
   /* Primary action (main CTA buttons) */
   --interactive-primary: var(--color-primary-600);
   --interactive-primary-text: white;
+  --interactive-primary-text-muted: color-mix(in srgb, white 80%, transparent);
 
   /* Secondary action (outline buttons) */
   --interactive-secondary-bg: white;
@@ -166,6 +175,17 @@
   --gradient-warm-from: var(--color-warm-50);
   --gradient-warm-to: var(--color-primary-50);
 
+  /* Accent gradient (for text and decorative elements) */
+  --gradient-accent-to: var(--color-error-600);
+
+  /* FAB gradient */
+  --gradient-fab-from: var(--color-primary-500);
+  --gradient-fab-to: var(--color-primary-600);
+  --gradient-fab-hover-from: var(--color-primary-600);
+  --gradient-fab-hover-to: var(--color-primary-700);
+  --shadow-fab: color-mix(in srgb, var(--color-primary-600) 30%, transparent);
+  --shadow-fab-hover: color-mix(in srgb, var(--color-primary-600) 40%, transparent);
+
   /* ============================================
      DECORATIVE TOKENS
      ============================================ */
@@ -203,6 +223,7 @@
 
   /* Modal overlay */
   --overlay-bg: color-mix(in srgb, black 50%, transparent);
+  --overlay-bg-light: color-mix(in srgb, black 20%, transparent);
 
   /* Skeleton loading */
   --skeleton-bg: var(--color-neutral-200);
@@ -272,58 +293,150 @@
      TYPOGRAPHY TOKENS - Semantic font styles
      ============================================ */
 
-  /* Heading typography */
+  /* Font family semantic aliases */
   --font-heading: var(--font-family-display);
-  --font-heading-weight: var(--font-weight-bold);
-  --font-heading-tracking: var(--letter-spacing-tight);
-  --font-heading-line-height: var(--line-height-tight);
-
-  /* Body typography */
   --font-body: var(--font-family-body);
-  --font-body-weight: var(--font-weight-normal);
-  --font-body-line-height: var(--line-height-normal);
-
-  /* Sanskrit/Devanagari typography */
   --font-sanskrit: var(--font-family-sanskrit);
-  --font-sanskrit-weight: var(--font-weight-medium);
-  --font-sanskrit-line-height: var(--line-height-relaxed);
-
-  /* Monospace/code typography */
   --font-code: var(--font-family-mono);
-  --font-code-weight: var(--font-weight-normal);
+
+  /* ============================================
+     TYPE SCALE - Semantic text styles
+     Each combines: size, weight, line-height, tracking
+     ============================================ */
+
+  /* Display - Hero headlines */
+  --text-display-size: var(--font-size-5xl);
+  --text-display-weight: var(--font-weight-bold);
+  --text-display-line-height: var(--line-height-tight);
+  --text-display-tracking: var(--letter-spacing-tight);
+
+  /* Heading Large - Page titles */
+  --text-heading-lg-size: var(--font-size-3xl);
+  --text-heading-lg-weight: var(--font-weight-bold);
+  --text-heading-lg-line-height: var(--line-height-tight);
+
+  /* Heading Medium - Section titles */
+  --text-heading-md-size: var(--font-size-2xl);
+  --text-heading-md-weight: var(--font-weight-semibold);
+  --text-heading-md-line-height: var(--line-height-snug);
+
+  /* Heading Small - Subsection titles */
+  --text-heading-sm-size: var(--font-size-xl);
+  --text-heading-sm-weight: var(--font-weight-semibold);
+  --text-heading-sm-line-height: var(--line-height-snug);
+
+  /* Body Large - Emphasized body text */
+  --text-body-lg-size: var(--font-size-lg);
+  --text-body-lg-weight: var(--font-weight-normal);
+  --text-body-lg-line-height: var(--line-height-relaxed);
+
+  /* Body - Default body text */
+  --text-body-size: var(--font-size-base);
+  --text-body-weight: var(--font-weight-normal);
+  --text-body-line-height: var(--line-height-normal);
+
+  /* Body Small - Secondary text */
+  --text-body-sm-size: var(--font-size-sm);
+  --text-body-sm-weight: var(--font-weight-normal);
+  --text-body-sm-line-height: var(--line-height-normal);
+
+  /* Caption - Labels, hints, metadata */
+  --text-caption-size: var(--font-size-xs);
+  --text-caption-weight: var(--font-weight-medium);
+  --text-caption-line-height: var(--line-height-normal);
+  --text-caption-tracking: var(--letter-spacing-wide);
+
+  /* Label - Form labels, buttons */
+  --text-label-size: var(--font-size-sm);
+  --text-label-weight: var(--font-weight-medium);
+  --text-label-line-height: var(--line-height-normal);
+
+  /* Sanskrit - Verse text (special treatment) */
+  --text-sanskrit-size: var(--font-size-xl);
+  --text-sanskrit-weight: var(--font-weight-medium);
+  --text-sanskrit-line-height: var(--line-height-relaxed);
+  --text-sanskrit-tracking: var(--letter-spacing-wide);
 
   /* ============================================
      LAYOUT TOKENS - Semantic spacing & radii
      ============================================ */
 
-  /* Component spacing */
+  /* Component spacing - internal padding */
   --spacing-card: var(--spacing-4);
   --spacing-card-sm: var(--spacing-3);
+  --spacing-card-lg: var(--spacing-6);
   --spacing-section: var(--spacing-8);
   --spacing-element: var(--spacing-3);
   --spacing-inline: var(--spacing-2);
 
-  /* Component radii */
-  --radius-button: var(--radius-lg);
-  --radius-card: var(--radius-xl);
-  --radius-input: var(--radius-lg);
-  --radius-badge: var(--radius-full);
-  --radius-modal: var(--radius-2xl);
-  --radius-tooltip: var(--radius-md);
+  /* Component gaps - between elements */
+  --gap-xs: var(--spacing-1);
+  --gap-sm: var(--spacing-2);
+  --gap-md: var(--spacing-3);
+  --gap-lg: var(--spacing-4);
+  --gap-xl: var(--spacing-6);
+  --gap-section: var(--spacing-8);
 
-  /* Shadows */
+  /* Page margins */
+  --margin-page-x: var(--spacing-4);
+  --margin-page-x-sm: var(--spacing-6);
+  --margin-page-x-lg: var(--spacing-8);
+  --margin-page-y: var(--spacing-6);
+
+  /* Max-widths for content containers */
+  --max-w-prose: 65ch;
+  --max-w-content: 42rem;       /* 672px - narrow content */
+  --max-w-content-md: 48rem;    /* 768px - medium content */
+  --max-w-content-lg: 64rem;    /* 1024px - wide content */
+  --max-w-content-xl: 80rem;    /* 1280px - full content */
+  --max-w-modal: 28rem;         /* 448px - modals */
+  --max-w-modal-lg: 36rem;      /* 576px - large modals */
+  --max-w-dropdown: 20rem;      /* 320px - dropdowns */
+
+  /* Component radii - Complete taxonomy */
+  --radius-button: var(--radius-lg);      /* 8px - all buttons, icon buttons */
+  --radius-card: var(--radius-xl);        /* 12px - all card containers */
+  --radius-input: var(--radius-lg);       /* 8px - form inputs, textareas */
+  --radius-badge: var(--radius-full);     /* full - badges, pills */
+  --radius-modal: var(--radius-2xl);      /* 16px - modals, dialogs */
+  --radius-tooltip: var(--radius-md);     /* 6px - tooltips */
+  --radius-dropdown: var(--radius-xl);    /* 12px - dropdowns, popovers, menus */
+  --radius-avatar: var(--radius-full);    /* full - avatars, profile pics */
+  --radius-chip: var(--radius-full);      /* full - chips, time/goal selectors */
+  --radius-skeleton: var(--radius-sm);    /* 2px - skeleton loaders */
+  --radius-nav: var(--radius-md);         /* 6px - navigation items */
+  --radius-toast: var(--radius-xl);       /* 12px - toast notifications */
+  --radius-progress: var(--radius-full);  /* full - progress bars */
+
+  /* Shadows - Complete taxonomy */
   --shadow-card: var(--shadow-sm);
   --shadow-card-hover: var(--shadow-md);
+  --shadow-card-elevated: var(--shadow-lg);
   --shadow-dropdown: var(--shadow-lg);
+  --shadow-popover: var(--shadow-lg);
   --shadow-modal: var(--shadow-xl);
   --shadow-button: var(--shadow-xs);
+  --shadow-button-active: var(--shadow-inner);
+  --shadow-tooltip: var(--shadow-md);
+  --shadow-toast: var(--shadow-lg);
+  --shadow-navbar: var(--shadow-xs);
   --shadow-input-focus: 0 0 0 3px color-mix(in srgb, var(--color-primary-500) 20%, transparent);
 
   /* ============================================
      MOTION TOKENS - Semantic transitions
      ============================================ */
 
-  /* Transition presets */
+  /* Duration semantic aliases */
+  --duration-instant: var(--duration-0);
+  --duration-fast: var(--duration-150);
+  --duration-normal: var(--duration-200);
+  --duration-slow: var(--duration-300);
+  --duration-slower: var(--duration-500);
+
+  /* Easing semantic alias */
+  --ease-default: var(--ease-in-out);
+
+  /* Transition presets (duration + easing) */
   --transition-fast: var(--duration-100) var(--ease-out);
   --transition-normal: var(--duration-200) var(--ease-in-out);
   --transition-slow: var(--duration-300) var(--ease-in-out);
@@ -332,8 +445,17 @@
   --transition-button: var(--transition-fast);
   --transition-card: var(--transition-normal);
   --transition-modal: var(--transition-slow);
+  --transition-dropdown: var(--transition-normal);
+  --transition-toast: var(--transition-slow);
+  --transition-nav: var(--transition-normal);
+
+  /* Property-specific transitions */
   --transition-color: color var(--duration-150) var(--ease-in-out);
+  --transition-colors: var(--transition-color);
   --transition-transform: transform var(--duration-200) var(--ease-out);
+  --transition-opacity: opacity var(--duration-200) var(--ease-in-out);
+  --transition-shadow: box-shadow var(--duration-150) var(--ease-in-out);
+  --transition-all: all var(--duration-200) var(--ease-in-out);
 }
 
 /* ============================================
@@ -346,7 +468,10 @@
   --surface-warm: color-mix(in srgb, var(--color-warm-900) 15%, var(--color-neutral-800));
   --surface-warm-subtle: color-mix(in srgb, var(--color-warm-900) 8%, var(--color-neutral-850, var(--color-neutral-800)));
   --surface-elevated: var(--color-neutral-800);
+  --surface-card: var(--color-neutral-800);
   --surface-muted: var(--color-neutral-800);
+  --input-bg: var(--color-neutral-800);
+  --input-bg-focus: var(--color-neutral-750, var(--color-neutral-700));
   --surface-sticky: color-mix(in srgb, var(--color-neutral-900) 95%, transparent);
   --surface-reading: var(--color-reading-900);
   --surface-reading-elevated: var(--color-reading-800);
@@ -382,6 +507,7 @@
   --text-link: var(--color-primary-400);
   --text-link-hover: var(--color-primary-300);
   --text-accent: var(--color-warm-400);
+  --text-accent-hover: var(--color-warm-300);
   --text-accent-muted: color-mix(in srgb, var(--color-warm-400) 70%, transparent);
 
   /* Border tokens */
@@ -396,6 +522,7 @@
   /* Interactive tokens */
   --interactive-primary: var(--color-primary-600);
   --interactive-primary-text: white;
+  --interactive-primary-text-muted: color-mix(in srgb, white 80%, transparent);
   --interactive-secondary-bg: var(--color-neutral-800);
   --interactive-secondary-text: var(--color-neutral-200);
   --interactive-secondary-border: var(--color-neutral-600);
@@ -446,8 +573,18 @@
 
   /* Overlay & Skeleton (dark mode) */
   --overlay-bg: color-mix(in srgb, black 70%, transparent);
+  --overlay-bg-light: color-mix(in srgb, black 40%, transparent);
   --skeleton-bg: var(--color-neutral-700);
   --skeleton-highlight: var(--color-neutral-600);
+
+  /* Gradient tokens (dark mode) */
+  --gradient-accent-to: var(--color-error-500);
+  --gradient-fab-from: var(--color-primary-500);
+  --gradient-fab-to: var(--color-primary-600);
+  --gradient-fab-hover-from: var(--color-primary-400);
+  --gradient-fab-hover-to: var(--color-primary-500);
+  --shadow-fab: color-mix(in srgb, var(--color-primary-500) 40%, transparent);
+  --shadow-fab-hover: color-mix(in srgb, var(--color-primary-500) 50%, transparent);
 
   /* Field surfaces */
   --surface-field: color-mix(in srgb, var(--color-neutral-700) 50%, var(--color-neutral-800));
@@ -498,4 +635,15 @@
   --status-success-bg: var(--color-success-900);
   --status-success-text: var(--color-success-300);
   --status-success-border: var(--color-success-700);
+
+  /* Dark mode shadows - slightly more prominent for visibility */
+  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.2), 0 1px 2px -1px rgb(0 0 0 / 0.2);
+  --shadow-card-hover: 0 4px 6px -1px rgb(0 0 0 / 0.2), 0 2px 4px -2px rgb(0 0 0 / 0.2);
+  --shadow-card-elevated: 0 10px 15px -3px rgb(0 0 0 / 0.2), 0 4px 6px -4px rgb(0 0 0 / 0.2);
+  --shadow-dropdown: 0 10px 15px -3px rgb(0 0 0 / 0.25), 0 4px 6px -4px rgb(0 0 0 / 0.25);
+  --shadow-popover: var(--shadow-dropdown);
+  --shadow-modal: 0 20px 25px -5px rgb(0 0 0 / 0.3), 0 8px 10px -6px rgb(0 0 0 / 0.3);
+  --shadow-tooltip: 0 4px 6px -1px rgb(0 0 0 / 0.25), 0 2px 4px -2px rgb(0 0 0 / 0.25);
+  --shadow-toast: var(--shadow-dropdown);
+  --shadow-input-focus: 0 0 0 3px color-mix(in srgb, var(--color-primary-400) 25%, transparent);
 }
