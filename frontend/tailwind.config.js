@@ -21,17 +21,22 @@ export default {
         },
       },
       /*
-       * Typography System (v1.11.0)
-       * - Headings: Spectral (classical serif)
-       * - Body: Source Sans 3 (clean sans-serif)
-       * - Sanskrit: Noto Serif Devanagari (proper glyph rendering)
-       * - Mono: System monospace (code/IDs)
+       * Typography System (v1.16.0)
+       * References CSS custom properties from tokens/primitives.css
+       * Enables runtime font customization via theming system.
+       *
+       * Token mapping:
+       * - --font-family-display: Spectral (headings, decorative)
+       * - --font-family-body: Source Sans 3 (body text)
+       * - --font-family-sanskrit: Noto Serif Devanagari
+       * - --font-family-mono: Fira Code (code/IDs)
        */
       fontFamily: {
-        heading: ['Spectral', 'Georgia', 'serif'],
-        body: ['"Source Sans 3"', 'system-ui', 'sans-serif'],
-        sanskrit: ['"Noto Serif Devanagari"', 'serif'],
-        serif: ['Spectral', 'Georgia', 'serif'], // Override default serif
+        heading: ['var(--font-family-display)', 'Georgia', 'serif'],
+        body: ['var(--font-family-body)', 'system-ui', 'sans-serif'],
+        sanskrit: ['var(--font-family-sanskrit)', 'serif'],
+        serif: ['var(--font-family-display)', 'Georgia', 'serif'],
+        mono: ['var(--font-family-mono)', 'ui-monospace', 'monospace'],
       },
       /*
        * Color System (v1.11.0)
@@ -44,23 +49,21 @@ export default {
        * - Gradients: from-amber-50 via-orange-50 to-red-50 (hero)
        */
       /*
-       * Prose/Typography Plugin Customization
-       * Subtle styling for markdown content that matches app design:
-       * - Bold: amber-800 for warmth (matches Sanskrit text color family)
-       * - Italics: inherit color, use serif font for verse quotes
-       * - Paragraphs: comfortable spacing
+       * Prose/Typography Plugin Customization (v1.16.0)
+       * Uses CSS custom properties for theme-aware styling.
+       * Dark mode handled via derived.css (.dark .prose overrides)
        */
       typography: {
         DEFAULT: {
           css: {
-            // Bold text - warm amber for emphasis, matching app palette
+            // Bold text - uses accent color for warmth
             'strong': {
-              color: 'rgb(146 64 14)', // amber-800
-              fontWeight: '600',
+              color: 'var(--color-accent-800, rgb(146 64 14))',
+              fontWeight: 'var(--font-weight-semibold, 600)',
             },
-            // Italic text - serif font for verse quotes
+            // Italic text - uses display font for verse quotes
             'em': {
-              fontFamily: 'Spectral, Georgia, serif',
+              fontFamily: 'var(--font-family-display), Georgia, serif',
               fontStyle: 'italic',
             },
             // Paragraph spacing
@@ -72,15 +75,6 @@ export default {
             'a': {
               color: 'inherit',
               textDecoration: 'none',
-            },
-          },
-        },
-        // Dark mode typography (v1.12.0)
-        invert: {
-          css: {
-            'strong': {
-              color: 'rgb(253 230 138)', // amber-200 for dark mode
-              fontWeight: '600',
             },
           },
         },
