@@ -620,7 +620,7 @@ export default function Settings() {
                   <button
                     type="button"
                     onClick={() => setShowSubscribeOther(!showSubscribeOther)}
-                    className="flex items-center gap-1 text-xs text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
+                    className="flex items-center gap-1 text-xs text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-[var(--transition-color)]"
                   >
                     <svg
                       className={`w-3 h-3 transition-transform ${showSubscribeOther ? "rotate-90" : ""}`}

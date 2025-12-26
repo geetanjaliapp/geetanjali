@@ -206,7 +206,7 @@ export function VersePopover({
             <Link
               to={`/verses/${canonicalId}`}
               className="flex items-center justify-center gap-1.5 text-sm text-[var(--text-accent)]
-                         hover:text-[var(--text-accent-hover)] font-medium transition-colors
+                         hover:text-[var(--text-accent-hover)] font-medium transition-[var(--transition-color)]
                          focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)]
                          focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] rounded py-1"
               onClick={() => setIsOpen(false)}

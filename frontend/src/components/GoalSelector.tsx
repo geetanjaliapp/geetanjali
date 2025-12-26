@@ -62,7 +62,7 @@ function GoalCard({ goal, isSelected, onToggle }: GoalCardProps) {
       <div className="flex-1 min-w-0 text-left sm:text-center">
         <h3
           className={`
-            font-medium text-xs sm:text-sm leading-tight transition-colors truncate sm:whitespace-normal
+            font-medium text-xs sm:text-sm leading-tight transition-[var(--transition-color)] truncate sm:whitespace-normal
             ${
               isSelected
                 ? "text-[var(--badge-warm-text)]"

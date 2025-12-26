@@ -99,7 +99,7 @@ function CollapsibleSection({
       {/* Tappable header */}
       <button
         onClick={() => onToggle(id)}
-        className="w-full flex items-center justify-between p-4 text-left hover:bg-[var(--surface-warm-hover)] transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)]"
+        className="w-full flex items-center justify-between p-4 text-left hover:bg-[var(--surface-warm-hover)] transition-[var(--transition-color)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)]"
         aria-expanded={isExpanded}
         aria-controls={`section-${id}`}
       >
@@ -530,7 +530,7 @@ export function VerseFocus({
               <div className="text-center pt-2">
                 <Link
                   to={`/verses/${verse.canonical_id}`}
-                  className="inline-flex items-center gap-1.5 text-sm text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] transition-colors"
+                  className="inline-flex items-center gap-1.5 text-sm text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] transition-[var(--transition-color)]"
                 >
                   Explore this verse
                   <span aria-hidden="true">→</span>

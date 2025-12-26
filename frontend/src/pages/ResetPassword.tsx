@@ -117,7 +117,7 @@ export default function ResetPassword() {
             <div className="pt-4">
               <Link
                 to="/login"
-                className="w-full inline-flex justify-center py-2.5 sm:py-2 px-4 border border-transparent text-sm font-medium rounded-[var(--radius-button)] text-white bg-[var(--interactive-primary)] hover:opacity-90 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--focus-ring-offset)] focus:ring-[var(--border-focus)] transition-colors"
+                className="w-full inline-flex justify-center py-2.5 sm:py-2 px-4 border border-transparent text-sm font-medium rounded-[var(--radius-button)] text-white bg-[var(--interactive-primary)] hover:opacity-90 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--focus-ring-offset)] focus:ring-[var(--border-focus)] transition-[var(--transition-color)]"
               >
                 Sign In
               </Link>
@@ -214,7 +214,7 @@ export default function ResetPassword() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-2.5 sm:py-2 px-4 border border-transparent text-sm font-medium rounded-[var(--radius-button)] text-white bg-[var(--interactive-primary)] hover:opacity-90 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--focus-ring-offset)] focus:ring-[var(--border-focus)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="w-full flex justify-center py-2.5 sm:py-2 px-4 border border-transparent text-sm font-medium rounded-[var(--radius-button)] text-white bg-[var(--interactive-primary)] hover:opacity-90 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--focus-ring-offset)] focus:ring-[var(--border-focus)] disabled:opacity-50 disabled:cursor-not-allowed transition-[var(--transition-color)]"
               >
                 {loading ? "Resetting..." : "Reset Password"}
               </button>

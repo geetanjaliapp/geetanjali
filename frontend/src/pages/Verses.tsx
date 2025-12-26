@@ -1407,7 +1407,7 @@ export default function Verses() {
                                   ॰
                                 </span>
                               )}
-                              <span className="flex items-center gap-1.5 text-base font-medium text-[var(--text-accent)] group-hover:text-[var(--badge-warm-text)] transition-colors">
+                              <span className="flex items-center gap-1.5 text-base font-medium text-[var(--text-accent)] group-hover:text-[var(--badge-warm-text)] transition-[var(--transition-color)]">
                                 {searchLoadingMore ? (
                                   "Loading"
                                 ) : (
@@ -1629,7 +1629,7 @@ export default function Verses() {
                                   ॰
                                 </span>
                               )}
-                              <span className="flex items-center gap-1.5 text-base font-medium text-[var(--text-accent)] group-hover:text-[var(--badge-warm-text)] transition-colors">
+                              <span className="flex items-center gap-1.5 text-base font-medium text-[var(--text-accent)] group-hover:text-[var(--badge-warm-text)] transition-[var(--transition-color)]">
                                 {loadingMore ? (
                                   "Loading"
                                 ) : (

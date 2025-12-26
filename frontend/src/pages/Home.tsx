@@ -229,7 +229,7 @@ export default function Home() {
                     to={`/cases/${case_.id}`}
                     className="flex items-center justify-between gap-4 p-3 bg-[var(--surface-warm-subtle)] rounded-[var(--radius-button)] border border-[var(--border-warm)] hover:border-[var(--option-selected-border)] hover:bg-[var(--surface-warm)] transition-[var(--transition-all)] group"
                   >
-                    <h3 className="font-medium text-[var(--text-primary)] text-sm sm:text-base truncate group-hover:text-[var(--option-selected-text)] transition-colors min-w-0">
+                    <h3 className="font-medium text-[var(--text-primary)] text-sm sm:text-base truncate group-hover:text-[var(--option-selected-text)] transition-[var(--transition-color)] min-w-0">
                       {case_.title}
                     </h3>
                     <span className="text-xs text-[var(--text-muted)] shrink-0">

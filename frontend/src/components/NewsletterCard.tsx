@@ -121,7 +121,7 @@ export function NewsletterCard() {
             </svg>
           </div>
           <div className="flex-1 text-left">
-            <h3 className="font-semibold text-[var(--text-primary)] text-sm sm:text-base group-hover:text-[var(--text-accent)] transition-colors">
+            <h3 className="font-semibold text-[var(--text-primary)] text-sm sm:text-base group-hover:text-[var(--text-accent)] transition-[var(--transition-color)]">
               Daily Wisdom
             </h3>
             <p className="text-xs sm:text-sm text-[var(--text-secondary)]">
@@ -130,7 +130,7 @@ export function NewsletterCard() {
           </div>
           {/* Arrow */}
           <svg
-            className="w-5 h-5 text-[var(--text-muted)] group-hover:text-[var(--text-accent)] transition-colors shrink-0"
+            className="w-5 h-5 text-[var(--text-muted)] group-hover:text-[var(--text-accent)] transition-[var(--transition-color)] shrink-0"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"

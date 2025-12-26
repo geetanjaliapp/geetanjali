@@ -202,7 +202,7 @@ export const ModalHeader = forwardRef<
       <button
         type="button"
         onClick={onClose}
-        className="ml-4 p-1 rounded-[var(--radius-button)] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--interactive-ghost-hover-bg)] transition-[var(--transition-colors)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+        className="ml-4 p-1 rounded-[var(--radius-button)] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--interactive-ghost-hover-bg)] transition-[var(--transition-color)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
         aria-label="Close modal"
       >
         <svg

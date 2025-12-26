@@ -224,7 +224,7 @@ export function ShareBar({
             <button
               onClick={(e) => handleModeChange(e, "full")}
               disabled={isLoading}
-              className={`px-2 py-0.5 transition-colors disabled:opacity-50 ${compact ? "text-[10px]" : "text-xs"} ${
+              className={`px-2 py-0.5 transition-[var(--transition-color)] disabled:opacity-50 ${compact ? "text-[10px]" : "text-xs"} ${
                 currentMode === "full"
                   ? "bg-[var(--status-success-text)] text-white"
                   : "bg-[var(--surface-elevated)] text-[var(--status-success-text)] hover:bg-[var(--status-success-bg)]"
@@ -235,7 +235,7 @@ export function ShareBar({
             <button
               onClick={(e) => handleModeChange(e, "essential")}
               disabled={isLoading}
-              className={`px-2 py-0.5 border-l border-[var(--status-success-border)] transition-colors disabled:opacity-50 ${compact ? "text-[10px]" : "text-xs"} ${
+              className={`px-2 py-0.5 border-l border-[var(--status-success-border)] transition-[var(--transition-color)] disabled:opacity-50 ${compact ? "text-[10px]" : "text-xs"} ${
                 currentMode === "essential"
                   ? "bg-[var(--status-success-text)] text-white"
                   : "bg-[var(--surface-elevated)] text-[var(--status-success-text)] hover:bg-[var(--status-success-bg)]"
@@ -248,7 +248,7 @@ export function ShareBar({
             <button
               onClick={handleStopClick}
               disabled={isLoading}
-              className={`px-2 py-0.5 transition-colors disabled:opacity-50 bg-[var(--surface-elevated)] text-[var(--status-error-text)] hover:bg-[var(--status-error-bg)] ${compact ? "text-[10px]" : "text-xs"}`}
+              className={`px-2 py-0.5 transition-[var(--transition-color)] disabled:opacity-50 bg-[var(--surface-elevated)] text-[var(--status-error-text)] hover:bg-[var(--status-error-bg)] ${compact ? "text-[10px]" : "text-xs"}`}
             >
               Stop
             </button>

@@ -249,7 +249,7 @@ export default function NewsletterPreferences() {
                 <button
                   onClick={handleSave}
                   disabled={pageState === "saving" || !hasChanges}
-                  className="bg-[var(--interactive-primary)] hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold px-6 py-3 rounded-[var(--radius-button)] transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
+                  className="bg-[var(--interactive-primary)] hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold px-6 py-3 rounded-[var(--radius-button)] transition-[var(--transition-color)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
                 >
                   {pageState === "saving" ? "Saving..." : "Save Preferences"}
                 </button>
@@ -269,7 +269,7 @@ export default function NewsletterPreferences() {
           <div className="text-center mt-6">
             <Link
               to={`/n/unsubscribe/${token}`}
-              className="inline-flex items-center justify-center min-h-[44px] px-4 py-2 text-sm text-[var(--text-muted)] hover:text-[var(--status-error-text)] hover:bg-[var(--surface-muted)] active:bg-[var(--surface-muted)] rounded-[var(--radius-button)] transition-colors"
+              className="inline-flex items-center justify-center min-h-[44px] px-4 py-2 text-sm text-[var(--text-muted)] hover:text-[var(--status-error-text)] hover:bg-[var(--surface-muted)] active:bg-[var(--surface-muted)] rounded-[var(--radius-button)] transition-[var(--transition-color)]"
             >
               Unsubscribe from Daily Wisdom
             </Link>

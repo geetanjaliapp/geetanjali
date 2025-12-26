@@ -437,7 +437,7 @@ export default function VerseDetail() {
                 {/* Reading Mode link - subtle, non-intrusive */}
                 <Link
                   to={`/read?c=${verse.chapter}&v=${verse.verse}`}
-                  className="inline-block mt-3 text-xs text-[var(--text-accent-muted)] hover:text-[var(--text-accent)] transition-colors"
+                  className="inline-block mt-3 text-xs text-[var(--text-accent-muted)] hover:text-[var(--text-accent)] transition-[var(--transition-color)]"
                 >
                   Read in context →
                 </Link>
@@ -449,7 +449,7 @@ export default function VerseDetail() {
               <div className="text-center mb-4 sm:mb-6">
                 <button
                   onClick={() => toggleSection("iast")}
-                  className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--text-accent-muted)] hover:text-[var(--text-accent)] transition-colors mb-2"
+                  className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--text-accent-muted)] hover:text-[var(--text-accent)] transition-[var(--transition-color)] mb-2"
                   aria-expanded={sectionPrefs.iast}
                 >
                   <span>IAST</span>
@@ -612,7 +612,7 @@ export default function VerseDetail() {
               {/* Collapsible Header */}
               <button
                 onClick={() => setShowAllTranslations(!showAllTranslations)}
-                className="w-full flex items-center justify-between p-4 sm:p-6 lg:p-8 text-left hover:bg-[var(--surface-muted)] transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)]"
+                className="w-full flex items-center justify-between p-4 sm:p-6 lg:p-8 text-left hover:bg-[var(--surface-muted)] transition-[var(--transition-color)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)]"
                 aria-expanded={showAllTranslations}
                 aria-controls="more-translations-content"
               >

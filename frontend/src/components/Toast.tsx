@@ -100,7 +100,7 @@ export function Toast({
           <Link
             to={linkTo}
             className="text-[var(--text-accent)] font-medium text-base sm:text-sm
-                       hover:text-[var(--text-accent-hover)] transition-colors whitespace-nowrap"
+                       hover:text-[var(--text-accent-hover)] transition-[var(--transition-color)] whitespace-nowrap"
             onClick={handleDismiss}
           >
             {linkText}

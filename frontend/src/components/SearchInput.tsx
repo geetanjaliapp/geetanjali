@@ -322,7 +322,7 @@ export const SearchInput = forwardRef<SearchInputHandle, SearchInputProps>(
                         id={`search-item-${index}`}
                         type="button"
                         onClick={() => handleSelect(query)}
-                        className={`w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 transition-colors ${
+                        className={`w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 transition-[var(--transition-color)] ${
                           index === selectedIndex
                             ? "bg-[var(--menu-item-selected-bg)] text-[var(--menu-item-selected-text)]"
                             : "text-[var(--text-secondary)] hover:bg-[var(--menu-item-hover-bg)]"
@@ -363,7 +363,7 @@ export const SearchInput = forwardRef<SearchInputHandle, SearchInputProps>(
                         id={`search-item-${index}`}
                         type="button"
                         onClick={() => handleSelect(example.query)}
-                        className={`w-full px-4 py-2.5 text-left text-sm flex items-center justify-between gap-3 transition-colors ${
+                        className={`w-full px-4 py-2.5 text-left text-sm flex items-center justify-between gap-3 transition-[var(--transition-color)] ${
                           index === selectedIndex
                             ? "bg-[var(--menu-item-selected-bg)] text-[var(--menu-item-selected-text)]"
                             : "text-[var(--text-secondary)] hover:bg-[var(--menu-item-hover-bg)]"

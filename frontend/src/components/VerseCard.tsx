@@ -337,7 +337,7 @@ export const VerseCard = memo(function VerseCard({
           <div className="text-center pt-4 sm:pt-6">
             <Link
               to={`/verses/${verse.canonical_id}`}
-              className="inline-block transition-colors text-[var(--text-accent-muted)] hover:text-[var(--text-accent)] text-xs sm:text-sm font-medium"
+              className="inline-block transition-[var(--transition-color)] text-[var(--text-accent-muted)] hover:text-[var(--text-accent)] text-xs sm:text-sm font-medium"
             >
               ॥ {formatVerseRef(verse)} ॥
             </Link>

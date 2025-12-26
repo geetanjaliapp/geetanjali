@@ -642,7 +642,7 @@ export default function Consultations() {
                                   e.stopPropagation();
                                   setShareBarOpen(shareBarOpen === case_.id ? null : case_.id);
                                 }}
-                                className="px-3 py-1.5 text-xs font-medium rounded-[var(--radius-button)] flex items-center gap-1.5 text-[var(--status-success-text)] bg-[var(--status-success-bg)] hover:bg-[var(--status-success-bg)] transition-colors"
+                                className="px-3 py-1.5 text-xs font-medium rounded-[var(--radius-button)] flex items-center gap-1.5 text-[var(--status-success-text)] bg-[var(--status-success-bg)] hover:bg-[var(--status-success-bg)] transition-[var(--transition-color)]"
                               >
                                 <svg
                                   className="w-3.5 h-3.5"
@@ -740,7 +740,7 @@ export default function Consultations() {
                             ॰
                           </span>
                         )}
-                        <span className="flex items-center gap-1.5 text-base font-medium text-[var(--text-accent)] group-hover:text-[var(--badge-warm-text)] transition-colors">
+                        <span className="flex items-center gap-1.5 text-base font-medium text-[var(--text-accent)] group-hover:text-[var(--badge-warm-text)] transition-[var(--transition-color)]">
                           {loadingMore ? (
                             "Loading"
                           ) : (

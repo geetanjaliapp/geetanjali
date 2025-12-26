@@ -118,7 +118,7 @@ export function VerifyEmailBanner() {
             onClick={handleDismiss}
             className="p-2 -m-1.5 text-[var(--text-muted)]
                        hover:text-[var(--text-secondary)]
-                       rounded transition-colors
+                       rounded transition-[var(--transition-color)]
                        focus:outline-hidden focus:ring-1 focus:ring-[var(--border-focus)] focus:ring-offset-1 focus:ring-offset-[var(--focus-ring-offset)]"
             aria-label="Dismiss"
           >

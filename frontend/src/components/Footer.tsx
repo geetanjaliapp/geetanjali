@@ -16,19 +16,19 @@ export function Footer() {
           <div className="flex justify-center gap-4 text-xs text-[var(--text-secondary)]">
             <Link
               to="/"
-              className="font-medium text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] transition-colors"
+              className="font-medium text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] transition-[var(--transition-color)]"
             >
               Geetanjali
             </Link>
             <Link
               to="/about"
-              className="hover:text-[var(--text-accent)] transition-colors"
+              className="hover:text-[var(--text-accent)] transition-[var(--transition-color)]"
             >
               About
             </Link>
             <Link
               to="/about#contact"
-              className="hover:text-[var(--text-accent)] transition-colors"
+              className="hover:text-[var(--text-accent)] transition-[var(--transition-color)]"
             >
               Contact
             </Link>
@@ -36,7 +36,7 @@ export function Footer() {
               href="https://github.com/geetanjaliapp/geetanjali"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-[var(--text-accent)] transition-colors"
+              className="hover:text-[var(--text-accent)] transition-[var(--transition-color)]"
             >
               GitHub
             </a>
@@ -55,7 +55,7 @@ export function Footer() {
             {new Date().getFullYear()}{" "}
             <Link
               to="/"
-              className="hover:text-[var(--text-accent)] transition-colors"
+              className="hover:text-[var(--text-accent)] transition-[var(--transition-color)]"
             >
               Geetanjali
             </Link>
@@ -68,19 +68,19 @@ export function Footer() {
           <div className="flex items-center gap-4">
             <Link
               to="/"
-              className="font-medium text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] transition-colors"
+              className="font-medium text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] transition-[var(--transition-color)]"
             >
               Geetanjali
             </Link>
             <Link
               to="/about"
-              className="hover:text-[var(--text-accent)] transition-colors"
+              className="hover:text-[var(--text-accent)] transition-[var(--transition-color)]"
             >
               About
             </Link>
             <Link
               to="/about#contact"
-              className="hover:text-[var(--text-accent)] transition-colors"
+              className="hover:text-[var(--text-accent)] transition-[var(--transition-color)]"
             >
               Contact
             </Link>
@@ -88,7 +88,7 @@ export function Footer() {
               href="https://github.com/geetanjaliapp/geetanjali"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-[var(--text-accent)] transition-colors"
+              className="hover:text-[var(--text-accent)] transition-[var(--transition-color)]"
             >
               GitHub
             </a>
@@ -109,7 +109,7 @@ export function Footer() {
             {new Date().getFullYear()}{" "}
             <Link
               to="/"
-              className="hover:text-[var(--text-accent)] transition-colors"
+              className="hover:text-[var(--text-accent)] transition-[var(--transition-color)]"
             >
               Geetanjali
             </Link>
