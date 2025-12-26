@@ -371,51 +371,122 @@ ease-in-out                    /* Natural motion */
 
 ## Dark Mode Guidelines
 
-Dark mode is a first-class feature, not a retrofit. Every component should be designed with both themes in mind from the start.
+Dark mode is a first-class feature, not a retrofit. With the token system (v1.16.0), dark mode is handled automatically via CSS custom property overrides.
 
 ### Principles
 
-1. **Always pair light and dark** — Every color class needs its `dark:` counterpart
-2. **Shift, don't invert** — Dark mode isn't just inverted colors; adjust for visual weight
-3. **Maintain hierarchy** — Text levels (primary → muted) should feel equivalent in both modes
+1. **Use semantic tokens** — `--text-primary`, `--surface-warm`, not raw colors
+2. **No `dark:` prefixes** — Token values change automatically in `.dark` context
+3. **Shift, don't invert** — Dark mode isn't just inverted colors; tokens are tuned for visual weight
 4. **Test both modes** — Verify readability and aesthetics in light and dark before shipping
 
-### Common Patterns
+### Token-Based Approach (v1.16.0)
 
-| Element | Light | Dark |
-|---------|-------|------|
-| Page background | `from-orange-50 to-red-50` | `dark:from-gray-900 dark:to-gray-900` |
-| Card background | `bg-white` | `dark:bg-gray-800` |
-| Primary text | `text-gray-900` | `dark:text-gray-100` |
-| Secondary text | `text-gray-600` | `dark:text-gray-400` |
-| Muted text | `text-gray-500` | `dark:text-gray-400` (not gray-500) |
-| Borders | `border-gray-200` | `dark:border-gray-700` |
-| Warm borders | `border-amber-200` | `dark:border-gray-600` |
-| Focus ring offset | `focus:ring-offset-2` | `dark:focus:ring-offset-gray-900` |
+Components use semantic tokens that automatically adapt to dark mode:
 
-### Opacity for Semantic Backgrounds
+```tsx
+// ✅ Correct - uses semantic tokens
+className="bg-[var(--surface-warm)] text-[var(--text-primary)] border-[var(--border-default)]"
 
-Use opacity modifiers for colored backgrounds in dark mode to avoid harsh contrast:
+// ❌ Avoid - hardcoded colors require dark: prefixes
+className="bg-amber-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+```
+
+### Common Token Mappings
+
+| Purpose | Token | Light Value | Dark Value |
+|---------|-------|-------------|------------|
+| Page background | `--surface-base` | gray-50 | gray-900 |
+| Card background | `--surface-warm` | amber-50 tint | gray-800 + amber tint |
+| Primary text | `--text-primary` | gray-900 | gray-100 |
+| Secondary text | `--text-secondary` | gray-600 | gray-400 |
+| Muted text | `--text-muted` | gray-400 | gray-600 |
+| Borders | `--border-default` | gray-200 | gray-700 |
+| Focus ring | `--focus-ring` | primary-500 | primary-400 |
+| Focus offset | `--focus-ring-offset` | white | gray-900 |
+
+### Status Colors
+
+Status tokens also adapt automatically:
+
+| Status | Token | Light | Dark |
+|--------|-------|-------|------|
+| Error | `--status-error-bg` | red-50 | red-900 |
+| Success | `--status-success-bg` | green-50 | green-900 |
+| Warning | `--status-warning-bg` | yellow-100 | yellow-900 |
+| Info | `--status-info-bg` | blue-100 | blue-900/40 |
+
+## Theming System (v1.16.0)
+
+The design system uses a 3-tier CSS custom property architecture enabling full theming without code changes.
+
+### Token Architecture
 
 ```
-Light: bg-purple-50        →  Dark: dark:bg-purple-900/20
-Light: bg-green-100        →  Dark: dark:bg-green-900/40
-Light: bg-blue-50          →  Dark: dark:bg-blue-900/30
-Light: bg-red-50           →  Dark: dark:bg-red-900/20
+┌─────────────────────────────────────────────────────────────────────┐
+│  Tier 1: PRIMITIVES (frontend/src/styles/tokens/primitives.css)    │
+│  └─ Raw scales: color palettes, font families, spacing, radii      │
+│  └─ Customizable foundation for themes                              │
+├─────────────────────────────────────────────────────────────────────┤
+│  Tier 2: SEMANTIC (frontend/src/styles/tokens/semantic.css)        │
+│  └─ Purpose-driven: --text-primary, --surface-elevated             │
+│  └─ Light mode defaults + .dark {} overrides                        │
+├─────────────────────────────────────────────────────────────────────┤
+│  Tier 3: DERIVED (frontend/src/styles/tokens/derived.css)          │
+│  └─ State-specific: hover, focus, disabled                          │
+│  └─ Reduced motion preferences                                       │
+└─────────────────────────────────────────────────────────────────────┘
 ```
+
+### Using Tokens in Components
+
+Components use semantic tokens via Tailwind's arbitrary value syntax:
+
+```tsx
+// Colors - use semantic tokens
+className="bg-[var(--surface-warm)] text-[var(--text-primary)]"
+className="border-[var(--border-default)]"
+
+// Fonts - use Tailwind utilities (reference tokens internally)
+className="font-serif"      // Uses --font-family-display
+className="font-sanskrit"   // Uses --font-family-sanskrit
+className="font-body"       // Uses --font-family-body
+```
+
+### Dark Mode
+
+Dark mode is handled automatically via CSS token overrides. No `dark:` prefixes in components:
+
+```css
+/* semantic.css */
+:root {
+  --surface-warm: var(--color-warm-50);      /* Light: amber-50 */
+  --text-primary: var(--color-neutral-900);  /* Light: gray-900 */
+}
+
+.dark {
+  --surface-warm: color-mix(in srgb, var(--color-warm-900) 15%, var(--color-neutral-800));
+  --text-primary: var(--color-neutral-100);  /* Dark: gray-100 */
+}
+```
+
+### Token Categories
+
+| Category | Primitives | Semantic | Usage |
+|----------|------------|----------|-------|
+| **Colors** | `--color-primary-600` | `--text-primary` | All colors |
+| **Typography** | `--font-family-display` | `--font-heading` | Font styles |
+| **Spacing** | `--spacing-4` | `--spacing-card` | Margins, padding |
+| **Radius** | `--radius-lg` | `--radius-button` | Border radius |
+| **Shadows** | `--shadow-md` | `--shadow-card` | Elevation |
+| **Motion** | `--duration-200` | `--transition-normal` | Animations |
 
 ### Checklist for New Components
 
-Before considering a component complete:
-
-- [ ] All backgrounds have `dark:` variants
-- [ ] All text colors have `dark:` variants with appropriate contrast
-- [ ] All borders have `dark:` variants
-- [ ] Focus states include `dark:focus:ring-offset-gray-900`
-- [ ] Hover states work in both modes
-- [ ] Placeholder text is visible in dark mode
-- [ ] Semantic colors (success, error, info) have dark variants
-- [ ] Component tested visually in both themes
+- [ ] Use semantic tokens (`--surface-*`, `--text-*`) not primitives
+- [ ] No `dark:` prefixes - dark mode via token overrides
+- [ ] Use `--focus-ring` and `--focus-ring-offset` for focus states
+- [ ] Test in both light and dark themes
 
 ## Implementation Notes
 
@@ -425,28 +496,28 @@ Google Fonts with `font-display: swap`:
 
 ```html
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="...Spectral|Source+Sans+Pro|Noto+Serif+Devanagari" rel="stylesheet">
+<link href="...Spectral|Source+Sans+3|Noto+Serif+Devanagari" rel="stylesheet">
 ```
 
 ### Tailwind Config
 
+Font utilities reference CSS custom properties for theming:
+
 ```js
 fontFamily: {
-  heading: ['Spectral', 'serif'],
-  body: ['Source Sans Pro', 'sans-serif'],
-  sanskrit: ['Noto Serif Devanagari', 'serif'],
+  heading: ['var(--font-family-display)', 'Georgia', 'serif'],
+  body: ['var(--font-family-body)', 'system-ui', 'sans-serif'],
+  sanskrit: ['var(--font-family-sanskrit)', 'serif'],
+  mono: ['var(--font-family-mono)', 'ui-monospace', 'monospace'],
 }
 ```
 
-### CSS Variables
+### CSS Token Files
 
-Most design tokens live in Tailwind classes for consistency and tree-shaking. CSS custom properties are used only for values that need runtime access (animations):
+Located in `frontend/src/styles/tokens/`:
 
-```css
-:root {
-  --color-amber-400: 251 191 36;   /* Warm shimmer effects */
-  --color-orange-400: 251 146 60;  /* Processing glow effects */
-}
-```
-
-These RGB values enable opacity modifiers in CSS animations: `rgb(var(--color-amber-400) / 0.2)`
+| File | Purpose | Customizable |
+|------|---------|--------------|
+| `primitives.css` | Raw design scales | Yes - theme foundation |
+| `semantic.css` | Contextual tokens | Rarely - stable API |
+| `derived.css` | State tokens | Rarely - stable API |
