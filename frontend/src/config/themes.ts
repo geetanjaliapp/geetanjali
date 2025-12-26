@@ -1,5 +1,5 @@
 /**
- * Built-in Theme Configurations (v1.17.0)
+ * Built-in Theme Configurations (v1.17.1)
  *
  * Four distinct theme personalities for the Geetanjali app:
  * - Geetanjali (default): Warm amber/orange - ancient manuscript feel
@@ -7,8 +7,14 @@
  * - Forest: Emerald/sage - grounded, natural peace
  * - High Contrast: Maximum accessibility
  *
- * Each theme defines mode-specific colors for optimal appearance
- * in both light and dark modes with WCAG AA compliant contrast.
+ * IMPORTANT: Neutral scale mapping for text readability:
+ * - Light mode: neutral-900 = dark text, neutral-50 = light background
+ * - Dark mode: neutral-100 = LIGHT text, neutral-50 = dark background
+ *
+ * The semantic layer expects:
+ * - --text-primary uses neutral-900 (light) / neutral-100 (dark)
+ * - --text-secondary uses neutral-600 (light) / neutral-400 (dark)
+ * - --text-muted uses neutral-400 (light) / neutral-600 (dark)
  */
 
 import type { ThemeConfig } from "../types/theme";
@@ -26,6 +32,7 @@ export const defaultTheme: ThemeConfig = {
 /**
  * High Contrast theme
  * Maximum accessibility with strong contrast ratios
+ * Uses pure black/white for maximum clarity
  */
 export const highContrastTheme: ThemeConfig = {
   id: "high-contrast",
@@ -37,35 +44,41 @@ export const highContrastTheme: ThemeConfig = {
         50: "#fff7ed",
         100: "#ffedd5",
         400: "#fb923c",
-        500: "#c2410c",
-        600: "#9a3412",
-        700: "#7c2d12",
+        500: "#ea580c",
+        600: "#c2410c",
+        700: "#9a3412",
       },
       warm: {
         50: "#ffffff",
         100: "#fafafa",
         200: "#f5f5f5",
       },
+      // Light mode: dark values at high numbers (for text)
       neutral: {
         50: "#ffffff",
         100: "#fafafa",
         200: "#f5f5f5",
-        400: "#737373",
-        500: "#525252",
-        600: "#404040",
-        800: "#171717",
-        900: "#000000",
+        300: "#e5e5e5",
+        400: "#525252", // text-muted: medium-dark
+        500: "#404040", // text-tertiary: darker
+        600: "#262626", // text-secondary: very dark
+        700: "#171717",
+        800: "#0a0a0a",
+        900: "#000000", // text-primary: black
       },
       accent: {
+        200: "#fed7aa",
         400: "#fb923c",
         500: "#f97316",
         600: "#ea580c",
+        700: "#c2410c",
+        800: "#9a3412",
+        900: "#7c2d12",
       },
     },
     dark: {
       primary: {
-        50: "#431407",
-        100: "#7c2d12",
+        300: "#fdba74",
         400: "#fb923c",
         500: "#f97316",
         600: "#ea580c",
@@ -74,20 +87,22 @@ export const highContrastTheme: ThemeConfig = {
         50: "#0a0a0a",
         100: "#171717",
         200: "#262626",
-        800: "#e5e5e5",
-        900: "#fafafa",
       },
+      // Dark mode: LIGHT values at LOW numbers (for text on dark bg)
       neutral: {
-        50: "#000000",
-        100: "#0a0a0a",
-        200: "#171717",
-        400: "#a3a3a3",
-        500: "#d4d4d4",
-        600: "#e5e5e5",
-        800: "#f5f5f5",
-        900: "#ffffff",
+        50: "#000000",  // surface-base: pure black
+        100: "#ffffff", // text-primary: pure white
+        200: "#fafafa",
+        300: "#f5f5f5",
+        400: "#d4d4d4", // text-secondary: light gray
+        500: "#a3a3a3", // text-tertiary: medium gray
+        600: "#737373", // text-muted: medium-dark gray
+        700: "#404040",
+        800: "#262626", // surface-elevated
+        900: "#171717",
       },
       accent: {
+        200: "#fed7aa",
         400: "#fb923c",
         500: "#f97316",
         600: "#ea580c",
@@ -124,66 +139,57 @@ export const serenityTheme: ThemeConfig = {
         100: "#f3e8ff",
         200: "#e9d5ff",
         300: "#d8b4fe",
-        400: "#c084fc",
-        500: "#a855f7",
-        600: "#9333ea",
-        700: "#7e22ce",
-        800: "#6b21a8",
-        900: "#581c87",
       },
+      // Light mode: dark text colors at high numbers
       neutral: {
-        50: "#faf8fc",
+        50: "#faf8fc",  // bg: soft lavender white
         100: "#f4f0f7",
         200: "#ebe5f0",
         300: "#d4c9de",
-        400: "#9f8fb3",
-        500: "#6b5a7d",
-        600: "#4c3d5c",
-        800: "#2e2438",
-        900: "#1e1527",
+        400: "#78716c", // text-muted: warm gray
+        500: "#57534e", // text-tertiary: darker warm gray
+        600: "#44403c", // text-secondary: dark warm
+        700: "#292524",
+        800: "#1c1917",
+        900: "#0c0a09", // text-primary: near black
       },
       accent: {
-        50: "#fdf2f8",
-        100: "#fce7f3",
+        200: "#fbcfe8",
         400: "#f472b6",
         500: "#ec4899",
         600: "#db2777",
         700: "#be185d",
+        800: "#9d174d",
+        900: "#831843",
       },
     },
     dark: {
       primary: {
-        50: "#2e1065",
-        100: "#3b0764",
-        200: "#581c87",
-        300: "#7e22ce",
-        400: "#a855f7",
-        500: "#c084fc",
-        600: "#d8b4fe",
-        700: "#e9d5ff",
-        800: "#f3e8ff",
-        900: "#faf5ff",
+        300: "#d8b4fe",
+        400: "#c084fc",
+        500: "#a855f7",
+        600: "#9333ea",
       },
       warm: {
-        50: "#1e1527",
-        100: "#2e2438",
+        50: "#1c1917",
+        100: "#292524",
         200: "#3d3350",
-        700: "#d8b4fe",
-        800: "#e9d5ff",
-        900: "#f3e8ff",
       },
+      // Dark mode: LIGHT text colors at LOW numbers
       neutral: {
-        50: "#1a1523",
-        100: "#221c2e",
-        200: "#2e2639",
-        300: "#3d3350",
-        400: "#8b7fa0",
-        500: "#a89ebb",
-        600: "#c5bdd3",
-        800: "#ebe5f0",
-        900: "#f8f6fa",
+        50: "#1a1523",  // surface-base: dark purple
+        100: "#f5f5f4", // text-primary: light stone
+        200: "#e7e5e4",
+        300: "#d6d3d1",
+        400: "#a8a29e", // text-secondary: medium stone
+        500: "#78716c", // text-tertiary: darker stone
+        600: "#57534e", // text-muted: dark stone
+        700: "#3d3350",
+        800: "#292524", // surface-elevated: dark
+        900: "#1c1917",
       },
       accent: {
+        200: "#fbcfe8",
         400: "#f472b6",
         500: "#ec4899",
         600: "#db2777",
@@ -220,66 +226,57 @@ export const forestTheme: ThemeConfig = {
         100: "#dcfce7",
         200: "#bbf7d0",
         300: "#86efac",
-        400: "#4ade80",
-        500: "#22c55e",
-        600: "#16a34a",
-        700: "#15803d",
-        800: "#166534",
-        900: "#14532d",
       },
+      // Light mode: dark text colors at high numbers
       neutral: {
-        50: "#f7faf8",
+        50: "#f7faf8",  // bg: soft sage white
         100: "#ecf4ef",
         200: "#dce8e0",
         300: "#b8d4c0",
-        400: "#6b9a78",
-        500: "#4a7258",
-        600: "#3a5a46",
-        800: "#1e3528",
-        900: "#14261b",
+        400: "#6b7280", // text-muted: gray
+        500: "#4b5563", // text-tertiary: darker gray
+        600: "#374151", // text-secondary: dark gray
+        700: "#1f2937",
+        800: "#111827",
+        900: "#030712", // text-primary: near black
       },
       accent: {
-        50: "#f0fdfa",
-        100: "#ccfbf1",
+        200: "#99f6e4",
         400: "#2dd4bf",
         500: "#14b8a6",
         600: "#0d9488",
         700: "#0f766e",
+        800: "#115e59",
+        900: "#134e4a",
       },
     },
     dark: {
       primary: {
-        50: "#022c22",
-        100: "#064e3b",
-        200: "#065f46",
-        300: "#047857",
-        400: "#10b981",
-        500: "#34d399",
-        600: "#6ee7b7",
-        700: "#a7f3d0",
-        800: "#d1fae5",
-        900: "#ecfdf5",
+        300: "#6ee7b7",
+        400: "#34d399",
+        500: "#10b981",
+        600: "#059669",
       },
       warm: {
         50: "#14261b",
         100: "#1e3528",
         200: "#274536",
-        700: "#86efac",
-        800: "#bbf7d0",
-        900: "#dcfce7",
       },
+      // Dark mode: LIGHT text colors at LOW numbers
       neutral: {
-        50: "#0f1f17",
-        100: "#162821",
-        200: "#1e352b",
-        300: "#274536",
-        400: "#5a8a6a",
-        500: "#7cb091",
-        600: "#a3c9b3",
-        800: "#dce8e0",
-        900: "#f0f7f2",
+        50: "#0f1f17",  // surface-base: deep forest
+        100: "#f3f4f6", // text-primary: light gray
+        200: "#e5e7eb",
+        300: "#d1d5db",
+        400: "#9ca3af", // text-secondary: medium gray
+        500: "#6b7280", // text-tertiary: darker gray
+        600: "#4b5563", // text-muted: dark gray
+        700: "#274536",
+        800: "#1e352b", // surface-elevated: forest dark
+        900: "#162821",
       },
       accent: {
+        200: "#99f6e4",
         400: "#2dd4bf",
         500: "#14b8a6",
         600: "#0d9488",
