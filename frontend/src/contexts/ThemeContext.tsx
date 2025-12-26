@@ -26,7 +26,7 @@ import {
   saveThemeToStorage,
 } from "../utils/theme";
 import { getThemeById, builtInThemes } from "../config/themes";
-import { FONT_FAMILIES, DEFAULT_FONT_FAMILY } from "../config/fonts";
+import { THEME_FONTS, DEFAULT_FONT_FAMILY } from "../config/fonts";
 import { STORAGE_KEYS } from "../lib/storage";
 
 // Theme mode options
@@ -126,9 +126,9 @@ function applyThemeMode(resolved: ResolvedTheme) {
   }
 }
 
-// Apply font family to document via CSS custom properties
-function applyFontFamily(family: FontFamily) {
-  const styleId = "font-family-override";
+// Apply theme-specific fonts to document
+function applyThemeFonts(themeId: string) {
+  const styleId = "theme-fonts";
   let style = document.getElementById(styleId) as HTMLStyleElement | null;
 
   if (!style) {
@@ -137,13 +137,29 @@ function applyFontFamily(family: FontFamily) {
     document.head.appendChild(style);
   }
 
-  const fonts = FONT_FAMILIES[family];
+  const fonts = THEME_FONTS[themeId] || THEME_FONTS.default;
   style.textContent = `
     :root {
       --font-family-display: ${fonts.display};
       --font-family-body: ${fonts.body};
     }
   `;
+}
+
+/**
+ * Apply user font preference
+ *
+ * Note: This was previously used to override theme fonts, but now
+ * each theme has its own distinct typography. The user font preference
+ * (serif/sans/mixed) has been retired in favor of theme-driven fonts.
+ *
+ * Keeping this function for backwards compatibility - it now does nothing
+ * as font preferences are handled entirely by applyThemeFonts.
+ */
+function applyFontFamily(_family: FontFamily) {
+  // Font preferences are now handled by theme-specific fonts
+  // This function is kept for backwards compatibility
+  // Theme fonts are applied via applyThemeFonts() when theme changes
 }
 
 interface ThemeProviderProps {
@@ -181,6 +197,10 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   const setCustomTheme = useCallback((newTheme: ThemeConfig | null) => {
     setCustomThemeState(newTheme);
     applyCustomTheme(newTheme);
+
+    // Apply theme-specific fonts
+    const themeId = newTheme?.id ?? "default";
+    applyThemeFonts(themeId);
 
     // Persist
     if (newTheme) {
@@ -246,9 +266,11 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     applyThemeMode(resolvedTheme);
   }, [resolvedTheme]);
 
-  // Apply custom theme on mount
+  // Apply custom theme and theme fonts on mount
   useEffect(() => {
     applyCustomTheme(customTheme);
+    const themeId = customTheme?.id ?? "default";
+    applyThemeFonts(themeId);
   }, [customTheme]);
 
   // Apply font family on mount

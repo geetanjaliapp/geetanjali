@@ -40,12 +40,21 @@ export const defaultTheme: ThemeConfig = {
  * Sanskrit for "thread" or "discourse" - sacred aphoristic texts.
  * Clean ink on pristine paper, maximum readability.
  * Pure black/white with slate accents for subtle differentiation.
+ * Sharp, precise edges reflect scholarly clarity.
  */
 export const sutraTheme: ThemeConfig = {
   id: "sutra",
   name: "Sutra",
   description: "Ink on paper, timeless clarity",
   defaultFontFamily: "serif",
+  // Crisp, angular corners for scholarly precision
+  radius: {
+    sm: "0.125rem",
+    md: "0.25rem",
+    lg: "0.375rem",
+    xl: "0.5rem",
+    "2xl": "0.625rem",
+  },
   modeColors: {
     light: {
       // Slate primary for subtle interactions
@@ -159,12 +168,21 @@ export const sutraTheme: ThemeConfig = {
  * Twilight hour at a meditation hall, soft violet candlelight.
  * Deep contemplative purples with rose incense undertones.
  * Perfect for evening reading and peaceful reflection.
+ * Soft, flowing curves evoke gentle meditation.
  */
 export const serenityTheme: ThemeConfig = {
   id: "serenity",
   name: "Serenity",
   description: "Twilight violet, contemplative calm",
   defaultFontFamily: "mixed",
+  // Softer, more rounded corners for calming effect
+  radius: {
+    sm: "0.25rem",
+    md: "0.5rem",
+    lg: "0.75rem",
+    xl: "1rem",
+    "2xl": "1.25rem",
+  },
   modeColors: {
     light: {
       // Deep violet primary
@@ -278,12 +296,21 @@ export const serenityTheme: ThemeConfig = {
  * Early morning in a sacred grove, filtered sunlight through leaves.
  * Fresh emerald with sage undertones, grounding and alive.
  * Perfect for extended reading sessions and focused study.
+ * Organic, natural curves like leaves and branches.
  */
 export const forestTheme: ThemeConfig = {
   id: "forest",
   name: "Forest",
   description: "Sacred grove, morning dew freshness",
   defaultFontFamily: "sans",
+  // Natural, organic rounding - not too sharp, not too soft
+  radius: {
+    sm: "0.1875rem",
+    md: "0.375rem",
+    lg: "0.5rem",
+    xl: "0.75rem",
+    "2xl": "1rem",
+  },
   modeColors: {
     light: {
       // Rich emerald primary
