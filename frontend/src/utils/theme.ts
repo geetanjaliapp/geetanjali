@@ -122,9 +122,12 @@ function colorScaleToCss(name: string, scale: ColorScale): string[] {
 
 /**
  * Generate CSS custom properties from contrast colors
+ * Includes primitive-level and semantic-level overrides
  */
 function contrastColorsToCss(contrast: ContrastColors): string[] {
   const properties: string[] = [];
+
+  // Primitive-level overrides
   if (contrast.onPrimary) {
     properties.push(`--color-on-primary: ${contrast.onPrimary};`);
   }
@@ -140,6 +143,30 @@ function contrastColorsToCss(contrast: ContrastColors): string[] {
   if (contrast.surfacePure) {
     properties.push(`--color-surface-pure: ${contrast.surfacePure};`);
   }
+
+  // Semantic-level overrides (for themes with inverted color scales)
+  if (contrast.interactivePrimary) {
+    properties.push(`--interactive-primary: ${contrast.interactivePrimary};`);
+  }
+  if (contrast.interactivePrimaryHover) {
+    properties.push(`--interactive-primary-hover: ${contrast.interactivePrimaryHover};`);
+  }
+  if (contrast.interactivePrimaryActive) {
+    properties.push(`--interactive-primary-active: ${contrast.interactivePrimaryActive};`);
+  }
+  if (contrast.textLink) {
+    properties.push(`--text-link: ${contrast.textLink};`);
+  }
+  if (contrast.textLinkHover) {
+    properties.push(`--text-link-hover: ${contrast.textLinkHover};`);
+  }
+  if (contrast.interactiveGhostText) {
+    properties.push(`--interactive-ghost-text: ${contrast.interactiveGhostText};`);
+  }
+  if (contrast.borderFocus) {
+    properties.push(`--border-focus: ${contrast.borderFocus};`);
+  }
+
   return properties;
 }
 

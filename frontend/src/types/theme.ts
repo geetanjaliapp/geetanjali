@@ -70,6 +70,7 @@ export interface ThemeRadius {
 
 /**
  * Contrast colors for text on colored backgrounds
+ * Also supports semantic-level color overrides for themes with inverted scales
  */
 export interface ContrastColors {
   /** Text color on primary-colored backgrounds (buttons, badges) */
@@ -80,6 +81,22 @@ export interface ContrastColors {
   onWarm?: string;
   /** Pure surface color (white in light mode, dark in dark mode) */
   surfacePure?: string;
+
+  /* Semantic-level overrides for themes with inverted color scales */
+  /** Override primary button background color */
+  interactivePrimary?: string;
+  /** Override primary button hover background */
+  interactivePrimaryHover?: string;
+  /** Override primary button active background */
+  interactivePrimaryActive?: string;
+  /** Override primary link color */
+  textLink?: string;
+  /** Override primary link hover color */
+  textLinkHover?: string;
+  /** Override ghost button text color */
+  interactiveGhostText?: string;
+  /** Override focus ring color */
+  borderFocus?: string;
 }
 
 /**

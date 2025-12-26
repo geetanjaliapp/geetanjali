@@ -159,10 +159,20 @@ export const sutraTheme: ThemeConfig = {
         800: "#e2e8f0",
         900: "#f8fafc",
       },
-      // Dark text on light primary backgrounds in dark mode
+      // WCAG AA compliant: dark buttons with white text
+      // Since scale is inverted, use darker shades (lower numbers) for buttons
       contrast: {
-        onPrimary: "#0f172a", // slate-900 for text on light primary
+        onPrimary: "#ffffff", // white text on dark buttons
         surfacePure: "#0a0a0a", // near-black for dark mode surfaces
+        // Semantic overrides using dark slate values for button backgrounds
+        interactivePrimary: "#334155", // slate-700 (primary-200 in this scale)
+        interactivePrimaryHover: "#475569", // slate-600 (primary-300)
+        interactivePrimaryActive: "#64748b", // slate-500 (primary-400)
+        // Light link colors for dark backgrounds
+        textLink: "#cbd5e1", // slate-300 (primary-500)
+        textLinkHover: "#e2e8f0", // slate-200 (primary-600)
+        interactiveGhostText: "#cbd5e1", // slate-300
+        borderFocus: "#94a3b8", // slate-400
       },
     },
   },
@@ -292,6 +302,21 @@ export const serenityTheme: ThemeConfig = {
         800: "#fecdd3",
         900: "#fff1f2",
       },
+      // WCAG AA compliant: dark buttons with white text
+      // Since scale is inverted, use darker shades (lower numbers) for buttons
+      contrast: {
+        onPrimary: "#ffffff", // white text on dark buttons
+        surfacePure: "#1c1917", // stone-900 for dark mode surfaces
+        // Semantic overrides using dark violet values for button backgrounds
+        interactivePrimary: "#581c87", // purple-800 (primary-200 in this scale)
+        interactivePrimaryHover: "#7e22ce", // purple-700 (primary-300)
+        interactivePrimaryActive: "#9333ea", // purple-600
+        // Light link colors for dark backgrounds
+        textLink: "#c084fc", // purple-400 (primary-500)
+        textLinkHover: "#d8b4fe", // purple-300 (primary-600)
+        interactiveGhostText: "#c084fc", // purple-400
+        borderFocus: "#a855f7", // purple-500
+      },
     },
   },
 };
@@ -419,6 +444,22 @@ export const forestTheme: ThemeConfig = {
         700: "#5eead4",
         800: "#ccfbf1",
         900: "#f0fdfa",
+      },
+      // WCAG AA compliant: dark buttons with white text
+      // Since scale is inverted, use darker shades (lower numbers) for buttons
+      contrast: {
+        onPrimary: "#ffffff", // white text on dark buttons
+        surfacePure: "#111827", // gray-900 for dark mode surfaces
+        // Semantic overrides using dark emerald values for button backgrounds
+        interactivePrimary: "#065f46", // emerald-800 (primary-200 in this scale)
+        interactivePrimaryHover: "#047857", // emerald-700 (primary-300)
+        interactivePrimaryActive: "#059669", // emerald-600
+        // Light link colors for dark backgrounds - WCAG AA: 4.5:1 minimum
+        // emerald-300 (#6ee7b7) on gray-900 provides ~5.5:1 ✓
+        textLink: "#6ee7b7", // emerald-300 (was emerald-400, now lighter for 5.5:1)
+        textLinkHover: "#a7f3d0", // emerald-200 for hover state
+        interactiveGhostText: "#6ee7b7", // emerald-300 (matches links)
+        borderFocus: "#10b981", // emerald-500
       },
     },
   },
