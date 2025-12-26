@@ -88,17 +88,17 @@ function ReadingModePathRedirect() {
 function PageLoader() {
   return (
     <div
-      className="min-h-screen flex items-center justify-center bg-linear-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900"
+      className="min-h-screen flex items-center justify-center bg-[var(--surface-page)]"
       role="status"
       aria-live="polite"
       aria-label="Loading page content"
     >
       <div className="text-center">
         <div
-          className="w-8 h-8 border-2 border-orange-600 dark:border-orange-400 border-t-transparent rounded-full animate-spin mx-auto mb-2"
+          className="w-8 h-8 border-2 border-[var(--border-accent)] border-t-transparent rounded-full animate-spin mx-auto mb-2"
           aria-hidden="true"
         ></div>
-        <div className="text-gray-600 dark:text-gray-400 text-sm">
+        <div className="text-[var(--text-secondary)] text-sm">
           Loading...
         </div>
       </div>
@@ -116,12 +116,12 @@ function App() {
   if (loading) {
     return (
       <div
-        className="min-h-screen flex items-center justify-center bg-linear-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-900"
+        className="min-h-screen flex items-center justify-center bg-[var(--surface-page)]"
         role="status"
         aria-live="polite"
         aria-label="Checking authentication"
       >
-        <div className="text-gray-600 dark:text-gray-400">Loading...</div>
+        <div className="text-[var(--text-secondary)]">Loading...</div>
       </div>
     );
   }

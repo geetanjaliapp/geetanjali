@@ -157,3 +157,27 @@
   --interactive-disabled-text: var(--color-neutral-600);
   --interactive-disabled-border: var(--color-neutral-700);
 }
+
+/* ============================================
+   PROSE DARK MODE
+   Auto-invert typography plugin in dark mode
+   Removes need for dark:prose-invert in components
+   ============================================ */
+.dark .prose {
+  --tw-prose-body: var(--color-neutral-300);
+  --tw-prose-headings: var(--color-neutral-100);
+  --tw-prose-lead: var(--color-neutral-400);
+  --tw-prose-links: var(--color-primary-400);
+  --tw-prose-bold: var(--color-neutral-100);
+  --tw-prose-counters: var(--color-neutral-400);
+  --tw-prose-bullets: var(--color-neutral-600);
+  --tw-prose-hr: var(--color-neutral-700);
+  --tw-prose-quotes: var(--color-neutral-100);
+  --tw-prose-quote-borders: var(--color-neutral-700);
+  --tw-prose-captions: var(--color-neutral-400);
+  --tw-prose-code: var(--color-neutral-100);
+  --tw-prose-pre-code: var(--color-neutral-300);
+  --tw-prose-pre-bg: var(--color-neutral-800);
+  --tw-prose-th-borders: var(--color-neutral-600);
+  --tw-prose-td-borders: var(--color-neutral-700);
+}

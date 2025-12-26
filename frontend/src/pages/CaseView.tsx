@@ -843,7 +843,7 @@ ${messages
                           <GuidanceMarkdown
                             content={exchange.assistant.content}
                             sources={exchange.output?.result_json.sources}
-                            className={`leading-relaxed prose dark:prose-invert max-w-none ${isFirst ? "text-[var(--text-primary)]" : "text-[var(--text-secondary)]"} prose-p:my-2 prose-ul:my-2 prose-li:my-0.5`}
+                            className={`leading-relaxed prose max-w-none ${isFirst ? "text-[var(--text-primary)]" : "text-[var(--text-secondary)]"} prose-p:my-2 prose-ul:my-2 prose-li:my-0.5`}
                           />
 
                           {/* Scholar flag with refine option */}
