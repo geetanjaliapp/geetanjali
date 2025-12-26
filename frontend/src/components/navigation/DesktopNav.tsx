@@ -49,9 +49,9 @@ export function DesktopNav({
       {homeItem && (
         <Link
           to={homeItem.to}
-          className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:scale-[1.02] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
+          className={`px-3 py-2 rounded-[var(--radius-nav)] text-sm font-medium transition-[var(--transition-nav)] hover:scale-[1.02] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
             isNavItemActive(homeItem, pathname)
-              ? "text-[var(--interactive-primary)] bg-[var(--menu-item-selected-bg)] shadow-xs"
+              ? "text-[var(--interactive-primary)] bg-[var(--menu-item-selected-bg)] shadow-[var(--shadow-button)]"
               : "text-[var(--text-secondary)] hover:text-[var(--interactive-primary)] hover:bg-[var(--menu-item-hover-bg)]"
           }`}
         >
@@ -62,9 +62,9 @@ export function DesktopNav({
       {/* Ask CTA with icon */}
       <Link
         to={PRIMARY_CTA.to}
-        className={`flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:scale-[1.02] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
+        className={`flex items-center gap-1.5 px-3 py-2 rounded-[var(--radius-nav)] text-sm font-medium transition-[var(--transition-nav)] hover:scale-[1.02] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
           isAskActive
-            ? "text-[var(--interactive-primary)] bg-[var(--menu-item-selected-bg)] shadow-xs"
+            ? "text-[var(--interactive-primary)] bg-[var(--menu-item-selected-bg)] shadow-[var(--shadow-button)]"
             : "text-[var(--text-secondary)] hover:text-[var(--interactive-primary)] hover:bg-[var(--menu-item-hover-bg)]"
         }`}
       >
@@ -92,9 +92,9 @@ export function DesktopNav({
           <Link
             key={item.to}
             to={item.to}
-            className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:scale-[1.02] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
+            className={`px-3 py-2 rounded-[var(--radius-nav)] text-sm font-medium transition-[var(--transition-nav)] hover:scale-[1.02] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
               isActive
-                ? "text-[var(--interactive-primary)] bg-[var(--menu-item-selected-bg)] shadow-xs"
+                ? "text-[var(--interactive-primary)] bg-[var(--menu-item-selected-bg)] shadow-[var(--shadow-button)]"
                 : "text-[var(--text-secondary)] hover:text-[var(--interactive-primary)] hover:bg-[var(--menu-item-hover-bg)]"
             }`}
           >

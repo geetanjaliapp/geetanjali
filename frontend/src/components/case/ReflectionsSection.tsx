@@ -13,7 +13,7 @@ export function ReflectionsSection({
 
   return (
     <div className="relative pl-8 sm:pl-10 pb-4 sm:pb-6">
-      <div className="absolute left-0 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[var(--status-info-bg)] border-2 border-[var(--status-info-border)] flex items-center justify-center">
+      <div className="absolute left-0 w-6 h-6 sm:w-7 sm:h-7 rounded-[var(--radius-avatar)] bg-[var(--status-info-bg)] border-2 border-[var(--status-info-border)] flex items-center justify-center">
         <svg
           className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[var(--status-info-text)]"
           fill="none"
@@ -30,7 +30,7 @@ export function ReflectionsSection({
       </div>
 
       <button onClick={onToggle} className="w-full text-left">
-        <div className="flex items-center justify-between bg-[var(--status-info-bg)] rounded-xl p-3 sm:p-4 shadow-xs border border-[var(--status-info-border)] hover:shadow-md transition-shadow">
+        <div className="flex items-center justify-between bg-[var(--status-info-bg)] rounded-[var(--radius-card)] p-3 sm:p-4 shadow-[var(--shadow-button)] border border-[var(--status-info-border)] hover:shadow-[var(--shadow-card)] transition-[var(--transition-all)]">
           <div>
             <div className="text-xs font-semibold text-[var(--status-info-text)] uppercase tracking-wide">
               Questions for Reflection
@@ -56,7 +56,7 @@ export function ReflectionsSection({
       </button>
 
       {showReflections && (
-        <div className="mt-2 sm:mt-3 bg-[var(--status-info-bg)] rounded-xl p-3 sm:p-4 border border-[var(--status-info-border)]">
+        <div className="mt-2 sm:mt-3 bg-[var(--status-info-bg)] rounded-[var(--radius-card)] p-3 sm:p-4 border border-[var(--status-info-border)]">
           <ul className="space-y-2.5 sm:space-y-3">
             {prompts.map((prompt, idx) => (
               <li

@@ -98,15 +98,15 @@ export function ChapterContextBar({
               {/* Font size toggle */}
               <button
                 onClick={onToggleFontSize}
-                className="flex items-center justify-center gap-1 px-2 py-1 text-[var(--text-accent)] hover:bg-[var(--surface-warm)] active:bg-[var(--badge-warm-bg)] rounded-md transition-colors"
+                className="flex items-center justify-center gap-1 px-2 py-1 text-[var(--text-accent)] hover:bg-[var(--surface-warm)] active:bg-[var(--badge-warm-bg)] rounded-[var(--radius-nav)] transition-[var(--transition-color)]"
                 aria-label={`Font size: ${fontSize}. Tap to change.`}
                 title={`Font size: ${fontSize}`}
               >
                 <span className="text-xs font-serif">Aa</span>
                 <span className="flex items-center gap-0.5">
-                  <span className="w-1 h-1 rounded-full bg-[var(--interactive-primary)]" />
+                  <span className="w-1 h-1 rounded-[var(--radius-progress)] bg-[var(--interactive-primary)]" />
                   <span
-                    className={`w-1 h-1 rounded-full ${fontSize === "large" ? "bg-[var(--interactive-primary)]" : "bg-[var(--badge-warm-bg)]"}`}
+                    className={`w-1 h-1 rounded-[var(--radius-progress)] ${fontSize === "large" ? "bg-[var(--interactive-primary)]" : "bg-[var(--badge-warm-bg)]"}`}
                   />
                 </span>
               </button>
@@ -116,7 +116,7 @@ export function ChapterContextBar({
                 <button
                   onClick={onResetFontSize}
                   disabled={isDefaultFontSize}
-                  className={`flex items-center justify-center p-1 rounded-md transition-colors ${
+                  className={`flex items-center justify-center p-1 rounded-[var(--radius-nav)] transition-[var(--transition-color)] ${
                     isDefaultFontSize
                       ? "text-[var(--interactive-disabled)] cursor-default"
                       : "text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] hover:bg-[var(--surface-warm)]"

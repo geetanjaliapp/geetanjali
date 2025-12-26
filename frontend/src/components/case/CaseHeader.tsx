@@ -64,7 +64,7 @@ export function CaseHeader({
           {canSave && (
             <button
               onClick={onSave}
-              className="p-2 sm:px-3 sm:py-1.5 bg-[var(--surface-elevated)] rounded-lg shadow-xs text-[var(--text-secondary)] hover:bg-[var(--interactive-ghost-hover-bg)] border border-[var(--border-default)] flex items-center gap-1.5 transition-colors"
+              className="p-2 sm:px-3 sm:py-1.5 bg-[var(--surface-elevated)] rounded-[var(--radius-button)] shadow-[var(--shadow-button)] text-[var(--text-secondary)] hover:bg-[var(--interactive-ghost-hover-bg)] border border-[var(--border-default)] flex items-center gap-1.5 transition-[var(--transition-color)]"
               aria-label="Save consultation as file"
             >
               <svg
@@ -91,9 +91,9 @@ export function CaseHeader({
               <button
                 onClick={handleShareClick}
                 disabled={shareLoading}
-                className={`p-2 sm:px-3 sm:py-1.5 rounded-lg shadow-xs flex items-center gap-1.5 transition-all duration-200 ${
+                className={`p-2 sm:px-3 sm:py-1.5 rounded-[var(--radius-button)] shadow-[var(--shadow-button)] flex items-center gap-1.5 transition-[var(--transition-all)] ${
                   caseData.is_public
-                    ? "bg-green-600 text-white hover:bg-green-700"
+                    ? "bg-[var(--status-success-text)] text-white hover:opacity-90"
                     : "bg-[var(--surface-elevated)] text-[var(--text-secondary)] hover:bg-[var(--interactive-ghost-hover-bg)] border border-[var(--border-default)]"
                 } ${shareLoading ? "opacity-50 cursor-not-allowed" : ""}`}
                 aria-label={
@@ -167,7 +167,7 @@ export function CaseHeader({
             <div className="relative">
               <button
                 onClick={() => setShowOverflowMenu(!showOverflowMenu)}
-                className="p-2 bg-[var(--surface-elevated)] rounded-lg shadow-xs text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:bg-[var(--interactive-ghost-hover-bg)] border border-[var(--border-default)] transition-colors"
+                className="p-2 bg-[var(--surface-elevated)] rounded-[var(--radius-button)] shadow-[var(--shadow-button)] text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:bg-[var(--interactive-ghost-hover-bg)] border border-[var(--border-default)] transition-[var(--transition-color)]"
                 aria-label="More options"
                 aria-expanded={showOverflowMenu}
               >
@@ -194,7 +194,7 @@ export function CaseHeader({
                     className="fixed inset-0 z-10"
                     onClick={() => setShowOverflowMenu(false)}
                   />
-                  <div className="absolute right-0 mt-2 w-40 bg-[var(--surface-elevated)] rounded-lg shadow-xl border border-[var(--border-default)] z-20 py-1">
+                  <div className="absolute right-0 mt-2 w-40 bg-[var(--surface-elevated)] rounded-[var(--radius-button)] shadow-[var(--shadow-modal)] border border-[var(--border-default)] z-20 py-1">
                     <button
                       onClick={() => {
                         setShowOverflowMenu(false);

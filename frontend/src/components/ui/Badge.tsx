@@ -30,8 +30,8 @@ const badgeVariants = cva(
   // Base styles (shared across all variants)
   [
     "inline-flex items-center justify-center",
-    "rounded-full font-medium",
-    "transition-colors duration-150",
+    "rounded-[var(--radius-badge)] font-medium",
+    "transition-[var(--transition-color)]",
   ],
   {
     variants: {

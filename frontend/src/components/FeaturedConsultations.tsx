@@ -113,11 +113,11 @@ export function FeaturedConsultations({
         <h2 className="text-lg sm:text-xl font-heading font-semibold text-[var(--text-primary)] mb-4 text-center">
           See how Geetanjali helps
         </h2>
-        <div className="bg-[var(--surface-elevated)] rounded-xl sm:rounded-2xl shadow-md border border-[var(--border-warm)] p-6 sm:p-8">
+        <div className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] shadow-[var(--shadow-card)] border border-[var(--border-warm)] p-6 sm:p-8">
           <div className="animate-pulse space-y-4">
-            <div className="h-4 bg-[var(--surface-muted)] rounded-sm w-3/4"></div>
-            <div className="h-4 bg-[var(--surface-muted)] rounded-sm w-1/2"></div>
-            <div className="h-20 bg-[var(--surface-muted)] rounded-sm"></div>
+            <div className="h-4 bg-[var(--surface-muted)] rounded-[var(--radius-skeleton)] w-3/4"></div>
+            <div className="h-4 bg-[var(--surface-muted)] rounded-[var(--radius-skeleton)] w-1/2"></div>
+            <div className="h-20 bg-[var(--surface-muted)] rounded-[var(--radius-skeleton)]"></div>
           </div>
         </div>
       </section>
@@ -131,14 +131,14 @@ export function FeaturedConsultations({
         <h2 className="text-lg sm:text-xl font-heading font-semibold text-[var(--text-primary)] mb-4 text-center">
           See how Geetanjali helps
         </h2>
-        <div className="bg-[var(--surface-elevated)] rounded-xl sm:rounded-2xl shadow-md border border-[var(--border-warm)] p-6 sm:p-8 text-center">
+        <div className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] shadow-[var(--shadow-card)] border border-[var(--border-warm)] p-6 sm:p-8 text-center">
           <p className="text-[var(--text-secondary)] mb-4">
             Explore real ethical dilemmas and see how ancient wisdom applies to
             modern challenges.
           </p>
           <Link
             to="/cases/new"
-            className="inline-flex items-center gap-2 text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] font-medium focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] rounded-sm"
+            className="inline-flex items-center gap-2 text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] font-medium focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] rounded-[var(--radius-skeleton)]"
           >
             <span>Ask your own question</span>
             <svg
@@ -173,7 +173,7 @@ export function FeaturedConsultations({
           <button
             key={cat}
             onClick={() => handleCategoryChange(cat)}
-            className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
+            className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-[var(--radius-chip)] text-sm font-medium whitespace-nowrap transition-[var(--transition-color)] focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
               selected === cat
                 ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)]"
                 : "bg-[var(--surface-muted)] text-[var(--text-secondary)] hover:bg-[var(--interactive-ghost-hover-bg)]"
@@ -186,13 +186,13 @@ export function FeaturedConsultations({
 
       {/* Featured Case Content Card with fade transition */}
       <div
-        className={`bg-[var(--surface-elevated)] rounded-xl sm:rounded-2xl shadow-md border border-[var(--border-warm)] p-4 sm:p-6 transition-opacity duration-150 text-left ${
+        className={`bg-[var(--surface-elevated)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] shadow-[var(--shadow-card)] border border-[var(--border-warm)] p-4 sm:p-6 transition-[var(--transition-opacity)] text-left ${
           isTransitioning ? "opacity-0" : "opacity-100"
         }`}
       >
         {/* Badge at top left */}
         {isApiCase(currentCase) && (
-          <span className="inline-flex items-center gap-1 text-xs font-medium text-[var(--badge-warm-text)] bg-[var(--badge-warm-bg)] px-2 py-0.5 rounded-full mb-3">
+          <span className="inline-flex items-center gap-1 text-xs font-medium text-[var(--badge-warm-text)] bg-[var(--badge-warm-bg)] px-2 py-0.5 rounded-[var(--radius-chip)] mb-3">
             <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
               <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
             </svg>
@@ -221,14 +221,14 @@ export function FeaturedConsultations({
             <p className="text-sm font-semibold text-[var(--text-secondary)] mb-2">
               Geetanjali suggests:
             </p>
-            <div className="bg-[var(--surface-warm-subtle)] rounded-lg p-3 sm:p-4">
+            <div className="bg-[var(--surface-warm-subtle)] rounded-[var(--radius-button)] p-3 sm:p-4">
               <ul className="space-y-2">
                 {currentCase.recommended_steps.map((step, idx) => (
                   <li
                     key={idx}
                     className="flex items-start gap-2 text-sm sm:text-base text-[var(--text-secondary)]"
                   >
-                    <span className="shrink-0 w-5 h-5 bg-[var(--badge-warm-bg)] text-[var(--badge-warm-text)] rounded-full flex items-center justify-center text-xs font-medium mt-0.5">
+                    <span className="shrink-0 w-5 h-5 bg-[var(--badge-warm-bg)] text-[var(--badge-warm-text)] rounded-[var(--radius-avatar)] flex items-center justify-center text-xs font-medium mt-0.5">
                       {idx + 1}
                     </span>
                     <span>{step}</span>
@@ -255,7 +255,7 @@ export function FeaturedConsultations({
               <span key={ref.canonical_id}>
                 <Link
                   to={getVersePath(ref.display)}
-                  className="text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] hover:underline focus-visible:outline-hidden focus-visible:underline focus-visible:ring-1 focus-visible:ring-[var(--border-focus)] rounded-sm"
+                  className="text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] hover:underline focus-visible:outline-hidden focus-visible:underline focus-visible:ring-1 focus-visible:ring-[var(--border-focus)] rounded-[var(--radius-skeleton)]"
                 >
                   {ref.display}
                 </Link>
@@ -270,7 +270,7 @@ export function FeaturedConsultations({
           <p className="text-sm text-center mt-3">
             <button
               onClick={() => handleViewFull(currentCase.slug!)}
-              className="text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] hover:underline focus-visible:outline-hidden focus-visible:underline focus-visible:ring-1 focus-visible:ring-[var(--border-focus)] rounded-sm font-medium"
+              className="text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] hover:underline focus-visible:outline-hidden focus-visible:underline focus-visible:ring-1 focus-visible:ring-[var(--border-focus)] rounded-[var(--radius-skeleton)] font-medium"
             >
               View full consultation →
             </button>
@@ -282,7 +282,7 @@ export function FeaturedConsultations({
       <div className="mt-4 flex justify-center">
         <button
           onClick={handleAskSimilar}
-          className="inline-flex items-center gap-2 border-2 border-[var(--interactive-primary)] text-[var(--text-accent)] hover:bg-[var(--interactive-primary)] hover:text-white hover:text-white font-medium px-6 py-2.5 rounded-xl transition-colors text-sm sm:text-base focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
+          className="inline-flex items-center gap-2 border-2 border-[var(--interactive-primary)] text-[var(--interactive-primary)] hover:bg-[var(--interactive-primary)] hover:text-[var(--interactive-primary-text)] font-medium px-6 py-2.5 rounded-[var(--radius-card)] transition-[var(--transition-color)] text-sm sm:text-base focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
         >
           <span>Ask a similar question</span>
           <svg

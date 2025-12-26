@@ -55,10 +55,10 @@ export default function NewsletterUnsubscribe() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-[var(--gradient-page-from)] to-[var(--gradient-page-to)] px-4">
-      <div className="max-w-md w-full bg-[var(--surface-elevated)] rounded-2xl shadow-xl p-8 text-center">
+      <div className="max-w-md w-full bg-[var(--surface-elevated)] rounded-[var(--radius-modal)] shadow-[var(--shadow-modal)] p-8 text-center">
         {state === "confirm" && (
           <>
-            <MailIcon className="w-16 h-16 text-orange-500 mx-auto mb-4" />
+            <MailIcon className="w-16 h-16 text-[var(--text-accent)] mx-auto mb-4" />
             <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
               Unsubscribe from Daily Wisdom?
             </h1>
@@ -68,13 +68,13 @@ export default function NewsletterUnsubscribe() {
             <div className="space-y-3">
               <button
                 onClick={handleConfirm}
-                className="w-full px-6 py-3 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition-all focus:outline-hidden focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-[var(--focus-ring-offset)]"
+                className="w-full px-6 py-3 bg-[var(--interactive-secondary-bg)] border border-[var(--interactive-secondary-border)] text-[var(--interactive-secondary-text)] font-medium rounded-[var(--radius-button)] hover:opacity-90 transition-all focus:outline-hidden focus:ring-2 focus:ring-[var(--border-focus)] focus:ring-offset-2 focus:ring-offset-[var(--focus-ring-offset)]"
               >
                 Yes, Unsubscribe
               </button>
               <Link
                 to="/"
-                className="block px-6 py-3 border border-[var(--border-default)] text-[var(--text-secondary)] font-medium rounded-lg hover:bg-[var(--surface-muted)] transition-all"
+                className="block px-6 py-3 border border-[var(--border-default)] text-[var(--text-secondary)] font-medium rounded-[var(--radius-button)] hover:bg-[var(--surface-muted)] transition-all"
               >
                 Cancel
               </Link>
@@ -84,7 +84,7 @@ export default function NewsletterUnsubscribe() {
 
         {state === "loading" && (
           <>
-            <SpinnerIcon className="w-16 h-16 text-orange-500 animate-spin mx-auto mb-4" />
+            <SpinnerIcon className="w-16 h-16 text-[var(--text-accent)] animate-spin mx-auto mb-4" />
             <h1 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
               Processing your request...
             </h1>
@@ -115,7 +115,7 @@ export default function NewsletterUnsubscribe() {
               </p>
               <Link
                 to="/settings#newsletter"
-                className="inline-block px-6 py-3 bg-linear-to-r from-orange-500 to-red-500 text-white font-medium rounded-lg hover:from-orange-600 hover:to-red-600 transition-all"
+                className="inline-block px-6 py-3 bg-linear-to-r from-orange-500 to-red-500 text-white font-medium rounded-[var(--radius-button)] hover:from-orange-600 hover:to-red-600 transition-all"
               >
                 Subscribe Again
               </Link>
@@ -125,7 +125,7 @@ export default function NewsletterUnsubscribe() {
 
         {state === "already_unsubscribed" && (
           <>
-            <CheckCircleIcon className="w-16 h-16 text-blue-500 mx-auto mb-4" />
+            <CheckCircleIcon className="w-16 h-16 text-[var(--status-info-text)] mx-auto mb-4" />
             <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
               Already Unsubscribed
             </h1>
@@ -143,7 +143,7 @@ export default function NewsletterUnsubscribe() {
               </p>
               <Link
                 to="/settings#newsletter"
-                className="inline-block px-6 py-3 bg-linear-to-r from-orange-500 to-red-500 text-white font-medium rounded-lg hover:from-orange-600 hover:to-red-600 transition-all"
+                className="inline-block px-6 py-3 bg-linear-to-r from-orange-500 to-red-500 text-white font-medium rounded-[var(--radius-button)] hover:from-orange-600 hover:to-red-600 transition-all"
               >
                 Subscribe Again
               </Link>
@@ -162,7 +162,7 @@ export default function NewsletterUnsubscribe() {
             </p>
             <Link
               to="/"
-              className="inline-block px-6 py-3 bg-linear-to-r from-orange-500 to-red-500 text-white font-medium rounded-lg hover:from-orange-600 hover:to-red-600 transition-all"
+              className="inline-block px-6 py-3 bg-linear-to-r from-orange-500 to-red-500 text-white font-medium rounded-[var(--radius-button)] hover:from-orange-600 hover:to-red-600 transition-all"
             >
               Go Home
             </Link>

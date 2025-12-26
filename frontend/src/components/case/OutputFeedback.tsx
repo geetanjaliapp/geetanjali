@@ -42,14 +42,14 @@ export const OutputFeedback = memo(
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-xs text-[var(--text-tertiary)]">
             <span>Confidence:</span>
-            <div className="w-12 bg-[var(--surface-muted)] rounded-full h-1.5">
+            <div className="w-12 bg-[var(--surface-muted)] rounded-[var(--radius-progress)] h-1.5">
               <div
-                className={`h-1.5 rounded-full ${
+                className={`h-1.5 rounded-[var(--radius-progress)] ${
                   output.confidence >= 0.8
-                    ? "bg-green-500"
+                    ? "bg-[var(--status-success-text)]"
                     : output.confidence >= 0.6
-                      ? "bg-yellow-500"
-                      : "bg-red-500"
+                      ? "bg-[var(--status-warning-text)]"
+                      : "bg-[var(--status-error-text)]"
                 }`}
                 style={{ width: `${output.confidence * 100}%` }}
               />
@@ -63,9 +63,9 @@ export const OutputFeedback = memo(
               onClick={() => onFeedback(output.id, "up")}
               disabled={feedbackLoading === output.id}
               aria-label={feedback === "up" ? "Feedback: helpful" : "Mark as helpful"}
-              className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
+              className={`w-7 h-7 rounded-[var(--radius-avatar)] flex items-center justify-center transition-[var(--transition-color)] ${
                 feedback === "up" && !isExpanded
-                  ? "bg-green-500 text-white"
+                  ? "bg-[var(--status-success-text)] text-white"
                   : "bg-[var(--surface-muted)] text-[var(--text-muted)] hover:bg-[var(--status-success-bg)] hover:text-[var(--status-success-text)]"
               }`}
             >
@@ -87,9 +87,9 @@ export const OutputFeedback = memo(
               onClick={() => onFeedback(output.id, "down")}
               disabled={feedbackLoading === output.id}
               aria-label={feedback === "down" ? "Feedback: needs improvement" : "Mark as needs improvement"}
-              className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
+              className={`w-7 h-7 rounded-[var(--radius-avatar)] flex items-center justify-center transition-[var(--transition-color)] ${
                 feedback === "down" || isExpanded
-                  ? "bg-red-500 text-white"
+                  ? "bg-[var(--status-error-text)] text-white"
                   : "bg-[var(--surface-muted)] text-[var(--text-muted)] hover:bg-[var(--status-error-bg)] hover:text-[var(--status-error-text)]"
               }`}
             >
@@ -112,7 +112,7 @@ export const OutputFeedback = memo(
 
         {/* Show existing comment in read-only mode when not editing */}
         {hasExistingComment && !isExpanded && (
-          <div className="mt-3 p-2.5 bg-[var(--status-error-bg)] rounded-lg border border-[var(--status-error-border)]">
+          <div className="mt-3 p-2.5 bg-[var(--status-error-bg)] rounded-[var(--radius-button)] border border-[var(--status-error-border)]">
             <div className="flex items-start justify-between gap-2">
               <p className="text-xs text-[var(--text-secondary)] italic flex-1">
                 "{savedComment[output.id]}"
@@ -139,7 +139,7 @@ export const OutputFeedback = memo(
               value={feedbackText[output.id] || ""}
               onChange={(e) => onFeedbackTextChange(output.id, e.target.value)}
               placeholder="Tell us what wasn't helpful..."
-              className="w-full px-3 py-2 text-sm bg-[var(--surface-elevated)] text-[var(--text-primary)] border border-[var(--border-default)] rounded-lg focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent resize-none placeholder:text-[var(--text-muted)]"
+              className="w-full px-3 py-2 text-sm bg-[var(--surface-elevated)] text-[var(--text-primary)] border border-[var(--border-default)] rounded-[var(--radius-button)] focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent resize-none placeholder:text-[var(--text-muted)]"
               rows={2}
               maxLength={1000}
             />
@@ -155,7 +155,7 @@ export const OutputFeedback = memo(
                 <button
                   onClick={() => onSubmitNegativeFeedback(output.id)}
                   disabled={feedbackLoading === output.id}
-                  className="px-3 py-1.5 text-xs bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
+                  className="px-3 py-1.5 text-xs bg-[var(--status-error-text)] text-white rounded-[var(--radius-button)] hover:opacity-90 disabled:opacity-50"
                 >
                   {feedbackLoading === output.id
                     ? "Saving..."

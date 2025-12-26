@@ -39,7 +39,7 @@ function isChunkLoadError(error: Error | null): boolean {
  */
 function ErrorNavbar() {
   return (
-    <nav className="bg-[var(--surface-elevated)] shadow-xs border-b border-[var(--border-default)] h-14 sm:h-16 shrink-0">
+    <nav className="bg-[var(--surface-elevated)] shadow-[var(--shadow-button)] border-b border-[var(--border-default)] h-14 sm:h-16 shrink-0">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
         <div className="flex justify-between items-center h-full">
           <a
@@ -99,8 +99,8 @@ export class ErrorBoundary extends Component<Props, State> {
             <ErrorNavbar />
             <div className="flex-1 flex items-center justify-center">
               <div className="max-w-md mx-auto px-4 text-center">
-                <div className="mb-6 p-6 bg-[var(--status-warning-bg)] border border-[var(--status-warning-border)] rounded-lg">
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--status-warning-bg)] flex items-center justify-center">
+                <div className="mb-6 p-6 bg-[var(--status-warning-bg)] border border-[var(--status-warning-border)] rounded-[var(--radius-button)]">
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-[var(--radius-avatar)] bg-[var(--status-warning-bg)] flex items-center justify-center">
                     <svg
                       className="w-8 h-8 text-[var(--status-warning-text)]"
                       fill="none"
@@ -125,7 +125,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 </div>
                 <button
                   onClick={this.handleRefresh}
-                  className="inline-block bg-[var(--interactive-contextual)] hover:opacity-90 text-white font-semibold px-6 py-3 rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-[var(--border-focus)] focus:ring-offset-2 focus:ring-offset-[var(--focus-ring-offset)]"
+                  className="inline-block bg-[var(--interactive-contextual)] hover:opacity-90 text-white font-semibold px-6 py-3 rounded-[var(--radius-button)] transition-[var(--transition-color)] focus:outline-hidden focus:ring-2 focus:ring-[var(--border-focus)] focus:ring-offset-2 focus:ring-offset-[var(--focus-ring-offset)]"
                 >
                   Refresh Now
                 </button>
@@ -141,7 +141,7 @@ export class ErrorBoundary extends Component<Props, State> {
           <ErrorNavbar />
           <div className="flex-1 flex items-center justify-center">
             <div className="max-w-md mx-auto px-4 text-center">
-              <div className="mb-6 p-6 bg-[var(--status-error-bg)] border border-[var(--status-error-border)] rounded-lg">
+              <div className="mb-6 p-6 bg-[var(--status-error-bg)] border border-[var(--status-error-border)] rounded-[var(--radius-button)]">
                 <h1 className="text-2xl font-bold text-[var(--status-error-text)] mb-2">
                   Oops, something went wrong
                 </h1>
@@ -153,7 +153,7 @@ export class ErrorBoundary extends Component<Props, State> {
                     <summary className="cursor-pointer text-sm font-semibold text-[var(--status-error-text)] hover:text-[var(--status-error-text)]">
                       Error details (development only)
                     </summary>
-                    <pre className="mt-2 overflow-auto bg-[var(--surface-elevated)] p-2 rounded-sm text-xs text-[var(--status-error-text)] border border-[var(--status-error-border)]">
+                    <pre className="mt-2 overflow-auto bg-[var(--surface-elevated)] p-2 rounded-[var(--radius-skeleton)] text-xs text-[var(--status-error-text)] border border-[var(--status-error-border)]">
                       {this.state.error.toString()}
                     </pre>
                   </details>
@@ -162,13 +162,13 @@ export class ErrorBoundary extends Component<Props, State> {
               <div className="flex gap-3 justify-center">
                 <button
                   onClick={this.reset}
-                  className="inline-block bg-gray-600 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-[var(--focus-ring-offset)]"
+                  className="inline-block bg-[var(--interactive-secondary-bg)] border border-[var(--interactive-secondary-border)] hover:opacity-90 text-[var(--interactive-secondary-text)] font-semibold px-6 py-3 rounded-[var(--radius-button)] transition-[var(--transition-color)] focus:outline-hidden focus:ring-2 focus:ring-[var(--border-focus)] focus:ring-offset-2 focus:ring-offset-[var(--focus-ring-offset)]"
                 >
                   Try Again
                 </button>
                 <button
                   onClick={this.handleRefresh}
-                  className="inline-block bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-[var(--focus-ring-offset)]"
+                  className="inline-block bg-[var(--status-error-text)] hover:opacity-90 text-white font-semibold px-6 py-3 rounded-[var(--radius-button)] transition-[var(--transition-color)] focus:outline-hidden focus:ring-2 focus:ring-[var(--border-focus)] focus:ring-offset-2 focus:ring-offset-[var(--focus-ring-offset)]"
                 >
                   Refresh Page
                 </button>

@@ -83,14 +83,14 @@ export function Toast({
   return (
     <div
       className={`fixed bottom-20 sm:bottom-6 left-4 right-4 sm:left-auto sm:right-6 z-50
-                  max-w-sm mx-auto sm:mx-0 transition-all duration-300 ease-out
+                  max-w-sm mx-auto sm:mx-0 transition-[var(--transition-toast)]
                   ${isVisible && !isLeaving ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
       role="status"
       aria-live="polite"
     >
       <div
         className="bg-[var(--text-primary)] text-[var(--surface-elevated)]
-                   rounded-xl shadow-lg px-4 py-3 flex items-center gap-3"
+                   rounded-[var(--radius-toast)] shadow-[var(--shadow-toast)] px-4 py-3 flex items-center gap-3"
       >
         {/* Message */}
         <p className="flex-1 text-base sm:text-sm">{message}</p>
@@ -115,7 +115,7 @@ export function Toast({
                      hover:text-[var(--surface-elevated)]
                      focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)]
                      focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]
-                     rounded-lg transition-colors"
+                     rounded-[var(--radius-button)] transition-[var(--transition-color)]"
           aria-label="Dismiss notification"
         >
           <svg

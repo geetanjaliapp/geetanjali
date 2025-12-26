@@ -90,7 +90,7 @@ export default function NotFound() {
           {/* Verse Card - Clickable */}
           <Link
             to={`/verses/${verse.canonical_id}`}
-            className="bg-[var(--surface-elevated)]/70 backdrop-blur-xs rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 border border-[var(--border-warm-subtle)] mb-4 sm:mb-6 lg:mb-8 hover:bg-[var(--surface-elevated)]/90 hover:border-[var(--border-warm)] transition-all shadow-lg hover:shadow-xl block cursor-pointer"
+            className="bg-[var(--surface-elevated)]/70 backdrop-blur-xs rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] p-4 sm:p-6 lg:p-8 border border-[var(--border-warm-subtle)] mb-4 sm:mb-6 lg:mb-8 hover:bg-[var(--surface-elevated)]/90 hover:border-[var(--border-warm)] transition-[var(--transition-all)] shadow-[var(--shadow-dropdown)] hover:shadow-[var(--shadow-modal)] block cursor-pointer"
           >
             {/* Om Symbol */}
             <div className="text-3xl sm:text-4xl text-amber-400/50 mb-3 sm:mb-4 font-light">
@@ -133,7 +133,7 @@ export default function NotFound() {
           {/* CTA Button */}
           <Link
             to="/"
-            className="inline-flex items-center gap-2 bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] px-6 sm:px-8 py-2.5 sm:py-3 rounded-lg hover:opacity-90 transition-colors font-semibold text-sm sm:text-base"
+            className="inline-flex items-center gap-2 bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] px-6 sm:px-8 py-2.5 sm:py-3 rounded-[var(--radius-button)] hover:opacity-90 transition-[var(--transition-color)] font-semibold text-sm sm:text-base"
           >
             <svg
               className="w-4 h-4 sm:w-5 sm:h-5"

@@ -8,12 +8,16 @@
  * - English paraphrase
  * - Hindi translation (for formats with space)
  * - Geetanjali branding
+ *
+ * Supports "current" theme which reads colors from the active app theme,
+ * allowing users to share cards that match their preferred theme.
  */
 
 import { formatSanskritLines } from "../../lib/sanskritFormatter";
+import { getCanvasThemeColors } from "../../lib/canvasThemeColors";
 
 // Types
-export type ImageTheme = "warm" | "dark" | "minimal";
+export type ImageTheme = "current" | "warm" | "dark" | "minimal";
 export type ImageFormat = "square" | "portrait" | "wide";
 
 export interface ImageCardOptions {
@@ -72,8 +76,9 @@ const FORMAT_CONFIG: Record<ImageFormat, FormatConfig> = {
   },
 };
 
-// Theme color definitions
-const THEME_COLORS: Record<ImageTheme, Omit<ThemeColors, "background">> = {
+// Theme color definitions for static themes (current theme is handled dynamically)
+type StaticImageTheme = Exclude<ImageTheme, "current">;
+const THEME_COLORS: Record<StaticImageTheme, Omit<ThemeColors, "background">> = {
   warm: {
     om: "#F59E0B", // amber-500
     sanskrit: "#78350F", // amber-900
@@ -142,7 +147,20 @@ function createBackground(
   theme: ImageTheme,
   width: number,
   height: number,
+  currentThemeColors?: ReturnType<typeof getCanvasThemeColors>,
 ): string | CanvasGradient {
+  // Handle "current" theme - use colors from active app theme
+  if (theme === "current" && currentThemeColors) {
+    const bg = currentThemeColors.background;
+    if (bg.type === "gradient" && bg.gradient) {
+      const gradient = ctx.createLinearGradient(0, 0, width, height);
+      gradient.addColorStop(0, bg.gradient.from);
+      gradient.addColorStop(1, bg.gradient.to);
+      return gradient;
+    }
+    return bg.color || "#FFFFFF";
+  }
+
   if (theme === "warm") {
     const gradient = ctx.createLinearGradient(0, 0, width, height);
     gradient.addColorStop(0, "#FEF3C7");
@@ -198,7 +216,25 @@ export async function generateVerseImage(
 
   const config = FORMAT_CONFIG[options.format];
   const { width, height, fontScale } = config;
-  const colors = THEME_COLORS[options.theme];
+
+  // Get colors based on theme
+  // "current" theme reads from active CSS theme, others use static values
+  const currentThemeColors =
+    options.theme === "current" ? getCanvasThemeColors() : null;
+  const colors: ThemeColors =
+    options.theme === "current" && currentThemeColors
+      ? {
+          background: "#FFFFFF", // Not used directly, handled by createBackground
+          om: currentThemeColors.om,
+          sanskrit: currentThemeColors.sanskrit,
+          verseRef: currentThemeColors.verseRef,
+          english: currentThemeColors.english,
+          hindi: currentThemeColors.hindi,
+          branding: currentThemeColors.branding,
+          divider: currentThemeColors.divider,
+          border: currentThemeColors.border,
+        }
+      : { background: "#FFFFFF", ...THEME_COLORS[options.theme as StaticImageTheme] };
 
   const canvas = document.createElement("canvas");
   canvas.width = width;
@@ -214,11 +250,17 @@ export async function generateVerseImage(
   const baseFont = (width / 28) * fontScale;
 
   // Draw background
-  ctx.fillStyle = createBackground(ctx, options.theme, width, height);
+  ctx.fillStyle = createBackground(
+    ctx,
+    options.theme,
+    width,
+    height,
+    currentThemeColors ?? undefined,
+  );
   ctx.fillRect(0, 0, width, height);
 
-  // Border for minimal theme
-  if (options.theme === "minimal" && colors.border) {
+  // Border for minimal theme or current theme with border
+  if ((options.theme === "minimal" || options.theme === "current") && colors.border) {
     ctx.strokeStyle = colors.border;
     ctx.lineWidth = 2;
     ctx.strokeRect(1, 1, width - 2, height - 2);

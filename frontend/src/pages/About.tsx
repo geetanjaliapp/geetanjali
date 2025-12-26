@@ -124,7 +124,7 @@ export default function About() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mt-6 sm:mt-8">
             <Link
               to="/cases/new"
-              className="inline-flex items-center gap-2 bg-[var(--interactive-primary)] hover:opacity-90 text-white font-semibold px-6 py-3 sm:px-8 sm:py-3.5 rounded-xl transition-all shadow-lg hover:shadow-xl text-base sm:text-lg"
+              className="inline-flex items-center gap-2 bg-[var(--interactive-primary)] hover:opacity-90 text-white font-semibold px-6 py-3 sm:px-8 sm:py-3.5 rounded-[var(--radius-card)] transition-[var(--transition-all)] shadow-[var(--shadow-dropdown)] hover:shadow-[var(--shadow-modal)] text-base sm:text-lg"
             >
               <span>Start a Consultation</span>
               <svg
@@ -143,7 +143,7 @@ export default function About() {
             </Link>
             <Link
               to="/verses"
-              className="inline-flex items-center gap-2 bg-[var(--surface-elevated)] hover:bg-[var(--surface-muted)] text-[var(--text-secondary)] font-medium px-6 py-3 sm:px-8 sm:py-3.5 rounded-xl transition-all border border-[var(--border-default)] hover:border-[var(--border-default)] text-base sm:text-lg"
+              className="inline-flex items-center gap-2 bg-[var(--surface-elevated)] hover:bg-[var(--surface-muted)] text-[var(--text-secondary)] font-medium px-6 py-3 sm:px-8 sm:py-3.5 rounded-[var(--radius-card)] transition-[var(--transition-all)] border border-[var(--border-default)] hover:border-[var(--border-default)] text-base sm:text-lg"
             >
               <span>Explore Verses</span>
             </Link>
@@ -151,7 +151,7 @@ export default function About() {
         </div>
 
         {/* What is Geetanjali */}
-        <section className="bg-[var(--surface-elevated)] rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 mb-4 sm:mb-6 lg:mb-8">
+        <section className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] shadow-[var(--shadow-dropdown)] p-4 sm:p-6 lg:p-8 mb-4 sm:mb-6 lg:mb-8">
           <h2 className="text-xl sm:text-2xl font-bold font-heading text-[var(--text-primary)] mb-3 sm:mb-4">
             What is Geetanjali?
           </h2>
@@ -177,13 +177,13 @@ export default function About() {
         </section>
 
         {/* How It Works */}
-        <section className="bg-[var(--surface-elevated)] rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 mb-4 sm:mb-6 lg:mb-8">
+        <section className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] shadow-[var(--shadow-dropdown)] p-4 sm:p-6 lg:p-8 mb-4 sm:mb-6 lg:mb-8">
           <h2 className="text-xl sm:text-2xl font-bold font-heading text-[var(--text-primary)] mb-4 sm:mb-6">
             How It Works
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
             <div className="text-center">
-              <div className="w-12 h-12 bg-[var(--option-selected-bg)] rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-12 h-12 bg-[var(--option-selected-bg)] rounded-[var(--radius-avatar)] flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl font-bold text-[var(--interactive-ghost-text)]">
                   1
                 </span>
@@ -197,7 +197,7 @@ export default function About() {
               </p>
             </div>
             <div className="text-center">
-              <div className="w-12 h-12 bg-[var(--option-selected-bg)] rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-12 h-12 bg-[var(--option-selected-bg)] rounded-[var(--radius-avatar)] flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl font-bold text-[var(--interactive-ghost-text)]">
                   2
                 </span>
@@ -211,7 +211,7 @@ export default function About() {
               </p>
             </div>
             <div className="text-center">
-              <div className="w-12 h-12 bg-[var(--option-selected-bg)] rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-12 h-12 bg-[var(--option-selected-bg)] rounded-[var(--radius-avatar)] flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl font-bold text-[var(--interactive-ghost-text)]">
                   3
                 </span>
@@ -251,7 +251,7 @@ export default function About() {
         </section>
 
         {/* Why the Bhagavad Geeta */}
-        <section className="bg-[var(--surface-elevated)] rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 mb-4 sm:mb-6 lg:mb-8">
+        <section className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] shadow-[var(--shadow-dropdown)] p-4 sm:p-6 lg:p-8 mb-4 sm:mb-6 lg:mb-8">
           <h2 className="text-xl sm:text-2xl font-bold font-heading text-[var(--text-primary)] mb-3 sm:mb-4">
             Why the Bhagavad Geeta?
           </h2>
@@ -279,7 +279,7 @@ export default function About() {
         {/* Our Approach */}
         <section
           id="our-approach"
-          className="bg-[var(--surface-elevated)] rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 mb-4 sm:mb-6 lg:mb-8"
+          className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] shadow-[var(--shadow-dropdown)] p-4 sm:p-6 lg:p-8 mb-4 sm:mb-6 lg:mb-8"
         >
           <h2 className="text-xl sm:text-2xl font-bold font-heading text-[var(--text-primary)] mb-3 sm:mb-4">
             Our Approach
@@ -308,7 +308,7 @@ export default function About() {
         </section>
 
         {/* Privacy Note */}
-        <section className="bg-[var(--surface-warm)] rounded-xl sm:rounded-2xl p-4 sm:p-6 mb-4 sm:mb-6 lg:mb-8 border border-[var(--border-warm)]">
+        <section className="bg-[var(--surface-warm)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] p-4 sm:p-6 mb-4 sm:mb-6 lg:mb-8 border border-[var(--border-warm)]">
           <div className="flex items-start gap-4">
             <div className="text-2xl">🔒</div>
             <div>
@@ -326,7 +326,7 @@ export default function About() {
 
         {/* Open Source & Support */}
         <section className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6 lg:mb-8">
-          <div className="bg-[var(--surface-elevated)] rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6">
+          <div className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] shadow-[var(--shadow-dropdown)] p-4 sm:p-6">
             <div className="flex items-center gap-3 mb-4">
               <svg
                 className="w-8 h-8 text-[var(--text-primary)]"
@@ -370,7 +370,7 @@ export default function About() {
             </a>
           </div>
 
-          <div className="bg-[var(--surface-elevated)] rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6">
+          <div className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] shadow-[var(--shadow-dropdown)] p-4 sm:p-6">
             <div className="flex items-center gap-3 mb-4">
               <span className="text-2xl sm:text-3xl">💝</span>
               <h3 className="text-lg sm:text-xl font-bold text-[var(--text-primary)]">
@@ -385,7 +385,7 @@ export default function About() {
               href="https://ko-fi.com/vnykmshr"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-pink-50 text-pink-600 hover:bg-pink-100 px-4 py-2 rounded-lg font-medium transition-colors"
+              className="inline-flex items-center gap-2 bg-pink-50 text-pink-600 hover:bg-pink-100 px-4 py-2 rounded-[var(--radius-button)] font-medium transition-[var(--transition-color)]"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
@@ -398,7 +398,7 @@ export default function About() {
         {/* Contact Form */}
         <section
           id="contact"
-          className="bg-[var(--surface-elevated)] rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 mb-4 sm:mb-6 lg:mb-8"
+          className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] shadow-[var(--shadow-dropdown)] p-4 sm:p-6 lg:p-8 mb-4 sm:mb-6 lg:mb-8"
         >
           <h2 className="text-xl sm:text-2xl font-bold font-heading text-[var(--text-primary)] mb-2">
             Get in Touch
@@ -408,7 +408,7 @@ export default function About() {
           </p>
 
           {submitStatus === "success" ? (
-            <div className="bg-[var(--status-success-bg)] border border-[var(--status-success-border)] rounded-lg p-6 text-center">
+            <div className="bg-[var(--status-success-bg)] border border-[var(--status-success-border)] rounded-[var(--radius-button)] p-6 text-center">
               <div className="text-4xl mb-3">✓</div>
               <h3 className="text-lg font-semibold text-[var(--status-success-text)] mb-2">
                 Message Sent!
@@ -418,7 +418,7 @@ export default function About() {
               </p>
               <button
                 onClick={() => setSubmitStatus("idle")}
-                className="mt-4 text-[var(--status-success-text)] hover:text-[var(--status-success-text)] font-medium focus:outline-hidden focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] rounded-sm"
+                className="mt-4 text-[var(--status-success-text)] hover:text-[var(--status-success-text)] font-medium focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] rounded-[var(--radius-skeleton)]"
               >
                 Send another message
               </button>
@@ -441,7 +441,7 @@ export default function About() {
                     onChange={(e) =>
                       setFormData({ ...formData, name: e.target.value })
                     }
-                    className="w-full px-3 sm:px-4 py-2.5 sm:py-2 border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-lg focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent text-base sm:text-sm"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-2 border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-[var(--radius-input)] focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent text-base sm:text-sm"
                     placeholder="Your name"
                   />
                 </div>
@@ -460,7 +460,7 @@ export default function About() {
                     onChange={(e) =>
                       setFormData({ ...formData, email: e.target.value })
                     }
-                    className="w-full px-3 sm:px-4 py-2.5 sm:py-2 border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-lg focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent text-base sm:text-sm"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-2 border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-[var(--radius-input)] focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent text-base sm:text-sm"
                     placeholder="you@example.com"
                   />
                 </div>
@@ -483,7 +483,7 @@ export default function About() {
                         message_type: e.target.value as ContactType,
                       })
                     }
-                    className="w-full px-3 sm:px-4 py-2.5 sm:py-2 border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-lg focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent text-base sm:text-sm"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-2 border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-[var(--radius-input)] focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent text-base sm:text-sm"
                   >
                     <option value="feedback">General Feedback</option>
                     <option value="question">Question</option>
@@ -509,7 +509,7 @@ export default function About() {
                     onChange={(e) =>
                       setFormData({ ...formData, subject: e.target.value })
                     }
-                    className="w-full px-3 sm:px-4 py-2.5 sm:py-2 border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-lg focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent text-base sm:text-sm"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-2 border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-[var(--radius-input)] focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent text-base sm:text-sm"
                     placeholder="Brief subject"
                   />
                 </div>
@@ -530,13 +530,13 @@ export default function About() {
                   onChange={(e) =>
                     setFormData({ ...formData, message: e.target.value })
                   }
-                  className="w-full px-3 sm:px-4 py-2.5 sm:py-2 border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-lg focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent resize-none text-base sm:text-sm"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-2 border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-[var(--radius-input)] focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent resize-none text-base sm:text-sm"
                   placeholder="Share your thoughts..."
                 />
               </div>
 
               {submitStatus === "error" && (
-                <div className="bg-[var(--status-error-bg)] border border-[var(--status-error-border)] rounded-lg p-4 text-[var(--status-error-text)] text-sm">
+                <div className="bg-[var(--status-error-bg)] border border-[var(--status-error-border)] rounded-[var(--radius-button)] p-4 text-[var(--status-error-text)] text-sm">
                   {errorMessage}
                 </div>
               )}
@@ -544,7 +544,7 @@ export default function About() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full sm:w-auto bg-[var(--interactive-primary)] hover:opacity-90 disabled:opacity-60 text-white font-semibold px-6 py-3 sm:px-8 sm:py-3 rounded-lg transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] text-base"
+                className="w-full sm:w-auto bg-[var(--interactive-primary)] hover:opacity-90 disabled:opacity-60 text-white font-semibold px-6 py-3 sm:px-8 sm:py-3 rounded-[var(--radius-button)] transition-[var(--transition-color)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] text-base"
               >
                 {isSubmitting ? "Sending..." : "Send Message"}
               </button>
@@ -553,7 +553,7 @@ export default function About() {
         </section>
 
         {/* Final CTA Section */}
-        <section className="bg-linear-to-br from-[var(--gradient-warm-from)] to-[var(--gradient-warm-to)] rounded-xl sm:rounded-2xl p-6 sm:p-8 mb-6 sm:mb-8 text-center border border-[var(--border-warm)]">
+        <section className="bg-linear-to-br from-[var(--gradient-warm-from)] to-[var(--gradient-warm-to)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] p-6 sm:p-8 mb-6 sm:mb-8 text-center border border-[var(--border-warm)]">
           <h2 className="text-xl sm:text-2xl font-bold font-heading text-[var(--text-primary)] mb-2">
             Ready to Explore?
           </h2>
@@ -564,7 +564,7 @@ export default function About() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
             <Link
               to="/cases/new"
-              className="inline-flex items-center gap-2 bg-[var(--interactive-primary)] hover:opacity-90 text-white font-semibold px-6 py-3 sm:px-8 sm:py-3.5 rounded-xl transition-all shadow-lg hover:shadow-xl text-base sm:text-lg"
+              className="inline-flex items-center gap-2 bg-[var(--interactive-primary)] hover:opacity-90 text-white font-semibold px-6 py-3 sm:px-8 sm:py-3.5 rounded-[var(--radius-card)] transition-[var(--transition-all)] shadow-[var(--shadow-dropdown)] hover:shadow-[var(--shadow-modal)] text-base sm:text-lg"
             >
               <span>Ask a Question</span>
               <svg

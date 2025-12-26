@@ -27,7 +27,7 @@ export function BackToTopButton() {
   return (
     <button
       onClick={scrollToTop}
-      className="fixed bottom-20 right-6 md:bottom-6 z-40 w-12 h-12 bg-[var(--surface-elevated)] border border-[var(--border-default)] rounded-full shadow-lg hover:shadow-xl hover:bg-[var(--interactive-ghost-hover-bg)] transition-all flex items-center justify-center"
+      className="fixed bottom-20 right-6 md:bottom-6 z-40 w-12 h-12 bg-[var(--surface-elevated)] border border-[var(--border-default)] rounded-[var(--radius-avatar)] shadow-[var(--shadow-dropdown)] hover:shadow-[var(--shadow-modal)] hover:bg-[var(--interactive-ghost-hover-bg)] transition-[var(--transition-all)] flex items-center justify-center"
       aria-label="Back to top"
     >
       <ArrowUpIcon className="w-5 h-5 text-[var(--text-secondary)]" />

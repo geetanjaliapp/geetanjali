@@ -34,7 +34,7 @@ describe("OutputFeedback", () => {
   });
 
   describe("confidence indicator colors", () => {
-    it("should show green for high confidence (>=0.8)", () => {
+    it("should show success color for high confidence (>=0.8)", () => {
       const { container } = render(
         <OutputFeedback
           {...defaultProps}
@@ -42,11 +42,11 @@ describe("OutputFeedback", () => {
         />,
       );
 
-      const bar = container.querySelector(".bg-green-500");
+      const bar = container.querySelector(".bg-\\[var\\(--status-success-text\\)\\]");
       expect(bar).toBeInTheDocument();
     });
 
-    it("should show yellow for medium confidence (0.6-0.8)", () => {
+    it("should show warning color for medium confidence (0.6-0.8)", () => {
       const { container } = render(
         <OutputFeedback
           {...defaultProps}
@@ -54,11 +54,11 @@ describe("OutputFeedback", () => {
         />,
       );
 
-      const bar = container.querySelector(".bg-yellow-500");
+      const bar = container.querySelector(".bg-\\[var\\(--status-warning-text\\)\\]");
       expect(bar).toBeInTheDocument();
     });
 
-    it("should show red for low confidence (<0.6)", () => {
+    it("should show error color for low confidence (<0.6)", () => {
       const { container } = render(
         <OutputFeedback
           {...defaultProps}
@@ -66,7 +66,7 @@ describe("OutputFeedback", () => {
         />,
       );
 
-      const bar = container.querySelector(".bg-red-500");
+      const bar = container.querySelector(".bg-\\[var\\(--status-error-text\\)\\]");
       expect(bar).toBeInTheDocument();
     });
   });
@@ -114,7 +114,7 @@ describe("OutputFeedback", () => {
       );
 
       const buttons = container.querySelectorAll("button");
-      expect(buttons[0].className).toContain("bg-green-500");
+      expect(buttons[0].className).toContain("bg-[var(--status-success-text)]");
     });
 
     it('should show thumbs down as active when feedback is "down"', () => {
@@ -123,7 +123,7 @@ describe("OutputFeedback", () => {
       );
 
       const buttons = container.querySelectorAll("button");
-      expect(buttons[1].className).toContain("bg-red-500");
+      expect(buttons[1].className).toContain("bg-[var(--status-error-text)]");
     });
   });
 

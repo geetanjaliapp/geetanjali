@@ -82,7 +82,7 @@ export function IntroCard(props: IntroCardProps) {
         <div className="shrink-0">
           <button
             onClick={handleToggle}
-            className="w-full text-center focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-4 focus-visible:ring-offset-[var(--focus-ring-offset)] rounded-xl transition-transform active:scale-[0.99]"
+            className="w-full text-center focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-4 focus-visible:ring-offset-[var(--focus-ring-offset)] rounded-[var(--radius-card)] transition-[var(--transition-transform)] active:scale-[0.99]"
             aria-expanded={showDetails}
             aria-label={showDetails ? "Hide details" : "Show details"}
           >
@@ -138,7 +138,7 @@ export function IntroCard(props: IntroCardProps) {
         >
           <div className="border-t border-[var(--border-warm-subtle)] pt-4 space-y-3">
             {/* Tagline */}
-            <div className="bg-[var(--surface-warm-subtle)] rounded-xl p-3 border border-[var(--border-warm-subtle)]">
+            <div className="bg-[var(--surface-warm-subtle)] rounded-[var(--radius-card)] p-3 border border-[var(--border-warm-subtle)]">
               <p className="text-sm sm:text-base text-[var(--text-sanskrit-secondary)] leading-relaxed italic font-serif text-center">
                 "{book.tagline}"
               </p>
@@ -149,7 +149,7 @@ export function IntroCard(props: IntroCardProps) {
               <div className="text-center">
                 <button
                   onClick={onBegin}
-                  className="px-8 py-2.5 bg-[var(--interactive-contextual)] hover:bg-[var(--interactive-contextual-hover)] active:bg-[var(--interactive-contextual-active)] text-[var(--interactive-contextual-text)] font-medium rounded-xl transition-colors shadow-md hover:shadow-lg"
+                  className="px-8 py-2.5 bg-[var(--interactive-contextual)] hover:bg-[var(--interactive-contextual-hover)] active:bg-[var(--interactive-contextual-active)] text-[var(--interactive-contextual-text)] font-medium rounded-[var(--radius-card)] transition-[var(--transition-color)] shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-dropdown)]"
                 >
                   Begin Journey
                 </button>
@@ -157,7 +157,7 @@ export function IntroCard(props: IntroCardProps) {
             )}
 
             {/* Intro text */}
-            <div className="bg-[var(--surface-elevated)]/70 rounded-xl p-3 border border-[var(--border-warm-subtle)]">
+            <div className="bg-[var(--surface-elevated)]/70 rounded-[var(--radius-card)] p-3 border border-[var(--border-warm-subtle)]">
               <p className="text-sm sm:text-base text-[var(--text-primary)] leading-relaxed">
                 {book.intro_text}
               </p>
@@ -175,7 +175,7 @@ export function IntroCard(props: IntroCardProps) {
       <div className="shrink-0">
         <button
           onClick={handleToggle}
-          className="w-full text-center focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-4 focus-visible:ring-offset-[var(--focus-ring-offset)] rounded-xl transition-transform active:scale-[0.99]"
+          className="w-full text-center focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-4 focus-visible:ring-offset-[var(--focus-ring-offset)] rounded-[var(--radius-card)] transition-[var(--transition-transform)] active:scale-[0.99]"
           aria-expanded={showDetails}
           aria-label={showDetails ? "Hide details" : "Show details"}
         >
@@ -237,7 +237,7 @@ export function IntroCard(props: IntroCardProps) {
         <div className="border-t border-[var(--border-warm-subtle)] pt-4 space-y-3">
           {/* Subtitle if present */}
           {chapter.subtitle && (
-            <div className="bg-[var(--surface-warm-subtle)] rounded-xl p-3 border border-[var(--border-warm-subtle)]">
+            <div className="bg-[var(--surface-warm-subtle)] rounded-[var(--radius-card)] p-3 border border-[var(--border-warm-subtle)]">
               <p className="text-sm sm:text-base text-[var(--text-sanskrit-secondary)] leading-relaxed italic font-serif text-center">
                 "{chapter.subtitle}"
               </p>
@@ -249,7 +249,7 @@ export function IntroCard(props: IntroCardProps) {
             <div className="text-center">
               <button
                 onClick={onBegin}
-                className="px-6 py-2 text-[var(--interactive-ghost-text)] hover:text-[var(--interactive-ghost-hover-text)] font-medium border border-[var(--border-warm)] hover:border-[var(--border-warm-hover)] hover:bg-[var(--interactive-ghost-hover-bg)] rounded-lg transition-colors"
+                className="px-6 py-2 text-[var(--interactive-ghost-text)] hover:text-[var(--interactive-ghost-hover-text)] font-medium border border-[var(--border-warm)] hover:border-[var(--border-warm-hover)] hover:bg-[var(--interactive-ghost-hover-bg)] rounded-[var(--radius-button)] transition-[var(--transition-color)]"
               >
                 {resumeVerse && resumeVerse > 1
                   ? `Continue from ${chapter.chapter_number}.${resumeVerse}`
@@ -259,7 +259,7 @@ export function IntroCard(props: IntroCardProps) {
           )}
 
           {/* Summary */}
-          <div className="bg-[var(--surface-elevated)]/70 rounded-xl p-3 border border-[var(--border-warm-subtle)]">
+          <div className="bg-[var(--surface-elevated)]/70 rounded-[var(--radius-card)] p-3 border border-[var(--border-warm-subtle)]">
             <p className="text-sm sm:text-base text-[var(--text-primary)] leading-relaxed">
               {chapter.summary}
             </p>
@@ -271,7 +271,7 @@ export function IntroCard(props: IntroCardProps) {
               {chapter.key_themes.map((theme, index) => (
                 <span
                   key={index}
-                  className="px-2.5 py-0.5 bg-[var(--badge-warm-bg)] text-[var(--badge-warm-text)] text-xs rounded-full"
+                  className="px-2.5 py-0.5 bg-[var(--badge-warm-bg)] text-[var(--badge-warm-text)] text-xs rounded-[var(--radius-chip)]"
                 >
                   {theme}
                 </span>

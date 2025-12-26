@@ -95,7 +95,7 @@ function PageLoader() {
     >
       <div className="text-center">
         <div
-          className="w-8 h-8 border-2 border-[var(--border-accent)] border-t-transparent rounded-full animate-spin mx-auto mb-2"
+          className="w-8 h-8 border-2 border-[var(--border-accent)] border-t-transparent rounded-[var(--radius-progress)] animate-spin mx-auto mb-2"
           aria-hidden="true"
         ></div>
         <div className="text-[var(--text-secondary)] text-sm">

@@ -38,9 +38,9 @@ const skeletonVariants = cva(
   {
     variants: {
       variant: {
-        text: "rounded",
-        circular: "rounded-full",
-        rectangular: "rounded-lg",
+        text: "rounded-[var(--radius-skeleton)]",
+        circular: "rounded-[var(--radius-avatar)]",
+        rectangular: "rounded-[var(--radius-card)]",
       },
     },
     defaultVariants: {

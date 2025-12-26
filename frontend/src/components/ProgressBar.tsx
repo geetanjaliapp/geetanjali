@@ -32,7 +32,7 @@ export function ProgressBar({
 
   return (
     <div
-      className="w-full bg-[var(--surface-muted)] rounded-full overflow-hidden"
+      className="w-full bg-[var(--surface-muted)] rounded-[var(--radius-progress)] overflow-hidden"
       style={{ height: `${height}px` }}
       role="progressbar"
       aria-valuenow={clampedPercentage}
@@ -41,8 +41,8 @@ export function ProgressBar({
       aria-label={ariaLabel ?? `Progress: ${clampedPercentage}%`}
     >
       <div
-        className={`h-full bg-[var(--interactive-primary)] rounded-full ${
-          animate ? "transition-all duration-700 ease-out" : ""
+        className={`h-full bg-[var(--interactive-primary)] rounded-[var(--radius-progress)] ${
+          animate ? "transition-[var(--transition-all)]" : ""
         }`}
         style={{ width: `${clampedPercentage}%` }}
       />

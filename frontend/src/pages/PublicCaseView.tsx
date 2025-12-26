@@ -147,7 +147,7 @@ export default function PublicCaseView() {
           >
             ← Home
           </Link>
-          <div className="text-xs text-[var(--text-tertiary)] bg-[var(--surface-muted)] px-2 py-1 rounded-sm">
+          <div className="text-xs text-[var(--text-tertiary)] bg-[var(--surface-muted)] px-2 py-1 rounded-[var(--radius-skeleton)]">
             Shared Consultation
           </div>
         </div>
@@ -156,7 +156,7 @@ export default function PublicCaseView() {
       <div className="flex-1 py-4 sm:py-6">
         <div className="max-w-2xl mx-auto px-3 sm:px-4">
           {/* Call to action for starting own consultation */}
-          <div className="mb-4 sm:mb-6 bg-linear-to-r from-[var(--gradient-warm-from)] to-[var(--gradient-warm-to)] border border-[var(--border-warm)] rounded-xl px-3 sm:px-4 py-2.5 sm:py-3">
+          <div className="mb-4 sm:mb-6 bg-linear-to-r from-[var(--gradient-warm-from)] to-[var(--gradient-warm-to)] border border-[var(--border-warm)] rounded-[var(--radius-card)] px-3 sm:px-4 py-2.5 sm:py-3">
             <p className="text-xs sm:text-sm text-[var(--text-primary)]">
               Want guidance for your own situation?{" "}
               <Link
@@ -185,7 +185,7 @@ export default function PublicCaseView() {
                   {/* Question */}
                   <div className="relative pl-8 sm:pl-10 pb-3 sm:pb-4">
                     <div
-                      className={`absolute left-0 w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center ${
+                      className={`absolute left-0 w-6 h-6 sm:w-7 sm:h-7 rounded-[var(--radius-avatar)] flex items-center justify-center ${
                         isFirst
                           ? "bg-[var(--interactive-contextual)] text-[var(--interactive-contextual-text)]"
                           : "bg-[var(--status-info-bg)] border-2 border-[var(--status-info-border)]"
@@ -221,9 +221,9 @@ export default function PublicCaseView() {
                       {isFirst ? "Question" : "Follow-up"}
                     </div>
                     <div
-                      className={`rounded-xl p-3 sm:p-4 ${
+                      className={`rounded-[var(--radius-card)] p-3 sm:p-4 ${
                         isFirst
-                          ? "bg-[var(--surface-elevated)] shadow-lg border-2 border-[var(--border-warm)]"
+                          ? "bg-[var(--surface-elevated)] shadow-[var(--shadow-dropdown)] border-2 border-[var(--border-warm)]"
                           : "bg-[var(--status-info-bg)] border border-[var(--status-info-border)]"
                       }`}
                     >
@@ -239,7 +239,7 @@ export default function PublicCaseView() {
                   {exchange.assistant && (
                     <div className="relative pl-8 sm:pl-10 pb-4 sm:pb-6">
                       <div
-                        className={`absolute left-0 w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center ${
+                        className={`absolute left-0 w-6 h-6 sm:w-7 sm:h-7 rounded-[var(--radius-avatar)] flex items-center justify-center ${
                           isFirst
                             ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)]"
                             : "bg-[var(--badge-primary-bg)] border-2 border-[var(--border-warm)]"
@@ -276,10 +276,10 @@ export default function PublicCaseView() {
                       </div>
 
                       <div
-                        className={`rounded-xl p-3 sm:p-4 border ${
+                        className={`rounded-[var(--radius-card)] p-3 sm:p-4 border ${
                           isFirst
-                            ? "bg-[var(--surface-elevated)] shadow-lg border-[var(--border-warm)]"
-                            : "bg-[var(--surface-elevated)] shadow-md border-[var(--border-warm)]"
+                            ? "bg-[var(--surface-elevated)] shadow-[var(--shadow-dropdown)] border-[var(--border-warm)]"
+                            : "bg-[var(--surface-elevated)] shadow-[var(--shadow-card)] border-[var(--border-warm)]"
                         }`}
                       >
                         <GuidanceMarkdown
@@ -325,7 +325,7 @@ export default function PublicCaseView() {
                                     (source) => (
                                       <div
                                         key={source.canonical_id}
-                                        className="bg-linear-to-r from-[var(--gradient-warm-from)] to-[var(--gradient-warm-to)] rounded-lg p-2.5 sm:p-3 border border-[var(--border-warm)]"
+                                        className="bg-linear-to-r from-[var(--gradient-warm-from)] to-[var(--gradient-warm-to)] rounded-[var(--radius-button)] p-2.5 sm:p-3 border border-[var(--border-warm)]"
                                       >
                                         <div className="flex items-center justify-between">
                                           <Link
@@ -353,14 +353,14 @@ export default function PublicCaseView() {
                         {exchange.output && (
                           <div className="mt-3 sm:mt-4 pt-2.5 sm:pt-3 border-t border-[var(--border-default)] flex items-center gap-2 text-xs text-[var(--text-tertiary)]">
                             <span>Confidence:</span>
-                            <div className="w-10 sm:w-12 bg-[var(--border-default)] rounded-full h-1.5">
+                            <div className="w-10 sm:w-12 bg-[var(--border-default)] rounded-[var(--radius-progress)] h-1.5">
                               <div
-                                className={`h-1.5 rounded-full ${
+                                className={`h-1.5 rounded-[var(--radius-progress)] ${
                                   exchange.output.confidence >= 0.8
-                                    ? "bg-green-500"
+                                    ? "bg-[var(--status-success-text)]"
                                     : exchange.output.confidence >= 0.6
-                                      ? "bg-yellow-500"
-                                      : "bg-red-500"
+                                      ? "bg-[var(--status-warning-text)]"
+                                      : "bg-[var(--status-error-text)]"
                                 }`}
                                 style={{
                                   width: `${exchange.output.confidence * 100}%`,
@@ -403,7 +403,7 @@ export default function PublicCaseView() {
               <div className="mt-8 pt-6 border-t border-[var(--border-warm-subtle)]">
                 {/* Section Header */}
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-8 h-8 rounded-full bg-[var(--badge-warm-bg)] flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-[var(--radius-avatar)] bg-[var(--badge-warm-bg)] flex items-center justify-center">
                     <svg
                       className="w-4 h-4 text-[var(--interactive-ghost-text)]"
                       fill="none"
@@ -435,9 +435,9 @@ export default function PublicCaseView() {
                       onClick={() => setShowPaths(!showPaths)}
                       className="w-full text-left"
                     >
-                      <div className="flex items-center justify-between bg-[var(--surface-elevated)] rounded-xl p-3 sm:p-4 shadow-xs border border-[var(--border-warm)] hover:shadow-md transition-shadow">
+                      <div className="flex items-center justify-between bg-[var(--surface-elevated)] rounded-[var(--radius-card)] p-3 sm:p-4 shadow-[var(--shadow-button)] border border-[var(--border-warm)] hover:shadow-[var(--shadow-card)] transition-[var(--transition-[var(--transition-shadow)])]">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-[var(--badge-primary-bg)] flex items-center justify-center">
+                          <div className="w-8 h-8 rounded-[var(--radius-avatar)] bg-[var(--badge-primary-bg)] flex items-center justify-center">
                             <svg
                               className="w-4 h-4 text-[var(--interactive-ghost-text)]"
                               fill="none"
@@ -485,9 +485,9 @@ export default function PublicCaseView() {
                             <button
                               key={idx}
                               onClick={() => setSelectedOption(idx)}
-                              className={`shrink-0 w-[140px] sm:w-auto p-2.5 sm:p-3 rounded-xl border-2 text-left transition-all h-full ${
+                              className={`shrink-0 w-[140px] sm:w-auto p-2.5 sm:p-3 rounded-[var(--radius-card)] border-2 text-left transition-all h-full ${
                                 selectedOption === idx
-                                  ? "bg-[var(--badge-primary-bg)] border-[var(--interactive-primary)] shadow-md"
+                                  ? "bg-[var(--badge-primary-bg)] border-[var(--interactive-primary)] shadow-[var(--shadow-card)]"
                                   : "bg-[var(--surface-elevated)] border-[var(--border-default)] hover:border-[var(--border-warm)]"
                               }`}
                             >
@@ -505,7 +505,7 @@ export default function PublicCaseView() {
                           ))}
                         </div>
 
-                        <div className="bg-[var(--surface-elevated)] rounded-xl shadow-xs p-3 sm:p-4 border border-[var(--border-default)]">
+                        <div className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] shadow-[var(--shadow-button)] p-3 sm:p-4 border border-[var(--border-default)]">
                           <h4 className="font-semibold text-[var(--text-primary)] text-sm sm:text-base">
                             {
                               firstOutput.result_json.options[selectedOption]
@@ -566,9 +566,9 @@ export default function PublicCaseView() {
                         onClick={() => setShowSteps(!showSteps)}
                         className="w-full text-left"
                       >
-                        <div className="flex items-center justify-between bg-[var(--surface-elevated)] rounded-xl p-3 sm:p-4 shadow-xs border border-[var(--status-success-border)] hover:shadow-md transition-shadow">
+                        <div className="flex items-center justify-between bg-[var(--surface-elevated)] rounded-[var(--radius-card)] p-3 sm:p-4 shadow-[var(--shadow-button)] border border-[var(--status-success-border)] hover:shadow-[var(--shadow-card)] transition-[var(--transition-shadow)]">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-[var(--status-success-bg)] flex items-center justify-center">
+                            <div className="w-8 h-8 rounded-[var(--radius-avatar)] bg-[var(--status-success-bg)] flex items-center justify-center">
                               <svg
                                 className="w-4 h-4 text-[var(--status-success-text)]"
                                 fill="none"
@@ -615,7 +615,7 @@ export default function PublicCaseView() {
                       </button>
 
                       {showSteps && (
-                        <div className="mt-2 sm:mt-3 bg-[var(--surface-elevated)] rounded-xl shadow-xs p-3 sm:p-4 border border-[var(--status-success-border)]">
+                        <div className="mt-2 sm:mt-3 bg-[var(--surface-elevated)] rounded-[var(--radius-card)] shadow-[var(--shadow-button)] p-3 sm:p-4 border border-[var(--status-success-border)]">
                           <div className="space-y-2.5 sm:space-y-3">
                             {(
                               firstOutput.result_json.recommended_action as {
@@ -626,7 +626,7 @@ export default function PublicCaseView() {
                                 key={idx}
                                 className="flex items-start gap-2 sm:gap-3"
                               >
-                                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-[var(--status-success-bg)] text-[var(--status-success-text)] flex items-center justify-center shrink-0 text-xs font-medium">
+                                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-[var(--radius-avatar)] bg-[var(--status-success-bg)] text-[var(--status-success-text)] flex items-center justify-center shrink-0 text-xs font-medium">
                                   {idx + 1}
                                 </div>
                                 <p className="text-sm sm:text-base text-[var(--text-primary)] pt-0.5">
@@ -647,9 +647,9 @@ export default function PublicCaseView() {
                       onClick={() => setShowReflections(!showReflections)}
                       className="w-full text-left"
                     >
-                      <div className="flex items-center justify-between bg-[var(--surface-warm)] rounded-xl p-3 sm:p-4 shadow-xs border border-[var(--border-warm)] hover:shadow-md transition-shadow">
+                      <div className="flex items-center justify-between bg-[var(--surface-warm)] rounded-[var(--radius-card)] p-3 sm:p-4 shadow-[var(--shadow-button)] border border-[var(--border-warm)] hover:shadow-[var(--shadow-card)] transition-[var(--transition-[var(--transition-shadow)])]">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-[var(--badge-warm-bg)] flex items-center justify-center">
+                          <div className="w-8 h-8 rounded-[var(--radius-avatar)] bg-[var(--badge-warm-bg)] flex items-center justify-center">
                             <svg
                               className="w-4 h-4 text-[var(--text-accent)]"
                               fill="none"
@@ -694,7 +694,7 @@ export default function PublicCaseView() {
                     </button>
 
                     {showReflections && (
-                      <div className="mt-2 sm:mt-3 bg-[var(--surface-warm)] rounded-xl p-3 sm:p-4 border border-[var(--border-warm)]">
+                      <div className="mt-2 sm:mt-3 bg-[var(--surface-warm)] rounded-[var(--radius-card)] p-3 sm:p-4 border border-[var(--border-warm)]">
                         <ul className="space-y-2.5 sm:space-y-3">
                           {firstOutput.result_json.reflection_prompts.map(
                             (prompt, idx) => (
@@ -720,7 +720,7 @@ export default function PublicCaseView() {
             )}
 
           {/* CTA at bottom */}
-          <div className="mt-6 sm:mt-8 bg-[var(--surface-elevated)] rounded-xl shadow-md p-4 sm:p-6 text-center">
+          <div className="mt-6 sm:mt-8 bg-[var(--surface-elevated)] rounded-[var(--radius-card)] shadow-[var(--shadow-card)] p-4 sm:p-6 text-center">
             <h3 className="font-semibold text-[var(--text-primary)] text-sm sm:text-base mb-1.5 sm:mb-2">
               Need guidance for your situation?
             </h3>
@@ -730,7 +730,7 @@ export default function PublicCaseView() {
             </p>
             <Link
               to="/cases/new"
-              className="inline-block px-4 sm:px-6 py-2.5 sm:py-3 bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] rounded-xl hover:opacity-90 transition-colors font-medium text-sm sm:text-base"
+              className="inline-block px-4 sm:px-6 py-2.5 sm:py-3 bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] rounded-[var(--radius-card)] hover:opacity-90 transition-[var(--transition-color)] font-medium text-sm sm:text-base"
             >
               Start a Consultation
             </Link>

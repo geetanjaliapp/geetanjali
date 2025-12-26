@@ -46,7 +46,7 @@ const modalContentVariants = cva(
     "relative",
     "bg-[var(--surface-elevated)]",
     "border border-[var(--border-default)]",
-    "shadow-xl",
+    "shadow-[var(--shadow-modal)]",
     "w-full",
     "max-h-[90vh]",
     "overflow-hidden",
@@ -55,11 +55,11 @@ const modalContentVariants = cva(
   {
     variants: {
       size: {
-        sm: "max-w-sm rounded-xl",
-        md: "max-w-md rounded-xl",
-        lg: "max-w-lg rounded-xl",
-        xl: "max-w-xl rounded-xl",
-        full: "max-w-none h-full rounded-none sm:max-w-4xl sm:h-auto sm:max-h-[90vh] sm:rounded-xl",
+        sm: "max-w-sm rounded-[var(--radius-modal)]",
+        md: "max-w-md rounded-[var(--radius-modal)]",
+        lg: "max-w-lg rounded-[var(--radius-modal)]",
+        xl: "max-w-xl rounded-[var(--radius-modal)]",
+        full: "max-w-none h-full rounded-none sm:max-w-4xl sm:h-auto sm:max-h-[90vh] sm:rounded-[var(--radius-modal)]",
       },
     },
     defaultVariants: {
@@ -202,7 +202,7 @@ export const ModalHeader = forwardRef<
       <button
         type="button"
         onClick={onClose}
-        className="ml-4 p-1 rounded-lg text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--interactive-ghost-hover-bg)] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+        className="ml-4 p-1 rounded-[var(--radius-button)] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--interactive-ghost-hover-bg)] transition-[var(--transition-colors)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
         aria-label="Close modal"
       >
         <svg

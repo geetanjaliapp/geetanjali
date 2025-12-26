@@ -13,7 +13,7 @@ export function StepsSection({
 
   return (
     <div className="relative pl-8 sm:pl-10 pb-3 sm:pb-4">
-      <div className="absolute left-0 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[var(--status-success-bg)] border-2 border-[var(--status-success-border)] flex items-center justify-center">
+      <div className="absolute left-0 w-6 h-6 sm:w-7 sm:h-7 rounded-[var(--radius-avatar)] bg-[var(--status-success-bg)] border-2 border-[var(--status-success-border)] flex items-center justify-center">
         <svg
           className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[var(--status-success-text)]"
           fill="none"
@@ -30,7 +30,7 @@ export function StepsSection({
       </div>
 
       <button onClick={onToggle} className="w-full text-left">
-        <div className="flex items-center justify-between bg-[var(--surface-elevated)] rounded-xl p-3 sm:p-4 shadow-xs border border-[var(--status-success-border)] hover:shadow-md transition-shadow">
+        <div className="flex items-center justify-between bg-[var(--surface-elevated)] rounded-[var(--radius-card)] p-3 sm:p-4 shadow-[var(--shadow-button)] border border-[var(--status-success-border)] hover:shadow-[var(--shadow-card)] transition-[var(--transition-all)]">
           <div>
             <div className="text-xs font-semibold text-[var(--status-success-text)] uppercase tracking-wide">
               Recommended Steps
@@ -56,11 +56,11 @@ export function StepsSection({
       </button>
 
       {showSteps && (
-        <div className="mt-2 sm:mt-3 bg-[var(--surface-elevated)] rounded-xl shadow-xs p-3 sm:p-4 border border-[var(--status-success-border)]">
+        <div className="mt-2 sm:mt-3 bg-[var(--surface-elevated)] rounded-[var(--radius-card)] shadow-[var(--shadow-button)] p-3 sm:p-4 border border-[var(--status-success-border)]">
           <div className="space-y-2.5 sm:space-y-3">
             {steps.map((step, idx) => (
               <div key={idx} className="flex items-start gap-2 sm:gap-3">
-                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-[var(--status-success-bg)] text-[var(--status-success-text)] flex items-center justify-center shrink-0 text-xs font-medium">
+                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-[var(--radius-avatar)] bg-[var(--status-success-bg)] text-[var(--status-success-text)] flex items-center justify-center shrink-0 text-xs font-medium">
                   {idx + 1}
                 </div>
                 <p className="text-sm sm:text-base text-[var(--text-secondary)] pt-0.5">

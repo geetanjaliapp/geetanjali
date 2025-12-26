@@ -94,7 +94,7 @@ function CollapsibleSection({
 }: CollapsibleSectionProps) {
   return (
     <div
-      className={`${bgClass} rounded-xl border border-[var(--border-warm-subtle)] overflow-hidden`}
+      className={`${bgClass} rounded-[var(--radius-card)] border border-[var(--border-warm-subtle)] overflow-hidden`}
     >
       {/* Tappable header */}
       <button
@@ -328,7 +328,7 @@ export function VerseFocus({
       <div className="shrink-0">
         <button
           onClick={handleToggle}
-          className="w-full text-center focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-4 focus-visible:ring-offset-[var(--focus-ring-offset)] rounded-xl transition-transform active:scale-[0.99]"
+          className="w-full text-center focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-4 focus-visible:ring-offset-[var(--focus-ring-offset)] rounded-[var(--radius-card)] transition-[var(--transition-transform)] active:scale-[0.99]"
           aria-expanded={showTranslation}
           aria-label={showTranslation ? "Hide translation" : "Show translation"}
         >
@@ -381,7 +381,7 @@ export function VerseFocus({
         <div className="flex justify-center mt-4 mb-2">
           <button
             onClick={() => toggleFavorite(verse.canonical_id)}
-            className={`p-3 sm:p-1.5 rounded-full transition-all duration-150 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
+            className={`p-3 sm:p-1.5 rounded-[var(--radius-avatar)] transition-[var(--transition-all)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
               isFavorite(verse.canonical_id)
                 ? "text-[var(--status-error-text)]"
                 : "text-[var(--text-muted)] hover:text-[var(--status-error-text)] hover:scale-110"
@@ -412,7 +412,7 @@ export function VerseFocus({
           {loadingTranslations ? (
             // Loading state
             <div className="text-center py-4">
-              <div className="w-5 h-5 border-2 border-[var(--interactive-primary)] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+              <div className="w-5 h-5 border-2 border-[var(--interactive-primary)] border-t-transparent rounded-[var(--radius-progress)] animate-spin mx-auto mb-2" />
               <p className="text-sm text-[var(--text-accent-muted)]">
                 Loading translations...
               </p>

@@ -119,7 +119,7 @@ export function VersePopover({
                    bg-[var(--surface-warm)] px-1.5 py-0.5 rounded border border-[var(--border-warm)]
                    hover:bg-[var(--surface-warm)] hover:border-[var(--border-warm)]
                    focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)]
-                   transition-colors duration-150 cursor-pointer"
+                   transition-[var(--transition-color)] cursor-pointer"
         aria-expanded={isOpen}
         aria-haspopup="dialog"
       >
@@ -133,7 +133,7 @@ export function VersePopover({
           role="dialog"
           aria-label={`Verse ${displayRef} details`}
           className={`absolute z-50 w-72 sm:w-80
-                      bg-[var(--surface-elevated)] rounded-xl shadow-xl border border-[var(--border-warm)]
+                      bg-[var(--surface-elevated)] rounded-[var(--radius-card)] shadow-[var(--shadow-modal)] border border-[var(--border-warm)]
                       animate-in fade-in zoom-in-95 duration-150
                       ${position === "above" ? "bottom-full mb-2" : "top-full mt-2"}
                       left-1/2 -translate-x-1/2
@@ -177,15 +177,15 @@ export function VersePopover({
               <div className="flex items-center justify-center py-2">
                 <div className="flex gap-1">
                   <div
-                    className="w-2 h-2 bg-[var(--interactive-primary)] rounded-full animate-bounce"
+                    className="w-2 h-2 bg-[var(--interactive-primary)] rounded-[var(--radius-progress)] animate-bounce"
                     style={{ animationDelay: "0ms" }}
                   />
                   <div
-                    className="w-2 h-2 bg-[var(--interactive-primary)] rounded-full animate-bounce"
+                    className="w-2 h-2 bg-[var(--interactive-primary)] rounded-[var(--radius-progress)] animate-bounce"
                     style={{ animationDelay: "150ms" }}
                   />
                   <div
-                    className="w-2 h-2 bg-[var(--interactive-primary)] rounded-full animate-bounce"
+                    className="w-2 h-2 bg-[var(--interactive-primary)] rounded-[var(--radius-progress)] animate-bounce"
                     style={{ animationDelay: "300ms" }}
                   />
                 </div>
@@ -202,7 +202,7 @@ export function VersePopover({
           </div>
 
           {/* Footer - View Full Verse Link */}
-          <div className="px-4 py-3 border-t border-[var(--border-warm)] bg-[var(--surface-warm-subtle)] rounded-b-xl">
+          <div className="px-4 py-3 border-t border-[var(--border-warm)] bg-[var(--surface-warm-subtle)] rounded-b-[var(--radius-card)]">
             <Link
               to={`/verses/${canonicalId}`}
               className="flex items-center justify-center gap-1.5 text-sm text-[var(--text-accent)]

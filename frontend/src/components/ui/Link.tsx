@@ -29,12 +29,12 @@ const linkVariants = cva(
   // Base styles (shared across all variants)
   [
     "inline-flex items-center gap-1",
-    "transition-colors duration-150",
+    "transition-[var(--transition-color)]",
     "focus:outline-none focus-visible:ring-2",
     "focus-visible:ring-[var(--focus-ring)]",
     "focus-visible:ring-offset-1",
     "focus-visible:ring-offset-[var(--focus-ring-offset)]",
-    "focus-visible:rounded",
+    "focus-visible:rounded-[var(--radius-sm)]",
   ],
   {
     variants: {

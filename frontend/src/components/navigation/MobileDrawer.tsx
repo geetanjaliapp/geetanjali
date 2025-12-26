@@ -105,7 +105,7 @@ export function MobileDrawer({
         aria-hidden="true"
       >
         <div
-          className="fixed inset-0 bg-black/20 backdrop-blur-xs"
+          className="fixed inset-0 bg-[var(--overlay-bg-light)] backdrop-blur-xs"
           onClick={onClose}
         />
       </div>
@@ -117,7 +117,7 @@ export function MobileDrawer({
         role="navigation"
         aria-label="Mobile navigation"
         inert={!isOpen ? true : undefined}
-        className={`fixed top-14 left-0 bottom-0 w-72 bg-[var(--surface-elevated)] shadow-xl z-30 transform transition-all duration-300 ease-out md:hidden ${
+        className={`fixed top-14 left-0 bottom-0 w-72 bg-[var(--surface-elevated)] shadow-[var(--shadow-modal)] z-30 transform transition-[var(--transition-modal)] md:hidden ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -127,7 +127,7 @@ export function MobileDrawer({
             <Link
               to={PRIMARY_CTA.to}
               onClick={onClose}
-              className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-linear-to-r from-[var(--interactive-primary)] to-[var(--interactive-primary-hover)] hover:from-[var(--interactive-primary-hover)] hover:to-[var(--interactive-primary-active)] text-[var(--interactive-primary-text)] font-semibold rounded-lg shadow-md transition-all duration-200 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
+              className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-linear-to-r from-[var(--interactive-primary)] to-[var(--interactive-primary-hover)] hover:from-[var(--interactive-primary-hover)] hover:to-[var(--interactive-primary-active)] text-[var(--interactive-primary-text)] font-semibold rounded-[var(--radius-button)] shadow-[var(--shadow-card-hover)] transition-[var(--transition-card)] hover:shadow-[var(--shadow-card-elevated)] hover:scale-[1.02] active:scale-[0.98] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
             >
               <NavIcon path={NAV_ICONS[PRIMARY_CTA.icon]} className="w-5 h-5" />
               <span>{PRIMARY_CTA.mobileLabel}</span>
@@ -147,9 +147,9 @@ export function MobileDrawer({
                     key={item.to}
                     to={item.to}
                     onClick={onClose}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-inset ${
+                    className={`flex items-center gap-3 px-4 py-3 rounded-[var(--radius-nav)] text-base font-medium transition-[var(--transition-nav)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-inset ${
                       isActive
-                        ? "text-[var(--interactive-primary)] bg-[var(--menu-item-selected-bg)] shadow-xs"
+                        ? "text-[var(--interactive-primary)] bg-[var(--menu-item-selected-bg)] shadow-[var(--shadow-button)]"
                         : "text-[var(--text-secondary)] hover:text-[var(--interactive-primary)] hover:bg-[var(--menu-item-hover-bg)]"
                     }`}
                   >
@@ -169,9 +169,9 @@ export function MobileDrawer({
             {/* Account header */}
             <div className="flex items-center gap-3 px-4 py-3 border-b border-[var(--border-subtle)]">
               <div
-                className={`w-10 h-10 rounded-full ${
+                className={`w-10 h-10 rounded-[var(--radius-avatar)] ${
                   isGuest ? "bg-[var(--text-muted)]" : "bg-[var(--interactive-primary)]"
-                } text-white flex items-center justify-center text-sm font-medium shadow-xs`}
+                } text-white flex items-center justify-center text-sm font-medium shadow-[var(--shadow-button)]`}
               >
                 {isGuest ? (
                   <svg
@@ -219,7 +219,7 @@ export function MobileDrawer({
               <Link
                 to="/verses?favorites=true"
                 onClick={onClose}
-                className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg text-sm text-[var(--text-secondary)] hover:bg-[var(--surface-warm-hover)] transition-colors"
+                className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-[var(--radius-nav)] text-sm text-[var(--text-secondary)] hover:bg-[var(--surface-warm-hover)] transition-[var(--transition-color)]"
               >
                 <div className="flex items-center gap-3">
                   <HeartIcon className="w-4 h-4 text-[var(--status-error-text)]" filled />
@@ -236,7 +236,7 @@ export function MobileDrawer({
               <Link
                 to={readingPath}
                 onClick={onClose}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-[var(--text-secondary)] hover:bg-[var(--surface-warm-hover)] transition-colors"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius-nav)] text-sm text-[var(--text-secondary)] hover:bg-[var(--surface-warm-hover)] transition-[var(--transition-color)]"
               >
                 <NavIcon path={NAV_ICONS.read} className="w-4 h-4" />
                 <span>{readingLabel}</span>
@@ -246,7 +246,7 @@ export function MobileDrawer({
               <Link
                 to="/consultations"
                 onClick={onClose}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-[var(--text-secondary)] hover:bg-[var(--surface-warm-hover)] transition-colors"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius-nav)] text-sm text-[var(--text-secondary)] hover:bg-[var(--surface-warm-hover)] transition-[var(--transition-color)]"
               >
                 <NavIcon path={NAV_ICONS.cases} className="w-4 h-4" />
                 <span>My Guidance</span>
@@ -256,7 +256,7 @@ export function MobileDrawer({
               <Link
                 to="/settings"
                 onClick={onClose}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-[var(--text-secondary)] hover:bg-[var(--surface-warm-hover)] transition-colors"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius-nav)] text-sm text-[var(--text-secondary)] hover:bg-[var(--surface-warm-hover)] transition-[var(--transition-color)]"
               >
                 <NavIcon path={NAV_ICONS.settings} className="w-4 h-4" />
                 <span>Settings</span>
@@ -266,7 +266,7 @@ export function MobileDrawer({
               <Link
                 to="/about"
                 onClick={onClose}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-[var(--text-secondary)] hover:bg-[var(--surface-warm-hover)] transition-colors"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius-nav)] text-sm text-[var(--text-secondary)] hover:bg-[var(--surface-warm-hover)] transition-[var(--transition-color)]"
               >
                 <NavIcon path={NAV_ICONS.about} className="w-4 h-4" />
                 <span>About</span>
@@ -281,7 +281,7 @@ export function MobileDrawer({
                   <Link
                     to="/signup"
                     onClick={onClose}
-                    className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-[var(--surface-warm)] hover:bg-[var(--surface-warm-hover)] border border-[var(--border-warm)] text-[var(--badge-warm-text)] font-medium rounded-lg transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                    className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-[var(--surface-warm)] hover:bg-[var(--surface-warm-hover)] border border-[var(--border-warm)] text-[var(--badge-warm-text)] font-medium rounded-[var(--radius-button)] transition-[var(--transition-color)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                   >
                     <span>✨</span>
                     <span>Create account — Sync across devices</span>
@@ -300,7 +300,7 @@ export function MobileDrawer({
                   <Link
                     to="/login"
                     onClick={onClose}
-                    className="flex items-center justify-center w-full px-4 py-2.5 text-sm font-medium text-[var(--interactive-secondary-text)] bg-[var(--interactive-secondary-bg)] hover:bg-[var(--interactive-secondary-hover-bg)] border border-[var(--interactive-secondary-border)] rounded-lg transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                    className="flex items-center justify-center w-full px-4 py-2.5 text-sm font-medium text-[var(--interactive-secondary-text)] bg-[var(--interactive-secondary-bg)] hover:bg-[var(--interactive-secondary-hover-bg)] border border-[var(--interactive-secondary-border)] rounded-[var(--radius-button)] transition-[var(--transition-color)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                   >
                     Sign in
                   </Link>
@@ -308,7 +308,7 @@ export function MobileDrawer({
               ) : (
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-[var(--interactive-secondary-text)] bg-[var(--interactive-secondary-bg)] hover:bg-[var(--interactive-secondary-hover-bg)] border border-[var(--interactive-secondary-border)] rounded-lg transition-all duration-200 hover:shadow-xs focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-[var(--interactive-secondary-text)] bg-[var(--interactive-secondary-bg)] hover:bg-[var(--interactive-secondary-hover-bg)] border border-[var(--interactive-secondary-border)] rounded-[var(--radius-button)] transition-[var(--transition-nav)] hover:shadow-[var(--shadow-button)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
                 >
                   <NavIcon path={NAV_ICONS.logout} className="w-4 h-4" />
                   Sign out

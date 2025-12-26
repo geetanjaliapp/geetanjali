@@ -101,7 +101,7 @@ export function ExampleConsultation({
           <button
             key={cat}
             onClick={() => handleCategoryChange(cat)}
-            className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+            className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-[var(--radius-chip)] text-sm font-medium whitespace-nowrap transition-[var(--transition-color)] ${
               selected === cat
                 ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)]"
                 : "bg-[var(--surface-muted)] text-[var(--text-secondary)] hover:bg-[var(--interactive-ghost-hover-bg)]"
@@ -113,7 +113,7 @@ export function ExampleConsultation({
       </div>
 
       {/* Example Content Card */}
-      <div className="bg-[var(--surface-elevated)] rounded-xl sm:rounded-2xl shadow-md border border-[var(--border-default)] p-4 sm:p-6">
+      <div className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] shadow-[var(--shadow-card)] border border-[var(--border-default)] p-4 sm:p-6">
         {/* Dilemma Quote */}
         <blockquote className="text-[var(--text-primary)] text-base sm:text-lg italic mb-4 sm:mb-5 border-l-4 border-[var(--border-accent)] pl-4">
           "{example.dilemma}"
@@ -130,7 +130,7 @@ export function ExampleConsultation({
                 key={idx}
                 className="flex items-start gap-2 text-sm sm:text-base text-[var(--text-secondary)]"
               >
-                <span className="shrink-0 w-5 h-5 bg-[var(--badge-warm-bg)] text-[var(--badge-warm-text)] rounded-full flex items-center justify-center text-xs font-medium">
+                <span className="shrink-0 w-5 h-5 bg-[var(--badge-warm-bg)] text-[var(--badge-warm-text)] rounded-[var(--radius-avatar)] flex items-center justify-center text-xs font-medium">
                   {idx + 1}
                 </span>
                 <span>{option}</span>

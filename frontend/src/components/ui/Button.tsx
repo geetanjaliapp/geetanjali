@@ -21,8 +21,8 @@ const buttonVariants = cva(
   // Base styles (shared across all variants)
   [
     "inline-flex items-center justify-center gap-2",
-    "font-semibold rounded-lg",
-    "transition-colors duration-150",
+    "font-semibold rounded-[var(--radius-button)]",
+    "transition-[var(--transition-button)]",
     "focus:outline-none focus-visible:ring-2",
     "focus-visible:ring-[var(--focus-ring)]",
     "focus-visible:ring-offset-2",

@@ -63,7 +63,7 @@ export function ChapterSelector({
     <>
       {/* Subtle backdrop */}
       <div
-        className="fixed inset-0 bg-black/20 z-50"
+        className="fixed inset-0 bg-[var(--overlay-bg-light)] z-50"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -72,7 +72,7 @@ export function ChapterSelector({
       <div
         className="fixed bottom-16 left-1/2 -translate-x-1/2 z-50
                    bg-[var(--surface-warm)]/95 backdrop-blur-xs border border-[var(--border-warm)]
-                   rounded-xl shadow-lg p-3 w-[280px] sm:w-[320px]"
+                   rounded-[var(--radius-card)] shadow-[var(--shadow-dropdown)] p-3 w-[280px] sm:w-[320px]"
         role="dialog"
         aria-modal="true"
         aria-label="Select chapter"
@@ -88,8 +88,8 @@ export function ChapterSelector({
                 onClick={() => handleSelect(chapter)}
                 className={`
                   flex items-center justify-center
-                  w-10 h-10 rounded-lg text-sm font-medium
-                  transition-colors duration-150
+                  w-10 h-10 rounded-[var(--radius-button)] text-sm font-medium
+                  transition-[var(--transition-color)]
                   focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)]
                   ${
                     isCurrentChapter

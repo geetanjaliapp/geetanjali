@@ -30,11 +30,11 @@ import { forwardRef, type InputHTMLAttributes, useId } from "react";
 const inputVariants = cva(
   // Base styles (shared across all variants)
   [
-    "w-full rounded-lg border px-3 py-2",
+    "w-full rounded-[var(--radius-input)] border px-3 py-2",
     "text-[var(--input-text)]",
     "bg-[var(--input-bg)]",
     "placeholder:text-[var(--input-text-placeholder)]",
-    "transition-colors duration-150",
+    "transition-[var(--transition-color)]",
     "focus:outline-none focus:ring-2",
     "focus:ring-[var(--focus-ring)]",
     "focus:ring-offset-1", // Tighter offset for form controls

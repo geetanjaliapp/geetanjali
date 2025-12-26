@@ -119,7 +119,7 @@ export function VerifyEmailBanner() {
             className="p-2 -m-1.5 text-[var(--text-muted)]
                        hover:text-[var(--text-secondary)]
                        rounded transition-colors
-                       focus:outline-hidden focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 focus:ring-offset-[var(--focus-ring-offset)]"
+                       focus:outline-hidden focus:ring-1 focus:ring-[var(--border-focus)] focus:ring-offset-1 focus:ring-offset-[var(--focus-ring-offset)]"
             aria-label="Dismiss"
           >
             <CloseIcon className="w-3.5 h-3.5" />

@@ -33,7 +33,7 @@ import { forwardRef, type HTMLAttributes } from "react";
  */
 const cardVariants = cva(
   // Base styles (shared across all variants)
-  ["rounded-xl", "border", "transition-all duration-150"],
+  ["rounded-[var(--radius-card)]", "border", "transition-[var(--transition-card)]"],
   {
     variants: {
       variant: {
@@ -48,7 +48,7 @@ const cardVariants = cva(
         elevated: [
           "bg-[var(--surface-elevated)]",
           "border-[var(--border-subtle)]",
-          "shadow-lg",
+          "shadow-[var(--shadow-card-elevated)]",
         ],
         interactive: [
           "bg-[var(--surface-warm)]",
@@ -56,7 +56,7 @@ const cardVariants = cva(
           "cursor-pointer",
           "hover:bg-[var(--surface-warm-hover)]",
           "hover:border-[var(--border-warm-hover)]",
-          "hover:shadow-md",
+          "hover:shadow-[var(--shadow-card-hover)]",
           "focus-visible:outline-none",
           "focus-visible:ring-2",
           "focus-visible:ring-[var(--focus-ring)]",

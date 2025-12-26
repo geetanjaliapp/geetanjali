@@ -227,45 +227,45 @@ export default function VerseDetail() {
         <div className="flex-1 py-4 sm:py-6 lg:py-8">
           <div className="max-w-5xl mx-auto px-3 sm:px-4 lg:px-6">
             {/* Skeleton: Chapter Context Bar */}
-            <div className="flex items-center gap-3 mb-4 sm:mb-6 bg-[var(--surface-elevated)] rounded-lg sm:rounded-xl p-3 sm:p-4 shadow-xs">
-              <div className="w-8 h-8 bg-[var(--skeleton-bg)] rounded-full animate-pulse" />
+            <div className="flex items-center gap-3 mb-4 sm:mb-6 bg-[var(--surface-elevated)] rounded-[var(--radius-button)] sm:rounded-[var(--radius-card)] p-3 sm:p-4 shadow-[var(--shadow-button)]">
+              <div className="w-8 h-8 bg-[var(--skeleton-bg)] rounded-[var(--radius-avatar)] animate-pulse" />
               <div className="flex-1">
-                <div className="h-4 bg-[var(--skeleton-bg)] rounded-sm w-32 mb-2 animate-pulse" />
-                <div className="h-2 bg-[var(--skeleton-bg)] rounded-sm w-full animate-pulse" />
+                <div className="h-4 bg-[var(--skeleton-bg)] rounded-[var(--radius-skeleton)] w-32 mb-2 animate-pulse" />
+                <div className="h-2 bg-[var(--skeleton-bg)] rounded-[var(--radius-skeleton)] w-full animate-pulse" />
               </div>
-              <div className="h-4 bg-[var(--skeleton-bg)] rounded-sm w-16 animate-pulse" />
+              <div className="h-4 bg-[var(--skeleton-bg)] rounded-[var(--radius-skeleton)] w-16 animate-pulse" />
             </div>
 
             {/* Skeleton: Main Spotlight Section */}
-            <div className="bg-linear-to-br from-[var(--gradient-warm-from)] via-[var(--gradient-warm-via)] to-[var(--gradient-warm-to)] rounded-xl sm:rounded-2xl lg:rounded-3xl shadow-xl sm:shadow-2xl p-4 sm:p-8 lg:p-12 mb-4 sm:mb-6 lg:mb-8 border border-[var(--border-warm-subtle)]">
+            <div className="bg-linear-to-br from-[var(--gradient-warm-from)] via-[var(--gradient-warm-via)] to-[var(--gradient-warm-to)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] lg:rounded-[var(--radius-modal)] shadow-[var(--shadow-card-elevated)] sm:shadow-[var(--shadow-modal)] p-4 sm:p-8 lg:p-12 mb-4 sm:mb-6 lg:mb-8 border border-[var(--border-warm-subtle)]">
               {/* Sanskrit Skeleton */}
               <div className="mb-4 sm:mb-6 lg:mb-8 text-center pt-2 sm:pt-4">
-                <div className="w-8 h-8 bg-[var(--skeleton-bg)] rounded-full mx-auto mb-4 animate-pulse" />
+                <div className="w-8 h-8 bg-[var(--skeleton-bg)] rounded-[var(--radius-avatar)] mx-auto mb-4 animate-pulse" />
                 <div className="space-y-3 max-w-xl mx-auto">
-                  <div className="h-8 bg-[var(--skeleton-bg)] rounded-sm animate-pulse" />
-                  <div className="h-8 bg-[var(--skeleton-bg)] rounded-sm animate-pulse w-4/5 mx-auto" />
-                  <div className="h-8 bg-[var(--skeleton-bg)] rounded-sm animate-pulse w-3/4 mx-auto" />
+                  <div className="h-8 bg-[var(--skeleton-bg)] rounded-[var(--radius-skeleton)] animate-pulse" />
+                  <div className="h-8 bg-[var(--skeleton-bg)] rounded-[var(--radius-skeleton)] animate-pulse w-4/5 mx-auto" />
+                  <div className="h-8 bg-[var(--skeleton-bg)] rounded-[var(--radius-skeleton)] animate-pulse w-3/4 mx-auto" />
                 </div>
-                <div className="h-4 bg-[var(--skeleton-bg)] rounded-sm w-20 mx-auto mt-4 animate-pulse" />
+                <div className="h-4 bg-[var(--skeleton-bg)] rounded-[var(--radius-skeleton)] w-20 mx-auto mt-4 animate-pulse" />
               </div>
 
               {/* Leadership Insight Skeleton */}
-              <div className="bg-[var(--surface-elevated)]/70 backdrop-blur-xs rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 border border-[var(--border-warm-subtle)] mb-4 sm:mb-6 lg:mb-8">
-                <div className="h-3 bg-[var(--skeleton-bg)] rounded-sm w-32 mb-4 animate-pulse" />
+              <div className="bg-[var(--surface-elevated)]/70 backdrop-blur-xs rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] p-4 sm:p-6 lg:p-8 border border-[var(--border-warm-subtle)] mb-4 sm:mb-6 lg:mb-8">
+                <div className="h-3 bg-[var(--skeleton-bg)] rounded-[var(--radius-skeleton)] w-32 mb-4 animate-pulse" />
                 <div className="space-y-2">
-                  <div className="h-5 bg-[var(--skeleton-bg)] rounded-sm animate-pulse" />
-                  <div className="h-5 bg-[var(--skeleton-bg)] rounded-sm animate-pulse w-5/6" />
-                  <div className="h-5 bg-[var(--skeleton-bg)] rounded-sm animate-pulse w-4/5" />
+                  <div className="h-5 bg-[var(--skeleton-bg)] rounded-[var(--radius-skeleton)] animate-pulse" />
+                  <div className="h-5 bg-[var(--skeleton-bg)] rounded-[var(--radius-skeleton)] animate-pulse w-5/6" />
+                  <div className="h-5 bg-[var(--skeleton-bg)] rounded-[var(--radius-skeleton)] animate-pulse w-4/5" />
                 </div>
               </div>
 
               {/* Principles Skeleton */}
               <div className="mb-4 sm:mb-6 lg:mb-8">
-                <div className="h-3 bg-[var(--skeleton-bg)] rounded-sm w-40 mb-4 animate-pulse" />
+                <div className="h-3 bg-[var(--skeleton-bg)] rounded-[var(--radius-skeleton)] w-40 mb-4 animate-pulse" />
                 <div className="flex flex-wrap gap-2">
-                  <div className="h-8 bg-[var(--skeleton-bg)] rounded-full w-28 animate-pulse" />
-                  <div className="h-8 bg-[var(--skeleton-bg)] rounded-full w-32 animate-pulse" />
-                  <div className="h-8 bg-[var(--skeleton-bg)] rounded-full w-24 animate-pulse" />
+                  <div className="h-8 bg-[var(--skeleton-bg)] rounded-[var(--radius-chip)] w-28 animate-pulse" />
+                  <div className="h-8 bg-[var(--skeleton-bg)] rounded-[var(--radius-chip)] w-32 animate-pulse" />
+                  <div className="h-8 bg-[var(--skeleton-bg)] rounded-[var(--radius-chip)] w-24 animate-pulse" />
                 </div>
               </div>
 
@@ -275,17 +275,17 @@ export default function VerseDetail() {
               {/* Translations Skeleton */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
                 <div>
-                  <div className="h-3 bg-[var(--skeleton-bg)] rounded-sm w-24 mb-4 animate-pulse" />
+                  <div className="h-3 bg-[var(--skeleton-bg)] rounded-[var(--radius-skeleton)] w-24 mb-4 animate-pulse" />
                   <div className="space-y-2">
-                    <div className="h-4 bg-[var(--skeleton-bg)] rounded-sm animate-pulse" />
-                    <div className="h-4 bg-[var(--skeleton-bg)] rounded-sm animate-pulse w-5/6" />
+                    <div className="h-4 bg-[var(--skeleton-bg)] rounded-[var(--radius-skeleton)] animate-pulse" />
+                    <div className="h-4 bg-[var(--skeleton-bg)] rounded-[var(--radius-skeleton)] animate-pulse w-5/6" />
                   </div>
                 </div>
                 <div>
-                  <div className="h-3 bg-[var(--skeleton-bg)] rounded-sm w-28 mb-4 animate-pulse" />
+                  <div className="h-3 bg-[var(--skeleton-bg)] rounded-[var(--radius-skeleton)] w-28 mb-4 animate-pulse" />
                   <div className="space-y-2">
-                    <div className="h-4 bg-[var(--skeleton-bg)] rounded-sm animate-pulse" />
-                    <div className="h-4 bg-[var(--skeleton-bg)] rounded-sm animate-pulse w-4/5" />
+                    <div className="h-4 bg-[var(--skeleton-bg)] rounded-[var(--radius-skeleton)] animate-pulse" />
+                    <div className="h-4 bg-[var(--skeleton-bg)] rounded-[var(--radius-skeleton)] animate-pulse w-4/5" />
                   </div>
                 </div>
               </div>
@@ -365,7 +365,7 @@ export default function VerseDetail() {
           />
 
           {/* Main Spotlight Section */}
-          <div className="animate-fade-in bg-linear-to-br from-[var(--gradient-warm-from)] via-[var(--gradient-warm-via)] to-[var(--gradient-warm-to)] rounded-xl sm:rounded-2xl lg:rounded-3xl shadow-xl sm:shadow-2xl p-4 sm:p-8 lg:p-12 mb-4 sm:mb-6 lg:mb-8 border border-[var(--border-warm-subtle)]">
+          <div className="animate-fade-in bg-linear-to-br from-[var(--gradient-warm-from)] via-[var(--gradient-warm-via)] to-[var(--gradient-warm-to)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] lg:rounded-[var(--radius-modal)] shadow-[var(--shadow-card-elevated)] sm:shadow-[var(--shadow-modal)] p-4 sm:p-8 lg:p-12 mb-4 sm:mb-6 lg:mb-8 border border-[var(--border-warm-subtle)]">
             {/* Sanskrit Spotlight */}
             {verse.sanskrit_devanagari && (
               <div className="mb-4 sm:mb-6 lg:mb-8 text-center pt-2 sm:pt-4">
@@ -402,7 +402,7 @@ export default function VerseDetail() {
                   {/* Favorite button */}
                   <button
                     onClick={() => toggleFavorite(verse.canonical_id)}
-                    className={`p-3 sm:p-1.5 rounded-full transition-all duration-150 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
+                    className={`p-3 sm:p-1.5 rounded-[var(--radius-avatar)] transition-[var(--transition-all)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                       isFavorite(verse.canonical_id)
                         ? "text-[var(--status-error-text)]"
                         : "text-[var(--text-accent-muted)] hover:text-[var(--status-error-text)] hover:scale-110"
@@ -427,7 +427,7 @@ export default function VerseDetail() {
                   {/* Share button - opens unified share modal */}
                   <button
                     onClick={() => setShowShareModal(true)}
-                    className="p-3 sm:p-1.5 rounded-full transition-all duration-150 text-[var(--text-accent-muted)] hover:text-[var(--text-accent)] hover:scale-110 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
+                    className="p-3 sm:p-1.5 rounded-[var(--radius-avatar)] transition-[var(--transition-all)] text-[var(--text-accent-muted)] hover:text-[var(--text-accent)] hover:scale-110 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
                     aria-label="Share verse"
                   >
                     <ShareIcon className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -476,7 +476,7 @@ export default function VerseDetail() {
 
             {/* Leadership Insight - Collapsible */}
             {verse.paraphrase_en && (
-              <div className="bg-[var(--surface-elevated)]/70 backdrop-blur-xs rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 border border-[var(--border-warm-subtle)] mb-4 sm:mb-6 lg:mb-8">
+              <div className="bg-[var(--surface-elevated)]/70 backdrop-blur-xs rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] p-4 sm:p-6 lg:p-8 border border-[var(--border-warm-subtle)] mb-4 sm:mb-6 lg:mb-8">
                 <button
                   onClick={() => toggleSection("insight")}
                   className="w-full flex items-center justify-between text-left group"
@@ -516,11 +516,11 @@ export default function VerseDetail() {
                         key={principleId}
                         to={`/verses?topic=${principleId}`}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2
-                                   bg-[var(--badge-principle-bg)] text-[var(--badge-principle-text)] rounded-full text-sm sm:text-base
-                                   font-medium shadow-xs
-                                   hover:bg-[var(--surface-warm-hover)] hover:shadow-md
+                                   bg-[var(--badge-principle-bg)] text-[var(--badge-principle-text)] rounded-[var(--radius-chip)] text-sm sm:text-base
+                                   font-medium shadow-[var(--shadow-button)]
+                                   hover:bg-[var(--surface-warm-hover)] hover:shadow-[var(--shadow-card)]
                                    active:bg-[var(--surface-warm)]
-                                   transition-all duration-150
+                                   transition-[var(--transition-all)]
                                    focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]
                                    focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
                         aria-label={`View all verses about ${getPrincipleLabel(principleId)}`}
@@ -606,7 +606,7 @@ export default function VerseDetail() {
           {/* More Translations Section - Collapsible */}
           {otherTranslations.length > 0 && (
             <div
-              className="animate-fade-in bg-[var(--surface-elevated)] rounded-xl sm:rounded-2xl shadow-lg overflow-hidden mb-4 sm:mb-6 lg:mb-8"
+              className="animate-fade-in bg-[var(--surface-elevated)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] shadow-[var(--shadow-dropdown)] overflow-hidden mb-4 sm:mb-6 lg:mb-8"
               style={{ animationDelay: "100ms" }}
             >
               {/* Collapsible Header */}

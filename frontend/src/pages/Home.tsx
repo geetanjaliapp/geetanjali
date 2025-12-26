@@ -108,7 +108,7 @@ export default function Home() {
             {/* Main Tagline */}
             <h1 className="text-xl sm:text-3xl lg:text-4xl font-bold font-heading text-[var(--text-primary)] mb-2">
               Wisdom for Life's{" "}
-              <span className="bg-linear-to-r from-[var(--interactive-primary)] to-red-600 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-[var(--interactive-primary)] to-[var(--gradient-accent-to)] bg-clip-text text-transparent">
                 Difficult Decisions
               </span>
             </h1>
@@ -132,7 +132,7 @@ export default function Home() {
             <div
               role="alert"
               aria-live="assertive"
-              className="mb-6 sm:mb-8 bg-[var(--status-error-bg)] border border-[var(--status-error-border)] text-[var(--status-error-text)] px-4 sm:px-6 py-3 sm:py-4 rounded-lg max-w-2xl mx-auto"
+              className="mb-6 sm:mb-8 bg-[var(--status-error-bg)] border border-[var(--status-error-border)] text-[var(--status-error-text)] px-4 sm:px-6 py-3 sm:py-4 rounded-[var(--radius-button)] max-w-2xl mx-auto"
             >
               <div className="flex items-start gap-3">
                 <span className="text-lg sm:text-xl">⚠️</span>
@@ -165,7 +165,7 @@ export default function Home() {
             <Link
               to="/cases/new"
               onClick={handlePrimaryCTA}
-              className="inline-flex items-center gap-2 bg-[var(--interactive-primary)] hover:bg-[var(--interactive-primary-hover)] text-white font-semibold px-6 py-3 sm:px-8 sm:py-3.5 rounded-xl transition-all shadow-lg hover:shadow-xl text-base sm:text-lg group"
+              className="inline-flex items-center gap-2 bg-[var(--interactive-primary)] hover:bg-[var(--interactive-primary-hover)] text-[var(--interactive-primary-text)] font-semibold px-6 py-3 sm:px-8 sm:py-3.5 rounded-[var(--radius-card)] transition-[var(--transition-all)] shadow-[var(--shadow-dropdown)] hover:shadow-[var(--shadow-modal)] text-base sm:text-lg group"
             >
               <span>Ask a Question</span>
               <svg
@@ -185,7 +185,7 @@ export default function Home() {
             <Link
               to="/verses"
               onClick={handleExploreCTA}
-              className="inline-flex items-center gap-2 bg-[var(--surface-elevated)] hover:bg-[var(--surface-muted)] text-[var(--text-secondary)] font-medium px-6 py-3 sm:px-8 sm:py-3.5 rounded-xl transition-all border border-[var(--border-default)] hover:border-[var(--border-default)] text-base sm:text-lg"
+              className="inline-flex items-center gap-2 bg-[var(--surface-elevated)] hover:bg-[var(--surface-muted)] text-[var(--text-secondary)] font-medium px-6 py-3 sm:px-8 sm:py-3.5 rounded-[var(--radius-card)] transition-[var(--transition-all)] border border-[var(--border-default)] hover:border-[var(--border-default)] text-base sm:text-lg"
             >
               <span>Explore Verses</span>
             </Link>
@@ -198,7 +198,7 @@ export default function Home() {
           <div className="mb-8 sm:mb-10 lg:mb-12">
             <Suspense
               fallback={
-                <div className="animate-pulse bg-[var(--skeleton-bg)] rounded-xl h-64" />
+                <div className="animate-pulse bg-[var(--skeleton-bg)] rounded-[var(--radius-card)] h-64" />
               }
             >
               <FeaturedConsultations />
@@ -227,7 +227,7 @@ export default function Home() {
                   <Link
                     key={case_.id}
                     to={`/cases/${case_.id}`}
-                    className="flex items-center justify-between gap-4 p-3 bg-[var(--surface-warm-subtle)] rounded-lg border border-[var(--border-warm)] hover:border-[var(--option-selected-border)] hover:bg-[var(--surface-warm)] transition-all group"
+                    className="flex items-center justify-between gap-4 p-3 bg-[var(--surface-warm-subtle)] rounded-[var(--radius-button)] border border-[var(--border-warm)] hover:border-[var(--option-selected-border)] hover:bg-[var(--surface-warm)] transition-[var(--transition-all)] group"
                   >
                     <h3 className="font-medium text-[var(--text-primary)] text-sm sm:text-base truncate group-hover:text-[var(--option-selected-text)] transition-colors min-w-0">
                       {case_.title}
@@ -244,7 +244,7 @@ export default function Home() {
           {/* Consultations Error State */}
           {!casesLoading && casesError && isAuthenticated && (
             <div className="mb-8 sm:mb-10 max-w-4xl mx-auto">
-              <div className="p-4 bg-[var(--surface-warm-subtle)] rounded-lg border border-[var(--border-warm)] text-center">
+              <div className="p-4 bg-[var(--surface-warm-subtle)] rounded-[var(--radius-button)] border border-[var(--border-warm)] text-center">
                 <p className="text-sm text-[var(--text-muted)]">
                   Unable to load your consultations.{" "}
                   <Link
@@ -260,8 +260,8 @@ export default function Home() {
 
           {/* Feature Overview - Problem-oriented copy */}
           <div className="mt-4 sm:mt-6 grid grid-cols-3 gap-2 sm:gap-4 lg:gap-6 max-w-4xl mx-auto">
-            <div className="bg-linear-to-br from-[var(--gradient-warm-from)] to-[var(--gradient-warm-to)] p-3 sm:p-6 rounded-xl border border-[var(--border-warm)] text-center">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[var(--section-icon-newsletter-bg)] rounded-lg flex items-center justify-center mb-2 sm:mb-4 mx-auto">
+            <div className="bg-linear-to-br from-[var(--gradient-warm-from)] to-[var(--gradient-warm-to)] p-3 sm:p-6 rounded-[var(--radius-card)] border border-[var(--border-warm)] text-center">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[var(--section-icon-newsletter-bg)] rounded-[var(--radius-button)] flex items-center justify-center mb-2 sm:mb-4 mx-auto">
                 <svg
                   className="w-5 h-5 sm:w-6 sm:h-6 text-[var(--text-accent)]"
                   fill="none"
@@ -284,8 +284,8 @@ export default function Home() {
                 Get clarity when the right path isn't obvious
               </p>
             </div>
-            <div className="bg-linear-to-br from-[var(--gradient-page-from)] to-[var(--gradient-page-to)] p-3 sm:p-6 rounded-xl border border-[var(--option-selected-border)] text-center">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[var(--option-selected-bg)] rounded-lg flex items-center justify-center mb-2 sm:mb-4 mx-auto">
+            <div className="bg-linear-to-br from-[var(--gradient-page-from)] to-[var(--gradient-page-to)] p-3 sm:p-6 rounded-[var(--radius-card)] border border-[var(--option-selected-border)] text-center">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[var(--option-selected-bg)] rounded-[var(--radius-button)] flex items-center justify-center mb-2 sm:mb-4 mx-auto">
                 <svg
                   className="w-5 h-5 sm:w-6 sm:h-6 text-[var(--option-selected-text)]"
                   fill="none"
@@ -308,8 +308,8 @@ export default function Home() {
                 Compare approaches with honest trade-offs
               </p>
             </div>
-            <div className="bg-linear-to-br from-[var(--status-error-bg)] to-[var(--gradient-page-to)] p-3 sm:p-6 rounded-xl border border-[var(--status-error-border)] text-center">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[var(--status-error-bg)] rounded-lg flex items-center justify-center mb-2 sm:mb-4 mx-auto">
+            <div className="bg-linear-to-br from-[var(--status-error-bg)] to-[var(--gradient-page-to)] p-3 sm:p-6 rounded-[var(--radius-card)] border border-[var(--status-error-border)] text-center">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[var(--status-error-bg)] rounded-[var(--radius-button)] flex items-center justify-center mb-2 sm:mb-4 mx-auto">
                 <svg
                   className="w-5 h-5 sm:w-6 sm:h-6 text-[var(--status-error-text)]"
                   fill="none"

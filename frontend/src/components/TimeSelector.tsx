@@ -82,7 +82,7 @@ export function TimeSelector({ value, onChange, disabled }: TimeSelectorProps) {
           disabled={disabled}
           tabIndex={index === currentIndex ? 0 : -1}
           className={`
-            flex flex-col items-center p-2 rounded-lg border transition-all duration-150
+            flex flex-col items-center p-2 rounded-[var(--radius-button)] border transition-[var(--transition-all)]
             focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2
             focus-visible:ring-offset-[var(--focus-ring-offset)]
             ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
@@ -98,7 +98,7 @@ export function TimeSelector({ value, onChange, disabled }: TimeSelectorProps) {
           {/* Time icon */}
           <div
             className={`
-              w-8 h-8 rounded-full flex items-center justify-center mb-1
+              w-8 h-8 rounded-[var(--radius-avatar)] flex items-center justify-center mb-1
               ${
                 value === option.id
                   ? "bg-[var(--badge-warm-bg)] text-[var(--badge-warm-text)]"

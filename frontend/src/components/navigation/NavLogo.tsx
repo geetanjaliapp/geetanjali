@@ -25,7 +25,7 @@ export function NavLogo({
     return (
       <Link
         to={backTo}
-        className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-accent)] transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] rounded-md"
+        className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-accent)] transition-[var(--transition-color)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] rounded-[var(--radius-nav)]"
       >
         <svg
           className="w-5 h-5"
@@ -49,7 +49,7 @@ export function NavLogo({
   return (
     <Link
       to="/"
-      className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] rounded-md"
+      className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-[var(--transition-opacity)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] rounded-[var(--radius-nav)]"
     >
       <img
         src="/logo.svg"

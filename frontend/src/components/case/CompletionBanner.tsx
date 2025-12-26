@@ -13,7 +13,7 @@ export function CompletionBanner({
 }: CompletionBannerProps) {
   return (
     <div
-      className={`mb-6 rounded-xl px-4 py-3 flex items-center justify-between animate-in slide-in-from-top-2 duration-300 ${
+      className={`mb-6 rounded-[var(--radius-card)] px-4 py-3 flex items-center justify-between animate-in slide-in-from-top-2 duration-300 ${
         isPolicyViolation
           ? "bg-[var(--status-warning-bg)] border border-[var(--status-warning-border)]"
           : "bg-[var(--status-success-bg)] border border-[var(--status-success-border)]"
@@ -21,8 +21,8 @@ export function CompletionBanner({
     >
       <div className="flex items-center gap-3">
         <div
-          className={`w-8 h-8 rounded-full flex items-center justify-center ${
-            isPolicyViolation ? "bg-amber-500" : "bg-green-500"
+          className={`w-8 h-8 rounded-[var(--radius-avatar)] flex items-center justify-center ${
+            isPolicyViolation ? "bg-[var(--status-warning-text)]" : "bg-[var(--status-success-text)]"
           }`}
         >
           {isPolicyViolation ? (
@@ -83,7 +83,7 @@ export function CompletionBanner({
         className={`rounded focus:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
           isPolicyViolation
             ? "text-[var(--status-warning-text)] hover:text-[var(--status-warning-text)] focus-visible:ring-[var(--border-focus)]"
-            : "text-[var(--status-success-text)] hover:text-[var(--status-success-text)] focus-visible:ring-green-500"
+            : "text-[var(--status-success-text)] hover:text-[var(--status-success-text)] focus-visible:ring-[var(--border-focus)]"
         }`}
       >
         <svg

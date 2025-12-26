@@ -90,7 +90,7 @@ export default function ResetPassword() {
                   className="h-12 w-12 sm:h-16 sm:w-16 mx-auto"
                 />
               </Link>
-              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-[var(--status-success-bg)] rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-[var(--status-success-bg)] rounded-[var(--radius-avatar)] flex items-center justify-center mx-auto mb-4">
                 <svg
                   className="w-6 h-6 sm:w-8 sm:h-8 text-[var(--status-success-text)]"
                   fill="none"
@@ -117,7 +117,7 @@ export default function ResetPassword() {
             <div className="pt-4">
               <Link
                 to="/login"
-                className="w-full inline-flex justify-center py-2.5 sm:py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-[var(--interactive-primary)] hover:opacity-90 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--focus-ring-offset)] focus:ring-[var(--border-focus)] transition-colors"
+                className="w-full inline-flex justify-center py-2.5 sm:py-2 px-4 border border-transparent text-sm font-medium rounded-[var(--radius-button)] text-white bg-[var(--interactive-primary)] hover:opacity-90 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--focus-ring-offset)] focus:ring-[var(--border-focus)] transition-colors"
               >
                 Sign In
               </Link>
@@ -158,7 +158,7 @@ export default function ResetPassword() {
               <div
                 role="alert"
                 aria-live="assertive"
-                className="rounded-lg bg-[var(--status-error-bg)] p-3 sm:p-4"
+                className="rounded-[var(--radius-button)] bg-[var(--status-error-bg)] p-3 sm:p-4"
               >
                 <div className="text-sm text-[var(--status-error-text)]">
                   {error}
@@ -182,7 +182,7 @@ export default function ResetPassword() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full px-3 py-2.5 sm:py-2 border border-[var(--input-border)] bg-[var(--input-bg)] placeholder-[var(--text-muted)] text-[var(--text-primary)] rounded-lg focus:outline-hidden focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent text-base sm:text-sm"
+                  className="block w-full px-3 py-2.5 sm:py-2 border border-[var(--input-border)] bg-[var(--input-bg)] placeholder-[var(--text-muted)] text-[var(--text-primary)] rounded-[var(--radius-button)] focus:outline-hidden focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent text-base sm:text-sm"
                   placeholder="••••••••"
                 />
                 <p className="mt-1 text-xs text-[var(--text-muted)]">
@@ -204,7 +204,7 @@ export default function ResetPassword() {
                   required
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="block w-full px-3 py-2.5 sm:py-2 border border-[var(--input-border)] bg-[var(--input-bg)] placeholder-[var(--text-muted)] text-[var(--text-primary)] rounded-lg focus:outline-hidden focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent text-base sm:text-sm"
+                  className="block w-full px-3 py-2.5 sm:py-2 border border-[var(--input-border)] bg-[var(--input-bg)] placeholder-[var(--text-muted)] text-[var(--text-primary)] rounded-[var(--radius-button)] focus:outline-hidden focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent text-base sm:text-sm"
                   placeholder="Re-enter your password"
                 />
               </div>
@@ -214,7 +214,7 @@ export default function ResetPassword() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-2.5 sm:py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-[var(--interactive-primary)] hover:opacity-90 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--focus-ring-offset)] focus:ring-[var(--border-focus)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="w-full flex justify-center py-2.5 sm:py-2 px-4 border border-transparent text-sm font-medium rounded-[var(--radius-button)] text-white bg-[var(--interactive-primary)] hover:opacity-90 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--focus-ring-offset)] focus:ring-[var(--border-focus)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {loading ? "Resetting..." : "Reset Password"}
               </button>

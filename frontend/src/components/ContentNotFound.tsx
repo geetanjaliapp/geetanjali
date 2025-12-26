@@ -96,7 +96,7 @@ export function ContentNotFound({
   return (
     <div className="text-center max-w-md mx-auto px-4">
       {/* Icon */}
-      <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[var(--surface-warm)] flex items-center justify-center">
+      <div className="w-16 h-16 mx-auto mb-6 rounded-[var(--radius-avatar)] bg-[var(--surface-warm)] flex items-center justify-center">
         {content.icon}
       </div>
 
@@ -120,7 +120,7 @@ export function ContentNotFound({
       {/* Primary CTA */}
       <Link
         to={primaryCta.to}
-        className="inline-block px-5 sm:px-6 py-2.5 sm:py-3 bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] rounded-lg hover:opacity-90 transition-colors font-medium text-sm sm:text-base"
+        className="inline-block px-5 sm:px-6 py-2.5 sm:py-3 bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] rounded-[var(--radius-button)] hover:opacity-90 transition-[var(--transition-color)] font-medium text-sm sm:text-base"
       >
         {primaryCta.label}
       </Link>

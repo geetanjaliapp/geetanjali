@@ -34,8 +34,8 @@ const iconButtonVariants = cva(
   // Base styles (shared across all variants)
   [
     "inline-flex items-center justify-center",
-    "rounded-lg",
-    "transition-colors duration-150",
+    "rounded-[var(--radius-button)]",
+    "transition-[var(--transition-button)]",
     "focus:outline-none focus-visible:ring-2",
     "focus-visible:ring-[var(--focus-ring)]",
     "focus-visible:ring-offset-2",

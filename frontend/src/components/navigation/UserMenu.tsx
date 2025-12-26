@@ -103,15 +103,15 @@ export function UserMenu({
         onClick={() => setIsOpen(!isOpen)}
         className={
           isDesktop
-            ? "flex items-center gap-2 px-2 py-1.5 rounded-full bg-[var(--surface-muted)] hover:bg-[var(--interactive-secondary-hover-bg)] transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
-            : "p-1 rounded-full focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
+            ? "flex items-center gap-2 px-2 py-1.5 rounded-[var(--radius-avatar)] bg-[var(--surface-muted)] hover:bg-[var(--interactive-secondary-hover-bg)] transition-[var(--transition-color)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
+            : "p-1 rounded-[var(--radius-avatar)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
         }
         aria-label="Open account menu"
         aria-expanded={isOpen}
         aria-haspopup="menu"
       >
         <div
-          className={`${avatarSize} rounded-full ${avatarBg} text-white flex items-center justify-center ${textSize} font-medium`}
+          className={`${avatarSize} rounded-[var(--radius-avatar)] ${avatarBg} text-white flex items-center justify-center ${textSize} font-medium`}
         >
           {isGuest ? (
             <svg
@@ -136,7 +136,7 @@ export function UserMenu({
               {displayName}
             </span>
             <svg
-              className={`w-4 h-4 text-[var(--text-tertiary)] transition-transform ${isOpen ? "rotate-180" : ""}`}
+              className={`w-4 h-4 text-[var(--text-tertiary)] transition-[var(--transition-transform)] ${isOpen ? "rotate-180" : ""}`}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -158,7 +158,7 @@ export function UserMenu({
         <div
           role="menu"
           aria-label="Account menu"
-          className="absolute right-0 mt-2 w-56 bg-[var(--surface-elevated)] rounded-lg shadow-lg border border-[var(--border-default)] py-1 z-50"
+          className="absolute right-0 mt-2 w-56 bg-[var(--surface-elevated)] rounded-[var(--radius-dropdown)] shadow-[var(--shadow-dropdown)] border border-[var(--border-default)] py-1 z-50"
         >
           {/* Header - User/Guest info */}
           <div className="px-4 py-3 border-b border-[var(--border-subtle)]">
@@ -190,7 +190,7 @@ export function UserMenu({
               role="menuitem"
               to="/verses?favorites=true"
               onClick={handleLinkClick}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--text-secondary)] hover:bg-[var(--menu-item-hover-bg)] transition-colors focus:outline-hidden focus-visible:bg-[var(--menu-item-hover-bg)]"
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--text-secondary)] hover:bg-[var(--menu-item-hover-bg)] transition-[var(--transition-color)] focus:outline-hidden focus-visible:bg-[var(--menu-item-hover-bg)]"
             >
               <HeartIcon className="w-4 h-4 text-[var(--status-error-text)]" filled />
               <span>My Favorites</span>
@@ -206,7 +206,7 @@ export function UserMenu({
               role="menuitem"
               to={readingPath}
               onClick={handleLinkClick}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--text-secondary)] hover:bg-[var(--menu-item-hover-bg)] transition-colors focus:outline-hidden focus-visible:bg-[var(--menu-item-hover-bg)]"
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--text-secondary)] hover:bg-[var(--menu-item-hover-bg)] transition-[var(--transition-color)] focus:outline-hidden focus-visible:bg-[var(--menu-item-hover-bg)]"
             >
               <NavIcon path={NAV_ICONS.read} />
               <span>{readingLabel}</span>
@@ -217,7 +217,7 @@ export function UserMenu({
               role="menuitem"
               to="/consultations"
               onClick={handleLinkClick}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--text-secondary)] hover:bg-[var(--menu-item-hover-bg)] transition-colors focus:outline-hidden focus-visible:bg-[var(--menu-item-hover-bg)]"
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--text-secondary)] hover:bg-[var(--menu-item-hover-bg)] transition-[var(--transition-color)] focus:outline-hidden focus-visible:bg-[var(--menu-item-hover-bg)]"
             >
               <NavIcon path={NAV_ICONS.cases} />
               <span>My Guidance</span>
@@ -230,7 +230,7 @@ export function UserMenu({
               role="menuitem"
               to="/settings"
               onClick={handleLinkClick}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--text-secondary)] hover:bg-[var(--menu-item-hover-bg)] transition-colors focus:outline-hidden focus-visible:bg-[var(--menu-item-hover-bg)]"
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--text-secondary)] hover:bg-[var(--menu-item-hover-bg)] transition-[var(--transition-color)] focus:outline-hidden focus-visible:bg-[var(--menu-item-hover-bg)]"
             >
               <NavIcon path={NAV_ICONS.settings} />
               <span>Settings</span>
@@ -240,7 +240,7 @@ export function UserMenu({
               role="menuitem"
               to="/about"
               onClick={handleLinkClick}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--text-secondary)] hover:bg-[var(--menu-item-hover-bg)] transition-colors focus:outline-hidden focus-visible:bg-[var(--menu-item-hover-bg)]"
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--text-secondary)] hover:bg-[var(--menu-item-hover-bg)] transition-[var(--transition-color)] focus:outline-hidden focus-visible:bg-[var(--menu-item-hover-bg)]"
             >
               <NavIcon path={NAV_ICONS.about} />
               <span>About</span>
@@ -256,7 +256,7 @@ export function UserMenu({
                   role="menuitem"
                   to="/signup"
                   onClick={handleLinkClick}
-                  className="flex flex-col items-center gap-0.5 w-full px-4 py-2.5 bg-[var(--surface-warm)] hover:bg-[var(--surface-warm-hover)] border border-[var(--border-warm)] rounded-lg transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                  className="flex flex-col items-center gap-0.5 w-full px-4 py-2.5 bg-[var(--surface-warm)] hover:bg-[var(--surface-warm-hover)] border border-[var(--border-warm)] rounded-[var(--radius-button)] transition-[var(--transition-color)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                 >
                   <span className="text-sm font-medium text-[var(--badge-warm-text)]">
                     ✨ Create account
@@ -280,7 +280,7 @@ export function UserMenu({
                   role="menuitem"
                   to="/login"
                   onClick={handleLinkClick}
-                  className="flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-[var(--interactive-secondary-text)] bg-[var(--interactive-secondary-bg)] hover:bg-[var(--interactive-secondary-hover-bg)] border border-[var(--interactive-secondary-border)] rounded-lg transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                  className="flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-[var(--interactive-secondary-text)] bg-[var(--interactive-secondary-bg)] hover:bg-[var(--interactive-secondary-hover-bg)] border border-[var(--interactive-secondary-border)] rounded-[var(--radius-button)] transition-[var(--transition-color)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                 >
                   Sign in
                 </Link>
@@ -289,7 +289,7 @@ export function UserMenu({
               <button
                 role="menuitem"
                 onClick={handleLogout}
-                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--text-secondary)] hover:bg-[var(--menu-item-hover-bg)] transition-colors focus:outline-hidden focus-visible:bg-[var(--menu-item-hover-bg)]"
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--text-secondary)] hover:bg-[var(--menu-item-hover-bg)] transition-[var(--transition-color)] focus:outline-hidden focus-visible:bg-[var(--menu-item-hover-bg)]"
               >
                 <NavIcon path={NAV_ICONS.logout} />
                 <span>Sign out</span>

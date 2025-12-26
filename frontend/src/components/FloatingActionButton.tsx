@@ -88,15 +88,15 @@ export function FloatingActionButton({
         ${needsHigherPosition ? "bottom-20" : "bottom-6"}
         md:hidden
         flex items-center gap-2
-        bg-linear-to-r from-orange-500 to-orange-600
-        hover:from-orange-600 hover:to-orange-700
-        text-white font-semibold
+        bg-linear-to-r from-[var(--gradient-fab-from)] to-[var(--gradient-fab-to)]
+        hover:from-[var(--gradient-fab-hover-from)] hover:to-[var(--gradient-fab-hover-to)]
+        text-[var(--interactive-primary-text)] font-semibold
         pl-4 pr-5 py-3
-        rounded-full
-        shadow-lg shadow-orange-600/30
-        hover:shadow-xl hover:shadow-orange-600/40
+        rounded-[var(--radius-chip)]
+        shadow-[var(--shadow-dropdown)] shadow-[var(--shadow-fab)]
+        hover:shadow-[var(--shadow-modal)] hover:shadow-[var(--shadow-fab-hover)]
         transform hover:scale-105
-        transition-all duration-200
+        transition-[var(--transition-all)]
         active:scale-95
       `}
       aria-label="Ask a Question"

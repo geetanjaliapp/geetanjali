@@ -268,7 +268,7 @@ export const SearchInput = forwardRef<SearchInputHandle, SearchInputProps>(
               }
               onKeyDown={handleKeyDown}
               placeholder={placeholder}
-              className="w-full pl-10 pr-10 py-3 sm:py-3.5 border border-[var(--border-warm)] rounded-l-full bg-[var(--surface-elevated)]/80 backdrop-blur-xs focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-[var(--focus-ring)] focus:z-10 text-[var(--input-text)] placeholder:text-[var(--input-text-placeholder)] shadow-xs transition-shadow"
+              className="w-full pl-10 pr-10 py-3 sm:py-3.5 border border-[var(--border-warm)] rounded-l-[var(--radius-chip)] bg-[var(--surface-elevated)]/80 backdrop-blur-xs focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-[var(--focus-ring)] focus:z-10 text-[var(--input-text)] placeholder:text-[var(--input-text-placeholder)] shadow-[var(--shadow-button)] transition-[var(--transition-all)]"
               aria-label="Search query"
               aria-expanded={showRecentDropdown || showExamplesDropdown}
               aria-haspopup="listbox"
@@ -284,13 +284,13 @@ export const SearchInput = forwardRef<SearchInputHandle, SearchInputProps>(
                 <button
                   type="button"
                   onClick={handleClear}
-                  className="text-[var(--text-muted)] hover:text-[var(--text-secondary)] p-3 sm:p-1 -m-2 sm:m-0 rounded-full hover:bg-[var(--interactive-secondary-hover-bg)] transition-colors"
+                  className="text-[var(--text-muted)] hover:text-[var(--text-secondary)] p-3 sm:p-1 -m-2 sm:m-0 rounded-[var(--radius-avatar)] hover:bg-[var(--interactive-secondary-hover-bg)] transition-[var(--transition-color)]"
                   aria-label="Clear search"
                 >
                   <CloseIcon className="w-4 h-4" />
                 </button>
               ) : (
-                <kbd className="hidden lg:inline-flex items-center px-1.5 py-0.5 text-[10px] text-[var(--text-accent-muted)] bg-[var(--surface-warm)] rounded-sm border border-[var(--border-warm-subtle)]">
+                <kbd className="hidden lg:inline-flex items-center px-1.5 py-0.5 text-[10px] text-[var(--text-accent-muted)] bg-[var(--surface-warm)] rounded-[var(--radius-skeleton)] border border-[var(--border-warm-subtle)]">
                   ⌘K
                 </kbd>
               )}
@@ -298,7 +298,7 @@ export const SearchInput = forwardRef<SearchInputHandle, SearchInputProps>(
 
             {/* Recent Searches Dropdown */}
             {showRecentDropdown && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-[var(--surface-elevated)] border border-[var(--border-default)] rounded-xl shadow-lg z-20 overflow-hidden">
+              <div className="absolute top-full left-0 right-0 mt-2 bg-[var(--surface-elevated)] border border-[var(--border-default)] rounded-[var(--radius-card)] shadow-[var(--shadow-dropdown)] z-20 overflow-hidden">
                 <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--border-subtle)] bg-[var(--surface-muted)]/50">
                   <span className="text-xs font-medium text-[var(--text-tertiary)]">
                     Recent
@@ -346,7 +346,7 @@ export const SearchInput = forwardRef<SearchInputHandle, SearchInputProps>(
 
             {/* Search Examples Dropdown (when no recent searches) */}
             {showExamplesDropdown && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-[var(--surface-elevated)] border border-[var(--border-default)] rounded-xl shadow-lg z-20 overflow-hidden">
+              <div className="absolute top-full left-0 right-0 mt-2 bg-[var(--surface-elevated)] border border-[var(--border-default)] rounded-[var(--radius-card)] shadow-[var(--shadow-dropdown)] z-20 overflow-hidden">
                 <div className="px-4 py-2 border-b border-[var(--border-subtle)] bg-[var(--surface-muted)]/50">
                   <span className="text-xs font-medium text-[var(--text-tertiary)]">
                     Try searching for
@@ -390,7 +390,7 @@ export const SearchInput = forwardRef<SearchInputHandle, SearchInputProps>(
           <button
             type="submit"
             disabled={loading}
-            className="px-4 sm:px-6 py-3 sm:py-3.5 bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] font-medium rounded-r-full hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 shadow-xs hover:shadow-md border border-[var(--interactive-primary)] hover:border-[var(--interactive-primary)] -ml-px"
+            className="px-4 sm:px-6 py-3 sm:py-3.5 bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] font-medium rounded-r-[var(--radius-chip)] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-[var(--transition-all)] flex items-center gap-2 shadow-[var(--shadow-button)] hover:shadow-[var(--shadow-card)] border border-[var(--interactive-primary)] hover:border-[var(--interactive-primary)] -ml-px"
           >
             {loading ? (
               <SpinnerIcon className="w-5 h-5" />

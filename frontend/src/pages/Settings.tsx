@@ -358,9 +358,9 @@ export default function Settings() {
         </div>
 
         {/* Section 1: Account (Full Width) */}
-        <section id="account" className="bg-[var(--surface-elevated)] rounded-xl shadow-md p-4 mb-4 scroll-mt-20">
+        <section id="account" className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] shadow-[var(--shadow-card)] p-4 mb-4 scroll-mt-20">
           <div className="flex items-center gap-2 mb-4">
-            <div className="p-1.5 rounded-lg bg-[var(--surface-muted)] text-[var(--text-tertiary)]">
+            <div className="p-1.5 rounded-[var(--radius-button)] bg-[var(--surface-muted)] text-[var(--text-tertiary)]">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
@@ -370,7 +370,7 @@ export default function Settings() {
 
           {isAuthenticated ? (
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] flex items-center justify-center text-base font-medium shrink-0">
+              <div className="w-12 h-12 rounded-[var(--radius-avatar)] bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] flex items-center justify-center text-base font-medium shrink-0">
                 {getInitials(user?.name)}
               </div>
               <div className="flex-1 min-w-0">
@@ -422,14 +422,14 @@ export default function Settings() {
               </div>
               <button
                 onClick={handleLogout}
-                className="px-3 py-1.5 text-sm text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-muted)] rounded-lg transition-colors"
+                className="px-3 py-1.5 text-sm text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-muted)] rounded-[var(--radius-button)] transition-[var(--transition-color)]"
               >
                 Sign out
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-3 bg-[var(--surface-warm)] border border-[var(--border-warm)] rounded-lg p-3">
-              <div className="w-10 h-10 rounded-full bg-[var(--avatar-placeholder-bg)] text-white flex items-center justify-center shrink-0">
+            <div className="flex items-center gap-3 bg-[var(--surface-warm)] border border-[var(--border-warm)] rounded-[var(--radius-button)] p-3">
+              <div className="w-10 h-10 rounded-[var(--radius-avatar)] bg-[var(--avatar-placeholder-bg)] text-white flex items-center justify-center shrink-0">
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
                 </svg>
@@ -441,13 +441,13 @@ export default function Settings() {
               <div className="flex gap-2">
                 <Link
                   to="/signup"
-                  className="px-3 py-1.5 text-sm bg-[var(--interactive-primary)] hover:opacity-90 text-[var(--interactive-primary-text)] font-medium rounded-lg transition-colors"
+                  className="px-3 py-1.5 text-sm bg-[var(--interactive-primary)] hover:opacity-90 text-[var(--interactive-primary-text)] font-medium rounded-[var(--radius-button)] transition-[var(--transition-color)]"
                 >
                   Create account
                 </Link>
                 <Link
                   to="/login"
-                  className="px-3 py-1.5 text-sm text-[var(--text-secondary)] hover:bg-[var(--surface-muted)] rounded-lg transition-colors"
+                  className="px-3 py-1.5 text-sm text-[var(--text-secondary)] hover:bg-[var(--surface-muted)] rounded-[var(--radius-button)] transition-[var(--transition-color)]"
                 >
                   Sign in
                 </Link>
@@ -459,9 +459,9 @@ export default function Settings() {
         {/* 2-Column Grid: Goals + Newsletter */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
           {/* Learning Goals */}
-          <section id="goals" className="bg-[var(--surface-elevated)] rounded-xl shadow-md p-4 scroll-mt-20">
+          <section id="goals" className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] shadow-[var(--shadow-card)] p-4 scroll-mt-20">
             <div className="flex items-center gap-2 mb-3">
-              <div className="p-1.5 rounded-lg bg-[var(--section-icon-goals-bg)] text-[var(--section-icon-goals-text)]">
+              <div className="p-1.5 rounded-[var(--radius-button)] bg-[var(--section-icon-goals-bg)] text-[var(--section-icon-goals-text)]">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
                 </svg>
@@ -494,7 +494,7 @@ export default function Settings() {
                   ].map((option) => (
                     <label
                       key={option.value}
-                      className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs sm:text-sm cursor-pointer transition-colors whitespace-nowrap ${
+                      className={`inline-flex items-center px-2.5 py-1 rounded-[var(--radius-chip)] text-xs sm:text-sm cursor-pointer transition-[var(--transition-color)] whitespace-nowrap ${
                         defaultVersesTab === option.value
                           ? "bg-[var(--chip-selected-bg)] text-[var(--chip-selected-text)] ring-1 ring-[var(--chip-selected-ring)]"
                           : "bg-[var(--surface-muted)] text-[var(--text-tertiary)] hover:bg-[var(--interactive-secondary-hover-bg)]"
@@ -517,9 +517,9 @@ export default function Settings() {
           </section>
 
           {/* Daily Wisdom */}
-          <section id="newsletter" className="bg-[var(--surface-elevated)] rounded-xl shadow-md p-4 scroll-mt-20">
+          <section id="newsletter" className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] shadow-[var(--shadow-card)] p-4 scroll-mt-20">
             <div className="flex items-center gap-2 mb-3">
-              <div className="p-1.5 rounded-lg bg-[var(--section-icon-newsletter-bg)] text-[var(--text-accent)]">
+              <div className="p-1.5 rounded-[var(--radius-button)] bg-[var(--section-icon-newsletter-bg)] text-[var(--text-accent)]">
                 <SunIcon className="w-5 h-5" />
               </div>
               <h2 className="text-lg font-semibold text-[var(--text-primary)]">Daily Wisdom</h2>
@@ -528,13 +528,13 @@ export default function Settings() {
             {/* Loading state while fetching subscription status */}
             {isFetchingStatus ? (
               <div className="flex items-center justify-center py-4">
-                <div className="w-5 h-5 border-2 border-[var(--interactive-contextual)] border-t-transparent rounded-full animate-spin" />
+                <div className="w-5 h-5 border-2 border-[var(--interactive-contextual)] border-t-transparent rounded-[var(--radius-avatar)] animate-spin" />
               </div>
             ) : existingSubscription ? (
               /* Authenticated user with existing subscription - show update form */
               <div className="space-y-3">
                 {/* Subscribed status badge */}
-                <div className="flex items-center gap-2 bg-[var(--status-success-bg)] border border-[var(--status-success-border)] rounded-lg px-3 py-2">
+                <div className="flex items-center gap-2 bg-[var(--status-success-bg)] border border-[var(--status-success-border)] rounded-[var(--radius-button)] px-3 py-2">
                   <CheckIcon className="w-4 h-4 text-[var(--status-success-text)]" />
                   <span className="text-sm text-[var(--status-success-text)]">
                     Subscribed as <strong>{existingSubscription.email}</strong>
@@ -544,7 +544,7 @@ export default function Settings() {
                 {/* Update preferences form */}
                 <form onSubmit={handleUpdatePreferences} className="space-y-3">
                   {/* Goals display */}
-                  <div className="flex items-center gap-2 h-10 bg-[var(--surface-field)] rounded-lg px-2.5">
+                  <div className="flex items-center gap-2 h-10 bg-[var(--surface-field)] rounded-[var(--radius-button)] px-2.5">
                     <span className="text-xs text-[var(--text-muted)] shrink-0">Goals:</span>
                     {selectedGoals.length > 0 ? (
                       <div className="flex items-center gap-1.5 flex-wrap">
@@ -553,7 +553,7 @@ export default function Settings() {
                           return (
                             <div
                               key={goal.id}
-                              className="w-7 h-7 rounded-full bg-[var(--goal-indicator-bg)] text-[var(--goal-indicator-text)] flex items-center justify-center shadow-xs"
+                              className="w-7 h-7 rounded-[var(--radius-avatar)] bg-[var(--goal-indicator-bg)] text-[var(--goal-indicator-text)] flex items-center justify-center shadow-[var(--shadow-button)]"
                               title={goal.label}
                             >
                               {IconComponent && <IconComponent className="w-4 h-4" />}
@@ -580,7 +580,7 @@ export default function Settings() {
                       onChange={(e) => setName(e.target.value)}
                       placeholder={derivedName || "Your name"}
                       aria-describedby={updateError ? "newsletter-prefs-error" : undefined}
-                      className="w-full px-3 py-2 text-sm border border-[var(--border-default)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-lg focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent"
+                      className="w-full px-3 py-2 text-sm border border-[var(--border-default)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-[var(--radius-input)] focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent"
                     />
                   </div>
 
@@ -590,7 +590,7 @@ export default function Settings() {
                     <p
                       id="newsletter-prefs-error"
                       role="alert"
-                      className="text-xs text-[var(--status-error-text)] bg-[var(--status-error-bg)] rounded-sm px-2 py-1"
+                      className="text-xs text-[var(--status-error-text)] bg-[var(--status-error-bg)] rounded-[var(--radius-skeleton)] px-2 py-1"
                     >
                       {updateError}
                     </p>
@@ -600,7 +600,7 @@ export default function Settings() {
                     <p
                       role="status"
                       aria-live="polite"
-                      className="text-xs text-[var(--status-success-text)] bg-[var(--status-success-bg)] rounded-sm px-2 py-1"
+                      className="text-xs text-[var(--status-success-text)] bg-[var(--status-success-bg)] rounded-[var(--radius-skeleton)] px-2 py-1"
                     >
                       Preferences updated!
                     </p>
@@ -609,7 +609,7 @@ export default function Settings() {
                   <button
                     type="submit"
                     disabled={isUpdatingPrefs}
-                    className="w-full bg-[var(--interactive-primary)] hover:opacity-90 disabled:opacity-60 text-[var(--interactive-primary-text)] text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+                    className="w-full bg-[var(--interactive-primary)] hover:opacity-90 disabled:opacity-60 text-[var(--interactive-primary-text)] text-sm font-medium px-4 py-2 rounded-[var(--radius-button)] transition-[var(--transition-color)]"
                   >
                     {isUpdatingPrefs ? "Saving..." : "Update preferences"}
                   </button>
@@ -646,7 +646,7 @@ export default function Settings() {
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             placeholder="Name"
-                            className="w-full px-3 py-2 text-sm border border-[var(--border-default)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-lg focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent"
+                            className="w-full px-3 py-2 text-sm border border-[var(--border-default)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-[var(--radius-input)] focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent"
                           />
                         </div>
                         <div>
@@ -662,7 +662,7 @@ export default function Settings() {
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="Different email"
                             aria-describedby={error ? "subscribe-other-error" : undefined}
-                            className="w-full px-3 py-2 text-sm border border-[var(--border-default)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-lg focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent"
+                            className="w-full px-3 py-2 text-sm border border-[var(--border-default)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-[var(--radius-input)] focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent"
                           />
                         </div>
                       </div>
@@ -671,7 +671,7 @@ export default function Settings() {
                         <p
                           id="subscribe-other-error"
                           role="alert"
-                          className="text-xs text-[var(--status-error-text)] bg-[var(--status-error-bg)] rounded-sm px-2 py-1"
+                          className="text-xs text-[var(--status-error-text)] bg-[var(--status-error-bg)] rounded-[var(--radius-skeleton)] px-2 py-1"
                         >
                           {error}
                         </p>
@@ -681,7 +681,7 @@ export default function Settings() {
                         <div
                           role="status"
                           aria-live="polite"
-                          className="bg-[var(--surface-warm)] border border-[var(--border-warm)] rounded-lg p-2 text-center"
+                          className="bg-[var(--surface-warm)] border border-[var(--border-warm)] rounded-[var(--radius-button)] p-2 text-center"
                         >
                           <p className="text-xs text-[var(--text-accent)]">
                             Confirmation sent to <strong>{email}</strong>
@@ -692,7 +692,7 @@ export default function Settings() {
                       <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full bg-[var(--interactive-secondary-bg)] hover:opacity-90 disabled:opacity-60 text-[var(--interactive-secondary-text)] border border-[var(--interactive-secondary-border)] text-sm font-medium px-4 py-1.5 rounded-lg transition-colors"
+                        className="w-full bg-[var(--interactive-secondary-bg)] hover:opacity-90 disabled:opacity-60 text-[var(--interactive-secondary-text)] border border-[var(--interactive-secondary-border)] text-sm font-medium px-4 py-1.5 rounded-[var(--radius-button)] transition-[var(--transition-color)]"
                       >
                         {isSubmitting ? "Subscribing..." : "Subscribe this email"}
                       </button>
@@ -705,7 +705,7 @@ export default function Settings() {
               <div
                 role="status"
                 aria-live="polite"
-                className="bg-[var(--status-success-bg)] border border-[var(--status-success-border)] rounded-lg p-3"
+                className="bg-[var(--status-success-bg)] border border-[var(--status-success-border)] rounded-[var(--radius-button)] p-3"
               >
                 <div className="flex items-start gap-2">
                   <CheckIcon className="w-5 h-5 text-[var(--status-success-text)] shrink-0 mt-0.5" />
@@ -730,7 +730,7 @@ export default function Settings() {
               <div
                 role="status"
                 aria-live="polite"
-                className="bg-[var(--surface-warm)] border border-[var(--border-warm)] rounded-lg p-3 text-center"
+                className="bg-[var(--surface-warm)] border border-[var(--border-warm)] rounded-[var(--radius-button)] p-3 text-center"
               >
                 <MailIcon className="w-6 h-6 text-[var(--text-accent)] mx-auto mb-2" />
                 <p className="text-sm font-medium text-[var(--chip-selected-text)]">Check your email</p>
@@ -749,7 +749,7 @@ export default function Settings() {
               <form onSubmit={handleSubscribe} className="space-y-3">
                 {/* Goals prompt */}
                 {showGoalsPrompt && (
-                  <div className="bg-[var(--prompt-bg)] border border-[var(--prompt-border)] rounded-lg p-3">
+                  <div className="bg-[var(--prompt-bg)] border border-[var(--prompt-border)] rounded-[var(--radius-button)] p-3">
                     <p className="text-sm text-[var(--prompt-text)] mb-2">
                       Select learning goals for personalized verses
                     </p>
@@ -761,7 +761,7 @@ export default function Settings() {
                           // Scroll to goals section
                           document.getElementById("goals")?.scrollIntoView({ behavior: "smooth" });
                         }}
-                        className="text-xs px-2 py-1 bg-[var(--prompt-button-bg)] text-[var(--prompt-button-text)] rounded-sm"
+                        className="text-xs px-2 py-1 bg-[var(--prompt-button-bg)] text-[var(--prompt-button-text)] rounded-[var(--radius-skeleton)]"
                       >
                         Select goals
                       </button>
@@ -776,7 +776,7 @@ export default function Settings() {
                 )}
 
                 {/* Reserved space for selected goals - always visible */}
-                <div className="flex items-center gap-2 h-10 bg-[var(--surface-field)] rounded-lg px-2.5">
+                <div className="flex items-center gap-2 h-10 bg-[var(--surface-field)] rounded-[var(--radius-button)] px-2.5">
                   <span className="text-xs text-[var(--text-muted)] shrink-0">Goals:</span>
                   {selectedGoals.length > 0 ? (
                     <div className="flex items-center gap-1.5 flex-wrap">
@@ -785,7 +785,7 @@ export default function Settings() {
                         return (
                           <div
                             key={goal.id}
-                            className="w-7 h-7 rounded-full bg-[var(--goal-indicator-bg)] text-[var(--goal-indicator-text)] flex items-center justify-center shadow-xs"
+                            className="w-7 h-7 rounded-[var(--radius-avatar)] bg-[var(--goal-indicator-bg)] text-[var(--goal-indicator-text)] flex items-center justify-center shadow-[var(--shadow-button)]"
                             title={goal.label}
                           >
                             {IconComponent && <IconComponent className="w-4 h-4" />}
@@ -796,7 +796,7 @@ export default function Settings() {
                   ) : (
                     <div className="flex items-center gap-1.5">
                       {/* Placeholder circles to match height */}
-                      <div className="w-7 h-7 rounded-full border-2 border-dashed border-[var(--border-default)]" />
+                      <div className="w-7 h-7 rounded-[var(--radius-avatar)] border-2 border-dashed border-[var(--border-default)]" />
                       <span className="text-xs text-[var(--text-muted)]">
                         Select above
                       </span>
@@ -815,7 +815,7 @@ export default function Settings() {
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder={derivedName || "Your name"}
-                      className="w-full px-3 py-2 text-sm border border-[var(--border-default)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-lg focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent"
+                      className="w-full px-3 py-2 text-sm border border-[var(--border-default)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-[var(--radius-input)] focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent"
                     />
                   </div>
                   <div>
@@ -831,7 +831,7 @@ export default function Settings() {
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="Email"
                       aria-describedby={error ? "newsletter-anon-error" : undefined}
-                      className="w-full px-3 py-2 text-sm border border-[var(--border-default)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-lg focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent"
+                      className="w-full px-3 py-2 text-sm border border-[var(--border-default)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-[var(--radius-input)] focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent"
                     />
                   </div>
                 </div>
@@ -842,7 +842,7 @@ export default function Settings() {
                   <p
                     id="newsletter-anon-error"
                     role="alert"
-                    className="text-xs text-[var(--status-error-text)] bg-[var(--status-error-bg)] rounded-sm px-2 py-1"
+                    className="text-xs text-[var(--status-error-text)] bg-[var(--status-error-bg)] rounded-[var(--radius-skeleton)] px-2 py-1"
                   >
                     {error}
                   </p>
@@ -851,7 +851,7 @@ export default function Settings() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-[var(--interactive-primary)] hover:opacity-90 disabled:opacity-60 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+                  className="w-full bg-[var(--interactive-primary)] hover:opacity-90 disabled:opacity-60 text-white text-sm font-medium px-4 py-2 rounded-[var(--radius-button)] transition-[var(--transition-color)]"
                 >
                   {isSubmitting ? "Subscribing..." : "Subscribe"}
                 </button>
@@ -863,9 +863,9 @@ export default function Settings() {
         {/* 2-Column Grid: Reading Preferences + Appearance */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
           {/* Reading Preferences */}
-          <section id="reading" className="bg-[var(--surface-elevated)] rounded-xl shadow-md p-4 scroll-mt-20">
+          <section id="reading" className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] shadow-[var(--shadow-card)] p-4 scroll-mt-20">
             <div className="flex items-center gap-2 mb-3">
-              <div className="p-1.5 rounded-lg bg-[var(--section-icon-reading-bg)] text-[var(--section-icon-reading-text)]">
+              <div className="p-1.5 rounded-[var(--radius-button)] bg-[var(--section-icon-reading-bg)] text-[var(--section-icon-reading-text)]">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
@@ -882,7 +882,7 @@ export default function Settings() {
                     <button
                       key={size}
                       onClick={() => setFontSize(size)}
-                      className={`flex-1 px-3 py-1.5 text-sm rounded-lg border transition-colors ${
+                      className={`flex-1 px-3 py-1.5 text-sm rounded-[var(--radius-button)] border transition-[var(--transition-color)] ${
                         readingSettings.fontSize === size
                           ? "bg-[var(--option-selected-bg)] border-[var(--option-selected-border)] text-[var(--option-selected-text)]"
                           : "bg-[var(--input-bg)] border-[var(--border-default)] text-[var(--text-tertiary)] hover:border-[var(--border-default)]"
@@ -902,7 +902,7 @@ export default function Settings() {
                     <button
                       key={family}
                       onClick={() => setFontFamily(family)}
-                      className={`flex-1 px-3 py-1.5 text-sm rounded-lg border transition-colors ${
+                      className={`flex-1 px-3 py-1.5 text-sm rounded-[var(--radius-button)] border transition-[var(--transition-color)] ${
                         fontFamily === family
                           ? "bg-[var(--option-selected-bg)] border-[var(--option-selected-border)] text-[var(--option-selected-text)]"
                           : "bg-[var(--input-bg)] border-[var(--border-default)] text-[var(--text-tertiary)] hover:border-[var(--border-default)]"
@@ -919,7 +919,7 @@ export default function Settings() {
               <div>
                 <div className="flex items-center gap-1.5 mb-1.5">
                   <label className="text-sm text-[var(--text-secondary)]">Default sections</label>
-                  <span className="text-[10px] text-[var(--text-muted)] bg-[var(--surface-muted)] px-1.5 py-0.5 rounded-sm">
+                  <span className="text-[10px] text-[var(--text-muted)] bg-[var(--surface-muted)] px-1.5 py-0.5 rounded-[var(--radius-skeleton)]">
                     This device
                   </span>
                 </div>
@@ -940,7 +940,7 @@ export default function Settings() {
                         onChange={(e) =>
                           setSectionPrefs((p) => ({ ...p, [key]: e.target.checked }))
                         }
-                        className="w-4 h-4 rounded-sm border-[var(--border-default)] text-[var(--interactive-primary)] focus:ring-[var(--border-focus)]"
+                        className="w-4 h-4 rounded-[var(--radius-skeleton)] border-[var(--border-default)] text-[var(--interactive-primary)] focus:ring-[var(--border-focus)]"
                       />
                       <span className="text-sm text-[var(--text-secondary)]">{label}</span>
                     </label>
@@ -951,9 +951,9 @@ export default function Settings() {
           </section>
 
           {/* Appearance */}
-          <section id="appearance" className="bg-[var(--surface-elevated)] rounded-xl shadow-md p-4 scroll-mt-20">
+          <section id="appearance" className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] shadow-[var(--shadow-card)] p-4 scroll-mt-20">
             <div className="flex items-center gap-2 mb-3">
-              <div className="p-1.5 rounded-lg bg-[var(--section-icon-appearance-bg)] text-[var(--section-icon-appearance-text)]">
+              <div className="p-1.5 rounded-[var(--radius-button)] bg-[var(--section-icon-appearance-bg)] text-[var(--section-icon-appearance-text)]">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
                 </svg>
@@ -969,7 +969,7 @@ export default function Settings() {
                   <button
                     key={t}
                     onClick={() => setTheme(t)}
-                    className={`flex-1 px-3 py-1.5 text-sm rounded-lg border transition-colors ${
+                    className={`flex-1 px-3 py-1.5 text-sm rounded-[var(--radius-button)] border transition-[var(--transition-color)] ${
                       theme === t
                         ? "bg-[var(--option-selected-bg)] border-[var(--option-selected-border)] text-[var(--option-selected-text)]"
                         : "bg-[var(--input-bg)] border-[var(--border-default)] text-[var(--text-tertiary)] hover:border-[var(--border-default)]"
@@ -994,9 +994,9 @@ export default function Settings() {
         </div>
 
         {/* Your Data (Full Width) */}
-        <section id="data" className="bg-[var(--surface-elevated)] rounded-xl shadow-md p-4 mb-4 scroll-mt-20">
+        <section id="data" className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] shadow-[var(--shadow-card)] p-4 mb-4 scroll-mt-20">
           <div className="flex items-center gap-2 mb-3">
-            <div className="p-1.5 rounded-lg bg-[var(--status-success-bg)] text-[var(--status-success-text)]">
+            <div className="p-1.5 rounded-[var(--radius-button)] bg-[var(--status-success-bg)] text-[var(--status-success-text)]">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
@@ -1032,16 +1032,16 @@ export default function Settings() {
 
           <button
             onClick={handleExportData}
-            className="px-3 py-1.5 text-sm font-medium text-[var(--text-secondary)] bg-[var(--surface-muted)] hover:bg-[var(--interactive-secondary-hover-bg)] rounded-lg transition-colors"
+            className="px-3 py-1.5 text-sm font-medium text-[var(--text-secondary)] bg-[var(--surface-muted)] hover:bg-[var(--interactive-secondary-hover-bg)] rounded-[var(--radius-button)] transition-[var(--transition-color)]"
           >
             Export my data
           </button>
         </section>
 
         {/* Danger Zone */}
-        <section id="danger" className="border border-dashed border-[var(--border-default)] rounded-xl p-4 scroll-mt-20">
+        <section id="danger" className="border border-dashed border-[var(--border-default)] rounded-[var(--radius-card)] p-4 scroll-mt-20">
           <div className="flex items-center gap-2 mb-3">
-            <div className="p-1.5 rounded-lg bg-[var(--status-error-bg)] text-[var(--status-error-text)]">
+            <div className="p-1.5 rounded-[var(--radius-button)] bg-[var(--status-error-bg)] text-[var(--status-error-text)]">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
@@ -1052,14 +1052,14 @@ export default function Settings() {
           <div className="flex flex-wrap gap-3">
             <button
               onClick={() => setShowDeleteConfirm(true)}
-              className="px-3 py-1.5 text-sm font-medium text-[var(--status-error-text)] hover:text-[var(--status-error-text)] bg-[var(--status-error-bg)] hover:bg-[var(--status-error-bg)] border border-[var(--status-error-border)] rounded-lg transition-colors"
+              className="px-3 py-1.5 text-sm font-medium text-[var(--status-error-text)] hover:text-[var(--status-error-text)] bg-[var(--status-error-bg)] hover:bg-[var(--status-error-bg)] border border-[var(--status-error-border)] rounded-[var(--radius-button)] transition-[var(--transition-color)]"
             >
               Delete local data
             </button>
             {isAuthenticated && (
               <button
                 onClick={() => setShowDeleteAccountConfirm(true)}
-                className="px-3 py-1.5 text-sm font-medium text-[var(--status-error-text)] hover:text-[var(--status-error-text)] bg-[var(--status-error-bg)] hover:bg-[var(--status-error-bg)] border border-[var(--status-error-border)] rounded-lg transition-colors"
+                className="px-3 py-1.5 text-sm font-medium text-[var(--status-error-text)] hover:text-[var(--status-error-text)] bg-[var(--status-error-bg)] hover:bg-[var(--status-error-bg)] border border-[var(--status-error-border)] rounded-[var(--radius-button)] transition-[var(--transition-color)]"
               >
                 Delete account
               </button>

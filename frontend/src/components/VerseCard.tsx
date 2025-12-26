@@ -11,18 +11,18 @@ import type { Verse } from "../types";
  */
 export function VerseCardSkeleton() {
   return (
-    <div className="bg-[var(--surface-warm)] rounded-xl p-3 sm:p-4 border border-[var(--border-warm)] shadow-xs animate-pulse">
+    <div className="bg-[var(--surface-warm)] rounded-[var(--radius-card)] p-3 sm:p-4 border border-[var(--border-warm)] shadow-[var(--shadow-card)] animate-pulse">
       {/* Verse Reference skeleton */}
       <div className="flex justify-center mb-2 sm:mb-3">
-        <div className="h-4 w-16 bg-[var(--skeleton-bg)] rounded-sm" />
+        <div className="h-4 w-16 bg-[var(--skeleton-bg)] rounded-[var(--radius-skeleton)]" />
       </div>
 
       {/* Sanskrit lines skeleton */}
       <div className="space-y-2 flex flex-col items-center">
-        <div className="h-4 w-4/5 bg-[var(--skeleton-bg)] rounded-sm" />
-        <div className="h-4 w-3/4 bg-[var(--skeleton-bg)] rounded-sm" />
-        <div className="h-4 w-4/5 bg-[var(--skeleton-bg)] rounded-sm" />
-        <div className="h-4 w-2/3 bg-[var(--skeleton-bg)] rounded-sm" />
+        <div className="h-4 w-4/5 bg-[var(--skeleton-bg)] rounded-[var(--radius-skeleton)]" />
+        <div className="h-4 w-3/4 bg-[var(--skeleton-bg)] rounded-[var(--radius-skeleton)]" />
+        <div className="h-4 w-4/5 bg-[var(--skeleton-bg)] rounded-[var(--radius-skeleton)]" />
+        <div className="h-4 w-2/3 bg-[var(--skeleton-bg)] rounded-[var(--radius-skeleton)]" />
       </div>
 
       {/* Divider skeleton */}
@@ -30,15 +30,15 @@ export function VerseCardSkeleton() {
 
       {/* Translation skeleton */}
       <div className="space-y-1.5 flex flex-col items-center">
-        <div className="h-3 w-11/12 bg-[var(--skeleton-bg)] rounded-sm" />
-        <div className="h-3 w-4/5 bg-[var(--skeleton-bg)] rounded-sm" />
-        <div className="h-3 w-3/4 bg-[var(--skeleton-bg)] rounded-sm" />
+        <div className="h-3 w-11/12 bg-[var(--skeleton-bg)] rounded-[var(--radius-skeleton)]" />
+        <div className="h-3 w-4/5 bg-[var(--skeleton-bg)] rounded-[var(--radius-skeleton)]" />
+        <div className="h-3 w-3/4 bg-[var(--skeleton-bg)] rounded-[var(--radius-skeleton)]" />
       </div>
 
       {/* Tags skeleton */}
       <div className="mt-2 sm:mt-3 flex justify-center gap-1">
-        <div className="h-5 w-14 bg-[var(--skeleton-bg)] rounded-full" />
-        <div className="h-5 w-12 bg-[var(--skeleton-bg)] rounded-full" />
+        <div className="h-5 w-14 bg-[var(--skeleton-bg)] rounded-[var(--radius-badge)]" />
+        <div className="h-5 w-12 bg-[var(--skeleton-bg)] rounded-[var(--radius-badge)]" />
       </div>
     </div>
   );
@@ -103,7 +103,7 @@ function HighlightedText({ text }: { text: string }) {
           return (
             <mark
               key={i}
-              className="bg-[var(--badge-match-bg)] text-[var(--badge-match-text)] px-0.5 rounded-sm"
+              className="bg-[var(--badge-match-bg)] text-[var(--badge-match-text)] px-0.5 rounded-[var(--radius-skeleton)]"
             >
               {content}
             </mark>
@@ -152,12 +152,12 @@ export const VerseCard = memo(function VerseCard({
       : "";
 
     return (
-      <div className="relative bg-[var(--surface-warm)] rounded-xl p-3 sm:p-4 border border-[var(--border-warm)] shadow-xs hover:shadow-md hover:border-[var(--border-warm-hover)] hover:-translate-y-0.5 transition-all duration-150">
+      <div className="relative bg-[var(--surface-warm)] rounded-[var(--radius-card)] p-3 sm:p-4 border border-[var(--border-warm)] shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] hover:border-[var(--border-warm-hover)] hover:-translate-y-0.5 transition-[var(--transition-card)]">
         {/* Stretched link - covers entire card for navigation (accessibility pattern) */}
         {linkTo && (
           <Link
             to={linkTo}
-            className="absolute inset-0 z-0 rounded-xl focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
+            className="absolute inset-0 z-0 rounded-[var(--radius-card)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
             aria-label={`View verse ${formatVerseRef(verse)}`}
           />
         )}
@@ -165,7 +165,7 @@ export const VerseCard = memo(function VerseCard({
         {/* Featured Badge - top LEFT corner (moved from right to make room for match badge) */}
         {verse.is_featured && (
           <div className="absolute top-2 left-2 sm:top-3 sm:left-3 z-10">
-            <span className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-[var(--badge-featured-bg)] text-[var(--badge-featured-text)]">
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded-[var(--radius-badge)] bg-[var(--badge-featured-bg)] text-[var(--badge-featured-text)]">
               <StarIcon className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
             </span>
           </div>
@@ -174,7 +174,7 @@ export const VerseCard = memo(function VerseCard({
         {/* Top-right: Match badge + Heart (flex row, heart always rightmost) */}
         <div className="absolute top-2 right-2 sm:top-3 sm:right-3 z-10 flex items-center gap-1.5">
           {match && (
-            <span className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-[var(--badge-match-bg)] text-[var(--badge-match-text)] text-[10px] sm:text-xs font-medium">
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded-[var(--radius-badge)] bg-[var(--badge-match-bg)] text-[var(--badge-match-text)] text-[10px] sm:text-xs font-medium">
               {MATCH_TYPE_LABELS[match.type] || match.type}
             </span>
           )}
@@ -185,7 +185,7 @@ export const VerseCard = memo(function VerseCard({
                 e.stopPropagation();
                 onToggleFavorite(verse.canonical_id);
               }}
-              className={`p-2.5 sm:p-1 -m-1.5 sm:m-0 rounded-full transition-all duration-150 pointer-events-auto focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
+              className={`p-2.5 sm:p-1 -m-1.5 sm:m-0 rounded-[var(--radius-badge)] transition-[var(--transition-card)] pointer-events-auto focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                 isFavorite
                   ? "text-[var(--status-error-text)]"
                   : "text-[var(--text-muted)] hover:text-[var(--status-error-text)] hover:scale-110"
@@ -267,9 +267,9 @@ export const VerseCard = memo(function VerseCard({
                       onPrincipleClick(principle);
                     }
                   }}
-                  className={`px-2 py-0.5 rounded-full bg-[var(--badge-principle-bg)] text-[var(--badge-principle-text)] text-[10px] sm:text-xs font-medium pointer-events-auto focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
+                  className={`px-2 py-0.5 rounded-[var(--radius-badge)] bg-[var(--badge-principle-bg)] text-[var(--badge-principle-text)] text-[10px] sm:text-xs font-medium pointer-events-auto focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                     onPrincipleClick
-                      ? "hover:bg-[var(--surface-warm-hover)] cursor-pointer transition-colors"
+                      ? "hover:bg-[var(--surface-warm-hover)] cursor-pointer transition-[var(--transition-color)]"
                       : ""
                   }`}
                 >
@@ -277,7 +277,7 @@ export const VerseCard = memo(function VerseCard({
                 </button>
               ))}
               {verse.consulting_principles.length > 2 && (
-                <span className="px-2 py-0.5 rounded-full bg-[var(--badge-default-bg)] text-[var(--badge-default-text)] text-[10px] sm:text-xs font-medium">
+                <span className="px-2 py-0.5 rounded-[var(--radius-badge)] bg-[var(--badge-default-bg)] text-[var(--badge-default-text)] text-[10px] sm:text-xs font-medium">
                   +{verse.consulting_principles.length - 2}
                 </span>
               )}
@@ -295,7 +295,7 @@ export const VerseCard = memo(function VerseCard({
   // Detail mode: original layout
   return (
     <div className="relative">
-      <div className="bg-linear-to-b from-[var(--gradient-warm-from)] to-[var(--gradient-warm-to)] rounded-xl p-5 sm:p-6 lg:p-8 border-2 border-[var(--border-warm-subtle)] shadow-inner">
+      <div className="bg-linear-to-b from-[var(--gradient-warm-from)] to-[var(--gradient-warm-to)] rounded-[var(--radius-card)] p-5 sm:p-6 lg:p-8 border-2 border-[var(--border-warm-subtle)] shadow-[var(--shadow-button-active)]">
         {/* Decorative Om */}
         <div className="text-center mb-3 sm:mb-4 text-2xl sm:text-3xl text-[var(--decorative-om)] font-light">
           ॐ

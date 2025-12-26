@@ -111,7 +111,7 @@ export function ShareBar({
   if (showStopConfirm) {
     return (
       <div
-        className={`${barSize} bg-[var(--surface-warm)] border border-[var(--border-warm)] rounded-lg transition-all duration-200 ease-out ${compact ? "p-2.5" : "p-3"} flex flex-col justify-between`}
+        className={`${barSize} bg-[var(--surface-warm)] border border-[var(--border-warm)] rounded-[var(--radius-button)] transition-[var(--transition-all)] ${compact ? "p-2.5" : "p-3"} flex flex-col justify-between`}
         onClick={(e) => e.stopPropagation()}
       >
         <div>
@@ -136,7 +136,7 @@ export function ShareBar({
           <button
             onClick={handleConfirmStop}
             disabled={isLoading}
-            className={`px-3 py-1 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 disabled:opacity-50 transition-colors ${compact ? "text-xs" : "text-sm"}`}
+            className={`px-3 py-1 bg-[var(--status-error-text)] text-white rounded-[var(--radius-button)] font-medium hover:opacity-90 disabled:opacity-50 transition-[var(--transition-color)] ${compact ? "text-xs" : "text-sm"}`}
           >
             {isLoading ? "..." : "Stop"}
           </button>
@@ -147,7 +147,7 @@ export function ShareBar({
 
   return (
     <div
-      className={`${barSize} bg-[var(--status-success-bg)] border border-[var(--status-success-border)] rounded-lg transition-all duration-200 ease-out ${compact ? "p-2.5" : "p-3"} flex flex-col justify-between`}
+      className={`${barSize} bg-[var(--status-success-bg)] border border-[var(--status-success-border)] rounded-[var(--radius-button)] transition-[var(--transition-all)] ${compact ? "p-2.5" : "p-3"} flex flex-col justify-between`}
       onClick={(e) => e.stopPropagation()}
     >
       {/* Header row: URL + actions */}
@@ -160,7 +160,7 @@ export function ShareBar({
         <div className="flex items-center gap-1">
           <button
             onClick={handleViewClick}
-            className={`p-1 text-[var(--status-success-text)] hover:bg-[var(--status-success-bg)] rounded-sm transition-colors`}
+            className={`p-1 text-[var(--status-success-text)] hover:bg-[var(--status-success-bg)] rounded-[var(--radius-skeleton)] transition-[var(--transition-color)]`}
             title="View public page"
           >
             <svg
@@ -179,7 +179,7 @@ export function ShareBar({
           </button>
           <button
             onClick={handleCopyClick}
-            className={`px-2 py-0.5 bg-green-600 text-white rounded-sm font-medium hover:bg-green-700 transition-colors ${compact ? "text-[10px]" : "text-xs"}`}
+            className={`px-2 py-0.5 bg-[var(--status-success-text)] text-white rounded-[var(--radius-skeleton)] font-medium hover:opacity-90 transition-[var(--transition-color)] ${compact ? "text-[10px]" : "text-xs"}`}
           >
             {copySuccess ? "Copied!" : "Copy"}
           </button>
@@ -220,13 +220,13 @@ export function ShareBar({
           >
             Show:
           </span>
-          <div className="flex rounded-md overflow-hidden border border-[var(--status-success-border)]">
+          <div className="flex rounded-[var(--radius-nav)] overflow-hidden border border-[var(--status-success-border)]">
             <button
               onClick={(e) => handleModeChange(e, "full")}
               disabled={isLoading}
               className={`px-2 py-0.5 transition-colors disabled:opacity-50 ${compact ? "text-[10px]" : "text-xs"} ${
                 currentMode === "full"
-                  ? "bg-green-600 text-white"
+                  ? "bg-[var(--status-success-text)] text-white"
                   : "bg-[var(--surface-elevated)] text-[var(--status-success-text)] hover:bg-[var(--status-success-bg)]"
               }`}
             >
@@ -237,7 +237,7 @@ export function ShareBar({
               disabled={isLoading}
               className={`px-2 py-0.5 border-l border-[var(--status-success-border)] transition-colors disabled:opacity-50 ${compact ? "text-[10px]" : "text-xs"} ${
                 currentMode === "essential"
-                  ? "bg-green-600 text-white"
+                  ? "bg-[var(--status-success-text)] text-white"
                   : "bg-[var(--surface-elevated)] text-[var(--status-success-text)] hover:bg-[var(--status-success-bg)]"
               }`}
             >

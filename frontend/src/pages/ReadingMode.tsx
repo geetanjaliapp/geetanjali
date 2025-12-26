@@ -598,25 +598,25 @@ export default function ReadingMode() {
               {/* Font size toggle - Aa + filled circles */}
               <button
                 onClick={cycleFontSize}
-                className="flex items-center justify-center gap-1.5 min-w-[44px] min-h-[44px] px-3 py-2 text-[var(--text-reading-primary)] hover:bg-[var(--interactive-reading-hover-bg)] active:bg-[var(--interactive-reading-active-bg)] rounded-lg transition-colors"
+                className="flex items-center justify-center gap-1.5 min-w-[44px] min-h-[44px] px-3 py-2 text-[var(--text-reading-primary)] hover:bg-[var(--interactive-reading-hover-bg)] active:bg-[var(--interactive-reading-active-bg)] rounded-[var(--radius-button)] transition-[var(--transition-color)]"
                 aria-label={`Font size: ${settings.fontSize}. Tap to change.`}
                 title={`Font size: ${settings.fontSize}`}
               >
                 <span className="text-sm font-serif">Aa</span>
                 <span className="flex items-center gap-0.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--reading-indicator-active)]" />
+                  <span className="w-1.5 h-1.5 rounded-[var(--radius-progress)] bg-[var(--reading-indicator-active)]" />
                   <span
-                    className={`w-1.5 h-1.5 rounded-full ${settings.fontSize !== "small" ? "bg-[var(--reading-indicator-active)]" : "bg-[var(--reading-indicator-inactive)]"}`}
+                    className={`w-1.5 h-1.5 rounded-[var(--radius-progress)] ${settings.fontSize !== "small" ? "bg-[var(--reading-indicator-active)]" : "bg-[var(--reading-indicator-inactive)]"}`}
                   />
                   <span
-                    className={`w-1.5 h-1.5 rounded-full ${settings.fontSize === "large" ? "bg-[var(--reading-indicator-active)]" : "bg-[var(--reading-indicator-inactive)]"}`}
+                    className={`w-1.5 h-1.5 rounded-[var(--radius-progress)] ${settings.fontSize === "large" ? "bg-[var(--reading-indicator-active)]" : "bg-[var(--reading-indicator-inactive)]"}`}
                   />
                 </span>
               </button>
               {/* Reset progress button */}
               <button
                 onClick={resetProgress}
-                className="flex items-center justify-center min-w-[44px] min-h-[44px] p-2 text-[var(--text-reading-muted)] hover:text-[var(--text-reading-primary)] hover:bg-[var(--interactive-reading-hover-bg)] active:bg-[var(--interactive-reading-active-bg)] rounded-lg transition-colors"
+                className="flex items-center justify-center min-w-[44px] min-h-[44px] p-2 text-[var(--text-reading-muted)] hover:text-[var(--text-reading-primary)] hover:bg-[var(--interactive-reading-hover-bg)] active:bg-[var(--interactive-reading-active-bg)] rounded-[var(--radius-button)] transition-[var(--transition-color)]"
                 aria-label="Start over from beginning"
                 title="Start over"
               >
@@ -678,7 +678,7 @@ export default function ReadingMode() {
             <p className="text-[var(--status-error-text)] mb-4">{state.error}</p>
             <button
               onClick={() => loadChapter(state.chapter)}
-              className="px-4 py-2 bg-[var(--interactive-contextual)] text-[var(--interactive-contextual-text)] rounded-lg hover:opacity-90 transition-colors"
+              className="px-4 py-2 bg-[var(--interactive-contextual)] text-[var(--interactive-contextual-text)] rounded-[var(--radius-button)] hover:opacity-90 transition-[var(--transition-color)]"
             >
               Try Again
             </button>
@@ -726,7 +726,7 @@ export default function ReadingMode() {
 
       {/* Bottom Navigation Bar */}
       <nav
-        className="sticky bottom-0 bg-[var(--surface-reading-header)] backdrop-blur-xs border-t border-[var(--border-reading)] shadow-lg"
+        className="sticky bottom-0 bg-[var(--surface-reading-header)] backdrop-blur-xs border-t border-[var(--border-reading)] shadow-[var(--shadow-dropdown)]"
         aria-label="Verse navigation"
       >
         <div className="max-w-4xl mx-auto px-4 py-2">
@@ -735,7 +735,7 @@ export default function ReadingMode() {
             <button
               onClick={prevPage}
               disabled={!canGoPrev}
-              className={`flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-lg transition-colors ${
+              className={`flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-[var(--radius-button)] transition-[var(--transition-color)] ${
                 canGoPrev
                   ? "text-[var(--text-reading-primary)] hover:bg-[var(--interactive-reading-hover-bg)] active:bg-[var(--interactive-reading-active-bg)]"
                   : "text-[var(--interactive-reading-disabled)] cursor-not-allowed"
@@ -749,7 +749,7 @@ export default function ReadingMode() {
             {/* Chapter selector button */}
             <button
               onClick={() => setShowChapterSelector(true)}
-              className="flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 text-[var(--text-reading-primary)] hover:bg-[var(--interactive-reading-hover-bg)] active:bg-[var(--interactive-reading-active-bg)] rounded-lg transition-colors"
+              className="flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 text-[var(--text-reading-primary)] hover:bg-[var(--interactive-reading-hover-bg)] active:bg-[var(--interactive-reading-active-bg)] rounded-[var(--radius-button)] transition-[var(--transition-color)]"
               aria-label="Select chapter"
             >
               <span className="text-sm font-medium">
@@ -778,7 +778,7 @@ export default function ReadingMode() {
             <button
               onClick={nextPage}
               disabled={!canGoNext}
-              className={`flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-lg transition-colors ${
+              className={`flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-[var(--radius-button)] transition-[var(--transition-color)] ${
                 canGoNext
                   ? "text-[var(--text-reading-primary)] hover:bg-[var(--interactive-reading-hover-bg)] active:bg-[var(--interactive-reading-active-bg)]"
                   : "text-[var(--interactive-reading-disabled)] cursor-not-allowed"
@@ -805,7 +805,7 @@ export default function ReadingMode() {
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50"
+            className="fixed inset-0 bg-[var(--overlay-bg)] backdrop-blur-xs z-50"
             onClick={dismissOnboarding}
             aria-hidden="true"
           />
@@ -813,7 +813,7 @@ export default function ReadingMode() {
           {/* Onboarding Card */}
           <div
             className="fixed inset-x-4 top-1/2 -translate-y-1/2 z-50 max-w-sm mx-auto
-                       bg-[var(--surface-elevated)] rounded-2xl shadow-2xl p-6 animate-fade-in"
+                       bg-[var(--surface-elevated)] rounded-[var(--radius-modal)] shadow-[var(--shadow-modal)] p-6 animate-fade-in"
             role="dialog"
             aria-modal="true"
             aria-label="Reading Mode tips"
@@ -865,7 +865,7 @@ export default function ReadingMode() {
 
             <button
               onClick={dismissOnboarding}
-              className="w-full mt-6 py-3 bg-[var(--interactive-contextual)] hover:opacity-90 text-[var(--interactive-contextual-text)] font-medium rounded-xl transition-colors"
+              className="w-full mt-6 py-3 bg-[var(--interactive-contextual)] hover:opacity-90 text-[var(--interactive-contextual-text)] font-medium rounded-[var(--radius-card)] transition-[var(--transition-color)]"
             >
               Got it!
             </button>

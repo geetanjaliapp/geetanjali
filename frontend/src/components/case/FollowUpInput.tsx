@@ -22,14 +22,14 @@ export function FollowUpInput({
 
   return (
     <div
-      className={`mt-4 bg-[var(--surface-elevated)] rounded-xl shadow-md p-3 sm:p-4 transition-opacity ${disabled ? "opacity-75" : ""}`}
+      className={`mt-4 bg-[var(--surface-elevated)] rounded-[var(--radius-card)] shadow-[var(--shadow-card)] p-3 sm:p-4 transition-[var(--transition-opacity)] ${disabled ? "opacity-75" : ""}`}
     >
       {/* Inline error message */}
       {error && (
         <div
           id="followup-error"
           role="alert"
-          className="mb-3 bg-[var(--status-error-bg)] border border-[var(--status-error-border)] text-[var(--status-error-text)] px-3 py-2 rounded-lg text-sm"
+          className="mb-3 bg-[var(--status-error-bg)] border border-[var(--status-error-border)] text-[var(--status-error-text)] px-3 py-2 rounded-[var(--radius-button)] text-sm"
         >
           {error}
         </div>
@@ -39,15 +39,15 @@ export function FollowUpInput({
         <div className="flex items-center gap-2 mb-3 text-[var(--text-accent)]">
           <div className="flex space-x-1">
             <span
-              className="w-1.5 h-1.5 bg-[var(--interactive-primary)] rounded-full animate-bounce"
+              className="w-1.5 h-1.5 bg-[var(--interactive-primary)] rounded-[var(--radius-progress)] animate-bounce"
               style={{ animationDelay: "0ms" }}
             />
             <span
-              className="w-1.5 h-1.5 bg-[var(--interactive-primary)] rounded-full animate-bounce"
+              className="w-1.5 h-1.5 bg-[var(--interactive-primary)] rounded-[var(--radius-progress)] animate-bounce"
               style={{ animationDelay: "150ms" }}
             />
             <span
-              className="w-1.5 h-1.5 bg-[var(--interactive-primary)] rounded-full animate-bounce"
+              className="w-1.5 h-1.5 bg-[var(--interactive-primary)] rounded-[var(--radius-progress)] animate-bounce"
               style={{ animationDelay: "300ms" }}
             />
           </div>
@@ -79,7 +79,7 @@ export function FollowUpInput({
             rows={2}
             aria-invalid={error ? true : undefined}
             aria-describedby={error ? "followup-error" : undefined}
-            className={`flex-1 px-3 sm:px-4 py-2.5 sm:py-3 border rounded-xl text-sm focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent transition-colors resize-none bg-[var(--surface-elevated)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] ${
+            className={`flex-1 px-3 sm:px-4 py-2.5 sm:py-3 border rounded-[var(--radius-card)] text-sm focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent transition-[var(--transition-color)] resize-none bg-[var(--surface-elevated)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] ${
               disabled
                 ? "border-[var(--border-warm)] bg-[var(--surface-warm-subtle)]"
                 : "border-[var(--border-default)]"
@@ -89,7 +89,7 @@ export function FollowUpInput({
           <button
             type="submit"
             disabled={!value.trim() || isDisabled}
-            className={`self-end px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl font-medium text-sm flex items-center gap-1.5 transition-colors ${
+            className={`self-end px-3 sm:px-4 py-2.5 sm:py-3 rounded-[var(--radius-card)] font-medium text-sm flex items-center gap-1.5 transition-[var(--transition-color)] ${
               disabled
                 ? "bg-[var(--badge-warm-bg)] text-[var(--badge-warm-text)] cursor-not-allowed"
                 : "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] hover:opacity-90 disabled:bg-[var(--interactive-disabled)] disabled:cursor-not-allowed"

@@ -6,6 +6,7 @@ import {
   type ImageTheme,
   type ImageFormat,
 } from "./ImageCardGenerator";
+import { getCurrentThemeName } from "../../lib/canvasThemeColors";
 import { useFocusTrap } from "../../hooks";
 
 /**
@@ -32,11 +33,16 @@ interface ShareModalProps {
   onClose: () => void;
 }
 
-const THEMES: { id: ImageTheme; label: string; icon: string }[] = [
-  { id: "warm", label: "Warm", icon: "☀️" },
-  { id: "dark", label: "Dark", icon: "🌙" },
-  { id: "minimal", label: "Minimal", icon: "◻️" },
-];
+// Build theme options dynamically so "Current" shows actual theme name
+function getThemeOptions(): { id: ImageTheme; label: string; icon: string }[] {
+  const currentLabel = `Current (${getCurrentThemeName()})`;
+  return [
+    { id: "current", label: currentLabel, icon: "🎨" },
+    { id: "warm", label: "Warm", icon: "☀️" },
+    { id: "dark", label: "Dark", icon: "🌙" },
+    { id: "minimal", label: "Minimal", icon: "◻️" },
+  ];
+}
 
 const FORMATS: { id: ImageFormat; label: string; ratio: string }[] = [
   { id: "square", label: "Square", ratio: "1:1" },
@@ -53,8 +59,9 @@ export function ShareModal({
   // Link sharing state
   const [linkCopied, setLinkCopied] = useState(false);
 
-  // Image sharing state
-  const [theme, setTheme] = useState<ImageTheme>("warm");
+  // Image sharing state - default to current theme so cards match what user sees
+  const [theme, setTheme] = useState<ImageTheme>("current");
+  const themes = useMemo(() => getThemeOptions(), []);
   const [format, setFormat] = useState<ImageFormat>("square");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
@@ -238,14 +245,14 @@ export function ShareModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/60 transition-opacity"
+        className="fixed inset-0 bg-[var(--overlay-bg)] transition-opacity"
         onClick={onClose}
       />
 
       {/* Modal - compact width */}
       <div
         ref={modalRef}
-        className="relative bg-[var(--surface-elevated)] rounded-2xl shadow-xl w-full max-w-md p-4 transform transition-all"
+        className="relative bg-[var(--surface-elevated)] rounded-[var(--radius-modal)] shadow-[var(--shadow-modal)] w-full max-w-md p-4 transform transition-[var(--transition-all)]"
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
@@ -260,7 +267,7 @@ export function ShareModal({
           </h2>
           <button
             onClick={onClose}
-            className="p-1 text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] rounded-lg hover:bg-[var(--interactive-ghost-hover-bg)] transition-colors"
+            className="p-1 text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] rounded-[var(--radius-button)] hover:bg-[var(--interactive-ghost-hover-bg)] transition-[var(--transition-color)]"
             aria-label="Close"
           >
             <svg
@@ -280,7 +287,7 @@ export function ShareModal({
         </div>
 
         {/* Quote + Copy Link - compact inline */}
-        <div className="flex items-start gap-3 mb-3 p-3 bg-[var(--surface-warm-subtle)] rounded-xl border border-[var(--border-warm)]">
+        <div className="flex items-start gap-3 mb-3 p-3 bg-[var(--surface-warm-subtle)] rounded-[var(--radius-card)] border border-[var(--border-warm)]">
           <div className="flex-1 min-w-0">
             <p className="text-[var(--text-secondary)] text-sm italic leading-snug truncate">
               "{shortQuote}"
@@ -291,10 +298,10 @@ export function ShareModal({
           </div>
           <button
             onClick={handleCopyLink}
-            className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+            className={`shrink-0 px-3 py-1.5 rounded-[var(--radius-button)] text-xs font-medium transition-[var(--transition-all)] ${
               linkCopied
                 ? "bg-[var(--status-success-bg)] text-[var(--status-success-text)]"
-                : "bg-[var(--surface-elevated)] text-[var(--text-secondary)] hover:bg-[var(--interactive-ghost-hover-bg)] shadow-xs"
+                : "bg-[var(--surface-elevated)] text-[var(--text-secondary)] hover:bg-[var(--interactive-ghost-hover-bg)] shadow-[var(--shadow-button)]"
             }`}
           >
             {linkCopied ? "Copied!" : "Copy Link"}
@@ -302,8 +309,8 @@ export function ShareModal({
         </div>
 
         {/* Image Preview - fixed size canvas */}
-        <div className="mb-3 bg-[var(--surface-muted)] rounded-xl p-2">
-          <div className="relative w-full h-48 flex items-center justify-center overflow-hidden rounded-lg">
+        <div className="mb-3 bg-[var(--surface-muted)] rounded-[var(--radius-card)] p-2">
+          <div className="relative w-full h-48 flex items-center justify-center overflow-hidden rounded-[var(--radius-button)]">
             {generating ? (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 text-[var(--text-tertiary)]">
                 <svg
@@ -331,7 +338,7 @@ export function ShareModal({
               <img
                 src={previewUrl}
                 alt="Verse card preview"
-                className="max-w-full max-h-full rounded-lg shadow-xs object-contain"
+                className="max-w-full max-h-full rounded-[var(--radius-button)] shadow-[var(--shadow-button)] object-contain"
               />
             ) : (
               <span className="text-[var(--text-muted)] text-xs">
@@ -343,7 +350,7 @@ export function ShareModal({
 
         {/* Error message */}
         {error && (
-          <div className="mb-3 p-2 bg-[var(--status-error-bg)] border border-[var(--status-error-border)] rounded-lg text-[var(--status-error-text)] text-xs">
+          <div className="mb-3 p-2 bg-[var(--status-error-bg)] border border-[var(--status-error-border)] rounded-[var(--radius-button)] text-[var(--status-error-text)] text-xs">
             {error}
           </div>
         )}
@@ -352,14 +359,14 @@ export function ShareModal({
         <div className="flex gap-2 mb-3">
           {/* Theme segmented control */}
           <div className="flex-1">
-            <div className="flex bg-[var(--surface-muted)] rounded-lg p-0.5">
-              {THEMES.map((t) => (
+            <div className="flex bg-[var(--surface-muted)] rounded-[var(--radius-button)] p-0.5">
+              {themes.map((t) => (
                 <button
                   key={t.id}
                   onClick={() => setTheme(t.id)}
-                  className={`flex-1 py-1.5 rounded-md text-xs font-medium transition-all ${
+                  className={`flex-1 py-1.5 rounded-[var(--radius-nav)] text-xs font-medium transition-[var(--transition-all)] ${
                     theme === t.id
-                      ? "bg-[var(--surface-elevated)] text-[var(--text-accent)] shadow-xs"
+                      ? "bg-[var(--surface-elevated)] text-[var(--text-accent)] shadow-[var(--shadow-button)]"
                       : "text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
                   }`}
                   title={t.label}
@@ -372,14 +379,14 @@ export function ShareModal({
 
           {/* Format segmented control */}
           <div className="flex-1">
-            <div className="flex bg-[var(--surface-muted)] rounded-lg p-0.5">
+            <div className="flex bg-[var(--surface-muted)] rounded-[var(--radius-button)] p-0.5">
               {FORMATS.map((f) => (
                 <button
                   key={f.id}
                   onClick={() => setFormat(f.id)}
-                  className={`flex-1 py-1.5 rounded-md text-[10px] font-medium transition-all ${
+                  className={`flex-1 py-1.5 rounded-[var(--radius-nav)] text-[10px] font-medium transition-[var(--transition-all)] ${
                     format === f.id
-                      ? "bg-[var(--surface-elevated)] text-[var(--text-accent)] shadow-xs"
+                      ? "bg-[var(--surface-elevated)] text-[var(--text-accent)] shadow-[var(--shadow-button)]"
                       : "text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
                   }`}
                   title={f.label}
@@ -398,14 +405,14 @@ export function ShareModal({
               <button
                 onClick={handleNativeShare}
                 disabled={generating || sharing || !previewUrl}
-                className="flex-1 px-4 py-2 bg-[var(--interactive-primary)] hover:opacity-90 disabled:opacity-60 text-white text-sm font-medium rounded-xl transition-colors disabled:cursor-not-allowed"
+                className="flex-1 px-4 py-2 bg-[var(--interactive-primary)] hover:opacity-90 disabled:opacity-60 text-white text-sm font-medium rounded-[var(--radius-card)] transition-[var(--transition-color)] disabled:cursor-not-allowed"
               >
                 {sharing ? "Sharing..." : "Share Image"}
               </button>
               <button
                 onClick={handleDownload}
                 disabled={generating || downloading || !previewUrl}
-                className="p-2 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--interactive-ghost-hover-bg)] rounded-xl transition-colors disabled:opacity-40"
+                className="p-2 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--interactive-ghost-hover-bg)] rounded-[var(--radius-card)] transition-[var(--transition-color)] disabled:opacity-40"
                 aria-label="Download"
                 title="Download"
               >
@@ -428,7 +435,7 @@ export function ShareModal({
             <button
               onClick={handleDownload}
               disabled={generating || downloading || !previewUrl}
-              className="flex-1 px-4 py-2 bg-[var(--interactive-primary)] hover:opacity-90 disabled:opacity-60 text-white text-sm font-medium rounded-xl transition-colors disabled:cursor-not-allowed"
+              className="flex-1 px-4 py-2 bg-[var(--interactive-primary)] hover:opacity-90 disabled:opacity-60 text-white text-sm font-medium rounded-[var(--radius-card)] transition-[var(--transition-color)] disabled:cursor-not-allowed"
             >
               {downloading ? "Downloading..." : "Download Image"}
             </button>

@@ -83,13 +83,13 @@ export function ThinkingIndicator({
       {/* Pending user message (only for follow-up variant) */}
       {variant === "followup" && pendingMessage && (
         <div className="relative pl-8 sm:pl-10 pb-3 sm:pb-4">
-          <div className="absolute left-0 w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center bg-[var(--status-info-bg)] border-2 border-[var(--status-info-border)]">
+          <div className="absolute left-0 w-6 h-6 sm:w-7 sm:h-7 rounded-[var(--radius-avatar)] flex items-center justify-center bg-[var(--status-info-bg)] border-2 border-[var(--status-info-border)]">
             <span className="text-xs text-[var(--status-info-text)]">+</span>
           </div>
           <div className="text-xs font-semibold uppercase tracking-wide mb-2 text-[var(--status-info-text)]">
             Follow-up
           </div>
-          <div className="rounded-xl p-3 sm:p-4 bg-[var(--status-info-bg)] border border-[var(--status-info-border)]">
+          <div className="rounded-[var(--radius-card)] p-3 sm:p-4 bg-[var(--status-info-bg)] border border-[var(--status-info-border)]">
             <p className="leading-relaxed whitespace-pre-wrap text-[var(--text-secondary)] text-sm">
               {pendingMessage}
             </p>
@@ -99,7 +99,7 @@ export function ThinkingIndicator({
 
       {/* Thinking indicator */}
       <div className="relative pl-8 sm:pl-10 pb-4 sm:pb-6">
-        <div className="absolute left-0 w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center bg-[var(--badge-warm-bg)] border-2 border-[var(--border-accent)] animate-pulse">
+        <div className="absolute left-0 w-6 h-6 sm:w-7 sm:h-7 rounded-[var(--radius-avatar)] flex items-center justify-center bg-[var(--badge-warm-bg)] border-2 border-[var(--border-accent)] animate-pulse">
           <span className="text-xs text-[var(--text-accent)] font-medium">
             ~
           </span>
@@ -109,7 +109,7 @@ export function ThinkingIndicator({
         </div>
 
         {/* Enhanced container with glow and shimmer */}
-        <div className="relative rounded-xl p-4 sm:p-5 bg-linear-to-br from-[var(--surface-warm)] to-[var(--surface-warm-subtle)] border border-[var(--border-accent)] animate-glow-pulse overflow-hidden">
+        <div className="relative rounded-[var(--radius-card)] p-4 sm:p-5 bg-linear-to-br from-[var(--surface-warm)] to-[var(--surface-warm-subtle)] border border-[var(--border-accent)] animate-glow-pulse overflow-hidden">
           {/* Shimmer overlay - warm amber */}
           <div className="absolute inset-0 animate-shimmer pointer-events-none" />
 
@@ -133,7 +133,7 @@ export function ThinkingIndicator({
                       {index < currentStage ? (
                         "✓"
                       ) : index === currentStage ? (
-                        <span className="inline-block w-2 h-2 bg-[var(--interactive-primary)] rounded-full animate-pulse" />
+                        <span className="inline-block w-2 h-2 bg-[var(--interactive-primary)] rounded-[var(--radius-progress)] animate-pulse" />
                       ) : (
                         "○"
                       )}
@@ -149,15 +149,15 @@ export function ThinkingIndicator({
               <div className="flex items-center gap-3 mb-4">
                 <div className="flex space-x-1.5">
                   <span
-                    className="w-2.5 h-2.5 bg-[var(--interactive-primary)] rounded-full animate-dot-pulse"
+                    className="w-2.5 h-2.5 bg-[var(--interactive-primary)] rounded-[var(--radius-progress)] animate-dot-pulse"
                     style={{ animationDelay: "0ms" }}
                   />
                   <span
-                    className="w-2.5 h-2.5 bg-[var(--interactive-primary)] rounded-full animate-dot-pulse"
+                    className="w-2.5 h-2.5 bg-[var(--interactive-primary)] rounded-[var(--radius-progress)] animate-dot-pulse"
                     style={{ animationDelay: "0.2s" }}
                   />
                   <span
-                    className="w-2.5 h-2.5 bg-[var(--interactive-primary)] rounded-full animate-dot-pulse"
+                    className="w-2.5 h-2.5 bg-[var(--interactive-primary)] rounded-[var(--radius-progress)] animate-dot-pulse"
                     style={{ animationDelay: "0.4s" }}
                   />
                 </div>
@@ -168,7 +168,7 @@ export function ThinkingIndicator({
             )}
 
             {/* Rotating quote - fixed height prevents layout shift */}
-            <div className="bg-[var(--surface-elevated)]/70 rounded-lg p-3 sm:p-4 transition-opacity duration-500 min-h-[72px] sm:min-h-[80px] flex flex-col justify-center">
+            <div className="bg-[var(--surface-elevated)]/70 rounded-[var(--radius-button)] p-3 sm:p-4 transition-[var(--transition-opacity)] min-h-[72px] sm:min-h-[80px] flex flex-col justify-center">
               <blockquote className="text-sm text-[var(--text-secondary)] italic">
                 "{currentQuote.text}"
               </blockquote>

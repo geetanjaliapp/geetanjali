@@ -600,7 +600,7 @@ ${messages
             <div
               role="alert"
               aria-live="assertive"
-              className="mb-6 bg-[var(--status-error-bg)] border border-[var(--status-error-border)] text-[var(--status-error-text)] px-4 py-3 rounded-xl"
+              className="mb-6 bg-[var(--status-error-bg)] border border-[var(--status-error-border)] text-[var(--status-error-text)] px-4 py-3 rounded-[var(--radius-card)]"
             >
               <strong>Error:</strong> {error}
             </div>
@@ -608,7 +608,7 @@ ${messages
 
           {/* Signup reminder */}
           {showSignupPrompt && !isAuthenticated && (
-            <div className="mb-6 bg-[var(--surface-muted)] border border-[var(--border-default)] rounded-xl px-4 py-3 flex items-center justify-between">
+            <div className="mb-6 bg-[var(--surface-muted)] border border-[var(--border-default)] rounded-[var(--radius-card)] px-4 py-3 flex items-center justify-between">
               <p className="text-sm text-[var(--text-tertiary)]">
                 <Link
                   to="/signup"
@@ -620,7 +620,7 @@ ${messages
               </p>
               <button
                 onClick={() => setShowSignupPrompt(false)}
-                className="text-[var(--text-muted)] hover:text-[var(--text-secondary)] ml-4 rounded-sm focus:outline-hidden focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
+                className="text-[var(--text-muted)] hover:text-[var(--text-secondary)] ml-4 rounded-[var(--radius-skeleton)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
               >
                 <svg
                   className="w-4 h-4"
@@ -661,7 +661,7 @@ ${messages
                     {/* Question */}
                     <div className="relative pl-8 sm:pl-10 pb-3 sm:pb-4">
                       <div
-                        className={`absolute left-0 w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center ${
+                        className={`absolute left-0 w-6 h-6 sm:w-7 sm:h-7 rounded-[var(--radius-avatar)] flex items-center justify-center ${
                           isFirst
                             ? "bg-[var(--interactive-contextual)] text-[var(--interactive-contextual-text)]"
                             : "bg-[var(--status-info-bg)] border-2 border-[var(--status-info-border)]"
@@ -697,9 +697,9 @@ ${messages
                         {isFirst ? "Your Question" : "Follow-up"}
                       </div>
                       <div
-                        className={`rounded-xl p-3 sm:p-4 ${
+                        className={`rounded-[var(--radius-card)] p-3 sm:p-4 ${
                           isFirst
-                            ? "bg-[var(--surface-elevated)] shadow-lg border-2 border-[var(--border-warm)]"
+                            ? "bg-[var(--surface-elevated)] shadow-[var(--shadow-dropdown)] border-2 border-[var(--border-warm)]"
                             : "bg-[var(--status-info-bg)] border border-[var(--status-info-border)]"
                         }`}
                       >
@@ -718,7 +718,7 @@ ${messages
                             <div className="mt-3 flex flex-wrap gap-2">
                               {caseData.role &&
                                 caseData.role !== "Individual" && (
-                                  <span className="text-xs bg-[var(--badge-warm-bg)] text-[var(--badge-warm-text)] px-2 py-1 rounded-full font-medium">
+                                  <span className="text-xs bg-[var(--badge-warm-bg)] text-[var(--badge-warm-text)] px-2 py-1 rounded-[var(--radius-chip)] font-medium">
                                     {caseData.role}
                                   </span>
                                 )}
@@ -727,7 +727,7 @@ ${messages
                                 .map((s, i) => (
                                   <span
                                     key={i}
-                                    className="text-xs bg-[var(--badge-default-bg)] text-[var(--text-tertiary)] px-2 py-1 rounded-full"
+                                    className="text-xs bg-[var(--badge-default-bg)] text-[var(--text-tertiary)] px-2 py-1 rounded-[var(--radius-chip)]"
                                   >
                                     {s}
                                   </span>
@@ -743,10 +743,10 @@ ${messages
                         {/* Draft state */}
                         {isDraft && (
                           <>
-                            <div className="absolute left-0 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[var(--badge-warm-bg)] border-2 border-[var(--border-warm)] flex items-center justify-center">
+                            <div className="absolute left-0 w-6 h-6 sm:w-7 sm:h-7 rounded-[var(--radius-avatar)] bg-[var(--badge-warm-bg)] border-2 border-[var(--border-warm)] flex items-center justify-center">
                               <span className="text-xs">📝</span>
                             </div>
-                            <div className="bg-[var(--status-warning-bg)] border border-[var(--status-warning-border)] rounded-xl px-4 py-3">
+                            <div className="bg-[var(--status-warning-bg)] border border-[var(--status-warning-border)] rounded-[var(--radius-card)] px-4 py-3">
                               <p className="text-sm text-[var(--status-warning-text)] mb-3">
                                 <span className="font-medium">Draft</span> —
                                 Your question is saved. Click below to receive
@@ -754,7 +754,7 @@ ${messages
                               </p>
                               <button
                                 onClick={handleRetry}
-                                className="px-4 py-2 bg-[var(--interactive-primary)] hover:opacity-90 text-white text-sm font-medium rounded-lg transition-colors"
+                                className="px-4 py-2 bg-[var(--interactive-primary)] hover:opacity-90 text-white text-sm font-medium rounded-[var(--radius-button)] transition-[var(--transition-color)]"
                               >
                                 Get Guidance
                               </button>
@@ -770,10 +770,10 @@ ${messages
                         {/* Failed state */}
                         {isFailed && (
                           <>
-                            <div className="absolute left-0 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[var(--status-error-bg)] border-2 border-[var(--status-error-border)] flex items-center justify-center">
+                            <div className="absolute left-0 w-6 h-6 sm:w-7 sm:h-7 rounded-[var(--radius-avatar)] bg-[var(--status-error-bg)] border-2 border-[var(--status-error-border)] flex items-center justify-center">
                               <span className="text-xs">⚠️</span>
                             </div>
-                            <div className="bg-[var(--status-error-bg)] border border-[var(--status-error-border)] rounded-xl px-4 py-3">
+                            <div className="bg-[var(--status-error-bg)] border border-[var(--status-error-border)] rounded-[var(--radius-card)] px-4 py-3">
                               <p className="text-sm text-[var(--status-error-text)] mb-3">
                                 <span className="font-medium">
                                   Unable to Complete
@@ -783,7 +783,7 @@ ${messages
                               </p>
                               <button
                                 onClick={handleRetry}
-                                className="px-4 py-2 bg-[var(--interactive-primary)] hover:opacity-90 text-white text-sm font-medium rounded-lg transition-colors"
+                                className="px-4 py-2 bg-[var(--interactive-primary)] hover:opacity-90 text-white text-sm font-medium rounded-[var(--radius-button)] transition-[var(--transition-color)]"
                               >
                                 Get Guidance
                               </button>
@@ -797,7 +797,7 @@ ${messages
                     {exchange.assistant && (
                       <div className="relative pl-8 sm:pl-10 pb-4 sm:pb-6">
                         <div
-                          className={`absolute left-0 w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center ${
+                          className={`absolute left-0 w-6 h-6 sm:w-7 sm:h-7 rounded-[var(--radius-avatar)] flex items-center justify-center ${
                             isFirst
                               ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)]"
                               : "bg-[var(--option-selected-bg)] border-2 border-[var(--option-selected-border)]"
@@ -834,10 +834,10 @@ ${messages
                         </div>
 
                         <div
-                          className={`rounded-xl p-3 sm:p-4 border ${
+                          className={`rounded-[var(--radius-card)] p-3 sm:p-4 border ${
                             isFirst
-                              ? "bg-[var(--surface-elevated)] shadow-lg border-[var(--border-warm)]"
-                              : "bg-[var(--surface-elevated)] shadow-md border-[var(--border-warm-subtle)]"
+                              ? "bg-[var(--surface-elevated)] shadow-[var(--shadow-dropdown)] border-[var(--border-warm)]"
+                              : "bg-[var(--surface-elevated)] shadow-[var(--shadow-card)] border-[var(--border-warm-subtle)]"
                           }`}
                         >
                           <GuidanceMarkdown
@@ -848,7 +848,7 @@ ${messages
 
                           {/* Scholar flag with refine option */}
                           {exchange.output?.scholar_flag && (
-                            <div className="mt-3 bg-[var(--status-warning-bg)] border border-[var(--status-warning-border)] rounded-lg p-3">
+                            <div className="mt-3 bg-[var(--status-warning-bg)] border border-[var(--status-warning-border)] rounded-[var(--radius-button)] p-3">
                               <div className="flex items-center gap-2 text-[var(--status-warning-text)] text-sm font-medium">
                                 <span>⚠️</span>
                                 <span>This guidance has lower confidence</span>
@@ -860,7 +860,7 @@ ${messages
                                       "Can you provide more detail or clarify the recommended approach?",
                                     )
                                   }
-                                  className="mt-2 text-sm text-[var(--text-accent)] hover:text-[var(--text-link-hover)] hover:underline flex items-center gap-1 rounded-sm focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
+                                  className="mt-2 text-sm text-[var(--text-accent)] hover:text-[var(--text-link-hover)] hover:underline flex items-center gap-1 rounded-[var(--radius-skeleton)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
                                 >
                                   <svg
                                     className="w-3.5 h-3.5"
@@ -890,7 +890,7 @@ ${messages
                                     exchange.output &&
                                     toggleSources(exchange.output.id)
                                   }
-                                  className="text-xs font-medium text-[var(--interactive-ghost-text)] hover:text-[var(--text-link-hover)] flex items-center gap-1 rounded-sm focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
+                                  className="text-xs font-medium text-[var(--interactive-ghost-text)] hover:text-[var(--text-link-hover)] flex items-center gap-1 rounded-[var(--radius-skeleton)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
                                 >
                                   <svg
                                     className={`w-3 h-3 transition-transform ${isSourcesExpanded ? "rotate-90" : ""}`}
@@ -919,7 +919,7 @@ ${messages
                                       (source) => (
                                         <div
                                           key={source.canonical_id}
-                                          className="bg-linear-to-r from-[var(--gradient-warm-from)] to-[var(--gradient-warm-to)] rounded-lg p-3 border border-[var(--border-warm-subtle)]"
+                                          className="bg-linear-to-r from-[var(--gradient-warm-from)] to-[var(--gradient-warm-to)] rounded-[var(--radius-button)] p-3 border border-[var(--border-warm-subtle)]"
                                         >
                                           <div className="flex items-center justify-between">
                                             <Link
@@ -1002,7 +1002,7 @@ ${messages
                   ref={followUpInputRef}
                   className="relative pl-8 sm:pl-10 pt-2 pb-4"
                 >
-                  <div className="absolute left-0 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[var(--badge-default-bg)] border-2 border-[var(--border-default)] flex items-center justify-center">
+                  <div className="absolute left-0 w-6 h-6 sm:w-7 sm:h-7 rounded-[var(--radius-avatar)] bg-[var(--badge-default-bg)] border-2 border-[var(--border-default)] flex items-center justify-center">
                     <svg
                       className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[var(--text-muted)]"
                       fill="none"
@@ -1043,7 +1043,7 @@ ${messages
               <div className="mt-8 pt-6 border-t border-[var(--border-warm-subtle)]">
                 {/* Section Header */}
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-8 h-8 rounded-full bg-[var(--badge-warm-bg)] flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-[var(--radius-avatar)] bg-[var(--badge-warm-bg)] flex items-center justify-center">
                     <svg
                       className="w-4 h-4 text-[var(--interactive-ghost-text)]"
                       fill="none"

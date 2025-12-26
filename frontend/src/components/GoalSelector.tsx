@@ -18,7 +18,7 @@ function GoalCard({ goal, isSelected, onToggle }: GoalCardProps) {
       onClick={onToggle}
       className={`
         relative flex items-center gap-2 p-2 sm:flex-col sm:p-2.5 sm:gap-1
-        rounded-lg sm:rounded-xl border transition-all duration-150 w-full
+        rounded-[var(--radius-button)] sm:rounded-[var(--radius-card)] border transition-[var(--transition-all)] w-full
         focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2
         focus-visible:ring-offset-[var(--focus-ring-offset)]
         ${
@@ -32,7 +32,7 @@ function GoalCard({ goal, isSelected, onToggle }: GoalCardProps) {
     >
       {/* Selection badge - only on sm+ */}
       {isSelected && (
-        <div className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[var(--interactive-primary)] flex items-center justify-center shadow-xs">
+        <div className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 rounded-[var(--radius-avatar)] bg-[var(--interactive-primary)] flex items-center justify-center shadow-[var(--shadow-button)]">
           <CheckIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />
         </div>
       )}
@@ -40,7 +40,7 @@ function GoalCard({ goal, isSelected, onToggle }: GoalCardProps) {
       {/* Icon badge */}
       <div
         className={`
-          w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0 transition-colors
+          w-8 h-8 sm:w-10 sm:h-10 rounded-[var(--radius-avatar)] flex items-center justify-center shrink-0 transition-[var(--transition-color)]
           ${
             isSelected
               ? "bg-[var(--badge-warm-bg)] text-[var(--badge-warm-text)]"
@@ -141,12 +141,12 @@ export function GoalSelector({
         {Array.from({ length: 8 }).map((_, i) => (
           <div
             key={i}
-            className="flex items-center gap-2 p-2 sm:flex-col sm:p-2.5 rounded-lg sm:rounded-xl border border-[var(--border-default)] bg-[var(--surface-elevated)] animate-pulse"
+            className="flex items-center gap-2 p-2 sm:flex-col sm:p-2.5 rounded-[var(--radius-button)] sm:rounded-[var(--radius-card)] border border-[var(--border-default)] bg-[var(--surface-elevated)] animate-pulse"
           >
-            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-[var(--surface-muted)] rounded-full shrink-0" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-[var(--surface-muted)] rounded-[var(--radius-avatar)] shrink-0" />
             <div className="flex-1 sm:w-full">
-              <div className="h-3 sm:h-4 bg-[var(--surface-muted)] rounded-sm w-16 sm:w-full sm:mx-auto" />
-              <div className="hidden sm:block h-3 bg-[var(--surface-muted)] rounded-sm w-20 mx-auto mt-1" />
+              <div className="h-3 sm:h-4 bg-[var(--surface-muted)] rounded-[var(--radius-skeleton)] w-16 sm:w-full sm:mx-auto" />
+              <div className="hidden sm:block h-3 bg-[var(--surface-muted)] rounded-[var(--radius-skeleton)] w-20 mx-auto mt-1" />
             </div>
           </div>
         ))}
@@ -168,7 +168,7 @@ export function GoalSelector({
             <button
               type="button"
               onClick={handleSelectAll}
-              className="min-h-[44px] px-3 py-2 text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] hover:bg-[var(--surface-warm)] active:bg-[var(--badge-warm-bg)] rounded-lg transition-colors"
+              className="min-h-[44px] px-3 py-2 text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] hover:bg-[var(--surface-warm)] active:bg-[var(--badge-warm-bg)] rounded-[var(--radius-button)] transition-[var(--transition-color)]"
             >
               Select all
             </button>
@@ -177,7 +177,7 @@ export function GoalSelector({
             <button
               type="button"
               onClick={handleClearAll}
-              className="min-h-[44px] px-3 py-2 text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] hover:bg-[var(--interactive-ghost-hover-bg)] active:bg-[var(--surface-muted)] rounded-lg transition-colors"
+              className="min-h-[44px] px-3 py-2 text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] hover:bg-[var(--interactive-ghost-hover-bg)] active:bg-[var(--surface-muted)] rounded-[var(--radius-button)] transition-[var(--transition-color)]"
             >
               Clear
             </button>

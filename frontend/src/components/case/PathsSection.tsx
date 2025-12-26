@@ -23,7 +23,7 @@ export function PathsSection({
 
   return (
     <div className="relative pl-8 sm:pl-10 pb-3 sm:pb-4">
-      <div className="absolute left-0 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[var(--badge-warm-bg)] border-2 border-[var(--border-accent)] flex items-center justify-center">
+      <div className="absolute left-0 w-6 h-6 sm:w-7 sm:h-7 rounded-[var(--radius-avatar)] bg-[var(--badge-warm-bg)] border-2 border-[var(--border-accent)] flex items-center justify-center">
         <svg
           className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[var(--text-accent)]"
           fill="none"
@@ -40,7 +40,7 @@ export function PathsSection({
       </div>
 
       <button onClick={onToggle} className="w-full text-left">
-        <div className="flex items-center justify-between bg-[var(--surface-elevated)] rounded-xl p-3 sm:p-4 shadow-xs border border-[var(--border-warm)] hover:shadow-md transition-shadow">
+        <div className="flex items-center justify-between bg-[var(--surface-elevated)] rounded-[var(--radius-card)] p-3 sm:p-4 shadow-[var(--shadow-button)] border border-[var(--border-warm)] hover:shadow-[var(--shadow-card)] transition-[var(--transition-all)]">
           <div>
             <div className="text-xs font-semibold text-[var(--badge-warm-text)] uppercase tracking-wide">
               Paths Before You
@@ -73,9 +73,9 @@ export function PathsSection({
               <button
                 key={idx}
                 onClick={() => onSelectOption(idx)}
-                className={`shrink-0 w-28 sm:w-auto p-2.5 sm:p-3 rounded-xl border-2 text-left transition-all h-full ${
+                className={`shrink-0 w-28 sm:w-auto p-2.5 sm:p-3 rounded-[var(--radius-card)] border-2 text-left transition-[var(--transition-all)] h-full ${
                   selectedOption === idx
-                    ? "bg-[var(--surface-warm)] border-[var(--border-accent)] shadow-md"
+                    ? "bg-[var(--surface-warm)] border-[var(--border-accent)] shadow-[var(--shadow-card)]"
                     : "bg-[var(--surface-elevated)] border-[var(--border-default)] hover:border-[var(--border-warm)]"
                 }`}
               >
@@ -94,7 +94,7 @@ export function PathsSection({
           </div>
 
           {/* Selected path details */}
-          <div className="bg-[var(--surface-elevated)] rounded-xl shadow-xs p-3 sm:p-4 border border-[var(--border-warm)]">
+          <div className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] shadow-[var(--shadow-button)] p-3 sm:p-4 border border-[var(--border-warm)]">
             <h4 className="font-semibold text-[var(--text-primary)] text-sm sm:text-base">
               {options[selectedOption].title}
             </h4>

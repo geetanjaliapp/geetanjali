@@ -79,7 +79,7 @@
   --input-border-hover: var(--color-neutral-400);
   --input-border-focus: var(--color-primary-500);
   --input-border-error: var(--color-error-500);
-  --input-bg: white;
+  /* Note: --input-bg is defined in semantic.css with warm tones */
   --input-bg-disabled: var(--color-neutral-100);
   --input-text: var(--color-neutral-900);
   --input-text-placeholder: var(--color-neutral-400);
@@ -146,7 +146,7 @@
   --input-border-hover: var(--color-neutral-500);
   --input-border-focus: var(--color-primary-400);
   --input-border-error: var(--color-error-400);
-  --input-bg: var(--color-neutral-800);
+  /* Note: --input-bg is defined in semantic.css */
   --input-bg-disabled: var(--color-neutral-800);
   --input-text: var(--color-neutral-100);
   --input-text-placeholder: var(--color-neutral-500);

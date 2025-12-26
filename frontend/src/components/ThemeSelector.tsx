@@ -72,13 +72,13 @@ function ThemeIndicator({
       aria-label={`${name} theme${isSelected ? " (selected)" : ""}`}
       title={name}
       className={`
-        w-9 h-9 rounded-full transition-all duration-150 ease-out
-        border-2 shadow-sm
+        w-9 h-9 rounded-[var(--radius-avatar)] transition-[var(--transition-all)]
+        border-2 shadow-[var(--shadow-button)]
         focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
         focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-[var(--surface-elevated)]
         ${
           isSelected
-            ? "border-[var(--border-focus)] scale-110 shadow-md"
+            ? "border-[var(--border-focus)] scale-110 shadow-[var(--shadow-card)]"
             : "border-transparent hover:scale-105 hover:shadow"
         }
       `}

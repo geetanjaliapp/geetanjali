@@ -25,34 +25,34 @@ const CASES_PER_PAGE = 10;
 function StatusBadge({ status }: { status?: CaseStatus }) {
   if (!status || status === "completed") {
     return (
-      <span className="px-2 py-0.5 text-xs rounded-full bg-[var(--status-success-bg)] text-[var(--status-success-text)]">
+      <span className="px-2 py-0.5 text-xs rounded-[var(--radius-chip)] bg-[var(--status-success-bg)] text-[var(--status-success-text)]">
         Completed
       </span>
     );
   }
   if (status === "policy_violation") {
     return (
-      <span className="px-2 py-0.5 text-xs rounded-full bg-[var(--status-warning-bg)] text-[var(--status-warning-text)]">
+      <span className="px-2 py-0.5 text-xs rounded-[var(--radius-chip)] bg-[var(--status-warning-bg)] text-[var(--status-warning-text)]">
         Unable to Process
       </span>
     );
   }
   if (status === "processing" || status === "pending") {
     return (
-      <span className="px-2 py-0.5 text-xs rounded-full bg-[var(--status-warning-bg)] text-[var(--status-warning-text)] flex items-center gap-1">
+      <span className="px-2 py-0.5 text-xs rounded-[var(--radius-chip)] bg-[var(--status-warning-bg)] text-[var(--status-warning-text)] flex items-center gap-1">
         <span className="animate-pulse">●</span> Processing
       </span>
     );
   }
   if (status === "failed") {
     return (
-      <span className="px-2 py-0.5 text-xs rounded-full bg-[var(--status-error-bg)] text-[var(--status-error-text)]">
+      <span className="px-2 py-0.5 text-xs rounded-[var(--radius-chip)] bg-[var(--status-error-bg)] text-[var(--status-error-text)]">
         Failed
       </span>
     );
   }
   return (
-    <span className="px-2 py-0.5 text-xs rounded-full bg-[var(--surface-muted)] text-[var(--text-secondary)]">
+    <span className="px-2 py-0.5 text-xs rounded-[var(--radius-chip)] bg-[var(--surface-muted)] text-[var(--text-secondary)]">
       Draft
     </span>
   );
@@ -311,7 +311,7 @@ export default function Consultations() {
               {/* CTA visible on tablet+ only, FAB handles mobile */}
               <Link
                 to="/cases/new"
-                className="hidden sm:inline-block bg-[var(--interactive-primary)] hover:opacity-90 text-white font-semibold px-5 py-2.5 sm:px-6 sm:py-3 rounded-lg transition-colors text-sm sm:text-base shrink-0"
+                className="hidden sm:inline-block bg-[var(--interactive-primary)] hover:opacity-90 text-white font-semibold px-5 py-2.5 sm:px-6 sm:py-3 rounded-[var(--radius-button)] transition-[var(--transition-color)] text-sm sm:text-base shrink-0"
               >
                 Ask a Question
               </Link>
@@ -320,13 +320,13 @@ export default function Consultations() {
             {/* Line 2: Filter Segmented Control - Order: All → In Progress → Done → Failed → Shared */}
             {filterCounts.all > 0 && (
               <div className="mt-3">
-                <div className="inline-flex rounded-lg border border-[var(--border-default)] bg-[var(--surface-elevated)] p-0.5 shadow-xs">
+                <div className="inline-flex rounded-[var(--radius-button)] border border-[var(--border-default)] bg-[var(--surface-elevated)] p-0.5 shadow-[var(--shadow-button)]">
                   {/* All Segment */}
                   <button
                     onClick={() => handleFilterChange("all")}
-                    className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
+                    className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-2 rounded-[var(--radius-nav)] text-sm font-medium transition-[var(--transition-all)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                       filterMode === "all"
-                        ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-xs"
+                        ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-[var(--shadow-button)]"
                         : "text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]"
                     }`}
                   >
@@ -335,7 +335,7 @@ export default function Consultations() {
                     <span
                       className={`min-w-5 text-center text-xs tabular-nums ${
                         filterMode === "all"
-                          ? "text-white/80"
+                          ? "text-[var(--interactive-primary-text-muted)]"
                           : "text-[var(--text-tertiary)]"
                       }`}
                     >
@@ -349,9 +349,9 @@ export default function Consultations() {
                       <div className="w-px bg-[var(--border-default)] my-1" />
                       <button
                         onClick={() => handleFilterChange("in-progress")}
-                        className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
+                        className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-2 rounded-[var(--radius-nav)] text-sm font-medium transition-[var(--transition-all)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                           filterMode === "in-progress"
-                            ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-xs"
+                            ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-[var(--shadow-button)]"
                             : "text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]"
                         }`}
                       >
@@ -360,7 +360,7 @@ export default function Consultations() {
                         <span
                           className={`min-w-5 text-center text-xs tabular-nums ${
                             filterMode === "in-progress"
-                              ? "text-white/80"
+                              ? "text-[var(--interactive-primary-text-muted)]"
                               : "text-[var(--status-warning-text)]"
                           }`}
                         >
@@ -376,9 +376,9 @@ export default function Consultations() {
                   {/* Done Segment (includes completed + policy_violation) */}
                   <button
                     onClick={() => handleFilterChange("completed")}
-                    className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
+                    className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-2 rounded-[var(--radius-nav)] text-sm font-medium transition-[var(--transition-all)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                       filterMode === "completed"
-                        ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-xs"
+                        ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-[var(--shadow-button)]"
                         : "text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]"
                     }`}
                   >
@@ -387,7 +387,7 @@ export default function Consultations() {
                     <span
                       className={`min-w-5 text-center text-xs tabular-nums ${
                         filterMode === "completed"
-                          ? "text-white/80"
+                          ? "text-[var(--interactive-primary-text-muted)]"
                           : filterCounts.completed > 0
                             ? "text-[var(--status-success-text)]"
                             : "text-[var(--text-tertiary)]"
@@ -403,9 +403,9 @@ export default function Consultations() {
                       <div className="w-px bg-[var(--border-default)] my-1" />
                       <button
                         onClick={() => handleFilterChange("failed")}
-                        className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
+                        className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-2 rounded-[var(--radius-nav)] text-sm font-medium transition-[var(--transition-all)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                           filterMode === "failed"
-                            ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-xs"
+                            ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-[var(--shadow-button)]"
                             : "text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]"
                         }`}
                       >
@@ -414,7 +414,7 @@ export default function Consultations() {
                         <span
                           className={`min-w-5 text-center text-xs tabular-nums ${
                             filterMode === "failed"
-                              ? "text-white/80"
+                              ? "text-[var(--interactive-primary-text-muted)]"
                               : "text-[var(--status-error-text)]"
                           }`}
                         >
@@ -430,9 +430,9 @@ export default function Consultations() {
                   {/* Shared Segment */}
                   <button
                     onClick={() => handleFilterChange("shared")}
-                    className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
+                    className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-2 rounded-[var(--radius-nav)] text-sm font-medium transition-[var(--transition-all)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                       filterMode === "shared"
-                        ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-xs"
+                        ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-[var(--shadow-button)]"
                         : "text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]"
                     }`}
                   >
@@ -441,7 +441,7 @@ export default function Consultations() {
                     <span
                       className={`min-w-5 text-center text-xs tabular-nums ${
                         filterMode === "shared"
-                          ? "text-white/80"
+                          ? "text-[var(--interactive-primary-text-muted)]"
                           : filterCounts.shared > 0
                             ? "text-[var(--status-success-text)]"
                             : "text-[var(--text-tertiary)]"
@@ -460,7 +460,7 @@ export default function Consultations() {
             <div
               role="alert"
               aria-live="assertive"
-              className="mb-4 sm:mb-6 bg-[var(--status-error-bg)] border border-[var(--status-error-border)] text-[var(--status-error-text)] px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-sm"
+              className="mb-4 sm:mb-6 bg-[var(--status-error-bg)] border border-[var(--status-error-border)] text-[var(--status-error-text)] px-3 sm:px-4 py-2 sm:py-3 rounded-[var(--radius-button)] text-sm"
             >
               <strong>Error:</strong> {error}
             </div>
@@ -468,7 +468,7 @@ export default function Consultations() {
 
           {/* Anonymous user notice */}
           {!isAuthenticated && cases.length > 0 && (
-            <div className="mb-4 sm:mb-6 bg-[var(--status-warning-bg)] border border-[var(--status-warning-border)] rounded-lg p-3 sm:p-4 flex items-start gap-2 sm:gap-3">
+            <div className="mb-4 sm:mb-6 bg-[var(--status-warning-bg)] border border-[var(--status-warning-border)] rounded-[var(--radius-button)] p-3 sm:p-4 flex items-start gap-2 sm:gap-3">
               <span className="text-[var(--text-accent)] text-base sm:text-lg">
                 💡
               </span>
@@ -490,7 +490,7 @@ export default function Consultations() {
           {/* Consultations List */}
           {filterCounts.all === 0 ? (
             // No cases at all
-            <div className="bg-[var(--surface-elevated)] rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl p-8 sm:p-12 text-center">
+            <div className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] shadow-[var(--shadow-dropdown)] sm:shadow-[var(--shadow-modal)] p-8 sm:p-12 text-center">
               <img
                 src="/logo.svg"
                 alt="Geetanjali"
@@ -502,14 +502,14 @@ export default function Consultations() {
               </p>
               <Link
                 to="/cases/new"
-                className="inline-block bg-[var(--interactive-primary)] hover:opacity-90 text-white font-semibold px-6 py-2.5 sm:px-8 sm:py-3 rounded-lg transition-colors text-sm sm:text-base"
+                className="inline-block bg-[var(--interactive-primary)] hover:opacity-90 text-white font-semibold px-6 py-2.5 sm:px-8 sm:py-3 rounded-[var(--radius-button)] transition-[var(--transition-color)] text-sm sm:text-base"
               >
                 Ask Your First Question
               </Link>
             </div>
           ) : cases.length === 0 ? (
             // Filter returned no results (but user has cases)
-            <div className="bg-[var(--surface-elevated)] rounded-xl sm:rounded-2xl shadow-lg p-6 sm:p-8 text-center">
+            <div className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] shadow-[var(--shadow-dropdown)] p-6 sm:p-8 text-center">
               <p className="text-[var(--text-secondary)] mb-4 text-sm sm:text-base">
                 {filterMode === "in-progress"
                   ? "No consultations in progress."
@@ -544,7 +544,7 @@ export default function Consultations() {
                   return (
                     <div key={case_.id}>
                       <div
-                        className={`relative bg-[var(--surface-elevated)] rounded-lg sm:rounded-xl shadow-md hover:shadow-lg transition-all border overflow-visible ${
+                        className={`relative bg-[var(--surface-elevated)] rounded-[var(--radius-button)] sm:rounded-[var(--radius-card)] shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] transition-[var(--transition-all)] border overflow-visible ${
                           case_.is_public
                             ? "border-[var(--status-success-border)] hover:border-[var(--status-success-border)]"
                             : "border-[var(--border-default)] hover:border-[var(--border-warm)]"
@@ -577,7 +577,7 @@ export default function Consultations() {
                               <button
                                 onClick={(e) => handleRetry(e, case_.id)}
                                 disabled={actionLoading === case_.id}
-                                className="px-2 sm:px-3 py-1 text-xs font-medium text-[var(--text-accent)] bg-[var(--badge-warm-bg)] hover:bg-[var(--badge-warm-hover)] rounded-full transition-colors disabled:opacity-50 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)]"
+                                className="px-2 sm:px-3 py-1 text-xs font-medium text-[var(--text-accent)] bg-[var(--badge-warm-bg)] hover:bg-[var(--badge-warm-hover)] rounded-[var(--radius-chip)] transition-[var(--transition-color)] disabled:opacity-50 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)]"
                                 title="Retry analysis"
                               >
                                 {actionLoading === case_.id ? "..." : "Retry"}
@@ -589,19 +589,19 @@ export default function Consultations() {
                           </p>
                           <div className="flex flex-wrap gap-1.5 sm:gap-2">
                             {case_.role && case_.role !== "Individual" && (
-                              <span className="px-2 py-0.5 text-xs bg-[var(--surface-muted)] text-[var(--text-secondary)] rounded-sm">
+                              <span className="px-2 py-0.5 text-xs bg-[var(--surface-muted)] text-[var(--text-secondary)] rounded-[var(--radius-skeleton)]">
                                 👤 {case_.role}
                               </span>
                             )}
                             {case_.stakeholders &&
                               case_.stakeholders.length > 0 &&
                               case_.stakeholders[0] !== "self" && (
-                                <span className="px-2 py-0.5 text-xs bg-[var(--surface-muted)] text-[var(--text-secondary)] rounded-sm">
+                                <span className="px-2 py-0.5 text-xs bg-[var(--surface-muted)] text-[var(--text-secondary)] rounded-[var(--radius-skeleton)]">
                                   👥 {case_.stakeholders.join(", ")}
                                 </span>
                               )}
                             {case_.horizon && (
-                              <span className="px-2 py-0.5 text-xs bg-[var(--surface-muted)] text-[var(--text-secondary)] rounded-sm">
+                              <span className="px-2 py-0.5 text-xs bg-[var(--surface-muted)] text-[var(--text-secondary)] rounded-[var(--radius-skeleton)]">
                                 ⏱️ {case_.horizon} term
                               </span>
                             )}
@@ -614,7 +614,7 @@ export default function Consultations() {
                             <button
                               onClick={(e) => handleShare(e, case_)}
                               disabled={shareLoading === case_.id}
-                              className="px-3 py-1.5 text-xs font-medium rounded-lg transition-colors flex items-center gap-1.5 disabled:opacity-50 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] text-[var(--text-accent)] bg-[var(--badge-warm-bg)] hover:bg-[var(--badge-warm-hover)] focus-visible:ring-[var(--border-focus)]"
+                              className="px-3 py-1.5 text-xs font-medium rounded-[var(--radius-button)] transition-[var(--transition-color)] flex items-center gap-1.5 disabled:opacity-50 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] text-[var(--text-accent)] bg-[var(--badge-warm-bg)] hover:bg-[var(--badge-warm-hover)] focus-visible:ring-[var(--border-focus)]"
                               title="Share consultation"
                             >
                               <svg
@@ -642,7 +642,7 @@ export default function Consultations() {
                                   e.stopPropagation();
                                   setShareBarOpen(shareBarOpen === case_.id ? null : case_.id);
                                 }}
-                                className="px-3 py-1.5 text-xs font-medium rounded-lg flex items-center gap-1.5 text-[var(--status-success-text)] bg-[var(--status-success-bg)] hover:bg-[var(--status-success-bg)] transition-colors"
+                                className="px-3 py-1.5 text-xs font-medium rounded-[var(--radius-button)] flex items-center gap-1.5 text-[var(--status-success-text)] bg-[var(--status-success-bg)] hover:bg-[var(--status-success-bg)] transition-colors"
                               >
                                 <svg
                                   className="w-3.5 h-3.5"
@@ -695,7 +695,7 @@ export default function Consultations() {
                               handleDeleteClick(e, case_.id, case_.title)
                             }
                             disabled={actionLoading === case_.id}
-                            className="px-3 py-1.5 text-xs font-medium text-[var(--text-tertiary)] bg-[var(--surface-elevated)] border border-[var(--border-default)] hover:text-[var(--status-error-text)] hover:bg-[var(--status-error-bg)] hover:border-[var(--status-error-border)] rounded-lg transition-colors flex items-center gap-1.5 disabled:opacity-50 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)]"
+                            className="px-3 py-1.5 text-xs font-medium text-[var(--text-tertiary)] bg-[var(--surface-elevated)] border border-[var(--border-default)] hover:text-[var(--status-error-text)] hover:bg-[var(--status-error-bg)] hover:border-[var(--status-error-border)] rounded-[var(--radius-button)] transition-[var(--transition-color)] flex items-center gap-1.5 disabled:opacity-50 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)]"
                             title="Delete consultation"
                           >
                             <svg

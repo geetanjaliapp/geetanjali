@@ -47,7 +47,7 @@ export function StickyBottomNav({
   return (
     <nav
       className="sm:hidden fixed bottom-0 left-0 right-0 bg-[var(--surface-elevated)]/95 backdrop-blur-xs
-                 border-t border-[var(--border-warm)] shadow-lg z-40"
+                 border-t border-[var(--border-warm)] shadow-[var(--shadow-dropdown)] z-40"
       aria-label="Verse navigation"
     >
       <div className="flex items-stretch">
@@ -56,7 +56,7 @@ export function StickyBottomNav({
           <Link
             to={`/verses/${prevVerse.canonical_id}?from=browse`}
             className="flex-1 flex items-center justify-start gap-2 p-4 min-h-[56px]
-                       hover:bg-[var(--surface-warm)] active:bg-[var(--badge-warm-bg)] transition-colors
+                       hover:bg-[var(--surface-warm)] active:bg-[var(--badge-warm-bg)] transition-[var(--transition-color)]
                        focus:outline-hidden focus-visible:ring-2 focus-visible:ring-inset
                        focus-visible:ring-[var(--border-focus)]"
             aria-label={`Previous verse: ${formatVerseRef(prevVerse)}`}
@@ -92,7 +92,7 @@ export function StickyBottomNav({
           <Link
             to={`/verses/${nextVerse.canonical_id}?from=browse`}
             className="flex-1 flex items-center justify-end gap-2 p-4 min-h-[56px]
-                       hover:bg-[var(--surface-warm)] active:bg-[var(--badge-warm-bg)] transition-colors
+                       hover:bg-[var(--surface-warm)] active:bg-[var(--badge-warm-bg)] transition-[var(--transition-color)]
                        focus:outline-hidden focus-visible:ring-2 focus-visible:ring-inset
                        focus-visible:ring-[var(--border-focus)]"
             aria-label={`Next verse: ${formatVerseRef(nextVerse)}`}

@@ -80,12 +80,12 @@ export function NewsletterCard() {
     <div className="mb-8 sm:mb-10 max-w-4xl mx-auto">
       <Link
         to="/settings#newsletter"
-        className="block p-4 sm:p-5 bg-[var(--surface-warm)] rounded-xl border border-[var(--border-warm)] hover:border-[var(--border-accent)] transition-all group relative"
+        className="block p-4 sm:p-5 bg-[var(--surface-warm)] rounded-[var(--radius-card)] border border-[var(--border-warm)] hover:border-[var(--border-accent)] transition-[var(--transition-all)] group relative"
       >
         {/* Dismiss button - 44px touch target */}
         <button
           onClick={handleDismiss}
-          className="absolute top-1 right-1 p-2.5 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors rounded-full hover:bg-[var(--interactive-ghost-hover-bg)]"
+          className="absolute top-1 right-1 p-2.5 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-[var(--transition-color)] rounded-[var(--radius-avatar)] hover:bg-[var(--interactive-ghost-hover-bg)]"
           aria-label="Dismiss newsletter card"
         >
           <svg
@@ -105,7 +105,7 @@ export function NewsletterCard() {
 
         <div className="flex items-center gap-4 pr-8">
           {/* Sun icon */}
-          <div className="shrink-0 p-2.5 rounded-lg bg-[var(--badge-warm-bg)] text-[var(--badge-warm-text)]">
+          <div className="shrink-0 p-2.5 rounded-[var(--radius-button)] bg-[var(--badge-warm-bg)] text-[var(--badge-warm-text)]">
             <svg
               className="w-5 h-5"
               fill="none"

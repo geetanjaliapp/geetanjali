@@ -987,7 +987,7 @@ export default function Verses() {
       </div>
 
       {/* Sticky Search + Filter Bar */}
-      <div className="sticky top-14 sm:top-16 z-10 bg-[var(--surface-sticky)] backdrop-blur-xs shadow-xs border-b border-[var(--border-warm-subtle)]">
+      <div className="sticky top-14 sm:top-16 z-10 bg-[var(--surface-sticky)] backdrop-blur-xs shadow-[var(--shadow-button)] border-b border-[var(--border-warm-subtle)]">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2 sm:py-3">
           {/* Row 1: Search Input - compact */}
           <div className="max-w-2xl mx-auto mb-2 sm:mb-3">
@@ -1011,13 +1011,13 @@ export default function Verses() {
           {/* Row 2: Mode Filters - Segmented Control + Chapter Dropdown */}
           <div className="flex items-center gap-2 sm:gap-3 mb-2">
             {/* Segmented Control: Featured | All | Favorites */}
-            <div className="inline-flex rounded-lg border border-[var(--border-default)] bg-[var(--surface-elevated)] p-0.5 shadow-xs">
+            <div className="inline-flex rounded-[var(--radius-button)] border border-[var(--border-default)] bg-[var(--surface-elevated)] p-0.5 shadow-[var(--shadow-button)]">
               {/* Featured Segment */}
               <button
                 onClick={() => handleFilterSelect("featured")}
-                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
+                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-[var(--radius-nav)] text-sm font-medium transition-[var(--transition-all)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                   showFeatured && !selectedPrinciple && !isSearchMode
-                    ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-xs"
+                    ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-[var(--shadow-button)]"
                     : "text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]"
                 }`}
               >
@@ -1033,9 +1033,9 @@ export default function Verses() {
 
                   <button
                     onClick={() => handleFilterSelect("recommended")}
-                    className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
+                    className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-[var(--radius-nav)] text-sm font-medium transition-[var(--transition-all)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                       showRecommended && !selectedPrinciple && !isSearchMode
-                        ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-xs"
+                        ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-[var(--shadow-button)]"
                         : "text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]"
                     }`}
                     title="Verses matching your learning goals"
@@ -1052,9 +1052,9 @@ export default function Verses() {
               {/* Favorites Segment */}
               <button
                 onClick={() => handleFilterSelect("favorites")}
-                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
+                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-[var(--radius-nav)] text-sm font-medium transition-[var(--transition-all)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                   showFavorites && !selectedPrinciple && !isSearchMode
-                    ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-xs"
+                    ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-[var(--shadow-button)]"
                     : "text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]"
                 }`}
               >
@@ -1067,7 +1067,7 @@ export default function Verses() {
                 <span
                   className={`text-[10px] sm:text-xs tabular-nums ${
                     showFavorites && !selectedPrinciple && !isSearchMode
-                      ? "text-white/80"
+                      ? "text-[var(--interactive-primary-text-muted)]"
                       : favoritesCount > 0
                         ? "text-[var(--status-error-text)]"
                         : "text-[var(--text-muted)]"
@@ -1083,9 +1083,9 @@ export default function Verses() {
               {/* All Segment */}
               <button
                 onClick={() => handleFilterSelect("all")}
-                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-sm font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
+                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-[var(--radius-nav)] text-sm font-medium transition-[var(--transition-all)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                   showAll && !selectedPrinciple && !isSearchMode
-                    ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-xs"
+                    ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-[var(--shadow-button)]"
                     : "text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]"
                 }`}
               >
@@ -1098,9 +1098,9 @@ export default function Verses() {
             <div className="relative">
               <button
                 onClick={() => setShowChapterDropdown(!showChapterDropdown)}
-                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-sm font-medium transition-colors border focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
+                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-[var(--radius-button)] text-sm font-medium transition-[var(--transition-color)] border focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                   selectedChapter && !selectedPrinciple && !isSearchMode
-                    ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] border-[var(--interactive-primary)] shadow-md"
+                    ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] border-[var(--interactive-primary)] shadow-[var(--shadow-card)]"
                     : "bg-[var(--surface-elevated)] text-[var(--text-primary)] border-[var(--border-default)] hover:bg-[var(--surface-muted)]"
                 }`}
               >
@@ -1117,7 +1117,7 @@ export default function Verses() {
                     className="fixed inset-0 z-10"
                     onClick={() => setShowChapterDropdown(false)}
                   />
-                  <div className="absolute left-0 mt-2 p-2 sm:p-3 bg-[var(--surface-elevated)] rounded-xl shadow-xl border border-[var(--border-default)] z-20 w-48 sm:w-64">
+                  <div className="absolute left-0 mt-2 p-2 sm:p-3 bg-[var(--surface-elevated)] rounded-[var(--radius-card)] shadow-[var(--shadow-modal)] border border-[var(--border-default)] z-20 w-48 sm:w-64">
                     <div className="grid grid-cols-6 gap-1.5 sm:gap-2">
                       {Array.from({ length: 18 }, (_, i) => i + 1).map(
                         (chapter) => (
@@ -1127,9 +1127,9 @@ export default function Verses() {
                               handleFilterSelect(chapter);
                               setShowChapterDropdown(false);
                             }}
-                            className={`h-8 sm:h-9 rounded-lg text-xs sm:text-sm font-medium transition-all ${
+                            className={`h-8 sm:h-9 rounded-[var(--radius-button)] text-xs sm:text-sm font-medium transition-[var(--transition-all)] ${
                               selectedChapter === chapter
-                                ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-md"
+                                ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-[var(--shadow-card)]"
                                 : "bg-[var(--surface-muted)] text-[var(--text-primary)] hover:bg-[var(--badge-primary-bg)] hover:text-[var(--interactive-ghost-text)] border border-[var(--border-default)]"
                             }`}
                           >
@@ -1163,9 +1163,9 @@ export default function Verses() {
                       selectedPrinciple === principle.id ? null : principle.id,
                     )
                   }
-                  className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors whitespace-nowrap shrink-0 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
+                  className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-[var(--radius-chip)] text-xs sm:text-sm font-medium transition-[var(--transition-color)] whitespace-nowrap shrink-0 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                     selectedPrinciple === principle.id && !isSearchMode
-                      ? "bg-[var(--interactive-contextual)] text-[var(--interactive-contextual-text)] shadow-md"
+                      ? "bg-[var(--interactive-contextual)] text-[var(--interactive-contextual-text)] shadow-[var(--shadow-card)]"
                       : "bg-[var(--badge-warm-bg)] text-[var(--badge-warm-text)] hover:bg-[var(--badge-warm-hover)] border border-[var(--border-warm-subtle)]"
                   }`}
                 >
@@ -1217,7 +1217,7 @@ export default function Verses() {
                   </p>
                   <div className="flex items-center gap-2">
                     {searchData.total > 0 && (
-                      <span className="text-xs text-[var(--badge-warm-text)] bg-[var(--badge-warm-bg)] px-2.5 py-1 rounded-full font-medium">
+                      <span className="text-xs text-[var(--badge-warm-text)] bg-[var(--badge-warm-bg)] px-2.5 py-1 rounded-[var(--radius-chip)] font-medium">
                         {getStrategyLabel(searchData.strategy)}
                       </span>
                     )}
@@ -1243,11 +1243,11 @@ export default function Verses() {
 
               {/* Chapter filter tag */}
               {selectedChapter && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[var(--badge-primary-bg)] text-[var(--badge-primary-text)] text-xs sm:text-sm font-medium">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[var(--radius-chip)] bg-[var(--badge-primary-bg)] text-[var(--badge-primary-text)] text-xs sm:text-sm font-medium">
                   Chapter {selectedChapter}
                   <button
                     onClick={() => handleFilterSelect("featured")}
-                    className="ml-0.5 hover:bg-[var(--badge-primary-hover)] rounded-full p-0.5 transition-colors"
+                    className="ml-0.5 hover:bg-[var(--badge-primary-hover)] rounded-[var(--radius-chip)] p-0.5 transition-[var(--transition-color)]"
                     aria-label="Clear chapter filter"
                   >
                     <CloseIcon />
@@ -1257,11 +1257,11 @@ export default function Verses() {
 
               {/* Principle filter tag */}
               {selectedPrinciple && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[var(--badge-warm-bg)] text-[var(--badge-warm-text)] text-xs sm:text-sm font-medium">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[var(--radius-chip)] bg-[var(--badge-warm-bg)] text-[var(--badge-warm-text)] text-xs sm:text-sm font-medium">
                   {getPrincipleShortLabel(selectedPrinciple)}
                   <button
                     onClick={() => handlePrincipleSelect(null)}
-                    className="ml-0.5 hover:bg-[var(--badge-warm-hover)] rounded-full p-0.5 transition-colors"
+                    className="ml-0.5 hover:bg-[var(--badge-warm-hover)] rounded-[var(--radius-chip)] p-0.5 transition-[var(--transition-color)]"
                     aria-label="Clear topic filter"
                   >
                     <CloseIcon />
@@ -1334,7 +1334,7 @@ export default function Verses() {
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
           {/* Error States */}
           {(validationError || searchError || error) && (
-            <div className="mb-4 sm:mb-6 bg-[var(--status-error-bg)] border border-[var(--status-error-border)] text-[var(--status-error-text)] px-4 py-3 rounded-lg">
+            <div className="mb-4 sm:mb-6 bg-[var(--status-error-bg)] border border-[var(--status-error-border)] text-[var(--status-error-text)] px-4 py-3 rounded-[var(--radius-button)]">
               <p className="font-semibold text-sm sm:text-base">
                 {validationError ? "Invalid search" : "Error"}
               </p>
@@ -1361,14 +1361,14 @@ export default function Verses() {
                 <>
                   {/* Consultation Suggestion Banner */}
                   {searchData.suggestion && (
-                    <div className="bg-linear-to-r from-[var(--gradient-warm-from)] to-[var(--gradient-warm-to)] border border-[var(--border-warm)] rounded-xl p-4 mb-6">
+                    <div className="bg-linear-to-r from-[var(--gradient-warm-from)] to-[var(--gradient-warm-to)] border border-[var(--border-warm)] rounded-[var(--radius-card)] p-4 mb-6">
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                         <p className="text-sm text-[var(--badge-primary-text)]">
                           {searchData.suggestion.message}
                         </p>
                         <Link
                           to={`/cases/new?prefill=${encodeURIComponent(searchData.query)}`}
-                          className="inline-flex items-center justify-center px-4 py-2 bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] text-sm font-medium rounded-lg hover:opacity-90 transition-colors whitespace-nowrap"
+                          className="inline-flex items-center justify-center px-4 py-2 bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] text-sm font-medium rounded-[var(--radius-button)] hover:opacity-90 transition-[var(--transition-color)] whitespace-nowrap"
                         >
                           {searchData.suggestion.cta}
                         </Link>
@@ -1445,7 +1445,7 @@ export default function Verses() {
 
               {/* Empty Search Results */}
               {searchData && searchData.results.length === 0 && (
-                <div className="text-center py-12 bg-[var(--surface-warm-subtle)] rounded-2xl border border-[var(--border-warm-subtle)]">
+                <div className="text-center py-12 bg-[var(--surface-warm-subtle)] rounded-[var(--radius-modal)] border border-[var(--border-warm-subtle)]">
                   <div className="text-4xl text-[var(--decorative-om)] mb-4">
                     ॐ
                   </div>
@@ -1464,7 +1464,7 @@ export default function Verses() {
                       </p>
                       <Link
                         to={`/cases/new?prefill=${encodeURIComponent(searchData.query)}`}
-                        className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] font-medium rounded-xl hover:opacity-90 transition-colors shadow-lg hover:shadow-xl mb-6"
+                        className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] font-medium rounded-[var(--radius-card)] hover:opacity-90 transition-[var(--transition-color)] shadow-[var(--shadow-dropdown)] hover:shadow-[var(--shadow-modal)] mb-6"
                       >
                         Get Personal Guidance
                       </Link>
@@ -1479,19 +1479,19 @@ export default function Verses() {
                   <div className="flex flex-wrap justify-center gap-2 mt-4">
                     <button
                       onClick={() => handleSearch("karma")}
-                      className="px-3 py-1.5 bg-[var(--badge-warm-bg)] text-[var(--badge-warm-text)] text-sm rounded-full hover:bg-[var(--badge-warm-hover)] transition-colors"
+                      className="px-3 py-1.5 bg-[var(--badge-warm-bg)] text-[var(--badge-warm-text)] text-sm rounded-[var(--radius-chip)] hover:bg-[var(--badge-warm-hover)] transition-[var(--transition-color)]"
                     >
                       Try "karma"
                     </button>
                     <button
                       onClick={() => handleSearch("2.47")}
-                      className="px-3 py-1.5 bg-[var(--badge-warm-bg)] text-[var(--badge-warm-text)] text-sm rounded-full hover:bg-[var(--badge-warm-hover)] transition-colors"
+                      className="px-3 py-1.5 bg-[var(--badge-warm-bg)] text-[var(--badge-warm-text)] text-sm rounded-[var(--radius-chip)] hover:bg-[var(--badge-warm-hover)] transition-[var(--transition-color)]"
                     >
                       Try "2.47"
                     </button>
                     <button
                       onClick={handleClearSearch}
-                      className="px-3 py-1.5 bg-[var(--badge-primary-bg)] text-[var(--badge-primary-text)] text-sm rounded-full hover:bg-[var(--badge-primary-hover)] transition-colors"
+                      className="px-3 py-1.5 bg-[var(--badge-primary-bg)] text-[var(--badge-primary-text)] text-sm rounded-[var(--radius-chip)] hover:bg-[var(--badge-primary-hover)] transition-[var(--transition-color)]"
                     >
                       Browse all verses
                     </button>
@@ -1567,7 +1567,7 @@ export default function Verses() {
                       {showFavorites ? (
                         <button
                           onClick={() => handleFilterSelect("featured")}
-                          className="px-4 py-2 bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] rounded-lg text-sm font-medium hover:opacity-90 transition-colors"
+                          className="px-4 py-2 bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] rounded-[var(--radius-button)] text-sm font-medium hover:opacity-90 transition-[var(--transition-color)]"
                         >
                           Browse featured verses
                         </button>
@@ -1580,14 +1580,14 @@ export default function Verses() {
                                 setSelectedPrinciple(null);
                                 updateSearchParams("featured", null);
                               }}
-                              className="px-4 py-2 bg-[var(--interactive-contextual)] text-[var(--interactive-contextual-text)] rounded-lg text-sm font-medium hover:opacity-90 transition-colors"
+                              className="px-4 py-2 bg-[var(--interactive-contextual)] text-[var(--interactive-contextual-text)] rounded-[var(--radius-button)] text-sm font-medium hover:opacity-90 transition-[var(--transition-color)]"
                             >
                               Clear filters
                             </button>
                           )}
                           <button
                             onClick={() => handleFilterSelect("all")}
-                            className="px-4 py-2 bg-[var(--surface-elevated)] text-[var(--text-primary)] rounded-lg text-sm font-medium border border-[var(--border-default)] hover:bg-[var(--surface-muted)] transition-colors"
+                            className="px-4 py-2 bg-[var(--surface-elevated)] text-[var(--text-primary)] rounded-[var(--radius-button)] text-sm font-medium border border-[var(--border-default)] hover:bg-[var(--surface-muted)] transition-[var(--transition-color)]"
                           >
                             Browse all 701 verses
                           </button>

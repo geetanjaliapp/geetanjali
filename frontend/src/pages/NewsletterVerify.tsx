@@ -58,10 +58,10 @@ export default function NewsletterVerify() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-[var(--gradient-page-from)] to-[var(--gradient-page-to)] px-4">
-      <div className="max-w-md w-full bg-[var(--surface-elevated)] rounded-2xl shadow-xl p-8 text-center">
+      <div className="max-w-md w-full bg-[var(--surface-elevated)] rounded-[var(--radius-modal)] shadow-[var(--shadow-modal)] p-8 text-center">
         {state === "confirm" && (
           <>
-            <MailIcon className="w-16 h-16 text-orange-500 mx-auto mb-4" />
+            <MailIcon className="w-16 h-16 text-[var(--text-accent)] mx-auto mb-4" />
             <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
               Confirm Your Subscription
             </h1>
@@ -70,7 +70,7 @@ export default function NewsletterVerify() {
             </p>
             <button
               onClick={handleConfirm}
-              className="w-full px-6 py-3 bg-linear-to-r from-orange-500 to-red-500 text-white font-medium rounded-lg hover:from-orange-600 hover:to-red-600 transition-all focus:outline-hidden focus:ring-2 focus:ring-[var(--border-focus)] focus:ring-offset-2 focus:ring-offset-[var(--focus-ring-offset)]"
+              className="w-full px-6 py-3 bg-linear-to-r from-orange-500 to-red-500 text-white font-medium rounded-[var(--radius-button)] hover:from-orange-600 hover:to-red-600 transition-all focus:outline-hidden focus:ring-2 focus:ring-[var(--border-focus)] focus:ring-offset-2 focus:ring-offset-[var(--focus-ring-offset)]"
             >
               Confirm Subscription
             </button>
@@ -79,7 +79,7 @@ export default function NewsletterVerify() {
 
         {state === "loading" && (
           <>
-            <SpinnerIcon className="w-16 h-16 text-orange-500 animate-spin mx-auto mb-4" />
+            <SpinnerIcon className="w-16 h-16 text-[var(--text-accent)] animate-spin mx-auto mb-4" />
             <h1 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
               Verifying your subscription...
             </h1>
@@ -106,7 +106,7 @@ export default function NewsletterVerify() {
             )}
             <Link
               to="/"
-              className="inline-block px-6 py-3 bg-linear-to-r from-orange-500 to-red-500 text-white font-medium rounded-lg hover:from-orange-600 hover:to-red-600 transition-all"
+              className="inline-block px-6 py-3 bg-linear-to-r from-orange-500 to-red-500 text-white font-medium rounded-[var(--radius-button)] hover:from-orange-600 hover:to-red-600 transition-all"
             >
               Explore Geetanjali
             </Link>
@@ -115,7 +115,7 @@ export default function NewsletterVerify() {
 
         {state === "already_verified" && (
           <>
-            <CheckCircleIcon className="w-16 h-16 text-blue-500 mx-auto mb-4" />
+            <CheckCircleIcon className="w-16 h-16 text-[var(--status-info-text)] mx-auto mb-4" />
             <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
               Already Verified
             </h1>
@@ -130,7 +130,7 @@ export default function NewsletterVerify() {
             )}
             <Link
               to="/"
-              className="inline-block px-6 py-3 bg-linear-to-r from-orange-500 to-red-500 text-white font-medium rounded-lg hover:from-orange-600 hover:to-red-600 transition-all"
+              className="inline-block px-6 py-3 bg-linear-to-r from-orange-500 to-red-500 text-white font-medium rounded-[var(--radius-button)] hover:from-orange-600 hover:to-red-600 transition-all"
             >
               Explore Geetanjali
             </Link>
@@ -149,13 +149,13 @@ export default function NewsletterVerify() {
             <div className="space-y-3">
               <Link
                 to="/settings#newsletter"
-                className="block px-6 py-3 bg-linear-to-r from-orange-500 to-red-500 text-white font-medium rounded-lg hover:from-orange-600 hover:to-red-600 transition-all"
+                className="block px-6 py-3 bg-linear-to-r from-orange-500 to-red-500 text-white font-medium rounded-[var(--radius-button)] hover:from-orange-600 hover:to-red-600 transition-all"
               >
                 Subscribe Again
               </Link>
               <Link
                 to="/"
-                className="block px-6 py-3 border border-[var(--border-default)] text-[var(--text-secondary)] font-medium rounded-lg hover:bg-[var(--surface-muted)] transition-all"
+                className="block px-6 py-3 border border-[var(--border-default)] text-[var(--text-secondary)] font-medium rounded-[var(--radius-button)] hover:bg-[var(--surface-muted)] transition-all"
               >
                 Go Home
               </Link>

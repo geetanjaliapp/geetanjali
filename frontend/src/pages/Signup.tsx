@@ -88,7 +88,7 @@ export default function Signup() {
               <div
                 role="alert"
                 aria-live="assertive"
-                className="rounded-lg bg-[var(--status-error-bg)] p-3 sm:p-4"
+                className="rounded-[var(--radius-button)] bg-[var(--status-error-bg)] p-3 sm:p-4"
               >
                 <div className="text-sm text-[var(--status-error-text)]">
                   {error}
@@ -112,7 +112,7 @@ export default function Signup() {
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="block w-full px-3 py-2.5 sm:py-2 border border-[var(--input-border)] bg-[var(--input-bg)] placeholder-[var(--text-muted)] text-[var(--text-primary)] rounded-lg focus:outline-hidden focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-transparent text-base sm:text-sm"
+                  className="block w-full px-3 py-2.5 sm:py-2 border border-[var(--input-border)] bg-[var(--input-bg)] placeholder-[var(--text-muted)] text-[var(--text-primary)] rounded-[var(--radius-button)] focus:outline-hidden focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-transparent text-base sm:text-sm"
                   placeholder="Your name"
                 />
               </div>
@@ -131,7 +131,7 @@ export default function Signup() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full px-3 py-2.5 sm:py-2 border border-[var(--input-border)] bg-[var(--input-bg)] placeholder-[var(--text-muted)] text-[var(--text-primary)] rounded-lg focus:outline-hidden focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-transparent text-base sm:text-sm"
+                  className="block w-full px-3 py-2.5 sm:py-2 border border-[var(--input-border)] bg-[var(--input-bg)] placeholder-[var(--text-muted)] text-[var(--text-primary)] rounded-[var(--radius-button)] focus:outline-hidden focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-transparent text-base sm:text-sm"
                   placeholder="your@email.com"
                 />
               </div>
@@ -150,7 +150,7 @@ export default function Signup() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full px-3 py-2.5 sm:py-2 border border-[var(--input-border)] bg-[var(--input-bg)] placeholder-[var(--text-muted)] text-[var(--text-primary)] rounded-lg focus:outline-hidden focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-transparent text-base sm:text-sm"
+                  className="block w-full px-3 py-2.5 sm:py-2 border border-[var(--input-border)] bg-[var(--input-bg)] placeholder-[var(--text-muted)] text-[var(--text-primary)] rounded-[var(--radius-button)] focus:outline-hidden focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-transparent text-base sm:text-sm"
                   placeholder="••••••••"
                 />
                 <p className="mt-1 text-xs text-[var(--text-muted)]">
@@ -172,7 +172,7 @@ export default function Signup() {
                   required
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="block w-full px-3 py-2.5 sm:py-2 border border-[var(--input-border)] bg-[var(--input-bg)] placeholder-[var(--text-muted)] text-[var(--text-primary)] rounded-lg focus:outline-hidden focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-transparent text-base sm:text-sm"
+                  className="block w-full px-3 py-2.5 sm:py-2 border border-[var(--input-border)] bg-[var(--input-bg)] placeholder-[var(--text-muted)] text-[var(--text-primary)] rounded-[var(--radius-button)] focus:outline-hidden focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-transparent text-base sm:text-sm"
                   placeholder="••••••••"
                 />
               </div>
@@ -182,7 +182,7 @@ export default function Signup() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-2.5 sm:py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-[var(--interactive-primary-text)] bg-[var(--interactive-primary)] hover:bg-[var(--interactive-primary-hover)] focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--focus-ring-offset)] focus:ring-[var(--focus-ring)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="w-full flex justify-center py-2.5 sm:py-2 px-4 border border-transparent text-sm font-medium rounded-[var(--radius-button)] text-[var(--interactive-primary-text)] bg-[var(--interactive-primary)] hover:bg-[var(--interactive-primary-hover)] focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--focus-ring-offset)] focus:ring-[var(--focus-ring)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {loading ? "Creating account..." : "Sign up"}
               </button>

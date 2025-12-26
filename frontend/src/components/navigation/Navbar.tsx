@@ -81,7 +81,7 @@ export function Navbar({
 
   return (
     <>
-      <nav className="bg-[var(--surface-warm)]/90 backdrop-blur-xs shadow-xs border-b border-[var(--border-warm)] h-14 sm:h-16 shrink-0 sticky top-0 z-40">
+      <nav className="bg-[var(--surface-warm)]/90 backdrop-blur-xs shadow-[var(--shadow-navbar)] border-b border-[var(--border-warm)] h-14 sm:h-16 shrink-0 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
           <div className="flex justify-between items-center h-full">
             {/* Left side: Hamburger + Logo */}
@@ -90,7 +90,7 @@ export function Navbar({
               {!showBack && (
                 <button
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="md:hidden p-2 -ml-2 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-accent)] hover:bg-[var(--interactive-ghost-hover-bg)] transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
+                  className="md:hidden p-2 -ml-2 rounded-[var(--radius-button)] text-[var(--text-secondary)] hover:text-[var(--text-accent)] hover:bg-[var(--interactive-ghost-hover-bg)] transition-[var(--transition-color)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
                   aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
                   aria-expanded={isMobileMenuOpen}
                   aria-controls="mobile-nav-drawer"

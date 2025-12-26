@@ -159,14 +159,14 @@ export function ConfirmModal({
       <div className="flex min-h-full items-center justify-center p-4">
         <div
           ref={modalRef}
-          className="relative bg-[var(--surface-elevated)] rounded-2xl shadow-xl max-w-sm w-full p-4 sm:p-6 transform transition-all border border-[var(--border-default)]"
+          className="relative bg-[var(--surface-elevated)] rounded-[var(--radius-modal)] shadow-[var(--shadow-modal)] max-w-sm w-full p-4 sm:p-6 transform transition-[var(--transition-all)] border border-[var(--border-default)]"
           role="dialog"
           aria-modal="true"
           aria-labelledby="modal-title"
         >
           {/* Icon */}
           <div
-            className={`mx-auto w-10 h-10 sm:w-12 sm:h-12 rounded-full ${styles.iconBg} flex items-center justify-center mb-3 sm:mb-4`}
+            className={`mx-auto w-10 h-10 sm:w-12 sm:h-12 rounded-[var(--radius-avatar)] ${styles.iconBg} flex items-center justify-center mb-3 sm:mb-4`}
           >
             {styles.icon}
           </div>
@@ -201,7 +201,7 @@ export function ConfirmModal({
                 placeholder={requireTextHint || requireText}
                 disabled={loading}
                 aria-invalid={confirmInput.length > 0 && !textMatches ? true : undefined}
-                className="w-full px-3 py-2 text-sm text-center border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--input-text)] placeholder:text-[var(--input-text-placeholder)] rounded-lg focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-transparent disabled:opacity-50 disabled:bg-[var(--input-bg-disabled)]"
+                className="w-full px-3 py-2 text-sm text-center border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--input-text)] placeholder:text-[var(--input-text-placeholder)] rounded-[var(--radius-input)] focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-transparent disabled:opacity-50 disabled:bg-[var(--input-bg-disabled)]"
                 autoComplete="off"
                 spellCheck={false}
               />
@@ -214,7 +214,7 @@ export function ConfirmModal({
               type="button"
               onClick={handleCancel}
               disabled={loading}
-              className="flex-1 px-4 py-2.5 text-sm font-medium text-[var(--interactive-secondary-text)] bg-[var(--interactive-secondary-bg)] border border-[var(--interactive-secondary-border)] rounded-xl hover:bg-[var(--interactive-secondary-hover-bg)] hover:border-[var(--interactive-secondary-hover-border)] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] focus-visible:ring-[var(--focus-ring)] disabled:opacity-50 transition-colors"
+              className="flex-1 px-4 py-2.5 text-sm font-medium text-[var(--interactive-secondary-text)] bg-[var(--interactive-secondary-bg)] border border-[var(--interactive-secondary-border)] rounded-[var(--radius-card)] hover:bg-[var(--interactive-secondary-hover-bg)] hover:border-[var(--interactive-secondary-hover-border)] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] focus-visible:ring-[var(--focus-ring)] disabled:opacity-50 transition-[var(--transition-color)]"
             >
               {cancelLabel}
             </button>
@@ -222,7 +222,7 @@ export function ConfirmModal({
               type="button"
               onClick={handleConfirm}
               disabled={loading || !textMatches}
-              className={`flex-1 px-4 py-2.5 text-sm font-medium text-white rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${styles.confirmButton}`}
+              className={`flex-1 px-4 py-2.5 text-sm font-medium text-white rounded-[var(--radius-card)] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] disabled:opacity-50 disabled:cursor-not-allowed transition-[var(--transition-color)] ${styles.confirmButton}`}
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">

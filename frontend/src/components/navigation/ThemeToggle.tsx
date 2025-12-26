@@ -39,7 +39,7 @@ export function ThemeToggle({ variant = "navbar" }: ThemeToggleProps) {
     return (
       <button
         onClick={cycleTheme}
-        className="flex items-center gap-3 w-full px-4 py-3 text-left text-[var(--text-secondary)] hover:bg-[var(--interactive-ghost-hover-bg)] rounded-lg transition-colors"
+        className="flex items-center gap-3 w-full px-4 py-3 text-left text-[var(--text-secondary)] hover:bg-[var(--interactive-ghost-hover-bg)] rounded-[var(--radius-nav)] transition-[var(--transition-color)]"
         aria-label={`Current: ${label}. Click to change theme.`}
       >
         <svg
@@ -65,7 +65,7 @@ export function ThemeToggle({ variant = "navbar" }: ThemeToggleProps) {
   return (
     <button
       onClick={cycleTheme}
-      className="p-2 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-accent)] hover:bg-[var(--interactive-ghost-hover-bg)] transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
+      className="p-2 rounded-[var(--radius-button)] text-[var(--text-secondary)] hover:text-[var(--text-accent)] hover:bg-[var(--interactive-ghost-hover-bg)] transition-[var(--transition-color)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
       aria-label={`Current: ${label}. Click to change theme.`}
       title={label}
     >
