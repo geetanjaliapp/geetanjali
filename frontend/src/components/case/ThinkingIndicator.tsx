@@ -133,7 +133,7 @@ export function ThinkingIndicator({
                       {index < currentStage ? (
                         "✓"
                       ) : index === currentStage ? (
-                        <span className="inline-block w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
+                        <span className="inline-block w-2 h-2 bg-[var(--interactive-primary)] rounded-full animate-pulse" />
                       ) : (
                         "○"
                       )}
@@ -149,15 +149,15 @@ export function ThinkingIndicator({
               <div className="flex items-center gap-3 mb-4">
                 <div className="flex space-x-1.5">
                   <span
-                    className="w-2.5 h-2.5 bg-orange-500 rounded-full animate-dot-pulse"
+                    className="w-2.5 h-2.5 bg-[var(--interactive-primary)] rounded-full animate-dot-pulse"
                     style={{ animationDelay: "0ms" }}
                   />
                   <span
-                    className="w-2.5 h-2.5 bg-orange-500 rounded-full animate-dot-pulse"
+                    className="w-2.5 h-2.5 bg-[var(--interactive-primary)] rounded-full animate-dot-pulse"
                     style={{ animationDelay: "0.2s" }}
                   />
                   <span
-                    className="w-2.5 h-2.5 bg-orange-500 rounded-full animate-dot-pulse"
+                    className="w-2.5 h-2.5 bg-[var(--interactive-primary)] rounded-full animate-dot-pulse"
                     style={{ animationDelay: "0.4s" }}
                   />
                 </div>

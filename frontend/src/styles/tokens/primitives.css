@@ -127,11 +127,15 @@
      STATUS: WARNING SCALE (Yellow by default)
      Usage: Warning states, caution indicators
      ============================================ */
+  --color-warning-50: var(--color-yellow-50);
   --color-warning-100: var(--color-yellow-100);
+  --color-warning-200: var(--color-yellow-200);
   --color-warning-300: var(--color-yellow-300);
+  --color-warning-400: var(--color-yellow-400);
   --color-warning-500: var(--color-yellow-500);
   --color-warning-600: var(--color-yellow-600);
   --color-warning-700: var(--color-yellow-700);
+  --color-warning-800: var(--color-yellow-800);
   --color-warning-900: var(--color-yellow-900);
 
   /* ============================================

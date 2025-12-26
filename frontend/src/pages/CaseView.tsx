@@ -799,7 +799,7 @@ ${messages
                         <div
                           className={`absolute left-0 w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center ${
                             isFirst
-                              ? "bg-orange-500 text-white"
+                              ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)]"
                               : "bg-[var(--option-selected-bg)] border-2 border-[var(--option-selected-border)]"
                           }`}
                         >

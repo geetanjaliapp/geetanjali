@@ -110,6 +110,9 @@
   /* Focus rings */
   --border-focus: var(--color-primary-500);
 
+  /* Accent border (decorative elements, highlights) */
+  --border-accent: var(--color-accent-300);
+
   /* Reading mode borders */
   --border-reading: var(--color-reading-200);
 
@@ -387,6 +390,7 @@
   --border-warm-subtle: color-mix(in srgb, var(--color-neutral-700) 50%, transparent);
   --border-subtle: var(--color-neutral-800);
   --border-focus: var(--color-primary-400);
+  --border-accent: var(--color-accent-500);
   --border-reading: var(--color-reading-700);
 
   /* Interactive tokens */
