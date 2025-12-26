@@ -25,14 +25,11 @@ import {
   saveThemeToStorage,
 } from "../utils/theme";
 import { getThemeById, builtInThemes } from "../config/themes";
+import { STORAGE_KEYS } from "../lib/storage";
 
 // Theme mode options
 export type Theme = "light" | "dark" | "system";
 export type ResolvedTheme = "light" | "dark";
-
-// localStorage keys
-const THEME_MODE_KEY = "geetanjali:theme";
-const THEME_ID_KEY = "geetanjali:theme-id";
 
 // Context type
 interface ThemeContextType {
@@ -67,7 +64,7 @@ function getSystemTheme(): ResolvedTheme {
 // Get stored theme mode or default to system
 function getStoredThemeMode(): Theme {
   if (typeof window === "undefined") return "system";
-  const stored = localStorage.getItem(THEME_MODE_KEY);
+  const stored = localStorage.getItem(STORAGE_KEYS.theme);
   if (stored === "light" || stored === "dark" || stored === "system") {
     return stored;
   }
@@ -77,7 +74,7 @@ function getStoredThemeMode(): Theme {
 // Get stored custom theme ID
 function getStoredThemeId(): string | null {
   if (typeof window === "undefined") return null;
-  return localStorage.getItem(THEME_ID_KEY);
+  return localStorage.getItem(STORAGE_KEYS.themeId);
 }
 
 // Get initial custom theme
@@ -129,7 +126,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   // Set theme mode and persist
   const setTheme = useCallback((newTheme: Theme) => {
     setThemeState(newTheme);
-    localStorage.setItem(THEME_MODE_KEY, newTheme);
+    localStorage.setItem(STORAGE_KEYS.theme, newTheme);
     const resolved = resolveTheme(newTheme);
     setResolvedTheme(resolved);
     applyThemeMode(resolved);
@@ -149,7 +146,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
 
     // Persist
     if (newTheme) {
-      localStorage.setItem(THEME_ID_KEY, newTheme.id);
+      localStorage.setItem(STORAGE_KEYS.themeId, newTheme.id);
       // Only save full config for non-built-in themes
       if (!getThemeById(newTheme.id)) {
         saveThemeToStorage(newTheme);
@@ -157,7 +154,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
         saveThemeToStorage(null);
       }
     } else {
-      localStorage.removeItem(THEME_ID_KEY);
+      localStorage.removeItem(STORAGE_KEYS.themeId);
       saveThemeToStorage(null);
     }
   }, []);

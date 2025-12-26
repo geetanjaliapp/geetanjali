@@ -5,6 +5,7 @@
  */
 
 import type { ThemeConfig, ColorScale } from "../types/theme";
+import { STORAGE_KEYS } from "../lib/storage";
 
 /**
  * Validate a color value (hex, rgb, hsl, or CSS color name)
@@ -245,18 +246,13 @@ export function removeTheme(): void {
 }
 
 /**
- * localStorage key for custom theme
- */
-export const CUSTOM_THEME_KEY = "geetanjali:custom-theme";
-
-/**
  * Save custom theme to localStorage
  */
 export function saveThemeToStorage(theme: ThemeConfig | null): void {
   if (theme && theme.id !== "default") {
-    localStorage.setItem(CUSTOM_THEME_KEY, JSON.stringify(theme));
+    localStorage.setItem(STORAGE_KEYS.customTheme, JSON.stringify(theme));
   } else {
-    localStorage.removeItem(CUSTOM_THEME_KEY);
+    localStorage.removeItem(STORAGE_KEYS.customTheme);
   }
 }
 
@@ -265,20 +261,20 @@ export function saveThemeToStorage(theme: ThemeConfig | null): void {
  */
 export function loadThemeFromStorage(): ThemeConfig | null {
   try {
-    const stored = localStorage.getItem(CUSTOM_THEME_KEY);
+    const stored = localStorage.getItem(STORAGE_KEYS.customTheme);
     if (!stored) return null;
 
     const theme = JSON.parse(stored) as ThemeConfig;
     const { valid } = validateTheme(theme);
     if (!valid) {
       console.warn("Invalid theme in localStorage, removing");
-      localStorage.removeItem(CUSTOM_THEME_KEY);
+      localStorage.removeItem(STORAGE_KEYS.customTheme);
       return null;
     }
 
     return theme;
   } catch {
-    localStorage.removeItem(CUSTOM_THEME_KEY);
+    localStorage.removeItem(STORAGE_KEYS.customTheme);
     return null;
   }
 }

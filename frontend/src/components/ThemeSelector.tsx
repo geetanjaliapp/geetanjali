@@ -9,41 +9,49 @@ import { useTheme } from "../contexts/ThemeContext";
 import type { ThemeConfig } from "../types/theme";
 import { CheckIcon } from "./icons";
 
+/** Default theme color values (matches primitives.css) */
+const DEFAULT_COLORS = {
+  primary: "#ea580c", // orange-600
+  warm: "#fef3c7", // amber-100
+  accent: "#f59e0b", // amber-500
+};
+
 /**
  * Get preview colors for a theme
  */
-function getThemePreviewColors(theme: ThemeConfig): {
+function getThemePreviewColors(theme: ThemeConfig | null): {
   primary: string;
   warm: string;
   accent: string;
 } {
-  // Default colors
-  const defaults = {
-    primary: "#ea580c", // orange-600
-    warm: "#fef3c7", // amber-100
-    accent: "#f59e0b", // amber-500
-  };
+  if (!theme) return DEFAULT_COLORS;
 
   return {
-    primary: theme.colors?.primary?.[600] ?? defaults.primary,
-    warm: theme.colors?.warm?.[100] ?? defaults.warm,
-    accent: theme.colors?.accent?.[500] ?? defaults.accent,
+    primary: theme.colors?.primary?.[600] ?? DEFAULT_COLORS.primary,
+    warm: theme.colors?.warm?.[100] ?? DEFAULT_COLORS.warm,
+    accent: theme.colors?.accent?.[500] ?? DEFAULT_COLORS.accent,
   };
 }
 
 /**
- * Single theme option card
+ * Theme option card - unified component for all theme options
  */
-function ThemeOption({
-  theme,
+function ThemeOptionCard({
+  name,
+  colors,
   isSelected,
+  isDefault,
   onSelect,
 }: {
-  theme: ThemeConfig;
+  name: string;
+  colors: { primary: string; warm: string; accent: string };
   isSelected: boolean;
+  isDefault?: boolean;
   onSelect: () => void;
 }) {
-  const colors = getThemePreviewColors(theme);
+  const label = isDefault
+    ? `${name} theme (default)${isSelected ? " (selected)" : ""}`
+    : `${name} theme${isSelected ? " (selected)" : ""}`;
 
   return (
     <button
@@ -54,7 +62,7 @@ function ThemeOption({
           : "border-[var(--border-default)] bg-[var(--surface-muted)] hover:border-[var(--border-warm)]"
       }`}
       aria-pressed={isSelected}
-      aria-label={`${theme.name} theme${isSelected ? " (selected)" : ""}`}
+      aria-label={label}
     >
       {/* Color swatches */}
       <div className="flex gap-1">
@@ -81,63 +89,7 @@ function ThemeOption({
           isSelected ? "text-[var(--text-primary)]" : "text-[var(--text-secondary)]"
         }`}
       >
-        {theme.name}
-      </span>
-
-      {/* Selected indicator */}
-      {isSelected && (
-        <div className="absolute -top-1 -right-1 w-5 h-5 bg-[var(--interactive-primary)] text-white rounded-full flex items-center justify-center">
-          <CheckIcon className="w-3 h-3" />
-        </div>
-      )}
-    </button>
-  );
-}
-
-/**
- * Default theme option (no color overrides)
- */
-function DefaultThemeOption({
-  isSelected,
-  onSelect,
-}: {
-  isSelected: boolean;
-  onSelect: () => void;
-}) {
-  return (
-    <button
-      onClick={onSelect}
-      className={`relative flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${
-        isSelected
-          ? "border-[var(--border-focus)] bg-[var(--surface-warm)] ring-2 ring-[var(--border-focus)] ring-offset-2 ring-offset-[var(--surface-elevated)]"
-          : "border-[var(--border-default)] bg-[var(--surface-muted)] hover:border-[var(--border-warm)]"
-      }`}
-      aria-pressed={isSelected}
-      aria-label={`Geetanjali theme (default)${isSelected ? " (selected)" : ""}`}
-    >
-      {/* Color swatches - default warm amber/orange */}
-      <div className="flex gap-1">
-        <div
-          className="w-6 h-6 rounded-full shadow-sm bg-orange-600"
-          title="Primary"
-        />
-        <div
-          className="w-6 h-6 rounded-full shadow-sm border border-[var(--border-default)] bg-amber-100"
-          title="Warm"
-        />
-        <div
-          className="w-6 h-6 rounded-full shadow-sm bg-amber-500"
-          title="Accent"
-        />
-      </div>
-
-      {/* Theme name */}
-      <span
-        className={`text-xs font-medium ${
-          isSelected ? "text-[var(--text-primary)]" : "text-[var(--text-secondary)]"
-        }`}
-      >
-        Geetanjali
+        {name}
       </span>
 
       {/* Selected indicator */}
@@ -165,18 +117,22 @@ export function ThemeSelector() {
       </label>
       <div className="flex flex-wrap gap-2">
         {/* Default theme */}
-        <DefaultThemeOption
+        <ThemeOptionCard
+          name="Geetanjali"
+          colors={DEFAULT_COLORS}
           isSelected={selectedId === "default"}
+          isDefault
           onSelect={() => setCustomThemeById("default")}
         />
 
-        {/* Other themes (skip default since we show it specially) */}
+        {/* Other themes */}
         {availableThemes
           .filter((t) => t.id !== "default")
           .map((theme) => (
-            <ThemeOption
+            <ThemeOptionCard
               key={theme.id}
-              theme={theme}
+              name={theme.name}
+              colors={getThemePreviewColors(theme)}
               isSelected={selectedId === theme.id}
               onSelect={() => setCustomThemeById(theme.id)}
             />
