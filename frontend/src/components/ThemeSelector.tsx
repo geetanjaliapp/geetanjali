@@ -18,6 +18,7 @@ const DEFAULT_COLORS = {
 
 /**
  * Get preview colors for a theme
+ * Checks modeColors.light first (new format), then falls back to colors (legacy)
  */
 function getThemePreviewColors(theme: ThemeConfig | null): {
   primary: string;
@@ -26,10 +27,26 @@ function getThemePreviewColors(theme: ThemeConfig | null): {
 } {
   if (!theme) return DEFAULT_COLORS;
 
+  // Check modeColors.light first (v1.16.0+ format), then fall back to colors
+  const lightColors = theme.modeColors?.light;
+  const sharedColors = theme.colors;
+
   return {
-    primary: theme.colors?.primary?.[600] ?? DEFAULT_COLORS.primary,
-    warm: theme.colors?.warm?.[100] ?? DEFAULT_COLORS.warm,
-    accent: theme.colors?.accent?.[500] ?? DEFAULT_COLORS.accent,
+    primary:
+      lightColors?.primary?.[600] ??
+      lightColors?.primary?.[500] ??
+      sharedColors?.primary?.[600] ??
+      DEFAULT_COLORS.primary,
+    warm:
+      lightColors?.warm?.[100] ??
+      lightColors?.warm?.[50] ??
+      sharedColors?.warm?.[100] ??
+      DEFAULT_COLORS.warm,
+    accent:
+      lightColors?.accent?.[500] ??
+      lightColors?.accent?.[400] ??
+      sharedColors?.accent?.[500] ??
+      DEFAULT_COLORS.accent,
   };
 }
 

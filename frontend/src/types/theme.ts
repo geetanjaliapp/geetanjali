@@ -92,8 +92,23 @@ export interface ThemeColors {
 }
 
 /**
+ * Mode-specific color configuration
+ * Allows themes to define different colors for light and dark modes
+ */
+export interface ThemeModeColors {
+  /** Colors to apply in light mode */
+  light?: ThemeColors;
+  /** Colors to apply in dark mode */
+  dark?: ThemeColors;
+}
+
+/**
  * Complete theme configuration
  * All properties are optional - only override what you need
+ *
+ * Color precedence:
+ * 1. modeColors.light/dark (mode-specific, highest priority)
+ * 2. colors (applies to both modes, fallback)
  */
 export interface ThemeConfig {
   /** Unique identifier for the theme */
@@ -102,8 +117,10 @@ export interface ThemeConfig {
   name: string;
   /** Optional description */
   description?: string;
-  /** Color palette overrides */
+  /** Color palette overrides (applies to both light and dark modes) */
   colors?: ThemeColors;
+  /** Mode-specific color overrides (takes precedence over colors) */
+  modeColors?: ThemeModeColors;
   /** Typography overrides */
   typography?: ThemeTypography;
   /** Spacing overrides */

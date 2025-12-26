@@ -4,8 +4,20 @@
  * Functions for theme validation, CSS generation, and application.
  */
 
-import type { ThemeConfig, ColorScale } from "../types/theme";
+import type { ThemeConfig, ThemeColors, ColorScale } from "../types/theme";
 import { STORAGE_KEYS } from "../lib/storage";
+
+/** Color scale names for iteration */
+const COLOR_SCALES = [
+  "primary",
+  "warm",
+  "neutral",
+  "accent",
+  "reading",
+  "error",
+  "success",
+  "warning",
+] as const;
 
 /**
  * Validate a color value (hex, rgb, hsl, or CSS color name)
@@ -43,43 +55,34 @@ export function validateTheme(theme: ThemeConfig): {
     errors.push("Theme must have a valid 'name' string");
   }
 
-  // Validate colors if provided
-  if (theme.colors) {
-    const colorScales = [
-      "primary",
-      "warm",
-      "neutral",
-      "accent",
-      "reading",
-      "error",
-      "success",
-      "warning",
-    ] as const;
-
-    for (const scaleName of colorScales) {
-      const scale = theme.colors[scaleName];
+  // Helper to validate a ThemeColors object
+  const validateColors = (colors: ThemeColors, prefix: string) => {
+    const shades = ["50", "100", "200", "300", "400", "500", "600", "700", "800", "900"] as const;
+    for (const scaleName of COLOR_SCALES) {
+      const scale = colors[scaleName];
       if (scale) {
-        const shades = [
-          "50",
-          "100",
-          "200",
-          "300",
-          "400",
-          "500",
-          "600",
-          "700",
-          "800",
-          "900",
-        ] as const;
         for (const shade of shades) {
           const value = scale[shade];
           if (value !== undefined && !isValidColor(value)) {
-            errors.push(
-              `Invalid color value for ${scaleName}.${shade}: "${value}"`
-            );
+            errors.push(`Invalid color value for ${prefix}${scaleName}.${shade}: "${value}"`);
           }
         }
       }
+    }
+  };
+
+  // Validate colors if provided
+  if (theme.colors) {
+    validateColors(theme.colors, "");
+  }
+
+  // Validate mode-specific colors if provided
+  if (theme.modeColors) {
+    if (theme.modeColors.light) {
+      validateColors(theme.modeColors.light, "modeColors.light.");
+    }
+    if (theme.modeColors.dark) {
+      validateColors(theme.modeColors.dark, "modeColors.dark.");
     }
   }
 
@@ -105,18 +108,7 @@ export function validateTheme(theme: ThemeConfig): {
  */
 function colorScaleToCss(name: string, scale: ColorScale): string[] {
   const properties: string[] = [];
-  const shades = [
-    "50",
-    "100",
-    "200",
-    "300",
-    "400",
-    "500",
-    "600",
-    "700",
-    "800",
-    "900",
-  ] as const;
+  const shades = ["50", "100", "200", "300", "400", "500", "600", "700", "800", "900"] as const;
 
   for (const shade of shades) {
     const value = scale[shade];
@@ -129,38 +121,24 @@ function colorScaleToCss(name: string, scale: ColorScale): string[] {
 }
 
 /**
- * Generate CSS custom properties from a theme configuration
+ * Generate CSS custom properties from ThemeColors
  */
-export function themeToCss(theme: ThemeConfig): string {
+function colorsToCssProperties(colors: ThemeColors): string[] {
   const properties: string[] = [];
-
-  // Color overrides
-  if (theme.colors) {
-    if (theme.colors.primary) {
-      properties.push(...colorScaleToCss("primary", theme.colors.primary));
-    }
-    if (theme.colors.warm) {
-      properties.push(...colorScaleToCss("warm", theme.colors.warm));
-    }
-    if (theme.colors.neutral) {
-      properties.push(...colorScaleToCss("neutral", theme.colors.neutral));
-    }
-    if (theme.colors.accent) {
-      properties.push(...colorScaleToCss("accent", theme.colors.accent));
-    }
-    if (theme.colors.reading) {
-      properties.push(...colorScaleToCss("reading", theme.colors.reading));
-    }
-    if (theme.colors.error) {
-      properties.push(...colorScaleToCss("error", theme.colors.error));
-    }
-    if (theme.colors.success) {
-      properties.push(...colorScaleToCss("success", theme.colors.success));
-    }
-    if (theme.colors.warning) {
-      properties.push(...colorScaleToCss("warning", theme.colors.warning));
+  for (const scaleName of COLOR_SCALES) {
+    const scale = colors[scaleName];
+    if (scale) {
+      properties.push(...colorScaleToCss(scaleName, scale));
     }
   }
+  return properties;
+}
+
+/**
+ * Generate non-color CSS properties (typography, spacing, radius)
+ */
+function nonColorPropertiesToCss(theme: ThemeConfig): string[] {
+  const properties: string[] = [];
 
   // Typography overrides
   if (theme.typography) {
@@ -185,28 +163,81 @@ export function themeToCss(theme: ThemeConfig): string {
 
   // Radius overrides
   if (theme.radius) {
-    if (theme.radius.sm) {
-      properties.push(`--radius-sm: ${theme.radius.sm};`);
-    }
-    if (theme.radius.md) {
-      properties.push(`--radius-md: ${theme.radius.md};`);
-    }
-    if (theme.radius.lg) {
-      properties.push(`--radius-lg: ${theme.radius.lg};`);
-    }
-    if (theme.radius.xl) {
-      properties.push(`--radius-xl: ${theme.radius.xl};`);
-    }
-    if (theme.radius["2xl"]) {
-      properties.push(`--radius-2xl: ${theme.radius["2xl"]};`);
-    }
+    if (theme.radius.sm) properties.push(`--radius-sm: ${theme.radius.sm};`);
+    if (theme.radius.md) properties.push(`--radius-md: ${theme.radius.md};`);
+    if (theme.radius.lg) properties.push(`--radius-lg: ${theme.radius.lg};`);
+    if (theme.radius.xl) properties.push(`--radius-xl: ${theme.radius.xl};`);
+    if (theme.radius["2xl"]) properties.push(`--radius-2xl: ${theme.radius["2xl"]};`);
   }
+
+  return properties;
+}
+
+/**
+ * Generate full CSS from a theme configuration
+ * Supports mode-specific colors (light/dark variants)
+ */
+export function themeToCss(theme: ThemeConfig): string {
+  const cssBlocks: string[] = [];
+
+  // Collect light mode properties (shared colors + light-specific + non-color)
+  const lightProperties: string[] = [];
+
+  // Add shared colors (applies to both modes if no mode-specific override)
+  if (theme.colors) {
+    lightProperties.push(...colorsToCssProperties(theme.colors));
+  }
+
+  // Add light-specific colors (override shared)
+  if (theme.modeColors?.light) {
+    lightProperties.push(...colorsToCssProperties(theme.modeColors.light));
+  }
+
+  // Add non-color properties (always apply to :root)
+  lightProperties.push(...nonColorPropertiesToCss(theme));
+
+  // Generate :root block if we have any properties
+  if (lightProperties.length > 0) {
+    cssBlocks.push(`:root {\n  ${lightProperties.join("\n  ")}\n}`);
+  }
+
+  // Collect dark mode properties
+  const darkProperties: string[] = [];
+
+  // If theme has shared colors but no dark-specific, still apply shared to dark
+  // (the .dark selector will use the :root primitives)
+  // But if we have dark-specific colors, add them
+  if (theme.modeColors?.dark) {
+    darkProperties.push(...colorsToCssProperties(theme.modeColors.dark));
+  }
+
+  // Generate .dark block if we have dark-specific properties
+  if (darkProperties.length > 0) {
+    cssBlocks.push(`.dark {\n  ${darkProperties.join("\n  ")}\n}`);
+  }
+
+  return cssBlocks.join("\n\n");
+}
+
+/**
+ * Legacy: Generate just the properties (for backward compatibility)
+ * @deprecated Use themeToCss instead
+ */
+export function themeToProperties(theme: ThemeConfig): string {
+  const properties: string[] = [];
+
+  if (theme.colors) {
+    properties.push(...colorsToCssProperties(theme.colors));
+  }
+
+  properties.push(...nonColorPropertiesToCss(theme));
 
   return properties.join("\n  ");
 }
 
 /**
  * Apply a theme to the document by injecting CSS custom properties
+ * Supports mode-specific colors with :root and .dark selectors
  */
 export function applyTheme(theme: ThemeConfig | null): void {
   const styleId = "custom-theme-overrides";
@@ -222,7 +253,7 @@ export function applyTheme(theme: ThemeConfig | null): void {
     return;
   }
 
-  // Generate and inject CSS
+  // Generate CSS (includes :root and .dark blocks as needed)
   const css = themeToCss(theme);
   if (!css) {
     return;
@@ -230,7 +261,7 @@ export function applyTheme(theme: ThemeConfig | null): void {
 
   const style = document.createElement("style");
   style.id = styleId;
-  style.textContent = `:root {\n  ${css}\n}`;
+  style.textContent = css;
   document.head.appendChild(style);
 }
 

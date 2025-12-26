@@ -142,6 +142,40 @@ describe("theme utilities", () => {
       const result = validateTheme(theme);
       expect(result.valid).toBe(true);
     });
+
+    it("should validate theme with modeColors", () => {
+      const theme: ThemeConfig = {
+        id: "test-theme",
+        name: "Test Theme",
+        modeColors: {
+          light: {
+            primary: { 500: "#ea580c" },
+          },
+          dark: {
+            primary: { 500: "#f97316" },
+          },
+        },
+      };
+
+      const result = validateTheme(theme);
+      expect(result.valid).toBe(true);
+    });
+
+    it("should reject invalid modeColors values", () => {
+      const theme: ThemeConfig = {
+        id: "test-theme",
+        name: "Test Theme",
+        modeColors: {
+          dark: {
+            primary: { 500: "not-a-color" },
+          },
+        },
+      };
+
+      const result = validateTheme(theme);
+      expect(result.valid).toBe(false);
+      expect(result.errors[0]).toContain("modeColors.dark.primary.500");
+    });
   });
 
   describe("themeToCss", () => {
@@ -213,6 +247,89 @@ describe("theme utilities", () => {
 
       const css = themeToCss(theme);
       expect(css).toBe("");
+    });
+
+    it("should generate :root block with colors", () => {
+      const theme: ThemeConfig = {
+        id: "test-theme",
+        name: "Test Theme",
+        colors: {
+          primary: { 500: "#ea580c" },
+        },
+      };
+
+      const css = themeToCss(theme);
+      expect(css).toContain(":root {");
+      expect(css).toContain("--color-primary-500: #ea580c;");
+    });
+
+    it("should generate .dark block for dark modeColors", () => {
+      const theme: ThemeConfig = {
+        id: "test-theme",
+        name: "Test Theme",
+        modeColors: {
+          dark: {
+            primary: { 500: "#f97316" },
+          },
+        },
+      };
+
+      const css = themeToCss(theme);
+      expect(css).toContain(".dark {");
+      expect(css).toContain("--color-primary-500: #f97316;");
+    });
+
+    it("should generate both :root and .dark blocks for full modeColors", () => {
+      const theme: ThemeConfig = {
+        id: "test-theme",
+        name: "Test Theme",
+        modeColors: {
+          light: {
+            primary: { 500: "#ea580c" },
+          },
+          dark: {
+            primary: { 500: "#f97316" },
+          },
+        },
+      };
+
+      const css = themeToCss(theme);
+      expect(css).toContain(":root {");
+      expect(css).toContain(".dark {");
+      // Light colors in :root
+      expect(css.indexOf("--color-primary-500: #ea580c;")).toBeLessThan(
+        css.indexOf(".dark {")
+      );
+      // Dark colors in .dark
+      expect(css.indexOf("--color-primary-500: #f97316;")).toBeGreaterThan(
+        css.indexOf(".dark {")
+      );
+    });
+
+    it("should combine shared colors with mode-specific colors", () => {
+      const theme: ThemeConfig = {
+        id: "test-theme",
+        name: "Test Theme",
+        colors: {
+          warm: { 100: "#fef3c7" }, // Shared
+        },
+        modeColors: {
+          light: {
+            primary: { 500: "#ea580c" },
+          },
+          dark: {
+            primary: { 500: "#f97316" },
+          },
+        },
+      };
+
+      const css = themeToCss(theme);
+      // Shared warm color in :root
+      expect(css).toContain("--color-warm-100: #fef3c7;");
+      // Light-specific primary in :root
+      expect(css).toContain(":root {");
+      // Dark-specific primary in .dark
+      expect(css).toContain(".dark {");
     });
   });
 
@@ -299,6 +416,30 @@ describe("theme utilities", () => {
 
       removeTheme();
       expect(document.getElementById("custom-theme-overrides")).toBeNull();
+    });
+
+    it("should inject style with both :root and .dark for modeColors", () => {
+      const theme: ThemeConfig = {
+        id: "test-theme",
+        name: "Test Theme",
+        modeColors: {
+          light: {
+            primary: { 500: "#ea580c" },
+          },
+          dark: {
+            primary: { 500: "#f97316" },
+          },
+        },
+      };
+
+      applyTheme(theme);
+
+      const styleEl = document.getElementById("custom-theme-overrides");
+      expect(styleEl).not.toBeNull();
+      expect(styleEl?.textContent).toContain(":root {");
+      expect(styleEl?.textContent).toContain(".dark {");
+      expect(styleEl?.textContent).toContain("--color-primary-500: #ea580c;");
+      expect(styleEl?.textContent).toContain("--color-primary-500: #f97316;");
     });
   });
 
