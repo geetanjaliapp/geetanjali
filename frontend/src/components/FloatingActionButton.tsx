@@ -98,6 +98,7 @@ export function FloatingActionButton({
         transform hover:scale-105
         transition-[var(--transition-all)]
         active:scale-95
+        focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]
       `}
       aria-label="Ask a Question"
     >

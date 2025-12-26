@@ -93,7 +93,7 @@ export function CaseHeader({
                 disabled={shareLoading}
                 className={`p-2 sm:px-3 sm:py-1.5 rounded-[var(--radius-button)] shadow-[var(--shadow-button)] flex items-center gap-1.5 transition-[var(--transition-all)] ${
                   caseData.is_public
-                    ? "bg-[var(--status-success-text)] text-white hover:opacity-90"
+                    ? "bg-[var(--status-success-text)] text-[var(--text-inverted)] hover:opacity-90"
                     : "bg-[var(--surface-elevated)] text-[var(--text-secondary)] hover:bg-[var(--interactive-ghost-hover-bg)] border border-[var(--border-default)]"
                 } ${shareLoading ? "opacity-50 cursor-not-allowed" : ""}`}
                 aria-label={

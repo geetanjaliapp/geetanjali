@@ -6,6 +6,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { FeaturedVerse } from "../components/FeaturedVerse";
 import { Footer } from "../components/Footer";
 import { Navbar, NewsletterCard } from "../components";
+import { LogoIcon } from "../components/icons";
 import { useSEO } from "../hooks";
 import { trackEvent } from "../lib/experiment";
 import { errorMessages } from "../lib/errorMessages";
@@ -98,11 +99,7 @@ export default function Home() {
           <div className="mb-6 sm:mb-8">
             {/* Logo */}
             <div className="flex justify-center mb-4 sm:mb-5">
-              <img
-                src="/logo.svg"
-                alt="Geetanjali"
-                className="h-20 w-20 sm:h-24 sm:w-24 lg:h-28 lg:w-28"
-              />
+              <LogoIcon className="h-20 w-20 sm:h-24 sm:w-24 lg:h-28 lg:w-28" />
             </div>
 
             {/* Main Tagline */}
@@ -284,10 +281,10 @@ export default function Home() {
                 Get clarity when the right path isn't obvious
               </p>
             </div>
-            <div className="bg-linear-to-br from-[var(--gradient-page-from)] to-[var(--gradient-page-to)] p-3 sm:p-6 rounded-[var(--radius-card)] border border-[var(--option-selected-border)] text-center">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[var(--option-selected-bg)] rounded-[var(--radius-button)] flex items-center justify-center mb-2 sm:mb-4 mx-auto">
+            <div className="bg-linear-to-br from-[var(--gradient-warm-from)] to-[var(--gradient-warm-to)] p-3 sm:p-6 rounded-[var(--radius-card)] border border-[var(--border-warm)] text-center">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[var(--section-icon-newsletter-bg)] rounded-[var(--radius-button)] flex items-center justify-center mb-2 sm:mb-4 mx-auto">
                 <svg
-                  className="w-5 h-5 sm:w-6 sm:h-6 text-[var(--option-selected-text)]"
+                  className="w-5 h-5 sm:w-6 sm:h-6 text-[var(--text-accent)]"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -308,10 +305,10 @@ export default function Home() {
                 Compare approaches with honest trade-offs
               </p>
             </div>
-            <div className="bg-linear-to-br from-[var(--status-error-bg)] to-[var(--gradient-page-to)] p-3 sm:p-6 rounded-[var(--radius-card)] border border-[var(--status-error-border)] text-center">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[var(--status-error-bg)] rounded-[var(--radius-button)] flex items-center justify-center mb-2 sm:mb-4 mx-auto">
+            <div className="bg-linear-to-br from-[var(--gradient-warm-from)] to-[var(--gradient-warm-to)] p-3 sm:p-6 rounded-[var(--radius-card)] border border-[var(--border-warm)] text-center">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[var(--section-icon-newsletter-bg)] rounded-[var(--radius-button)] flex items-center justify-center mb-2 sm:mb-4 mx-auto">
                 <svg
-                  className="w-5 h-5 sm:w-6 sm:h-6 text-[var(--status-error-text)]"
+                  className="w-5 h-5 sm:w-6 sm:h-6 text-[var(--text-accent)]"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"

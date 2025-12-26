@@ -27,7 +27,7 @@ export function CompletionBanner({
         >
           {isPolicyViolation ? (
             <svg
-              className="w-5 h-5 text-white"
+              className="w-5 h-5 text-[var(--text-inverted)]"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -41,7 +41,7 @@ export function CompletionBanner({
             </svg>
           ) : (
             <svg
-              className="w-5 h-5 text-white"
+              className="w-5 h-5 text-[var(--text-inverted)]"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"

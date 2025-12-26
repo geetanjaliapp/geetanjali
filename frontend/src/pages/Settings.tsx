@@ -429,7 +429,7 @@ export default function Settings() {
             </div>
           ) : (
             <div className="flex items-center gap-3 bg-[var(--surface-warm)] border border-[var(--border-warm)] rounded-[var(--radius-button)] p-3">
-              <div className="w-10 h-10 rounded-[var(--radius-avatar)] bg-[var(--avatar-placeholder-bg)] text-white flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-[var(--radius-avatar)] bg-[var(--avatar-placeholder-bg)] text-[var(--text-inverted)] flex items-center justify-center shrink-0">
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
                 </svg>
@@ -609,7 +609,7 @@ export default function Settings() {
                   <button
                     type="submit"
                     disabled={isUpdatingPrefs}
-                    className="w-full bg-[var(--interactive-primary)] hover:opacity-90 disabled:opacity-60 text-[var(--interactive-primary-text)] text-sm font-medium px-4 py-2 rounded-[var(--radius-button)] transition-[var(--transition-color)]"
+                    className="w-full bg-[var(--interactive-primary)] hover:bg-[var(--interactive-primary-hover)] disabled:bg-[var(--interactive-primary-disabled-bg)] disabled:text-[var(--interactive-primary-disabled-text)] text-[var(--interactive-primary-text)] text-sm font-medium px-4 py-2 rounded-[var(--radius-button)] transition-[var(--transition-color)]"
                   >
                     {isUpdatingPrefs ? "Saving..." : "Update preferences"}
                   </button>
@@ -851,7 +851,7 @@ export default function Settings() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-[var(--interactive-primary)] hover:opacity-90 disabled:opacity-60 text-white text-sm font-medium px-4 py-2 rounded-[var(--radius-button)] transition-[var(--transition-color)]"
+                  className="w-full bg-[var(--interactive-primary)] hover:bg-[var(--interactive-primary-hover)] disabled:bg-[var(--interactive-primary-disabled-bg)] disabled:text-[var(--interactive-primary-disabled-text)] text-[var(--interactive-primary-text)] text-sm font-medium px-4 py-2 rounded-[var(--radius-button)] transition-[var(--transition-color)]"
                 >
                   {isSubmitting ? "Subscribing..." : "Subscribe"}
                 </button>
@@ -1052,14 +1052,14 @@ export default function Settings() {
           <div className="flex flex-wrap gap-3">
             <button
               onClick={() => setShowDeleteConfirm(true)}
-              className="px-3 py-1.5 text-sm font-medium text-[var(--status-error-text)] hover:text-[var(--status-error-text)] bg-[var(--status-error-bg)] hover:bg-[var(--status-error-bg)] border border-[var(--status-error-border)] rounded-[var(--radius-button)] transition-[var(--transition-color)]"
+              className="px-3 py-1.5 text-sm font-medium text-[var(--status-error-text)] bg-[var(--status-error-bg)] hover:bg-[var(--status-error-hover-bg)] border border-[var(--status-error-border)] hover:border-[var(--status-error-hover-border)] active:bg-[var(--status-error-active-bg)] rounded-[var(--radius-button)] transition-[var(--transition-color)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
             >
               Delete local data
             </button>
             {isAuthenticated && (
               <button
                 onClick={() => setShowDeleteAccountConfirm(true)}
-                className="px-3 py-1.5 text-sm font-medium text-[var(--status-error-text)] hover:text-[var(--status-error-text)] bg-[var(--status-error-bg)] hover:bg-[var(--status-error-bg)] border border-[var(--status-error-border)] rounded-[var(--radius-button)] transition-[var(--transition-color)]"
+                className="px-3 py-1.5 text-sm font-medium text-[var(--status-error-text)] bg-[var(--status-error-bg)] hover:bg-[var(--status-error-hover-bg)] border border-[var(--status-error-border)] hover:border-[var(--status-error-hover-border)] active:bg-[var(--status-error-active-bg)] rounded-[var(--radius-button)] transition-[var(--transition-color)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
               >
                 Delete account
               </button>

@@ -311,7 +311,7 @@ export default function Consultations() {
               {/* CTA visible on tablet+ only, FAB handles mobile */}
               <Link
                 to="/cases/new"
-                className="hidden sm:inline-block bg-[var(--interactive-primary)] hover:opacity-90 text-white font-semibold px-5 py-2.5 sm:px-6 sm:py-3 rounded-[var(--radius-button)] transition-[var(--transition-color)] text-sm sm:text-base shrink-0"
+                className="hidden sm:inline-block bg-[var(--interactive-primary)] hover:bg-[var(--interactive-primary-hover)] text-[var(--interactive-primary-text)] font-semibold px-5 py-2.5 sm:px-6 sm:py-3 rounded-[var(--radius-button)] transition-[var(--transition-color)] text-sm sm:text-base shrink-0"
               >
                 Ask a Question
               </Link>
@@ -502,7 +502,7 @@ export default function Consultations() {
               </p>
               <Link
                 to="/cases/new"
-                className="inline-block bg-[var(--interactive-primary)] hover:opacity-90 text-white font-semibold px-6 py-2.5 sm:px-8 sm:py-3 rounded-[var(--radius-button)] transition-[var(--transition-color)] text-sm sm:text-base"
+                className="inline-block bg-[var(--interactive-primary)] hover:bg-[var(--interactive-primary-hover)] text-[var(--interactive-primary-text)] font-semibold px-6 py-2.5 sm:px-8 sm:py-3 rounded-[var(--radius-button)] transition-[var(--transition-color)] text-sm sm:text-base"
               >
                 Ask Your First Question
               </Link>

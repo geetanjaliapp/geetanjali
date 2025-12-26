@@ -126,7 +126,7 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-2.5 sm:py-2 px-4 border border-transparent text-sm font-medium rounded-[var(--radius-button)] text-[var(--interactive-primary-text)] bg-[var(--interactive-primary)] hover:bg-[var(--interactive-primary-hover)] focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--focus-ring-offset)] focus:ring-[var(--focus-ring)] disabled:opacity-50 disabled:cursor-not-allowed transition-[var(--transition-color)]"
+                className="w-full flex justify-center py-2.5 sm:py-2 px-4 border border-transparent text-sm font-medium rounded-[var(--radius-button)] text-[var(--interactive-primary-text)] bg-[var(--interactive-primary)] hover:bg-[var(--interactive-primary-hover)] active:bg-[var(--interactive-primary-active)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] focus-visible:ring-[var(--focus-ring)] disabled:bg-[var(--interactive-primary-disabled-bg)] disabled:text-[var(--interactive-primary-disabled-text)] disabled:cursor-not-allowed transition-[var(--transition-color)]"
               >
                 {loading ? "Signing in..." : "Sign in"}
               </button>

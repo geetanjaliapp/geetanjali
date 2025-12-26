@@ -405,7 +405,7 @@ export function ShareModal({
               <button
                 onClick={handleNativeShare}
                 disabled={generating || sharing || !previewUrl}
-                className="flex-1 px-4 py-2 bg-[var(--interactive-primary)] hover:opacity-90 disabled:opacity-60 text-white text-sm font-medium rounded-[var(--radius-card)] transition-[var(--transition-color)] disabled:cursor-not-allowed"
+                className="flex-1 px-4 py-2 bg-[var(--interactive-primary)] hover:bg-[var(--interactive-primary-hover)] disabled:bg-[var(--interactive-primary-disabled-bg)] disabled:text-[var(--interactive-primary-disabled-text)] text-[var(--interactive-primary-text)] text-sm font-medium rounded-[var(--radius-card)] transition-[var(--transition-color)] disabled:cursor-not-allowed"
               >
                 {sharing ? "Sharing..." : "Share Image"}
               </button>
@@ -435,7 +435,7 @@ export function ShareModal({
             <button
               onClick={handleDownload}
               disabled={generating || downloading || !previewUrl}
-              className="flex-1 px-4 py-2 bg-[var(--interactive-primary)] hover:opacity-90 disabled:opacity-60 text-white text-sm font-medium rounded-[var(--radius-card)] transition-[var(--transition-color)] disabled:cursor-not-allowed"
+              className="flex-1 px-4 py-2 bg-[var(--interactive-primary)] hover:bg-[var(--interactive-primary-hover)] disabled:bg-[var(--interactive-primary-disabled-bg)] disabled:text-[var(--interactive-primary-disabled-text)] text-[var(--interactive-primary-text)] text-sm font-medium rounded-[var(--radius-card)] transition-[var(--transition-color)] disabled:cursor-not-allowed"
             >
               {downloading ? "Downloading..." : "Download Image"}
             </button>

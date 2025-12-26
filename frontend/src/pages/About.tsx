@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { Navbar } from "../components";
 import { Footer } from "../components/Footer";
+import { LogoIcon } from "../components/icons";
 import { api } from "../lib/api";
 import { validateContent } from "../lib/contentFilter";
 import { errorMessages } from "../lib/errorMessages";
@@ -105,12 +106,7 @@ export default function About() {
         {/* Hero Section */}
         <div className="text-center mb-8 sm:mb-12 lg:mb-16">
           <div className="flex justify-center mb-4 sm:mb-6">
-            <img
-              src="/logo.svg"
-              alt="Geetanjali"
-              loading="lazy"
-              className="h-14 w-14 sm:h-16 sm:w-16 lg:h-20 lg:w-20"
-            />
+            <LogoIcon className="h-14 w-14 sm:h-16 sm:w-16 lg:h-20 lg:w-20" />
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold font-heading text-[var(--text-primary)] mb-2">
             About Geetanjali
@@ -124,7 +120,7 @@ export default function About() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mt-6 sm:mt-8">
             <Link
               to="/cases/new"
-              className="inline-flex items-center gap-2 bg-[var(--interactive-primary)] hover:opacity-90 text-white font-semibold px-6 py-3 sm:px-8 sm:py-3.5 rounded-[var(--radius-card)] transition-[var(--transition-all)] shadow-[var(--shadow-dropdown)] hover:shadow-[var(--shadow-modal)] text-base sm:text-lg"
+              className="inline-flex items-center gap-2 bg-[var(--interactive-primary)] hover:bg-[var(--interactive-primary-hover)] text-[var(--interactive-primary-text)] font-semibold px-6 py-3 sm:px-8 sm:py-3.5 rounded-[var(--radius-card)] transition-[var(--transition-all)] shadow-[var(--shadow-dropdown)] hover:shadow-[var(--shadow-modal)] text-base sm:text-lg"
             >
               <span>Start a Consultation</span>
               <svg
@@ -544,7 +540,7 @@ export default function About() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full sm:w-auto bg-[var(--interactive-primary)] hover:opacity-90 disabled:opacity-60 text-white font-semibold px-6 py-3 sm:px-8 sm:py-3 rounded-[var(--radius-button)] transition-[var(--transition-color)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] text-base"
+                className="w-full sm:w-auto bg-[var(--interactive-primary)] hover:bg-[var(--interactive-primary-hover)] disabled:bg-[var(--interactive-primary-disabled-bg)] disabled:text-[var(--interactive-primary-disabled-text)] text-[var(--interactive-primary-text)] font-semibold px-6 py-3 sm:px-8 sm:py-3 rounded-[var(--radius-button)] transition-[var(--transition-color)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] text-base"
               >
                 {isSubmitting ? "Sending..." : "Send Message"}
               </button>
@@ -564,7 +560,7 @@ export default function About() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
             <Link
               to="/cases/new"
-              className="inline-flex items-center gap-2 bg-[var(--interactive-primary)] hover:opacity-90 text-white font-semibold px-6 py-3 sm:px-8 sm:py-3.5 rounded-[var(--radius-card)] transition-[var(--transition-all)] shadow-[var(--shadow-dropdown)] hover:shadow-[var(--shadow-modal)] text-base sm:text-lg"
+              className="inline-flex items-center gap-2 bg-[var(--interactive-primary)] hover:bg-[var(--interactive-primary-hover)] text-[var(--interactive-primary-text)] font-semibold px-6 py-3 sm:px-8 sm:py-3.5 rounded-[var(--radius-card)] transition-[var(--transition-all)] shadow-[var(--shadow-dropdown)] hover:shadow-[var(--shadow-modal)] text-base sm:text-lg"
             >
               <span>Ask a Question</span>
               <svg

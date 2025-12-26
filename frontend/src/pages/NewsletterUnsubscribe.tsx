@@ -115,7 +115,7 @@ export default function NewsletterUnsubscribe() {
               </p>
               <Link
                 to="/settings#newsletter"
-                className="inline-block px-6 py-3 bg-linear-to-r from-[var(--interactive-gradient-from)] to-[var(--interactive-gradient-to)] text-white font-medium rounded-[var(--radius-button)] hover:from-[var(--interactive-gradient-from-hover)] hover:to-[var(--interactive-gradient-to-hover)] transition-[var(--transition-all)]"
+                className="inline-block px-6 py-3 bg-linear-to-r from-[var(--interactive-gradient-from)] to-[var(--interactive-gradient-to)] text-[var(--interactive-primary-text)] font-medium rounded-[var(--radius-button)] hover:from-[var(--interactive-gradient-from-hover)] hover:to-[var(--interactive-gradient-to-hover)] transition-[var(--transition-all)]"
               >
                 Subscribe Again
               </Link>
@@ -143,7 +143,7 @@ export default function NewsletterUnsubscribe() {
               </p>
               <Link
                 to="/settings#newsletter"
-                className="inline-block px-6 py-3 bg-linear-to-r from-[var(--interactive-gradient-from)] to-[var(--interactive-gradient-to)] text-white font-medium rounded-[var(--radius-button)] hover:from-[var(--interactive-gradient-from-hover)] hover:to-[var(--interactive-gradient-to-hover)] transition-[var(--transition-all)]"
+                className="inline-block px-6 py-3 bg-linear-to-r from-[var(--interactive-gradient-from)] to-[var(--interactive-gradient-to)] text-[var(--interactive-primary-text)] font-medium rounded-[var(--radius-button)] hover:from-[var(--interactive-gradient-from-hover)] hover:to-[var(--interactive-gradient-to-hover)] transition-[var(--transition-all)]"
               >
                 Subscribe Again
               </Link>
@@ -162,7 +162,7 @@ export default function NewsletterUnsubscribe() {
             </p>
             <Link
               to="/"
-              className="inline-block px-6 py-3 bg-linear-to-r from-[var(--interactive-gradient-from)] to-[var(--interactive-gradient-to)] text-white font-medium rounded-[var(--radius-button)] hover:from-[var(--interactive-gradient-from-hover)] hover:to-[var(--interactive-gradient-to-hover)] transition-[var(--transition-all)]"
+              className="inline-block px-6 py-3 bg-linear-to-r from-[var(--interactive-gradient-from)] to-[var(--interactive-gradient-to)] text-[var(--interactive-primary-text)] font-medium rounded-[var(--radius-button)] hover:from-[var(--interactive-gradient-from-hover)] hover:to-[var(--interactive-gradient-to-hover)] transition-[var(--transition-all)]"
             >
               Go Home
             </Link>

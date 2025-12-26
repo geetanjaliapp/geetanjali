@@ -65,7 +65,7 @@ export const OutputFeedback = memo(
               aria-label={feedback === "up" ? "Feedback: helpful" : "Mark as helpful"}
               className={`w-7 h-7 rounded-[var(--radius-avatar)] flex items-center justify-center transition-[var(--transition-color)] ${
                 feedback === "up" && !isExpanded
-                  ? "bg-[var(--status-success-text)] text-white"
+                  ? "bg-[var(--status-success-text)] text-[var(--text-inverted)]"
                   : "bg-[var(--surface-muted)] text-[var(--text-muted)] hover:bg-[var(--status-success-bg)] hover:text-[var(--status-success-text)]"
               }`}
             >
@@ -89,7 +89,7 @@ export const OutputFeedback = memo(
               aria-label={feedback === "down" ? "Feedback: needs improvement" : "Mark as needs improvement"}
               className={`w-7 h-7 rounded-[var(--radius-avatar)] flex items-center justify-center transition-[var(--transition-color)] ${
                 feedback === "down" || isExpanded
-                  ? "bg-[var(--status-error-text)] text-white"
+                  ? "bg-[var(--status-error-text)] text-[var(--text-inverted)]"
                   : "bg-[var(--surface-muted)] text-[var(--text-muted)] hover:bg-[var(--status-error-bg)] hover:text-[var(--status-error-text)]"
               }`}
             >
@@ -155,7 +155,7 @@ export const OutputFeedback = memo(
                 <button
                   onClick={() => onSubmitNegativeFeedback(output.id)}
                   disabled={feedbackLoading === output.id}
-                  className="px-3 py-1.5 text-xs bg-[var(--status-error-text)] text-white rounded-[var(--radius-button)] hover:opacity-90 disabled:opacity-50"
+                  className="px-3 py-1.5 text-xs bg-[var(--status-error-text)] text-[var(--text-inverted)] rounded-[var(--radius-button)] hover:opacity-90 disabled:opacity-50"
                 >
                   {feedbackLoading === output.id
                     ? "Saving..."

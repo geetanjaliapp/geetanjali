@@ -111,7 +111,7 @@ export function UserMenu({
         aria-haspopup="menu"
       >
         <div
-          className={`${avatarSize} rounded-[var(--radius-avatar)] ${avatarBg} text-white flex items-center justify-center ${textSize} font-medium`}
+          className={`${avatarSize} rounded-[var(--radius-avatar)] ${avatarBg} ${isGuest ? "text-[var(--text-inverted)]" : "text-[var(--interactive-primary-text)]"} flex items-center justify-center ${textSize} font-medium`}
         >
           {isGuest ? (
             <svg
@@ -192,7 +192,7 @@ export function UserMenu({
               onClick={handleLinkClick}
               className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--text-secondary)] hover:bg-[var(--menu-item-hover-bg)] transition-[var(--transition-color)] focus:outline-hidden focus-visible:bg-[var(--menu-item-hover-bg)]"
             >
-              <HeartIcon className="w-4 h-4 text-[var(--status-error-text)]" filled />
+              <HeartIcon className="w-4 h-4 text-[var(--icon-favorite)]" filled />
               <span>My Favorites</span>
               {favoritesCount > 0 && (
                 <span className="ml-auto text-xs text-[var(--text-muted)]">

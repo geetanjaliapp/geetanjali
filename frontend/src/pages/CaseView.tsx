@@ -754,7 +754,7 @@ ${messages
                               </p>
                               <button
                                 onClick={handleRetry}
-                                className="px-4 py-2 bg-[var(--interactive-primary)] hover:opacity-90 text-white text-sm font-medium rounded-[var(--radius-button)] transition-[var(--transition-color)]"
+                                className="px-4 py-2 bg-[var(--interactive-primary)] hover:bg-[var(--interactive-primary-hover)] text-[var(--interactive-primary-text)] text-sm font-medium rounded-[var(--radius-button)] transition-[var(--transition-color)]"
                               >
                                 Get Guidance
                               </button>
@@ -783,7 +783,7 @@ ${messages
                               </p>
                               <button
                                 onClick={handleRetry}
-                                className="px-4 py-2 bg-[var(--interactive-primary)] hover:opacity-90 text-white text-sm font-medium rounded-[var(--radius-button)] transition-[var(--transition-color)]"
+                                className="px-4 py-2 bg-[var(--interactive-primary)] hover:bg-[var(--interactive-primary-hover)] text-[var(--interactive-primary-text)] text-sm font-medium rounded-[var(--radius-button)] transition-[var(--transition-color)]"
                               >
                                 Get Guidance
                               </button>

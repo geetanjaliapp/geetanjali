@@ -153,7 +153,7 @@ export default function NewsletterPreferences() {
               </p>
               <Link
                 to="/"
-                className="inline-block px-6 py-3 bg-linear-to-r from-[var(--interactive-gradient-from)] to-[var(--interactive-gradient-to)] text-white font-medium rounded-[var(--radius-button)] hover:from-[var(--interactive-gradient-from-hover)] hover:to-[var(--interactive-gradient-to-hover)] transition-[var(--transition-all)]"
+                className="inline-block px-6 py-3 bg-linear-to-r from-[var(--interactive-gradient-from)] to-[var(--interactive-gradient-to)] text-[var(--interactive-primary-text)] font-medium rounded-[var(--radius-button)] hover:from-[var(--interactive-gradient-from-hover)] hover:to-[var(--interactive-gradient-to-hover)] transition-[var(--transition-all)]"
               >
                 Go Home
               </Link>
@@ -172,7 +172,7 @@ export default function NewsletterPreferences() {
               <div className="space-y-3">
                 <button
                   onClick={() => setPageState("loaded")}
-                  className="block w-full sm:w-auto sm:inline-block px-6 py-3 bg-linear-to-r from-[var(--interactive-gradient-from)] to-[var(--interactive-gradient-to)] text-white font-medium rounded-[var(--radius-button)] hover:from-[var(--interactive-gradient-from-hover)] hover:to-[var(--interactive-gradient-to-hover)] transition-[var(--transition-all)]"
+                  className="block w-full sm:w-auto sm:inline-block px-6 py-3 bg-linear-to-r from-[var(--interactive-gradient-from)] to-[var(--interactive-gradient-to)] text-[var(--interactive-primary-text)] font-medium rounded-[var(--radius-button)] hover:from-[var(--interactive-gradient-from-hover)] hover:to-[var(--interactive-gradient-to-hover)] transition-[var(--transition-all)]"
                 >
                   Edit Again
                 </button>
@@ -249,7 +249,7 @@ export default function NewsletterPreferences() {
                 <button
                   onClick={handleSave}
                   disabled={pageState === "saving" || !hasChanges}
-                  className="bg-[var(--interactive-primary)] hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold px-6 py-3 rounded-[var(--radius-button)] transition-[var(--transition-color)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
+                  className="bg-[var(--interactive-primary)] hover:bg-[var(--interactive-primary-hover)] disabled:bg-[var(--interactive-primary-disabled-bg)] disabled:text-[var(--interactive-primary-disabled-text)] disabled:cursor-not-allowed text-[var(--interactive-primary-text)] font-semibold px-6 py-3 rounded-[var(--radius-button)] transition-[var(--transition-color)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
                 >
                   {pageState === "saving" ? "Saving..." : "Save Preferences"}
                 </button>

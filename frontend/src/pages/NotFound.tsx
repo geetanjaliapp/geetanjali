@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { formatSanskritLines, isSpeakerIntro } from "../lib/sanskritFormatter";
 import { Navbar } from "../components";
+import { LogoIcon } from "../components/icons";
 import { useSEO } from "../hooks";
 
 // Top 5 most famous Geeta verses - embedded statically to avoid API calls
@@ -75,12 +76,7 @@ export default function NotFound() {
       >
         <div className="text-center max-w-2xl px-4">
           {/* Logo */}
-          <img
-            src="/logo.svg"
-            alt="Geetanjali"
-            loading="lazy"
-            className="h-16 w-16 sm:h-20 sm:w-20 lg:h-24 lg:w-24 mx-auto mb-4 sm:mb-6 lg:mb-8"
-          />
+          <LogoIcon className="h-16 w-16 sm:h-20 sm:w-20 lg:h-24 lg:w-24 mx-auto mb-4 sm:mb-6 lg:mb-8" />
 
           {/* Heading */}
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold font-heading text-[var(--text-primary)] mb-4 sm:mb-6 lg:mb-8">

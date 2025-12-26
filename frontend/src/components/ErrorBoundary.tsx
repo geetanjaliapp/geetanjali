@@ -125,7 +125,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 </div>
                 <button
                   onClick={this.handleRefresh}
-                  className="inline-block bg-[var(--interactive-contextual)] hover:opacity-90 text-white font-semibold px-6 py-3 rounded-[var(--radius-button)] transition-[var(--transition-color)] focus:outline-hidden focus:ring-2 focus:ring-[var(--border-focus)] focus:ring-offset-2 focus:ring-offset-[var(--focus-ring-offset)]"
+                  className="inline-block bg-[var(--interactive-contextual)] hover:bg-[var(--interactive-contextual-hover)] text-[var(--interactive-contextual-text)] font-semibold px-6 py-3 rounded-[var(--radius-button)] transition-[var(--transition-color)] focus:outline-hidden focus:ring-2 focus:ring-[var(--border-focus)] focus:ring-offset-2 focus:ring-offset-[var(--focus-ring-offset)]"
                 >
                   Refresh Now
                 </button>
@@ -168,7 +168,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 </button>
                 <button
                   onClick={this.handleRefresh}
-                  className="inline-block bg-[var(--status-error-text)] hover:opacity-90 text-white font-semibold px-6 py-3 rounded-[var(--radius-button)] transition-[var(--transition-color)] focus:outline-hidden focus:ring-2 focus:ring-[var(--border-focus)] focus:ring-offset-2 focus:ring-offset-[var(--focus-ring-offset)]"
+                  className="inline-block bg-[var(--status-error-text)] hover:opacity-90 text-[var(--text-inverted)] font-semibold px-6 py-3 rounded-[var(--radius-button)] transition-[var(--transition-color)] focus:outline-hidden focus:ring-2 focus:ring-[var(--border-focus)] focus:ring-offset-2 focus:ring-offset-[var(--focus-ring-offset)]"
                 >
                   Refresh Page
                 </button>

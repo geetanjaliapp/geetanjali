@@ -136,7 +136,7 @@ export function ShareBar({
           <button
             onClick={handleConfirmStop}
             disabled={isLoading}
-            className={`px-3 py-1 bg-[var(--status-error-text)] text-white rounded-[var(--radius-button)] font-medium hover:opacity-90 disabled:opacity-50 transition-[var(--transition-color)] ${compact ? "text-xs" : "text-sm"}`}
+            className={`px-3 py-1 bg-[var(--status-error-text)] text-[var(--text-inverted)] rounded-[var(--radius-button)] font-medium hover:opacity-90 disabled:opacity-50 transition-[var(--transition-color)] ${compact ? "text-xs" : "text-sm"}`}
           >
             {isLoading ? "..." : "Stop"}
           </button>
@@ -179,7 +179,7 @@ export function ShareBar({
           </button>
           <button
             onClick={handleCopyClick}
-            className={`px-2 py-0.5 bg-[var(--status-success-text)] text-white rounded-[var(--radius-skeleton)] font-medium hover:opacity-90 transition-[var(--transition-color)] ${compact ? "text-[10px]" : "text-xs"}`}
+            className={`px-2 py-0.5 bg-[var(--status-success-text)] text-[var(--text-inverted)] rounded-[var(--radius-skeleton)] font-medium hover:opacity-90 transition-[var(--transition-color)] ${compact ? "text-[10px]" : "text-xs"}`}
           >
             {copySuccess ? "Copied!" : "Copy"}
           </button>
@@ -226,7 +226,7 @@ export function ShareBar({
               disabled={isLoading}
               className={`px-2 py-0.5 transition-[var(--transition-color)] disabled:opacity-50 ${compact ? "text-[10px]" : "text-xs"} ${
                 currentMode === "full"
-                  ? "bg-[var(--status-success-text)] text-white"
+                  ? "bg-[var(--status-success-text)] text-[var(--text-inverted)]"
                   : "bg-[var(--surface-elevated)] text-[var(--status-success-text)] hover:bg-[var(--status-success-bg)]"
               }`}
             >
@@ -237,7 +237,7 @@ export function ShareBar({
               disabled={isLoading}
               className={`px-2 py-0.5 border-l border-[var(--status-success-border)] transition-[var(--transition-color)] disabled:opacity-50 ${compact ? "text-[10px]" : "text-xs"} ${
                 currentMode === "essential"
-                  ? "bg-[var(--status-success-text)] text-white"
+                  ? "bg-[var(--status-success-text)] text-[var(--text-inverted)]"
                   : "bg-[var(--surface-elevated)] text-[var(--status-success-text)] hover:bg-[var(--status-success-bg)]"
               }`}
             >

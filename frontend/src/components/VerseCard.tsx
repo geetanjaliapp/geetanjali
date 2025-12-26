@@ -187,8 +187,8 @@ export const VerseCard = memo(function VerseCard({
               }}
               className={`p-2.5 sm:p-1 -m-1.5 sm:m-0 rounded-[var(--radius-badge)] transition-[var(--transition-card)] pointer-events-auto focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                 isFavorite
-                  ? "text-[var(--status-error-text)]"
-                  : "text-[var(--text-muted)] hover:text-[var(--status-error-text)] hover:scale-110"
+                  ? "text-[var(--icon-favorite)]"
+                  : "text-[var(--text-muted)] hover:text-[var(--icon-favorite)] hover:scale-110"
               }`}
               aria-label={
                 isFavorite ? "Remove from favorites" : "Add to favorites"

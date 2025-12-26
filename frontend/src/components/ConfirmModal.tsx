@@ -222,7 +222,7 @@ export function ConfirmModal({
               type="button"
               onClick={handleConfirm}
               disabled={loading || !textMatches}
-              className={`flex-1 px-4 py-2.5 text-sm font-medium text-white rounded-[var(--radius-card)] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] disabled:opacity-50 disabled:cursor-not-allowed transition-[var(--transition-color)] ${styles.confirmButton}`}
+              className={`flex-1 px-4 py-2.5 text-sm font-medium text-[var(--text-inverted)] rounded-[var(--radius-card)] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] disabled:opacity-50 disabled:cursor-not-allowed transition-[var(--transition-color)] ${styles.confirmButton}`}
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
