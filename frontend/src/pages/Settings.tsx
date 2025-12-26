@@ -15,6 +15,7 @@ import {
 import { useSyncedGoal, useSyncedFavorites, useSyncedReading, useSEO, useResendVerification } from "../hooks";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme, type Theme } from "../contexts/ThemeContext";
+import { FONT_FAMILY_OPTIONS, FONT_FAMILIES } from "../config/fonts";
 import { api, newsletterApi, type NewsletterPreferences } from "../lib/api";
 import {
   exportUserData,
@@ -116,7 +117,7 @@ export default function Settings() {
   const [updateSuccess, setUpdateSuccess] = useState(false);
 
   // Theme from context
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, fontFamily, setFontFamily } = useTheme();
 
   // Reading preferences (font size via useSyncedReading, sections via localStorage)
   const { settings: readingSettings, setFontSize } = useSyncedReading();
@@ -888,6 +889,27 @@ export default function Settings() {
                       }`}
                     >
                       {size.charAt(0).toUpperCase() + size.slice(1)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Font Style */}
+              <div>
+                <label className="text-sm text-[var(--text-secondary)] block mb-1.5">Font style</label>
+                <div className="flex gap-1">
+                  {FONT_FAMILY_OPTIONS.map((family) => (
+                    <button
+                      key={family}
+                      onClick={() => setFontFamily(family)}
+                      className={`flex-1 px-3 py-1.5 text-sm rounded-lg border transition-colors ${
+                        fontFamily === family
+                          ? "bg-[var(--option-selected-bg)] border-[var(--option-selected-border)] text-[var(--option-selected-text)]"
+                          : "bg-[var(--input-bg)] border-[var(--border-default)] text-[var(--text-tertiary)] hover:border-[var(--border-default)]"
+                      }`}
+                      title={FONT_FAMILIES[family].description}
+                    >
+                      {FONT_FAMILIES[family].label}
                     </button>
                   ))}
                 </div>

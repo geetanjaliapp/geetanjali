@@ -1,203 +1,288 @@
 /**
- * Built-in Theme Configurations (v1.16.0)
+ * Built-in Theme Configurations (v1.17.0)
  *
- * Predefined themes that can be selected by users.
- * Each theme can define mode-specific colors for optimal appearance
- * in both light and dark modes.
+ * Four distinct theme personalities for the Geetanjali app:
+ * - Geetanjali (default): Warm amber/orange - ancient manuscript feel
+ * - Serenity: Twilight violet/rose - contemplative, meditative
+ * - Forest: Emerald/sage - grounded, natural peace
+ * - High Contrast: Maximum accessibility
  *
- * The default theme uses the standard primitives from tokens/primitives.css.
- * Other themes override specific values for light and/or dark modes.
+ * Each theme defines mode-specific colors for optimal appearance
+ * in both light and dark modes with WCAG AA compliant contrast.
  */
 
 import type { ThemeConfig } from "../types/theme";
 
 /**
  * Default theme - uses standard primitives (no overrides needed)
- * This is the "Geetanjali" warm amber/orange theme
+ * Geetanjali: Warm amber/orange inspired by ancient manuscripts
  */
 export const defaultTheme: ThemeConfig = {
   id: "default",
   name: "Geetanjali",
-  description: "Warm amber and orange theme inspired by ancient manuscripts",
+  description: "Warm amber and orange inspired by ancient manuscripts",
 };
 
 /**
  * High Contrast theme
- * Optimized for accessibility with stronger contrast ratios
+ * Maximum accessibility with strong contrast ratios
  */
 export const highContrastTheme: ThemeConfig = {
   id: "high-contrast",
   name: "High Contrast",
-  description: "Enhanced contrast for better readability",
+  description: "Maximum clarity for better readability",
   modeColors: {
     light: {
       primary: {
-        500: "#c2410c", // Darker orange for better contrast on light
+        50: "#fff7ed",
+        100: "#ffedd5",
+        400: "#fb923c",
+        500: "#c2410c",
         600: "#9a3412",
         700: "#7c2d12",
       },
+      warm: {
+        50: "#ffffff",
+        100: "#fafafa",
+        200: "#f5f5f5",
+      },
       neutral: {
         50: "#ffffff",
-        100: "#f5f5f5",
-        200: "#e5e5e5",
-        800: "#1a1a1a",
-        900: "#0a0a0a",
+        100: "#fafafa",
+        200: "#f5f5f5",
+        400: "#737373",
+        500: "#525252",
+        600: "#404040",
+        800: "#171717",
+        900: "#000000",
+      },
+      accent: {
+        400: "#fb923c",
+        500: "#f97316",
+        600: "#ea580c",
       },
     },
     dark: {
       primary: {
-        400: "#fb923c", // Brighter orange for dark mode
+        50: "#431407",
+        100: "#7c2d12",
+        400: "#fb923c",
         500: "#f97316",
         600: "#ea580c",
       },
-      neutral: {
+      warm: {
         50: "#0a0a0a",
         100: "#171717",
         200: "#262626",
         800: "#e5e5e5",
         900: "#fafafa",
       },
-    },
-  },
-};
-
-/**
- * Sepia theme
- * Warm, paper-like tones for comfortable reading
- */
-export const sepiaTheme: ThemeConfig = {
-  id: "sepia",
-  name: "Sepia",
-  description: "Warm paper-like tones for comfortable reading",
-  modeColors: {
-    light: {
-      primary: {
-        50: "#fef7ed",
-        100: "#feecd6",
-        500: "#b45309",
-        600: "#92400e",
-        700: "#78350f",
-      },
-      warm: {
-        50: "#fefcf3",
-        100: "#fef9e7",
-        200: "#fdf3d0",
-      },
       neutral: {
-        50: "#faf8f5",
-        100: "#f5f0e8",
-        200: "#ebe4d6",
-        800: "#3d3529",
-        900: "#2a241c",
+        50: "#000000",
+        100: "#0a0a0a",
+        200: "#171717",
+        400: "#a3a3a3",
+        500: "#d4d4d4",
+        600: "#e5e5e5",
+        800: "#f5f5f5",
+        900: "#ffffff",
       },
-    },
-    dark: {
-      // Warm dark sepia - like aged paper in candlelight
-      primary: {
-        400: "#d97706",
-        500: "#b45309",
-        600: "#92400e",
-      },
-      warm: {
-        700: "#44403c",
-        800: "#292524",
-        900: "#1c1917",
-      },
-      neutral: {
-        50: "#1c1917",
-        100: "#292524",
-        200: "#44403c",
-        800: "#e7e5e4",
-        900: "#fafaf9",
+      accent: {
+        400: "#fb923c",
+        500: "#f97316",
+        600: "#ea580c",
       },
     },
   },
 };
 
 /**
- * Ocean theme
- * Cool blue tones for a calming experience
+ * Serenity theme
+ * Twilight temple atmosphere - contemplative violet/rose tones
+ * Perfect for evening reading and meditation
  */
-export const oceanTheme: ThemeConfig = {
-  id: "ocean",
-  name: "Ocean",
-  description: "Cool blue tones for a calming reading experience",
+export const serenityTheme: ThemeConfig = {
+  id: "serenity",
+  name: "Serenity",
+  description: "Twilight violet tones for contemplative reading",
   modeColors: {
     light: {
       primary: {
-        50: "#eff6ff",
-        100: "#dbeafe",
-        200: "#bfdbfe",
-        300: "#93c5fd",
-        400: "#60a5fa",
-        500: "#3b82f6",
-        600: "#2563eb",
-        700: "#1d4ed8",
-        800: "#1e40af",
-        900: "#1e3a8a",
+        50: "#fdf4ff",
+        100: "#fae8ff",
+        200: "#f5d0fe",
+        300: "#f0abfc",
+        400: "#e879f9",
+        500: "#a855f7",
+        600: "#9333ea",
+        700: "#7e22ce",
+        800: "#6b21a8",
+        900: "#581c87",
       },
       warm: {
-        50: "#f0f9ff",
-        100: "#e0f2fe",
-        200: "#bae6fd",
-        300: "#7dd3fc",
-        400: "#38bdf8",
-        500: "#0ea5e9",
-        600: "#0284c7",
-        700: "#0369a1",
-        800: "#075985",
-        900: "#0c4a6e",
+        50: "#faf5ff",
+        100: "#f3e8ff",
+        200: "#e9d5ff",
+        300: "#d8b4fe",
+        400: "#c084fc",
+        500: "#a855f7",
+        600: "#9333ea",
+        700: "#7e22ce",
+        800: "#6b21a8",
+        900: "#581c87",
+      },
+      neutral: {
+        50: "#faf8fc",
+        100: "#f4f0f7",
+        200: "#ebe5f0",
+        300: "#d4c9de",
+        400: "#9f8fb3",
+        500: "#6b5a7d",
+        600: "#4c3d5c",
+        800: "#2e2438",
+        900: "#1e1527",
       },
       accent: {
-        50: "#ecfeff",
-        100: "#cffafe",
-        200: "#a5f3fc",
-        300: "#67e8f9",
-        400: "#22d3ee",
-        500: "#06b6d4",
-        600: "#0891b2",
-        700: "#0e7490",
-        800: "#155e75",
-        900: "#164e63",
+        50: "#fdf2f8",
+        100: "#fce7f3",
+        400: "#f472b6",
+        500: "#ec4899",
+        600: "#db2777",
+        700: "#be185d",
       },
     },
     dark: {
-      // Deep ocean - darker blues with brighter accents
       primary: {
-        50: "#1e3a5f",
-        100: "#1e40af",
-        200: "#1d4ed8",
-        300: "#2563eb",
-        400: "#3b82f6",
-        500: "#60a5fa",
-        600: "#93c5fd",
-        700: "#bfdbfe",
-        800: "#dbeafe",
-        900: "#eff6ff",
+        50: "#2e1065",
+        100: "#3b0764",
+        200: "#581c87",
+        300: "#7e22ce",
+        400: "#a855f7",
+        500: "#c084fc",
+        600: "#d8b4fe",
+        700: "#e9d5ff",
+        800: "#f3e8ff",
+        900: "#faf5ff",
       },
       warm: {
-        50: "#0c4a6e",
-        100: "#075985",
-        200: "#0369a1",
-        300: "#0284c7",
-        400: "#0ea5e9",
-        500: "#38bdf8",
-        600: "#7dd3fc",
-        700: "#bae6fd",
-        800: "#e0f2fe",
-        900: "#f0f9ff",
+        50: "#1e1527",
+        100: "#2e2438",
+        200: "#3d3350",
+        700: "#d8b4fe",
+        800: "#e9d5ff",
+        900: "#f3e8ff",
+      },
+      neutral: {
+        50: "#1a1523",
+        100: "#221c2e",
+        200: "#2e2639",
+        300: "#3d3350",
+        400: "#8b7fa0",
+        500: "#a89ebb",
+        600: "#c5bdd3",
+        800: "#ebe5f0",
+        900: "#f8f6fa",
       },
       accent: {
-        50: "#164e63",
-        100: "#155e75",
-        200: "#0e7490",
-        300: "#0891b2",
-        400: "#06b6d4",
-        500: "#22d3ee",
-        600: "#67e8f9",
-        700: "#a5f3fc",
-        800: "#cffafe",
-        900: "#ecfeff",
+        400: "#f472b6",
+        500: "#ec4899",
+        600: "#db2777",
+      },
+    },
+  },
+};
+
+/**
+ * Forest theme
+ * Sacred grove atmosphere - grounded emerald/sage tones
+ * Perfect for extended reading sessions and focus
+ */
+export const forestTheme: ThemeConfig = {
+  id: "forest",
+  name: "Forest",
+  description: "Emerald and sage tones for peaceful focus",
+  modeColors: {
+    light: {
+      primary: {
+        50: "#ecfdf5",
+        100: "#d1fae5",
+        200: "#a7f3d0",
+        300: "#6ee7b7",
+        400: "#34d399",
+        500: "#10b981",
+        600: "#059669",
+        700: "#047857",
+        800: "#065f46",
+        900: "#064e3b",
+      },
+      warm: {
+        50: "#f0fdf4",
+        100: "#dcfce7",
+        200: "#bbf7d0",
+        300: "#86efac",
+        400: "#4ade80",
+        500: "#22c55e",
+        600: "#16a34a",
+        700: "#15803d",
+        800: "#166534",
+        900: "#14532d",
+      },
+      neutral: {
+        50: "#f7faf8",
+        100: "#ecf4ef",
+        200: "#dce8e0",
+        300: "#b8d4c0",
+        400: "#6b9a78",
+        500: "#4a7258",
+        600: "#3a5a46",
+        800: "#1e3528",
+        900: "#14261b",
+      },
+      accent: {
+        50: "#f0fdfa",
+        100: "#ccfbf1",
+        400: "#2dd4bf",
+        500: "#14b8a6",
+        600: "#0d9488",
+        700: "#0f766e",
+      },
+    },
+    dark: {
+      primary: {
+        50: "#022c22",
+        100: "#064e3b",
+        200: "#065f46",
+        300: "#047857",
+        400: "#10b981",
+        500: "#34d399",
+        600: "#6ee7b7",
+        700: "#a7f3d0",
+        800: "#d1fae5",
+        900: "#ecfdf5",
+      },
+      warm: {
+        50: "#14261b",
+        100: "#1e3528",
+        200: "#274536",
+        700: "#86efac",
+        800: "#bbf7d0",
+        900: "#dcfce7",
+      },
+      neutral: {
+        50: "#0f1f17",
+        100: "#162821",
+        200: "#1e352b",
+        300: "#274536",
+        400: "#5a8a6a",
+        500: "#7cb091",
+        600: "#a3c9b3",
+        800: "#dce8e0",
+        900: "#f0f7f2",
+      },
+      accent: {
+        400: "#2dd4bf",
+        500: "#14b8a6",
+        600: "#0d9488",
       },
     },
   },
@@ -209,8 +294,8 @@ export const oceanTheme: ThemeConfig = {
 export const builtInThemes: ThemeConfig[] = [
   defaultTheme,
   highContrastTheme,
-  sepiaTheme,
-  oceanTheme,
+  serenityTheme,
+  forestTheme,
 ];
 
 /**

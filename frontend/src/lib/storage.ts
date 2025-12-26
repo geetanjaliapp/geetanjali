@@ -28,6 +28,7 @@ export const STORAGE_KEYS = {
   theme: "geetanjali:theme", // Light/dark/system mode
   themeId: "geetanjali:theme-id", // Selected color palette ID
   customTheme: "geetanjali:custom-theme", // Custom theme configuration (non-built-in)
+  fontFamily: "geetanjali:fontFamily", // Font style preference (serif/sans/mixed)
   readingSectionPrefs: "geetanjali:readingSectionPrefs", // IAST/Hindi/English/Insight toggles
   recentSearches: "geetanjali:recentSearches",
   defaultVersesTab: "geetanjali:defaultVersesTab", // Default tab on Verses page (featured/for-you/all)
@@ -92,6 +93,7 @@ export function getUserDataKeys(): string[] {
     STORAGE_KEYS.theme,
     STORAGE_KEYS.themeId,
     STORAGE_KEYS.customTheme,
+    STORAGE_KEYS.fontFamily,
     STORAGE_KEYS.readingSectionPrefs,
     STORAGE_KEYS.recentSearches,
     STORAGE_KEYS.defaultVersesTab,
@@ -115,6 +117,7 @@ export function getClearableKeys(): string[] {
     STORAGE_KEYS.theme,
     STORAGE_KEYS.themeId,
     STORAGE_KEYS.customTheme,
+    STORAGE_KEYS.fontFamily,
     STORAGE_KEYS.readingSectionPrefs,
     STORAGE_KEYS.recentSearches,
     STORAGE_KEYS.defaultVersesTab,

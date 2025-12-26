@@ -1,5 +1,5 @@
 /**
- * Theme Type Definitions (v1.16.0)
+ * Theme Type Definitions (v1.17.0)
  *
  * Defines the structure for customizable themes.
  * Themes override CSS custom properties defined in tokens/primitives.css.
@@ -132,7 +132,13 @@ export interface ThemeConfig {
 /**
  * Built-in theme IDs
  */
-export type BuiltInThemeId = "default" | "high-contrast" | "sepia" | "ocean";
+export type BuiltInThemeId = "default" | "high-contrast" | "serenity" | "forest";
+
+/**
+ * Font family preference
+ * Separate from color theme for independent control
+ */
+export type FontFamily = "serif" | "sans" | "mixed";
 
 /**
  * Theme mode (light/dark/system)

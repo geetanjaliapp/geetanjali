@@ -1,13 +1,12 @@
 /**
- * Theme Selector Component (v1.16.0)
+ * Theme Selector Component (v1.17.0)
  *
- * Displays available theme palettes and allows selection.
- * Shows color swatches for each theme.
+ * Compact circular theme selector with conic gradient previews.
+ * Shows theme colors at a glance with selected theme description below.
  */
 
 import { useTheme } from "../contexts/ThemeContext";
 import type { ThemeConfig } from "../types/theme";
-import { CheckIcon } from "./icons";
 
 /** Default theme color values (matches primitives.css) */
 const DEFAULT_COLORS = {
@@ -51,102 +50,76 @@ function getThemePreviewColors(theme: ThemeConfig | null): {
 }
 
 /**
- * Theme option card - unified component for all theme options
+ * Compact circular theme indicator with conic gradient
  */
-function ThemeOptionCard({
-  name,
-  colors,
+function ThemeIndicator({
+  theme,
   isSelected,
-  isDefault,
   onSelect,
 }: {
-  name: string;
-  colors: { primary: string; warm: string; accent: string };
+  theme: ThemeConfig | null;
   isSelected: boolean;
-  isDefault?: boolean;
   onSelect: () => void;
 }) {
-  const label = isDefault
-    ? `${name} theme (default)${isSelected ? " (selected)" : ""}`
-    : `${name} theme${isSelected ? " (selected)" : ""}`;
+  const colors = getThemePreviewColors(theme);
+  const name = theme?.name ?? "Geetanjali";
 
   return (
     <button
       onClick={onSelect}
       role="radio"
       aria-checked={isSelected}
-      className={`relative flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${
-        isSelected
-          ? "border-[var(--border-focus)] bg-[var(--surface-warm)] ring-2 ring-[var(--border-focus)] ring-offset-2 ring-offset-[var(--surface-elevated)]"
-          : "border-[var(--border-default)] bg-[var(--surface-muted)] hover:border-[var(--border-warm)]"
-      }`}
-      aria-label={label}
-    >
-      {/* Color swatches */}
-      <div className="flex gap-1">
-        <div
-          className="w-6 h-6 rounded-full shadow-sm"
-          style={{ backgroundColor: colors.primary }}
-          title="Primary"
-        />
-        <div
-          className="w-6 h-6 rounded-full shadow-sm border border-[var(--border-default)]"
-          style={{ backgroundColor: colors.warm }}
-          title="Warm"
-        />
-        <div
-          className="w-6 h-6 rounded-full shadow-sm"
-          style={{ backgroundColor: colors.accent }}
-          title="Accent"
-        />
-      </div>
-
-      {/* Theme name */}
-      <span
-        className={`text-xs font-medium ${
-          isSelected ? "text-[var(--text-primary)]" : "text-[var(--text-secondary)]"
-        }`}
-      >
-        {name}
-      </span>
-
-      {/* Selected indicator */}
-      {isSelected && (
-        <div className="absolute -top-1 -right-1 w-5 h-5 bg-[var(--interactive-primary)] text-white rounded-full flex items-center justify-center">
-          <CheckIcon className="w-3 h-3" />
-        </div>
-      )}
-    </button>
+      aria-label={`${name} theme${isSelected ? " (selected)" : ""}`}
+      title={name}
+      className={`
+        w-9 h-9 rounded-full transition-all duration-150 ease-out
+        border-2 shadow-sm
+        focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
+        focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-[var(--surface-elevated)]
+        ${
+          isSelected
+            ? "border-[var(--border-focus)] scale-110 shadow-md"
+            : "border-transparent hover:scale-105 hover:shadow"
+        }
+      `}
+      style={{
+        background: `conic-gradient(
+          ${colors.primary} 0deg 120deg,
+          ${colors.warm} 120deg 240deg,
+          ${colors.accent} 240deg 360deg
+        )`,
+      }}
+    />
   );
 }
 
 /**
- * Theme Selector - shows available themes as selectable cards
+ * Theme Selector - compact row of circular color indicators
  */
 export function ThemeSelector() {
   const { customTheme, setCustomThemeById, availableThemes } = useTheme();
 
   const selectedId = customTheme?.id ?? "default";
+  const selectedTheme =
+    availableThemes.find((t) => t.id === selectedId) ?? null;
 
   return (
     <div>
       <label
         id="theme-palette-label"
-        className="text-sm text-[var(--text-secondary)] block mb-1.5"
+        className="text-sm text-[var(--text-secondary)] block mb-2"
       >
         Color Palette
       </label>
       <div
         role="radiogroup"
         aria-labelledby="theme-palette-label"
-        className="flex flex-wrap gap-2"
+        className="flex items-center gap-2"
       >
         {/* Default theme */}
-        <ThemeOptionCard
-          name="Geetanjali"
-          colors={DEFAULT_COLORS}
+        <ThemeIndicator
+          theme={null}
           isSelected={selectedId === "default"}
-          isDefault
           onSelect={() => setCustomThemeById("default")}
         />
 
@@ -154,19 +127,20 @@ export function ThemeSelector() {
         {availableThemes
           .filter((t) => t.id !== "default")
           .map((theme) => (
-            <ThemeOptionCard
+            <ThemeIndicator
               key={theme.id}
-              name={theme.name}
-              colors={getThemePreviewColors(theme)}
+              theme={theme}
               isSelected={selectedId === theme.id}
               onSelect={() => setCustomThemeById(theme.id)}
             />
           ))}
       </div>
       <p className="text-xs text-[var(--text-muted)] mt-2">
-        {customTheme
-          ? customTheme.description || `Using ${customTheme.name} palette`
-          : "Default warm amber and orange palette"}
+        <span className="font-medium text-[var(--text-secondary)]">
+          {selectedTheme?.name ?? "Geetanjali"}
+        </span>
+        {" — "}
+        {selectedTheme?.description ?? "Warm amber inspired by ancient manuscripts"}
       </p>
     </div>
   );
