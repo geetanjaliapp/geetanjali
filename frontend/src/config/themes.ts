@@ -159,6 +159,11 @@ export const sutraTheme: ThemeConfig = {
         800: "#e2e8f0",
         900: "#f8fafc",
       },
+      // Dark text on light primary backgrounds in dark mode
+      contrast: {
+        onPrimary: "#0f172a", // slate-900 for text on light primary
+        surfacePure: "#0a0a0a", // near-black for dark mode surfaces
+      },
     },
   },
 };

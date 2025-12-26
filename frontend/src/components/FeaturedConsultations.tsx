@@ -113,7 +113,7 @@ export function FeaturedConsultations({
         <h2 className="text-lg sm:text-xl font-heading font-semibold text-[var(--text-primary)] mb-4 text-center">
           See how Geetanjali helps
         </h2>
-        <div className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] shadow-[var(--shadow-card)] border border-[var(--border-warm)] p-6 sm:p-8">
+        <div className="bg-[var(--surface-warm)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] shadow-[var(--shadow-card)] border border-[var(--border-warm)] p-6 sm:p-8">
           <div className="animate-pulse space-y-4">
             <div className="h-4 bg-[var(--surface-muted)] rounded-[var(--radius-skeleton)] w-3/4"></div>
             <div className="h-4 bg-[var(--surface-muted)] rounded-[var(--radius-skeleton)] w-1/2"></div>
@@ -131,7 +131,7 @@ export function FeaturedConsultations({
         <h2 className="text-lg sm:text-xl font-heading font-semibold text-[var(--text-primary)] mb-4 text-center">
           See how Geetanjali helps
         </h2>
-        <div className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] shadow-[var(--shadow-card)] border border-[var(--border-warm)] p-6 sm:p-8 text-center">
+        <div className="bg-[var(--surface-warm)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] shadow-[var(--shadow-card)] border border-[var(--border-warm)] p-6 sm:p-8 text-center">
           <p className="text-[var(--text-secondary)] mb-4">
             Explore real ethical dilemmas and see how ancient wisdom applies to
             modern challenges.
@@ -186,7 +186,7 @@ export function FeaturedConsultations({
 
       {/* Featured Case Content Card with fade transition */}
       <div
-        className={`bg-[var(--surface-elevated)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] shadow-[var(--shadow-card)] border border-[var(--border-warm)] p-4 sm:p-6 transition-[var(--transition-opacity)] text-left ${
+        className={`bg-[var(--surface-warm)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] shadow-[var(--shadow-card)] border border-[var(--border-warm)] p-4 sm:p-6 transition-[var(--transition-opacity)] text-left ${
           isTransitioning ? "opacity-0" : "opacity-100"
         }`}
       >

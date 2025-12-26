@@ -17,7 +17,7 @@
   --interactive-primary-hover: var(--color-primary-700);
   --interactive-primary-active: var(--color-primary-800);
   --interactive-primary-disabled-bg: var(--color-primary-300);
-  --interactive-primary-disabled-text: white;
+  --interactive-primary-disabled-text: var(--color-on-primary);
 
   /* ============================================
      SECONDARY BUTTON STATES
@@ -43,7 +43,7 @@
   --interactive-contextual-hover: var(--color-warm-700);
   --interactive-contextual-active: var(--color-warm-800);
   --interactive-contextual-disabled-bg: var(--color-warm-300);
-  --interactive-contextual-disabled-text: white;
+  --interactive-contextual-disabled-text: var(--color-on-primary);
 
   /* ============================================
      LINK STATES
@@ -55,7 +55,7 @@
      FOCUS STATES
      ============================================ */
   --focus-ring: var(--color-primary-500);
-  --focus-ring-offset: white;
+  --focus-ring-offset: var(--color-surface-pure);
   --focus-ring-width: 2px;
 
   /* ============================================
@@ -129,7 +129,7 @@
 
   /* Focus states */
   --focus-ring: var(--color-primary-400);
-  --focus-ring-offset: var(--color-neutral-900);
+  --focus-ring-offset: var(--color-surface-pure-dark);
 
   /* Card hover states */
   --surface-warm-hover: var(--color-neutral-700);

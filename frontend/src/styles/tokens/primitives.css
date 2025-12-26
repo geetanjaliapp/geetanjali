@@ -139,6 +139,23 @@
   --color-warning-900: var(--color-yellow-900);
 
   /* ============================================
+     CONTRAST COLORS (Theme-aware)
+     Usage: Text on colored backgrounds, inverted surfaces
+     These are overridable by themes for proper contrast
+     ============================================ */
+
+  /* Text color for content ON primary-colored backgrounds (buttons, badges) */
+  --color-on-primary: #ffffff;
+  --color-on-primary-muted: color-mix(in srgb, #ffffff 80%, transparent);
+
+  /* Text color for content ON warm-colored backgrounds */
+  --color-on-warm: var(--color-warm-900);
+
+  /* Pure surface colors (for elevated surfaces, focus rings) */
+  --color-surface-pure: #ffffff;
+  --color-surface-pure-dark: var(--color-neutral-900);
+
+  /* ============================================
      TYPOGRAPHY: FONT FAMILIES
      Usage: Customize fonts per theme
      ============================================ */

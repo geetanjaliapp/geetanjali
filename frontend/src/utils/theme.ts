@@ -4,7 +4,7 @@
  * Functions for theme validation, CSS generation, and application.
  */
 
-import type { ThemeConfig, ThemeColors, ColorScale } from "../types/theme";
+import type { ThemeConfig, ThemeColors, ColorScale, ContrastColors } from "../types/theme";
 import { STORAGE_KEYS } from "../lib/storage";
 
 /** Color scale names for iteration */
@@ -121,6 +121,29 @@ function colorScaleToCss(name: string, scale: ColorScale): string[] {
 }
 
 /**
+ * Generate CSS custom properties from contrast colors
+ */
+function contrastColorsToCss(contrast: ContrastColors): string[] {
+  const properties: string[] = [];
+  if (contrast.onPrimary) {
+    properties.push(`--color-on-primary: ${contrast.onPrimary};`);
+  }
+  if (contrast.onPrimaryMuted) {
+    properties.push(`--color-on-primary-muted: ${contrast.onPrimaryMuted};`);
+  } else if (contrast.onPrimary) {
+    // Auto-generate muted variant if not specified
+    properties.push(`--color-on-primary-muted: color-mix(in srgb, ${contrast.onPrimary} 80%, transparent);`);
+  }
+  if (contrast.onWarm) {
+    properties.push(`--color-on-warm: ${contrast.onWarm};`);
+  }
+  if (contrast.surfacePure) {
+    properties.push(`--color-surface-pure: ${contrast.surfacePure};`);
+  }
+  return properties;
+}
+
+/**
  * Generate CSS custom properties from ThemeColors
  */
 function colorsToCssProperties(colors: ThemeColors): string[] {
@@ -130,6 +153,10 @@ function colorsToCssProperties(colors: ThemeColors): string[] {
     if (scale) {
       properties.push(...colorScaleToCss(scaleName, scale));
     }
+  }
+  // Add contrast colors if present
+  if (colors.contrast) {
+    properties.push(...contrastColorsToCss(colors.contrast));
   }
   return properties;
 }

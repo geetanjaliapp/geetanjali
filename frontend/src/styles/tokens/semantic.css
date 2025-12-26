@@ -31,7 +31,7 @@
   --surface-warm-subtle: color-mix(in srgb, var(--color-warm-50) 50%, white);
 
   /* Elevated surfaces (modals, dropdowns) */
-  --surface-elevated: white;
+  --surface-elevated: var(--color-surface-pure);
 
   /* Card surfaces (distinct from base) */
   --surface-card: var(--surface-warm);
@@ -99,7 +99,7 @@
   --text-accent-muted: color-mix(in srgb, var(--color-warm-600) 70%, transparent);
 
   /* Inverted text (on dark backgrounds) */
-  --text-inverted: white;
+  --text-inverted: var(--color-surface-pure);
 
   /* ============================================
      BORDER TOKENS - Border colors
@@ -130,8 +130,8 @@
 
   /* Primary action (main CTA buttons) */
   --interactive-primary: var(--color-primary-600);
-  --interactive-primary-text: white;
-  --interactive-primary-text-muted: color-mix(in srgb, white 80%, transparent);
+  --interactive-primary-text: var(--color-on-primary);
+  --interactive-primary-text-muted: var(--color-on-primary-muted);
 
   /* Primary gradient (hero/featured CTAs) */
   --interactive-gradient-from: var(--color-primary-500);
@@ -149,7 +149,7 @@
 
   /* Contextual actions (amber-themed) */
   --interactive-contextual: var(--color-warm-600);
-  --interactive-contextual-text: white;
+  --interactive-contextual-text: var(--color-on-primary);
 
   /* Disabled state */
   --interactive-disabled: var(--color-neutral-400);
@@ -535,14 +535,14 @@
 
   /* Interactive tokens */
   --interactive-primary: var(--color-primary-600);
-  --interactive-primary-text: white;
-  --interactive-primary-text-muted: color-mix(in srgb, white 80%, transparent);
+  --interactive-primary-text: var(--color-on-primary);
+  --interactive-primary-text-muted: var(--color-on-primary-muted);
   --interactive-secondary-bg: var(--color-neutral-800);
   --interactive-secondary-text: var(--color-neutral-200);
   --interactive-secondary-border: var(--color-neutral-600);
   --interactive-ghost-text: var(--color-primary-400);
   --interactive-contextual: var(--color-warm-500);
-  --interactive-contextual-text: white;
+  --interactive-contextual-text: var(--color-on-primary);
   --interactive-disabled: var(--color-neutral-600);
 
   /* Section tokens */

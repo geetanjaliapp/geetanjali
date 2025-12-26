@@ -69,6 +69,20 @@ export interface ThemeRadius {
 }
 
 /**
+ * Contrast colors for text on colored backgrounds
+ */
+export interface ContrastColors {
+  /** Text color on primary-colored backgrounds (buttons, badges) */
+  onPrimary?: string;
+  /** Muted text color on primary-colored backgrounds */
+  onPrimaryMuted?: string;
+  /** Text color on warm-colored backgrounds */
+  onWarm?: string;
+  /** Pure surface color (white in light mode, dark in dark mode) */
+  surfacePure?: string;
+}
+
+/**
  * Color palette configuration
  * Each scale can be partially or fully overridden
  */
@@ -89,6 +103,8 @@ export interface ThemeColors {
   success?: ColorScale;
   /** Warning color */
   warning?: ColorScale;
+  /** Contrast colors for text on colored backgrounds */
+  contrast?: ContrastColors;
 }
 
 /**
