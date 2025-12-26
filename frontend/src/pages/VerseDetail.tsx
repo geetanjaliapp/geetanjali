@@ -26,6 +26,12 @@ import { STORAGE_KEYS, getStorageItem, setStorageItem } from "../lib/storage";
 
 type FontSize = "normal" | "large";
 
+/** Line height scales with font size for readability (synced with VerseFocus) */
+const LINE_HEIGHT_CLASSES: Record<FontSize, string> = {
+  normal: "leading-relaxed", // 1.625 - matches VerseFocus medium
+  large: "leading-loose", // 2.0 - matches VerseFocus large
+};
+
 interface SectionPrefs {
   iast: boolean;
   insight: boolean;
@@ -374,7 +380,7 @@ export default function VerseDetail() {
                 </div>
                 <div
                   lang="sa"
-                  className={`font-sanskrit text-[var(--text-sanskrit)] leading-relaxed tracking-wide mb-3 sm:mb-4 lg:mb-6 transition-all duration-200 ${
+                  className={`font-sanskrit text-[var(--text-sanskrit)] ${LINE_HEIGHT_CLASSES[fontSize]} tracking-wide mb-3 sm:mb-4 lg:mb-6 transition-all duration-200 ${
                     fontSize === "large"
                       ? "text-2xl sm:text-4xl lg:text-5xl"
                       : "text-xl sm:text-3xl lg:text-4xl"

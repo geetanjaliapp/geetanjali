@@ -32,6 +32,8 @@ type SectionPrefs = Record<SectionId, boolean>;
 
 /** localStorage key for section preferences */
 const SECTION_PREFS_KEY = "geetanjali:readingSectionPrefs";
+/** localStorage key for tracking if user has toggled translation */
+const TRANSLATION_HINT_SEEN_KEY = "geetanjali:translationHintSeen";
 
 /** Default: all sections expanded */
 const DEFAULT_SECTION_PREFS: SectionPrefs = {
@@ -155,6 +157,8 @@ interface VerseFocusProps {
   showTranslation?: boolean;
   /** Controlled mode: callback to toggle translation */
   onToggleTranslation?: () => void;
+  /** Hide the favorite button (when parent manages it) */
+  hideFavoriteButton?: boolean;
 }
 
 /**
@@ -175,6 +179,13 @@ const FONT_SIZE_CLASSES: Record<FontSize, string> = {
   large: "text-3xl sm:text-4xl lg:text-5xl",
 };
 
+/** Line height scales with font size for readability */
+const LINE_HEIGHT_CLASSES: Record<FontSize, string> = {
+  small: "leading-normal", // 1.5
+  medium: "leading-relaxed", // 1.625
+  large: "leading-loose", // 2.0
+};
+
 const SPEAKER_FONT_SIZE_CLASSES: Record<FontSize, string> = {
   small: "text-xs sm:text-sm",
   medium: "text-sm sm:text-base",
@@ -186,6 +197,7 @@ export function VerseFocus({
   fontSize = "medium",
   showTranslation: controlledShowTranslation,
   onToggleTranslation,
+  hideFavoriteButton = false,
 }: VerseFocusProps) {
   // Support both controlled and uncontrolled modes
   const isControlled = controlledShowTranslation !== undefined;
@@ -205,6 +217,15 @@ export function VerseFocus({
   // Section expansion preferences (persisted across verses and chapters)
   const [sectionPrefs, setSectionPrefs] =
     useState<SectionPrefs>(loadSectionPrefs);
+
+  // Track if user has ever toggled translation (persisted to stop pulse animation)
+  const [hintSeen, setHintSeen] = useState(() => {
+    try {
+      return localStorage.getItem(TRANSLATION_HINT_SEEN_KEY) === "true";
+    } catch {
+      return false;
+    }
+  });
 
   // Toggle a section's expanded state and persist
   const toggleSection = useCallback((id: SectionId) => {
@@ -274,6 +295,16 @@ export function VerseFocus({
   const handleToggle = useCallback(() => {
     const newState = !showTranslation;
 
+    // Mark hint as seen (stops pulse animation)
+    if (!hintSeen) {
+      setHintSeen(true);
+      try {
+        localStorage.setItem(TRANSLATION_HINT_SEEN_KEY, "true");
+      } catch {
+        // Ignore storage errors
+      }
+    }
+
     // Use controlled callback if available, otherwise update internal state
     if (onToggleTranslation) {
       onToggleTranslation();
@@ -287,6 +318,7 @@ export function VerseFocus({
     }
   }, [
     showTranslation,
+    hintSeen,
     translations.length,
     loadTranslations,
     onToggleTranslation,
@@ -340,7 +372,7 @@ export function VerseFocus({
           {/* Sanskrit verse - hero display with formatSanskritLines */}
           <div
             lang="sa"
-            className={`${FONT_SIZE_CLASSES[fontSize]} font-sanskrit text-[var(--text-sanskrit)] leading-relaxed tracking-wide mb-3 sm:mb-4`}
+            className={`${FONT_SIZE_CLASSES[fontSize]} ${LINE_HEIGHT_CLASSES[fontSize]} font-sanskrit text-[var(--text-sanskrit)] tracking-wide mb-3 sm:mb-4`}
           >
             {sanskritLines.map((line, idx) => (
               <p
@@ -366,7 +398,7 @@ export function VerseFocus({
           {/* Hints (only show when translation is hidden) */}
           {!showTranslation && (
             <div className="space-y-2">
-              <div className="text-sm text-[var(--text-accent-muted)] italic animate-pulse">
+              <div className={`text-sm text-[var(--text-accent-muted)] italic ${!hintSeen ? "animate-pulse" : ""}`}>
                 Tap for translation
               </div>
               {/* Swipe hint - mobile only */}
@@ -378,26 +410,28 @@ export function VerseFocus({
         </button>
 
         {/* Favorite button - outside the translation toggle button to avoid nesting */}
-        <div className="flex justify-center mt-4 mb-2">
-          <button
-            onClick={() => toggleFavorite(verse.canonical_id)}
-            className={`p-3 sm:p-1.5 rounded-[var(--radius-avatar)] transition-[var(--transition-all)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
-              isFavorite(verse.canonical_id)
-                ? "text-[var(--status-error-text)]"
-                : "text-[var(--text-muted)] hover:text-[var(--status-error-text)] hover:scale-110"
-            }`}
-            aria-label={
-              isFavorite(verse.canonical_id)
-                ? "Remove from favorites"
-                : "Add to favorites"
-            }
-          >
-            <HeartIcon
-              className="w-5 h-5 sm:w-4 sm:h-4"
-              filled={isFavorite(verse.canonical_id)}
-            />
-          </button>
-        </div>
+        {!hideFavoriteButton && (
+          <div className="flex justify-center mt-4 mb-2">
+            <button
+              onClick={() => toggleFavorite(verse.canonical_id)}
+              className={`p-3 sm:p-1.5 rounded-[var(--radius-avatar)] transition-[var(--transition-all)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
+                isFavorite(verse.canonical_id)
+                  ? "text-[var(--icon-favorite)]"
+                  : "text-[var(--text-muted)] hover:text-[var(--icon-favorite)] hover:scale-110"
+              }`}
+              aria-label={
+                isFavorite(verse.canonical_id)
+                  ? "Remove from favorites"
+                  : "Add to favorites"
+              }
+            >
+              <HeartIcon
+                className="w-5 h-5 sm:w-4 sm:h-4"
+                filled={isFavorite(verse.canonical_id)}
+              />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Translation panel - expands downward only */}

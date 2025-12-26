@@ -111,6 +111,37 @@ body {
   animation: slide-up 0.3s ease-out forwards;
 }
 
+/* Horizontal slide animations for swipe navigation */
+@keyframes slide-in-from-left {
+  from {
+    opacity: 0.6;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-from-right {
+  from {
+    opacity: 0.6;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-from-left {
+  animation: slide-in-from-left 0.2s ease-out forwards;
+}
+
+.animate-slide-in-from-right {
+  animation: slide-in-from-right 0.2s ease-out forwards;
+}
+
 /* ============================================
    Thinking/Processing Animations
    ============================================ */

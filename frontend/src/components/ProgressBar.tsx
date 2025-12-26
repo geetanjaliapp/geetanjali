@@ -19,6 +19,8 @@ interface ProgressBarProps {
   animate?: boolean;
   /** Optional aria label for accessibility */
   ariaLabel?: string;
+  /** Optional className for additional styling (e.g., responsive heights) */
+  className?: string;
 }
 
 export function ProgressBar({
@@ -26,14 +28,15 @@ export function ProgressBar({
   height = 3,
   animate = true,
   ariaLabel,
+  className = "",
 }: ProgressBarProps) {
   // Clamp percentage to valid range
   const clampedPercentage = Math.min(100, Math.max(0, percentage));
 
   return (
     <div
-      className="w-full bg-[var(--surface-muted)] rounded-[var(--radius-progress)] overflow-hidden"
-      style={{ height: `${height}px` }}
+      className={`w-full bg-[var(--surface-muted)] rounded-[var(--radius-progress)] overflow-hidden ${className}`}
+      style={!className.includes("h-") ? { height: `${height}px` } : undefined}
       role="progressbar"
       aria-valuenow={clampedPercentage}
       aria-valuemin={0}

@@ -1117,8 +1117,8 @@ export default function Verses() {
                     className="fixed inset-0 z-10"
                     onClick={() => setShowChapterDropdown(false)}
                   />
-                  <div className="absolute left-0 mt-2 p-2 sm:p-3 bg-[var(--surface-elevated)] rounded-[var(--radius-card)] shadow-[var(--shadow-modal)] border border-[var(--border-default)] z-20 w-48 sm:w-64">
-                    <div className="grid grid-cols-6 gap-1.5 sm:gap-2">
+                  <div className="absolute left-0 mt-2 p-2 sm:p-3 bg-[var(--surface-elevated)] rounded-[var(--radius-card)] shadow-[var(--shadow-modal)] border border-[var(--border-default)] z-20 w-64 sm:w-80">
+                    <div className="grid grid-cols-6 gap-2">
                       {Array.from({ length: 18 }, (_, i) => i + 1).map(
                         (chapter) => (
                           <button
@@ -1127,7 +1127,7 @@ export default function Verses() {
                               handleFilterSelect(chapter);
                               setShowChapterDropdown(false);
                             }}
-                            className={`h-8 sm:h-9 rounded-[var(--radius-button)] text-xs sm:text-sm font-medium transition-[var(--transition-all)] ${
+                            className={`h-10 sm:h-11 rounded-[var(--radius-button)] text-xs sm:text-sm font-medium transition-[var(--transition-all)] ${
                               selectedChapter === chapter
                                 ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-[var(--shadow-card)]"
                                 : "bg-[var(--surface-muted)] text-[var(--text-primary)] hover:bg-[var(--badge-primary-bg)] hover:text-[var(--interactive-ghost-text)] border border-[var(--border-default)]"

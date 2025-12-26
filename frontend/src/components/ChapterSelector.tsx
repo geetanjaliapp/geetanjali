@@ -72,13 +72,13 @@ export function ChapterSelector({
       <div
         className="fixed bottom-16 left-1/2 -translate-x-1/2 z-50
                    bg-[var(--surface-warm)]/95 backdrop-blur-xs border border-[var(--border-warm)]
-                   rounded-[var(--radius-card)] shadow-[var(--shadow-dropdown)] p-3 w-[280px] sm:w-[320px]"
+                   rounded-[var(--radius-card)] shadow-[var(--shadow-dropdown)] p-3 w-[328px] sm:w-[360px]"
         role="dialog"
         aria-modal="true"
         aria-label="Select chapter"
       >
-        {/* Compact chapter grid - 6 columns */}
-        <div className="grid grid-cols-6 gap-1.5">
+        {/* Compact chapter grid - 6 columns with improved touch targets */}
+        <div className="grid grid-cols-6 gap-2">
           {chapters.map((chapter) => {
             const isCurrentChapter = chapter === currentChapter;
 
@@ -88,12 +88,12 @@ export function ChapterSelector({
                 onClick={() => handleSelect(chapter)}
                 className={`
                   flex items-center justify-center
-                  w-10 h-10 rounded-[var(--radius-button)] text-sm font-medium
+                  w-12 h-12 rounded-[var(--radius-button)] text-sm font-medium
                   transition-[var(--transition-color)]
                   focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)]
                   ${
                     isCurrentChapter
-                      ? "bg-[var(--interactive-primary)] text-white"
+                      ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)]"
                       : "text-[var(--badge-warm-text)] hover:bg-[var(--interactive-ghost-hover-bg)] active:bg-[var(--surface-warm)]"
                   }
                 `}

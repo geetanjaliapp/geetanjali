@@ -22,7 +22,8 @@ import {
   IntroCard,
   Toast,
 } from "../components";
-import { useSEO, useSwipeNavigation, useSyncedReading } from "../hooks";
+import { HeartIcon } from "../components/icons";
+import { useSEO, useSwipeNavigation, useSyncedReading, useSyncedFavorites } from "../hooks";
 import {
   getChapterName,
   getChapterVerseCount,
@@ -74,6 +75,9 @@ export default function ReadingMode() {
     setFontSize,
     resetProgress: resetSyncedProgress,
   } = useSyncedReading();
+
+  // Favorites sync
+  const { isFavorite, toggleFavorite } = useSyncedFavorites();
 
   // Check URL params and saved position on mount
   const urlChapter = searchParams.get("c");
@@ -127,14 +131,25 @@ export default function ReadingMode() {
 
   const [showChapterSelector, setShowChapterSelector] = useState(false);
   // settings is now destructured from useSyncedReading above
-  const [showOnboarding, setShowOnboarding] = useState(() => {
-    try {
-      return !localStorage.getItem(ONBOARDING_SEEN_KEY);
-    } catch {
-      return false;
-    }
-  });
+  // Onboarding starts hidden, then shows after 3-second delay for first-time users
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const [showNewsletterToast, setShowNewsletterToast] = useState(false);
+
+  // Show onboarding after 3-second delay to let users see the UI first
+  useEffect(() => {
+    try {
+      // Skip if user has already seen onboarding
+      if (localStorage.getItem(ONBOARDING_SEEN_KEY)) return;
+    } catch {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setShowOnboarding(true);
+    }, 3000); // 3-second delay
+
+    return () => clearTimeout(timer);
+  }, []);
 
   // Book and chapter metadata for intro cards
   const [bookMetadata, setBookMetadata] = useState<BookMetadata | null>(null);
@@ -147,6 +162,18 @@ export default function ReadingMode() {
     () => setShowTranslation((prev) => !prev),
     [],
   );
+
+  // Slide animation direction for verse transitions
+  // 'from-left' = sliding in from left (going to prev), 'from-right' = sliding in from right (going to next)
+  const [slideDirection, setSlideDirection] = useState<'from-left' | 'from-right' | null>(null);
+
+  // Clear slide animation after it completes
+  useEffect(() => {
+    if (slideDirection) {
+      const timer = setTimeout(() => setSlideDirection(null), 200);
+      return () => clearTimeout(timer);
+    }
+  }, [slideDirection]);
 
   // Dismiss onboarding and remember
   const dismissOnboarding = useCallback(() => {
@@ -473,6 +500,8 @@ export default function ReadingMode() {
 
   // Navigation functions - use refs to avoid stale closures
   const nextPage = useCallback(() => {
+    // Set slide animation direction (content slides in from right)
+    setSlideDirection('from-right');
     setState((prev) => {
       // Book cover → chapter intro
       if (prev.pageIndex === PAGE_BOOK_COVER) {
@@ -505,6 +534,8 @@ export default function ReadingMode() {
   }, [targetVerse]);
 
   const prevPage = useCallback(() => {
+    // Set slide animation direction (content slides in from left)
+    setSlideDirection('from-left');
     setState((prev) => {
       // First verse → chapter intro
       if (prev.pageIndex === 0) {
@@ -594,7 +625,33 @@ export default function ReadingMode() {
                 {getChapterName(state.chapter)}
               </span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2">
+              {/* Favorite button - thumb-friendly position in header */}
+              {currentVerse && (
+                <button
+                  onClick={() => toggleFavorite(currentVerse.canonical_id)}
+                  className={`flex items-center justify-center min-w-[44px] min-h-[44px] p-2 rounded-[var(--radius-button)] transition-[var(--transition-all)] ${
+                    isFavorite(currentVerse.canonical_id)
+                      ? "text-[var(--icon-favorite)]"
+                      : "text-[var(--text-reading-muted)] hover:text-[var(--icon-favorite)]"
+                  }`}
+                  aria-label={
+                    isFavorite(currentVerse.canonical_id)
+                      ? "Remove from favorites"
+                      : "Add to favorites"
+                  }
+                  title={
+                    isFavorite(currentVerse.canonical_id)
+                      ? "Remove from favorites"
+                      : "Add to favorites"
+                  }
+                >
+                  <HeartIcon
+                    className="w-5 h-5"
+                    filled={isFavorite(currentVerse.canonical_id)}
+                  />
+                </button>
+              )}
               {/* Font size toggle - Aa + filled circles */}
               <button
                 onClick={cycleFontSize}
@@ -635,6 +692,11 @@ export default function ReadingMode() {
                   />
                 </svg>
               </button>
+              {/* Keyboard shortcuts hint - desktop only */}
+              <div className="hidden lg:flex items-center gap-1 text-xs text-[var(--text-reading-muted)] ml-1">
+                <kbd className="px-1.5 py-0.5 bg-[var(--surface-warm-subtle)] border border-[var(--border-warm-subtle)] rounded text-[10px] font-mono">←</kbd>
+                <kbd className="px-1.5 py-0.5 bg-[var(--surface-warm-subtle)] border border-[var(--border-warm-subtle)] rounded text-[10px] font-mono">→</kbd>
+              </div>
               {/* Verse counter */}
               {currentVerse && (
                 <div className="text-sm text-[var(--text-reading-primary)]/80 ml-1">
@@ -644,10 +706,10 @@ export default function ReadingMode() {
             </div>
           </div>
 
-          {/* Progress bar */}
+          {/* Progress bar - 6px on mobile, 4px on desktop for better visibility */}
           <ProgressBar
             percentage={progress.percentage}
-            height={4}
+            className="h-1.5 sm:h-1"
             ariaLabel={`Chapter ${state.chapter} progress: ${progress.percentage}%`}
           />
         </div>
@@ -685,32 +747,45 @@ export default function ReadingMode() {
           </div>
         ) : isBookCover && bookMetadata ? (
           // Book cover page
-          <IntroCard
+          <div
             key="book-cover"
-            type="book"
-            book={bookMetadata}
-            fontSize={settings.fontSize}
-            onBegin={nextPage}
-          />
+            className={slideDirection === 'from-left' ? 'animate-slide-in-from-left' : slideDirection === 'from-right' ? 'animate-slide-in-from-right' : ''}
+          >
+            <IntroCard
+              type="book"
+              book={bookMetadata}
+              fontSize={settings.fontSize}
+              onBegin={nextPage}
+            />
+          </div>
         ) : isChapterIntro && chapterMetadata ? (
           // Chapter intro page
-          <IntroCard
+          <div
             key={`chapter-${state.chapter}-intro`}
-            type="chapter"
-            chapter={chapterMetadata}
-            fontSize={settings.fontSize}
-            onBegin={nextPage}
-            resumeVerse={targetVerse}
-          />
+            className={slideDirection === 'from-left' ? 'animate-slide-in-from-left' : slideDirection === 'from-right' ? 'animate-slide-in-from-right' : ''}
+          >
+            <IntroCard
+              type="chapter"
+              chapter={chapterMetadata}
+              fontSize={settings.fontSize}
+              onBegin={nextPage}
+              resumeVerse={targetVerse}
+            />
+          </div>
         ) : currentVerse ? (
           // Verse display with tap-to-reveal translations
-          <VerseFocus
+          <div
             key={currentVerse.canonical_id}
-            verse={currentVerse}
-            fontSize={settings.fontSize}
-            showTranslation={showTranslation}
-            onToggleTranslation={toggleTranslation}
-          />
+            className={slideDirection === 'from-left' ? 'animate-slide-in-from-left' : slideDirection === 'from-right' ? 'animate-slide-in-from-right' : ''}
+          >
+            <VerseFocus
+              verse={currentVerse}
+              fontSize={settings.fontSize}
+              showTranslation={showTranslation}
+              onToggleTranslation={toggleTranslation}
+              hideFavoriteButton
+            />
+          </div>
         ) : (
           // Fallback: No content available
           <div className="text-center">

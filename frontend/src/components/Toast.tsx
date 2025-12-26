@@ -82,7 +82,7 @@ export function Toast({
 
   return (
     <div
-      className={`fixed bottom-20 sm:bottom-6 left-4 right-4 sm:left-auto sm:right-6 z-50
+      className={`fixed bottom-24 sm:bottom-6 left-4 right-4 sm:left-auto sm:right-6 z-50
                   max-w-sm mx-auto sm:mx-0 transition-[var(--transition-toast)]
                   ${isVisible && !isLeaving ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
       role="status"
