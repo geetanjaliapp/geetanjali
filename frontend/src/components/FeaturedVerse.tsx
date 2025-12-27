@@ -16,7 +16,7 @@ export function FeaturedVerse({
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto">
-        <div className="bg-[var(--surface-warm)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] p-6 sm:p-8 lg:p-12 border border-[var(--border-warm)] shadow-[var(--shadow-modal)]">
+        <div className="bg-[var(--surface-card)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] p-6 sm:p-8 lg:p-12 border border-[var(--border-warm)] shadow-[var(--shadow-modal)]">
           <div className="text-center space-y-4">
             <div className="h-6 sm:h-8 bg-[var(--surface-muted)] rounded-[var(--radius-skeleton)] animate-pulse w-20 sm:w-24 mx-auto" />
             <div className="h-24 sm:h-32 bg-[var(--surface-muted)] rounded-[var(--radius-skeleton)] animate-pulse" />
@@ -29,7 +29,7 @@ export function FeaturedVerse({
   if (error) {
     return (
       <div className="max-w-4xl mx-auto">
-        <div className="bg-[var(--surface-warm)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] p-6 sm:p-8 lg:p-12 border border-[var(--border-warm)] shadow-[var(--shadow-card-elevated)]">
+        <div className="bg-[var(--surface-card)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] p-6 sm:p-8 lg:p-12 border border-[var(--border-warm)] shadow-[var(--shadow-card-elevated)]">
           <div className="text-center space-y-3">
             <div className="text-3xl text-[var(--badge-warm-text)]/50">
               ॐ
@@ -58,7 +58,7 @@ export function FeaturedVerse({
       className="block max-w-4xl mx-auto"
     >
       {/* Main Featured Verse Container - Clickable */}
-      <div className="bg-[var(--surface-warm)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] p-6 sm:p-8 lg:p-12 border border-[var(--border-warm)] shadow-[var(--shadow-modal)] hover:shadow-[var(--shadow-modal)] hover:border-[var(--border-warm-hover)] transition-[var(--transition-card)] cursor-pointer">
+      <div className="bg-[var(--surface-card)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] p-6 sm:p-8 lg:p-12 border border-[var(--border-warm)] shadow-[var(--shadow-modal)] hover:shadow-[var(--shadow-modal)] hover:border-[var(--border-warm-hover)] transition-[var(--transition-card)] cursor-pointer">
         {/* Sanskrit Devanagari - Spotlight */}
         {verse.sanskrit_devanagari && (
           <div className="text-center mb-4 sm:mb-6 lg:mb-8">

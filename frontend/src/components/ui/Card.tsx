@@ -41,6 +41,10 @@ const cardVariants = cva(
           "bg-[var(--surface-base)]",
           "border-[var(--border-default)]",
         ],
+        card: [
+          "bg-[var(--surface-card)]",
+          "border-[var(--border-warm)]",
+        ],
         warm: [
           "bg-[var(--surface-warm)]",
           "border-[var(--border-warm)]",
@@ -51,7 +55,7 @@ const cardVariants = cva(
           "shadow-[var(--shadow-card-elevated)]",
         ],
         interactive: [
-          "bg-[var(--surface-warm)]",
+          "bg-[var(--surface-card)]",
           "border-[var(--border-warm)]",
           "cursor-pointer",
           "hover:bg-[var(--surface-warm-hover)]",
@@ -93,7 +97,15 @@ export interface CardProps
  * Card component
  *
  * Foundation UI component using design token system.
- * Supports default, warm, elevated, interactive, and verse variants.
+ * Supports default, card, warm, elevated, interactive, and verse variants.
+ *
+ * Variant guide:
+ * - default: Page-level background (surface-base)
+ * - card: Standard card surface (surface-card) - use for content cards
+ * - warm: Intentionally warm-tinted surface (surface-warm) - decorative accent
+ * - elevated: Modal/dropdown surfaces (surface-elevated)
+ * - interactive: Clickable card with hover effects (uses surface-card)
+ * - verse: Verse/scripture sections
  */
 export const Card = forwardRef<HTMLDivElement, CardProps>(
   ({ variant, padding, className, children, ...props }, ref) => {

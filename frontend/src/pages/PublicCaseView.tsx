@@ -647,7 +647,7 @@ export default function PublicCaseView() {
                       onClick={() => setShowReflections(!showReflections)}
                       className="w-full text-left"
                     >
-                      <div className="flex items-center justify-between bg-[var(--surface-warm)] rounded-[var(--radius-card)] p-3 sm:p-4 shadow-[var(--shadow-button)] border border-[var(--border-warm)] hover:shadow-[var(--shadow-card)] transition-[var(--transition-[var(--transition-shadow)])]">
+                      <div className="flex items-center justify-between bg-[var(--surface-card)] rounded-[var(--radius-card)] p-3 sm:p-4 shadow-[var(--shadow-button)] border border-[var(--border-warm)] hover:shadow-[var(--shadow-card)] transition-[var(--transition-[var(--transition-shadow)])]">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-[var(--radius-avatar)] bg-[var(--badge-warm-bg)] flex items-center justify-center">
                             <svg
@@ -694,7 +694,7 @@ export default function PublicCaseView() {
                     </button>
 
                     {showReflections && (
-                      <div className="mt-2 sm:mt-3 bg-[var(--surface-warm)] rounded-[var(--radius-card)] p-3 sm:p-4 border border-[var(--border-warm)]">
+                      <div className="mt-2 sm:mt-3 bg-[var(--surface-card)] rounded-[var(--radius-card)] p-3 sm:p-4 border border-[var(--border-warm)]">
                         <ul className="space-y-2.5 sm:space-y-3">
                           {firstOutput.result_json.reflection_prompts.map(
                             (prompt, idx) => (

@@ -11,7 +11,7 @@ import type { Verse } from "../types";
  */
 export function VerseCardSkeleton() {
   return (
-    <div className="bg-[var(--surface-warm)] rounded-[var(--radius-card)] p-3 sm:p-4 border border-[var(--border-warm)] shadow-[var(--shadow-card)] animate-pulse">
+    <div className="bg-[var(--surface-card)] rounded-[var(--radius-card)] p-3 sm:p-4 border border-[var(--border-warm)] shadow-[var(--shadow-card)] animate-pulse">
       {/* Verse Reference skeleton */}
       <div className="flex justify-center mb-2 sm:mb-3">
         <div className="h-4 w-16 bg-[var(--skeleton-bg)] rounded-[var(--radius-skeleton)]" />
@@ -152,7 +152,7 @@ export const VerseCard = memo(function VerseCard({
       : "";
 
     return (
-      <div className="relative bg-[var(--surface-warm)] rounded-[var(--radius-card)] p-3 sm:p-4 border border-[var(--border-warm)] shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] hover:border-[var(--border-warm-hover)] hover:-translate-y-0.5 transition-[var(--transition-card)]">
+      <div className="relative bg-[var(--surface-card)] rounded-[var(--radius-card)] p-3 sm:p-4 border border-[var(--border-warm)] shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] hover:border-[var(--border-warm-hover)] hover:-translate-y-0.5 transition-[var(--transition-card)]">
         {/* Stretched link - covers entire card for navigation (accessibility pattern) */}
         {linkTo && (
           <Link

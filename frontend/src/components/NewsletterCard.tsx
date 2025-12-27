@@ -80,7 +80,7 @@ export function NewsletterCard() {
     <div className="mb-8 sm:mb-10 max-w-4xl mx-auto">
       <Link
         to="/settings#newsletter"
-        className="block p-4 sm:p-5 bg-[var(--surface-warm)] rounded-[var(--radius-card)] border border-[var(--border-warm)] hover:border-[var(--border-accent)] transition-[var(--transition-all)] group relative"
+        className="block p-4 sm:p-5 bg-[var(--surface-card)] rounded-[var(--radius-card)] border border-[var(--border-warm)] hover:border-[var(--border-accent)] transition-[var(--transition-all)] group relative"
       >
         {/* Dismiss button - 44px touch target */}
         <button

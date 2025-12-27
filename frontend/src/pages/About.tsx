@@ -304,7 +304,7 @@ export default function About() {
         </section>
 
         {/* Privacy Note */}
-        <section className="bg-[var(--surface-warm)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] p-4 sm:p-6 mb-4 sm:mb-6 lg:mb-8 border border-[var(--border-warm)]">
+        <section className="bg-[var(--surface-card)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] p-4 sm:p-6 mb-4 sm:mb-6 lg:mb-8 border border-[var(--border-warm)]">
           <div className="flex items-start gap-4">
             <div className="text-2xl">🔒</div>
             <div>
