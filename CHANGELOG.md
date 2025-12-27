@@ -2,6 +2,33 @@
 
 All notable changes to Geetanjali are documented here.
 
+## [1.16.0] - 2025-12-27
+
+Tailwind CSS v4 migration with design token architecture, theme personalities, and cross-device theme sync.
+
+### Features
+- **Theme Personalities** - 4 built-in themes: Geetanjali (default), Sutra (scholarly), Serenity (contemplative), Forest (natural). Each with unique color palettes and typography.
+- **Cross-Device Theme Sync** - Theme preferences sync to backend for authenticated users. Last-write-wins with timestamp-based conflict resolution.
+- **Theme Selector** - Card-based theme picker in Settings with live preview. Supports light/dark mode toggle per theme.
+- **WCAG 2.1 AA Compliance** - All text meets minimum contrast ratios across all themes and modes.
+
+### Infrastructure
+- **Tailwind v4 Migration** - Upgraded to Tailwind CSS v4 with native CSS-first configuration
+- **Design Token System** - 3-tier CSS custom property architecture (primitives → semantic → derived)
+- **UI Component Library** - New reusable components: Button, Card, Badge, Input, Modal, IconButton, Link, Skeleton
+- **localStorage Consolidation** - All storage keys centralized in `STORAGE_KEYS` registry
+
+### Technical
+- Theme backend API: `GET/PUT /api/v1/preferences/theme`
+- Migration `021_add_theme_preferences` for user theme columns
+- 5s debounce on theme sync to reduce API calls
+- Featured cases cache simplified: removed localStorage SWR, now HTTP + Redis (24h TTL)
+- ThemeContext with server sync, Umami analytics integration
+- 17 new tests for ThemeContext, 533 lines of theme utility tests
+
+### Dependencies
+- **Frontend**: Tailwind CSS 4.2.4, @tailwindcss/vite 4.2.4
+
 ## [1.15.1] - 2025-12-25
 
 Patch release with critical bug fix, dependency updates, and documentation improvements.
