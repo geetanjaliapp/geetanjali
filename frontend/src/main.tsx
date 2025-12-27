@@ -28,13 +28,13 @@ startPeriodicVersionCheck();
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ErrorBoundary>
-      <ThemeProvider>
-        <AuthProvider>
+      <AuthProvider>
+        <ThemeProvider>
           <LearningGoalProvider>
             <App />
           </LearningGoalProvider>
-        </AuthProvider>
-      </ThemeProvider>
+        </ThemeProvider>
+      </AuthProvider>
     </ErrorBoundary>
   </StrictMode>,
 );
