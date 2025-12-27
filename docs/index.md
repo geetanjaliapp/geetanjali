@@ -94,6 +94,7 @@ How we built it:
 
 - **[Architecture](architecture.md)** — System components, RAG pipeline, data flow
 - **[Design](design.md)** — Frontend design language, colors, typography, responsive patterns
+- **[Theming](theming.md)** — CSS token architecture, theme customization, adding new themes
 - **[Operations](operations-overview.md)** — Consultation flow, processing states, async handling
 - **[Content Moderation](content-moderation.md)** — Multi-layer filtering, keeping focus on real dilemmas
 

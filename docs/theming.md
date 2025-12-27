@@ -247,7 +247,7 @@ The `modeColors.dark.contrast` object allows semantic-level overrides when color
 
 ## Migration Status
 
-As of v1.18.0:
+As of v1.16.0:
 
 - ✅ **Colors**: 100% tokenized
 - ✅ **Border Radius**: 100% tokenized (0 hardcoded)

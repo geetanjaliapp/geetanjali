@@ -419,7 +419,7 @@ Status tokens also adapt automatically:
 | Warning | `--status-warning-bg` | yellow-100 | yellow-900 |
 | Info | `--status-info-bg` | blue-100 | blue-900/40 |
 
-## Theming System (v1.18.0)
+## Theming System (v1.16.0)
 
 The design system uses a 3-tier CSS custom property architecture enabling full theming without code changes.
 

@@ -42,8 +42,8 @@ Free. Open source. Private by default.
 - **Verse Sharing** - Generate shareable images with Sanskrit and translation
 
 ### Platform
-- **Dark Mode** - Full light/dark theme support
-- **Cross-device Sync** - Progress, favorites, and preferences sync for logged-in users
+- **Themes** - 4 color themes (Default, Sutra, Serenity, Forest) with light/dark modes
+- **Cross-device Sync** - Progress, favorites, themes, and preferences sync for logged-in users
 - **Daily Wisdom** - Subscribe to daily verse emails
 - **Offline Support** - Works without network after first load
 - **Confidence Scoring** - Low-confidence responses flagged for review
@@ -76,7 +76,7 @@ Services:
 | Component | Technology |
 |-----------|------------|
 | Backend | FastAPI (Python 3.10+) |
-| Frontend | React + TypeScript + Tailwind |
+| Frontend | React + TypeScript + Tailwind v4 |
 | Database | PostgreSQL 15 |
 | Vector DB | ChromaDB |
 | Cache | Redis 7 |
