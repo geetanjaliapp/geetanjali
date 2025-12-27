@@ -27,6 +27,7 @@ from db.repositories.verse_repository import VerseRepository
 from utils.json_parsing import extract_json_from_text
 from utils.validation import validate_canonical_id
 from utils.metrics_events import vector_search_fallback_total
+from utils.input_normalization import normalize_input
 
 logger = logging.getLogger(__name__)
 
@@ -215,8 +216,35 @@ def _ensure_required_fields(output: Dict[str, Any]) -> None:
                 output[field] = []
 
 
-def _generate_default_options(base_verses: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def _extract_canonical_id(verse: Any, fallback: str) -> str:
+    """
+    Extract canonical_id from a verse, handling both dict and string formats.
+
+    Args:
+        verse: Either a dict with canonical_id key, or a string
+        fallback: Fallback canonical_id if extraction fails
+
+    Returns:
+        Canonical ID string
+    """
+    if isinstance(verse, dict):
+        return verse.get("canonical_id", fallback)
+    elif isinstance(verse, str) and validate_canonical_id(verse):
+        return verse
+    return fallback
+
+
+def _generate_default_options(base_verses: List[Any]) -> List[Dict[str, Any]]:
     """Generate 3 default options when LLM fails to provide any."""
+    # Extract canonical IDs safely, handling both dict and string formats
+    verse_ids = []
+    defaults = ["BG_2_47", "BG_3_35", "BG_18_63"]
+    for i, fallback in enumerate(defaults):
+        if i < len(base_verses):
+            verse_ids.append(_extract_canonical_id(base_verses[i], fallback))
+        else:
+            verse_ids.append(fallback)
+
     return [
         {
             "title": "Option 1: Path of Duty and Dharma",
@@ -233,7 +261,7 @@ def _generate_default_options(base_verses: List[Dict[str, Any]]) -> List[Dict[st
                 "May require immediate sacrifice",
                 "Outcomes uncertain",
             ],
-            "sources": [v.get("canonical_id", "BG_2_47") for v in base_verses[:1]],
+            "sources": [verse_ids[0]],
         },
         {
             "title": "Option 2: Balanced Approach with Flexibility",
@@ -250,7 +278,7 @@ def _generate_default_options(base_verses: List[Dict[str, Any]]) -> List[Dict[st
                 "Requires ongoing reflection",
                 "May appear uncertain",
             ],
-            "sources": [v.get("canonical_id", "BG_3_35") for v in base_verses[1:2]],
+            "sources": [verse_ids[1]],
         },
         {
             "title": "Option 3: Seek Deeper Understanding",
@@ -267,7 +295,7 @@ def _generate_default_options(base_verses: List[Dict[str, Any]]) -> List[Dict[st
                 "Delays decision-making",
                 "May require more effort",
             ],
-            "sources": [v.get("canonical_id", "BG_18_63") for v in base_verses[2:3]],
+            "sources": [verse_ids[2]],
         },
     ]
 
@@ -1071,11 +1099,29 @@ class RAGPipeline:
         """
         logger.info(f"Running RAG pipeline for case: {case_data.get('title', 'N/A')}")
 
+        # Step 0: Normalize input to handle duplicates, control chars, etc.
+        raw_description = case_data.get("description", "")
+        normalization_result = normalize_input(raw_description)
+        description = normalization_result.text
+
+        # Always update case_data with normalized description for consistency
+        # (even if unchanged, this ensures downstream code uses the same reference)
+        case_data = {**case_data, "description": description}
+
+        if normalization_result.was_modified:
+            logger.info(
+                f"Input normalized: {normalization_result.original_length} -> "
+                f"{normalization_result.normalized_length} chars, "
+                f"{normalization_result.lines_removed} duplicate lines removed"
+            )
+
+        if normalization_result.has_warnings:
+            logger.warning(f"Input normalization warnings: {normalization_result.warnings}")
+
         # P1.1 FIX: Check cache before running expensive pipeline
         # Note: Only successful (non-policy-violation) results are cached.
         # Policy violations return early at line ~944 before caching occurs,
         # so cache hits always have is_policy_violation=False.
-        description = case_data.get("description", "")
         cache_key = rag_output_key(
             hashlib.md5(description.encode(), usedforsecurity=False).hexdigest()[:16]
         )
