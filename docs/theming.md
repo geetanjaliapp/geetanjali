@@ -169,14 +169,14 @@ Logo CSS variables (can be overridden per theme):
 
 ## Available Themes
 
-| Theme | ID | Description |
-|-------|-----|-------------|
-| **Geetanjali** | `default` | Warm amber inspired by ancient manuscripts |
-| **Serenity** | `serenity` | Twilight temple, rose/mauve tones |
-| **Forest** | `forest` | Sacred grove, emerald/sage tones |
-| **High Contrast** | `high-contrast` | Maximum readability |
+| Theme | ID | Personality | Typography |
+|-------|-----|-------------|------------|
+| **Geetanjali** | `default` | Temple lamp glow, ancient manuscript warmth | Mixed |
+| **Sutra** | `sutra` | Ink on paper, scholarly clarity | Serif |
+| **Serenity** | `serenity` | Twilight violet, contemplative calm | Mixed |
+| **Forest** | `forest` | Sacred grove, morning dew freshness | Sans |
 
-Each theme provides both light and dark mode variants.
+Each theme provides light and dark mode variants with theme-specific contrast overrides for proper dark mode personality (e.g., Geetanjali dark uses amber-tinted neutrals, not pure grays).
 
 ## Adding a New Theme
 
@@ -225,7 +225,7 @@ export const myTheme: ThemeConfig = {
 
 ## Migration Status
 
-As of v1.16.0:
+As of v1.18.0:
 
 - ✅ **Colors**: 100% tokenized
 - ✅ **Border Radius**: 100% tokenized (0 hardcoded)

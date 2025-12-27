@@ -168,6 +168,8 @@ Mobile                    Desktop
 
 ### Buttons
 
+**Navigational vs Action principle:** Primary CTA colors are reserved for action buttons. Navigational elements (tabs, filters, chips) use subdued `--chip-selected-*` / `--badge-warm-*` tokens — selected states should be visible but not "loud."
+
 Two-tier color system aligned with "quiet library" design philosophy:
 
 #### Primary CTAs (Orange-600)
@@ -416,9 +418,20 @@ Status tokens also adapt automatically:
 | Warning | `--status-warning-bg` | yellow-100 | yellow-900 |
 | Info | `--status-info-bg` | blue-100 | blue-900/40 |
 
-## Theming System (v1.16.0)
+## Theming System (v1.18.0)
 
 The design system uses a 3-tier CSS custom property architecture enabling full theming without code changes.
+
+### Built-in Themes
+
+| Theme | Personality | Typography | Dark Mode |
+|-------|-------------|------------|-----------|
+| **Geetanjali** | Temple lamp glow, ancient manuscript warmth | Mixed (Spectral + Source Sans) | Amber-tinted neutrals |
+| **Sutra** | Ink on paper, scholarly clarity | Serif (Spectral) | Pure monochrome |
+| **Serenity** | Twilight violet, contemplative calm | Mixed | Purple-tinted stone |
+| **Forest** | Sacred grove, morning dew freshness | Sans (Source Sans) | Green-tinted grays |
+
+Each theme defines its own color primitives and contrast overrides in `frontend/src/config/themes.ts`.
 
 ### Token Architecture
 
