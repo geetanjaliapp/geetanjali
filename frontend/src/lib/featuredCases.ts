@@ -1,24 +1,12 @@
 /**
- * Featured cases caching logic for homepage.
+ * Featured cases logic for homepage.
  *
- * Priority: localStorage cache → API → hardcoded fallback
- *
- * - Fresh cache (< 24h): Use immediately
- * - Stale cache: Return immediately, revalidate in background
- * - No cache: Fetch from API
- * - API failure: Use fallback examples
+ * Caching strategy: Browser HTTP cache (24h) + Redis (24h)
+ * Fallback: Hardcoded examples when API is unavailable
  */
 
 import type { FeaturedCase, FeaturedCasesResponse } from "../types";
 import { casesApi } from "./api";
-
-const CACHE_KEY = "geetanjali:featuredCases";
-
-interface CachedFeaturedCases {
-  data: FeaturedCasesResponse;
-  /** Server's cached_at timestamp (ISO string) - used for invalidation */
-  serverCachedAt: string;
-}
 
 /**
  * Hardcoded fallback examples when API is unavailable.
@@ -96,109 +84,25 @@ const FALLBACK_EXAMPLES: FeaturedCase[] = [
 ];
 
 /**
- * Check if cached data contains real API cases (not fallback).
- * API cases have slug !== null.
- */
-function hasRealApiCases(data: FeaturedCasesResponse): boolean {
-  return data.cases.some((c) => c.slug !== null);
-}
-
-/**
- * Cache response in localStorage using server's timestamp
- */
-function cacheResponse(response: FeaturedCasesResponse): void {
-  // Only cache real API responses, not fallback data
-  if (!hasRealApiCases(response)) {
-    return;
-  }
-
-  try {
-    const cached: CachedFeaturedCases = {
-      data: response,
-      serverCachedAt: response.cached_at,
-    };
-    localStorage.setItem(CACHE_KEY, JSON.stringify(cached));
-  } catch (e) {
-    // localStorage might be full or disabled
-    console.warn("Failed to cache featured cases:", e);
-  }
-}
-
-/**
- * Fetch from API and update cache if server data is newer
- */
-async function fetchAndUpdateCache(
-  currentServerTimestamp?: string
-): Promise<FeaturedCasesResponse | null> {
-  try {
-    const response = await casesApi.getFeatured();
-
-    // Only update cache if server data is newer or we have no timestamp to compare
-    if (
-      !currentServerTimestamp ||
-      response.cached_at > currentServerTimestamp
-    ) {
-      cacheResponse(response);
-    }
-
-    return response;
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Get featured cases with smart cache invalidation.
+ * Get featured cases from API with fallback.
  *
- * Strategy:
- * 1. If cache has real API data: return immediately + revalidate in background
- * 2. If cache has fallback data or is invalid: fetch synchronously
- * 3. If API fails: return fallback (never cached)
+ * Caching is handled by:
+ * - Browser: HTTP Cache-Control header (24h max-age)
+ * - Server: Redis cache (24h TTL)
  *
- * Cache invalidation:
- * - Fallback data (slug: null) is never cached
- * - Server's `cached_at` timestamp determines freshness
- * - Background revalidation updates cache if server data is newer
+ * If API fails, returns hardcoded fallback examples.
  */
 export async function getFeaturedCases(): Promise<FeaturedCasesResponse> {
-  // 1. Check localStorage cache
-  const cachedStr = localStorage.getItem(CACHE_KEY);
-  if (cachedStr) {
-    try {
-      const parsed: CachedFeaturedCases = JSON.parse(cachedStr);
-
-      // Validate cache has real API data (not old fallback)
-      if (hasRealApiCases(parsed.data)) {
-        // Revalidate in background using server timestamp
-        // Catch errors to prevent unhandled promise rejections
-        fetchAndUpdateCache(parsed.serverCachedAt).catch((err) => {
-          console.warn("Background revalidation failed:", err);
-        });
-
-        // Return cached data immediately for instant UX
-        return parsed.data;
-      }
-
-      // Cache has fallback data - clear and fetch fresh
-      localStorage.removeItem(CACHE_KEY);
-    } catch {
-      // Invalid cache format - clear it
-      localStorage.removeItem(CACHE_KEY);
-    }
+  try {
+    return await casesApi.getFeatured();
+  } catch {
+    // API failed - return fallback examples
+    return {
+      cases: FALLBACK_EXAMPLES,
+      categories: ["career", "relationships", "ethics", "leadership"],
+      cached_at: new Date().toISOString(),
+    };
   }
-
-  // 2. No valid cache - fetch synchronously from API
-  const response = await fetchAndUpdateCache();
-  if (response) {
-    return response;
-  }
-
-  // 3. API failed - return fallback (never cached)
-  return {
-    cases: FALLBACK_EXAMPLES,
-    categories: ["career", "relationships", "ethics", "leadership"],
-    cached_at: new Date().toISOString(),
-  };
 }
 
 /**
@@ -224,11 +128,4 @@ export function getRandomCaseForCategory(
  */
 export function isApiCase(featuredCase: FeaturedCase): boolean {
   return featuredCase.slug !== null;
-}
-
-/**
- * Clear cached featured cases (useful for testing)
- */
-export function clearFeaturedCasesCache(): void {
-  localStorage.removeItem(CACHE_KEY);
 }

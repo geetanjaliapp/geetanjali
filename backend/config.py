@@ -152,7 +152,7 @@ class Settings(BaseSettings):
     CACHE_TTL_SEARCH: int = 300  # 5 minutes - short TTL for burst protection
     CACHE_TTL_PRINCIPLES: int = 3600  # 1 hour - principles list rarely changes
     CACHE_TTL_FEATURED_COUNT: int = 3600  # 1 hour - featured count rarely changes
-    CACHE_TTL_FEATURED_CASES: int = 3600  # 1 hour - featured cases list
+    CACHE_TTL_FEATURED_CASES: int = 86400  # 24 hours - featured cases are static content
     CACHE_TTL_VIEW_DEDUPE: int = 86400  # 24 hours - view count deduplication window
     CACHE_TTL_PUBLIC_CASE: int = 3600  # 1 hour Redis TTL for public cases
     CACHE_TTL_PUBLIC_CASE_HTTP: int = 300  # 5 minutes browser cache

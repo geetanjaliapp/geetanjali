@@ -331,9 +331,9 @@ async def get_featured_cases(
         VerseRefResponse,
     )
 
-    # No browser caching - Redis + localStorage handle caching
-    # Browser cache causes stale 404s during curation
-    response.headers["Cache-Control"] = "no-store"
+    # Enable browser caching for static content (featured cases rarely change)
+    # Redis handles server-side caching with 24h TTL
+    response.headers["Cache-Control"] = "public, max-age=86400"
 
     # Try Redis cache first
     cached = cache.get(featured_cases_key())
