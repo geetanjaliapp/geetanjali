@@ -524,8 +524,8 @@ export default function VerseDetail() {
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2
                                    bg-[var(--badge-principle-bg)] text-[var(--badge-principle-text)] rounded-[var(--radius-chip)] text-sm sm:text-base
                                    font-medium shadow-[var(--shadow-button)]
-                                   hover:bg-[var(--surface-warm-hover)] hover:shadow-[var(--shadow-card)]
-                                   active:bg-[var(--surface-warm)]
+                                   hover:bg-[var(--badge-warm-hover)] hover:shadow-[var(--shadow-card)]
+                                   active:bg-[var(--badge-warm-bg)]
                                    transition-[var(--transition-all)]
                                    focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]
                                    focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"

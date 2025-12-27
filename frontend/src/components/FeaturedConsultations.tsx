@@ -175,8 +175,8 @@ export function FeaturedConsultations({
             onClick={() => handleCategoryChange(cat)}
             className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-[var(--radius-chip)] text-sm font-medium whitespace-nowrap transition-[var(--transition-color)] focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
               selected === cat
-                ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)]"
-                : "bg-[var(--surface-muted)] text-[var(--text-secondary)] hover:bg-[var(--interactive-ghost-hover-bg)]"
+                ? "bg-[var(--chip-selected-bg)] text-[var(--chip-selected-text)] ring-1 ring-[var(--chip-selected-ring)]"
+                : "bg-[var(--badge-warm-bg)] text-[var(--badge-warm-text)] hover:bg-[var(--badge-warm-hover)]"
             }`}
           >
             {CATEGORY_LABELS[cat] ?? cat}

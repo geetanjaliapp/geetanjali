@@ -105,7 +105,7 @@ export default function Home() {
             {/* Main Tagline */}
             <h1 className="text-xl sm:text-3xl lg:text-4xl font-bold font-heading text-[var(--text-primary)] mb-2">
               Wisdom for Life's{" "}
-              <span className="bg-linear-to-r from-[var(--interactive-primary)] to-[var(--gradient-accent-to)] bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-[var(--text-accent)] to-[var(--gradient-accent-to)] bg-clip-text text-transparent">
                 Difficult Decisions
               </span>
             </h1>

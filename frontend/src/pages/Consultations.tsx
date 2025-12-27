@@ -326,8 +326,8 @@ export default function Consultations() {
                     onClick={() => handleFilterChange("all")}
                     className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-2 rounded-[var(--radius-nav)] text-sm font-medium transition-[var(--transition-all)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                       filterMode === "all"
-                        ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-[var(--shadow-button)]"
-                        : "text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]"
+                        ? "bg-[var(--chip-selected-bg)] text-[var(--chip-selected-text)] ring-1 ring-inset ring-[var(--chip-selected-ring)]"
+                        : "text-[var(--text-secondary)] hover:bg-[var(--badge-warm-bg)] hover:text-[var(--badge-warm-text)]"
                     }`}
                   >
                     <GridIcon className="w-4 h-4" />
@@ -335,7 +335,7 @@ export default function Consultations() {
                     <span
                       className={`min-w-5 text-center text-xs tabular-nums ${
                         filterMode === "all"
-                          ? "text-[var(--interactive-primary-text-muted)]"
+                          ? "text-[var(--chip-selected-text)]"
                           : "text-[var(--text-tertiary)]"
                       }`}
                     >
@@ -351,8 +351,8 @@ export default function Consultations() {
                         onClick={() => handleFilterChange("in-progress")}
                         className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-2 rounded-[var(--radius-nav)] text-sm font-medium transition-[var(--transition-all)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                           filterMode === "in-progress"
-                            ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-[var(--shadow-button)]"
-                            : "text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]"
+                            ? "bg-[var(--chip-selected-bg)] text-[var(--chip-selected-text)] ring-1 ring-inset ring-[var(--chip-selected-ring)]"
+                            : "text-[var(--text-secondary)] hover:bg-[var(--badge-warm-bg)] hover:text-[var(--badge-warm-text)]"
                         }`}
                       >
                         <SpinnerIcon className="w-4 h-4" />
@@ -360,7 +360,7 @@ export default function Consultations() {
                         <span
                           className={`min-w-5 text-center text-xs tabular-nums ${
                             filterMode === "in-progress"
-                              ? "text-[var(--interactive-primary-text-muted)]"
+                              ? "text-[var(--chip-selected-text)]"
                               : "text-[var(--status-warning-text)]"
                           }`}
                         >
@@ -378,8 +378,8 @@ export default function Consultations() {
                     onClick={() => handleFilterChange("completed")}
                     className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-2 rounded-[var(--radius-nav)] text-sm font-medium transition-[var(--transition-all)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                       filterMode === "completed"
-                        ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-[var(--shadow-button)]"
-                        : "text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]"
+                        ? "bg-[var(--chip-selected-bg)] text-[var(--chip-selected-text)] ring-1 ring-inset ring-[var(--chip-selected-ring)]"
+                        : "text-[var(--text-secondary)] hover:bg-[var(--badge-warm-bg)] hover:text-[var(--badge-warm-text)]"
                     }`}
                   >
                     <CheckIcon className="w-4 h-4" />
@@ -387,7 +387,7 @@ export default function Consultations() {
                     <span
                       className={`min-w-5 text-center text-xs tabular-nums ${
                         filterMode === "completed"
-                          ? "text-[var(--interactive-primary-text-muted)]"
+                          ? "text-[var(--chip-selected-text)]"
                           : filterCounts.completed > 0
                             ? "text-[var(--status-success-text)]"
                             : "text-[var(--text-tertiary)]"
@@ -405,8 +405,8 @@ export default function Consultations() {
                         onClick={() => handleFilterChange("failed")}
                         className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-2 rounded-[var(--radius-nav)] text-sm font-medium transition-[var(--transition-all)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                           filterMode === "failed"
-                            ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-[var(--shadow-button)]"
-                            : "text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]"
+                            ? "bg-[var(--chip-selected-bg)] text-[var(--chip-selected-text)] ring-1 ring-inset ring-[var(--chip-selected-ring)]"
+                            : "text-[var(--text-secondary)] hover:bg-[var(--badge-warm-bg)] hover:text-[var(--badge-warm-text)]"
                         }`}
                       >
                         <XCircleIcon className="w-4 h-4" />
@@ -414,7 +414,7 @@ export default function Consultations() {
                         <span
                           className={`min-w-5 text-center text-xs tabular-nums ${
                             filterMode === "failed"
-                              ? "text-[var(--interactive-primary-text-muted)]"
+                              ? "text-[var(--chip-selected-text)]"
                               : "text-[var(--status-error-text)]"
                           }`}
                         >
@@ -432,8 +432,8 @@ export default function Consultations() {
                     onClick={() => handleFilterChange("shared")}
                     className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-2 rounded-[var(--radius-nav)] text-sm font-medium transition-[var(--transition-all)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                       filterMode === "shared"
-                        ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-[var(--shadow-button)]"
-                        : "text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]"
+                        ? "bg-[var(--chip-selected-bg)] text-[var(--chip-selected-text)] ring-1 ring-inset ring-[var(--chip-selected-ring)]"
+                        : "text-[var(--text-secondary)] hover:bg-[var(--badge-warm-bg)] hover:text-[var(--badge-warm-text)]"
                     }`}
                   >
                     <ShareIcon className="w-4 h-4" />
@@ -441,7 +441,7 @@ export default function Consultations() {
                     <span
                       className={`min-w-5 text-center text-xs tabular-nums ${
                         filterMode === "shared"
-                          ? "text-[var(--interactive-primary-text-muted)]"
+                          ? "text-[var(--chip-selected-text)]"
                           : filterCounts.shared > 0
                             ? "text-[var(--status-success-text)]"
                             : "text-[var(--text-tertiary)]"

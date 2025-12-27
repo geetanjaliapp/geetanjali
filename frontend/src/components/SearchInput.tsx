@@ -329,7 +329,7 @@ export const SearchInput = forwardRef<SearchInputHandle, SearchInputProps>(
                         }`}
                       >
                         <SearchIcon
-                          className={`w-4 h-4 ${index === selectedIndex ? "text-[var(--interactive-primary)]" : "text-[var(--text-accent)]"}`}
+                          className={`w-4 h-4 ${index === selectedIndex ? "text-[var(--menu-item-selected-text)]" : "text-[var(--text-accent)]"}`}
                         />
                         {query}
                       </button>

@@ -32,8 +32,8 @@ function GoalCard({ goal, isSelected, onToggle }: GoalCardProps) {
     >
       {/* Selection badge - only on sm+ */}
       {isSelected && (
-        <div className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 rounded-[var(--radius-avatar)] bg-[var(--interactive-primary)] flex items-center justify-center shadow-[var(--shadow-button)]">
-          <CheckIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[var(--interactive-primary-text)]" />
+        <div className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 rounded-[var(--radius-avatar)] bg-[var(--chip-selected-bg)] ring-1 ring-[var(--chip-selected-ring)] flex items-center justify-center shadow-[var(--shadow-button)]">
+          <CheckIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[var(--chip-selected-text)]" />
         </div>
       )}
 
