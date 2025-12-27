@@ -56,7 +56,7 @@ export function ExampleQuestions({ onSelect }: ExampleQuestionsProps) {
             key={idx}
             type="button"
             onClick={() => handleSelect(question, idx)}
-            className="text-left text-xs px-3 py-1.5 bg-[var(--surface-warm)] hover:bg-[var(--interactive-ghost-hover-bg)] text-[var(--badge-warm-text)] rounded-[var(--radius-chip)] border border-[var(--border-warm)] transition-[var(--transition-color)] max-w-full sm:max-w-none cursor-pointer"
+            className="text-left text-xs px-3 py-1.5 bg-[var(--badge-warm-bg)] hover:bg-[var(--badge-warm-hover)] text-[var(--badge-warm-text)] rounded-[var(--radius-chip)] border border-[var(--border-warm)] transition-[var(--transition-color)] max-w-full sm:max-w-none cursor-pointer"
             title={question}
           >
             {/* Show more on desktop, truncate only on mobile */}

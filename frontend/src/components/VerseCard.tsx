@@ -269,7 +269,7 @@ export const VerseCard = memo(function VerseCard({
                   }}
                   className={`px-2 py-0.5 rounded-[var(--radius-badge)] bg-[var(--badge-principle-bg)] text-[var(--badge-principle-text)] text-[10px] sm:text-xs font-medium pointer-events-auto focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                     onPrincipleClick
-                      ? "hover:bg-[var(--surface-warm-hover)] cursor-pointer transition-[var(--transition-color)]"
+                      ? "hover:bg-[var(--badge-warm-hover)] cursor-pointer transition-[var(--transition-color)]"
                       : ""
                   }`}
                 >

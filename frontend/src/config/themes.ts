@@ -26,13 +26,33 @@ import type { ThemeConfig } from "../types/theme";
  * Geetanjali (default)
  * The warmth of oil lamps in a temple, aged paper, gold leaf accents.
  * Sunrise colors that welcome readers to sacred wisdom.
- * Uses standard primitives - no overrides needed.
+ *
+ * Light mode uses standard primitives - no overrides needed.
+ * Dark mode requires contrast overrides for badges/chips to maintain
+ * warm personality while ensuring proper visual distinction.
  */
 export const defaultTheme: ThemeConfig = {
   id: "default",
   name: "Geetanjali",
   description: "Temple lamp glow, ancient manuscript warmth",
   defaultFontFamily: "mixed",
+  modeColors: {
+    dark: {
+      // Geetanjali dark mode needs explicit badge overrides to:
+      // 1. Maintain warm amber personality (not pure neutral gray)
+      // 2. Provide visual distinction from card backgrounds
+      // 3. Match the "temple lamp glow" aesthetic in dark mode
+      contrast: {
+        // Badge/chip colors - amber-tinted for warm personality
+        // These are notably warmer than the neutral card background (#1f2937)
+        badgeWarmBg: "#4a3d2a", // Amber-brown: distinct from neutral gray
+        badgeWarmHover: "#5a4a35", // Slightly lighter on hover
+        badgeWarmText: "#e7ddd0", // Warm off-white text
+        chipSelectedBg: "#5a4a35", // Slightly lighter than badge
+        chipSelectedText: "#d4c8b8", // Warm muted text
+      },
+    },
+  },
 };
 
 /**
