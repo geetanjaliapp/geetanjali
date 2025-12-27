@@ -20,7 +20,7 @@ class Settings(BaseSettings):
 
     # Application
     APP_NAME: str = "Geetanjali"
-    APP_VERSION: str = "1.8.0"  # Set via APP_VERSION env var at deploy (from git tag)
+    APP_VERSION: str = "1.16.0"  # Set via APP_VERSION env var at deploy (from git tag)
     APP_ENV: str = "development"
     DEBUG: bool = False  # Safe default: False
     LOG_LEVEL: str = "INFO"
