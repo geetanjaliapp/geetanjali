@@ -1,8 +1,11 @@
 /**
- * Theme Selector Component (v1.18.0)
+ * Theme Selector Component (v1.19.0)
  *
- * Compact circular theme selector with conic gradient previews.
- * Shows theme colors at a glance with selected theme description below.
+ * Card-based theme selector with color swatch previews.
+ * Shows theme name, colors, and description for easy comparison.
+ *
+ * Layout: 2 columns on mobile, 4 columns on desktop
+ * Following "platter style" - all options visible, not hidden.
  *
  * Themes:
  * - Geetanjali: Warm amber/orange (default)
@@ -56,9 +59,9 @@ function getThemePreviewColors(theme: ThemeConfig | null): {
 }
 
 /**
- * Compact circular theme indicator with conic gradient
+ * Theme card with color swatches and description
  */
-function ThemeIndicator({
+function ThemeCard({
   theme,
   isSelected,
   onSelect,
@@ -69,45 +72,73 @@ function ThemeIndicator({
 }) {
   const colors = getThemePreviewColors(theme);
   const name = theme?.name ?? "Geetanjali";
+  const description = theme?.description ?? "Temple lamp glow, ancient manuscript warmth";
 
   return (
     <button
       onClick={onSelect}
       role="radio"
       aria-checked={isSelected}
-      aria-label={`${name} theme${isSelected ? " (selected)" : ""}`}
-      title={name}
+      aria-label={`${name} theme: ${description}${isSelected ? " (selected)" : ""}`}
       className={`
-        w-9 h-9 rounded-[var(--radius-avatar)] transition-[var(--transition-all)]
-        border-2 shadow-[var(--shadow-button)]
+        w-full p-3 rounded-[var(--radius-card)] border-2 transition-[var(--transition-all)]
+        text-left
         focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
         focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-[var(--surface-elevated)]
         ${
           isSelected
-            ? "border-[var(--border-focus)] scale-110 shadow-[var(--shadow-card)]"
-            : "border-transparent hover:scale-105 hover:shadow"
+            ? "bg-[var(--chip-selected-bg)] border-[var(--chip-selected-ring)] ring-1 ring-[var(--chip-selected-ring)]"
+            : "bg-[var(--surface-muted)] border-transparent hover:border-[var(--border-default)] hover:bg-[var(--surface-field)]"
         }
       `}
-      style={{
-        background: `conic-gradient(
-          ${colors.primary} 0deg 120deg,
-          ${colors.warm} 120deg 240deg,
-          ${colors.accent} 240deg 360deg
-        )`,
-      }}
-    />
+    >
+      {/* Color swatches row */}
+      <div className="flex gap-1 mb-2">
+        <div
+          className="h-5 flex-1 rounded-[var(--radius-skeleton)]"
+          style={{ backgroundColor: colors.primary }}
+          aria-hidden="true"
+        />
+        <div
+          className="h-5 flex-1 rounded-[var(--radius-skeleton)]"
+          style={{ backgroundColor: colors.warm }}
+          aria-hidden="true"
+        />
+        <div
+          className="h-5 flex-1 rounded-[var(--radius-skeleton)]"
+          style={{ backgroundColor: colors.accent }}
+          aria-hidden="true"
+        />
+      </div>
+
+      {/* Theme name */}
+      <div
+        className={`text-sm font-medium mb-0.5 ${
+          isSelected ? "text-[var(--chip-selected-text)]" : "text-[var(--text-primary)]"
+        }`}
+      >
+        {name}
+      </div>
+
+      {/* Theme description */}
+      <div
+        className={`text-xs leading-tight ${
+          isSelected ? "text-[var(--chip-selected-text)] opacity-80" : "text-[var(--text-muted)]"
+        }`}
+      >
+        {description}
+      </div>
+    </button>
   );
 }
 
 /**
- * Theme Selector - compact row of circular color indicators
+ * Theme Selector - card grid of theme options
  */
 export function ThemeSelector() {
   const { customTheme, setCustomThemeById, availableThemes } = useTheme();
 
   const selectedId = customTheme?.id ?? "default";
-  const selectedTheme =
-    availableThemes.find((t) => t.id === selectedId) ?? null;
 
   return (
     <div>
@@ -120,10 +151,10 @@ export function ThemeSelector() {
       <div
         role="radiogroup"
         aria-labelledby="theme-palette-label"
-        className="flex items-center gap-2"
+        className="grid grid-cols-2 sm:grid-cols-4 gap-2"
       >
         {/* Default theme */}
-        <ThemeIndicator
+        <ThemeCard
           theme={null}
           isSelected={selectedId === "default"}
           onSelect={() => setCustomThemeById("default")}
@@ -133,7 +164,7 @@ export function ThemeSelector() {
         {availableThemes
           .filter((t) => t.id !== "default")
           .map((theme) => (
-            <ThemeIndicator
+            <ThemeCard
               key={theme.id}
               theme={theme}
               isSelected={selectedId === theme.id}
@@ -141,13 +172,6 @@ export function ThemeSelector() {
             />
           ))}
       </div>
-      <p className="text-xs text-[var(--text-muted)] mt-2">
-        <span className="font-medium text-[var(--text-secondary)]">
-          {selectedTheme?.name ?? "Geetanjali"}
-        </span>
-        {" — "}
-        {selectedTheme?.description ?? "Temple lamp glow, ancient manuscript warmth"}
-      </p>
     </div>
   );
 }

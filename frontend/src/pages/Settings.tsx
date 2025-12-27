@@ -733,7 +733,7 @@ export default function Settings() {
                 className="bg-[var(--surface-warm)] border border-[var(--border-warm)] rounded-[var(--radius-button)] p-3 text-center"
               >
                 <MailIcon className="w-6 h-6 text-[var(--text-accent)] mx-auto mb-2" />
-                <p className="text-sm font-medium text-[var(--chip-selected-text)]">Check your email</p>
+                <p className="text-sm font-medium text-[var(--text-primary)]">Check your email</p>
                 <p className="text-xs text-[var(--text-accent)] mt-1">
                   Confirmation sent to <strong>{email}</strong>
                 </p>
@@ -882,10 +882,10 @@ export default function Settings() {
                     <button
                       key={size}
                       onClick={() => setFontSize(size)}
-                      className={`flex-1 px-3 py-1.5 text-sm rounded-[var(--radius-button)] border transition-[var(--transition-color)] ${
+                      className={`flex-1 px-3 py-1.5 text-sm rounded-[var(--radius-button)] transition-[var(--transition-color)] ${
                         readingSettings.fontSize === size
-                          ? "bg-[var(--option-selected-bg)] border-[var(--option-selected-border)] text-[var(--option-selected-text)]"
-                          : "bg-[var(--input-bg)] border-[var(--border-default)] text-[var(--text-tertiary)] hover:border-[var(--border-default)]"
+                          ? "bg-[var(--chip-selected-bg)] text-[var(--chip-selected-text)] ring-1 ring-inset ring-[var(--chip-selected-ring)]"
+                          : "bg-[var(--surface-muted)] text-[var(--text-tertiary)] hover:bg-[var(--surface-field)]"
                       }`}
                     >
                       {size.charAt(0).toUpperCase() + size.slice(1)}
@@ -902,10 +902,10 @@ export default function Settings() {
                     <button
                       key={family}
                       onClick={() => setFontFamily(family)}
-                      className={`flex-1 px-3 py-1.5 text-sm rounded-[var(--radius-button)] border transition-[var(--transition-color)] ${
+                      className={`flex-1 px-3 py-1.5 text-sm rounded-[var(--radius-button)] transition-[var(--transition-color)] ${
                         fontFamily === family
-                          ? "bg-[var(--option-selected-bg)] border-[var(--option-selected-border)] text-[var(--option-selected-text)]"
-                          : "bg-[var(--input-bg)] border-[var(--border-default)] text-[var(--text-tertiary)] hover:border-[var(--border-default)]"
+                          ? "bg-[var(--chip-selected-bg)] text-[var(--chip-selected-text)] ring-1 ring-inset ring-[var(--chip-selected-ring)]"
+                          : "bg-[var(--surface-muted)] text-[var(--text-tertiary)] hover:bg-[var(--surface-field)]"
                       }`}
                       title={FONT_FAMILIES[family].description}
                     >
@@ -969,10 +969,10 @@ export default function Settings() {
                   <button
                     key={t}
                     onClick={() => setTheme(t)}
-                    className={`flex-1 px-3 py-1.5 text-sm rounded-[var(--radius-button)] border transition-[var(--transition-color)] ${
+                    className={`flex-1 px-3 py-1.5 text-sm rounded-[var(--radius-button)] transition-[var(--transition-color)] ${
                       theme === t
-                        ? "bg-[var(--option-selected-bg)] border-[var(--option-selected-border)] text-[var(--option-selected-text)]"
-                        : "bg-[var(--input-bg)] border-[var(--border-default)] text-[var(--text-tertiary)] hover:border-[var(--border-default)]"
+                        ? "bg-[var(--chip-selected-bg)] text-[var(--chip-selected-text)] ring-1 ring-inset ring-[var(--chip-selected-ring)]"
+                        : "bg-[var(--surface-muted)] text-[var(--text-tertiary)] hover:bg-[var(--surface-field)]"
                     }`}
                   >
                     {t === "system" ? "System" : t.charAt(0).toUpperCase() + t.slice(1)}
@@ -987,7 +987,7 @@ export default function Settings() {
             </div>
 
             {/* Color Palette Selector */}
-            <div className="pt-3 border-t border-[var(--border-default)]">
+            <div className="mt-4 pt-4 border-t border-[var(--border-default)]">
               <ThemeSelector />
             </div>
           </section>
