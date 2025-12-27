@@ -1017,8 +1017,8 @@ export default function Verses() {
                 onClick={() => handleFilterSelect("featured")}
                 className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-[var(--radius-nav)] text-sm font-medium transition-[var(--transition-all)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                   showFeatured && !selectedPrinciple && !isSearchMode
-                    ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-[var(--shadow-button)]"
-                    : "text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]"
+                    ? "bg-[var(--chip-selected-bg)] text-[var(--chip-selected-text)] ring-1 ring-inset ring-[var(--chip-selected-ring)]"
+                    : "text-[var(--text-secondary)] hover:bg-[var(--badge-warm-bg)] hover:text-[var(--badge-warm-text)]"
                 }`}
               >
                 <StarIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -1035,8 +1035,8 @@ export default function Verses() {
                     onClick={() => handleFilterSelect("recommended")}
                     className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-[var(--radius-nav)] text-sm font-medium transition-[var(--transition-all)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                       showRecommended && !selectedPrinciple && !isSearchMode
-                        ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-[var(--shadow-button)]"
-                        : "text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]"
+                        ? "bg-[var(--chip-selected-bg)] text-[var(--chip-selected-text)] ring-1 ring-inset ring-[var(--chip-selected-ring)]"
+                        : "text-[var(--text-secondary)] hover:bg-[var(--badge-warm-bg)] hover:text-[var(--badge-warm-text)]"
                     }`}
                     title="Verses matching your learning goals"
                   >
@@ -1054,8 +1054,8 @@ export default function Verses() {
                 onClick={() => handleFilterSelect("favorites")}
                 className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-[var(--radius-nav)] text-sm font-medium transition-[var(--transition-all)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                   showFavorites && !selectedPrinciple && !isSearchMode
-                    ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-[var(--shadow-button)]"
-                    : "text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]"
+                    ? "bg-[var(--chip-selected-bg)] text-[var(--chip-selected-text)] ring-1 ring-inset ring-[var(--chip-selected-ring)]"
+                    : "text-[var(--text-secondary)] hover:bg-[var(--badge-warm-bg)] hover:text-[var(--badge-warm-text)]"
                 }`}
               >
                 <HeartIcon
@@ -1067,7 +1067,7 @@ export default function Verses() {
                 <span
                   className={`text-[10px] sm:text-xs tabular-nums ${
                     showFavorites && !selectedPrinciple && !isSearchMode
-                      ? "text-[var(--interactive-primary-text-muted)]"
+                      ? "text-[var(--chip-selected-text)]"
                       : favoritesCount > 0
                         ? "text-[var(--icon-favorite)]"
                         : "text-[var(--text-muted)]"
@@ -1085,8 +1085,8 @@ export default function Verses() {
                 onClick={() => handleFilterSelect("all")}
                 className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-[var(--radius-nav)] text-sm font-medium transition-[var(--transition-all)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                   showAll && !selectedPrinciple && !isSearchMode
-                    ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-[var(--shadow-button)]"
-                    : "text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]"
+                    ? "bg-[var(--chip-selected-bg)] text-[var(--chip-selected-text)] ring-1 ring-inset ring-[var(--chip-selected-ring)]"
+                    : "text-[var(--text-secondary)] hover:bg-[var(--badge-warm-bg)] hover:text-[var(--badge-warm-text)]"
                 }`}
               >
                 <GridIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -1100,8 +1100,8 @@ export default function Verses() {
                 onClick={() => setShowChapterDropdown(!showChapterDropdown)}
                 className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-[var(--radius-button)] text-sm font-medium transition-[var(--transition-color)] border focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                   selectedChapter && !selectedPrinciple && !isSearchMode
-                    ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] border-[var(--interactive-primary)] shadow-[var(--shadow-card)]"
-                    : "bg-[var(--surface-elevated)] text-[var(--text-primary)] border-[var(--border-default)] hover:bg-[var(--surface-muted)]"
+                    ? "bg-[var(--chip-selected-bg)] text-[var(--chip-selected-text)] border-[var(--chip-selected-ring)] ring-1 ring-inset ring-[var(--chip-selected-ring)]"
+                    : "bg-[var(--surface-elevated)] text-[var(--text-primary)] border-[var(--border-default)] hover:bg-[var(--badge-warm-bg)] hover:text-[var(--badge-warm-text)]"
                 }`}
               >
                 <BookOpenIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -1165,7 +1165,7 @@ export default function Verses() {
                   }
                   className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-[var(--radius-chip)] text-xs sm:text-sm font-medium transition-[var(--transition-color)] whitespace-nowrap shrink-0 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                     selectedPrinciple === principle.id && !isSearchMode
-                      ? "bg-[var(--interactive-contextual)] text-[var(--interactive-contextual-text)] shadow-[var(--shadow-card)]"
+                      ? "bg-[var(--chip-selected-bg)] text-[var(--chip-selected-text)] ring-1 ring-[var(--chip-selected-ring)]"
                       : "bg-[var(--badge-warm-bg)] text-[var(--badge-warm-text)] hover:bg-[var(--badge-warm-hover)] border border-[var(--border-warm-subtle)]"
                   }`}
                 >
