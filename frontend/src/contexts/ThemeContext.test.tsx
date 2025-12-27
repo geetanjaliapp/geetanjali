@@ -1,9 +1,36 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
-import { renderHook, act } from "@testing-library/react";
+import {
+  describe,
+  it,
+  expect,
+  beforeEach,
+  beforeAll,
+  afterAll,
+  vi,
+  afterEach,
+} from "vitest";
+import { renderHook, act, cleanup } from "@testing-library/react";
 import { ThemeProvider, useTheme } from "./ThemeContext";
 import { AuthProvider } from "./AuthContext";
 import type { ReactNode } from "react";
 import type { ThemeConfig } from "../types/theme";
+
+// Suppress console errors from async cleanup during tests
+const originalError = console.error;
+beforeAll(() => {
+  console.error = (...args: unknown[]) => {
+    if (
+      typeof args[0] === "string" &&
+      args[0].includes("Warning: An update to")
+    ) {
+      return;
+    }
+    originalError.call(console, ...args);
+  };
+});
+
+afterAll(() => {
+  console.error = originalError;
+});
 
 // Mock matchMedia
 const mockMatchMedia = vi.fn().mockImplementation((query: string) => ({
@@ -39,8 +66,11 @@ describe("ThemeContext", () => {
     }
   });
 
-  afterEach(() => {
+  afterEach(async () => {
+    cleanup();
     vi.resetAllMocks();
+    // Allow any pending async operations to complete
+    await new Promise((resolve) => setTimeout(resolve, 0));
   });
 
   describe("useTheme hook", () => {
