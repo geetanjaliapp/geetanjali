@@ -148,7 +148,7 @@ describe("useFavorites", () => {
     it("should remove all favorites", () => {
       localStorage.setItem(
         STORAGE_KEY,
-        JSON.stringify(["BG_2_47", "BG_3_19", "BG_4_7"])
+        JSON.stringify(["BG_2_47", "BG_3_19", "BG_4_7"]),
       );
       const { result } = renderHook(() => useFavorites());
 
@@ -183,7 +183,7 @@ describe("useFavorites", () => {
       // Pre-populate with 100 favorites
       const existingFavorites = Array.from(
         { length: 100 },
-        (_, i) => `BG_${i}_1`
+        (_, i) => `BG_${i}_1`,
       );
       localStorage.setItem(STORAGE_KEY, JSON.stringify(existingFavorites));
 

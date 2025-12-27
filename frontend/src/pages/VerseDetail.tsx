@@ -7,7 +7,10 @@ import {
 } from "react-router-dom";
 import { versesApi } from "../lib/api";
 import { formatSanskritLines, isSpeakerIntro } from "../lib/sanskritFormatter";
-import { getPrincipleShortLabel, getPrincipleLabel } from "../constants/principles";
+import {
+  getPrincipleShortLabel,
+  getPrincipleLabel,
+} from "../constants/principles";
 import { getTranslatorPriority } from "../constants/translators";
 import type { Verse, Translation } from "../types";
 import {
@@ -75,7 +78,7 @@ export default function VerseDetail() {
   const [showNewsletterNudge, setShowNewsletterNudge] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [fontSize, setFontSize] = useState<FontSize>(() =>
-    getStorageItem<FontSize>(STORAGE_KEYS.verseDetailFontSize, "normal")
+    getStorageItem<FontSize>(STORAGE_KEYS.verseDetailFontSize, "normal"),
   );
 
   // Toggle font size and persist preference
@@ -95,8 +98,8 @@ export default function VerseDetail() {
   const [sectionPrefs, setSectionPrefs] = useState<SectionPrefs>(() =>
     getStorageItem<SectionPrefs>(
       STORAGE_KEYS.verseDetailSectionPrefs,
-      DEFAULT_SECTION_PREFS
-    )
+      DEFAULT_SECTION_PREFS,
+    ),
   );
 
   // Toggle a section and persist
@@ -131,13 +134,17 @@ export default function VerseDetail() {
       }
 
       // Track unique verses viewed (prevents double-counting when revisiting)
-      const seenJson = sessionStorage.getItem(STORAGE_KEYS.verseViewCount) || "[]";
+      const seenJson =
+        sessionStorage.getItem(STORAGE_KEYS.verseViewCount) || "[]";
       const seenVerses: string[] = JSON.parse(seenJson);
 
       // Add to seen list if new
       if (!seenVerses.includes(canonicalId)) {
         seenVerses.push(canonicalId);
-        sessionStorage.setItem(STORAGE_KEYS.verseViewCount, JSON.stringify(seenVerses));
+        sessionStorage.setItem(
+          STORAGE_KEYS.verseViewCount,
+          JSON.stringify(seenVerses),
+        );
       }
 
       // Show nudge after threshold unique verses
@@ -463,7 +470,9 @@ export default function VerseDetail() {
                 </button>
                 <div
                   className={`transition-all duration-200 overflow-hidden ${
-                    sectionPrefs.iast ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
+                    sectionPrefs.iast
+                      ? "max-h-40 opacity-100"
+                      : "max-h-0 opacity-0"
                   }`}
                 >
                   <p
@@ -495,7 +504,9 @@ export default function VerseDetail() {
                 </button>
                 <div
                   className={`transition-all duration-200 overflow-hidden ${
-                    sectionPrefs.insight ? "max-h-96 opacity-100 mt-2 sm:mt-4" : "max-h-0 opacity-0"
+                    sectionPrefs.insight
+                      ? "max-h-96 opacity-100 mt-2 sm:mt-4"
+                      : "max-h-0 opacity-0"
                   }`}
                 >
                   <p className="text-base sm:text-lg lg:text-xl text-[var(--text-primary)] leading-relaxed italic">
@@ -562,7 +573,9 @@ export default function VerseDetail() {
                 </button>
                 <div
                   className={`transition-all duration-200 overflow-hidden ${
-                    sectionPrefs.translations ? "max-h-[800px] opacity-100" : "max-h-0 opacity-0"
+                    sectionPrefs.translations
+                      ? "max-h-[800px] opacity-100"
+                      : "max-h-0 opacity-0"
                   }`}
                 >
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">

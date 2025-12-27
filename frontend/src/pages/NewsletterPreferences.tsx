@@ -64,7 +64,7 @@ export default function NewsletterPreferences() {
         if (err && typeof err === "object" && "response" in err) {
           const axiosErr = err as { response?: { data?: { detail?: string } } };
           setErrorMessage(
-            axiosErr.response?.data?.detail || "Failed to load preferences"
+            axiosErr.response?.data?.detail || "Failed to load preferences",
           );
         } else {
           setErrorMessage("Failed to load preferences");
@@ -96,7 +96,7 @@ export default function NewsletterPreferences() {
       if (err && typeof err === "object" && "response" in err) {
         const axiosErr = err as { response?: { data?: { detail?: string } } };
         setErrorMessage(
-          axiosErr.response?.data?.detail || "Failed to save preferences"
+          axiosErr.response?.data?.detail || "Failed to save preferences",
         );
       } else {
         setErrorMessage("Failed to save preferences");
@@ -148,9 +148,7 @@ export default function NewsletterPreferences() {
               <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">
                 Something Went Wrong
               </h2>
-              <p className="text-[var(--text-tertiary)] mb-6">
-                {errorMessage}
-              </p>
+              <p className="text-[var(--text-tertiary)] mb-6">{errorMessage}</p>
               <Link
                 to="/"
                 className="inline-block px-6 py-3 bg-linear-to-r from-[var(--interactive-gradient-from)] to-[var(--interactive-gradient-to)] text-[var(--interactive-primary-text)] font-medium rounded-[var(--radius-button)] hover:from-[var(--interactive-gradient-from-hover)] hover:to-[var(--interactive-gradient-to-hover)] transition-[var(--transition-all)]"
@@ -186,82 +184,83 @@ export default function NewsletterPreferences() {
             </div>
           )}
 
-          {(pageState === "loaded" || pageState === "saving") && preferences && (
-            <div className="space-y-6">
-              {/* Email (read-only) */}
-              <div>
-                <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
-                  Email
-                </label>
-                <div className="px-4 py-2.5 bg-[var(--surface-muted)] text-[var(--text-tertiary)] rounded-[var(--radius-button)]">
-                  {preferences.email}
+          {(pageState === "loaded" || pageState === "saving") &&
+            preferences && (
+              <div className="space-y-6">
+                {/* Email (read-only) */}
+                <div>
+                  <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
+                    Email
+                  </label>
+                  <div className="px-4 py-2.5 bg-[var(--surface-muted)] text-[var(--text-tertiary)] rounded-[var(--radius-button)]">
+                    {preferences.email}
+                  </div>
+                </div>
+
+                {/* Name */}
+                <div>
+                  <label
+                    htmlFor="pref-name"
+                    className="block text-sm font-medium text-[var(--text-secondary)] mb-1"
+                  >
+                    Your name
+                  </label>
+                  <input
+                    type="text"
+                    id="pref-name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="How should we greet you?"
+                    disabled={pageState === "saving"}
+                    className="w-full px-4 py-2.5 border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-[var(--radius-button)] focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent disabled:opacity-50"
+                  />
+                </div>
+
+                {/* Goals */}
+                <div>
+                  <label className="block text-sm font-medium text-[var(--text-secondary)] mb-3">
+                    What brings you to the Geeta?
+                  </label>
+                  <GoalSelector />
+                </div>
+
+                {/* Send Time */}
+                <div>
+                  <label className="block text-sm font-medium text-[var(--text-secondary)] mb-3">
+                    When would you like to receive verses?
+                  </label>
+                  <TimeSelector
+                    value={sendTime}
+                    onChange={setSendTime}
+                    disabled={pageState === "saving"}
+                  />
+                </div>
+
+                {/* Error message */}
+                {errorMessage && pageState === "loaded" && (
+                  <div className="bg-[var(--status-error-bg)] border border-[var(--status-error-border)] rounded-[var(--radius-button)] p-4 text-[var(--status-error-text)] text-sm">
+                    {errorMessage}
+                  </div>
+                )}
+
+                {/* Save Button */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-4">
+                  <button
+                    onClick={handleSave}
+                    disabled={pageState === "saving" || !hasChanges}
+                    className="bg-[var(--interactive-primary)] hover:bg-[var(--interactive-primary-hover)] disabled:bg-[var(--interactive-primary-disabled-bg)] disabled:text-[var(--interactive-primary-disabled-text)] disabled:cursor-not-allowed text-[var(--interactive-primary-text)] font-semibold px-6 py-3 rounded-[var(--radius-button)] transition-[var(--transition-color)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
+                  >
+                    {pageState === "saving" ? "Saving..." : "Save Preferences"}
+                  </button>
+                  <Link
+                    to="/"
+                    className="text-center text-[var(--text-tertiary)] hover:text-[var(--interactive-ghost-text)] text-sm"
+                  >
+                    Cancel and go home
+                  </Link>
                 </div>
               </div>
-
-              {/* Name */}
-              <div>
-                <label
-                  htmlFor="pref-name"
-                  className="block text-sm font-medium text-[var(--text-secondary)] mb-1"
-                >
-                  Your name
-                </label>
-                <input
-                  type="text"
-                  id="pref-name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="How should we greet you?"
-                  disabled={pageState === "saving"}
-                  className="w-full px-4 py-2.5 border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-[var(--radius-button)] focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent disabled:opacity-50"
-                />
-              </div>
-
-              {/* Goals */}
-              <div>
-                <label className="block text-sm font-medium text-[var(--text-secondary)] mb-3">
-                  What brings you to the Geeta?
-                </label>
-                <GoalSelector />
-              </div>
-
-              {/* Send Time */}
-              <div>
-                <label className="block text-sm font-medium text-[var(--text-secondary)] mb-3">
-                  When would you like to receive verses?
-                </label>
-                <TimeSelector
-                  value={sendTime}
-                  onChange={setSendTime}
-                  disabled={pageState === "saving"}
-                />
-              </div>
-
-              {/* Error message */}
-              {errorMessage && pageState === "loaded" && (
-                <div className="bg-[var(--status-error-bg)] border border-[var(--status-error-border)] rounded-[var(--radius-button)] p-4 text-[var(--status-error-text)] text-sm">
-                  {errorMessage}
-                </div>
-              )}
-
-              {/* Save Button */}
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-4">
-                <button
-                  onClick={handleSave}
-                  disabled={pageState === "saving" || !hasChanges}
-                  className="bg-[var(--interactive-primary)] hover:bg-[var(--interactive-primary-hover)] disabled:bg-[var(--interactive-primary-disabled-bg)] disabled:text-[var(--interactive-primary-disabled-text)] disabled:cursor-not-allowed text-[var(--interactive-primary-text)] font-semibold px-6 py-3 rounded-[var(--radius-button)] transition-[var(--transition-color)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
-                >
-                  {pageState === "saving" ? "Saving..." : "Save Preferences"}
-                </button>
-                <Link
-                  to="/"
-                  className="text-center text-[var(--text-tertiary)] hover:text-[var(--interactive-ghost-text)] text-sm"
-                >
-                  Cancel and go home
-                </Link>
-              </div>
-            </div>
-          )}
+            )}
         </div>
 
         {/* Footer link */}

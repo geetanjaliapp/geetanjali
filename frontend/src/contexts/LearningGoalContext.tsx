@@ -43,7 +43,7 @@ interface LearningGoalContextType {
 }
 
 const LearningGoalContext = createContext<LearningGoalContextType | undefined>(
-  undefined
+  undefined,
 );
 
 /**
@@ -68,7 +68,7 @@ interface LearningGoalProviderProps {
 export function LearningGoalProvider({ children }: LearningGoalProviderProps) {
   // Lazy initialization from localStorage
   const [storedGoals, setStoredGoals] = useState<StoredGoals | null>(
-    loadStoredGoals
+    loadStoredGoals,
   );
   const { goals, getGoal, getPrinciplesForGoal } = useTaxonomy();
 
@@ -124,13 +124,13 @@ export function LearningGoalProvider({ children }: LearningGoalProviderProps) {
     (goalId: string): boolean => {
       return storedGoals?.goalIds?.includes(goalId) ?? false;
     },
-    [storedGoals]
+    [storedGoals],
   );
 
   // Get selected goal IDs (memoized to prevent new array reference each render)
   const selectedGoalIds = useMemo(
     () => storedGoals?.goalIds ?? [],
-    [storedGoals?.goalIds]
+    [storedGoals?.goalIds],
   );
 
   // Get full goal data for all selected goals (memoized)
@@ -139,13 +139,13 @@ export function LearningGoalProvider({ children }: LearningGoalProviderProps) {
       selectedGoalIds
         .map((id) => getGoal(id))
         .filter((g): g is Goal => g !== undefined),
-    [selectedGoalIds, getGoal]
+    [selectedGoalIds, getGoal],
   );
 
   // Get combined principles from all selected goals (deduplicated, memoized)
   const goalPrinciples: Principle[] = useMemo(() => {
     const allPrinciples = selectedGoalIds.flatMap((id) =>
-      getPrinciplesForGoal(id)
+      getPrinciplesForGoal(id),
     );
     // Deduplicate by principle id
     const seen = new Set<string>();
@@ -179,7 +179,7 @@ export function LearningGoalProvider({ children }: LearningGoalProviderProps) {
       clearGoals,
       isSelected,
       initialized,
-    ]
+    ],
   );
 
   return (
@@ -198,7 +198,7 @@ export function useLearningGoalContext(): LearningGoalContextType {
   const context = useContext(LearningGoalContext);
   if (!context) {
     throw new Error(
-      "useLearningGoalContext must be used within a LearningGoalProvider"
+      "useLearningGoalContext must be used within a LearningGoalProvider",
     );
   }
   return context;

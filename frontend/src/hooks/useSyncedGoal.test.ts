@@ -36,7 +36,11 @@ vi.mock("../contexts/LearningGoalContext", () => ({
     selectedGoals: [],
     goalPrinciples: [],
     goals: [
-      { id: "leadership", label: "Leadership", description: "Lead effectively" },
+      {
+        id: "leadership",
+        label: "Leadership",
+        description: "Lead effectively",
+      },
       { id: "ethics", label: "Ethics", description: "Make ethical decisions" },
     ],
     toggleGoal: mockToggleGoal,
@@ -61,7 +65,8 @@ import { preferencesApi } from "../lib/api";
 
 describe("useSyncedGoal", () => {
   const mockUseAuth = useAuth as unknown as ReturnType<typeof vi.fn>;
-  const mockUseLearningGoalContext = useLearningGoalContext as unknown as ReturnType<typeof vi.fn>;
+  const mockUseLearningGoalContext =
+    useLearningGoalContext as unknown as ReturnType<typeof vi.fn>;
   const mockPreferencesApi = preferencesApi as unknown as {
     merge: ReturnType<typeof vi.fn>;
     update: ReturnType<typeof vi.fn>;
@@ -89,8 +94,16 @@ describe("useSyncedGoal", () => {
       selectedGoals: [],
       goalPrinciples: [],
       goals: [
-        { id: "leadership", label: "Leadership", description: "Lead effectively" },
-        { id: "ethics", label: "Ethics", description: "Make ethical decisions" },
+        {
+          id: "leadership",
+          label: "Leadership",
+          description: "Lead effectively",
+        },
+        {
+          id: "ethics",
+          label: "Ethics",
+          description: "Make ethical decisions",
+        },
       ],
       toggleGoal: mockToggleGoal,
       setGoals: mockSetGoals,

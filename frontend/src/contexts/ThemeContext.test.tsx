@@ -207,7 +207,7 @@ describe("ThemeContext", () => {
 
       // Get a built-in theme ID (not default)
       const builtInTheme = result.current.availableThemes.find(
-        (t) => t.id !== "default"
+        (t) => t.id !== "default",
       );
 
       if (builtInTheme) {
@@ -240,7 +240,7 @@ describe("ThemeContext", () => {
       const { result } = renderHook(() => useTheme(), { wrapper });
 
       const builtInTheme = result.current.availableThemes.find(
-        (t) => t.id !== "default"
+        (t) => t.id !== "default",
       );
 
       if (builtInTheme) {
@@ -249,7 +249,7 @@ describe("ThemeContext", () => {
         });
 
         expect(localStorage.getItem("geetanjali:theme-id")).toBe(
-          builtInTheme.id
+          builtInTheme.id,
         );
       }
     });

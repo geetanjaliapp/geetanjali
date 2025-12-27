@@ -33,22 +33,17 @@ import { forwardRef, type HTMLAttributes } from "react";
  */
 const cardVariants = cva(
   // Base styles (shared across all variants)
-  ["rounded-[var(--radius-card)]", "border", "transition-[var(--transition-card)]"],
+  [
+    "rounded-[var(--radius-card)]",
+    "border",
+    "transition-[var(--transition-card)]",
+  ],
   {
     variants: {
       variant: {
-        default: [
-          "bg-[var(--surface-base)]",
-          "border-[var(--border-default)]",
-        ],
-        card: [
-          "bg-[var(--surface-card)]",
-          "border-[var(--border-warm)]",
-        ],
-        warm: [
-          "bg-[var(--surface-warm)]",
-          "border-[var(--border-warm)]",
-        ],
+        default: ["bg-[var(--surface-base)]", "border-[var(--border-default)]"],
+        card: ["bg-[var(--surface-card)]", "border-[var(--border-warm)]"],
+        warm: ["bg-[var(--surface-warm)]", "border-[var(--border-warm)]"],
         elevated: [
           "bg-[var(--surface-elevated)]",
           "border-[var(--border-subtle)]",
@@ -83,15 +78,14 @@ const cardVariants = cva(
       variant: "default",
       padding: "md",
     },
-  }
+  },
 );
 
 /**
  * Card component props
  */
 export interface CardProps
-  extends HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof cardVariants> {}
+  extends HTMLAttributes<HTMLDivElement>, VariantProps<typeof cardVariants> {}
 
 /**
  * Card component
@@ -118,7 +112,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
         {children}
       </div>
     );
-  }
+  },
 );
 
 Card.displayName = "Card";

@@ -78,7 +78,10 @@ const FORMAT_CONFIG: Record<ImageFormat, FormatConfig> = {
 
 // Theme color definitions for static themes (current theme is handled dynamically)
 type StaticImageTheme = Exclude<ImageTheme, "current">;
-const THEME_COLORS: Record<StaticImageTheme, Omit<ThemeColors, "background">> = {
+const THEME_COLORS: Record<
+  StaticImageTheme,
+  Omit<ThemeColors, "background">
+> = {
   warm: {
     om: "#F59E0B", // amber-500
     sanskrit: "#78350F", // amber-900
@@ -234,7 +237,10 @@ export async function generateVerseImage(
           divider: currentThemeColors.divider,
           border: currentThemeColors.border,
         }
-      : { background: "#FFFFFF", ...THEME_COLORS[options.theme as StaticImageTheme] };
+      : {
+          background: "#FFFFFF",
+          ...THEME_COLORS[options.theme as StaticImageTheme],
+        };
 
   const canvas = document.createElement("canvas");
   canvas.width = width;
@@ -260,7 +266,10 @@ export async function generateVerseImage(
   ctx.fillRect(0, 0, width, height);
 
   // Border for minimal theme or current theme with border
-  if ((options.theme === "minimal" || options.theme === "current") && colors.border) {
+  if (
+    (options.theme === "minimal" || options.theme === "current") &&
+    colors.border
+  ) {
     ctx.strokeStyle = colors.border;
     ctx.lineWidth = 2;
     ctx.strokeRect(1, 1, width - 2, height - 2);

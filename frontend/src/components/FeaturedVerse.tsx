@@ -31,9 +31,7 @@ export function FeaturedVerse({
       <div className="max-w-4xl mx-auto">
         <div className="bg-[var(--surface-card)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] p-6 sm:p-8 lg:p-12 border border-[var(--border-warm)] shadow-[var(--shadow-card-elevated)]">
           <div className="text-center space-y-3">
-            <div className="text-3xl text-[var(--badge-warm-text)]/50">
-              ॐ
-            </div>
+            <div className="text-3xl text-[var(--badge-warm-text)]/50">ॐ</div>
             <p className="text-[var(--text-tertiary)] text-sm">
               Unable to load today's verse
             </p>

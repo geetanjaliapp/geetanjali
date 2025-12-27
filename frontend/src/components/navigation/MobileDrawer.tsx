@@ -170,7 +170,9 @@ export function MobileDrawer({
             <div className="flex items-center gap-3 px-4 py-3 border-b border-[var(--border-subtle)]">
               <div
                 className={`w-10 h-10 rounded-[var(--radius-avatar)] ${
-                  isGuest ? "bg-[var(--text-muted)]" : "bg-[var(--interactive-primary)]"
+                  isGuest
+                    ? "bg-[var(--text-muted)]"
+                    : "bg-[var(--interactive-primary)]"
                 } ${isGuest ? "text-[var(--text-inverted)]" : "text-[var(--interactive-primary-text)]"} flex items-center justify-center text-sm font-medium shadow-[var(--shadow-button)]`}
               >
                 {isGuest ? (
@@ -222,7 +224,10 @@ export function MobileDrawer({
                 className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-[var(--radius-nav)] text-sm text-[var(--text-secondary)] hover:bg-[var(--surface-warm-hover)] transition-[var(--transition-color)]"
               >
                 <div className="flex items-center gap-3">
-                  <HeartIcon className="w-4 h-4 text-[var(--icon-favorite)]" filled />
+                  <HeartIcon
+                    className="w-4 h-4 text-[var(--icon-favorite)]"
+                    filled
+                  />
                   <span>My Favorites</span>
                 </div>
                 {favoritesCount > 0 && (
@@ -290,9 +295,7 @@ export function MobileDrawer({
                   {/* Divider */}
                   <div className="flex items-center gap-3 py-1">
                     <div className="flex-1 border-t border-[var(--border-warm)]" />
-                    <span className="text-xs text-[var(--text-muted)]">
-                      or
-                    </span>
+                    <span className="text-xs text-[var(--text-muted)]">or</span>
                     <div className="flex-1 border-t border-[var(--border-warm)]" />
                   </div>
 

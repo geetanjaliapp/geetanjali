@@ -17,12 +17,14 @@ export const PRINCIPLE_TAXONOMY = {
   dharma: {
     label: "Righteous Duty",
     shortLabel: "Duty",
-    description: "Honor your responsibilities and role. Act on what is right, not what is convenient.",
+    description:
+      "Honor your responsibilities and role. Act on what is right, not what is convenient.",
   },
   nishkama_karma: {
     label: "Selfless Action",
     shortLabel: "Selfless Action",
-    description: "Act without attachment to outcomes. Focus on the process, not results.",
+    description:
+      "Act without attachment to outcomes. Focus on the process, not results.",
   },
   svadharma: {
     label: "True to Your Nature",
@@ -32,23 +34,27 @@ export const PRINCIPLE_TAXONOMY = {
   seva: {
     label: "Selfless Service",
     shortLabel: "Service",
-    description: "Act for the welfare of others without expectation. Lead by personal example.",
+    description:
+      "Act for the welfare of others without expectation. Lead by personal example.",
   },
   // JNANA (Knowledge)
   viveka: {
     label: "Discernment",
     shortLabel: "Discernment",
-    description: "Distinguish the essential from non-essential, wise from unwise.",
+    description:
+      "Distinguish the essential from non-essential, wise from unwise.",
   },
   jnana: {
     label: "Self-Knowledge",
     shortLabel: "Knowledge",
-    description: "Pursue understanding of self, truth, and the nature of reality.",
+    description:
+      "Pursue understanding of self, truth, and the nature of reality.",
   },
   sthitaprajna: {
     label: "Steady Wisdom",
     shortLabel: "Steady Wisdom",
-    description: "Maintain clarity and stability of mind amidst changing circumstances.",
+    description:
+      "Maintain clarity and stability of mind amidst changing circumstances.",
   },
   tyaga: {
     label: "Letting Go",
@@ -59,7 +65,8 @@ export const PRINCIPLE_TAXONOMY = {
   bhakti: {
     label: "Devotion",
     shortLabel: "Devotion",
-    description: "Cultivate love and connection to something greater than yourself.",
+    description:
+      "Cultivate love and connection to something greater than yourself.",
   },
   sharanagati: {
     label: "Surrender",
@@ -74,13 +81,15 @@ export const PRINCIPLE_TAXONOMY = {
   dhyana: {
     label: "Meditation",
     shortLabel: "Meditation",
-    description: "Cultivate inner stillness, focus, and connection through practice.",
+    description:
+      "Cultivate inner stillness, focus, and connection through practice.",
   },
   // SADACHARA (Character)
   samatvam: {
     label: "Equanimity",
     shortLabel: "Equanimity",
-    description: "Remain balanced in success and failure, praise and criticism.",
+    description:
+      "Remain balanced in success and failure, praise and criticism.",
   },
   discipline: {
     label: "Self-Mastery",
@@ -90,12 +99,14 @@ export const PRINCIPLE_TAXONOMY = {
   virtue: {
     label: "Noble Qualities",
     shortLabel: "Virtue",
-    description: "Embody divine qualities: truthfulness, courage, compassion, patience.",
+    description:
+      "Embody divine qualities: truthfulness, courage, compassion, patience.",
   },
   abhyasa: {
     label: "Practice",
     shortLabel: "Practice",
-    description: "Persist through consistent effort. Growth comes through repetition.",
+    description:
+      "Persist through consistent effort. Growth comes through repetition.",
   },
   // Legacy mappings for backward compatibility during re-enrichment
   duty_focus: {
@@ -111,7 +122,8 @@ export const PRINCIPLE_TAXONOMY = {
   self_control: {
     label: "Self-Mastery",
     shortLabel: "Discipline",
-    description: "Cultivate self-discipline, mental clarity, and personal integrity.",
+    description:
+      "Cultivate self-discipline, mental clarity, and personal integrity.",
   },
   informed_choice: {
     label: "Discernment",
@@ -121,7 +133,8 @@ export const PRINCIPLE_TAXONOMY = {
   role_fit: {
     label: "True to Your Nature",
     shortLabel: "Your Nature",
-    description: "Match responsibilities to natural capabilities and strengths.",
+    description:
+      "Match responsibilities to natural capabilities and strengths.",
   },
   compassion: {
     label: "Selfless Service",
@@ -131,17 +144,20 @@ export const PRINCIPLE_TAXONOMY = {
   self_responsibility: {
     label: "Selfless Service",
     shortLabel: "Service",
-    description: "Lead through personal action and take responsibility for growth.",
+    description:
+      "Lead through personal action and take responsibility for growth.",
   },
   ethical_character: {
     label: "Noble Qualities",
     shortLabel: "Virtue",
-    description: "Filter actions through virtuous qualities like truthfulness and courage.",
+    description:
+      "Filter actions through virtuous qualities like truthfulness and courage.",
   },
   consistent_duty: {
     label: "Practice",
     shortLabel: "Practice",
-    description: "Perform duties regularly. Avoid impulsive or erratic behavior.",
+    description:
+      "Perform duties regularly. Avoid impulsive or erratic behavior.",
   },
 } as const;
 

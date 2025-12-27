@@ -117,7 +117,10 @@ describe("useSyncedReading", () => {
     });
 
     it("should load existing settings from localStorage", () => {
-      localStorage.setItem(READING_SETTINGS_KEY, JSON.stringify({ fontSize: "large" }));
+      localStorage.setItem(
+        READING_SETTINGS_KEY,
+        JSON.stringify({ fontSize: "large" }),
+      );
 
       const { result } = renderHook(() => useSyncedReading());
 
@@ -148,7 +151,9 @@ describe("useSyncedReading", () => {
         result.current.savePosition(4, 7);
       });
 
-      const stored = JSON.parse(localStorage.getItem(READING_POSITION_KEY) || "null");
+      const stored = JSON.parse(
+        localStorage.getItem(READING_POSITION_KEY) || "null",
+      );
       expect(stored).not.toBeNull();
       expect(stored.chapter).toBe(4);
       expect(stored.verse).toBe(7);
@@ -163,7 +168,9 @@ describe("useSyncedReading", () => {
       });
       const afterSave = Date.now();
 
-      expect(result.current.position?.timestamp).toBeGreaterThanOrEqual(beforeSave);
+      expect(result.current.position?.timestamp).toBeGreaterThanOrEqual(
+        beforeSave,
+      );
       expect(result.current.position?.timestamp).toBeLessThanOrEqual(afterSave);
     });
   });
@@ -200,7 +207,9 @@ describe("useSyncedReading", () => {
         result.current.setFontSize("small");
       });
 
-      const stored = JSON.parse(localStorage.getItem(READING_SETTINGS_KEY) || "{}");
+      const stored = JSON.parse(
+        localStorage.getItem(READING_SETTINGS_KEY) || "{}",
+      );
       expect(stored.fontSize).toBe("small");
     });
   });
@@ -213,7 +222,7 @@ describe("useSyncedReading", () => {
     it("should clear position", () => {
       localStorage.setItem(
         READING_POSITION_KEY,
-        JSON.stringify({ chapter: 2, verse: 47, timestamp: Date.now() })
+        JSON.stringify({ chapter: 2, verse: 47, timestamp: Date.now() }),
       );
 
       const { result } = renderHook(() => useSyncedReading());
@@ -227,7 +236,10 @@ describe("useSyncedReading", () => {
     });
 
     it("should reset font size to default", () => {
-      localStorage.setItem(READING_SETTINGS_KEY, JSON.stringify({ fontSize: "large" }));
+      localStorage.setItem(
+        READING_SETTINGS_KEY,
+        JSON.stringify({ fontSize: "large" }),
+      );
 
       const { result } = renderHook(() => useSyncedReading());
       expect(result.current.settings.fontSize).toBe("large");
@@ -242,9 +254,12 @@ describe("useSyncedReading", () => {
     it("should clear localStorage", () => {
       localStorage.setItem(
         READING_POSITION_KEY,
-        JSON.stringify({ chapter: 2, verse: 47, timestamp: Date.now() })
+        JSON.stringify({ chapter: 2, verse: 47, timestamp: Date.now() }),
       );
-      localStorage.setItem(READING_SETTINGS_KEY, JSON.stringify({ fontSize: "large" }));
+      localStorage.setItem(
+        READING_SETTINGS_KEY,
+        JSON.stringify({ fontSize: "large" }),
+      );
 
       const { result } = renderHook(() => useSyncedReading());
 
@@ -314,7 +329,9 @@ describe("useSyncedReading", () => {
       expect(result.current.position?.chapter).toBe(2);
       expect(result.current.position?.verse).toBe(47);
 
-      const stored = JSON.parse(localStorage.getItem(READING_POSITION_KEY) || "null");
+      const stored = JSON.parse(
+        localStorage.getItem(READING_POSITION_KEY) || "null",
+      );
       expect(stored).not.toBeNull();
     });
   });

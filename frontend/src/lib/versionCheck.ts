@@ -59,7 +59,7 @@ async function clearServiceWorkerCaches(): Promise<void> {
       await Promise.all(
         cacheNames
           .filter((name) => name.startsWith("geetanjali-"))
-          .map((name) => caches.delete(name))
+          .map((name) => caches.delete(name)),
       );
     } catch (error) {
       console.warn("[VersionCheck] Failed to clear caches:", error);

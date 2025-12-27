@@ -14,7 +14,7 @@ import { errorMessages } from "../lib/errorMessages";
 // Lazy load FeaturedConsultations to reduce main bundle size
 // (includes react-markdown which adds ~100KB)
 const FeaturedConsultations = lazy(
-  () => import("../components/FeaturedConsultations")
+  () => import("../components/FeaturedConsultations"),
 );
 
 export default function Home() {

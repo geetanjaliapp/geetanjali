@@ -298,11 +298,11 @@ describe("theme utilities", () => {
       expect(css).toContain(".dark {");
       // Light colors in :root
       expect(css.indexOf("--color-primary-500: #ea580c;")).toBeLessThan(
-        css.indexOf(".dark {")
+        css.indexOf(".dark {"),
       );
       // Dark colors in .dark
       expect(css.indexOf("--color-primary-500: #f97316;")).toBeGreaterThan(
-        css.indexOf(".dark {")
+        css.indexOf(".dark {"),
       );
     });
 
@@ -511,7 +511,7 @@ describe("theme utilities", () => {
       // Store invalid theme (missing required fields)
       localStorage.setItem(
         "geetanjali:custom-theme",
-        JSON.stringify({ invalid: true })
+        JSON.stringify({ invalid: true }),
       );
 
       const loaded = loadThemeFromStorage();

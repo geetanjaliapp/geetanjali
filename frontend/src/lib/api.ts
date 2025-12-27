@@ -143,8 +143,17 @@ export const casesApi = {
   list: async (
     skip = 0,
     limit = 100,
-    statusFilter?: string
-  ): Promise<{ cases: Case[]; counts: { all: number; completed: number; in_progress: number; failed: number; shared: number } }> => {
+    statusFilter?: string,
+  ): Promise<{
+    cases: Case[];
+    counts: {
+      all: number;
+      completed: number;
+      in_progress: number;
+      failed: number;
+      shared: number;
+    };
+  }> => {
     const params: Record<string, unknown> = { skip, limit };
     if (statusFilter && statusFilter !== "all") {
       params.status_filter = statusFilter;

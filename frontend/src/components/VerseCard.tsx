@@ -194,10 +194,7 @@ export const VerseCard = memo(function VerseCard({
                 isFavorite ? "Remove from favorites" : "Add to favorites"
               }
             >
-              <HeartIcon
-                className="w-4 h-4"
-                filled={isFavorite}
-              />
+              <HeartIcon className="w-4 h-4" filled={isFavorite} />
             </button>
           )}
         </div>

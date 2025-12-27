@@ -85,14 +85,15 @@ const buttonVariants = cva(
       size: "md",
       fullWidth: false,
     },
-  }
+  },
 );
 
 /**
  * Button component props
  */
 export interface ButtonProps
-  extends ButtonHTMLAttributes<HTMLButtonElement>,
+  extends
+    ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   /** Loading state - shows spinner and disables button */
   loading?: boolean;
@@ -116,7 +117,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       children,
       ...props
     },
-    ref
+    ref,
   ) => {
     const isDisabled = disabled || loading;
 
@@ -154,7 +155,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {children}
       </button>
     );
-  }
+  },
 );
 
 Button.displayName = "Button";

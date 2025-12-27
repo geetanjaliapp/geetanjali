@@ -97,7 +97,9 @@ export function CaseHeader({
                     : "bg-[var(--surface-elevated)] text-[var(--text-secondary)] hover:bg-[var(--interactive-ghost-hover-bg)] border border-[var(--border-default)]"
                 } ${shareLoading ? "opacity-50 cursor-not-allowed" : ""}`}
                 aria-label={
-                  caseData.is_public ? "Toggle share options" : "Share consultation"
+                  caseData.is_public
+                    ? "Toggle share options"
+                    : "Share consultation"
                 }
               >
                 {caseData.is_public ? (
@@ -132,33 +134,39 @@ export function CaseHeader({
                   </svg>
                 )}
                 <span className="hidden sm:inline text-xs">
-                  {shareLoading ? "..." : caseData.is_public ? "Shared" : "Share"}
+                  {shareLoading
+                    ? "..."
+                    : caseData.is_public
+                      ? "Shared"
+                      : "Share"}
                 </span>
               </button>
 
               {/* ShareBar popover - positioned relative to button, auto-dismisses */}
-              {caseData.is_public && caseData.public_slug && shareBarVisible && (
-                <>
-                  <div
-                    className="fixed inset-0 z-10"
-                    onClick={handleCloseShareBar}
-                  />
-                  <div className="absolute right-0 top-full mt-2 z-20">
-                    <ShareBar
-                      publicSlug={caseData.public_slug}
-                      shareMode={caseData.share_mode}
-                      viewCount={caseData.view_count}
-                      copySuccess={copySuccess}
-                      isLoading={shareLoading}
-                      onCopyLink={onCopyShareLink}
-                      onModeChange={onModeChange}
-                      onStopSharing={onStopSharing}
-                      onClose={handleCloseShareBar}
-                      autoDismiss={5000}
+              {caseData.is_public &&
+                caseData.public_slug &&
+                shareBarVisible && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-10"
+                      onClick={handleCloseShareBar}
                     />
-                  </div>
-                </>
-              )}
+                    <div className="absolute right-0 top-full mt-2 z-20">
+                      <ShareBar
+                        publicSlug={caseData.public_slug}
+                        shareMode={caseData.share_mode}
+                        viewCount={caseData.view_count}
+                        copySuccess={copySuccess}
+                        isLoading={shareLoading}
+                        onCopyLink={onCopyShareLink}
+                        onModeChange={onModeChange}
+                        onStopSharing={onStopSharing}
+                        onClose={handleCloseShareBar}
+                        autoDismiss={5000}
+                      />
+                    </div>
+                  </>
+                )}
             </div>
           )}
 

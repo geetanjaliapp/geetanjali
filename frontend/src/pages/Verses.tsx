@@ -1,10 +1,4 @@
-import {
-  useEffect,
-  useState,
-  useCallback,
-  useMemo,
-  useRef,
-} from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { versesApi } from "../lib/api";
@@ -26,7 +20,13 @@ import {
   BookOpenIcon,
 } from "../components/icons";
 import { errorMessages } from "../lib/errorMessages";
-import { useSEO, useSyncedFavorites, useSyncedGoal, useSearch, useTaxonomy } from "../hooks";
+import {
+  useSEO,
+  useSyncedFavorites,
+  useSyncedGoal,
+  useSearch,
+  useTaxonomy,
+} from "../hooks";
 import { validateSearchQuery } from "../lib/contentFilter";
 import { STORAGE_KEYS, getStorageItem } from "../lib/storage";
 
@@ -57,7 +57,7 @@ function getColumnCount(): number {
   const width = window.innerWidth;
   if (width >= 1280) return 4; // xl
   if (width >= 1024) return 3; // lg
-  if (width >= 640) return 2;  // sm
+  if (width >= 640) return 2; // sm
   return 1;
 }
 
@@ -143,10 +143,10 @@ function BrowseVerseGrid({
   // Simple grid for small datasets (no virtualization)
   if (!shouldVirtualize) {
     return (
-      <div className={`relative z-0 pb-4 ${loading ? "opacity-50" : "opacity-100"}`}>
-        <div className={VERSE_GRID_CLASSES}>
-          {verses.map(renderVerseCard)}
-        </div>
+      <div
+        className={`relative z-0 pb-4 ${loading ? "opacity-50" : "opacity-100"}`}
+      >
+        <div className={VERSE_GRID_CLASSES}>{verses.map(renderVerseCard)}</div>
       </div>
     );
   }
@@ -155,7 +155,9 @@ function BrowseVerseGrid({
   const virtualRows = virtualizer.getVirtualItems();
 
   return (
-    <div className={`relative z-0 pb-4 ${loading ? "opacity-50" : "opacity-100"}`}>
+    <div
+      className={`relative z-0 pb-4 ${loading ? "opacity-50" : "opacity-100"}`}
+    >
       <div
         style={{
           height: `${virtualizer.getTotalSize()}px`,
@@ -253,7 +255,9 @@ function SearchVerseGrid({
   // Simple grid for small datasets (no virtualization)
   if (!shouldVirtualize) {
     return (
-      <div className={`relative z-0 pb-4 ${loading ? "opacity-50" : "opacity-100"}`}>
+      <div
+        className={`relative z-0 pb-4 ${loading ? "opacity-50" : "opacity-100"}`}
+      >
         <div className={VERSE_GRID_CLASSES}>
           {results.map(renderResultCard)}
         </div>
@@ -265,7 +269,9 @@ function SearchVerseGrid({
   const virtualRows = virtualizer.getVirtualItems();
 
   return (
-    <div className={`relative z-0 pb-4 ${loading ? "opacity-50" : "opacity-100"}`}>
+    <div
+      className={`relative z-0 pb-4 ${loading ? "opacity-50" : "opacity-100"}`}
+    >
       <div
         style={{
           height: `${virtualizer.getTotalSize()}px`,
@@ -275,7 +281,10 @@ function SearchVerseGrid({
       >
         {virtualRows.map((virtualRow) => {
           const startIndex = virtualRow.index * columnCount;
-          const rowResults = results.slice(startIndex, startIndex + columnCount);
+          const rowResults = results.slice(
+            startIndex,
+            startIndex + columnCount,
+          );
 
           return (
             <div
@@ -435,7 +444,10 @@ export default function Verses() {
     if (showRec === "true") return "recommended";
 
     // No URL params - use user's default preference
-    const defaultTab = getStorageItem<string>(STORAGE_KEYS.defaultVersesTab, "default");
+    const defaultTab = getStorageItem<string>(
+      STORAGE_KEYS.defaultVersesTab,
+      "default",
+    );
     if (defaultTab === "for-you") return "recommended";
     if (defaultTab === "favorites") return "favorites";
     if (defaultTab === "all") return "all";
@@ -621,7 +633,11 @@ export default function Verses() {
         setError(null);
 
         // For recommended mode, use the user's goal principles (loadMore handles pagination)
-        if (filterMode === "recommended" && recommendedPrinciples.length > 0 && reset) {
+        if (
+          filterMode === "recommended" &&
+          recommendedPrinciples.length > 0 &&
+          reset
+        ) {
           const data = await versesApi.list(
             0,
             pageSize,
@@ -826,7 +842,14 @@ export default function Verses() {
     } finally {
       setLoadingMore(false);
     }
-  }, [filterMode, selectedPrinciple, verses.length, loadingMore, pageSize, recommendedPrinciples]);
+  }, [
+    filterMode,
+    selectedPrinciple,
+    verses.length,
+    loadingMore,
+    pageSize,
+    recommendedPrinciples,
+  ]);
 
   const updateSearchParams = useCallback(
     (filter: FilterMode, principle: string | null) => {
@@ -967,11 +990,12 @@ export default function Verses() {
         aria-atomic="true"
         className="sr-only"
       >
-        {isSearchMode && !searchLoading && searchData && (
-          searchData.total === 0
+        {isSearchMode &&
+          !searchLoading &&
+          searchData &&
+          (searchData.total === 0
             ? `No results found for "${searchData.query}"`
-            : `${searchData.total} result${searchData.total !== 1 ? 's' : ''} found for "${searchData.query}"`
-        )}
+            : `${searchData.total} result${searchData.total !== 1 ? "s" : ""} found for "${searchData.query}"`)}
       </div>
 
       <Navbar />
@@ -1298,7 +1322,10 @@ export default function Verses() {
             </div>
           ) : showFavorites ? (
             <div className="flex items-center gap-1.5">
-              <HeartIcon className="w-3.5 h-3.5 text-[var(--decorative-heart)]" filled />
+              <HeartIcon
+                className="w-3.5 h-3.5 text-[var(--decorative-heart)]"
+                filled
+              />
               <span className="text-xs sm:text-sm text-[var(--text-accent-muted)]">
                 {totalCount !== null ? `${totalCount} ` : ""}
                 favorite{totalCount !== 1 ? "s" : ""}
@@ -1419,7 +1446,9 @@ export default function Verses() {
                               </span>
                               {!searchLoadingMore && searchData.total_count && (
                                 <span className="text-xs text-[var(--text-accent-muted)] mt-1">
-                                  {searchData.total_count - searchData.results.length} more
+                                  {searchData.total_count -
+                                    searchData.results.length}{" "}
+                                  more
                                 </span>
                               )}
                             </div>
@@ -1432,7 +1461,9 @@ export default function Verses() {
                           <div className="flex flex-col items-center">
                             <SearchIcon className="w-5 h-5 text-[var(--decorative-om)]" />
                             <span className="text-xs text-[var(--text-accent-muted)] mt-1">
-                              {searchData.total_count ?? searchData.results.length} results
+                              {searchData.total_count ??
+                                searchData.results.length}{" "}
+                              results
                             </span>
                           </div>
                           <div className="flex-1 h-px bg-linear-to-l from-transparent via-[var(--divider-warm-subtle)] to-[var(--divider-warm-subtle)]" />
@@ -1521,12 +1552,18 @@ export default function Verses() {
                       ) : showFeatured ? (
                         <StarIcon className="w-10 h-10 sm:w-12 sm:h-12 text-[var(--decorative-om)]" />
                       ) : (
-                        <span className="text-4xl sm:text-5xl text-[var(--decorative-om)]">ॐ</span>
+                        <span className="text-4xl sm:text-5xl text-[var(--decorative-om)]">
+                          ॐ
+                        </span>
                       )}
                     </div>
 
                     <h3 className="text-lg sm:text-xl font-serif text-[var(--text-primary)] mb-2">
-                      {showFavorites ? "No favorites yet" : showRecommended ? "No recommendations yet" : "No verses found"}
+                      {showFavorites
+                        ? "No favorites yet"
+                        : showRecommended
+                          ? "No recommendations yet"
+                          : "No verses found"}
                     </h3>
 
                     <p className="text-sm sm:text-base text-[var(--text-tertiary)] mb-6">
@@ -1538,8 +1575,15 @@ export default function Verses() {
                         </>
                       ) : showRecommended ? (
                         <>
-                          No verses match your current learning goals. Try selecting different goals in{" "}
-                          <a href="/settings#goals" className="text-[var(--interactive-ghost-text)] underline">Settings</a>.
+                          No verses match your current learning goals. Try
+                          selecting different goals in{" "}
+                          <a
+                            href="/settings#goals"
+                            className="text-[var(--interactive-ghost-text)] underline"
+                          >
+                            Settings
+                          </a>
+                          .
                         </>
                       ) : selectedPrinciple && selectedChapter ? (
                         <>
@@ -1653,17 +1697,28 @@ export default function Verses() {
                           <div className="flex-1 h-px bg-linear-to-r from-transparent via-[var(--divider-warm-subtle)] to-[var(--divider-warm-subtle)]" />
                           <div className="flex flex-col items-center">
                             {showFavorites ? (
-                              <HeartIcon className="w-5 h-5 text-[var(--decorative-heart)]" filled />
+                              <HeartIcon
+                                className="w-5 h-5 text-[var(--decorative-heart)]"
+                                filled
+                              />
                             ) : showRecommended ? (
                               <SparklesIcon className="w-5 h-5 text-[var(--decorative-om)]" />
                             ) : showFeatured ? (
                               <StarIcon className="w-5 h-5 text-[var(--decorative-om)]" />
                             ) : (
-                              <span className="text-[var(--decorative-om)] text-xl">ॐ</span>
+                              <span className="text-[var(--decorative-om)] text-xl">
+                                ॐ
+                              </span>
                             )}
                             <span className="text-xs text-[var(--text-accent-muted)] mt-1">
                               {displayedVerses.length}{" "}
-                              {showFavorites ? "favorite" : showRecommended ? "recommended" : showFeatured ? "featured" : "verse"}
+                              {showFavorites
+                                ? "favorite"
+                                : showRecommended
+                                  ? "recommended"
+                                  : showFeatured
+                                    ? "featured"
+                                    : "verse"}
                               {displayedVerses.length !== 1 ? "s" : ""}
                             </span>
                           </div>

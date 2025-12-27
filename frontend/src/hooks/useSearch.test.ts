@@ -84,9 +84,9 @@ describe("useSearch", () => {
           new Promise((resolve) =>
             setTimeout(
               () => resolve({ results: [], total: 0, total_count: 0 }),
-              100
-            )
-          )
+              100,
+            ),
+          ),
       );
 
       const { result } = renderHook(() => useSearch());
@@ -260,7 +260,7 @@ describe("useSearch", () => {
       });
 
       const { result } = renderHook(() =>
-        useSearch({ principle: "karma_yoga" })
+        useSearch({ principle: "karma_yoga" }),
       );
 
       await act(async () => {

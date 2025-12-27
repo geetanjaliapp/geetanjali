@@ -8,7 +8,12 @@ import {
 } from "../components/icons";
 import { api } from "../lib/api";
 
-type UnsubscribeState = "confirm" | "loading" | "success" | "already_unsubscribed" | "error";
+type UnsubscribeState =
+  | "confirm"
+  | "loading"
+  | "success"
+  | "already_unsubscribed"
+  | "error";
 
 export default function NewsletterUnsubscribe() {
   const { token } = useParams<{ token: string }>();
@@ -45,7 +50,7 @@ export default function NewsletterUnsubscribe() {
       if (err && typeof err === "object" && "response" in err) {
         const axiosErr = err as { response?: { data?: { detail?: string } } };
         setErrorMessage(
-          axiosErr.response?.data?.detail || "Failed to unsubscribe"
+          axiosErr.response?.data?.detail || "Failed to unsubscribe",
         );
       } else {
         setErrorMessage("Failed to unsubscribe");
@@ -63,7 +68,8 @@ export default function NewsletterUnsubscribe() {
               Unsubscribe from Daily Wisdom?
             </h1>
             <p className="text-[var(--text-tertiary)] mb-6">
-              You'll stop receiving daily verse emails. You can always subscribe again later.
+              You'll stop receiving daily verse emails. You can always subscribe
+              again later.
             </p>
             <div className="space-y-3">
               <button
@@ -157,9 +163,7 @@ export default function NewsletterUnsubscribe() {
             <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
               Something Went Wrong
             </h1>
-            <p className="text-[var(--text-tertiary)] mb-6">
-              {errorMessage}
-            </p>
+            <p className="text-[var(--text-tertiary)] mb-6">{errorMessage}</p>
             <Link
               to="/"
               className="inline-block px-6 py-3 bg-linear-to-r from-[var(--interactive-gradient-from)] to-[var(--interactive-gradient-to)] text-[var(--interactive-primary-text)] font-medium rounded-[var(--radius-button)] hover:from-[var(--interactive-gradient-from-hover)] hover:to-[var(--interactive-gradient-to-hover)] transition-[var(--transition-all)]"

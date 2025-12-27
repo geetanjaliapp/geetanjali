@@ -39,7 +39,8 @@ export function ConfirmModal({
   const modalRef = useRef<HTMLDivElement>(null);
   const [confirmInput, setConfirmInput] = useState("");
 
-  const textMatches = !requireText || confirmInput.toLowerCase() === requireText.toLowerCase();
+  const textMatches =
+    !requireText || confirmInput.toLowerCase() === requireText.toLowerCase();
 
   // Wrap handlers to reset input
   const handleCancel = () => {
@@ -103,7 +104,8 @@ export function ConfirmModal({
         </svg>
       ),
       iconBg: "bg-[var(--status-error-bg)]",
-      confirmButton: "bg-[var(--status-error-text)] hover:opacity-90 focus-visible:ring-[var(--status-error-border)]",
+      confirmButton:
+        "bg-[var(--status-error-text)] hover:opacity-90 focus-visible:ring-[var(--status-error-border)]",
     },
     warning: {
       icon: (
@@ -122,7 +124,8 @@ export function ConfirmModal({
         </svg>
       ),
       iconBg: "bg-[var(--status-warning-bg)]",
-      confirmButton: "bg-[var(--status-warning-text)] hover:opacity-90 focus-visible:ring-[var(--status-warning-border)]",
+      confirmButton:
+        "bg-[var(--status-warning-text)] hover:opacity-90 focus-visible:ring-[var(--status-warning-border)]",
     },
     default: {
       icon: (
@@ -141,7 +144,8 @@ export function ConfirmModal({
         </svg>
       ),
       iconBg: "bg-[var(--surface-muted)]",
-      confirmButton: "bg-[var(--interactive-primary)] hover:bg-[var(--interactive-primary-hover)] focus-visible:ring-[var(--focus-ring)]",
+      confirmButton:
+        "bg-[var(--interactive-primary)] hover:bg-[var(--interactive-primary-hover)] focus-visible:ring-[var(--focus-ring)]",
     },
   };
 
@@ -191,7 +195,11 @@ export function ConfirmModal({
                 htmlFor="confirm-text-input"
                 className="block text-xs text-[var(--text-tertiary)] mb-1.5 text-center"
               >
-                Type <span className="font-semibold text-[var(--text-primary)]">{requireText}</span> to confirm
+                Type{" "}
+                <span className="font-semibold text-[var(--text-primary)]">
+                  {requireText}
+                </span>{" "}
+                to confirm
               </label>
               <input
                 id="confirm-text-input"
@@ -200,7 +208,9 @@ export function ConfirmModal({
                 onChange={(e) => setConfirmInput(e.target.value)}
                 placeholder={requireTextHint || requireText}
                 disabled={loading}
-                aria-invalid={confirmInput.length > 0 && !textMatches ? true : undefined}
+                aria-invalid={
+                  confirmInput.length > 0 && !textMatches ? true : undefined
+                }
                 className="w-full px-3 py-2 text-sm text-center border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--input-text)] placeholder:text-[var(--input-text-placeholder)] rounded-[var(--radius-input)] focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-transparent disabled:opacity-50 disabled:bg-[var(--input-bg-disabled)]"
                 autoComplete="off"
                 spellCheck={false}

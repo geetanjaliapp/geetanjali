@@ -85,7 +85,7 @@ const iconButtonVariants = cva(
       variant: "ghost",
       size: "md",
     },
-  }
+  },
 );
 
 /**
@@ -93,7 +93,8 @@ const iconButtonVariants = cva(
  * Note: aria-label is required for accessibility
  */
 export interface IconButtonProps
-  extends ButtonHTMLAttributes<HTMLButtonElement>,
+  extends
+    ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof iconButtonVariants> {
   /** Required for accessibility - describes the button action */
   "aria-label": string;
@@ -120,7 +121,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
         {children}
       </button>
     );
-  }
+  },
 );
 
 IconButton.displayName = "IconButton";

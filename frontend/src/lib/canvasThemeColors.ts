@@ -72,7 +72,7 @@ function cssColorToHex(cssValue: string): string {
 
   // Parse rgb/rgba format
   const match = computed.match(
-    /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?\)/
+    /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?\)/,
   );
   if (match) {
     const r = parseInt(match[1]).toString(16).padStart(2, "0");
@@ -110,12 +110,21 @@ export function getCanvasThemeColors(): CanvasThemeColors {
   const dark = isDarkMode();
 
   // Get gradient colors for background
-  const gradientFrom = resolveToken("--gradient-warm-from", dark ? "#1F2937" : "#FEF3C7");
-  const gradientTo = resolveToken("--gradient-warm-to", dark ? "#111827" : "#FED7AA");
+  const gradientFrom = resolveToken(
+    "--gradient-warm-from",
+    dark ? "#1F2937" : "#FEF3C7",
+  );
+  const gradientTo = resolveToken(
+    "--gradient-warm-to",
+    dark ? "#111827" : "#FED7AA",
+  );
 
   // For Om, we need the base color without transparency
   // The decorative-om token has transparency, so we use the warm color directly
-  const omColor = resolveToken("--color-warm-500", dark ? "#FBBF24" : "#F59E0B");
+  const omColor = resolveToken(
+    "--color-warm-500",
+    dark ? "#FBBF24" : "#F59E0B",
+  );
 
   return {
     background: {

@@ -51,9 +51,18 @@ function GoalCard({ goal, isSelected, onToggle }: GoalCardProps) {
         {IconComponent ? (
           <IconComponent className="w-4 h-4 sm:w-5 sm:h-5" />
         ) : (
-          <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg
+            className="w-4 h-4 sm:w-5 sm:h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
             <circle cx="12" cy="12" r="10" strokeWidth={2} />
-            <path strokeLinecap="round" strokeWidth={2} d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3m.01 4h.01" />
+            <path
+              strokeLinecap="round"
+              strokeWidth={2}
+              d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3m.01 4h.01"
+            />
           </svg>
         )}
       </div>

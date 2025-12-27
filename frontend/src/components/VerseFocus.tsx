@@ -19,7 +19,11 @@ import { formatSanskritLines, isSpeakerIntro } from "../lib/sanskritFormatter";
 import { getTranslatorPriority } from "../constants/translators";
 import { HeartIcon } from "./icons";
 import { useSyncedFavorites } from "../hooks";
-import { setStorageItem, setStorageItemRaw, STORAGE_KEYS } from "../lib/storage";
+import {
+  setStorageItem,
+  setStorageItemRaw,
+  STORAGE_KEYS,
+} from "../lib/storage";
 import type { Verse, Translation } from "../types";
 
 /** Font size options for Sanskrit text */
@@ -386,7 +390,9 @@ export function VerseFocus({
           {/* Hints (only show when translation is hidden) */}
           {!showTranslation && (
             <div className="space-y-2">
-              <div className={`text-sm text-[var(--text-accent-muted)] italic ${!hintSeen ? "animate-pulse" : ""}`}>
+              <div
+                className={`text-sm text-[var(--text-accent-muted)] italic ${!hintSeen ? "animate-pulse" : ""}`}
+              >
                 Tap for translation
               </div>
               {/* Swipe hint - mobile only */}

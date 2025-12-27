@@ -117,7 +117,9 @@ function loadSettings(): ReadingSettings {
 export function useSyncedReading(): UseSyncedReadingReturn {
   const { isAuthenticated, user } = useAuth();
 
-  const [position, setPosition] = useState<ReadingPosition | null>(loadPosition);
+  const [position, setPosition] = useState<ReadingPosition | null>(
+    loadPosition,
+  );
   const [settings, setSettings] = useState<ReadingSettings>(loadSettings);
 
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("idle");
@@ -147,7 +149,9 @@ export function useSyncedReading(): UseSyncedReadingReturn {
       chapter: pos?.chapter,
       verse: pos?.verse,
       font_size: set.fontSize,
-      updated_at: pos?.timestamp ? new Date(pos.timestamp).toISOString() : undefined,
+      updated_at: pos?.timestamp
+        ? new Date(pos.timestamp).toISOString()
+        : undefined,
     };
   }, []);
 
@@ -187,7 +191,9 @@ export function useSyncedReading(): UseSyncedReadingReturn {
       }
 
       if (merged.reading.font_size) {
-        const set: ReadingSettings = { fontSize: merged.reading.font_size as FontSize };
+        const set: ReadingSettings = {
+          fontSize: merged.reading.font_size as FontSize,
+        };
         setStorageItem(STORAGE_KEYS.readingSettings, set);
         setSettings(set);
       }
@@ -428,13 +434,15 @@ export function useSyncedReading(): UseSyncedReadingReturn {
 
     // Sync reset to server
     if (isAuthenticated) {
-      preferencesApi.update({
-        reading: {
-          chapter: undefined,
-          verse: undefined,
-          font_size: "medium",
-        },
-      }).catch(console.error);
+      preferencesApi
+        .update({
+          reading: {
+            chapter: undefined,
+            verse: undefined,
+            font_size: "medium",
+          },
+        })
+        .catch(console.error);
     }
   }, [isAuthenticated]);
 

@@ -51,7 +51,10 @@ describe("useFeedback", () => {
 
       const outputs: Partial<Output>[] = [
         { id: "out-1", user_feedback: { rating: true, comment: undefined } },
-        { id: "out-2", user_feedback: { rating: false, comment: "needs work" } },
+        {
+          id: "out-2",
+          user_feedback: { rating: false, comment: "needs work" },
+        },
         { id: "out-3", user_feedback: undefined },
       ];
 
@@ -85,7 +88,9 @@ describe("useFeedback", () => {
       });
 
       expect(result.current.feedbackGiven["out-1"]).toBe("up");
-      expect(mockSubmitFeedback).toHaveBeenCalledWith("out-1", { rating: true });
+      expect(mockSubmitFeedback).toHaveBeenCalledWith("out-1", {
+        rating: true,
+      });
     });
 
     it("should rollback on API error", async () => {
@@ -144,7 +149,10 @@ describe("useFeedback", () => {
       // Initialize as if feedback was previously given
       act(() => {
         result.current.initializeFeedback([
-          { id: "out-1", user_feedback: { rating: false, comment: undefined } } as Output,
+          {
+            id: "out-1",
+            user_feedback: { rating: false, comment: undefined },
+          } as Output,
         ]);
       });
 
@@ -164,7 +172,10 @@ describe("useFeedback", () => {
       // Open form and add text
       await act(async () => {
         await result.current.handleFeedback("out-1", "down");
-        result.current.handleFeedbackTextChange("out-1", "This could be better");
+        result.current.handleFeedbackTextChange(
+          "out-1",
+          "This could be better",
+        );
       });
 
       // Submit
@@ -209,7 +220,10 @@ describe("useFeedback", () => {
       // Initialize with existing comment
       act(() => {
         result.current.initializeFeedback([
-          { id: "out-1", user_feedback: { rating: false, comment: "original" } } as Output,
+          {
+            id: "out-1",
+            user_feedback: { rating: false, comment: "original" },
+          } as Output,
         ]);
       });
 
@@ -236,7 +250,10 @@ describe("useFeedback", () => {
       // Make API call hang
       let resolveSubmit: (value?: unknown) => void;
       mockSubmitFeedback.mockImplementationOnce(
-        () => new Promise((resolve) => { resolveSubmit = resolve; })
+        () =>
+          new Promise((resolve) => {
+            resolveSubmit = resolve;
+          }),
       );
 
       const { result } = renderHook(() => useFeedback());

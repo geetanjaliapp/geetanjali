@@ -87,7 +87,12 @@ export default function Consultations() {
   // Parse filter from URL, default to "all"
   const getInitialFilter = (): FilterMode => {
     const filter = searchParams.get("filter");
-    if (filter === "completed" || filter === "in-progress" || filter === "failed" || filter === "shared") {
+    if (
+      filter === "completed" ||
+      filter === "in-progress" ||
+      filter === "failed" ||
+      filter === "shared"
+    ) {
       return filter;
     }
     return "all";
@@ -118,7 +123,10 @@ export default function Consultations() {
   useEffect(() => {
     const urlFilter = searchParams.get("filter");
     const newMode: FilterMode =
-      urlFilter === "completed" || urlFilter === "in-progress" || urlFilter === "failed" || urlFilter === "shared"
+      urlFilter === "completed" ||
+      urlFilter === "in-progress" ||
+      urlFilter === "failed" ||
+      urlFilter === "shared"
         ? urlFilter
         : "all";
     if (newMode !== filterMode) {
@@ -273,7 +281,11 @@ export default function Consultations() {
     setError(null);
 
     try {
-      const response = await casesApi.list(cases.length, CASES_PER_PAGE, filterMode);
+      const response = await casesApi.list(
+        cases.length,
+        CASES_PER_PAGE,
+        filterMode,
+      );
       setCases((prev) => [...prev, ...response.cases]);
       setHasMore(response.cases.length === CASES_PER_PAGE);
     } catch (err) {
@@ -640,7 +652,9 @@ export default function Consultations() {
                                 onClick={(e) => {
                                   e.preventDefault();
                                   e.stopPropagation();
-                                  setShareBarOpen(shareBarOpen === case_.id ? null : case_.id);
+                                  setShareBarOpen(
+                                    shareBarOpen === case_.id ? null : case_.id,
+                                  );
                                 }}
                                 className="px-3 py-1.5 text-xs font-medium rounded-[var(--radius-button)] flex items-center gap-1.5 text-[var(--status-success-text)] bg-[var(--status-success-bg)] hover:bg-[var(--status-success-bg)] transition-[var(--transition-color)]"
                               >
@@ -661,32 +675,45 @@ export default function Consultations() {
                               </button>
 
                               {/* ShareBar popover - positioned relative to button */}
-                              {case_.public_slug && shareBarOpen === case_.id && (
-                                <>
-                                  <div
-                                    className="fixed inset-0 z-10"
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      setShareBarOpen(null);
-                                    }}
-                                  />
-                                  <div className="absolute right-0 bottom-full mb-2 z-20">
-                                    <ShareBar
-                                      publicSlug={case_.public_slug}
-                                      shareMode={case_.share_mode}
-                                      viewCount={case_.view_count}
-                                      copySuccess={copySuccess === case_.id}
-                                      isLoading={shareLoading === case_.id}
-                                      onCopyLink={() => handleCopyLink({ preventDefault: () => {}, stopPropagation: () => {} } as React.MouseEvent, case_)}
-                                      onModeChange={(mode) => handleModeChange(case_, mode)}
-                                      onStopSharing={() => handleStopSharing(case_)}
-                                      onClose={() => setShareBarOpen(null)}
-                                      compact
+                              {case_.public_slug &&
+                                shareBarOpen === case_.id && (
+                                  <>
+                                    <div
+                                      className="fixed inset-0 z-10"
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        setShareBarOpen(null);
+                                      }}
                                     />
-                                  </div>
-                                </>
-                              )}
+                                    <div className="absolute right-0 bottom-full mb-2 z-20">
+                                      <ShareBar
+                                        publicSlug={case_.public_slug}
+                                        shareMode={case_.share_mode}
+                                        viewCount={case_.view_count}
+                                        copySuccess={copySuccess === case_.id}
+                                        isLoading={shareLoading === case_.id}
+                                        onCopyLink={() =>
+                                          handleCopyLink(
+                                            {
+                                              preventDefault: () => {},
+                                              stopPropagation: () => {},
+                                            } as React.MouseEvent,
+                                            case_,
+                                          )
+                                        }
+                                        onModeChange={(mode) =>
+                                          handleModeChange(case_, mode)
+                                        }
+                                        onStopSharing={() =>
+                                          handleStopSharing(case_)
+                                        }
+                                        onClose={() => setShareBarOpen(null)}
+                                        compact
+                                      />
+                                    </div>
+                                  </>
+                                )}
                             </div>
                           )}
 

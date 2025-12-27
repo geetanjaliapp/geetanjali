@@ -96,7 +96,7 @@ export function useResendVerification(): UseResendVerificationResult {
         setIsResending(false);
       }
     },
-    [refreshUser]
+    [refreshUser],
   );
 
   return { isResending, message, clearMessage, resend };

@@ -133,9 +133,7 @@ export default function Login() {
             </div>
 
             <div className="text-center text-sm">
-              <span className="text-[var(--text-tertiary)]">
-                New here?{" "}
-              </span>
+              <span className="text-[var(--text-tertiary)]">New here? </span>
               <Link
                 to="/signup"
                 className="font-semibold text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] hover:underline"

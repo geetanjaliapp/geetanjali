@@ -9,11 +9,7 @@ import {
 } from "react-router-dom";
 import { useAuth } from "./contexts/AuthContext";
 import { useNewsletterSync } from "./hooks";
-import {
-  FloatingActionButton,
-  SkipLink,
-  OfflineIndicator,
-} from "./components";
+import { FloatingActionButton, SkipLink, OfflineIndicator } from "./components";
 import { lazyWithRetry } from "./lib/lazyWithRetry";
 
 // Eagerly loaded (critical path)
@@ -35,12 +31,14 @@ const About = lazyWithRetry(() => import("./pages/About"));
 const PublicCaseView = lazyWithRetry(() => import("./pages/PublicCaseView"));
 const ReadingMode = lazyWithRetry(() => import("./pages/ReadingMode"));
 const Settings = lazyWithRetry(() => import("./pages/Settings"));
-const NewsletterVerify = lazyWithRetry(() => import("./pages/NewsletterVerify"));
+const NewsletterVerify = lazyWithRetry(
+  () => import("./pages/NewsletterVerify"),
+);
 const NewsletterUnsubscribe = lazyWithRetry(
-  () => import("./pages/NewsletterUnsubscribe")
+  () => import("./pages/NewsletterUnsubscribe"),
 );
 const NewsletterPreferences = lazyWithRetry(
-  () => import("./pages/NewsletterPreferences")
+  () => import("./pages/NewsletterPreferences"),
 );
 const VerifyEmail = lazyWithRetry(() => import("./pages/VerifyEmail"));
 
@@ -98,9 +96,7 @@ function PageLoader() {
           className="w-8 h-8 border-2 border-[var(--border-accent)] border-t-transparent rounded-[var(--radius-progress)] animate-spin mx-auto mb-2"
           aria-hidden="true"
         ></div>
-        <div className="text-[var(--text-secondary)] text-sm">
-          Loading...
-        </div>
+        <div className="text-[var(--text-secondary)] text-sm">Loading...</div>
       </div>
     </div>
   );

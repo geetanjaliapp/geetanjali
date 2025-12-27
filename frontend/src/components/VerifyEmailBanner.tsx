@@ -21,7 +21,9 @@ const DISMISS_EXPIRY_MS = DISMISS_EXPIRY_DAYS * 24 * 60 * 60 * 1000;
  */
 function isDismissalValid(): boolean {
   try {
-    const dismissedAt = localStorage.getItem(STORAGE_KEYS.verifyBannerDismissed);
+    const dismissedAt = localStorage.getItem(
+      STORAGE_KEYS.verifyBannerDismissed,
+    );
     if (!dismissedAt) return false;
 
     const timestamp = parseInt(dismissedAt, 10);
@@ -49,7 +51,10 @@ export function VerifyEmailBanner() {
 
   const handleDismiss = () => {
     setIsDismissed(true);
-    setStorageItemRaw(STORAGE_KEYS.verifyBannerDismissed, Date.now().toString());
+    setStorageItemRaw(
+      STORAGE_KEYS.verifyBannerDismissed,
+      Date.now().toString(),
+    );
   };
 
   const handleResend = () => {

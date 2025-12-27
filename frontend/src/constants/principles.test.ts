@@ -28,7 +28,9 @@ describe("PRINCIPLE_TAXONOMY", () => {
     ];
 
     for (const id of newPrinciples) {
-      expect(PRINCIPLE_TAXONOMY[id as keyof typeof PRINCIPLE_TAXONOMY]).toBeDefined();
+      expect(
+        PRINCIPLE_TAXONOMY[id as keyof typeof PRINCIPLE_TAXONOMY],
+      ).toBeDefined();
     }
   });
 
@@ -46,7 +48,9 @@ describe("PRINCIPLE_TAXONOMY", () => {
     ];
 
     for (const id of legacyPrinciples) {
-      expect(PRINCIPLE_TAXONOMY[id as keyof typeof PRINCIPLE_TAXONOMY]).toBeDefined();
+      expect(
+        PRINCIPLE_TAXONOMY[id as keyof typeof PRINCIPLE_TAXONOMY],
+      ).toBeDefined();
     }
   });
 
@@ -117,14 +121,20 @@ describe("legacy to new principle mapping", () => {
   });
 
   it("legacy detachment maps to Selfless Action (same as nishkama_karma)", () => {
-    expect(getPrincipleLabel("detachment")).toBe(getPrincipleLabel("nishkama_karma"));
+    expect(getPrincipleLabel("detachment")).toBe(
+      getPrincipleLabel("nishkama_karma"),
+    );
   });
 
   it("legacy self_control maps to Self-Mastery (same as discipline)", () => {
-    expect(getPrincipleLabel("self_control")).toBe(getPrincipleLabel("discipline"));
+    expect(getPrincipleLabel("self_control")).toBe(
+      getPrincipleLabel("discipline"),
+    );
   });
 
   it("legacy ethical_character maps to Noble Qualities (same as virtue)", () => {
-    expect(getPrincipleLabel("ethical_character")).toBe(getPrincipleLabel("virtue"));
+    expect(getPrincipleLabel("ethical_character")).toBe(
+      getPrincipleLabel("virtue"),
+    );
   });
 });

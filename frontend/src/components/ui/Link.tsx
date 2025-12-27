@@ -60,7 +60,7 @@ const linkVariants = cva(
     defaultVariants: {
       variant: "default",
     },
-  }
+  },
 );
 
 /**
@@ -88,7 +88,8 @@ const ExternalIcon = () => (
  * Link component props
  */
 export interface LinkProps
-  extends AnchorHTMLAttributes<HTMLAnchorElement>,
+  extends
+    AnchorHTMLAttributes<HTMLAnchorElement>,
     VariantProps<typeof linkVariants> {
   /** If true, opens in new tab and shows external icon */
   external?: boolean;
@@ -126,7 +127,7 @@ export const Link = forwardRef<HTMLAnchorElement, LinkProps>(
         )}
       </a>
     );
-  }
+  },
 );
 
 Link.displayName = "Link";

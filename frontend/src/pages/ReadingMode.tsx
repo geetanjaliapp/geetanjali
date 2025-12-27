@@ -23,7 +23,12 @@ import {
   Toast,
 } from "../components";
 import { HeartIcon } from "../components/icons";
-import { useSEO, useSwipeNavigation, useSyncedReading, useSyncedFavorites } from "../hooks";
+import {
+  useSEO,
+  useSwipeNavigation,
+  useSyncedReading,
+  useSyncedFavorites,
+} from "../hooks";
 import {
   getChapterName,
   getChapterVerseCount,
@@ -158,7 +163,9 @@ export default function ReadingMode() {
 
   // Slide animation direction for verse transitions
   // 'from-left' = sliding in from left (going to prev), 'from-right' = sliding in from right (going to next)
-  const [slideDirection, setSlideDirection] = useState<'from-left' | 'from-right' | null>(null);
+  const [slideDirection, setSlideDirection] = useState<
+    "from-left" | "from-right" | null
+  >(null);
 
   // Clear slide animation after it completes
   useEffect(() => {
@@ -184,16 +191,21 @@ export default function ReadingMode() {
 
     try {
       // Skip if already subscribed
-      if (localStorage.getItem(STORAGE_KEYS.newsletterSubscribed) === "true") return;
+      if (localStorage.getItem(STORAGE_KEYS.newsletterSubscribed) === "true")
+        return;
 
       // Skip if toast shown within rate limit
       const lastShown = localStorage.getItem(STORAGE_KEYS.newsletterToastShown);
-      if (lastShown && Date.now() - parseInt(lastShown, 10) < TOAST_RATE_LIMIT) {
+      if (
+        lastShown &&
+        Date.now() - parseInt(lastShown, 10) < TOAST_RATE_LIMIT
+      ) {
         return;
       }
 
       // Track unique verses read (prevents double-counting when navigating back)
-      const seenJson = sessionStorage.getItem(SESSION_KEYS.readingVersesRead) || "[]";
+      const seenJson =
+        sessionStorage.getItem(SESSION_KEYS.readingVersesRead) || "[]";
       const seenVerses: string[] = JSON.parse(seenJson);
 
       // Skip if already seen this verse
@@ -201,12 +213,18 @@ export default function ReadingMode() {
 
       // Add to seen list
       seenVerses.push(verse.canonical_id);
-      sessionStorage.setItem(SESSION_KEYS.readingVersesRead, JSON.stringify(seenVerses));
+      sessionStorage.setItem(
+        SESSION_KEYS.readingVersesRead,
+        JSON.stringify(seenVerses),
+      );
 
       // Show toast after threshold unique verses
       if (seenVerses.length === TOAST_THRESHOLD) {
         setShowNewsletterToast(true);
-        setStorageItemRaw(STORAGE_KEYS.newsletterToastShown, Date.now().toString());
+        setStorageItemRaw(
+          STORAGE_KEYS.newsletterToastShown,
+          Date.now().toString(),
+        );
       }
     } catch {
       // Ignore storage errors
@@ -490,7 +508,7 @@ export default function ReadingMode() {
   // Navigation functions - use refs to avoid stale closures
   const nextPage = useCallback(() => {
     // Set slide animation direction (content slides in from right)
-    setSlideDirection('from-right');
+    setSlideDirection("from-right");
     setState((prev) => {
       // Book cover → chapter intro
       if (prev.pageIndex === PAGE_BOOK_COVER) {
@@ -524,7 +542,7 @@ export default function ReadingMode() {
 
   const prevPage = useCallback(() => {
     // Set slide animation direction (content slides in from left)
-    setSlideDirection('from-left');
+    setSlideDirection("from-left");
     setState((prev) => {
       // First verse → chapter intro
       if (prev.pageIndex === 0) {
@@ -683,8 +701,12 @@ export default function ReadingMode() {
               </button>
               {/* Keyboard shortcuts hint - desktop only */}
               <div className="hidden lg:flex items-center gap-1 text-xs text-[var(--text-reading-muted)] ml-1">
-                <kbd className="px-1.5 py-0.5 bg-[var(--surface-warm-subtle)] border border-[var(--border-warm-subtle)] rounded text-[10px] font-mono">←</kbd>
-                <kbd className="px-1.5 py-0.5 bg-[var(--surface-warm-subtle)] border border-[var(--border-warm-subtle)] rounded text-[10px] font-mono">→</kbd>
+                <kbd className="px-1.5 py-0.5 bg-[var(--surface-warm-subtle)] border border-[var(--border-warm-subtle)] rounded text-[10px] font-mono">
+                  ←
+                </kbd>
+                <kbd className="px-1.5 py-0.5 bg-[var(--surface-warm-subtle)] border border-[var(--border-warm-subtle)] rounded text-[10px] font-mono">
+                  →
+                </kbd>
               </div>
               {/* Verse counter */}
               {currentVerse && (
@@ -726,7 +748,9 @@ export default function ReadingMode() {
             <div className="text-4xl text-[var(--status-error-text)]/60 mb-4">
               ⚠
             </div>
-            <p className="text-[var(--status-error-text)] mb-4">{state.error}</p>
+            <p className="text-[var(--status-error-text)] mb-4">
+              {state.error}
+            </p>
             <button
               onClick={() => loadChapter(state.chapter)}
               className="px-4 py-2 bg-[var(--interactive-contextual)] text-[var(--interactive-contextual-text)] rounded-[var(--radius-button)] hover:opacity-90 transition-[var(--transition-color)]"
@@ -738,7 +762,13 @@ export default function ReadingMode() {
           // Book cover page
           <div
             key="book-cover"
-            className={slideDirection === 'from-left' ? 'animate-slide-in-from-left' : slideDirection === 'from-right' ? 'animate-slide-in-from-right' : ''}
+            className={
+              slideDirection === "from-left"
+                ? "animate-slide-in-from-left"
+                : slideDirection === "from-right"
+                  ? "animate-slide-in-from-right"
+                  : ""
+            }
           >
             <IntroCard
               type="book"
@@ -751,7 +781,13 @@ export default function ReadingMode() {
           // Chapter intro page
           <div
             key={`chapter-${state.chapter}-intro`}
-            className={slideDirection === 'from-left' ? 'animate-slide-in-from-left' : slideDirection === 'from-right' ? 'animate-slide-in-from-right' : ''}
+            className={
+              slideDirection === "from-left"
+                ? "animate-slide-in-from-left"
+                : slideDirection === "from-right"
+                  ? "animate-slide-in-from-right"
+                  : ""
+            }
           >
             <IntroCard
               type="chapter"
@@ -765,7 +801,13 @@ export default function ReadingMode() {
           // Verse display with tap-to-reveal translations
           <div
             key={currentVerse.canonical_id}
-            className={slideDirection === 'from-left' ? 'animate-slide-in-from-left' : slideDirection === 'from-right' ? 'animate-slide-in-from-right' : ''}
+            className={
+              slideDirection === "from-left"
+                ? "animate-slide-in-from-left"
+                : slideDirection === "from-right"
+                  ? "animate-slide-in-from-right"
+                  : ""
+            }
           >
             <VerseFocus
               verse={currentVerse}
@@ -778,12 +820,8 @@ export default function ReadingMode() {
         ) : (
           // Fallback: No content available
           <div className="text-center">
-            <div className="text-4xl text-[var(--decorative-om)] mb-4">
-              ॐ
-            </div>
-            <p className="text-[var(--text-reading-secondary)]">
-              Loading...
-            </p>
+            <div className="text-4xl text-[var(--decorative-om)] mb-4">ॐ</div>
+            <p className="text-[var(--text-reading-secondary)]">Loading...</p>
           </div>
         )}
       </main>

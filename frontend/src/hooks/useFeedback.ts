@@ -17,7 +17,11 @@ interface FeedbackState {
  * Actions for feedback state management.
  */
 type FeedbackAction =
-  | { type: "INITIALIZE"; feedback: Record<string, "up" | "down" | null>; comments: Record<string, string> }
+  | {
+      type: "INITIALIZE";
+      feedback: Record<string, "up" | "down" | null>;
+      comments: Record<string, string>;
+    }
   | { type: "SET_LOADING"; outputId: string | null }
   | { type: "SET_FEEDBACK"; outputId: string; value: "up" | "down" | null }
   | { type: "SET_EXPANDED"; outputId: string | null }
@@ -26,7 +30,13 @@ type FeedbackAction =
   | { type: "REMOVE"; outputId: string }
   | { type: "OPTIMISTIC_UP"; outputId: string }
   | { type: "OPTIMISTIC_DOWN"; outputId: string; comment: string | null }
-  | { type: "ROLLBACK"; outputId: string; prevFeedback: "up" | "down" | null; prevComment: string | null; reopenForm?: boolean };
+  | {
+      type: "ROLLBACK";
+      outputId: string;
+      prevFeedback: "up" | "down" | null;
+      prevComment: string | null;
+      reopenForm?: boolean;
+    };
 
 const initialState: FeedbackState = {
   feedbackGiven: {},
@@ -39,7 +49,10 @@ const initialState: FeedbackState = {
 /**
  * Pure reducer for feedback state - eliminates stale closures.
  */
-function feedbackReducer(state: FeedbackState, action: FeedbackAction): FeedbackState {
+function feedbackReducer(
+  state: FeedbackState,
+  action: FeedbackAction,
+): FeedbackState {
   switch (action.type) {
     case "INITIALIZE": {
       return {
@@ -102,7 +115,10 @@ function feedbackReducer(state: FeedbackState, action: FeedbackAction): Feedback
     }
 
     case "OPTIMISTIC_UP": {
-      const newFeedbackGiven = { ...state.feedbackGiven, [action.outputId]: "up" as const };
+      const newFeedbackGiven = {
+        ...state.feedbackGiven,
+        [action.outputId]: "up" as const,
+      };
       const newSavedComment = { ...state.savedComment };
       const newFeedbackText = { ...state.feedbackText };
       delete newSavedComment[action.outputId];
@@ -117,7 +133,10 @@ function feedbackReducer(state: FeedbackState, action: FeedbackAction): Feedback
     }
 
     case "OPTIMISTIC_DOWN": {
-      const newFeedbackGiven = { ...state.feedbackGiven, [action.outputId]: "down" as const };
+      const newFeedbackGiven = {
+        ...state.feedbackGiven,
+        [action.outputId]: "down" as const,
+      };
       const newSavedComment = { ...state.savedComment };
       if (action.comment) {
         newSavedComment[action.outputId] = action.comment;
@@ -152,7 +171,9 @@ function feedbackReducer(state: FeedbackState, action: FeedbackAction): Feedback
         ...state,
         feedbackGiven: newFeedbackGiven,
         savedComment: newSavedComment,
-        expandedFeedback: action.reopenForm ? action.outputId : state.expandedFeedback,
+        expandedFeedback: action.reopenForm
+          ? action.outputId
+          : state.expandedFeedback,
       };
     }
 
@@ -239,7 +260,11 @@ export function useFeedback() {
         }
         if (current === "down") {
           // Already down, form closed - open form to edit
-          dispatch({ type: "SET_TEXT", outputId, text: state.savedComment[outputId] || "" });
+          dispatch({
+            type: "SET_TEXT",
+            outputId,
+            text: state.savedComment[outputId] || "",
+          });
           dispatch({ type: "SET_EXPANDED", outputId });
           return;
         }
@@ -274,7 +299,13 @@ export function useFeedback() {
         dispatch({ type: "SET_LOADING", outputId: null });
       }
     },
-    [state.feedbackGiven, state.expandedFeedback, state.feedbackLoading, state.savedComment, removeFeedback]
+    [
+      state.feedbackGiven,
+      state.expandedFeedback,
+      state.feedbackLoading,
+      state.savedComment,
+      removeFeedback,
+    ],
   );
 
   /**
@@ -294,16 +325,30 @@ export function useFeedback() {
       dispatch({ type: "OPTIMISTIC_DOWN", outputId, comment });
 
       try {
-        await outputsApi.submitFeedback(outputId, { rating: false, comment: comment || undefined });
+        await outputsApi.submitFeedback(outputId, {
+          rating: false,
+          comment: comment || undefined,
+        });
         // Success - optimistic state is correct
       } catch {
         // Silent rollback - restore previous state and reopen form
-        dispatch({ type: "ROLLBACK", outputId, prevFeedback, prevComment, reopenForm: true });
+        dispatch({
+          type: "ROLLBACK",
+          outputId,
+          prevFeedback,
+          prevComment,
+          reopenForm: true,
+        });
       } finally {
         dispatch({ type: "SET_LOADING", outputId: null });
       }
     },
-    [state.feedbackLoading, state.feedbackGiven, state.savedComment, state.feedbackText]
+    [
+      state.feedbackLoading,
+      state.feedbackGiven,
+      state.savedComment,
+      state.feedbackText,
+    ],
   );
 
   /**
@@ -311,10 +356,14 @@ export function useFeedback() {
    */
   const handleEditFeedback = useCallback(
     (outputId: string) => {
-      dispatch({ type: "SET_TEXT", outputId, text: state.savedComment[outputId] || "" });
+      dispatch({
+        type: "SET_TEXT",
+        outputId,
+        text: state.savedComment[outputId] || "",
+      });
       dispatch({ type: "SET_EXPANDED", outputId });
     },
-    [state.savedComment]
+    [state.savedComment],
   );
 
   /**
@@ -322,18 +371,25 @@ export function useFeedback() {
    */
   const handleCancelFeedback = useCallback(
     (outputId: string) => {
-      dispatch({ type: "SET_TEXT", outputId, text: state.savedComment[outputId] || "" });
+      dispatch({
+        type: "SET_TEXT",
+        outputId,
+        text: state.savedComment[outputId] || "",
+      });
       dispatch({ type: "SET_EXPANDED", outputId: null });
     },
-    [state.savedComment]
+    [state.savedComment],
   );
 
   /**
    * Update feedback text draft.
    */
-  const handleFeedbackTextChange = useCallback((outputId: string, text: string) => {
-    dispatch({ type: "SET_TEXT", outputId, text });
-  }, []);
+  const handleFeedbackTextChange = useCallback(
+    (outputId: string, text: string) => {
+      dispatch({ type: "SET_TEXT", outputId, text });
+    },
+    [],
+  );
 
   return {
     // State

@@ -9,7 +9,12 @@ import {
 import { api } from "../lib/api";
 import { useAuth } from "../contexts/AuthContext";
 
-type VerifyState = "confirm" | "loading" | "success" | "error" | "already_verified";
+type VerifyState =
+  | "confirm"
+  | "loading"
+  | "success"
+  | "error"
+  | "already_verified";
 
 export default function VerifyEmail() {
   const { token } = useParams<{ token: string }>();
@@ -49,7 +54,7 @@ export default function VerifyEmail() {
       if (err && typeof err === "object" && "response" in err) {
         const axiosErr = err as { response?: { data?: { detail?: string } } };
         setErrorMessage(
-          axiosErr.response?.data?.detail || "Failed to verify email"
+          axiosErr.response?.data?.detail || "Failed to verify email",
         );
       } else {
         setErrorMessage("Failed to verify email");
@@ -67,7 +72,8 @@ export default function VerifyEmail() {
               Verify Your Email
             </h1>
             <p className="text-[var(--text-tertiary)] mb-6">
-              Click the button below to verify your email address and complete your account setup.
+              Click the button below to verify your email address and complete
+              your account setup.
             </p>
             <button
               onClick={handleConfirm}
@@ -97,7 +103,8 @@ export default function VerifyEmail() {
               Email Verified!
             </h1>
             <p className="text-[var(--text-tertiary)] mb-6">
-              Your email has been verified successfully. You now have full access to all features.
+              Your email has been verified successfully. You now have full
+              access to all features.
             </p>
             <Link
               to="/"
@@ -132,9 +139,7 @@ export default function VerifyEmail() {
             <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
               Verification Failed
             </h1>
-            <p className="text-[var(--text-tertiary)] mb-6">
-              {errorMessage}
-            </p>
+            <p className="text-[var(--text-tertiary)] mb-6">{errorMessage}</p>
             <div className="space-y-3">
               <Link
                 to="/settings"

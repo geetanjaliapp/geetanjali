@@ -65,7 +65,7 @@ const modalContentVariants = cva(
     defaultVariants: {
       size: "md",
     },
-  }
+  },
 );
 
 /**
@@ -191,7 +191,10 @@ export { modalContentVariants };
  */
 export const ModalHeader = forwardRef<
   HTMLDivElement,
-  HTMLAttributes<HTMLDivElement> & { showCloseButton?: boolean; onClose?: () => void }
+  HTMLAttributes<HTMLDivElement> & {
+    showCloseButton?: boolean;
+    onClose?: () => void;
+  }
 >(({ className, children, showCloseButton, onClose, ...props }, ref) => (
   <div
     ref={ref}

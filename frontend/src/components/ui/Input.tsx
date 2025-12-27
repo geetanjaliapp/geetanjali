@@ -67,7 +67,7 @@ const inputVariants = cva(
       variant: "default",
       size: "md",
     },
-  }
+  },
 );
 
 /**
@@ -85,14 +85,15 @@ const labelVariants = cva(
     defaultVariants: {
       required: false,
     },
-  }
+  },
 );
 
 /**
  * Input component props
  */
 export interface InputProps
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, "size">,
+  extends
+    Omit<InputHTMLAttributes<HTMLInputElement>, "size">,
     VariantProps<typeof inputVariants> {
   /** Label text displayed above the input */
   label?: string;
@@ -122,7 +123,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       id: providedId,
       ...props
     },
-    ref
+    ref,
   ) => {
     // Generate unique ID for accessibility
     const generatedId = useId();
@@ -154,9 +155,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           disabled={disabled}
           required={required}
           aria-invalid={error ? "true" : undefined}
-          aria-describedby={
-            error ? errorId : helperText ? helperId : undefined
-          }
+          aria-describedby={error ? errorId : helperText ? helperId : undefined}
           {...props}
         />
         {error && (
@@ -169,13 +168,16 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           </p>
         )}
         {!error && helperText && (
-          <p id={helperId} className="mt-1.5 text-sm text-[var(--text-tertiary)]">
+          <p
+            id={helperId}
+            className="mt-1.5 text-sm text-[var(--text-tertiary)]"
+          >
             {helperText}
           </p>
         )}
       </div>
     );
-  }
+  },
 );
 
 Input.displayName = "Input";

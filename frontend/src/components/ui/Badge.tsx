@@ -40,18 +40,12 @@ const badgeVariants = cva(
           "bg-[var(--badge-default-bg)]",
           "text-[var(--badge-default-text)]",
         ],
-        warm: [
-          "bg-[var(--badge-warm-bg)]",
-          "text-[var(--badge-warm-text)]",
-        ],
+        warm: ["bg-[var(--badge-warm-bg)]", "text-[var(--badge-warm-text)]"],
         principle: [
           "bg-[var(--badge-principle-bg)]",
           "text-[var(--badge-principle-text)]",
         ],
-        match: [
-          "bg-[var(--badge-match-bg)]",
-          "text-[var(--badge-match-text)]",
-        ],
+        match: ["bg-[var(--badge-match-bg)]", "text-[var(--badge-match-text)]"],
         featured: [
           "bg-[var(--badge-featured-bg)]",
           "text-[var(--badge-featured-text)]",
@@ -79,15 +73,14 @@ const badgeVariants = cva(
       variant: "default",
       size: "md",
     },
-  }
+  },
 );
 
 /**
  * Badge component props
  */
 export interface BadgeProps
-  extends HTMLAttributes<HTMLSpanElement>,
-    VariantProps<typeof badgeVariants> {}
+  extends HTMLAttributes<HTMLSpanElement>, VariantProps<typeof badgeVariants> {}
 
 /**
  * Badge component
@@ -107,7 +100,7 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
         {children}
       </span>
     );
-  }
+  },
 );
 
 Badge.displayName = "Badge";

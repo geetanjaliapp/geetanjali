@@ -31,10 +31,7 @@ import { forwardRef, type HTMLAttributes } from "react";
  */
 const skeletonVariants = cva(
   // Base styles (shared across all variants)
-  [
-    "animate-pulse",
-    "bg-[var(--skeleton-bg)]",
-  ],
+  ["animate-pulse", "bg-[var(--skeleton-bg)]"],
   {
     variants: {
       variant: {
@@ -46,14 +43,15 @@ const skeletonVariants = cva(
     defaultVariants: {
       variant: "text",
     },
-  }
+  },
 );
 
 /**
  * Skeleton component props
  */
 export interface SkeletonProps
-  extends HTMLAttributes<HTMLDivElement>,
+  extends
+    HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof skeletonVariants> {}
 
 /**
@@ -73,7 +71,7 @@ export const Skeleton = forwardRef<HTMLDivElement, SkeletonProps>(
         {...props}
       />
     );
-  }
+  },
 );
 
 Skeleton.displayName = "Skeleton";

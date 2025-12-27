@@ -143,7 +143,12 @@ export default function NewCase() {
         stakeholders: Array.from(selectedStakeholders),
       });
     }, DRAFT_DEBOUNCE_MS);
-  }, [formData.question, formData.context, selectedRoles, selectedStakeholders]);
+  }, [
+    formData.question,
+    formData.context,
+    selectedRoles,
+    selectedStakeholders,
+  ]);
 
   // Save draft when form data changes
   useEffect(() => {

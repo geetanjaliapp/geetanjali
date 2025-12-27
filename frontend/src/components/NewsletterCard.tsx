@@ -25,7 +25,9 @@ function shouldShowCard(): boolean {
     if (isNewsletterSubscribed()) return false;
 
     // Don't show if dismissed within last 7 days
-    const dismissed = localStorage.getItem(STORAGE_KEYS.newsletterCardDismissed);
+    const dismissed = localStorage.getItem(
+      STORAGE_KEYS.newsletterCardDismissed,
+    );
     if (dismissed) {
       const dismissedAt = parseInt(dismissed, 10);
       if (Date.now() - dismissedAt < DISMISS_DURATION) {
@@ -55,7 +57,10 @@ export function NewsletterCard() {
     isDismissingRef.current = true;
 
     // Try to persist dismissal, but hide card either way
-    setStorageItemRaw(STORAGE_KEYS.newsletterCardDismissed, Date.now().toString());
+    setStorageItemRaw(
+      STORAGE_KEYS.newsletterCardDismissed,
+      Date.now().toString(),
+    );
     setIsVisible(false);
   };
 

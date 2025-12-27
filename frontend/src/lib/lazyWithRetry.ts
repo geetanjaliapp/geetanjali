@@ -94,7 +94,7 @@ function tryMarkReloadAttempt(): boolean {
  */
 function logChunkEvent(
   event: "retry" | "reload" | "error",
-  details: { attempt?: number; error?: unknown }
+  details: { attempt?: number; error?: unknown },
 ): void {
   const prefix = "[lazyWithRetry]";
 
@@ -102,19 +102,19 @@ function logChunkEvent(
     case "retry":
       console.warn(
         `${prefix} Chunk load failed, retrying (attempt ${details.attempt}/${CONFIG.MAX_RETRIES})...`,
-        details.error
+        details.error,
       );
       break;
     case "reload":
       console.warn(
         `${prefix} All retries exhausted, reloading page to fetch new chunks...`,
-        details.error
+        details.error,
       );
       break;
     case "error":
       console.error(
         `${prefix} Chunk load failed and reload not possible (recent reload detected)`,
-        details.error
+        details.error,
       );
       break;
   }
@@ -144,7 +144,7 @@ function logChunkEvent(
  * ```
  */
 export function lazyWithRetry<T extends ComponentType<unknown>>(
-  importFn: () => Promise<{ default: T }>
+  importFn: () => Promise<{ default: T }>,
 ): React.LazyExoticComponent<T> {
   return lazy(async () => {
     let lastError: unknown;

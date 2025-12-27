@@ -9,7 +9,12 @@ import {
 import { markNewsletterSubscribed } from "../components";
 import { api } from "../lib/api";
 
-type VerifyState = "confirm" | "loading" | "success" | "error" | "already_verified";
+type VerifyState =
+  | "confirm"
+  | "loading"
+  | "success"
+  | "error"
+  | "already_verified";
 
 export default function NewsletterVerify() {
   const { token } = useParams<{ token: string }>();
@@ -48,7 +53,7 @@ export default function NewsletterVerify() {
       if (err && typeof err === "object" && "response" in err) {
         const axiosErr = err as { response?: { data?: { detail?: string } } };
         setErrorMessage(
-          axiosErr.response?.data?.detail || "Failed to verify subscription"
+          axiosErr.response?.data?.detail || "Failed to verify subscription",
         );
       } else {
         setErrorMessage("Failed to verify subscription");
@@ -143,9 +148,7 @@ export default function NewsletterVerify() {
             <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
               Verification Failed
             </h1>
-            <p className="text-[var(--text-tertiary)] mb-6">
-              {errorMessage}
-            </p>
+            <p className="text-[var(--text-tertiary)] mb-6">{errorMessage}</p>
             <div className="space-y-3">
               <Link
                 to="/settings#newsletter"

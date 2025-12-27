@@ -72,7 +72,8 @@ function ThemeCard({
 }) {
   const colors = getThemePreviewColors(theme);
   const name = theme?.name ?? "Geetanjali";
-  const description = theme?.description ?? "Temple lamp glow, ancient manuscript warmth";
+  const description =
+    theme?.description ?? "Temple lamp glow, ancient manuscript warmth";
 
   return (
     <button
@@ -114,7 +115,9 @@ function ThemeCard({
       {/* Theme name */}
       <div
         className={`text-sm font-medium mb-0.5 ${
-          isSelected ? "text-[var(--chip-selected-text)]" : "text-[var(--text-primary)]"
+          isSelected
+            ? "text-[var(--chip-selected-text)]"
+            : "text-[var(--text-primary)]"
         }`}
       >
         {name}
@@ -123,7 +126,9 @@ function ThemeCard({
       {/* Theme description */}
       <div
         className={`text-xs leading-tight ${
-          isSelected ? "text-[var(--chip-selected-text)] opacity-80" : "text-[var(--text-muted)]"
+          isSelected
+            ? "text-[var(--chip-selected-text)] opacity-80"
+            : "text-[var(--text-muted)]"
         }`}
       >
         {description}

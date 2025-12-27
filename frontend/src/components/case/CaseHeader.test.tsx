@@ -146,7 +146,9 @@ describe("CaseHeader", () => {
       );
 
       // Click "Shared" to open the ShareBar popover
-      fireEvent.click(screen.getByRole("button", { name: /toggle share options/i }));
+      fireEvent.click(
+        screen.getByRole("button", { name: /toggle share options/i }),
+      );
       expect(screen.getByText(/abc123/)).toBeInTheDocument();
     });
 
@@ -170,7 +172,9 @@ describe("CaseHeader", () => {
       );
 
       // Click "Shared" to open the ShareBar popover
-      fireEvent.click(screen.getByRole("button", { name: /toggle share options/i }));
+      fireEvent.click(
+        screen.getByRole("button", { name: /toggle share options/i }),
+      );
       expect(screen.getByRole("button", { name: /copy/i })).toBeInTheDocument();
     });
 
@@ -185,7 +189,9 @@ describe("CaseHeader", () => {
       );
 
       // Click "Shared" to open the ShareBar popover
-      fireEvent.click(screen.getByRole("button", { name: /toggle share options/i }));
+      fireEvent.click(
+        screen.getByRole("button", { name: /toggle share options/i }),
+      );
       fireEvent.click(screen.getByRole("button", { name: /copy/i }));
       expect(onCopyShareLink).toHaveBeenCalledTimes(1);
     });
@@ -200,7 +206,9 @@ describe("CaseHeader", () => {
       );
 
       // Click "Shared" to open the ShareBar popover
-      fireEvent.click(screen.getByRole("button", { name: /toggle share options/i }));
+      fireEvent.click(
+        screen.getByRole("button", { name: /toggle share options/i }),
+      );
       expect(screen.getByText("Copied!")).toBeInTheDocument();
     });
   });

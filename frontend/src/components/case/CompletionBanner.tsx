@@ -22,7 +22,9 @@ export function CompletionBanner({
       <div className="flex items-center gap-3">
         <div
           className={`w-8 h-8 rounded-[var(--radius-avatar)] flex items-center justify-center ${
-            isPolicyViolation ? "bg-[var(--status-warning-text)]" : "bg-[var(--status-success-text)]"
+            isPolicyViolation
+              ? "bg-[var(--status-warning-text)]"
+              : "bg-[var(--status-success-text)]"
           }`}
         >
           {isPolicyViolation ? (
@@ -63,7 +65,9 @@ export function CompletionBanner({
                 : "text-[var(--status-success-text)] font-medium"
             }
           >
-            {isPolicyViolation ? "Unable to Provide Guidance" : "Analysis Complete"}
+            {isPolicyViolation
+              ? "Unable to Provide Guidance"
+              : "Analysis Complete"}
           </p>
           <p
             className={

@@ -155,7 +155,10 @@ export function ShareBar({
         <code
           className={`text-[var(--status-success-text)] font-mono truncate flex-1 ${compact ? "text-[10px]" : "text-xs"}`}
         >
-          <span className="text-[var(--status-success-text)]/70">geetanjaliapp.com</span>/c/{publicSlug}
+          <span className="text-[var(--status-success-text)]/70">
+            geetanjaliapp.com
+          </span>
+          /c/{publicSlug}
         </code>
         <div className="flex items-center gap-1">
           <button

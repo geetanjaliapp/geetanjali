@@ -305,7 +305,9 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
             }
           }
           applyCustomTheme(
-            serverThemeId === "default" ? null : getThemeById(serverThemeId) ?? null,
+            serverThemeId === "default"
+              ? null
+              : (getThemeById(serverThemeId) ?? null),
           );
           applyThemeFonts(serverThemeId);
         }

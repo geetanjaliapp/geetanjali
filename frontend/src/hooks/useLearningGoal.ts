@@ -40,7 +40,9 @@ function loadStoredGoals(): StoredGoals | null {
 
 export function useLearningGoal() {
   // Lazy initialization from localStorage
-  const [storedGoals, setStoredGoals] = useState<StoredGoals | null>(loadStoredGoals);
+  const [storedGoals, setStoredGoals] = useState<StoredGoals | null>(
+    loadStoredGoals,
+  );
   const { goals, getGoal, getPrinciplesForGoal } = useTaxonomy();
 
   // Always initialized since we use lazy init
@@ -101,7 +103,7 @@ export function useLearningGoal() {
   // Get selected goal IDs (memoized to prevent new array reference each render)
   const selectedGoalIds = useMemo(
     () => storedGoals?.goalIds ?? [],
-    [storedGoals?.goalIds]
+    [storedGoals?.goalIds],
   );
 
   // Get full goal data for all selected goals (memoized)

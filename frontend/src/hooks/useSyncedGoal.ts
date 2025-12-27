@@ -129,7 +129,8 @@ export function useSyncedGoal(): UseSyncedGoalReturn {
       // Update local storage with merged result
       const newGoals: StoredGoals = {
         goalIds: merged.learning_goals.goal_ids,
-        selectedAt: merged.learning_goals.updated_at || new Date().toISOString(),
+        selectedAt:
+          merged.learning_goals.updated_at || new Date().toISOString(),
       };
       setStorageItem(STORAGE_KEYS.learningGoals, newGoals);
 

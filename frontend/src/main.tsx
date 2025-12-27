@@ -12,10 +12,7 @@ import {
   initWebVitals,
   registerServiceWorker,
 } from "./lib/monitoring";
-import {
-  checkAppVersion,
-  startPeriodicVersionCheck,
-} from "./lib/versionCheck";
+import { checkAppVersion, startPeriodicVersionCheck } from "./lib/versionCheck";
 
 // Initialize monitoring and PWA features (production-only, silent if unconfigured)
 initSentry();

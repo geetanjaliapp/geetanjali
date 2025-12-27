@@ -296,8 +296,8 @@ export default function About() {
               we encourage exploring multiple perspectives.
             </p>
             <p>
-              Think of Geetanjali as one thoughtful voice among many. For
-              deeper study, we recommend consulting traditional commentaries and
+              Think of Geetanjali as one thoughtful voice among many. For deeper
+              study, we recommend consulting traditional commentaries and
               qualified teachers who can offer richer, more nuanced guidance.
             </p>
           </div>
@@ -368,7 +368,9 @@ export default function About() {
 
           <div className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] shadow-[var(--shadow-dropdown)] p-4 sm:p-6">
             <div className="flex items-center gap-3 mb-4">
-              <span className="text-2xl sm:text-3xl" aria-hidden="true">☕</span>
+              <span className="text-2xl sm:text-3xl" aria-hidden="true">
+                ☕
+              </span>
               <h3 className="text-lg sm:text-xl font-bold text-[var(--text-primary)]">
                 Support the Project
               </h3>
@@ -383,7 +385,12 @@ export default function About() {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-[var(--badge-warm-bg)] text-[var(--badge-warm-text)] hover:bg-[var(--badge-warm-hover)] px-4 py-2 rounded-[var(--radius-button)] font-medium transition-[var(--transition-color)] border border-[var(--border-warm)]"
             >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <svg
+                className="w-5 h-5"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
                 <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
               </svg>
               Buy me a coffee
@@ -494,9 +501,7 @@ export default function About() {
                     className="block text-sm font-medium text-[var(--text-secondary)] mb-1"
                   >
                     Subject{" "}
-                    <span className="text-[var(--text-muted)]">
-                      (optional)
-                    </span>
+                    <span className="text-[var(--text-muted)]">(optional)</span>
                   </label>
                   <input
                     type="text"

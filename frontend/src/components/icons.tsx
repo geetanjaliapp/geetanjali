@@ -598,7 +598,9 @@ export function LogoIcon({
   const petalInner = themed ? "var(--logo-petal-inner, #FFEDD5)" : "#FFEDD5";
   const sunGlow = themed ? "var(--logo-sun-glow, #FCD34D)" : "#FCD34D";
   const sunCore = themed ? "var(--logo-sun-core, #991B1B)" : "#991B1B";
-  const sunHighlight = themed ? "var(--logo-sun-highlight, #FEF3C7)" : "#FEF3C7";
+  const sunHighlight = themed
+    ? "var(--logo-sun-highlight, #FEF3C7)"
+    : "#FEF3C7";
   const sunEdge = themed ? "var(--logo-sun-edge, #DC2626)" : "#DC2626";
 
   // Generate unique IDs to avoid conflicts when multiple logos on page

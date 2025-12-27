@@ -12,9 +12,27 @@ interface TimeOption {
 }
 
 const TIME_OPTIONS: TimeOption[] = [
-  { id: "morning", label: "Morning", hint: "With your morning tea", time: "6 AM", Icon: SunriseIcon },
-  { id: "afternoon", label: "Afternoon", hint: "A midday pause", time: "12:30 PM", Icon: SunMediumIcon },
-  { id: "evening", label: "Evening", hint: "Wind down your day", time: "6 PM", Icon: SunsetIcon },
+  {
+    id: "morning",
+    label: "Morning",
+    hint: "With your morning tea",
+    time: "6 AM",
+    Icon: SunriseIcon,
+  },
+  {
+    id: "afternoon",
+    label: "Afternoon",
+    hint: "A midday pause",
+    time: "12:30 PM",
+    Icon: SunMediumIcon,
+  },
+  {
+    id: "evening",
+    label: "Evening",
+    hint: "Wind down your day",
+    time: "6 PM",
+    Icon: SunsetIcon,
+  },
 ];
 
 interface TimeSelectorProps {
@@ -49,7 +67,8 @@ export function TimeSelector({ value, onChange, disabled }: TimeSelectorProps) {
         case "ArrowLeft":
         case "ArrowUp":
           e.preventDefault();
-          nextIndex = (currentIndex - 1 + TIME_OPTIONS.length) % TIME_OPTIONS.length;
+          nextIndex =
+            (currentIndex - 1 + TIME_OPTIONS.length) % TIME_OPTIONS.length;
           break;
         default:
           return;
@@ -61,7 +80,7 @@ export function TimeSelector({ value, onChange, disabled }: TimeSelectorProps) {
         buttonRefs.current[nextIndex]?.focus();
       }
     },
-    [disabled, onChange]
+    [disabled, onChange],
   );
 
   const currentIndex = TIME_OPTIONS.findIndex((o) => o.id === value);
@@ -75,7 +94,9 @@ export function TimeSelector({ value, onChange, disabled }: TimeSelectorProps) {
       {TIME_OPTIONS.map((option, index) => (
         <button
           key={option.id}
-          ref={(el) => { buttonRefs.current[index] = el; }}
+          ref={(el) => {
+            buttonRefs.current[index] = el;
+          }}
           type="button"
           onClick={() => onChange(option.id)}
           onKeyDown={(e) => handleKeyDown(e, index)}

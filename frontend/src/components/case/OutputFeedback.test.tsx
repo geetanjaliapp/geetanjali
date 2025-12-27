@@ -42,7 +42,9 @@ describe("OutputFeedback", () => {
         />,
       );
 
-      const bar = container.querySelector(".bg-\\[var\\(--status-success-text\\)\\]");
+      const bar = container.querySelector(
+        ".bg-\\[var\\(--status-success-text\\)\\]",
+      );
       expect(bar).toBeInTheDocument();
     });
 
@@ -54,7 +56,9 @@ describe("OutputFeedback", () => {
         />,
       );
 
-      const bar = container.querySelector(".bg-\\[var\\(--status-warning-text\\)\\]");
+      const bar = container.querySelector(
+        ".bg-\\[var\\(--status-warning-text\\)\\]",
+      );
       expect(bar).toBeInTheDocument();
     });
 
@@ -66,7 +70,9 @@ describe("OutputFeedback", () => {
         />,
       );
 
-      const bar = container.querySelector(".bg-\\[var\\(--status-error-text\\)\\]");
+      const bar = container.querySelector(
+        ".bg-\\[var\\(--status-error-text\\)\\]",
+      );
       expect(bar).toBeInTheDocument();
     });
   });

@@ -62,7 +62,9 @@ export const OutputFeedback = memo(
             <button
               onClick={() => onFeedback(output.id, "up")}
               disabled={feedbackLoading === output.id}
-              aria-label={feedback === "up" ? "Feedback: helpful" : "Mark as helpful"}
+              aria-label={
+                feedback === "up" ? "Feedback: helpful" : "Mark as helpful"
+              }
               className={`w-7 h-7 rounded-[var(--radius-avatar)] flex items-center justify-center transition-[var(--transition-color)] ${
                 feedback === "up" && !isExpanded
                   ? "bg-[var(--status-success-text)] text-[var(--text-inverted)]"
@@ -86,7 +88,11 @@ export const OutputFeedback = memo(
             <button
               onClick={() => onFeedback(output.id, "down")}
               disabled={feedbackLoading === output.id}
-              aria-label={feedback === "down" ? "Feedback: needs improvement" : "Mark as needs improvement"}
+              aria-label={
+                feedback === "down"
+                  ? "Feedback: needs improvement"
+                  : "Mark as needs improvement"
+              }
               className={`w-7 h-7 rounded-[var(--radius-avatar)] flex items-center justify-center transition-[var(--transition-color)] ${
                 feedback === "down" || isExpanded
                   ? "bg-[var(--status-error-text)] text-[var(--text-inverted)]"

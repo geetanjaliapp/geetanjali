@@ -122,7 +122,11 @@ export function ChapterContextBar({
                       : "text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] hover:bg-[var(--surface-warm)]"
                   }`}
                   aria-label="Reset font size"
-                  title={isDefaultFontSize ? "Font size is default" : "Reset font size"}
+                  title={
+                    isDefaultFontSize
+                      ? "Font size is default"
+                      : "Reset font size"
+                  }
                 >
                   <svg
                     className="w-3.5 h-3.5"

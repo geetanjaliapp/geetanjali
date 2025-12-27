@@ -341,9 +341,7 @@ export function ShareModal({
                 className="max-w-full max-h-full rounded-[var(--radius-button)] shadow-[var(--shadow-button)] object-contain"
               />
             ) : (
-              <span className="text-[var(--text-muted)] text-xs">
-                Preview
-              </span>
+              <span className="text-[var(--text-muted)] text-xs">Preview</span>
             )}
           </div>
         </div>

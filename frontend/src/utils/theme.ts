@@ -4,7 +4,12 @@
  * Functions for theme validation, CSS generation, and application.
  */
 
-import type { ThemeConfig, ThemeColors, ColorScale, ContrastColors } from "../types/theme";
+import type {
+  ThemeConfig,
+  ThemeColors,
+  ColorScale,
+  ContrastColors,
+} from "../types/theme";
 import { STORAGE_KEYS, setStorageItem } from "../lib/storage";
 
 /** Color scale names for iteration */
@@ -57,14 +62,27 @@ export function validateTheme(theme: ThemeConfig): {
 
   // Helper to validate a ThemeColors object
   const validateColors = (colors: ThemeColors, prefix: string) => {
-    const shades = ["50", "100", "200", "300", "400", "500", "600", "700", "800", "900"] as const;
+    const shades = [
+      "50",
+      "100",
+      "200",
+      "300",
+      "400",
+      "500",
+      "600",
+      "700",
+      "800",
+      "900",
+    ] as const;
     for (const scaleName of COLOR_SCALES) {
       const scale = colors[scaleName];
       if (scale) {
         for (const shade of shades) {
           const value = scale[shade];
           if (value !== undefined && !isValidColor(value)) {
-            errors.push(`Invalid color value for ${prefix}${scaleName}.${shade}: "${value}"`);
+            errors.push(
+              `Invalid color value for ${prefix}${scaleName}.${shade}: "${value}"`,
+            );
           }
         }
       }
@@ -108,7 +126,18 @@ export function validateTheme(theme: ThemeConfig): {
  */
 function colorScaleToCss(name: string, scale: ColorScale): string[] {
   const properties: string[] = [];
-  const shades = ["50", "100", "200", "300", "400", "500", "600", "700", "800", "900"] as const;
+  const shades = [
+    "50",
+    "100",
+    "200",
+    "300",
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+    "900",
+  ] as const;
 
   for (const shade of shades) {
     const value = scale[shade];
@@ -141,7 +170,9 @@ function contrastColorsToCss(contrast: ContrastColors): string[] {
     properties.push(`--color-on-primary-muted: ${contrast.onPrimaryMuted};`);
   } else if (contrast.onPrimary) {
     // Auto-generate muted variant if not specified
-    properties.push(`--color-on-primary-muted: color-mix(in srgb, ${contrast.onPrimary} 80%, transparent);`);
+    properties.push(
+      `--color-on-primary-muted: color-mix(in srgb, ${contrast.onPrimary} 80%, transparent);`,
+    );
   }
   if (contrast.onWarm) {
     properties.push(`--color-on-warm: ${contrast.onWarm};`);
@@ -160,13 +191,19 @@ function contrastColorsToCss(contrast: ContrastColors): string[] {
     properties.push(`--interactive-primary: ${contrast.interactivePrimary};`);
   }
   if (contrast.interactivePrimaryHover) {
-    properties.push(`--interactive-primary-hover: ${contrast.interactivePrimaryHover};`);
+    properties.push(
+      `--interactive-primary-hover: ${contrast.interactivePrimaryHover};`,
+    );
   }
   if (contrast.interactivePrimaryActive) {
-    properties.push(`--interactive-primary-active: ${contrast.interactivePrimaryActive};`);
+    properties.push(
+      `--interactive-primary-active: ${contrast.interactivePrimaryActive};`,
+    );
   }
   if (contrast.interactiveGhostText) {
-    properties.push(`--interactive-ghost-text: ${contrast.interactiveGhostText};`);
+    properties.push(
+      `--interactive-ghost-text: ${contrast.interactiveGhostText};`,
+    );
   }
 
   // Text colors - CRITICAL for dark mode readability
@@ -224,7 +261,9 @@ function contrastColorsToCss(contrast: ContrastColors): string[] {
     properties.push(`--menu-item-selected-bg: ${contrast.menuItemSelectedBg};`);
   }
   if (contrast.menuItemSelectedText) {
-    properties.push(`--menu-item-selected-text: ${contrast.menuItemSelectedText};`);
+    properties.push(
+      `--menu-item-selected-text: ${contrast.menuItemSelectedText};`,
+    );
   }
   if (contrast.menuItemHoverBg) {
     properties.push(`--menu-item-hover-bg: ${contrast.menuItemHoverBg};`);
@@ -267,14 +306,20 @@ function contrastColorsToCss(contrast: ContrastColors): string[] {
     properties.push(`--surface-reading: ${contrast.surfaceReading};`);
   }
   if (contrast.surfaceReadingHeader) {
-    properties.push(`--surface-reading-header: color-mix(in srgb, ${contrast.surfaceReadingHeader} 95%, transparent);`);
-    properties.push(`--surface-reading-header-solid: ${contrast.surfaceReadingHeader};`);
+    properties.push(
+      `--surface-reading-header: color-mix(in srgb, ${contrast.surfaceReadingHeader} 95%, transparent);`,
+    );
+    properties.push(
+      `--surface-reading-header-solid: ${contrast.surfaceReadingHeader};`,
+    );
   }
   if (contrast.textReadingPrimary) {
     properties.push(`--text-reading-primary: ${contrast.textReadingPrimary};`);
   }
   if (contrast.textReadingSecondary) {
-    properties.push(`--text-reading-secondary: ${contrast.textReadingSecondary};`);
+    properties.push(
+      `--text-reading-secondary: ${contrast.textReadingSecondary};`,
+    );
   }
   if (contrast.textReadingMuted) {
     properties.push(`--text-reading-muted: ${contrast.textReadingMuted};`);
@@ -334,7 +379,8 @@ function nonColorPropertiesToCss(theme: ThemeConfig): string[] {
     if (theme.radius.md) properties.push(`--radius-md: ${theme.radius.md};`);
     if (theme.radius.lg) properties.push(`--radius-lg: ${theme.radius.lg};`);
     if (theme.radius.xl) properties.push(`--radius-xl: ${theme.radius.xl};`);
-    if (theme.radius["2xl"]) properties.push(`--radius-2xl: ${theme.radius["2xl"]};`);
+    if (theme.radius["2xl"])
+      properties.push(`--radius-2xl: ${theme.radius["2xl"]};`);
   }
 
   return properties;
