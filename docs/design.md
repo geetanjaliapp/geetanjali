@@ -365,11 +365,11 @@ ease-in-out                    /* Natural motion */
 
 ## Accessibility
 
-- **Contrast**: All text meets WCAG AA (4.5:1 minimum)
+- **Contrast**: WCAG 2.1 AA compliant (4.5:1 minimum for text, documented in token comments)
 - **Touch targets**: 44x44px minimum on mobile
 - **Focus indicators**: Visible on all interactive elements
 - **Screen readers**: ARIA labels and semantic HTML
-- **Reduced motion**: Respects `prefers-reduced-motion`
+- **Reduced motion**: Respects `prefers-reduced-motion` via `--motion-safe-*` tokens
 
 ## Dark Mode Guidelines
 
@@ -380,7 +380,8 @@ Dark mode is a first-class feature, not a retrofit. With the token system (v1.16
 1. **Use semantic tokens** — `--text-primary`, `--surface-warm`, not raw colors
 2. **No `dark:` prefixes** — Token values change automatically in `.dark` context
 3. **Shift, don't invert** — Dark mode isn't just inverted colors; tokens are tuned for visual weight
-4. **Test both modes** — Verify readability and aesthetics in light and dark before shipping
+4. **Quiet library aesthetic** — Soft off-white text (`neutral-200` primary), not harsh white; subdued backgrounds retain theme warmth
+5. **Test both modes** — Verify readability and aesthetics in light and dark before shipping
 
 ### Token-Based Approach (v1.16.0)
 

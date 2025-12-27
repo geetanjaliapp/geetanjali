@@ -133,6 +133,22 @@ className="gap-2 sm:gap-4"
 --shadow-modal: var(--shadow-xl);
 ```
 
+### Domain-Specific Tokens
+
+```css
+/* Sanskrit text */
+--text-sanskrit-primary: var(--color-warm-900);
+--text-sanskrit-muted: var(--color-warm-700);
+
+/* Badges and chips */
+--badge-warm-bg: var(--color-warm-100);
+--chip-selected-bg: var(--color-warm-200);  /* More prominent than badge */
+
+/* Reading mode */
+--surface-reading: var(--color-reading-50);
+--text-reading-primary: var(--color-neutral-800);
+```
+
 ## Logo Theming
 
 The logo features an orange gradient background circle that provides contrast against warm surface colors (amber-50, cream). The lotus petals and sun elements sit on top of this background.
@@ -178,38 +194,44 @@ Logo CSS variables (can be overridden per theme):
 
 Each theme provides light and dark mode variants with theme-specific contrast overrides for proper dark mode personality (e.g., Geetanjali dark uses amber-tinted neutrals, not pure grays).
 
+### Dark Mode Design
+
+Dark mode follows a "quiet library" aesthetic:
+- **Soft text**: `neutral-200` for primary text, not harsh white
+- **Themed backgrounds**: Each theme tints its dark surfaces (amber for Geetanjali, purple for Serenity)
+- **Color-mix**: `color-mix(in srgb, ...)` blends theme warmth into neutral surfaces
+
 ## Adding a New Theme
 
-1. **Define theme colors** in `src/config/themes.ts`:
+Themes are defined entirely in TypeScript. No CSS changes needed.
+
+1. **Define theme in `src/config/themes.ts`**:
 
 ```typescript
 export const myTheme: ThemeConfig = {
   id: "my-theme",
   name: "My Theme",
+  description: "Theme personality description",
+  defaultFontFamily: "serif", // or "sans", "mixed"
   colors: {
-    primary: "#...",
-    warm: "#...",
-    // ...
+    primary: { 500: "#...", 600: "#...", 700: "#..." },
+    warm: { 50: "#...", 100: "#..." },
+  },
+  modeColors: {
+    dark: {
+      contrast: {
+        textPrimary: "#...",      // Semantic overrides for dark mode
+        surfacePage: "#...",
+        badgeWarmBg: "#...",
+      }
+    }
   }
 };
 ```
 
-2. **Add CSS overrides** in `derived.css`:
+2. **Add to `THEMES` array** in the same file.
 
-```css
-[data-theme="my-theme"] {
-  --interactive-primary: #...;
-  --surface-warm: #...;
-  /* Override only what differs from default */
-}
-
-[data-theme="my-theme"].dark {
-  --text-primary: #...;
-  /* Dark mode overrides */
-}
-```
-
-3. **Register the theme** in the theme selector.
+The `modeColors.dark.contrast` object allows semantic-level overrides when color scale mappings don't produce readable results in dark mode.
 
 ## File Locations
 
