@@ -31,14 +31,7 @@ import {
   TOTAL_CHAPTERS,
 } from "../constants/chapters";
 import { errorMessages } from "../lib/errorMessages";
-
-// localStorage keys (position and settings now managed by useSyncedReading)
-const ONBOARDING_SEEN_KEY = "geetanjali:readingOnboardingSeen";
-const NEWSLETTER_SUBSCRIBED_KEY = "geetanjali:newsletterSubscribed";
-const NEWSLETTER_TOAST_KEY = "geetanjali:readingToastShown";
-
-// sessionStorage key for verses read in this session
-const SESSION_VERSES_READ_KEY = "geetanjali:readingVersesRead";
+import { setStorageItemRaw, STORAGE_KEYS, SESSION_KEYS } from "../lib/storage";
 // Show toast after reading this many verses
 const TOAST_THRESHOLD = 5;
 // Rate limit: once per week (7 days in ms)
@@ -139,7 +132,7 @@ export default function ReadingMode() {
   useEffect(() => {
     try {
       // Skip if user has already seen onboarding
-      if (localStorage.getItem(ONBOARDING_SEEN_KEY)) return;
+      if (localStorage.getItem(STORAGE_KEYS.readingOnboardingSeen)) return;
     } catch {
       return;
     }
@@ -178,11 +171,7 @@ export default function ReadingMode() {
   // Dismiss onboarding and remember
   const dismissOnboarding = useCallback(() => {
     setShowOnboarding(false);
-    try {
-      localStorage.setItem(ONBOARDING_SEEN_KEY, "1");
-    } catch {
-      // Ignore
-    }
+    setStorageItemRaw(STORAGE_KEYS.readingOnboardingSeen, "1");
   }, []);
 
   // Track unique verses read and show newsletter toast
@@ -195,16 +184,16 @@ export default function ReadingMode() {
 
     try {
       // Skip if already subscribed
-      if (localStorage.getItem(NEWSLETTER_SUBSCRIBED_KEY) === "true") return;
+      if (localStorage.getItem(STORAGE_KEYS.newsletterSubscribed) === "true") return;
 
       // Skip if toast shown within rate limit
-      const lastShown = localStorage.getItem(NEWSLETTER_TOAST_KEY);
+      const lastShown = localStorage.getItem(STORAGE_KEYS.newsletterToastShown);
       if (lastShown && Date.now() - parseInt(lastShown, 10) < TOAST_RATE_LIMIT) {
         return;
       }
 
       // Track unique verses read (prevents double-counting when navigating back)
-      const seenJson = sessionStorage.getItem(SESSION_VERSES_READ_KEY) || "[]";
+      const seenJson = sessionStorage.getItem(SESSION_KEYS.readingVersesRead) || "[]";
       const seenVerses: string[] = JSON.parse(seenJson);
 
       // Skip if already seen this verse
@@ -212,12 +201,12 @@ export default function ReadingMode() {
 
       // Add to seen list
       seenVerses.push(verse.canonical_id);
-      sessionStorage.setItem(SESSION_VERSES_READ_KEY, JSON.stringify(seenVerses));
+      sessionStorage.setItem(SESSION_KEYS.readingVersesRead, JSON.stringify(seenVerses));
 
       // Show toast after threshold unique verses
       if (seenVerses.length === TOAST_THRESHOLD) {
         setShowNewsletterToast(true);
-        localStorage.setItem(NEWSLETTER_TOAST_KEY, Date.now().toString());
+        setStorageItemRaw(STORAGE_KEYS.newsletterToastShown, Date.now().toString());
       }
     } catch {
       // Ignore storage errors

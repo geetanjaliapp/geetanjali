@@ -9,6 +9,8 @@
  *   ctx.fillStyle = colors.sanskrit;
  */
 
+import { STORAGE_KEYS } from "./storage";
+
 /**
  * Color palette for canvas-based image generation
  */
@@ -139,7 +141,7 @@ export function getCanvasThemeColors(): CanvasThemeColors {
  */
 export function getCurrentThemeName(): string {
   // Try to read from theme context storage
-  const stored = localStorage.getItem("geetanjali:theme");
+  const stored = localStorage.getItem(STORAGE_KEYS.theme);
   if (stored) {
     try {
       const parsed = JSON.parse(stored);

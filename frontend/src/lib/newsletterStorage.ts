@@ -4,21 +4,14 @@
  * Shared functions for managing newsletter subscription state in localStorage.
  */
 
-// localStorage key for newsletter subscription
-export const NEWSLETTER_SUBSCRIBED_KEY = "geetanjali:newsletterSubscribed";
+import { setStorageItemRaw, STORAGE_KEYS } from "./storage";
 
 /**
  * Mark the user as subscribed (call this after successful subscription)
  * Returns true if the write succeeded, false otherwise (quota exceeded, private browsing, etc.)
  */
 export function markNewsletterSubscribed(): boolean {
-  try {
-    localStorage.setItem(NEWSLETTER_SUBSCRIBED_KEY, "true");
-    return true;
-  } catch {
-    // QuotaExceededError or SecurityError (private browsing)
-    return false;
-  }
+  return setStorageItemRaw(STORAGE_KEYS.newsletterSubscribed, "true");
 }
 
 /**
@@ -26,7 +19,7 @@ export function markNewsletterSubscribed(): boolean {
  */
 export function clearNewsletterSubscribed(): void {
   try {
-    localStorage.removeItem(NEWSLETTER_SUBSCRIBED_KEY);
+    localStorage.removeItem(STORAGE_KEYS.newsletterSubscribed);
   } catch {
     // Ignore storage errors
   }
@@ -37,7 +30,7 @@ export function clearNewsletterSubscribed(): void {
  */
 export function isNewsletterSubscribed(): boolean {
   try {
-    return localStorage.getItem(NEWSLETTER_SUBSCRIBED_KEY) === "true";
+    return localStorage.getItem(STORAGE_KEYS.newsletterSubscribed) === "true";
   } catch {
     return false;
   }

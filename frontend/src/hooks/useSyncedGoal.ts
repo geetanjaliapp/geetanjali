@@ -18,13 +18,11 @@
 import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { useLearningGoalContext } from "../contexts/LearningGoalContext";
 import { useAuth } from "../contexts/AuthContext";
+import { setStorageItem, STORAGE_KEYS } from "../lib/storage";
 import { preferencesApi } from "../lib/api";
 import type { Goal, Principle } from "../lib/api";
 
 export type SyncStatus = "idle" | "syncing" | "synced" | "error";
-
-// localStorage key (matches useLearningGoal)
-const STORAGE_KEY = "geetanjali:learningGoals";
 
 // Debounce delay for syncing changes to server (long - primary sync is on visibility change)
 const SYNC_DEBOUNCE_MS = 30000;
@@ -74,7 +72,7 @@ interface UseSyncedGoalReturn {
  */
 function loadStoredGoals(): StoredGoals | null {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = localStorage.getItem(STORAGE_KEYS.learningGoals);
     if (stored) {
       return JSON.parse(stored) as StoredGoals;
     }
@@ -108,7 +106,6 @@ export function useSyncedGoal(): UseSyncedGoalReturn {
     // Throttle to prevent 429 on rapid remounts (e.g., React StrictMode)
     const now = Date.now();
     if (now - lastMergeTimestamp < MERGE_THROTTLE_MS) {
-      console.debug("[SyncedGoal] Merge throttled");
       return;
     }
     if (isSyncingRef.current) return;
@@ -134,17 +131,13 @@ export function useSyncedGoal(): UseSyncedGoalReturn {
         goalIds: merged.learning_goals.goal_ids,
         selectedAt: merged.learning_goals.updated_at || new Date().toISOString(),
       };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newGoals));
+      setStorageItem(STORAGE_KEYS.learningGoals, newGoals);
 
       // Sync with the context state
       goalContext.setGoals(newGoals.goalIds);
 
       setSyncStatus("synced");
       setLastSynced(new Date());
-
-      console.debug(
-        `[SyncedGoal] Merged: ${localGoalIds.length} local → ${merged.learning_goals.goal_ids.length} merged`,
-      );
     } catch (error) {
       console.error("[SyncedGoal] Merge failed:", error);
       setSyncStatus("error");
@@ -171,7 +164,6 @@ export function useSyncedGoal(): UseSyncedGoalReturn {
       // Throttle check (module-level, prevents rapid syncs)
       const now = Date.now();
       if (now - lastSyncTimestamp < SYNC_THROTTLE_MS) {
-        console.debug("[SyncedGoal] Sync throttled");
         return;
       }
       lastSyncTimestamp = now;
@@ -207,13 +199,11 @@ export function useSyncedGoal(): UseSyncedGoalReturn {
 
     // Detect login
     if (wasLoggedOut && isNowLoggedIn) {
-      console.debug("[SyncedGoal] Login detected, merging with server");
       mergeWithServer();
     }
 
     // Detect logout
     if (previousUserIdRef.current !== null && currentUserId === null) {
-      console.debug("[SyncedGoal] Logout detected, resetting sync status");
       setSyncStatus("idle");
       setLastSynced(null);
       isSyncingRef.current = false;

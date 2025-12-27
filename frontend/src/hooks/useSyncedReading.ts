@@ -22,6 +22,7 @@ import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { preferencesApi } from "../lib/api";
 import { tokenStorage } from "../api/auth";
+import { setStorageItem, STORAGE_KEYS } from "../lib/storage";
 
 /**
  * Read CSRF token from cookie (for native fetch calls)
@@ -32,10 +33,6 @@ function getCsrfToken(): string | null {
 }
 
 export type SyncStatus = "idle" | "syncing" | "synced" | "error";
-
-// localStorage keys (match ReadingMode.tsx)
-const READING_POSITION_KEY = "geetanjali:readingPosition";
-const READING_SETTINGS_KEY = "geetanjali:readingSettings";
 
 // Debounce delay for syncing changes to server (long - primary sync is on visibility change)
 const SYNC_DEBOUNCE_MS = 30000;
@@ -89,7 +86,7 @@ interface UseSyncedReadingReturn {
  */
 function loadPosition(): ReadingPosition | null {
   try {
-    const saved = localStorage.getItem(READING_POSITION_KEY);
+    const saved = localStorage.getItem(STORAGE_KEYS.readingPosition);
     if (saved) {
       return JSON.parse(saved) as ReadingPosition;
     }
@@ -104,7 +101,7 @@ function loadPosition(): ReadingPosition | null {
  */
 function loadSettings(): ReadingSettings {
   try {
-    const saved = localStorage.getItem(READING_SETTINGS_KEY);
+    const saved = localStorage.getItem(STORAGE_KEYS.readingSettings);
     if (saved) {
       return { ...DEFAULT_SETTINGS, ...JSON.parse(saved) };
     }
@@ -161,7 +158,6 @@ export function useSyncedReading(): UseSyncedReadingReturn {
     // Throttle to prevent 429 on rapid remounts (e.g., React StrictMode)
     const now = Date.now();
     if (now - lastMergeTimestamp < MERGE_THROTTLE_MS) {
-      console.debug("[SyncedReading] Merge throttled");
       return;
     }
     if (isSyncingRef.current) return;
@@ -186,20 +182,18 @@ export function useSyncedReading(): UseSyncedReadingReturn {
             ? new Date(merged.reading.updated_at).getTime()
             : Date.now(),
         };
-        localStorage.setItem(READING_POSITION_KEY, JSON.stringify(pos));
+        setStorageItem(STORAGE_KEYS.readingPosition, pos);
         setPosition(pos);
       }
 
       if (merged.reading.font_size) {
         const set: ReadingSettings = { fontSize: merged.reading.font_size as FontSize };
-        localStorage.setItem(READING_SETTINGS_KEY, JSON.stringify(set));
+        setStorageItem(STORAGE_KEYS.readingSettings, set);
         setSettings(set);
       }
 
       setSyncStatus("synced");
       setLastSynced(new Date());
-
-      console.debug("[SyncedReading] Merged with server");
     } catch (error) {
       console.error("[SyncedReading] Merge failed:", error);
       setSyncStatus("error");
@@ -231,7 +225,6 @@ export function useSyncedReading(): UseSyncedReadingReturn {
       // Throttle check (module-level, prevents rapid syncs)
       const now = Date.now();
       if (now - lastSyncTimestamp < SYNC_THROTTLE_MS) {
-        console.debug("[SyncedReading] Sync throttled");
         return;
       }
       lastSyncTimestamp = now;
@@ -306,7 +299,6 @@ export function useSyncedReading(): UseSyncedReadingReturn {
         credentials: "include", // Include cookies as fallback
         keepalive: true, // Allow request to outlive page
       });
-      console.debug("[SyncedReading] Flushed via keepalive fetch");
     } catch (error) {
       console.error("[SyncedReading] Flush failed:", error);
     }
@@ -325,13 +317,11 @@ export function useSyncedReading(): UseSyncedReadingReturn {
 
     // Detect login (includes mount when already logged in)
     if (wasLoggedOut && isNowLoggedIn) {
-      console.debug("[SyncedReading] Login detected, merging with server");
       mergeWithServer();
     }
 
     // Detect logout
     if (previousUserIdRef.current !== null && currentUserId === null) {
-      console.debug("[SyncedReading] Logout detected, resetting sync status");
       setSyncStatus("idle");
       setLastSynced(null);
       isSyncingRef.current = false;
@@ -384,11 +374,7 @@ export function useSyncedReading(): UseSyncedReadingReturn {
         verse,
         timestamp: Date.now(),
       };
-      try {
-        localStorage.setItem(READING_POSITION_KEY, JSON.stringify(pos));
-      } catch {
-        // Ignore localStorage errors
-      }
+      setStorageItem(STORAGE_KEYS.readingPosition, pos);
       setPosition(pos);
 
       // Queue for sync
@@ -411,11 +397,7 @@ export function useSyncedReading(): UseSyncedReadingReturn {
   const setFontSize = useCallback(
     (size: FontSize) => {
       const newSettings = { ...settings, fontSize: size };
-      try {
-        localStorage.setItem(READING_SETTINGS_KEY, JSON.stringify(newSettings));
-      } catch {
-        // Ignore localStorage errors
-      }
+      setStorageItem(STORAGE_KEYS.readingSettings, newSettings);
       setSettings(newSettings);
 
       // Queue for sync
@@ -436,8 +418,8 @@ export function useSyncedReading(): UseSyncedReadingReturn {
    */
   const resetProgress = useCallback(() => {
     try {
-      localStorage.removeItem(READING_POSITION_KEY);
-      localStorage.removeItem(READING_SETTINGS_KEY);
+      localStorage.removeItem(STORAGE_KEYS.readingPosition);
+      localStorage.removeItem(STORAGE_KEYS.readingSettings);
     } catch {
       // Ignore
     }

@@ -9,8 +9,7 @@
  */
 
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
-
-const STORAGE_KEY = "geetanjali_favorites";
+import { setStorageItem, STORAGE_KEYS } from "../lib/storage";
 const MAX_FAVORITES = 100; // Reasonable limit to prevent localStorage bloat
 
 interface UseFavoritesReturn {
@@ -29,7 +28,7 @@ interface UseFavoritesReturn {
  */
 function loadFavorites(): Set<string> {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = localStorage.getItem(STORAGE_KEYS.favorites);
     if (stored) {
       const parsed = JSON.parse(stored);
       if (Array.isArray(parsed)) {
@@ -46,11 +45,9 @@ function loadFavorites(): Set<string> {
  * Save favorites to localStorage
  */
 function saveFavorites(favorites: Set<string>): void {
-  try {
-    const array = Array.from(favorites);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(array));
-  } catch (error) {
-    console.error("[Favorites] Error saving to localStorage:", error);
+  const array = Array.from(favorites);
+  if (!setStorageItem(STORAGE_KEYS.favorites, array)) {
+    console.error("[Favorites] Error saving to localStorage");
   }
 }
 
@@ -85,7 +82,7 @@ export function useFavorites(): UseFavoritesReturn {
   // Sync with localStorage on changes from other tabs
   useEffect(() => {
     const handleStorageChange = (event: StorageEvent) => {
-      if (event.key === STORAGE_KEY) {
+      if (event.key === STORAGE_KEYS.favorites) {
         setFavorites(loadFavorites());
       }
     };

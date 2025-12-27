@@ -44,10 +44,6 @@ const DEFAULT_SECTION_PREFS: SectionPrefs = {
   translations: true,
 };
 
-// localStorage key for newsletter subscription
-const NEWSLETTER_SUBSCRIBED_KEY = "geetanjali:newsletterSubscribed";
-// sessionStorage key for verse view count
-const VERSE_VIEW_COUNT_KEY = "geetanjali:verseViewCount";
 // Show nudge after this many views
 const NUDGE_THRESHOLD = 3;
 
@@ -128,20 +124,20 @@ export default function VerseDetail() {
     try {
       // Don't show nudge if user is subscribed
       const isSubscribed =
-        localStorage.getItem(NEWSLETTER_SUBSCRIBED_KEY) === "true";
+        localStorage.getItem(STORAGE_KEYS.newsletterSubscribed) === "true";
       if (isSubscribed) {
         setShowNewsletterNudge(false);
         return;
       }
 
       // Track unique verses viewed (prevents double-counting when revisiting)
-      const seenJson = sessionStorage.getItem(VERSE_VIEW_COUNT_KEY) || "[]";
+      const seenJson = sessionStorage.getItem(STORAGE_KEYS.verseViewCount) || "[]";
       const seenVerses: string[] = JSON.parse(seenJson);
 
       // Add to seen list if new
       if (!seenVerses.includes(canonicalId)) {
         seenVerses.push(canonicalId);
-        sessionStorage.setItem(VERSE_VIEW_COUNT_KEY, JSON.stringify(seenVerses));
+        sessionStorage.setItem(STORAGE_KEYS.verseViewCount, JSON.stringify(seenVerses));
       }
 
       // Show nudge after threshold unique verses

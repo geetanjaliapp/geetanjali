@@ -11,22 +11,7 @@
 import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { isNewsletterSubscribed } from "../lib/newsletterStorage";
-
-/**
- * Safely write to localStorage, handling quota exceeded errors
- */
-function safeSetItem(key: string, value: string): boolean {
-  try {
-    localStorage.setItem(key, value);
-    return true;
-  } catch {
-    // QuotaExceededError or SecurityError (private browsing)
-    return false;
-  }
-}
-
-// localStorage key for dismissal tracking
-const NEWSLETTER_DISMISSED_KEY = "geetanjali:newsletterCardDismissed";
+import { setStorageItemRaw, STORAGE_KEYS } from "../lib/storage";
 
 // 7 days in milliseconds
 const DISMISS_DURATION = 7 * 24 * 60 * 60 * 1000;
@@ -40,7 +25,7 @@ function shouldShowCard(): boolean {
     if (isNewsletterSubscribed()) return false;
 
     // Don't show if dismissed within last 7 days
-    const dismissed = localStorage.getItem(NEWSLETTER_DISMISSED_KEY);
+    const dismissed = localStorage.getItem(STORAGE_KEYS.newsletterCardDismissed);
     if (dismissed) {
       const dismissedAt = parseInt(dismissed, 10);
       if (Date.now() - dismissedAt < DISMISS_DURATION) {
@@ -70,7 +55,7 @@ export function NewsletterCard() {
     isDismissingRef.current = true;
 
     // Try to persist dismissal, but hide card either way
-    safeSetItem(NEWSLETTER_DISMISSED_KEY, Date.now().toString());
+    setStorageItemRaw(STORAGE_KEYS.newsletterCardDismissed, Date.now().toString());
     setIsVisible(false);
   };
 

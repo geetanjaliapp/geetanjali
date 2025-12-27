@@ -9,7 +9,6 @@ import {
   CheckIcon,
   MailIcon,
   HeartIcon,
-  GoalIconsById,
   SpinnerIcon,
 } from "../components/icons";
 import { useSyncedGoal, useSyncedFavorites, useSyncedReading, useSEO, useResendVerification } from "../hooks";
@@ -29,9 +28,6 @@ import {
 type SubscriptionStatus = "idle" | "pending" | "subscribed";
 type FontSize = "small" | "medium" | "large";
 type DefaultVersesTab = "default" | "featured" | "for-you" | "favorites" | "all";
-
-/** Section prefs key - matches VerseFocus component */
-const SECTION_PREFS_KEY = "geetanjali:readingSectionPrefs";
 
 /** Section IDs for collapsible content in ReadingMode */
 type SectionPrefs = {
@@ -53,7 +49,7 @@ const DEFAULT_SECTION_PREFS: SectionPrefs = {
  */
 function loadSectionPrefs(): SectionPrefs {
   try {
-    const stored = localStorage.getItem(SECTION_PREFS_KEY);
+    const stored = localStorage.getItem(STORAGE_KEYS.readingSectionPrefs);
     if (stored) {
       return { ...DEFAULT_SECTION_PREFS, ...JSON.parse(stored) };
     }
@@ -186,11 +182,7 @@ export default function Settings() {
 
   // Save section prefs to localStorage (shared with VerseFocus)
   useEffect(() => {
-    try {
-      localStorage.setItem(SECTION_PREFS_KEY, JSON.stringify(sectionPrefs));
-    } catch {
-      // Ignore
-    }
+    setStorageItem(STORAGE_KEYS.readingSectionPrefs, sectionPrefs);
   }, [sectionPrefs]);
 
   const derivedName = useMemo(() => getNameFromEmail(email), [email]);

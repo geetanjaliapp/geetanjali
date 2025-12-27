@@ -16,8 +16,7 @@ import {
 } from "react";
 import { useTaxonomy } from "../hooks/useTaxonomy";
 import type { Goal, Principle } from "../lib/api";
-
-const STORAGE_KEY = "geetanjali:learningGoals";
+import { setStorageItem, STORAGE_KEYS } from "../lib/storage";
 
 interface StoredGoals {
   goalIds: string[];
@@ -52,7 +51,7 @@ const LearningGoalContext = createContext<LearningGoalContextType | undefined>(
  */
 function loadStoredGoals(): StoredGoals | null {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = localStorage.getItem(STORAGE_KEYS.learningGoals);
     if (stored) {
       return JSON.parse(stored) as StoredGoals;
     }
@@ -93,7 +92,7 @@ export function LearningGoalProvider({ children }: LearningGoalProviderProps) {
         selectedAt: new Date().toISOString(),
       };
 
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newGoals));
+      setStorageItem(STORAGE_KEYS.learningGoals, newGoals);
       return newGoals;
     });
   }, []);
@@ -106,7 +105,7 @@ export function LearningGoalProvider({ children }: LearningGoalProviderProps) {
       goalIds,
       selectedAt: new Date().toISOString(),
     };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newGoals));
+    setStorageItem(STORAGE_KEYS.learningGoals, newGoals);
     setStoredGoals(newGoals);
   }, []);
 
@@ -114,7 +113,7 @@ export function LearningGoalProvider({ children }: LearningGoalProviderProps) {
    * Clear all selected goals
    */
   const clearGoals = useCallback(() => {
-    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(STORAGE_KEYS.learningGoals);
     setStoredGoals(null);
   }, []);
 

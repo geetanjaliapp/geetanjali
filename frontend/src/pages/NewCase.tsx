@@ -9,9 +9,7 @@ import { errorMessages } from "../lib/errorMessages";
 import { validateContent } from "../lib/contentFilter";
 import { useSEO } from "../hooks";
 import { trackEvent } from "../lib/experiment";
-
-// localStorage key for draft saving
-const DRAFT_KEY = "geetanjali:caseDraft";
+import { setStorageItem, STORAGE_KEYS } from "../lib/storage";
 const DRAFT_DEBOUNCE_MS = 1000; // Save after 1s of inactivity
 
 interface DraftData {
@@ -25,12 +23,12 @@ interface DraftData {
 // Draft helpers
 function loadDraft(): DraftData | null {
   try {
-    const stored = localStorage.getItem(DRAFT_KEY);
+    const stored = localStorage.getItem(STORAGE_KEYS.caseDraft);
     if (!stored) return null;
     const draft = JSON.parse(stored) as DraftData;
     // Expire drafts after 7 days
     if (Date.now() - draft.savedAt > 7 * 24 * 60 * 60 * 1000) {
-      localStorage.removeItem(DRAFT_KEY);
+      localStorage.removeItem(STORAGE_KEYS.caseDraft);
       return null;
     }
     return draft;
@@ -40,24 +38,21 @@ function loadDraft(): DraftData | null {
 }
 
 function saveDraft(data: Omit<DraftData, "savedAt">): void {
-  try {
-    // Don't save empty drafts
-    if (!data.question.trim() && !data.context.trim()) {
-      localStorage.removeItem(DRAFT_KEY);
-      return;
+  // Don't save empty drafts
+  if (!data.question.trim() && !data.context.trim()) {
+    try {
+      localStorage.removeItem(STORAGE_KEYS.caseDraft);
+    } catch {
+      // Ignore
     }
-    localStorage.setItem(
-      DRAFT_KEY,
-      JSON.stringify({ ...data, savedAt: Date.now() }),
-    );
-  } catch {
-    // Ignore storage errors
+    return;
   }
+  setStorageItem(STORAGE_KEYS.caseDraft, { ...data, savedAt: Date.now() });
 }
 
 function clearDraft(): void {
   try {
-    localStorage.removeItem(DRAFT_KEY);
+    localStorage.removeItem(STORAGE_KEYS.caseDraft);
   } catch {
     // Ignore
   }

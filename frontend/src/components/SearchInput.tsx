@@ -9,9 +9,7 @@ import {
   type KeyboardEvent,
 } from "react";
 import { SearchIcon, CloseIcon, SpinnerIcon } from "./icons";
-
-// localStorage key for recent searches
-const RECENT_SEARCHES_KEY = "geetanjali:recentSearches";
+import { setStorageItem, STORAGE_KEYS } from "../lib/storage";
 const MAX_RECENT_SEARCHES = 5;
 
 // Search type examples for educational hints
@@ -26,7 +24,7 @@ const SEARCH_EXAMPLES = [
  */
 function getRecentSearches(): string[] {
   try {
-    const stored = localStorage.getItem(RECENT_SEARCHES_KEY);
+    const stored = localStorage.getItem(STORAGE_KEYS.recentSearches);
     return stored ? JSON.parse(stored) : [];
   } catch {
     return [];
@@ -47,7 +45,7 @@ export function saveRecentSearch(query: string): void {
       (s) => s.toLowerCase() !== trimmed.toLowerCase(),
     );
     const updated = [trimmed, ...filtered].slice(0, MAX_RECENT_SEARCHES);
-    localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(updated));
+    setStorageItem(STORAGE_KEYS.recentSearches, updated);
   } catch {
     // Ignore localStorage errors
   }
@@ -58,7 +56,7 @@ export function saveRecentSearch(query: string): void {
  */
 function clearRecentSearches(): void {
   try {
-    localStorage.removeItem(RECENT_SEARCHES_KEY);
+    localStorage.removeItem(STORAGE_KEYS.recentSearches);
   } catch {
     // Ignore
   }

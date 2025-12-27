@@ -19,6 +19,7 @@ import { formatSanskritLines, isSpeakerIntro } from "../lib/sanskritFormatter";
 import { getTranslatorPriority } from "../constants/translators";
 import { HeartIcon } from "./icons";
 import { useSyncedFavorites } from "../hooks";
+import { setStorageItem, setStorageItemRaw, STORAGE_KEYS } from "../lib/storage";
 import type { Verse, Translation } from "../types";
 
 /** Font size options for Sanskrit text */
@@ -29,11 +30,6 @@ type SectionId = "iast" | "insight" | "hindi" | "english";
 
 /** Section expansion preferences */
 type SectionPrefs = Record<SectionId, boolean>;
-
-/** localStorage key for section preferences */
-const SECTION_PREFS_KEY = "geetanjali:readingSectionPrefs";
-/** localStorage key for tracking if user has toggled translation */
-const TRANSLATION_HINT_SEEN_KEY = "geetanjali:translationHintSeen";
 
 /** Default: all sections expanded */
 const DEFAULT_SECTION_PREFS: SectionPrefs = {
@@ -46,7 +42,7 @@ const DEFAULT_SECTION_PREFS: SectionPrefs = {
 /** Load section preferences from localStorage */
 function loadSectionPrefs(): SectionPrefs {
   try {
-    const stored = localStorage.getItem(SECTION_PREFS_KEY);
+    const stored = localStorage.getItem(STORAGE_KEYS.readingSectionPrefs);
     if (stored) {
       const parsed = JSON.parse(stored);
       // Merge with defaults to handle new sections
@@ -60,11 +56,7 @@ function loadSectionPrefs(): SectionPrefs {
 
 /** Save section preferences to localStorage */
 function saveSectionPrefs(prefs: SectionPrefs): void {
-  try {
-    localStorage.setItem(SECTION_PREFS_KEY, JSON.stringify(prefs));
-  } catch {
-    // Ignore storage errors
-  }
+  setStorageItem(STORAGE_KEYS.readingSectionPrefs, prefs);
 }
 
 /** Collapsible section with tappable header */
@@ -221,7 +213,7 @@ export function VerseFocus({
   // Track if user has ever toggled translation (persisted to stop pulse animation)
   const [hintSeen, setHintSeen] = useState(() => {
     try {
-      return localStorage.getItem(TRANSLATION_HINT_SEEN_KEY) === "true";
+      return localStorage.getItem(STORAGE_KEYS.translationHintSeen) === "true";
     } catch {
       return false;
     }
@@ -298,11 +290,7 @@ export function VerseFocus({
     // Mark hint as seen (stops pulse animation)
     if (!hintSeen) {
       setHintSeen(true);
-      try {
-        localStorage.setItem(TRANSLATION_HINT_SEEN_KEY, "true");
-      } catch {
-        // Ignore storage errors
-      }
+      setStorageItemRaw(STORAGE_KEYS.translationHintSeen, "true");
     }
 
     // Use controlled callback if available, otherwise update internal state
