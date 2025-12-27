@@ -71,6 +71,11 @@ export interface ThemeRadius {
 /**
  * Contrast colors for text on colored backgrounds
  * Also supports semantic-level color overrides for themes with inverted scales
+ *
+ * IMPORTANT: These semantic overrides are essential for themes that structure
+ * their color scales differently from the default Geetanjali theme. Without
+ * these overrides, the semantic.css mappings (e.g., text-primary -> neutral-200)
+ * may not produce readable results.
  */
 export interface ContrastColors {
   /** Text color on primary-colored backgrounds (buttons, badges) */
@@ -82,21 +87,80 @@ export interface ContrastColors {
   /** Pure surface color (white in light mode, dark in dark mode) */
   surfacePure?: string;
 
-  /* Semantic-level overrides for themes with inverted color scales */
+  /* ============================================
+     SEMANTIC-LEVEL OVERRIDES
+     For themes with inverted/different color scale structures
+     ============================================ */
+
+  /* Interactive element overrides */
   /** Override primary button background color */
   interactivePrimary?: string;
   /** Override primary button hover background */
   interactivePrimaryHover?: string;
   /** Override primary button active background */
   interactivePrimaryActive?: string;
+  /** Override ghost button text color */
+  interactiveGhostText?: string;
+
+  /* Text color overrides - CRITICAL for dark mode readability */
+  /** Override primary text color (main content) */
+  textPrimary?: string;
+  /** Override secondary text color (labels, supporting text) */
+  textSecondary?: string;
+  /** Override tertiary text color (less important text) */
+  textTertiary?: string;
+  /** Override muted text color (placeholders, disabled) */
+  textMuted?: string;
   /** Override primary link color */
   textLink?: string;
   /** Override primary link hover color */
   textLinkHover?: string;
-  /** Override ghost button text color */
-  interactiveGhostText?: string;
+
+  /* Surface color overrides - for proper layering */
+  /** Override base page background */
+  surfacePage?: string;
+  /** Override elevated surface (cards, modals) */
+  surfaceElevated?: string;
+  /** Override card surface */
+  surfaceCard?: string;
+  /** Override muted surface */
+  surfaceMuted?: string;
+
+  /* Input/form overrides */
+  /** Override input background */
+  inputBg?: string;
+  /** Override input border */
+  inputBorder?: string;
+
+  /* Border overrides */
   /** Override focus ring color */
   borderFocus?: string;
+  /** Override default border */
+  borderDefault?: string;
+
+  /* Menu/nav item colors */
+  /** Override selected menu item background */
+  menuItemSelectedBg?: string;
+  /** Override selected menu item text */
+  menuItemSelectedText?: string;
+  /** Override menu item hover background */
+  menuItemHoverBg?: string;
+
+  /* Badge colors - for themes with inverted warm scales */
+  /** Override warm badge background */
+  badgeWarmBg?: string;
+  /** Override warm badge hover background */
+  badgeWarmHover?: string;
+  /** Override warm badge text color */
+  badgeWarmText?: string;
+  /** Override principle badge background */
+  badgePrincipleBg?: string;
+  /** Override principle badge text color */
+  badgePrincipleText?: string;
+  /** Override selected chip background */
+  chipSelectedBg?: string;
+  /** Override selected chip text color */
+  chipSelectedText?: string;
 }
 
 /**

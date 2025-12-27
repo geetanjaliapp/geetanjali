@@ -48,6 +48,17 @@
   /* Sticky header/bar surfaces (with transparency for blur) */
   --surface-sticky: color-mix(in srgb, var(--color-warm-50) 95%, transparent);
 
+  /* Translucent surfaces for blur effects */
+  --surface-sticky-translucent: color-mix(in srgb, var(--color-warm-50) 95%, transparent);
+  --surface-warm-translucent: color-mix(in srgb, var(--color-warm-50) 90%, transparent);
+  --surface-warm-translucent-subtle: color-mix(in srgb, var(--color-warm-50) 50%, transparent);
+  --surface-elevated-sticky: color-mix(in srgb, var(--color-surface-pure) 95%, transparent);
+  --surface-elevated-translucent: color-mix(in srgb, var(--color-surface-pure) 80%, transparent);
+  --surface-elevated-translucent-subtle: color-mix(in srgb, var(--color-surface-pure) 70%, transparent);
+  --surface-elevated-hover: color-mix(in srgb, var(--color-surface-pure) 90%, transparent);
+  --surface-muted-translucent: color-mix(in srgb, var(--color-neutral-100) 50%, transparent);
+  --surface-muted-translucent-subtle: color-mix(in srgb, var(--color-neutral-100) 30%, transparent);
+
   /* Reading mode surface */
   --surface-reading: var(--color-reading-50);
   --surface-reading-elevated: white;
@@ -222,12 +233,12 @@
 
   /* Om symbol and decorative elements */
   --decorative-om: color-mix(in srgb, var(--color-warm-400) 50%, transparent);
-  --decorative-heart: color-mix(in srgb, var(--color-red-300) 60%, transparent);
+  --decorative-heart: color-mix(in srgb, var(--color-accent-400) 60%, transparent);
   --decorative-sparkle: color-mix(in srgb, var(--color-warm-300) 60%, transparent);
 
-  /* Favorite/like indicator - solid color for interactive elements */
-  --icon-favorite: var(--color-red-500);
-  --icon-favorite-muted: var(--color-red-300);
+  /* Favorite/like indicator - theme-aware accent colors */
+  --icon-favorite: var(--color-accent-500);
+  --icon-favorite-muted: var(--color-accent-300);
 
   /* Logo colors - themeable via LogoIcon component */
   --logo-bg-start: var(--interactive-primary);
@@ -236,6 +247,8 @@
   --logo-petal-inner: #FFEDD5;
   --logo-sun-glow: #FCD34D;
   --logo-sun-core: #991B1B;
+  --logo-sun-highlight: #FEF3C7;
+  --logo-sun-edge: #DC2626;
 
   /* Decorative dividers */
   --divider-warm: var(--color-warm-300);
@@ -515,9 +528,9 @@
 .dark {
   /* Surface tokens - IMPROVED hierarchy with clear visual layers */
   --surface-base: var(--color-neutral-900);
-  /* Maintain warmth in dark mode - increased from 15% to 35% for visible theme identity */
-  --surface-warm: color-mix(in srgb, var(--color-warm-900) 35%, var(--color-neutral-800));
-  --surface-warm-subtle: color-mix(in srgb, var(--color-warm-900) 20%, var(--color-neutral-800));
+  /* Subtle warmth in dark mode - refined amber undertone without being too orange */
+  --surface-warm: color-mix(in srgb, var(--color-warm-900) 20%, var(--color-neutral-800));
+  --surface-warm-subtle: color-mix(in srgb, var(--color-warm-900) 12%, var(--color-neutral-800));
   /* Clearer surface hierarchy: base → card → elevated with visible contrast */
   --surface-elevated: var(--color-neutral-700);
   --surface-card: var(--color-neutral-800);
@@ -527,26 +540,37 @@
   /* Input border - lighter shade for better visibility in dark mode */
   --input-border: var(--color-neutral-400);
   --surface-sticky: color-mix(in srgb, var(--color-neutral-900) 95%, transparent);
+
+  /* Translucent surfaces for blur effects (dark mode) */
+  --surface-sticky-translucent: color-mix(in srgb, var(--color-neutral-900) 95%, transparent);
+  --surface-warm-translucent: color-mix(in srgb, var(--color-neutral-800) 90%, transparent);
+  --surface-warm-translucent-subtle: color-mix(in srgb, var(--color-neutral-800) 50%, transparent);
+  --surface-elevated-sticky: color-mix(in srgb, var(--color-neutral-700) 95%, transparent);
+  --surface-elevated-translucent: color-mix(in srgb, var(--color-neutral-700) 80%, transparent);
+  --surface-elevated-translucent-subtle: color-mix(in srgb, var(--color-neutral-700) 70%, transparent);
+  --surface-elevated-hover: color-mix(in srgb, var(--color-neutral-700) 90%, transparent);
+  --surface-muted-translucent: color-mix(in srgb, var(--color-neutral-800) 50%, transparent);
+  --surface-muted-translucent-subtle: color-mix(in srgb, var(--color-neutral-800) 30%, transparent);
   --surface-reading: var(--color-reading-900);
   --surface-reading-elevated: var(--color-reading-800);
   --surface-reading-header: color-mix(in srgb, var(--color-reading-900) 95%, transparent);
   --surface-reading-header-solid: var(--color-reading-900);
 
-  /* Reading mode text (dark) - quiet library feel */
-  --text-reading-primary: var(--color-warm-500);
-  --text-reading-secondary: var(--color-warm-600);
-  --text-reading-muted: var(--color-reading-600);
-  --text-reading-accent: var(--color-warm-600);
+  /* Reading mode text (dark) - quiet library feel, neutral with subtle warmth */
+  --text-reading-primary: var(--color-reading-200);
+  --text-reading-secondary: var(--color-reading-300);
+  --text-reading-muted: var(--color-reading-500);
+  --text-reading-accent: var(--color-warm-500);
 
   /* Reading mode interactive (dark) */
-  --interactive-reading: var(--color-warm-400);
+  --interactive-reading: var(--color-reading-300);
   --interactive-reading-hover-bg: var(--color-reading-800);
   --interactive-reading-active-bg: var(--color-reading-700);
   --interactive-reading-disabled: var(--color-reading-600);
 
   /* Reading mode indicators (dark) */
-  --reading-indicator-active: var(--color-warm-400);
-  --reading-indicator-inactive: var(--color-reading-600);
+  --reading-indicator-active: var(--color-reading-400);
+  --reading-indicator-inactive: var(--color-reading-700);
 
   /* Reading mode borders (dark) */
   --border-reading-header: color-mix(in srgb, var(--color-reading-700) 50%, transparent);
@@ -572,8 +596,8 @@
 
   /* Border tokens */
   --border-default: var(--color-neutral-700);
-  --border-warm: color-mix(in srgb, var(--color-warm-600) 60%, var(--color-neutral-700)); /* Retain warmth */
-  --border-warm-subtle: color-mix(in srgb, var(--color-warm-700) 40%, transparent);
+  --border-warm: color-mix(in srgb, var(--color-warm-700) 35%, var(--color-neutral-700)); /* Subtle warmth */
+  --border-warm-subtle: color-mix(in srgb, var(--color-warm-800) 25%, transparent);
   --border-subtle: var(--color-neutral-800);
   --border-focus: var(--color-primary-400);
   --border-accent: var(--color-accent-500);
@@ -598,13 +622,13 @@
   --interactive-secondary-disabled-bg: var(--color-neutral-800);
   --interactive-secondary-disabled-text: var(--color-neutral-500);
   --interactive-secondary-disabled-border: var(--color-neutral-600);
-  /* Ghost buttons: subdued presence, not glowing */
-  --interactive-ghost-text: var(--color-primary-400);
-  --interactive-ghost-hover-bg: color-mix(in srgb, var(--color-primary-800) 40%, transparent);
-  /* Contextual actions: muted warmth */
-  --interactive-contextual: var(--color-warm-600);
-  --interactive-contextual-hover: var(--color-warm-500);
-  --interactive-contextual-text: var(--color-on-primary);
+  /* Ghost buttons: neutral with subtle primary hint */
+  --interactive-ghost-text: var(--color-neutral-300);
+  --interactive-ghost-hover-bg: color-mix(in srgb, var(--color-neutral-700) 50%, transparent);
+  /* Contextual actions: neutral, not warm */
+  --interactive-contextual: var(--color-neutral-600);
+  --interactive-contextual-hover: var(--color-neutral-500);
+  --interactive-contextual-text: var(--color-neutral-100);
   --interactive-disabled: var(--color-neutral-600);
 
   /* Section tokens */
@@ -620,35 +644,39 @@
   --gradient-warm-from: var(--color-neutral-900);
   --gradient-warm-to: color-mix(in srgb, var(--color-warm-900) 10%, var(--color-neutral-900));
 
-  /* Decorative tokens - subtle presence for quiet ambiance */
-  --decorative-om: color-mix(in srgb, var(--color-warm-400) 50%, transparent);
-  --decorative-heart: color-mix(in srgb, var(--color-red-400) 50%, transparent);
-  --decorative-sparkle: color-mix(in srgb, var(--color-warm-300) 50%, transparent);
+  /* Decorative tokens - subtle neutral presence */
+  --decorative-om: color-mix(in srgb, var(--color-neutral-400) 50%, transparent);
+  --decorative-heart: color-mix(in srgb, var(--color-accent-300) 50%, transparent);
+  --decorative-sparkle: color-mix(in srgb, var(--color-neutral-400) 50%, transparent);
 
-  /* Favorite/like indicator - lighter shades for dark mode */
-  --icon-favorite: var(--color-red-400);
-  --icon-favorite-muted: var(--color-red-200);
+  /* Favorite/like indicator - theme-aware accent colors */
+  --icon-favorite: var(--color-accent-400);
+  --icon-favorite-muted: var(--color-accent-200);
 
-  /* Decorative dividers */
-  --divider-warm: var(--color-warm-600);
-  --divider-warm-subtle: var(--color-warm-600);
+  /* Logo colors (dark mode) - subtle adjustments for dark backgrounds */
+  --logo-sun-highlight: #FEF3C7;
+  --logo-sun-edge: #EF4444;
 
-  /* Badge tokens - WCAG AA: use dark bg + light text approach */
-  /* Dark backgrounds with light text ensures ~8:1+ contrast */
+  /* Decorative dividers - neutral with subtle warm tint */
+  --divider-warm: color-mix(in srgb, var(--color-warm-700) 30%, var(--color-neutral-600));
+  --divider-warm-subtle: var(--color-neutral-700);
+
+  /* Badge tokens - neutral-forward with subtle warm tint */
+  /* Dark gray backgrounds with light text for clean, non-orange appearance */
   --badge-default-bg: var(--color-neutral-700);
   --badge-default-text: var(--color-neutral-200);
-  --badge-warm-bg: var(--color-warm-800);
-  --badge-warm-text: var(--color-warm-200);
-  --badge-warm-hover: var(--color-warm-700);
-  --badge-primary-bg: var(--color-primary-800);
-  --badge-primary-text: var(--color-primary-200);
-  --badge-primary-hover: var(--color-primary-700);
+  --badge-warm-bg: color-mix(in srgb, var(--color-warm-800) 20%, var(--color-neutral-700));
+  --badge-warm-text: var(--color-neutral-200);
+  --badge-warm-hover: color-mix(in srgb, var(--color-warm-700) 25%, var(--color-neutral-600));
+  --badge-primary-bg: var(--color-neutral-700);
+  --badge-primary-text: var(--color-neutral-200);
+  --badge-primary-hover: var(--color-neutral-600);
 
-  /* Domain-specific badges (dark mode) - explicit dark bg + light text */
-  --badge-principle-bg: var(--color-warm-800);
-  --badge-principle-text: var(--color-warm-200);
-  --badge-match-bg: var(--color-primary-800);
-  --badge-match-text: var(--color-primary-200);
+  /* Domain-specific badges (dark mode) - neutral with warm accent */
+  --badge-principle-bg: color-mix(in srgb, var(--color-warm-800) 20%, var(--color-neutral-700));
+  --badge-principle-text: var(--color-neutral-200);
+  --badge-match-bg: var(--color-neutral-700);
+  --badge-match-text: var(--color-neutral-200);
   --badge-featured-bg: var(--color-accent-800);
   --badge-featured-text: var(--color-accent-200);
 
@@ -671,19 +699,19 @@
   /* Field surfaces */
   --surface-field: color-mix(in srgb, var(--color-neutral-700) 50%, var(--color-neutral-800));
 
-  /* Selection chips/pills */
-  --chip-selected-bg: color-mix(in srgb, var(--color-warm-900) 40%, transparent);
-  --chip-selected-text: var(--color-warm-300);
-  --chip-selected-ring: var(--color-warm-700);
+  /* Selection chips/pills - neutral with subtle definition */
+  --chip-selected-bg: var(--color-neutral-700);
+  --chip-selected-text: var(--color-neutral-200);
+  --chip-selected-ring: var(--color-neutral-500);
 
-  /* Selected button/option (primary-colored) */
-  --option-selected-bg: color-mix(in srgb, var(--color-primary-900) 30%, transparent);
-  --option-selected-text: var(--color-primary-400);
-  --option-selected-border: var(--color-primary-700);
+  /* Selected button/option - neutral, orange reserved for CTAs */
+  --option-selected-bg: color-mix(in srgb, var(--color-neutral-700) 60%, transparent);
+  --option-selected-text: var(--color-neutral-200);
+  --option-selected-border: var(--color-neutral-500);
 
-  /* Goal indicators */
-  --goal-indicator-bg: color-mix(in srgb, var(--color-warm-700) 50%, transparent);
-  --goal-indicator-text: var(--color-warm-300);
+  /* Goal indicators - subtle neutral */
+  --goal-indicator-bg: color-mix(in srgb, var(--color-neutral-600) 50%, transparent);
+  --goal-indicator-text: var(--color-neutral-300);
 
   /* Avatar placeholder */
   --avatar-placeholder-bg: var(--color-neutral-600);

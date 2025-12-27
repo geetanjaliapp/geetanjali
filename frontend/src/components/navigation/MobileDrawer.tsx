@@ -149,8 +149,8 @@ export function MobileDrawer({
                     onClick={onClose}
                     className={`flex items-center gap-3 px-4 py-3 rounded-[var(--radius-nav)] text-base font-medium transition-[var(--transition-nav)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-inset ${
                       isActive
-                        ? "text-[var(--interactive-primary)] bg-[var(--menu-item-selected-bg)] shadow-[var(--shadow-button)]"
-                        : "text-[var(--text-secondary)] hover:text-[var(--interactive-primary)] hover:bg-[var(--menu-item-hover-bg)]"
+                        ? "text-[var(--menu-item-selected-text)] bg-[var(--menu-item-selected-bg)] shadow-[var(--shadow-button)]"
+                        : "text-[var(--text-secondary)] hover:text-[var(--menu-item-selected-text)] hover:bg-[var(--menu-item-hover-bg)]"
                     }`}
                   >
                     <NavIcon path={NAV_ICONS[item.icon]} />
@@ -165,7 +165,7 @@ export function MobileDrawer({
           </div>
 
           {/* Account section at bottom */}
-          <div className="border-t border-[var(--border-warm)] bg-[var(--surface-warm)]/50">
+          <div className="border-t border-[var(--border-warm)] bg-[var(--surface-warm-translucent-subtle)]">
             {/* Account header */}
             <div className="flex items-center gap-3 px-4 py-3 border-b border-[var(--border-subtle)]">
               <div

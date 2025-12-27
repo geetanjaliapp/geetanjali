@@ -1069,7 +1069,7 @@ export default function Verses() {
                     showFavorites && !selectedPrinciple && !isSearchMode
                       ? "text-[var(--interactive-primary-text-muted)]"
                       : favoritesCount > 0
-                        ? "text-[var(--status-error-text)]"
+                        ? "text-[var(--icon-favorite)]"
                         : "text-[var(--text-muted)]"
                   }`}
                 >

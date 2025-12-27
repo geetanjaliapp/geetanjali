@@ -169,15 +169,47 @@ export const sutraTheme: ThemeConfig = {
       contrast: {
         onPrimary: "#ffffff",
         surfacePure: "#0a0a0a",
+
         // Dark slate buttons with clear hover states
         interactivePrimary: "#334155",
         interactivePrimaryHover: "#475569",
         interactivePrimaryActive: "#64748b",
-        // Light link colors for dark backgrounds
+        interactiveGhostText: "#cbd5e1",
+
+        // Text colors - CRITICAL: explicitly set for proper dark mode readability
+        // Using the intended text colors from neutral scale
+        textPrimary: "#e5e5e5", // neutral-100: high contrast primary text
+        textSecondary: "#d4d4d4", // neutral-200: clear secondary text
+        textTertiary: "#a3a3a3", // neutral-300: visible tertiary text
+        textMuted: "#737373", // neutral-400: muted but readable
         textLink: "#cbd5e1",
         textLinkHover: "#e2e8f0",
-        interactiveGhostText: "#cbd5e1",
+
+        // Surface colors - proper layering hierarchy
+        surfacePage: "#0a0a0a", // darkest base
+        surfaceCard: "#1a1a1a", // slightly elevated
+        surfaceElevated: "#262626", // clearly elevated (forms, modals)
+        surfaceMuted: "#171717", // subtle muted surface
+
+        // Input/form elements - visible contrast with card background
+        inputBg: "#1f1f1f", // distinct from card, lighter than page
+        inputBorder: "#404040", // visible border
+
+        // Border colors
         borderFocus: "#94a3b8",
+        borderDefault: "#303030",
+
+        // Menu/nav item colors
+        menuItemSelectedBg: "#1e293b", // primary-700: subtle dark bg
+        menuItemSelectedText: "#e2e8f0", // primary-100: light text
+        menuItemHoverBg: "#262626", // neutral-200: subtle hover
+
+        // Badge/chip colors - inverted scale: use dark bg + light text
+        badgeWarmBg: "#262626", // warm-200: dark background
+        badgeWarmHover: "#363636", // warm-300: slightly lighter on hover
+        badgeWarmText: "#d4d4d4", // warm-700: light text
+        chipSelectedBg: "#363636", // warm-300: slightly lighter dark bg
+        chipSelectedText: "#a3a3a3", // warm-600: visible text
       },
     },
   },
@@ -316,15 +348,46 @@ export const serenityTheme: ThemeConfig = {
       contrast: {
         onPrimary: "#ffffff",
         surfacePure: "#1c1917",
+
         // Muted violet buttons - easier on eyes
         interactivePrimary: "#5a3d7f", // Muted purple
         interactivePrimaryHover: "#6b4d96",
         interactivePrimaryActive: "#7c5cad",
-        // Light link colors for dark backgrounds
+        interactiveGhostText: "#c4a5e0",
+
+        // Text colors - lavender-tinted for Serenity theme
+        textPrimary: "#e7e5e4", // stone-200: warm primary text
+        textSecondary: "#d6d3d1", // stone-300: clear secondary
+        textTertiary: "#a8a29e", // stone-400: visible tertiary
+        textMuted: "#78716c", // stone-500: muted but readable
         textLink: "#c4a5e0", // Soft lavender
         textLinkHover: "#d8b4fe",
-        interactiveGhostText: "#c4a5e0",
+
+        // Surface colors - purple-tinted dark surfaces
+        surfacePage: "#1c1917", // stone-900 base
+        surfaceCard: "#262420", // warm dark card
+        surfaceElevated: "#353230", // elevated with warmth
+        surfaceMuted: "#211f1d", // subtle muted
+
+        // Input/form elements
+        inputBg: "#292524", // stone-800
+        inputBorder: "#44403c", // stone-600
+
+        // Border colors
         borderFocus: "#9370db",
+        borderDefault: "#3d3a36",
+
+        // Menu/nav item colors
+        menuItemSelectedBg: "#2d2438", // primary-800: subtle purple bg
+        menuItemSelectedText: "#e9d5ff", // primary-100: light lavender text
+        menuItemHoverBg: "#353230", // neutral-700: subtle hover
+
+        // Badge/chip colors - inverted scale: use dark bg + light text
+        badgeWarmBg: "#3a2d45", // warm-200: dark purple background
+        badgeWarmHover: "#5c4a6e", // warm-300: slightly lighter on hover
+        badgeWarmText: "#e0cce8", // warm-700: soft lavender text
+        chipSelectedBg: "#5c4a6e", // warm-300: slightly lighter purple bg
+        chipSelectedText: "#c8b0d8", // warm-600: visible text
       },
     },
   },
@@ -463,15 +526,46 @@ export const forestTheme: ThemeConfig = {
       contrast: {
         onPrimary: "#ffffff",
         surfacePure: "#0f1410", // Forest night
+
         // Emerald buttons - natural tones
         interactivePrimary: "#065f46",
         interactivePrimaryHover: "#047857",
         interactivePrimaryActive: "#059669",
-        // Light link colors for dark backgrounds
+        interactiveGhostText: "#6ee7b7",
+
+        // Text colors - cool gray with subtle green undertone
+        textPrimary: "#e5e7eb", // gray-200: clear primary text
+        textSecondary: "#d1d5db", // gray-300: visible secondary
+        textTertiary: "#9ca3af", // gray-400: tertiary
+        textMuted: "#6b7280", // gray-500: muted
         textLink: "#6ee7b7",
         textLinkHover: "#a7f3d0",
-        interactiveGhostText: "#6ee7b7",
+
+        // Surface colors - forest-tinted dark surfaces
+        surfacePage: "#0f1410", // dark forest floor
+        surfaceCard: "#1a2420", // elevated with green tint
+        surfaceElevated: "#283530", // clearly elevated
+        surfaceMuted: "#151c18", // subtle muted
+
+        // Input/form elements
+        inputBg: "#1f2b25", // forest-tinted input
+        inputBorder: "#374840", // green-tinted border
+
+        // Border colors
         borderFocus: "#10b981",
+        borderDefault: "#2d3d35",
+
+        // Menu/nav item colors
+        menuItemSelectedBg: "#065f46", // primary-800: emerald bg
+        menuItemSelectedText: "#a7f3d0", // primary-100: light emerald text
+        menuItemHoverBg: "#283530", // neutral-700: subtle hover
+
+        // Badge/chip colors - inverted scale: use dark bg + light text
+        badgeWarmBg: "#1e3f2a", // warm-200: dark forest background
+        badgeWarmHover: "#2d5a3e", // warm-300: slightly lighter on hover
+        badgeWarmText: "#bae4c5", // warm-700: soft sage text
+        chipSelectedBg: "#2d5a3e", // warm-300: slightly lighter forest bg
+        chipSelectedText: "#9ad0a8", // warm-600: visible text
       },
     },
   },

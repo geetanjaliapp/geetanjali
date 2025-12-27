@@ -123,11 +123,17 @@ function colorScaleToCss(name: string, scale: ColorScale): string[] {
 /**
  * Generate CSS custom properties from contrast colors
  * Includes primitive-level and semantic-level overrides
+ *
+ * IMPORTANT: These semantic overrides are essential for themes that structure
+ * their color scales differently. Without these, the semantic.css mappings
+ * may produce unreadable text in dark mode.
  */
 function contrastColorsToCss(contrast: ContrastColors): string[] {
   const properties: string[] = [];
 
-  // Primitive-level overrides
+  // ============================================
+  // PRIMITIVE-LEVEL OVERRIDES
+  // ============================================
   if (contrast.onPrimary) {
     properties.push(`--color-on-primary: ${contrast.onPrimary};`);
   }
@@ -144,7 +150,12 @@ function contrastColorsToCss(contrast: ContrastColors): string[] {
     properties.push(`--color-surface-pure: ${contrast.surfacePure};`);
   }
 
-  // Semantic-level overrides (for themes with inverted color scales)
+  // ============================================
+  // SEMANTIC-LEVEL OVERRIDES
+  // For themes with inverted/different color scale structures
+  // ============================================
+
+  // Interactive elements
   if (contrast.interactivePrimary) {
     properties.push(`--interactive-primary: ${contrast.interactivePrimary};`);
   }
@@ -154,17 +165,98 @@ function contrastColorsToCss(contrast: ContrastColors): string[] {
   if (contrast.interactivePrimaryActive) {
     properties.push(`--interactive-primary-active: ${contrast.interactivePrimaryActive};`);
   }
+  if (contrast.interactiveGhostText) {
+    properties.push(`--interactive-ghost-text: ${contrast.interactiveGhostText};`);
+  }
+
+  // Text colors - CRITICAL for dark mode readability
+  if (contrast.textPrimary) {
+    properties.push(`--text-primary: ${contrast.textPrimary};`);
+  }
+  if (contrast.textSecondary) {
+    properties.push(`--text-secondary: ${contrast.textSecondary};`);
+  }
+  if (contrast.textTertiary) {
+    properties.push(`--text-tertiary: ${contrast.textTertiary};`);
+  }
+  if (contrast.textMuted) {
+    properties.push(`--text-muted: ${contrast.textMuted};`);
+  }
   if (contrast.textLink) {
     properties.push(`--text-link: ${contrast.textLink};`);
   }
   if (contrast.textLinkHover) {
     properties.push(`--text-link-hover: ${contrast.textLinkHover};`);
   }
-  if (contrast.interactiveGhostText) {
-    properties.push(`--interactive-ghost-text: ${contrast.interactiveGhostText};`);
+
+  // Surface colors - for proper layering
+  if (contrast.surfacePage) {
+    properties.push(`--surface-page: ${contrast.surfacePage};`);
   }
+  if (contrast.surfaceElevated) {
+    properties.push(`--surface-elevated: ${contrast.surfaceElevated};`);
+  }
+  if (contrast.surfaceCard) {
+    properties.push(`--surface-card: ${contrast.surfaceCard};`);
+  }
+  if (contrast.surfaceMuted) {
+    properties.push(`--surface-muted: ${contrast.surfaceMuted};`);
+  }
+
+  // Input/form elements
+  if (contrast.inputBg) {
+    properties.push(`--input-bg: ${contrast.inputBg};`);
+  }
+  if (contrast.inputBorder) {
+    properties.push(`--input-border: ${contrast.inputBorder};`);
+  }
+
+  // Border colors
   if (contrast.borderFocus) {
     properties.push(`--border-focus: ${contrast.borderFocus};`);
+  }
+  if (contrast.borderDefault) {
+    properties.push(`--border-default: ${contrast.borderDefault};`);
+  }
+
+  // Menu/nav item colors
+  if (contrast.menuItemSelectedBg) {
+    properties.push(`--menu-item-selected-bg: ${contrast.menuItemSelectedBg};`);
+  }
+  if (contrast.menuItemSelectedText) {
+    properties.push(`--menu-item-selected-text: ${contrast.menuItemSelectedText};`);
+  }
+  if (contrast.menuItemHoverBg) {
+    properties.push(`--menu-item-hover-bg: ${contrast.menuItemHoverBg};`);
+  }
+
+  // Badge and chip colors (for themes with inverted warm scales)
+  if (contrast.badgeWarmBg) {
+    properties.push(`--badge-warm-bg: ${contrast.badgeWarmBg};`);
+  }
+  if (contrast.badgeWarmHover) {
+    properties.push(`--badge-warm-hover: ${contrast.badgeWarmHover};`);
+  }
+  if (contrast.badgeWarmText) {
+    properties.push(`--badge-warm-text: ${contrast.badgeWarmText};`);
+  }
+  if (contrast.badgePrincipleBg) {
+    properties.push(`--badge-principle-bg: ${contrast.badgePrincipleBg};`);
+  } else if (contrast.badgeWarmBg) {
+    // Principle badge defaults to same as warm badge
+    properties.push(`--badge-principle-bg: ${contrast.badgeWarmBg};`);
+  }
+  if (contrast.badgePrincipleText) {
+    properties.push(`--badge-principle-text: ${contrast.badgePrincipleText};`);
+  } else if (contrast.badgeWarmText) {
+    // Principle badge text defaults to same as warm badge text
+    properties.push(`--badge-principle-text: ${contrast.badgeWarmText};`);
+  }
+  if (contrast.chipSelectedBg) {
+    properties.push(`--chip-selected-bg: ${contrast.chipSelectedBg};`);
+  }
+  if (contrast.chipSelectedText) {
+    properties.push(`--chip-selected-text: ${contrast.chipSelectedText};`);
   }
 
   return properties;

@@ -51,8 +51,8 @@ export function DesktopNav({
           to={homeItem.to}
           className={`px-3 py-2 rounded-[var(--radius-nav)] text-sm font-medium transition-[var(--transition-nav)] hover:scale-[1.02] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
             isNavItemActive(homeItem, pathname)
-              ? "text-[var(--interactive-primary)] bg-[var(--menu-item-selected-bg)] shadow-[var(--shadow-button)]"
-              : "text-[var(--text-secondary)] hover:text-[var(--interactive-primary)] hover:bg-[var(--menu-item-hover-bg)]"
+              ? "text-[var(--menu-item-selected-text)] bg-[var(--menu-item-selected-bg)] shadow-[var(--shadow-button)]"
+              : "text-[var(--text-secondary)] hover:text-[var(--menu-item-selected-text)] hover:bg-[var(--menu-item-hover-bg)]"
           }`}
         >
           {homeItem.label}
@@ -64,8 +64,8 @@ export function DesktopNav({
         to={PRIMARY_CTA.to}
         className={`flex items-center gap-1.5 px-3 py-2 rounded-[var(--radius-nav)] text-sm font-medium transition-[var(--transition-nav)] hover:scale-[1.02] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
           isAskActive
-            ? "text-[var(--interactive-primary)] bg-[var(--menu-item-selected-bg)] shadow-[var(--shadow-button)]"
-            : "text-[var(--text-secondary)] hover:text-[var(--interactive-primary)] hover:bg-[var(--menu-item-hover-bg)]"
+            ? "text-[var(--text-link)] bg-[var(--menu-item-selected-bg)] shadow-[var(--shadow-button)]"
+            : "text-[var(--text-secondary)] hover:text-[var(--text-link)] hover:bg-[var(--menu-item-hover-bg)]"
         }`}
       >
         <svg
@@ -94,8 +94,8 @@ export function DesktopNav({
             to={item.to}
             className={`px-3 py-2 rounded-[var(--radius-nav)] text-sm font-medium transition-[var(--transition-nav)] hover:scale-[1.02] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
               isActive
-                ? "text-[var(--interactive-primary)] bg-[var(--menu-item-selected-bg)] shadow-[var(--shadow-button)]"
-                : "text-[var(--text-secondary)] hover:text-[var(--interactive-primary)] hover:bg-[var(--menu-item-hover-bg)]"
+                ? "text-[var(--menu-item-selected-text)] bg-[var(--menu-item-selected-bg)] shadow-[var(--shadow-button)]"
+                : "text-[var(--text-secondary)] hover:text-[var(--menu-item-selected-text)] hover:bg-[var(--menu-item-hover-bg)]"
             }`}
           >
             {item.label}
