@@ -19,24 +19,13 @@ import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { useLearningGoalContext } from "../contexts/LearningGoalContext";
 import { useAuth } from "../contexts/AuthContext";
 import { setStorageItem, STORAGE_KEYS } from "../lib/storage";
-import { preferencesApi } from "../lib/api";
+import { requestMerge, requestUpdate } from "../lib/preferenceSyncCoordinator";
 import type { Goal, Principle } from "../lib/api";
 
 export type SyncStatus = "idle" | "syncing" | "synced" | "error";
 
-// Debounce delay for syncing changes to server (long - primary sync is on visibility change)
-const SYNC_DEBOUNCE_MS = 30000;
-// Throttle delay for merge calls (prevents 429 on rapid remounts)
-const MERGE_THROTTLE_MS = 10000;
-// Minimum interval between any sync calls (module-level throttle)
-const SYNC_THROTTLE_MS = 5000;
-
-/**
- * Module-level timestamps for rate limiting.
- * See useSyncedFavorites.ts for rationale (cross-remount throttling).
- */
-let lastMergeTimestamp = 0;
-let lastSyncTimestamp = 0;
+// Note: All timing/throttling is now handled by preferenceSyncCoordinator
+// to consolidate API calls across all preference types.
 
 interface StoredGoals {
   goalIds: string[];
@@ -89,27 +78,25 @@ export function useSyncedGoal(): UseSyncedGoalReturn {
   const { isAuthenticated, user } = useAuth();
   const goalContext = useLearningGoalContext();
 
+  // Destructure setGoals for stable callback dependency
+  const { setGoals: contextSetGoals } = goalContext;
+
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("idle");
   const [lastSynced, setLastSynced] = useState<Date | null>(null);
 
   // Track user ID to detect login/logout
   const previousUserIdRef = useRef<string | null>(null);
-  // Debounce timer ref
-  const syncTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Track if we're currently syncing
   const isSyncingRef = useRef(false);
 
   /**
    * Merge local goals with server (used on login)
+   *
+   * Uses preferenceSyncCoordinator to batch with other preference types,
+   * reducing multiple API calls to a single consolidated merge request.
    */
   const mergeWithServer = useCallback(async () => {
-    // Throttle to prevent 429 on rapid remounts (e.g., React StrictMode)
-    const now = Date.now();
-    if (now - lastMergeTimestamp < MERGE_THROTTLE_MS) {
-      return;
-    }
     if (isSyncingRef.current) return;
-    lastMergeTimestamp = now;
     isSyncingRef.current = true;
     setSyncStatus("syncing");
 
@@ -118,76 +105,56 @@ export function useSyncedGoal(): UseSyncedGoalReturn {
       const localGoalIds = stored?.goalIds ?? [];
       const localUpdatedAt = stored?.selectedAt;
 
-      // Merge with server
-      const merged = await preferencesApi.merge({
-        learning_goals: {
-          goal_ids: localGoalIds,
-          updated_at: localUpdatedAt,
+      // Request coordinated merge (batched with other preference types)
+      const merged = await requestMerge(
+        {
+          learning_goals: {
+            goal_ids: localGoalIds,
+            updated_at: localUpdatedAt,
+          },
         },
-      });
+        (result) => {
+          // Callback receives merged result from coordinator
+          if (result.learning_goals) {
+            const newGoals: StoredGoals = {
+              goalIds: result.learning_goals.goal_ids,
+              selectedAt:
+                result.learning_goals.updated_at || new Date().toISOString(),
+            };
+            setStorageItem(STORAGE_KEYS.learningGoals, newGoals);
+            contextSetGoals(newGoals.goalIds);
+          }
+        },
+      );
 
-      // Update local storage with merged result
-      const newGoals: StoredGoals = {
-        goalIds: merged.learning_goals.goal_ids,
-        selectedAt:
-          merged.learning_goals.updated_at || new Date().toISOString(),
-      };
-      setStorageItem(STORAGE_KEYS.learningGoals, newGoals);
-
-      // Sync with the context state
-      goalContext.setGoals(newGoals.goalIds);
-
-      setSyncStatus("synced");
-      setLastSynced(new Date());
+      // If coordinator throttled/skipped, merged is null
+      if (merged) {
+        setSyncStatus("synced");
+        setLastSynced(new Date());
+      } else {
+        setSyncStatus("idle");
+      }
     } catch (error) {
       console.error("[SyncedGoal] Merge failed:", error);
       setSyncStatus("error");
     } finally {
       isSyncingRef.current = false;
     }
-  }, [goalContext]);
+  }, [contextSetGoals]);
 
   /**
-   * Sync current goals to server (debounced)
+   * Sync current goals to server (via coordinator)
+   *
+   * Uses preferenceSyncCoordinator for debouncing and batching
+   * with other preference types.
    */
   const syncToServer = useCallback(() => {
     if (!isAuthenticated) return;
 
-    // Clear existing timeout (debounce)
-    if (syncTimeoutRef.current) {
-      clearTimeout(syncTimeoutRef.current);
-    }
-
-    // Debounce the sync
-    syncTimeoutRef.current = setTimeout(async () => {
-      if (isSyncingRef.current) return;
-
-      // Throttle check (module-level, prevents rapid syncs)
-      const now = Date.now();
-      if (now - lastSyncTimestamp < SYNC_THROTTLE_MS) {
-        return;
-      }
-      lastSyncTimestamp = now;
-
-      isSyncingRef.current = true;
-      setSyncStatus("syncing");
-
-      try {
-        const stored = loadStoredGoals();
-        const goalIds = stored?.goalIds ?? [];
-
-        await preferencesApi.update({
-          learning_goals: { goal_ids: goalIds },
-        });
-        setSyncStatus("synced");
-        setLastSynced(new Date());
-      } catch (error) {
-        console.error("[SyncedGoal] Sync failed:", error);
-        setSyncStatus("error");
-      } finally {
-        isSyncingRef.current = false;
-      }
-    }, SYNC_DEBOUNCE_MS);
+    // Read current goals and send to coordinator
+    const stored = loadStoredGoals();
+    const goalIds = stored?.goalIds ?? [];
+    requestUpdate({ learning_goals: { goal_ids: goalIds } });
   }, [isAuthenticated]);
 
   /**
@@ -208,10 +175,6 @@ export function useSyncedGoal(): UseSyncedGoalReturn {
       setSyncStatus("idle");
       setLastSynced(null);
       isSyncingRef.current = false;
-      if (syncTimeoutRef.current) {
-        clearTimeout(syncTimeoutRef.current);
-        syncTimeoutRef.current = null;
-      }
     }
 
     previousUserIdRef.current = currentUserId;
@@ -252,19 +215,8 @@ export function useSyncedGoal(): UseSyncedGoalReturn {
     goalContext.clearGoals();
 
     if (isAuthenticated) {
-      // Sync empty goals to server
-      preferencesApi
-        .update({
-          learning_goals: { goal_ids: [] },
-        })
-        .then(() => {
-          setSyncStatus("synced");
-          setLastSynced(new Date());
-        })
-        .catch((error) => {
-          console.error("[SyncedGoal] Clear sync failed:", error);
-          setSyncStatus("error");
-        });
+      // Sync empty goals via coordinator
+      requestUpdate({ learning_goals: { goal_ids: [] } });
     }
   }, [goalContext, isAuthenticated]);
 
@@ -276,15 +228,6 @@ export function useSyncedGoal(): UseSyncedGoalReturn {
       await mergeWithServer();
     }
   }, [isAuthenticated, mergeWithServer]);
-
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (syncTimeoutRef.current) {
-        clearTimeout(syncTimeoutRef.current);
-      }
-    };
-  }, []);
 
   return useMemo(
     () => ({

@@ -32,7 +32,7 @@ import { getThemeById, builtInThemes } from "../config/themes";
 import { THEME_FONTS, DEFAULT_FONT_FAMILY } from "../config/fonts";
 import { STORAGE_KEYS, setStorageItemRaw } from "../lib/storage";
 import { useAuth } from "./AuthContext";
-import { preferencesApi } from "../lib/api";
+import { requestMerge, requestUpdate } from "../lib/preferenceSyncCoordinator";
 
 // Declare Umami types
 declare global {
@@ -173,13 +173,8 @@ function updateThemeTimestamp(): string {
   return now;
 }
 
-// Sync configuration
-const SYNC_DEBOUNCE_MS = 5000; // 5 seconds debounce for theme sync
-const MERGE_THROTTLE_MS = 10000; // 10 seconds throttle for merge calls
-
-// Module-level timestamps for rate limiting
-let lastMergeTimestamp = 0;
-let lastSyncTimestamp = 0;
+// Note: All timing/throttling is now handled by preferenceSyncCoordinator
+// to consolidate API calls across all preference types.
 
 interface ThemeProviderProps {
   children: ReactNode;
@@ -200,8 +195,6 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
 
   // Track user ID to detect login/logout
   const previousUserIdRef = useRef<string | null>(null);
-  // Debounce timer ref
-  const syncTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Track if we're currently syncing to prevent duplicate calls
   const isSyncingRef = useRef(false);
 
@@ -214,109 +207,90 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   fontFamilyRef.current = fontFamily;
 
   /**
-   * Sync theme to server (debounced)
+   * Sync theme to server (via coordinator)
+   *
+   * Uses preferenceSyncCoordinator for debouncing and batching
+   * with other preference types.
    */
   const syncToServer = useCallback(() => {
     if (!isAuthenticated) return;
 
-    // Clear existing timeout (debounce)
-    if (syncTimeoutRef.current) {
-      clearTimeout(syncTimeoutRef.current);
-    }
-
-    // Debounce the sync
-    syncTimeoutRef.current = setTimeout(async () => {
-      if (isSyncingRef.current) return;
-
-      // Throttle check
-      const now = Date.now();
-      if (now - lastSyncTimestamp < SYNC_DEBOUNCE_MS) {
-        return;
-      }
-      lastSyncTimestamp = now;
-      isSyncingRef.current = true;
-
-      try {
-        await preferencesApi.update({
-          theme: {
-            mode: themeRef.current,
-            theme_id: customThemeRef.current?.id ?? "default",
-            font_family: fontFamilyRef.current,
-          },
-        });
-      } catch (error) {
-        console.error("[ThemeContext] Sync failed:", error);
-      } finally {
-        isSyncingRef.current = false;
-      }
-    }, SYNC_DEBOUNCE_MS);
+    // Send to coordinator for batching
+    requestUpdate({
+      theme: {
+        mode: themeRef.current,
+        theme_id: customThemeRef.current?.id ?? "default",
+        font_family: fontFamilyRef.current,
+      },
+    });
   }, [isAuthenticated]);
 
   /**
    * Merge local theme with server (used on login)
+   *
+   * Uses preferenceSyncCoordinator to batch with other preference types,
+   * reducing multiple API calls to a single consolidated merge request.
    */
   const mergeWithServer = useCallback(async () => {
-    // Throttle to prevent 429 on rapid remounts
-    const now = Date.now();
-    if (now - lastMergeTimestamp < MERGE_THROTTLE_MS) {
-      return;
-    }
     if (isSyncingRef.current) return;
-    lastMergeTimestamp = now;
     isSyncingRef.current = true;
 
     try {
       const localUpdatedAt = getStoredThemeUpdatedAt();
 
-      const merged = await preferencesApi.merge({
-        theme: {
-          mode: themeRef.current,
-          theme_id: customThemeRef.current?.id ?? "default",
-          font_family: fontFamilyRef.current,
-          updated_at: localUpdatedAt ?? undefined,
+      // Request coordinated merge (batched with other preference types)
+      await requestMerge(
+        {
+          theme: {
+            mode: themeRef.current,
+            theme_id: customThemeRef.current?.id ?? "default",
+            font_family: fontFamilyRef.current,
+            updated_at: localUpdatedAt ?? undefined,
+          },
         },
-      });
+        (result) => {
+          // Callback receives merged result from coordinator
+          if (result.theme) {
+            const serverMode = result.theme.mode as Theme;
+            const serverThemeId = result.theme.theme_id;
+            const serverFontFamily = result.theme.font_family as FontFamily;
 
-      // If server has newer theme, apply it
-      if (merged.theme) {
-        const serverMode = merged.theme.mode as Theme;
-        const serverThemeId = merged.theme.theme_id;
-        const serverFontFamily = merged.theme.font_family as FontFamily;
+            // Only update if different from current
+            if (serverMode !== themeRef.current) {
+              setThemeState(serverMode);
+              setStorageItemRaw(STORAGE_KEYS.theme, serverMode);
+              const resolved = resolveTheme(serverMode);
+              setResolvedTheme(resolved);
+              applyThemeMode(resolved);
+            }
 
-        // Only update if different from current
-        if (serverMode !== themeRef.current) {
-          setThemeState(serverMode);
-          setStorageItemRaw(STORAGE_KEYS.theme, serverMode);
-          const resolved = resolveTheme(serverMode);
-          setResolvedTheme(resolved);
-          applyThemeMode(resolved);
-        }
+            if (serverThemeId !== (customThemeRef.current?.id ?? "default")) {
+              if (serverThemeId === "default") {
+                setCustomThemeState(null);
+                localStorage.removeItem(STORAGE_KEYS.themeId);
+                saveThemeToStorage(null);
+              } else {
+                const serverTheme = getThemeById(serverThemeId);
+                if (serverTheme) {
+                  setCustomThemeState(serverTheme);
+                  setStorageItemRaw(STORAGE_KEYS.themeId, serverThemeId);
+                }
+              }
+              applyCustomTheme(
+                serverThemeId === "default"
+                  ? null
+                  : (getThemeById(serverThemeId) ?? null),
+              );
+              applyThemeFonts(serverThemeId);
+            }
 
-        if (serverThemeId !== (customThemeRef.current?.id ?? "default")) {
-          if (serverThemeId === "default") {
-            setCustomThemeState(null);
-            localStorage.removeItem(STORAGE_KEYS.themeId);
-            saveThemeToStorage(null);
-          } else {
-            const serverTheme = getThemeById(serverThemeId);
-            if (serverTheme) {
-              setCustomThemeState(serverTheme);
-              setStorageItemRaw(STORAGE_KEYS.themeId, serverThemeId);
+            if (serverFontFamily !== fontFamilyRef.current) {
+              setFontFamilyState(serverFontFamily);
+              setStorageItemRaw(STORAGE_KEYS.fontFamily, serverFontFamily);
             }
           }
-          applyCustomTheme(
-            serverThemeId === "default"
-              ? null
-              : (getThemeById(serverThemeId) ?? null),
-          );
-          applyThemeFonts(serverThemeId);
-        }
-
-        if (serverFontFamily !== fontFamilyRef.current) {
-          setFontFamilyState(serverFontFamily);
-          setStorageItemRaw(STORAGE_KEYS.fontFamily, serverFontFamily);
-        }
-      }
+        },
+      );
     } catch (error) {
       console.error("[ThemeContext] Merge failed:", error);
     } finally {
@@ -337,26 +311,13 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
       mergeWithServer();
     }
 
-    // Detect logout - clear any pending sync
+    // Detect logout
     if (previousUserIdRef.current !== null && currentUserId === null) {
-      if (syncTimeoutRef.current) {
-        clearTimeout(syncTimeoutRef.current);
-        syncTimeoutRef.current = null;
-      }
       isSyncingRef.current = false;
     }
 
     previousUserIdRef.current = currentUserId;
   }, [user?.id, mergeWithServer]);
-
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (syncTimeoutRef.current) {
-        clearTimeout(syncTimeoutRef.current);
-      }
-    };
-  }, []);
 
   // Set theme mode and persist
   const setTheme = useCallback(

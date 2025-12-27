@@ -20,33 +20,13 @@
 
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { useAuth } from "../contexts/AuthContext";
-import { preferencesApi } from "../lib/api";
-import { tokenStorage } from "../api/auth";
+import { requestMerge, requestUpdate } from "../lib/preferenceSyncCoordinator";
 import { setStorageItem, STORAGE_KEYS } from "../lib/storage";
-
-/**
- * Read CSRF token from cookie (for native fetch calls)
- */
-function getCsrfToken(): string | null {
-  const match = document.cookie.match(/(?:^|;\s*)csrf_token=([^;]*)/);
-  return match ? decodeURIComponent(match[1]) : null;
-}
 
 export type SyncStatus = "idle" | "syncing" | "synced" | "error";
 
-// Debounce delay for syncing changes to server (long - primary sync is on visibility change)
-const SYNC_DEBOUNCE_MS = 30000;
-// Throttle delay for merge calls (prevents 429 on rapid remounts)
-const MERGE_THROTTLE_MS = 10000;
-// Minimum interval between any sync calls (module-level throttle)
-const SYNC_THROTTLE_MS = 5000;
-
-/**
- * Module-level timestamps for rate limiting.
- * See useSyncedFavorites.ts for rationale (cross-remount throttling).
- */
-let lastMergeTimestamp = 0;
-let lastSyncTimestamp = 0;
+// Note: All timing/throttling is now handled by preferenceSyncCoordinator
+// to consolidate API calls across all preference types.
 
 /** Font size options */
 type FontSize = "small" | "medium" | "large";
@@ -127,16 +107,8 @@ export function useSyncedReading(): UseSyncedReadingReturn {
 
   // Track user ID to detect login/logout
   const previousUserIdRef = useRef<string | null>(null);
-  // Debounce timer ref
-  const syncTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Track if we're currently syncing
   const isSyncingRef = useRef(false);
-  // Track pending data to sync
-  const pendingDataRef = useRef<{
-    chapter?: number;
-    verse?: number;
-    font_size?: string;
-  } | null>(null);
 
   /**
    * Get current reading data for sync
@@ -157,49 +129,54 @@ export function useSyncedReading(): UseSyncedReadingReturn {
 
   /**
    * Merge local reading progress with server (used on login)
+   *
+   * Uses preferenceSyncCoordinator to batch with other preference types,
+   * reducing multiple API calls to a single consolidated merge request.
    */
   const mergeWithServer = useCallback(async () => {
-    // Throttle to prevent 429 on rapid remounts (e.g., React StrictMode)
-    const now = Date.now();
-    if (now - lastMergeTimestamp < MERGE_THROTTLE_MS) {
-      return;
-    }
     if (isSyncingRef.current) return;
-    lastMergeTimestamp = now;
     isSyncingRef.current = true;
     setSyncStatus("syncing");
 
     try {
       const localData = getCurrentData();
 
-      // Merge with server
-      const merged = await preferencesApi.merge({
-        reading: localData,
+      // Request coordinated merge (batched with other preference types)
+      const merged = await requestMerge({ reading: localData }, (result) => {
+        // Callback receives merged result from coordinator
+        if (result.reading) {
+          if (
+            result.reading.chapter !== null &&
+            result.reading.verse !== null
+          ) {
+            const pos: ReadingPosition = {
+              chapter: result.reading.chapter,
+              verse: result.reading.verse,
+              timestamp: result.reading.updated_at
+                ? new Date(result.reading.updated_at).getTime()
+                : Date.now(),
+            };
+            setStorageItem(STORAGE_KEYS.readingPosition, pos);
+            setPosition(pos);
+          }
+
+          if (result.reading.font_size) {
+            const set: ReadingSettings = {
+              fontSize: result.reading.font_size as FontSize,
+            };
+            setStorageItem(STORAGE_KEYS.readingSettings, set);
+            setSettings(set);
+          }
+        }
       });
 
-      // Update local storage with merged result
-      if (merged.reading.chapter !== null && merged.reading.verse !== null) {
-        const pos: ReadingPosition = {
-          chapter: merged.reading.chapter,
-          verse: merged.reading.verse,
-          timestamp: merged.reading.updated_at
-            ? new Date(merged.reading.updated_at).getTime()
-            : Date.now(),
-        };
-        setStorageItem(STORAGE_KEYS.readingPosition, pos);
-        setPosition(pos);
+      // If coordinator throttled/skipped, merged is null
+      if (merged) {
+        setSyncStatus("synced");
+        setLastSynced(new Date());
+      } else {
+        setSyncStatus("idle");
       }
-
-      if (merged.reading.font_size) {
-        const set: ReadingSettings = {
-          fontSize: merged.reading.font_size as FontSize,
-        };
-        setStorageItem(STORAGE_KEYS.readingSettings, set);
-        setSettings(set);
-      }
-
-      setSyncStatus("synced");
-      setLastSynced(new Date());
     } catch (error) {
       console.error("[SyncedReading] Merge failed:", error);
       setSyncStatus("error");
@@ -209,106 +186,26 @@ export function useSyncedReading(): UseSyncedReadingReturn {
   }, [getCurrentData]);
 
   /**
-   * Sync current reading data to server (debounced)
+   * Sync current reading data to server (via coordinator)
    *
-   * Uses pendingDataRef exclusively to avoid race conditions with localStorage.
-   * Each call to savePosition/setFontSize updates pendingDataRef before calling this.
+   * Uses preferenceSyncCoordinator for debouncing and batching
+   * with other preference types.
    */
-  const syncToServer = useCallback(() => {
-    if (!isAuthenticated) return;
+  const syncToServer = useCallback(
+    (data: { chapter?: number; verse?: number; font_size?: string }) => {
+      if (!isAuthenticated) return;
 
-    // Clear existing timeout (debounce)
-    if (syncTimeoutRef.current) {
-      clearTimeout(syncTimeoutRef.current);
-    }
-
-    // Debounce the sync
-    syncTimeoutRef.current = setTimeout(async () => {
-      // Skip if no pending data or already syncing
-      const data = pendingDataRef.current;
-      if (!data || isSyncingRef.current) return;
-
-      // Throttle check (module-level, prevents rapid syncs)
-      const now = Date.now();
-      if (now - lastSyncTimestamp < SYNC_THROTTLE_MS) {
-        return;
-      }
-      lastSyncTimestamp = now;
-
-      isSyncingRef.current = true;
-      pendingDataRef.current = null;
-      setSyncStatus("syncing");
-
-      try {
-        await preferencesApi.update({
-          reading: {
-            chapter: data.chapter,
-            verse: data.verse,
-            font_size: data.font_size,
-          },
-        });
-        setSyncStatus("synced");
-        setLastSynced(new Date());
-      } catch (error) {
-        console.error("[SyncedReading] Sync failed:", error);
-        setSyncStatus("error");
-      } finally {
-        isSyncingRef.current = false;
-      }
-    }, SYNC_DEBOUNCE_MS);
-  }, [isAuthenticated]);
-
-  /**
-   * Flush pending sync immediately (for page unload)
-   *
-   * Note: Uses fetch with keepalive instead of sendBeacon because
-   * sendBeacon doesn't support custom headers (needed for auth cookies).
-   * The keepalive flag allows the request to outlive the page.
-   */
-  const flushSync = useCallback(() => {
-    if (!isAuthenticated || isSyncingRef.current) return;
-
-    // Clear pending timeout
-    if (syncTimeoutRef.current) {
-      clearTimeout(syncTimeoutRef.current);
-      syncTimeoutRef.current = null;
-    }
-
-    // Only sync pending data - don't read from localStorage
-    const data = pendingDataRef.current;
-    if (!data || (!data.chapter && !data.verse && !data.font_size)) return;
-
-    // Use fetch with keepalive (supports cookies/auth, outlives page)
-    // Must manually add headers since axios interceptors don't apply to native fetch
-    try {
-      const payload = JSON.stringify({ reading: data });
-      const headers: Record<string, string> = {
-        "Content-Type": "application/json",
-      };
-
-      // Add Authorization header if token available
-      const token = tokenStorage.getToken();
-      if (token) {
-        headers["Authorization"] = `Bearer ${token}`;
-      }
-
-      // Add CSRF token for the state-changing request
-      const csrfToken = getCsrfToken();
-      if (csrfToken) {
-        headers["X-CSRF-Token"] = csrfToken;
-      }
-
-      fetch("/api/v1/users/me/preferences", {
-        method: "PUT",
-        headers,
-        body: payload,
-        credentials: "include", // Include cookies as fallback
-        keepalive: true, // Allow request to outlive page
+      // Send to coordinator for batching
+      requestUpdate({
+        reading: {
+          chapter: data.chapter,
+          verse: data.verse,
+          font_size: data.font_size,
+        },
       });
-    } catch (error) {
-      console.error("[SyncedReading] Flush failed:", error);
-    }
-  }, [isAuthenticated]);
+    },
+    [isAuthenticated],
+  );
 
   /**
    * Handle login: merge local progress with server
@@ -331,44 +228,10 @@ export function useSyncedReading(): UseSyncedReadingReturn {
       setSyncStatus("idle");
       setLastSynced(null);
       isSyncingRef.current = false;
-      if (syncTimeoutRef.current) {
-        clearTimeout(syncTimeoutRef.current);
-        syncTimeoutRef.current = null;
-      }
     }
 
     previousUserIdRef.current = currentUserId;
   }, [user?.id, mergeWithServer]);
-
-  /**
-   * Flush on page unload or tab switch
-   *
-   * Handles three scenarios:
-   * 1. beforeunload - User closes tab/window
-   * 2. pagehide - User navigates away (mobile Safari)
-   * 3. visibilitychange - User switches tabs (prevents stale sync race)
-   */
-  useEffect(() => {
-    const handleUnload = () => {
-      flushSync();
-    };
-
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "hidden") {
-        flushSync();
-      }
-    };
-
-    window.addEventListener("beforeunload", handleUnload);
-    window.addEventListener("pagehide", handleUnload);
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-
-    return () => {
-      window.removeEventListener("beforeunload", handleUnload);
-      window.removeEventListener("pagehide", handleUnload);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
-  }, [flushSync]);
 
   /**
    * Save reading position
@@ -383,18 +246,10 @@ export function useSyncedReading(): UseSyncedReadingReturn {
       setStorageItem(STORAGE_KEYS.readingPosition, pos);
       setPosition(pos);
 
-      // Queue for sync
-      pendingDataRef.current = {
-        ...pendingDataRef.current,
-        chapter,
-        verse,
-      };
-
-      if (isAuthenticated) {
-        syncToServer();
-      }
+      // Sync to coordinator
+      syncToServer({ chapter, verse });
     },
-    [isAuthenticated, syncToServer],
+    [syncToServer],
   );
 
   /**
@@ -406,17 +261,10 @@ export function useSyncedReading(): UseSyncedReadingReturn {
       setStorageItem(STORAGE_KEYS.readingSettings, newSettings);
       setSettings(newSettings);
 
-      // Queue for sync
-      pendingDataRef.current = {
-        ...pendingDataRef.current,
-        font_size: size,
-      };
-
-      if (isAuthenticated) {
-        syncToServer();
-      }
+      // Sync to coordinator
+      syncToServer({ font_size: size });
     },
-    [settings, isAuthenticated, syncToServer],
+    [settings, syncToServer],
   );
 
   /**
@@ -432,17 +280,15 @@ export function useSyncedReading(): UseSyncedReadingReturn {
     setPosition(null);
     setSettings(DEFAULT_SETTINGS);
 
-    // Sync reset to server
+    // Sync reset via coordinator
     if (isAuthenticated) {
-      preferencesApi
-        .update({
-          reading: {
-            chapter: undefined,
-            verse: undefined,
-            font_size: "medium",
-          },
-        })
-        .catch(console.error);
+      requestUpdate({
+        reading: {
+          chapter: undefined,
+          verse: undefined,
+          font_size: "medium",
+        },
+      });
     }
   }, [isAuthenticated]);
 
@@ -454,15 +300,6 @@ export function useSyncedReading(): UseSyncedReadingReturn {
       await mergeWithServer();
     }
   }, [isAuthenticated, mergeWithServer]);
-
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (syncTimeoutRef.current) {
-        clearTimeout(syncTimeoutRef.current);
-      }
-    };
-  }, []);
 
   return useMemo(
     () => ({

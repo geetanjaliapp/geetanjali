@@ -20,7 +20,7 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { useFavorites } from "./useFavorites";
 import { useAuth } from "../contexts/AuthContext";
-import { preferencesApi } from "../lib/api";
+import { requestMerge, requestUpdate } from "../lib/preferenceSyncCoordinator";
 
 export type SyncStatus = "idle" | "syncing" | "synced" | "error";
 
@@ -47,25 +47,8 @@ interface UseSyncedFavoritesReturn {
   didInitialSync: boolean;
 }
 
-// Debounce delay for syncing changes to server (long - primary sync is on visibility change)
-const SYNC_DEBOUNCE_MS = 30000;
-// Throttle delay for merge calls (prevents 429 on rapid remounts)
-const MERGE_THROTTLE_MS = 10000;
-// Minimum interval between any sync calls (module-level throttle)
-const SYNC_THROTTLE_MS = 5000;
-
-/**
- * Module-level timestamps for rate limiting.
- *
- * INTENTIONALLY module-level (not refs) because:
- * 1. Throttling must persist across component unmount/remount cycles
- * 2. Prevents 429 errors when React Strict Mode double-mounts or user navigates rapidly
- * 3. Client-side only app, so no SSR state sharing concerns
- *
- * Trade-off: Makes unit testing harder (requires manual reset between tests).
- */
-let lastMergeTimestamp = 0;
-let lastSyncTimestamp = 0;
+// Note: All timing/throttling is now handled by preferenceSyncCoordinator
+// to consolidate API calls across all preference types.
 
 /**
  * Hook for managing favorites with cross-device sync.
@@ -105,23 +88,17 @@ export function useSyncedFavorites(): UseSyncedFavoritesReturn {
 
   // Track user ID to detect login/logout
   const previousUserIdRef = useRef<string | null>(null);
-  // Debounce timer ref
-  const syncTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Track if we're currently syncing to prevent duplicate calls
   const isSyncingRef = useRef(false);
 
   /**
    * Merge local favorites with server (used on login)
-   * Stable reference - reads from ref to avoid recreation on favorites change
+   *
+   * Uses preferenceSyncCoordinator to batch with other preference types,
+   * reducing multiple API calls to a single consolidated merge request.
    */
   const mergeWithServer = useCallback(async () => {
-    // Throttle to prevent 429 on rapid remounts (e.g., React StrictMode)
-    const now = Date.now();
-    if (now - lastMergeTimestamp < MERGE_THROTTLE_MS) {
-      return;
-    }
     if (isSyncingRef.current) return;
-    lastMergeTimestamp = now;
     isSyncingRef.current = true;
     setSyncStatus("syncing");
 
@@ -129,17 +106,25 @@ export function useSyncedFavorites(): UseSyncedFavoritesReturn {
       // Get current local favorites from ref
       const localItems = Array.from(favoritesRef.current);
 
-      // Merge with server
-      const merged = await preferencesApi.merge({
-        favorites: { items: localItems },
-      });
+      // Request coordinated merge (batched with other preference types)
+      const merged = await requestMerge(
+        { favorites: { items: localItems } },
+        (result) => {
+          // Callback receives merged result from coordinator
+          if (result.favorites?.items) {
+            setAllFavorites(result.favorites.items);
+            setDidInitialSync(true);
+          }
+        },
+      );
 
-      // Update local storage with merged result (atomic update to avoid race conditions)
-      setAllFavorites(merged.favorites.items);
-
-      setSyncStatus("synced");
-      setLastSynced(new Date());
-      setDidInitialSync(true);
+      // If coordinator throttled/skipped, merged is null
+      if (merged) {
+        setSyncStatus("synced");
+        setLastSynced(new Date());
+      } else {
+        setSyncStatus("idle");
+      }
     } catch (error) {
       console.error("[SyncedFavorites] Merge failed:", error);
       setSyncStatus("error");
@@ -149,49 +134,17 @@ export function useSyncedFavorites(): UseSyncedFavoritesReturn {
   }, [setAllFavorites]);
 
   /**
-   * Sync current favorites to server (debounced)
-   * Stable reference - reads from ref to avoid recreation on favorites change
+   * Sync current favorites to server (via coordinator)
    *
-   * Reads latest favorites from ref when sync fires to avoid
-   * race conditions with rapid add/remove operations.
+   * Uses preferenceSyncCoordinator for debouncing and batching
+   * with other preference types.
    */
   const syncToServer = useCallback(() => {
     if (!isAuthenticated) return;
 
-    // Clear existing timeout (debounce)
-    if (syncTimeoutRef.current) {
-      clearTimeout(syncTimeoutRef.current);
-    }
-
-    // Debounce the sync - read latest favorites when timeout fires
-    syncTimeoutRef.current = setTimeout(async () => {
-      if (isSyncingRef.current) return;
-
-      // Throttle check (module-level, prevents rapid syncs)
-      const now = Date.now();
-      if (now - lastSyncTimestamp < SYNC_THROTTLE_MS) {
-        return;
-      }
-      lastSyncTimestamp = now;
-
-      isSyncingRef.current = true;
-      setSyncStatus("syncing");
-
-      try {
-        // Read current favorites from ref at sync time (not call time)
-        const currentItems = Array.from(favoritesRef.current);
-        await preferencesApi.update({
-          favorites: { items: currentItems },
-        });
-        setSyncStatus("synced");
-        setLastSynced(new Date());
-      } catch (error) {
-        console.error("[SyncedFavorites] Sync failed:", error);
-        setSyncStatus("error");
-      } finally {
-        isSyncingRef.current = false;
-      }
-    }, SYNC_DEBOUNCE_MS);
+    // Read current favorites and send to coordinator
+    const currentItems = Array.from(favoritesRef.current);
+    requestUpdate({ favorites: { items: currentItems } });
   }, [isAuthenticated]);
 
   /**
@@ -214,11 +167,6 @@ export function useSyncedFavorites(): UseSyncedFavoritesReturn {
       setDidInitialSync(false);
       // Reset syncing ref to prevent stuck state if logout during sync
       isSyncingRef.current = false;
-      // Clear any pending sync timeout
-      if (syncTimeoutRef.current) {
-        clearTimeout(syncTimeoutRef.current);
-        syncTimeoutRef.current = null;
-      }
     }
 
     previousUserIdRef.current = currentUserId;
@@ -282,15 +230,6 @@ export function useSyncedFavorites(): UseSyncedFavoritesReturn {
       await mergeWithServer();
     }
   }, [isAuthenticated, mergeWithServer]);
-
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (syncTimeoutRef.current) {
-        clearTimeout(syncTimeoutRef.current);
-      }
-    };
-  }, []);
 
   // Memoize return value to prevent unnecessary re-renders
   // Note: favorites Set still changes, but all callbacks are now stable
