@@ -72,12 +72,24 @@ class LearningGoalsResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class ThemeResponse(BaseModel):
+    """Theme preferences data in response."""
+
+    mode: str = "system"  # light/dark/system
+    theme_id: str = "default"  # default/sutra/serenity/forest
+    font_family: str = "mixed"  # serif/sans/mixed
+    updated_at: Optional[datetime] = None
+
+    model_config = {"from_attributes": True}
+
+
 class PreferencesResponse(BaseModel):
     """Full preferences response."""
 
     favorites: FavoritesResponse
     reading: ReadingProgressResponse
     learning_goals: LearningGoalsResponse
+    theme: ThemeResponse
 
     model_config = {"from_attributes": True}
 
@@ -123,6 +135,37 @@ class LearningGoalsUpdate(BaseModel):
     goal_ids: list[str] = Field(default_factory=list)
 
 
+class ThemeUpdate(BaseModel):
+    """Theme preferences update request."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    mode: Optional[str] = None  # light/dark/system
+    theme_id: Optional[str] = None  # default/sutra/serenity/forest
+    font_family: Optional[str] = None  # serif/sans/mixed
+
+    @field_validator("mode")
+    @classmethod
+    def validate_mode(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None and v not in ("light", "dark", "system"):
+            raise ValueError("mode must be light, dark, or system")
+        return v
+
+    @field_validator("theme_id")
+    @classmethod
+    def validate_theme_id(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None and v not in ("default", "sutra", "serenity", "forest"):
+            raise ValueError("theme_id must be default, sutra, serenity, or forest")
+        return v
+
+    @field_validator("font_family")
+    @classmethod
+    def validate_font_family(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None and v not in ("serif", "sans", "mixed"):
+            raise ValueError("font_family must be serif, sans, or mixed")
+        return v
+
+
 class PreferencesUpdate(BaseModel):
     """Partial preferences update request."""
 
@@ -131,6 +174,7 @@ class PreferencesUpdate(BaseModel):
     favorites: Optional[FavoritesUpdate] = None
     reading: Optional[ReadingProgressUpdate] = None
     learning_goals: Optional[LearningGoalsUpdate] = None
+    theme: Optional[ThemeUpdate] = None
 
 
 class LocalFavorites(BaseModel):
@@ -172,6 +216,17 @@ class LocalLearningGoals(BaseModel):
     updated_at: Optional[datetime] = None
 
 
+class LocalTheme(BaseModel):
+    """Local theme preferences for merge request."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    mode: Optional[str] = None  # light/dark/system
+    theme_id: Optional[str] = None  # default/sutra/serenity/forest
+    font_family: Optional[str] = None  # serif/sans/mixed
+    updated_at: Optional[datetime] = None
+
+
 class LocalPreferences(BaseModel):
     """Local preferences to merge with server."""
 
@@ -180,6 +235,7 @@ class LocalPreferences(BaseModel):
     favorites: Optional[LocalFavorites] = None
     reading: Optional[LocalReadingProgress] = None
     learning_goals: Optional[LocalLearningGoals] = None
+    theme: Optional[LocalTheme] = None
 
 
 # --- Helper Functions ---
@@ -216,6 +272,12 @@ def build_preferences_response(prefs: UserPreferences) -> PreferencesResponse:
         learning_goals=LearningGoalsResponse(
             goal_ids=prefs.learning_goal_ids or [],
             updated_at=prefs.learning_goal_updated_at,
+        ),
+        theme=ThemeResponse(
+            mode=prefs.theme_mode,
+            theme_id=prefs.theme_id,
+            font_family=prefs.font_family,
+            updated_at=prefs.theme_updated_at,
         ),
     )
 
@@ -275,6 +337,16 @@ async def update_preferences(
         prefs.learning_goal_ids = data.learning_goals.goal_ids
         prefs.learning_goal_updated_at = now
 
+    if data.theme is not None:
+        if data.theme.mode is not None:
+            prefs.theme_mode = data.theme.mode
+        if data.theme.theme_id is not None:
+            prefs.theme_id = data.theme.theme_id
+        if data.theme.font_family is not None:
+            prefs.font_family = data.theme.font_family
+        prefs.theme_updated_at = now
+        logger.debug(f"Updated theme for user {current_user.id}")
+
     db.commit()
     db.refresh(prefs)
 
@@ -297,7 +369,8 @@ async def merge_preferences(
     Merge strategy:
     - Favorites: Union (combine both sets, no duplicates)
     - Reading: Most recent timestamp wins
-    - Goal: Most recent timestamp wins
+    - Learning Goals: Most recent timestamp wins
+    - Theme: Most recent timestamp wins
     """
     prefs = get_or_create_preferences(db, current_user.id)
     now = datetime.now(timezone.utc)
@@ -343,6 +416,22 @@ async def merge_preferences(
             prefs.learning_goal_ids = local.learning_goals.goal_ids
             prefs.learning_goal_updated_at = now
             logger.debug(f"Learning goals: local wins for user {current_user.id}")
+
+    # Theme: Most recent wins
+    if local.theme:
+        local_ts = normalize_timestamp(local.theme.updated_at)
+        server_ts = normalize_timestamp(prefs.theme_updated_at)
+
+        if local_ts > server_ts:
+            # Local is newer - use local values
+            if local.theme.mode is not None:
+                prefs.theme_mode = local.theme.mode
+            if local.theme.theme_id is not None:
+                prefs.theme_id = local.theme.theme_id
+            if local.theme.font_family is not None:
+                prefs.font_family = local.theme.font_family
+            prefs.theme_updated_at = now
+            logger.debug(f"Theme: local wins for user {current_user.id}")
 
     db.commit()
     db.refresh(prefs)

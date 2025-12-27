@@ -69,6 +69,20 @@ class UserPreferences(Base, TimestampMixin):
         DateTime, nullable=True
     )
 
+    # Theme preferences - synced across devices
+    theme_mode: Mapped[str] = mapped_column(
+        String(10), default="system", nullable=False
+    )  # light/dark/system
+    theme_id: Mapped[str] = mapped_column(
+        String(20), default="default", nullable=False
+    )  # default/sutra/serenity/forest
+    font_family: Mapped[str] = mapped_column(
+        String(10), default="mixed", nullable=False
+    )  # serif/sans/mixed
+    theme_updated_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime, nullable=True
+    )
+
     # Relationship back to User
     user = relationship("User", back_populates="preferences")
 

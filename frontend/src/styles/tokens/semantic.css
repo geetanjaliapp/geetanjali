@@ -25,6 +25,8 @@
 
   /* Base page background - slightly darker for card contrast */
   --surface-base: var(--color-neutral-100);
+  /* Page background - alias for surface-base, used in layout components */
+  --surface-page: var(--surface-base);
 
   /* Warm surface (cards with amber tint) - lighter than base for elevation */
   --surface-warm: var(--color-warm-50);
@@ -528,6 +530,8 @@
 .dark {
   /* Surface tokens - IMPROVED hierarchy with clear visual layers */
   --surface-base: var(--color-neutral-900);
+  /* Page background - alias for surface-base, used in layout components */
+  --surface-page: var(--surface-base);
   /* Subtle warmth in dark mode - refined amber undertone without being too orange */
   --surface-warm: color-mix(in srgb, var(--color-warm-900) 20%, var(--color-neutral-800));
   --surface-warm-subtle: color-mix(in srgb, var(--color-warm-900) 12%, var(--color-neutral-800));

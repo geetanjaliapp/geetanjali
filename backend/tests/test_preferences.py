@@ -328,3 +328,242 @@ class TestMergePreferences:
             json={"favorites": {"items": ["BG_1_1"]}},
         )
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+class TestThemePreferences:
+    """Tests for theme preferences sync (GET, PUT, POST /merge)."""
+
+    def test_get_returns_default_theme(self, client):
+        """GET should return default theme values."""
+        headers = create_authenticated_user(client)
+
+        response = client.get("/api/v1/users/me/preferences", headers=headers)
+
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert data["theme"]["mode"] == "system"
+        assert data["theme"]["theme_id"] == "default"
+        assert data["theme"]["font_family"] == "mixed"
+
+    def test_update_theme_mode_success(self, client):
+        """Should update theme mode."""
+        headers = create_authenticated_user(client)
+
+        response = client.put(
+            "/api/v1/users/me/preferences",
+            headers=headers,
+            json={"theme": {"mode": "dark"}},
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert data["theme"]["mode"] == "dark"
+
+    def test_update_theme_id_success(self, client):
+        """Should update theme palette (theme_id)."""
+        headers = create_authenticated_user(client)
+
+        response = client.put(
+            "/api/v1/users/me/preferences",
+            headers=headers,
+            json={"theme": {"theme_id": "sutra"}},
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert data["theme"]["theme_id"] == "sutra"
+
+    def test_update_font_family_success(self, client):
+        """Should update font family."""
+        headers = create_authenticated_user(client)
+
+        response = client.put(
+            "/api/v1/users/me/preferences",
+            headers=headers,
+            json={"theme": {"font_family": "serif"}},
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert data["theme"]["font_family"] == "serif"
+
+    def test_update_theme_all_fields(self, client):
+        """Should update all theme fields at once."""
+        headers = create_authenticated_user(client)
+
+        response = client.put(
+            "/api/v1/users/me/preferences",
+            headers=headers,
+            json={
+                "theme": {
+                    "mode": "light",
+                    "theme_id": "forest",
+                    "font_family": "sans",
+                }
+            },
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert data["theme"]["mode"] == "light"
+        assert data["theme"]["theme_id"] == "forest"
+        assert data["theme"]["font_family"] == "sans"
+
+    def test_update_theme_invalid_mode_rejected(self, client):
+        """Should reject invalid theme mode."""
+        headers = create_authenticated_user(client)
+
+        response = client.put(
+            "/api/v1/users/me/preferences",
+            headers=headers,
+            json={"theme": {"mode": "invalid_mode"}},
+        )
+
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+
+    def test_update_theme_invalid_theme_id_rejected(self, client):
+        """Should reject invalid theme_id."""
+        headers = create_authenticated_user(client)
+
+        response = client.put(
+            "/api/v1/users/me/preferences",
+            headers=headers,
+            json={"theme": {"theme_id": "nonexistent"}},
+        )
+
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+
+    def test_update_theme_invalid_font_family_rejected(self, client):
+        """Should reject invalid font_family."""
+        headers = create_authenticated_user(client)
+
+        response = client.put(
+            "/api/v1/users/me/preferences",
+            headers=headers,
+            json={"theme": {"font_family": "comic_sans"}},
+        )
+
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+
+    def test_update_theme_preserves_other_preferences(self, client):
+        """Updating theme should not affect other preferences."""
+        headers = create_authenticated_user(client)
+
+        # Set favorites first
+        client.put(
+            "/api/v1/users/me/preferences",
+            headers=headers,
+            json={"favorites": {"items": ["BG_1_1"]}},
+        )
+
+        # Update theme
+        response = client.put(
+            "/api/v1/users/me/preferences",
+            headers=headers,
+            json={"theme": {"mode": "dark"}},
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        # Theme updated
+        assert data["theme"]["mode"] == "dark"
+        # Favorites preserved
+        assert data["favorites"]["items"] == ["BG_1_1"]
+
+    def test_merge_theme_newer_wins(self, client):
+        """Merge should use most recent theme settings."""
+        headers = create_authenticated_user(client)
+
+        # Set server theme
+        client.put(
+            "/api/v1/users/me/preferences",
+            headers=headers,
+            json={"theme": {"mode": "light", "theme_id": "default"}},
+        )
+
+        # Merge with local theme (newer timestamp wins)
+        response = client.post(
+            "/api/v1/users/me/preferences/merge",
+            headers=headers,
+            json={
+                "theme": {
+                    "mode": "dark",
+                    "theme_id": "serenity",
+                    "font_family": "serif",
+                    "updated_at": "2099-01-01T00:00:00Z",  # Future = newer
+                }
+            },
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert data["theme"]["mode"] == "dark"
+        assert data["theme"]["theme_id"] == "serenity"
+        assert data["theme"]["font_family"] == "serif"
+
+    def test_merge_theme_server_wins_if_newer(self, client):
+        """Merge should keep server theme if it's newer."""
+        headers = create_authenticated_user(client)
+
+        # Set server theme (will be newer than local)
+        client.put(
+            "/api/v1/users/me/preferences",
+            headers=headers,
+            json={"theme": {"mode": "dark", "theme_id": "forest"}},
+        )
+
+        # Merge with local theme (older timestamp)
+        response = client.post(
+            "/api/v1/users/me/preferences/merge",
+            headers=headers,
+            json={
+                "theme": {
+                    "mode": "light",
+                    "theme_id": "default",
+                    "updated_at": "2000-01-01T00:00:00Z",  # Past = older
+                }
+            },
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        # Server values should win
+        assert data["theme"]["mode"] == "dark"
+        assert data["theme"]["theme_id"] == "forest"
+
+    def test_merge_theme_partial_update(self, client):
+        """Merge should handle partial theme updates correctly."""
+        headers = create_authenticated_user(client)
+
+        # Set server theme with all fields
+        client.put(
+            "/api/v1/users/me/preferences",
+            headers=headers,
+            json={
+                "theme": {
+                    "mode": "dark",
+                    "theme_id": "sutra",
+                    "font_family": "serif",
+                }
+            },
+        )
+
+        # Merge with only mode update (newer)
+        response = client.post(
+            "/api/v1/users/me/preferences/merge",
+            headers=headers,
+            json={
+                "theme": {
+                    "mode": "light",
+                    "updated_at": "2099-01-01T00:00:00Z",
+                }
+            },
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        # Mode updated
+        assert data["theme"]["mode"] == "light"
+        # Other fields preserved from server
+        assert data["theme"]["theme_id"] == "sutra"
+        assert data["theme"]["font_family"] == "serif"

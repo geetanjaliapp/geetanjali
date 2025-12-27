@@ -24,11 +24,12 @@ export const STORAGE_KEYS = {
   readingPosition: "geetanjali:readingPosition",
   readingSettings: "geetanjali:readingSettings", // Font size for Reading Mode
 
-  // User preferences - local only (device-specific)
+  // User preferences - synced to server for authenticated users
   theme: "geetanjali:theme", // Light/dark/system mode
   themeId: "geetanjali:theme-id", // Selected color palette ID
   customTheme: "geetanjali:custom-theme", // Custom theme configuration (non-built-in)
   fontFamily: "geetanjali:fontFamily", // Font style preference (serif/sans/mixed)
+  themeUpdatedAt: "geetanjali:themeUpdatedAt", // Timestamp for merge conflict resolution
   readingSectionPrefs: "geetanjali:readingSectionPrefs", // IAST/Hindi/English/Insight toggles
   recentSearches: "geetanjali:recentSearches",
   defaultVersesTab: "geetanjali:defaultVersesTab", // Default tab on Verses page (featured/for-you/all)
@@ -42,11 +43,11 @@ export const STORAGE_KEYS = {
 
   // Onboarding/UI state
   readingOnboardingSeen: "geetanjali:readingOnboardingSeen",
+  translationHintSeen: "geetanjali:translationHintSeen", // VerseFocus translation hint
   verseViewCount: "geetanjali:verseViewCount", // For newsletter nudge trigger
 
   // Feature-specific
   caseDraft: "geetanjali:caseDraft",
-  featuredCasesCache: "geetanjali:featuredCases",
 
   // Email verification
   verifyBannerDismissed: "geetanjali:verifyBannerDismissed", // Timestamp of dismissal (7-day expiry)
@@ -155,10 +156,7 @@ export function clearAllLocalStorage(): void {
     const allKeys = Object.keys(localStorage);
     allKeys.forEach((key) => {
       if (key.startsWith("geetanjali:") || key.startsWith("geetanjali_")) {
-        // Don't clear cache keys (they'll regenerate)
-        if (!key.includes("Cache") && !key.includes("featured")) {
-          localStorage.removeItem(key);
-        }
+        localStorage.removeItem(key);
       }
     });
   } catch {
@@ -247,6 +245,19 @@ export function getStorageItem<T>(key: string, defaultValue: T): T {
 export function setStorageItem(key: string, value: unknown): boolean {
   try {
     localStorage.setItem(key, JSON.stringify(value));
+    return true;
+  } catch {
+    // QuotaExceededError or SecurityError
+    return false;
+  }
+}
+
+/**
+ * Safe localStorage setter for raw strings (no JSON serialization)
+ */
+export function setStorageItemRaw(key: string, value: string): boolean {
+  try {
+    localStorage.setItem(key, value);
     return true;
   } catch {
     // QuotaExceededError or SecurityError

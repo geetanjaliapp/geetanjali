@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { ThemeProvider, useTheme } from "./ThemeContext";
+import { AuthProvider } from "./AuthContext";
 import type { ReactNode } from "react";
 import type { ThemeConfig } from "../types/theme";
 
@@ -16,8 +17,11 @@ const mockMatchMedia = vi.fn().mockImplementation((query: string) => ({
   dispatchEvent: vi.fn(),
 }));
 
+// ThemeProvider now requires AuthProvider context for backend sync
 const wrapper = ({ children }: { children: ReactNode }) => (
-  <ThemeProvider>{children}</ThemeProvider>
+  <AuthProvider>
+    <ThemeProvider>{children}</ThemeProvider>
+  </AuthProvider>
 );
 
 describe("ThemeContext", () => {

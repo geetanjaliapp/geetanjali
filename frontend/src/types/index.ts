@@ -327,11 +327,20 @@ export interface LearningGoalsPrefs {
   updated_at: string | null;
 }
 
+/** Theme preferences data */
+export interface ThemePrefs {
+  mode: string; // light/dark/system
+  theme_id: string; // default/sutra/serenity/forest
+  font_family: string; // serif/sans/mixed
+  updated_at: string | null;
+}
+
 /** Full user preferences response */
 export interface UserPreferences {
   favorites: FavoritesPrefs;
   reading: ReadingPrefs;
   learning_goals: LearningGoalsPrefs;
+  theme: ThemePrefs;
 }
 
 /** Partial preferences update request */
@@ -344,6 +353,11 @@ export interface PreferencesUpdate {
     section_prefs?: Record<string, boolean>;
   };
   learning_goals?: { goal_ids: string[] };
+  theme?: {
+    mode?: string;
+    theme_id?: string;
+    font_family?: string;
+  };
 }
 
 /** Local preferences for merge request */
@@ -357,4 +371,10 @@ export interface LocalPreferences {
     updated_at?: string;
   };
   learning_goals?: { goal_ids?: string[]; updated_at?: string };
+  theme?: {
+    mode?: string;
+    theme_id?: string;
+    font_family?: string;
+    updated_at?: string;
+  };
 }

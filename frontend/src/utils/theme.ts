@@ -5,7 +5,7 @@
  */
 
 import type { ThemeConfig, ThemeColors, ColorScale, ContrastColors } from "../types/theme";
-import { STORAGE_KEYS } from "../lib/storage";
+import { STORAGE_KEYS, setStorageItem } from "../lib/storage";
 
 /** Color scale names for iteration */
 const COLOR_SCALES = [
@@ -448,9 +448,13 @@ export function removeTheme(): void {
  */
 export function saveThemeToStorage(theme: ThemeConfig | null): void {
   if (theme && theme.id !== "default") {
-    localStorage.setItem(STORAGE_KEYS.customTheme, JSON.stringify(theme));
+    setStorageItem(STORAGE_KEYS.customTheme, theme);
   } else {
-    localStorage.removeItem(STORAGE_KEYS.customTheme);
+    try {
+      localStorage.removeItem(STORAGE_KEYS.customTheme);
+    } catch {
+      // Ignore
+    }
   }
 }
 

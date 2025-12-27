@@ -1,10 +1,12 @@
 /**
- * Theme Context (v1.17.0)
+ * Theme Context (v1.18.0)
  *
  * Provides theme state management with:
  * - Mode: 'light' | 'dark' | 'system'
  * - Custom theme: Optional theme configuration that overrides primitives
  * - Font family: Separate font preference (serif/sans/mixed)
+ * - Cross-device sync: Syncs to backend for authenticated users
+ * - Analytics: Tracks theme changes via Umami
  *
  * Persists to localStorage and respects prefers-color-scheme.
  */
@@ -16,6 +18,7 @@ import {
   useState,
   useCallback,
   useMemo,
+  useRef,
   type ReactNode,
 } from "react";
 
@@ -27,7 +30,18 @@ import {
 } from "../utils/theme";
 import { getThemeById, builtInThemes } from "../config/themes";
 import { THEME_FONTS, DEFAULT_FONT_FAMILY } from "../config/fonts";
-import { STORAGE_KEYS } from "../lib/storage";
+import { STORAGE_KEYS, setStorageItemRaw } from "../lib/storage";
+import { useAuth } from "./AuthContext";
+import { preferencesApi } from "../lib/api";
+
+// Declare Umami types
+declare global {
+  interface Window {
+    umami?: {
+      track: (event: string, data?: Record<string, unknown>) => void;
+    };
+  }
+}
 
 // Theme mode options
 export type Theme = "light" | "dark" | "system";
@@ -146,11 +160,34 @@ function applyThemeFonts(themeId: string) {
   `;
 }
 
+// Get stored theme updated timestamp
+function getStoredThemeUpdatedAt(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem(STORAGE_KEYS.themeUpdatedAt);
+}
+
+// Update theme timestamp
+function updateThemeTimestamp(): string {
+  const now = new Date().toISOString();
+  setStorageItemRaw(STORAGE_KEYS.themeUpdatedAt, now);
+  return now;
+}
+
+// Sync configuration
+const SYNC_DEBOUNCE_MS = 5000; // 5 seconds debounce for theme sync
+const MERGE_THROTTLE_MS = 10000; // 10 seconds throttle for merge calls
+
+// Module-level timestamps for rate limiting
+let lastMergeTimestamp = 0;
+let lastSyncTimestamp = 0;
+
 interface ThemeProviderProps {
   children: ReactNode;
 }
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
+  const { isAuthenticated, user } = useAuth();
+
   const [theme, setThemeState] = useState<Theme>(getStoredThemeMode);
   const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(() =>
     resolveTheme(getStoredThemeMode()),
@@ -161,14 +198,188 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   const [fontFamily, setFontFamilyState] =
     useState<FontFamily>(getStoredFontFamily);
 
-  // Set theme mode and persist
-  const setTheme = useCallback((newTheme: Theme) => {
-    setThemeState(newTheme);
-    localStorage.setItem(STORAGE_KEYS.theme, newTheme);
-    const resolved = resolveTheme(newTheme);
-    setResolvedTheme(resolved);
-    applyThemeMode(resolved);
+  // Track user ID to detect login/logout
+  const previousUserIdRef = useRef<string | null>(null);
+  // Debounce timer ref
+  const syncTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Track if we're currently syncing to prevent duplicate calls
+  const isSyncingRef = useRef(false);
+
+  // Refs for current values (to avoid stale closures in callbacks)
+  const themeRef = useRef(theme);
+  const customThemeRef = useRef(customTheme);
+  const fontFamilyRef = useRef(fontFamily);
+  themeRef.current = theme;
+  customThemeRef.current = customTheme;
+  fontFamilyRef.current = fontFamily;
+
+  /**
+   * Sync theme to server (debounced)
+   */
+  const syncToServer = useCallback(() => {
+    if (!isAuthenticated) return;
+
+    // Clear existing timeout (debounce)
+    if (syncTimeoutRef.current) {
+      clearTimeout(syncTimeoutRef.current);
+    }
+
+    // Debounce the sync
+    syncTimeoutRef.current = setTimeout(async () => {
+      if (isSyncingRef.current) return;
+
+      // Throttle check
+      const now = Date.now();
+      if (now - lastSyncTimestamp < SYNC_DEBOUNCE_MS) {
+        return;
+      }
+      lastSyncTimestamp = now;
+      isSyncingRef.current = true;
+
+      try {
+        await preferencesApi.update({
+          theme: {
+            mode: themeRef.current,
+            theme_id: customThemeRef.current?.id ?? "default",
+            font_family: fontFamilyRef.current,
+          },
+        });
+      } catch (error) {
+        console.error("[ThemeContext] Sync failed:", error);
+      } finally {
+        isSyncingRef.current = false;
+      }
+    }, SYNC_DEBOUNCE_MS);
+  }, [isAuthenticated]);
+
+  /**
+   * Merge local theme with server (used on login)
+   */
+  const mergeWithServer = useCallback(async () => {
+    // Throttle to prevent 429 on rapid remounts
+    const now = Date.now();
+    if (now - lastMergeTimestamp < MERGE_THROTTLE_MS) {
+      return;
+    }
+    if (isSyncingRef.current) return;
+    lastMergeTimestamp = now;
+    isSyncingRef.current = true;
+
+    try {
+      const localUpdatedAt = getStoredThemeUpdatedAt();
+
+      const merged = await preferencesApi.merge({
+        theme: {
+          mode: themeRef.current,
+          theme_id: customThemeRef.current?.id ?? "default",
+          font_family: fontFamilyRef.current,
+          updated_at: localUpdatedAt ?? undefined,
+        },
+      });
+
+      // If server has newer theme, apply it
+      if (merged.theme) {
+        const serverMode = merged.theme.mode as Theme;
+        const serverThemeId = merged.theme.theme_id;
+        const serverFontFamily = merged.theme.font_family as FontFamily;
+
+        // Only update if different from current
+        if (serverMode !== themeRef.current) {
+          setThemeState(serverMode);
+          setStorageItemRaw(STORAGE_KEYS.theme, serverMode);
+          const resolved = resolveTheme(serverMode);
+          setResolvedTheme(resolved);
+          applyThemeMode(resolved);
+        }
+
+        if (serverThemeId !== (customThemeRef.current?.id ?? "default")) {
+          if (serverThemeId === "default") {
+            setCustomThemeState(null);
+            localStorage.removeItem(STORAGE_KEYS.themeId);
+            saveThemeToStorage(null);
+          } else {
+            const serverTheme = getThemeById(serverThemeId);
+            if (serverTheme) {
+              setCustomThemeState(serverTheme);
+              setStorageItemRaw(STORAGE_KEYS.themeId, serverThemeId);
+            }
+          }
+          applyCustomTheme(
+            serverThemeId === "default" ? null : getThemeById(serverThemeId) ?? null,
+          );
+          applyThemeFonts(serverThemeId);
+        }
+
+        if (serverFontFamily !== fontFamilyRef.current) {
+          setFontFamilyState(serverFontFamily);
+          setStorageItemRaw(STORAGE_KEYS.fontFamily, serverFontFamily);
+        }
+      }
+    } catch (error) {
+      console.error("[ThemeContext] Merge failed:", error);
+    } finally {
+      isSyncingRef.current = false;
+    }
   }, []);
+
+  /**
+   * Handle login: merge local theme with server
+   */
+  useEffect(() => {
+    const currentUserId = user?.id ?? null;
+    const wasLoggedOut = previousUserIdRef.current === null;
+    const isNowLoggedIn = currentUserId !== null;
+
+    // Detect login (was null, now has user ID)
+    if (wasLoggedOut && isNowLoggedIn) {
+      mergeWithServer();
+    }
+
+    // Detect logout - clear any pending sync
+    if (previousUserIdRef.current !== null && currentUserId === null) {
+      if (syncTimeoutRef.current) {
+        clearTimeout(syncTimeoutRef.current);
+        syncTimeoutRef.current = null;
+      }
+      isSyncingRef.current = false;
+    }
+
+    previousUserIdRef.current = currentUserId;
+  }, [user?.id, mergeWithServer]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (syncTimeoutRef.current) {
+        clearTimeout(syncTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Set theme mode and persist
+  const setTheme = useCallback(
+    (newTheme: Theme) => {
+      const previousTheme = themeRef.current;
+      setThemeState(newTheme);
+      setStorageItemRaw(STORAGE_KEYS.theme, newTheme);
+      updateThemeTimestamp();
+      const resolved = resolveTheme(newTheme);
+      setResolvedTheme(resolved);
+      applyThemeMode(resolved);
+
+      // Track with Umami
+      if (previousTheme !== newTheme) {
+        window.umami?.track("theme_mode_change", {
+          from: previousTheme,
+          to: newTheme,
+        });
+      }
+
+      // Sync to server if authenticated
+      syncToServer();
+    },
+    [syncToServer],
+  );
 
   // Cycle through theme modes: light → dark → system → light
   const cycleTheme = useCallback(() => {
@@ -178,28 +389,45 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   }, [theme, setTheme]);
 
   // Set custom theme by config
-  const setCustomTheme = useCallback((newTheme: ThemeConfig | null) => {
-    setCustomThemeState(newTheme);
-    applyCustomTheme(newTheme);
+  const setCustomTheme = useCallback(
+    (newTheme: ThemeConfig | null) => {
+      const previousThemeId = customThemeRef.current?.id ?? "default";
+      const newThemeId = newTheme?.id ?? "default";
 
-    // Apply theme-specific fonts
-    const themeId = newTheme?.id ?? "default";
-    applyThemeFonts(themeId);
+      setCustomThemeState(newTheme);
+      applyCustomTheme(newTheme);
 
-    // Persist
-    if (newTheme) {
-      localStorage.setItem(STORAGE_KEYS.themeId, newTheme.id);
-      // Only save full config for non-built-in themes
-      if (!getThemeById(newTheme.id)) {
-        saveThemeToStorage(newTheme);
+      // Apply theme-specific fonts
+      applyThemeFonts(newThemeId);
+      updateThemeTimestamp();
+
+      // Persist
+      if (newTheme) {
+        setStorageItemRaw(STORAGE_KEYS.themeId, newTheme.id);
+        // Only save full config for non-built-in themes
+        if (!getThemeById(newTheme.id)) {
+          saveThemeToStorage(newTheme);
+        } else {
+          saveThemeToStorage(null);
+        }
       } else {
+        localStorage.removeItem(STORAGE_KEYS.themeId);
         saveThemeToStorage(null);
       }
-    } else {
-      localStorage.removeItem(STORAGE_KEYS.themeId);
-      saveThemeToStorage(null);
-    }
-  }, []);
+
+      // Track with Umami
+      if (previousThemeId !== newThemeId) {
+        window.umami?.track("theme_palette_change", {
+          from: previousThemeId,
+          to: newThemeId,
+        });
+      }
+
+      // Sync to server if authenticated
+      syncToServer();
+    },
+    [syncToServer],
+  );
 
   // Set custom theme by ID (built-in themes)
   const setCustomThemeById = useCallback(
@@ -217,10 +445,26 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   );
 
   // Set font family and persist (fonts are applied via theme-specific applyThemeFonts)
-  const setFontFamily = useCallback((family: FontFamily) => {
-    setFontFamilyState(family);
-    localStorage.setItem(STORAGE_KEYS.fontFamily, family);
-  }, []);
+  const setFontFamily = useCallback(
+    (family: FontFamily) => {
+      const previousFamily = fontFamilyRef.current;
+      setFontFamilyState(family);
+      setStorageItemRaw(STORAGE_KEYS.fontFamily, family);
+      updateThemeTimestamp();
+
+      // Track with Umami
+      if (previousFamily !== family) {
+        window.umami?.track("font_family_change", {
+          from: previousFamily,
+          to: family,
+        });
+      }
+
+      // Sync to server if authenticated
+      syncToServer();
+    },
+    [syncToServer],
+  );
 
   // Listen for system preference changes
   useEffect(() => {
