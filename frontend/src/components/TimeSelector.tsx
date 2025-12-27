@@ -82,14 +82,14 @@ export function TimeSelector({ value, onChange, disabled }: TimeSelectorProps) {
           disabled={disabled}
           tabIndex={index === currentIndex ? 0 : -1}
           className={`
-            flex flex-col items-center p-2 rounded-[var(--radius-button)] border transition-[var(--transition-all)]
+            flex flex-col items-center p-2.5 rounded-[var(--radius-button)] transition-[var(--transition-all)]
             focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2
             focus-visible:ring-offset-[var(--focus-ring-offset)]
             ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
             ${
               value === option.id
-                ? "border-[var(--border-accent)] bg-[var(--surface-warm)]"
-                : "border-[var(--border-default)] bg-[var(--surface-elevated)] hover:border-[var(--border-warm)]"
+                ? "bg-[var(--chip-selected-bg)] ring-1 ring-[var(--chip-selected-ring)]"
+                : "bg-[var(--surface-muted)] hover:bg-[var(--surface-field)]"
             }
           `}
           role="radio"
@@ -101,7 +101,7 @@ export function TimeSelector({ value, onChange, disabled }: TimeSelectorProps) {
               w-8 h-8 rounded-[var(--radius-avatar)] flex items-center justify-center mb-1
               ${
                 value === option.id
-                  ? "bg-[var(--badge-warm-bg)] text-[var(--badge-warm-text)]"
+                  ? "bg-[var(--chip-selected-bg)] text-[var(--chip-selected-text)]"
                   : "bg-[var(--surface-muted)] text-[var(--text-tertiary)]"
               }
             `}
@@ -115,7 +115,7 @@ export function TimeSelector({ value, onChange, disabled }: TimeSelectorProps) {
               text-xs font-medium text-center
               ${
                 value === option.id
-                  ? "text-[var(--badge-warm-text)]"
+                  ? "text-[var(--chip-selected-text)]"
                   : "text-[var(--text-primary)]"
               }
             `}
@@ -132,7 +132,7 @@ export function TimeSelector({ value, onChange, disabled }: TimeSelectorProps) {
               text-[10px] text-center mt-0.5 leading-tight hidden sm:block
               ${
                 value === option.id
-                  ? "text-[var(--badge-warm-text)]"
+                  ? "text-[var(--chip-selected-text)] opacity-80"
                   : "text-[var(--text-muted)]"
               }
             `}

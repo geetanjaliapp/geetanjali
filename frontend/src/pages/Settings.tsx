@@ -456,10 +456,8 @@ export default function Settings() {
           )}
         </section>
 
-        {/* 2-Column Grid: Goals + Newsletter */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-          {/* Learning Goals */}
-          <section id="goals" className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] shadow-[var(--shadow-card)] p-4 scroll-mt-20">
+        {/* Learning Goals (Full Width) */}
+        <section id="goals" className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] shadow-[var(--shadow-card)] p-4 mb-4 scroll-mt-20">
             <div className="flex items-center gap-2 mb-3">
               <div className="p-1.5 rounded-[var(--radius-button)] bg-[var(--section-icon-goals-bg)] text-[var(--section-icon-goals-text)]">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -514,16 +512,19 @@ export default function Settings() {
                 </div>
               </div>
             </div>
-          </section>
+        </section>
 
-          {/* Daily Wisdom */}
-          <section id="newsletter" className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] shadow-[var(--shadow-card)] p-4 scroll-mt-20">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="p-1.5 rounded-[var(--radius-button)] bg-[var(--section-icon-newsletter-bg)] text-[var(--text-accent)]">
-                <SunIcon className="w-5 h-5" />
-              </div>
-              <h2 className="text-lg font-semibold text-[var(--text-primary)]">Daily Wisdom</h2>
+        {/* Daily Wisdom (Full Width) */}
+        <section id="newsletter" className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] shadow-[var(--shadow-card)] p-5 mb-4 scroll-mt-20">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="p-1.5 rounded-[var(--radius-button)] bg-[var(--section-icon-newsletter-bg)] text-[var(--text-accent)]">
+              <SunIcon className="w-5 h-5" />
             </div>
+            <h2 className="text-lg font-semibold text-[var(--text-primary)]">Daily Wisdom</h2>
+          </div>
+          <p className="text-sm text-[var(--text-tertiary)] mb-4 ml-9">
+            A verse each day, personalized to your learning goals
+          </p>
 
             {/* Loading state while fetching subscription status */}
             {isFetchingStatus ? (
@@ -542,31 +543,25 @@ export default function Settings() {
                 </div>
 
                 {/* Update preferences form */}
-                <form onSubmit={handleUpdatePreferences} className="space-y-3">
-                  {/* Goals display */}
-                  <div className="flex items-center gap-2 h-10 bg-[var(--surface-field)] rounded-[var(--radius-button)] px-2.5">
-                    <span className="text-xs text-[var(--text-muted)] shrink-0">Goals:</span>
-                    {selectedGoals.length > 0 ? (
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        {selectedGoals.map((goal) => {
-                          const IconComponent = GoalIconsById[goal.id];
-                          return (
-                            <div
-                              key={goal.id}
-                              className="w-7 h-7 rounded-[var(--radius-avatar)] bg-[var(--goal-indicator-bg)] text-[var(--goal-indicator-text)] flex items-center justify-center shadow-[var(--shadow-button)]"
-                              title={goal.label}
-                            >
-                              {IconComponent && <IconComponent className="w-4 h-4" />}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      <span className="text-xs text-[var(--text-muted)]">
-                        Select above for personalized verses
+                <form onSubmit={handleUpdatePreferences} className="space-y-4">
+                  {/* Goals connection hint - only show if no goals selected */}
+                  {selectedGoals.length === 0 && (
+                    <div className="flex items-center gap-2 text-sm text-[var(--text-muted)] bg-[var(--surface-muted)] rounded-[var(--radius-button)] px-3 py-2">
+                      <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span>
+                        <button
+                          type="button"
+                          onClick={() => document.getElementById("goals")?.scrollIntoView({ behavior: "smooth" })}
+                          className="text-[var(--text-link)] hover:underline"
+                        >
+                          Select learning goals
+                        </button>
+                        {" "}to receive personalized verses
                       </span>
-                    )}
-                  </div>
+                    </div>
+                  )}
 
                   {/* Name input */}
                   <div>
@@ -746,65 +741,27 @@ export default function Settings() {
               </div>
             ) : (
               /* Default: Subscribe form */
-              <form onSubmit={handleSubscribe} className="space-y-3">
-                {/* Goals prompt */}
-                {showGoalsPrompt && (
-                  <div className="bg-[var(--prompt-bg)] border border-[var(--prompt-border)] rounded-[var(--radius-button)] p-3">
-                    <p className="text-sm text-[var(--prompt-text)] mb-2">
-                      Select learning goals for personalized verses
-                    </p>
-                    <div className="flex gap-2">
+              <form onSubmit={handleSubscribe} className="space-y-4">
+                {/* Goals connection hint - only show if no goals selected */}
+                {selectedGoals.length === 0 && (
+                  <div className="flex items-center gap-2 text-sm text-[var(--text-muted)] bg-[var(--surface-muted)] rounded-[var(--radius-button)] px-3 py-2">
+                    <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>
                       <button
                         type="button"
-                        onClick={() => {
-                          setShowGoalsPrompt(false);
-                          // Scroll to goals section
-                          document.getElementById("goals")?.scrollIntoView({ behavior: "smooth" });
-                        }}
-                        className="text-xs px-2 py-1 bg-[var(--prompt-button-bg)] text-[var(--prompt-button-text)] rounded-[var(--radius-skeleton)]"
+                        onClick={() => document.getElementById("goals")?.scrollIntoView({ behavior: "smooth" })}
+                        className="text-[var(--text-link)] hover:underline"
                       >
-                        Select goals
+                        Select learning goals
                       </button>
-                      <button
-                        type="submit"
-                        className="text-xs px-2 py-1 text-[var(--section-icon-goals-text)] hover:underline"
-                      >
-                        Subscribe anyway
-                      </button>
-                    </div>
+                      {" "}above to receive personalized verses
+                    </span>
                   </div>
                 )}
 
-                {/* Reserved space for selected goals - always visible */}
-                <div className="flex items-center gap-2 h-10 bg-[var(--surface-field)] rounded-[var(--radius-button)] px-2.5">
-                  <span className="text-xs text-[var(--text-muted)] shrink-0">Goals:</span>
-                  {selectedGoals.length > 0 ? (
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      {selectedGoals.map((goal) => {
-                        const IconComponent = GoalIconsById[goal.id];
-                        return (
-                          <div
-                            key={goal.id}
-                            className="w-7 h-7 rounded-[var(--radius-avatar)] bg-[var(--goal-indicator-bg)] text-[var(--goal-indicator-text)] flex items-center justify-center shadow-[var(--shadow-button)]"
-                            title={goal.label}
-                          >
-                            {IconComponent && <IconComponent className="w-4 h-4" />}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-1.5">
-                      {/* Placeholder circles to match height */}
-                      <div className="w-7 h-7 rounded-[var(--radius-avatar)] border-2 border-dashed border-[var(--border-default)]" />
-                      <span className="text-xs text-[var(--text-muted)]">
-                        Select above
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label htmlFor="newsletter-anon-name" className="sr-only">
                       Your name
@@ -857,8 +814,7 @@ export default function Settings() {
                 </button>
               </form>
             )}
-          </section>
-        </div>
+        </section>
 
         {/* 2-Column Grid: Reading Preferences + Appearance */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
