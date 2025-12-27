@@ -287,10 +287,10 @@
   /* Field surfaces (selection areas, input containers) */
   --surface-field: var(--color-neutral-50);
 
-  /* Selection chips/pills (e.g., tab selections) */
-  --chip-selected-bg: var(--color-warm-100);
-  --chip-selected-text: var(--color-warm-800);
-  --chip-selected-ring: var(--color-warm-300);
+  /* Selection chips/pills (e.g., tab selections) - must be MORE prominent than badge-warm */
+  --chip-selected-bg: var(--color-warm-200);
+  --chip-selected-text: var(--color-warm-900);
+  --chip-selected-ring: var(--color-warm-400);
 
   /* Selected button/option (primary-colored) */
   --option-selected-bg: var(--color-primary-100);
@@ -699,10 +699,10 @@
   /* Field surfaces */
   --surface-field: color-mix(in srgb, var(--color-neutral-700) 50%, var(--color-neutral-800));
 
-  /* Selection chips/pills - neutral with subtle definition */
-  --chip-selected-bg: var(--color-neutral-700);
-  --chip-selected-text: var(--color-neutral-200);
-  --chip-selected-ring: var(--color-neutral-500);
+  /* Selection chips/pills - must be LIGHTER than badge-warm for clear selection */
+  --chip-selected-bg: var(--color-neutral-600);
+  --chip-selected-text: var(--color-neutral-100);
+  --chip-selected-ring: var(--color-neutral-400);
 
   /* Selected button/option - neutral, orange reserved for CTAs */
   --option-selected-bg: color-mix(in srgb, var(--color-neutral-700) 60%, transparent);

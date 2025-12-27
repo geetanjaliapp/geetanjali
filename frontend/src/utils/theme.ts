@@ -258,6 +258,9 @@ function contrastColorsToCss(contrast: ContrastColors): string[] {
   if (contrast.chipSelectedText) {
     properties.push(`--chip-selected-text: ${contrast.chipSelectedText};`);
   }
+  if (contrast.chipSelectedRing) {
+    properties.push(`--chip-selected-ring: ${contrast.chipSelectedRing};`);
+  }
 
   // Reading mode surface overrides - for theme-harmonious reading
   if (contrast.surfaceReading) {

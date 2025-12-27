@@ -161,6 +161,8 @@ export interface ContrastColors {
   chipSelectedBg?: string;
   /** Override selected chip text color */
   chipSelectedText?: string;
+  /** Override selected chip ring/border color */
+  chipSelectedRing?: string;
 
   /* Reading mode surface overrides - for theme-harmonious reading experience */
   /** Override reading mode base surface */

@@ -48,8 +48,10 @@ export const defaultTheme: ThemeConfig = {
         badgeWarmBg: "#4a3d2a", // Amber-brown: distinct from neutral gray
         badgeWarmHover: "#5a4a35", // Slightly lighter on hover
         badgeWarmText: "#e7ddd0", // Warm off-white text
-        chipSelectedBg: "#5a4a35", // Slightly lighter than badge
-        chipSelectedText: "#d4c8b8", // Warm muted text
+        // Chip selected must be VISIBLY DIFFERENT from badge - more prominent
+        chipSelectedBg: "#6a5a40", // Noticeably lighter than badge
+        chipSelectedText: "#f5ebe0", // Brighter text for selected state
+        chipSelectedRing: "#8a7a60", // Visible ring
       },
     },
   },
@@ -228,8 +230,10 @@ export const sutraTheme: ThemeConfig = {
         badgeWarmBg: "#262626", // warm-200: dark background
         badgeWarmHover: "#363636", // warm-300: slightly lighter on hover
         badgeWarmText: "#d4d4d4", // warm-700: light text
-        chipSelectedBg: "#363636", // warm-300: slightly lighter dark bg
-        chipSelectedText: "#a3a3a3", // warm-600: visible text
+        // Chip selected must be VISIBLY DIFFERENT from badge - more prominent
+        chipSelectedBg: "#454545", // Clearly lighter than badge
+        chipSelectedText: "#e5e5e5", // Brighter text for selected
+        chipSelectedRing: "#6b6b6b", // Visible ring
 
         // Reading mode - pure neutral for scholarly ink-on-paper feel
         surfaceReading: "#0a0a0a", // pure dark
@@ -411,10 +415,12 @@ export const serenityTheme: ThemeConfig = {
 
         // Badge/chip colors - inverted scale: use dark bg + light text
         badgeWarmBg: "#3a2d45", // warm-200: dark purple background
-        badgeWarmHover: "#5c4a6e", // warm-300: slightly lighter on hover
+        badgeWarmHover: "#4d3d5a", // warm-300: slightly lighter on hover
         badgeWarmText: "#e0cce8", // warm-700: soft lavender text
-        chipSelectedBg: "#5c4a6e", // warm-300: slightly lighter purple bg
-        chipSelectedText: "#c8b0d8", // warm-600: visible text
+        // Chip selected must be VISIBLY DIFFERENT from badge - more prominent
+        chipSelectedBg: "#6a5580", // Clearly lighter purple bg
+        chipSelectedText: "#f0e5f5", // Brighter lavender text
+        chipSelectedRing: "#8a75a0", // Visible ring
 
         // Reading mode - purple-tinted for twilight meditation feel
         surfaceReading: "#1c1917", // stone-900 with warm undertone
@@ -598,8 +604,10 @@ export const forestTheme: ThemeConfig = {
         badgeWarmBg: "#1e3f2a", // warm-200: dark forest background
         badgeWarmHover: "#2d5a3e", // warm-300: slightly lighter on hover
         badgeWarmText: "#bae4c5", // warm-700: soft sage text
-        chipSelectedBg: "#2d5a3e", // warm-300: slightly lighter forest bg
-        chipSelectedText: "#9ad0a8", // warm-600: visible text
+        // Chip selected must be VISIBLY DIFFERENT from badge - more prominent
+        chipSelectedBg: "#3d7050", // Clearly lighter forest bg
+        chipSelectedText: "#dcf5e3", // Brighter sage text
+        chipSelectedRing: "#5a9070", // Visible ring
 
         // Reading mode - forest-tinted for natural grove feel
         surfaceReading: "#0f1410", // forest night (surfacePure)
