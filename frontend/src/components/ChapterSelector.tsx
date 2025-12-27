@@ -93,8 +93,8 @@ export function ChapterSelector({
                   focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)]
                   ${
                     isCurrentChapter
-                      ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)]"
-                      : "text-[var(--badge-warm-text)] hover:bg-[var(--interactive-ghost-hover-bg)] active:bg-[var(--surface-warm)]"
+                      ? "bg-[var(--chip-selected-bg)] text-[var(--chip-selected-text)] ring-1 ring-[var(--chip-selected-ring)]"
+                      : "text-[var(--text-secondary)] hover:bg-[var(--badge-warm-bg)] hover:text-[var(--badge-warm-text)] active:bg-[var(--badge-warm-hover)]"
                   }
                 `}
                 aria-current={isCurrentChapter ? "true" : undefined}

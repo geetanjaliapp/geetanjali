@@ -1129,8 +1129,8 @@ export default function Verses() {
                             }}
                             className={`h-10 sm:h-11 rounded-[var(--radius-button)] text-xs sm:text-sm font-medium transition-[var(--transition-all)] ${
                               selectedChapter === chapter
-                                ? "bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] shadow-[var(--shadow-card)]"
-                                : "bg-[var(--surface-muted)] text-[var(--text-primary)] hover:bg-[var(--badge-primary-bg)] hover:text-[var(--interactive-ghost-text)] border border-[var(--border-default)]"
+                                ? "bg-[var(--chip-selected-bg)] text-[var(--chip-selected-text)] ring-1 ring-[var(--chip-selected-ring)]"
+                                : "text-[var(--text-secondary)] hover:bg-[var(--badge-warm-bg)] hover:text-[var(--badge-warm-text)] active:bg-[var(--badge-warm-hover)]"
                             }`}
                           >
                             {chapter}
