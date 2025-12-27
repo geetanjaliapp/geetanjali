@@ -259,6 +259,24 @@ function contrastColorsToCss(contrast: ContrastColors): string[] {
     properties.push(`--chip-selected-text: ${contrast.chipSelectedText};`);
   }
 
+  // Reading mode surface overrides - for theme-harmonious reading
+  if (contrast.surfaceReading) {
+    properties.push(`--surface-reading: ${contrast.surfaceReading};`);
+  }
+  if (contrast.surfaceReadingHeader) {
+    properties.push(`--surface-reading-header: color-mix(in srgb, ${contrast.surfaceReadingHeader} 95%, transparent);`);
+    properties.push(`--surface-reading-header-solid: ${contrast.surfaceReadingHeader};`);
+  }
+  if (contrast.textReadingPrimary) {
+    properties.push(`--text-reading-primary: ${contrast.textReadingPrimary};`);
+  }
+  if (contrast.textReadingSecondary) {
+    properties.push(`--text-reading-secondary: ${contrast.textReadingSecondary};`);
+  }
+  if (contrast.textReadingMuted) {
+    properties.push(`--text-reading-muted: ${contrast.textReadingMuted};`);
+  }
+
   return properties;
 }
 

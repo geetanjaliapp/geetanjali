@@ -210,6 +210,13 @@ export const sutraTheme: ThemeConfig = {
         badgeWarmText: "#d4d4d4", // warm-700: light text
         chipSelectedBg: "#363636", // warm-300: slightly lighter dark bg
         chipSelectedText: "#a3a3a3", // warm-600: visible text
+
+        // Reading mode - pure neutral for scholarly ink-on-paper feel
+        surfaceReading: "#0a0a0a", // pure dark
+        surfaceReadingHeader: "#0a0a0a", // matches page
+        textReadingPrimary: "#e5e5e5", // neutral-200
+        textReadingSecondary: "#d4d4d4", // neutral-300
+        textReadingMuted: "#737373", // neutral-500
       },
     },
   },
@@ -388,6 +395,13 @@ export const serenityTheme: ThemeConfig = {
         badgeWarmText: "#e0cce8", // warm-700: soft lavender text
         chipSelectedBg: "#5c4a6e", // warm-300: slightly lighter purple bg
         chipSelectedText: "#c8b0d8", // warm-600: visible text
+
+        // Reading mode - purple-tinted for twilight meditation feel
+        surfaceReading: "#1c1917", // stone-900 with warm undertone
+        surfaceReadingHeader: "#1c1917", // matches page
+        textReadingPrimary: "#e7e5e4", // stone-200
+        textReadingSecondary: "#d6d3d1", // stone-300
+        textReadingMuted: "#78716c", // stone-500
       },
     },
   },
@@ -566,6 +580,13 @@ export const forestTheme: ThemeConfig = {
         badgeWarmText: "#bae4c5", // warm-700: soft sage text
         chipSelectedBg: "#2d5a3e", // warm-300: slightly lighter forest bg
         chipSelectedText: "#9ad0a8", // warm-600: visible text
+
+        // Reading mode - forest-tinted for natural grove feel
+        surfaceReading: "#0f1410", // forest night (surfacePure)
+        surfaceReadingHeader: "#0f1410", // matches page
+        textReadingPrimary: "#e5e7eb", // gray-200: cool primary text
+        textReadingSecondary: "#d1d5db", // gray-300: visible secondary
+        textReadingMuted: "#6b7280", // gray-500: muted
       },
     },
   },

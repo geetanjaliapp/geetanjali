@@ -161,6 +161,18 @@ export interface ContrastColors {
   chipSelectedBg?: string;
   /** Override selected chip text color */
   chipSelectedText?: string;
+
+  /* Reading mode surface overrides - for theme-harmonious reading experience */
+  /** Override reading mode base surface */
+  surfaceReading?: string;
+  /** Override reading mode header/nav background */
+  surfaceReadingHeader?: string;
+  /** Override reading mode primary text */
+  textReadingPrimary?: string;
+  /** Override reading mode secondary text */
+  textReadingSecondary?: string;
+  /** Override reading mode muted text */
+  textReadingMuted?: string;
 }
 
 /**
