@@ -157,7 +157,7 @@ export function IntroCard(props: IntroCardProps) {
             )}
 
             {/* Intro text */}
-            <div className="bg-[var(--surface-elevated)]/70 rounded-[var(--radius-card)] p-3 border border-[var(--border-warm-subtle)]">
+            <div className="bg-[var(--surface-elevated-translucent-subtle)] rounded-[var(--radius-card)] p-3 border border-[var(--border-warm-subtle)]">
               <p className="text-sm sm:text-base text-[var(--text-primary)] leading-relaxed">
                 {book.intro_text}
               </p>
@@ -259,7 +259,7 @@ export function IntroCard(props: IntroCardProps) {
           )}
 
           {/* Summary */}
-          <div className="bg-[var(--surface-elevated)]/70 rounded-[var(--radius-card)] p-3 border border-[var(--border-warm-subtle)]">
+          <div className="bg-[var(--surface-elevated-translucent-subtle)] rounded-[var(--radius-card)] p-3 border border-[var(--border-warm-subtle)]">
             <p className="text-sm sm:text-base text-[var(--text-primary)] leading-relaxed">
               {chapter.summary}
             </p>

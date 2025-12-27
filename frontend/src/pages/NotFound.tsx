@@ -86,7 +86,7 @@ export default function NotFound() {
           {/* Verse Card - Clickable */}
           <Link
             to={`/verses/${verse.canonical_id}`}
-            className="bg-[var(--surface-elevated)]/70 backdrop-blur-xs rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] p-4 sm:p-6 lg:p-8 border border-[var(--border-warm-subtle)] mb-4 sm:mb-6 lg:mb-8 hover:bg-[var(--surface-elevated)]/90 hover:border-[var(--border-warm)] transition-[var(--transition-all)] shadow-[var(--shadow-dropdown)] hover:shadow-[var(--shadow-modal)] block cursor-pointer"
+            className="bg-[var(--surface-elevated-translucent-subtle)] backdrop-blur-xs rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] p-4 sm:p-6 lg:p-8 border border-[var(--border-warm-subtle)] mb-4 sm:mb-6 lg:mb-8 hover:bg-[var(--surface-elevated-hover)] hover:border-[var(--border-warm)] transition-[var(--transition-all)] shadow-[var(--shadow-dropdown)] hover:shadow-[var(--shadow-modal)] block cursor-pointer"
           >
             {/* Om Symbol */}
             <div className="text-3xl sm:text-4xl text-[var(--decorative-om)] mb-3 sm:mb-4 font-light">

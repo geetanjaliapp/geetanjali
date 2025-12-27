@@ -596,6 +596,8 @@ export function LogoIcon({
   const petalInner = themed ? "var(--logo-petal-inner, #FFEDD5)" : "#FFEDD5";
   const sunGlow = themed ? "var(--logo-sun-glow, #FCD34D)" : "#FCD34D";
   const sunCore = themed ? "var(--logo-sun-core, #991B1B)" : "#991B1B";
+  const sunHighlight = themed ? "var(--logo-sun-highlight, #FEF3C7)" : "#FEF3C7";
+  const sunEdge = themed ? "var(--logo-sun-edge, #DC2626)" : "#DC2626";
 
   // Generate unique IDs to avoid conflicts when multiple logos on page
   const gradientId = `logoGrad-${Math.random().toString(36).slice(2, 9)}`;
@@ -617,9 +619,9 @@ export function LogoIcon({
           <stop offset="100%" stopColor={bgEnd} stopOpacity={1} />
         </linearGradient>
         <radialGradient id={sunGradId} cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#FEF3C7" stopOpacity={1} />
+          <stop offset="0%" stopColor={sunHighlight} stopOpacity={1} />
           <stop offset="40%" stopColor={sunGlow} stopOpacity={1} />
-          <stop offset="100%" stopColor="#DC2626" stopOpacity={1} />
+          <stop offset="100%" stopColor={sunEdge} stopOpacity={1} />
         </radialGradient>
       </defs>
 
@@ -674,7 +676,7 @@ export function LogoIcon({
         <circle cx="0" cy="0" r="25" fill={sunCore} />
 
         {/* Highlight */}
-        <circle cx="-8" cy="-8" r="6" fill="#FEF3C7" opacity={0.8} />
+        <circle cx="-8" cy="-8" r="6" fill={sunHighlight} opacity={0.8} />
       </g>
     </svg>
   );

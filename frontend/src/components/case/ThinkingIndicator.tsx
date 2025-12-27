@@ -168,7 +168,7 @@ export function ThinkingIndicator({
             )}
 
             {/* Rotating quote - fixed height prevents layout shift */}
-            <div className="bg-[var(--surface-elevated)]/70 rounded-[var(--radius-button)] p-3 sm:p-4 transition-[var(--transition-opacity)] min-h-[72px] sm:min-h-[80px] flex flex-col justify-center">
+            <div className="bg-[var(--surface-elevated-translucent-subtle)] rounded-[var(--radius-button)] p-3 sm:p-4 transition-[var(--transition-opacity)] min-h-[72px] sm:min-h-[80px] flex flex-col justify-center">
               <blockquote className="text-sm text-[var(--text-secondary)] italic">
                 "{currentQuote.text}"
               </blockquote>

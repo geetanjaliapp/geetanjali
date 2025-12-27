@@ -256,7 +256,7 @@ export default function VerseDetail() {
               </div>
 
               {/* Leadership Insight Skeleton */}
-              <div className="bg-[var(--surface-elevated)]/70 backdrop-blur-xs rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] p-4 sm:p-6 lg:p-8 border border-[var(--border-warm-subtle)] mb-4 sm:mb-6 lg:mb-8">
+              <div className="bg-[var(--surface-elevated-translucent-subtle)] backdrop-blur-xs rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] p-4 sm:p-6 lg:p-8 border border-[var(--border-warm-subtle)] mb-4 sm:mb-6 lg:mb-8">
                 <div className="h-3 bg-[var(--skeleton-bg)] rounded-[var(--radius-skeleton)] w-32 mb-4 animate-pulse" />
                 <div className="space-y-2">
                   <div className="h-5 bg-[var(--skeleton-bg)] rounded-[var(--radius-skeleton)] animate-pulse" />
@@ -482,7 +482,7 @@ export default function VerseDetail() {
 
             {/* Leadership Insight - Collapsible */}
             {verse.paraphrase_en && (
-              <div className="bg-[var(--surface-elevated)]/70 backdrop-blur-xs rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] p-4 sm:p-6 lg:p-8 border border-[var(--border-warm-subtle)] mb-4 sm:mb-6 lg:mb-8">
+              <div className="bg-[var(--surface-elevated-translucent-subtle)] backdrop-blur-xs rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] p-4 sm:p-6 lg:p-8 border border-[var(--border-warm-subtle)] mb-4 sm:mb-6 lg:mb-8">
                 <button
                   onClick={() => toggleSection("insight")}
                   className="w-full flex items-center justify-between text-left group"

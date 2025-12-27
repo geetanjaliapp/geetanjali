@@ -268,7 +268,7 @@ export const SearchInput = forwardRef<SearchInputHandle, SearchInputProps>(
               }
               onKeyDown={handleKeyDown}
               placeholder={placeholder}
-              className="w-full pl-10 pr-10 py-3 sm:py-3.5 border border-[var(--border-warm)] rounded-l-[var(--radius-chip)] bg-[var(--surface-elevated)]/80 backdrop-blur-xs focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-[var(--focus-ring)] focus:z-10 text-[var(--input-text)] placeholder:text-[var(--input-text-placeholder)] shadow-[var(--shadow-button)] transition-[var(--transition-all)]"
+              className="w-full pl-10 pr-10 py-3 sm:py-3.5 border border-[var(--border-warm)] rounded-l-[var(--radius-chip)] bg-[var(--surface-elevated-translucent)] backdrop-blur-xs focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-[var(--focus-ring)] focus:z-10 text-[var(--input-text)] placeholder:text-[var(--input-text-placeholder)] shadow-[var(--shadow-button)] transition-[var(--transition-all)]"
               aria-label="Search query"
               aria-expanded={showRecentDropdown || showExamplesDropdown}
               aria-haspopup="listbox"
@@ -299,7 +299,7 @@ export const SearchInput = forwardRef<SearchInputHandle, SearchInputProps>(
             {/* Recent Searches Dropdown */}
             {showRecentDropdown && (
               <div className="absolute top-full left-0 right-0 mt-2 bg-[var(--surface-elevated)] border border-[var(--border-default)] rounded-[var(--radius-card)] shadow-[var(--shadow-dropdown)] z-20 overflow-hidden">
-                <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--border-subtle)] bg-[var(--surface-muted)]/50">
+                <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--border-subtle)] bg-[var(--surface-muted-translucent)]">
                   <span className="text-xs font-medium text-[var(--text-tertiary)]">
                     Recent
                   </span>
@@ -336,7 +336,7 @@ export const SearchInput = forwardRef<SearchInputHandle, SearchInputProps>(
                     </li>
                   ))}
                 </ul>
-                <div className="px-4 py-1.5 border-t border-[var(--border-subtle)] bg-[var(--surface-muted)]/30">
+                <div className="px-4 py-1.5 border-t border-[var(--border-subtle)] bg-[var(--surface-muted-translucent-subtle)]">
                   <span className="text-[10px] text-[var(--text-muted)]">
                     ↑↓ to navigate · Enter to select
                   </span>
@@ -347,7 +347,7 @@ export const SearchInput = forwardRef<SearchInputHandle, SearchInputProps>(
             {/* Search Examples Dropdown (when no recent searches) */}
             {showExamplesDropdown && (
               <div className="absolute top-full left-0 right-0 mt-2 bg-[var(--surface-elevated)] border border-[var(--border-default)] rounded-[var(--radius-card)] shadow-[var(--shadow-dropdown)] z-20 overflow-hidden">
-                <div className="px-4 py-2 border-b border-[var(--border-subtle)] bg-[var(--surface-muted)]/50">
+                <div className="px-4 py-2 border-b border-[var(--border-subtle)] bg-[var(--surface-muted-translucent)]">
                   <span className="text-xs font-medium text-[var(--text-tertiary)]">
                     Try searching for
                   </span>
@@ -377,7 +377,7 @@ export const SearchInput = forwardRef<SearchInputHandle, SearchInputProps>(
                     </li>
                   ))}
                 </ul>
-                <div className="px-4 py-1.5 border-t border-[var(--border-subtle)] bg-[var(--surface-muted)]/30">
+                <div className="px-4 py-1.5 border-t border-[var(--border-subtle)] bg-[var(--surface-muted-translucent-subtle)]">
                   <span className="text-[10px] text-[var(--text-muted)]">
                     ↑↓ to navigate · Enter to select
                   </span>

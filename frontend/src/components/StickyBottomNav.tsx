@@ -46,7 +46,7 @@ export function StickyBottomNav({
 
   return (
     <nav
-      className="sm:hidden fixed bottom-0 left-0 right-0 bg-[var(--surface-elevated)]/95 backdrop-blur-xs
+      className="sm:hidden fixed bottom-0 left-0 right-0 bg-[var(--surface-elevated-sticky)] backdrop-blur-xs
                  border-t border-[var(--border-warm)] shadow-[var(--shadow-dropdown)] z-40"
       aria-label="Verse navigation"
     >

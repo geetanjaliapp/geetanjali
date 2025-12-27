@@ -71,7 +71,7 @@ export function ChapterSelector({
       {/* Compact popover - positioned above bottom nav */}
       <div
         className="fixed bottom-16 left-1/2 -translate-x-1/2 z-50
-                   bg-[var(--surface-warm)]/95 backdrop-blur-xs border border-[var(--border-warm)]
+                   bg-[var(--surface-sticky-translucent)] backdrop-blur-xs border border-[var(--border-warm)]
                    rounded-[var(--radius-card)] shadow-[var(--shadow-dropdown)] p-3 w-[328px] sm:w-[360px]"
         role="dialog"
         aria-modal="true"

@@ -81,7 +81,7 @@ export function Navbar({
 
   return (
     <>
-      <nav className="bg-[var(--surface-warm)]/90 backdrop-blur-xs shadow-[var(--shadow-navbar)] border-b border-[var(--border-warm)] h-14 sm:h-16 shrink-0 sticky top-0 z-40">
+      <nav className="bg-[var(--surface-warm-translucent)] backdrop-blur-xs shadow-[var(--shadow-navbar)] border-b border-[var(--border-warm)] h-14 sm:h-16 shrink-0 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
           <div className="flex justify-between items-center h-full">
             {/* Left side: Hamburger + Logo */}
