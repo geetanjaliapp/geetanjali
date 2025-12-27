@@ -3,6 +3,8 @@
  * All icons accept className for sizing and color customization.
  */
 
+import { useId } from "react";
+
 interface IconProps {
   className?: string;
 }
@@ -600,8 +602,9 @@ export function LogoIcon({
   const sunEdge = themed ? "var(--logo-sun-edge, #DC2626)" : "#DC2626";
 
   // Generate unique IDs to avoid conflicts when multiple logos on page
-  const gradientId = `logoGrad-${Math.random().toString(36).slice(2, 9)}`;
-  const sunGradId = `logoSunGrad-${Math.random().toString(36).slice(2, 9)}`;
+  const id = useId();
+  const gradientId = `logoGrad${id}`;
+  const sunGradId = `logoSunGrad${id}`;
 
   return (
     <svg

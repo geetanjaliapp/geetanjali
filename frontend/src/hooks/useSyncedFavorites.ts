@@ -118,7 +118,6 @@ export function useSyncedFavorites(): UseSyncedFavoritesReturn {
     // Throttle to prevent 429 on rapid remounts (e.g., React StrictMode)
     const now = Date.now();
     if (now - lastMergeTimestamp < MERGE_THROTTLE_MS) {
-      console.debug("[SyncedFavorites] Merge throttled");
       return;
     }
     if (isSyncingRef.current) return;
@@ -141,10 +140,6 @@ export function useSyncedFavorites(): UseSyncedFavoritesReturn {
       setSyncStatus("synced");
       setLastSynced(new Date());
       setDidInitialSync(true);
-
-      console.debug(
-        `[SyncedFavorites] Merged: ${localItems.length} local + server = ${merged.favorites.items.length} total`,
-      );
     } catch (error) {
       console.error("[SyncedFavorites] Merge failed:", error);
       setSyncStatus("error");
@@ -175,7 +170,6 @@ export function useSyncedFavorites(): UseSyncedFavoritesReturn {
       // Throttle check (module-level, prevents rapid syncs)
       const now = Date.now();
       if (now - lastSyncTimestamp < SYNC_THROTTLE_MS) {
-        console.debug("[SyncedFavorites] Sync throttled");
         return;
       }
       lastSyncTimestamp = now;
@@ -210,13 +204,11 @@ export function useSyncedFavorites(): UseSyncedFavoritesReturn {
 
     // Detect login (was null, now has user ID)
     if (wasLoggedOut && isNowLoggedIn) {
-      console.debug("[SyncedFavorites] Login detected, merging with server");
       mergeWithServer();
     }
 
     // Detect logout (had user ID, now null)
     if (previousUserIdRef.current !== null && currentUserId === null) {
-      console.debug("[SyncedFavorites] Logout detected, resetting sync status");
       setSyncStatus("idle");
       setLastSynced(null);
       setDidInitialSync(false);

@@ -35,11 +35,12 @@ vi.mock("react-router-dom", async () => {
   };
 });
 
+// ThemeProvider requires AuthProvider context for backend sync
 const wrapper = ({ children }: { children: ReactNode }) => (
   <BrowserRouter>
-    <ThemeProvider>
-      <AuthProvider>{children}</AuthProvider>
-    </ThemeProvider>
+    <AuthProvider>
+      <ThemeProvider>{children}</ThemeProvider>
+    </AuthProvider>
   </BrowserRouter>
 );
 

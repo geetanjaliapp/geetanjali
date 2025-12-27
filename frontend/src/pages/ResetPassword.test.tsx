@@ -38,16 +38,17 @@ vi.mock("react-router-dom", async () => {
   };
 });
 
+// ThemeProvider requires AuthProvider context for backend sync
 const renderWithToken = (token: string) => {
   const Wrapper = ({ children }: { children: ReactNode }) => (
     <MemoryRouter initialEntries={[`/reset-password?token=${token}`]}>
-      <ThemeProvider>
-        <AuthProvider>
+      <AuthProvider>
+        <ThemeProvider>
           <Routes>
             <Route path="/reset-password" element={children} />
           </Routes>
-        </AuthProvider>
-      </ThemeProvider>
+        </ThemeProvider>
+      </AuthProvider>
     </MemoryRouter>
   );
   return render(<ResetPassword />, { wrapper: Wrapper });
@@ -56,13 +57,13 @@ const renderWithToken = (token: string) => {
 const renderWithoutToken = () => {
   const Wrapper = ({ children }: { children: ReactNode }) => (
     <MemoryRouter initialEntries={["/reset-password"]}>
-      <ThemeProvider>
-        <AuthProvider>
+      <AuthProvider>
+        <ThemeProvider>
           <Routes>
             <Route path="/reset-password" element={children} />
           </Routes>
-        </AuthProvider>
-      </ThemeProvider>
+        </ThemeProvider>
+      </AuthProvider>
     </MemoryRouter>
   );
   return render(<ResetPassword />, { wrapper: Wrapper });

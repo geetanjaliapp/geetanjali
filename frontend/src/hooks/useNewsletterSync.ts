@@ -50,11 +50,8 @@ async function syncNewsletterStatus(): Promise<void> {
     } else {
       clearNewsletterSubscribed();
     }
-
-    console.debug(`[NewsletterSync] Status synced: subscribed=${subscribed}`);
-  } catch (error) {
+  } catch {
     // Silently fail - newsletter status is not critical
     // User can still see accurate status from localStorage (may be stale)
-    console.debug("[NewsletterSync] Failed to sync status:", error);
   }
 }

@@ -160,4 +160,5 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = "Button";
 
 // Export variants for external composition
+// eslint-disable-next-line react-refresh/only-export-components
 export { buttonVariants };

@@ -20,7 +20,7 @@
  * - This is handled gracefully by lazyWithRetry's reload mechanism
  */
 
-import { INFRA_KEYS } from "./storage";
+import { INFRA_KEYS, setStorageItemRaw } from "./storage";
 import { CHUNK_RELOAD_KEY } from "./lazyWithRetry";
 
 const VERSION_STORAGE_KEY = INFRA_KEYS.appVersion;
@@ -46,11 +46,7 @@ function getStoredVersion(): string | null {
  * Store version in localStorage
  */
 function storeVersion(version: string): void {
-  try {
-    localStorage.setItem(VERSION_STORAGE_KEY, version);
-  } catch {
-    // localStorage might be unavailable
-  }
+  setStorageItemRaw(VERSION_STORAGE_KEY, version);
 }
 
 /**

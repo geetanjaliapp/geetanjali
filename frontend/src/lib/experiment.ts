@@ -6,6 +6,7 @@
  */
 
 import { api } from "./api";
+import { setStorageItemRaw } from "./storage";
 
 const EXPERIMENT_PREFIX = "exp_";
 
@@ -31,7 +32,7 @@ export function getVariant(experiment: ExperimentConfig): Variant {
 
   // Assign new variant
   const variant = assignVariant(experiment);
-  localStorage.setItem(storageKey, variant);
+  setStorageItemRaw(storageKey, variant);
 
   // Track assignment (fire and forget)
   trackEvent(experiment.name, "assigned", { variant });

@@ -124,6 +124,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
 Card.displayName = "Card";
 
 // Export variants for external composition
+// eslint-disable-next-line react-refresh/only-export-components
 export { cardVariants };
 
 /**

@@ -8,7 +8,7 @@
 
 import { useState } from "react";
 import { SpinnerIcon, CloseIcon } from "./icons";
-import { STORAGE_KEYS } from "../lib/storage";
+import { STORAGE_KEYS, setStorageItemRaw } from "../lib/storage";
 import { useResendVerification } from "../hooks";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -49,11 +49,7 @@ export function VerifyEmailBanner() {
 
   const handleDismiss = () => {
     setIsDismissed(true);
-    try {
-      localStorage.setItem(STORAGE_KEYS.verifyBannerDismissed, Date.now().toString());
-    } catch {
-      // Ignore storage errors - dismissal still works for this session
-    }
+    setStorageItemRaw(STORAGE_KEYS.verifyBannerDismissed, Date.now().toString());
   };
 
   const handleResend = () => {

@@ -132,4 +132,5 @@ export const Link = forwardRef<HTMLAnchorElement, LinkProps>(
 Link.displayName = "Link";
 
 // Export variants for external composition
+// eslint-disable-next-line react-refresh/only-export-components
 export { linkVariants };

@@ -79,4 +79,5 @@ export const Skeleton = forwardRef<HTMLDivElement, SkeletonProps>(
 Skeleton.displayName = "Skeleton";
 
 // Export variants for external composition
+// eslint-disable-next-line react-refresh/only-export-components
 export { skeletonVariants };
