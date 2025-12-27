@@ -146,22 +146,6 @@ function applyThemeFonts(themeId: string) {
   `;
 }
 
-/**
- * Apply user font preference
- *
- * Note: This was previously used to override theme fonts, but now
- * each theme has its own distinct typography. The user font preference
- * (serif/sans/mixed) has been retired in favor of theme-driven fonts.
- *
- * Keeping this function for backwards compatibility - it now does nothing
- * as font preferences are handled entirely by applyThemeFonts.
- */
-function applyFontFamily(_family: FontFamily) {
-  // Font preferences are now handled by theme-specific fonts
-  // This function is kept for backwards compatibility
-  // Theme fonts are applied via applyThemeFonts() when theme changes
-}
-
 interface ThemeProviderProps {
   children: ReactNode;
 }
@@ -232,11 +216,10 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     [setCustomTheme],
   );
 
-  // Set font family and persist
+  // Set font family and persist (fonts are applied via theme-specific applyThemeFonts)
   const setFontFamily = useCallback((family: FontFamily) => {
     setFontFamilyState(family);
     localStorage.setItem(STORAGE_KEYS.fontFamily, family);
-    applyFontFamily(family);
   }, []);
 
   // Listen for system preference changes
@@ -272,11 +255,6 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     const themeId = customTheme?.id ?? "default";
     applyThemeFonts(themeId);
   }, [customTheme]);
-
-  // Apply font family on mount
-  useEffect(() => {
-    applyFontFamily(fontFamily);
-  }, [fontFamily]);
 
   // Memoize context value to prevent unnecessary re-renders of consumers
   const value = useMemo(
