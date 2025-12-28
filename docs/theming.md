@@ -6,7 +6,9 @@ description: CSS token architecture and theme customization in Geetanjali.
 
 # Theming
 
-Geetanjali uses a three-tier CSS custom property (token) architecture for complete theme customization. This enables multiple color themes, dark mode support, and consistent styling across the application.
+This document covers the technical implementation of Geetanjali's theming system. For design principles and component patterns, see [Design Language](./design.md).
+
+Geetanjali uses a four-layer token architecture: three CSS custom property layers plus TypeScript theme configs. This enables 4 built-in themes, automatic dark mode support, and consistent styling across the application.
 
 ## Token Architecture
 
@@ -15,7 +17,9 @@ primitives.css  →  Raw values (colors, spacing scale, font sizes)
         ↓
 semantic.css    →  Meaningful names (--text-primary, --radius-card)
         ↓
-derived.css     →  Theme overrides (.dark, [data-theme="serenity"])
+derived.css     →  State tokens (hover, focus, disabled) + .dark overrides
+        ↓
+themes.ts       →  Theme configs (injected as CSS at runtime)
 ```
 
 ### Layer 1: Primitives
@@ -59,19 +63,34 @@ Meaningful names that map to primitives. Used throughout components.
 --transition-color: color var(--duration-150) var(--ease-in-out);
 ```
 
-### Layer 3: Theme Overrides
+### Layer 3: Derived Tokens
 
-Theme-specific overrides that remap semantic tokens.
+State-specific tokens for interactive elements and dark mode base overrides.
 
 ```css
+/* derived.css - State tokens */
+--interactive-primary-hover: var(--color-primary-700);
+--interactive-primary-active: var(--color-primary-800);
+--interactive-primary-disabled-bg: var(--color-neutral-200);
+
+/* Dark mode overrides */
 .dark {
   --text-primary: var(--color-neutral-100);
   --surface-warm: var(--color-neutral-800);
 }
+```
 
-[data-theme="serenity"] {
-  --interactive-primary: var(--color-rose-600);
-  --surface-warm: var(--color-stone-50);
+### Layer 4: Theme Configs
+
+Built-in themes are defined in TypeScript and injected as CSS at runtime. This allows themes to override any primitive or semantic token.
+
+```typescript
+// themes.ts - Theme overrides semantic tokens
+{
+  colors: {
+    primary: { 600: "#7c3aed" },  // Serenity uses violet
+    warm: { 50: "#faf5ff" },
+  }
 }
 ```
 
@@ -96,27 +115,23 @@ Theme-specific overrides that remap semantic tokens.
 
 ## Using Tokens in Components
 
-### Tailwind Arbitrary Value Syntax
+Tokens are accessed via Tailwind's arbitrary value syntax. For component patterns and copy-pasteable examples, see [Design Language Quick Reference](./design.md#quick-reference).
+
+### Syntax
 
 ```tsx
-// Colors - always use semantic tokens
-className="text-[var(--text-primary)] bg-[var(--surface-warm)]"
+// Semantic tokens (colors, radius, shadows)
+className="bg-[var(--surface-warm)] rounded-[var(--radius-card)]"
 
-// Border radius - use semantic tokens
-className="rounded-[var(--radius-card)]"
-
-// Shadows - use semantic tokens
-className="shadow-[var(--shadow-card)]"
-
-// Transitions - use semantic tokens
-className="transition-[var(--transition-color)]"
-
-// Typography - use Tailwind (responsive)
-className="text-sm sm:text-base lg:text-lg"
-
-// Spacing - use Tailwind (responsive)
-className="gap-2 sm:gap-4"
+// Tailwind utilities (typography, spacing) - responsive
+className="text-sm sm:text-base gap-2 sm:gap-4"
 ```
+
+### Key Rules
+
+1. **Use semantic tokens** (`--surface-*`, `--text-*`) not primitives (`--color-amber-50`)
+2. **No `dark:` prefixes** for colors — the token system handles dark mode
+3. **Typography and spacing** use Tailwind responsive syntax, not tokens
 
 ### Component Token Naming
 
@@ -192,14 +207,18 @@ Logo CSS variables (can be overridden per theme):
 | **Serenity** | `serenity` | Twilight violet, contemplative calm | Mixed |
 | **Forest** | `forest` | Sacred grove, morning dew freshness | Sans |
 
-Each theme provides light and dark mode variants with theme-specific contrast overrides for proper dark mode personality (e.g., Geetanjali dark uses amber-tinted neutrals, not pure grays).
+Each theme provides light and dark mode variants with theme-specific contrast overrides for proper dark mode personality.
 
-### Dark Mode Design
+### Dark Mode Implementation
 
-Dark mode follows a "quiet library" aesthetic:
-- **Soft text**: `neutral-200` for primary text, not harsh white
-- **Themed backgrounds**: Each theme tints its dark surfaces (amber for Geetanjali, purple for Serenity)
-- **Color-mix**: `color-mix(in srgb, ...)` blends theme warmth into neutral surfaces
+Dark mode is activated by adding `.dark` class to `<html>`. The token system automatically resolves to dark values—no `dark:` prefixes needed in components.
+
+**Technical approach**:
+- Base dark overrides live in `semantic.css` (`.dark {}` selector)
+- Theme-specific dark adjustments use `modeColors.dark.contrast` in themes.ts
+- `color-mix(in srgb, ...)` blends theme warmth into neutral surfaces
+
+For dark mode design principles, see [Design Language: Theme Parity](./design.md#the-four-pillars).
 
 ## Adding a New Theme
 
