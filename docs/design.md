@@ -1,537 +1,505 @@
 ---
 layout: default
-title: Design
-description: Frontend design language and UX patterns in Geetanjali.
+title: Design Language
+description: Design principles, visual language, and component patterns for Geetanjali.
 ---
 
-# Design
+# Geetanjali Design Language
 
-The UI should feel like a quiet library, not a busy app. Warm colors, readable type, and enough space to breathe. The scripture is the star — the interface just helps you find and absorb it.
+This document defines the design principles and patterns that guide Geetanjali's user experience. It answers "what should I build and why?" For token architecture and theme implementation details, see [Theming](./theming.md).
 
-This doc covers the visual language and patterns we use across Geetanjali.
+---
+
+## Quick Reference
+
+### When to Use Which Button
+
+| Intent | Style | Token | Example |
+|--------|-------|-------|---------|
+| Major action, navigation | Primary (orange) | `--interactive-primary` | "Get Started", "Submit" |
+| In-content action | Contextual (amber) | `--interactive-contextual` | "Begin Reading", "Apply Filter" |
+| Secondary option | Outline | `--interactive-secondary-*` | "Cancel", "Back" |
+| Subtle action | Ghost | `--interactive-ghost-*` | "Learn more", "Skip" |
+
+### Surface Hierarchy
+
+| Layer | Token | Use |
+|-------|-------|-----|
+| Page base | `--surface-page` | Main background |
+| Cards | `--surface-card` | Elevated content containers |
+| Modals/dropdowns | `--surface-elevated` | Overlays |
+| Warm accent | `--surface-warm` | Highlighted sections |
+
+### Component Patterns
+
+```tsx
+// Card
+className="bg-[var(--surface-card)] border border-[var(--border-default)]
+           rounded-[var(--radius-card)] shadow-[var(--shadow-card)]"
+
+// Primary Button
+className="bg-[var(--interactive-primary)] text-[var(--text-on-primary)]
+           hover:bg-[var(--interactive-primary-hover)]
+           rounded-[var(--radius-button)]"
+
+// Focus Ring (add to all interactive elements)
+className="focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]
+           focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
+```
+
+### Key Constraints
+
+| Rule | Reason |
+|------|--------|
+| Never hardcode colors | Breaks theming; use semantic tokens |
+| Never use `dark:` prefixes for colors | Token system handles dark mode automatically |
+| Never use `gray-*` in reading components | Use `stone-*` for warmth |
+| Never use orange for in-content actions | Reserve orange for primary CTAs; use amber |
+| Always test in 8 combinations | 4 themes × 2 modes |
+
+---
 
 ## Philosophy
 
-Four principles guide the design:
+### The Quiet Library
 
-1. **Mobile-first** — Design for phones, scale up to desktop
-2. **Content-forward** — Scripture is the hero, UI is the frame
-3. **Warm accessibility** — Inviting colors, readable text, clear interactions
-4. **Theme parity** — Light and dark modes are equal citizens, not afterthoughts
+Geetanjali should feel like a quiet library at dusk—warm lamplight on aged paper, the hush of contemplation. The scripture is the reader; we are merely the reading lamp.
 
-## Visual Identity
+This metaphor guides every decision:
 
-### Color System
+- **Warmth over sterility**: Amber undertones, not clinical whites
+- **Stillness over stimulation**: Minimal motion, no notification anxiety
+- **Clarity over cleverness**: Obvious interactions, no hidden gestures
+- **Reverence over decoration**: Ornamentation serves the text, never competes
 
-#### Light Mode (Default)
+### The Four Pillars
 
-```
-SURFACES                           INTERACTIVE
-├── Base:     white, gray-50       ├── Primary:  orange-600
-├── Warm:     amber-50             ├── Hover:    orange-700
-└── Elevated: amber-100            └── Active:   orange-800
+1. **Mobile-First**
+   Not "responsive" but "mobile-native." Most readers encounter sacred texts on personal devices during quiet moments. Desktop enhances; mobile defines.
 
-TEXT                               BORDERS
-├── Primary:   gray-900            ├── Default:  amber-200
-├── Secondary: gray-600            ├── Subtle:   amber-100
-├── Muted:     gray-400            └── Focus:    orange-500
-└── Sanskrit:  amber-900
-```
+2. **Content-Forward**
+   Every pixel of UI chrome must justify its existence. The Sanskrit verse is always the visual hero. Controls fade until needed.
 
-#### Dark Mode
+3. **Warm Accessibility**
+   Accessibility isn't a checklist—it's hospitality. We welcome readers with visual impairments, motor difficulties, and cognitive differences with the same warmth as any guest.
 
-```
-SURFACES                           INTERACTIVE
-├── Base:     gray-900             ├── Primary:  orange-600
-├── Warm:     gray-800             ├── Hover:    orange-500
-└── Reading:  stone-900, stone-800 └── Active:   orange-400
+4. **Theme Parity**
+   Light and dark modes are equal first-class citizens. A reader in dark mode at 2 AM deserves the same contemplative warmth as someone reading at noon.
 
-TEXT                               BORDERS
-├── Primary:   gray-100            ├── Default:  gray-700
-├── Secondary: gray-300            ├── Subtle:   gray-800
-├── Tertiary:  gray-400            └── Focus:    orange-500
-├── Muted:     gray-500
-└── Sanskrit:  amber-400, amber-200
+### Content Hierarchy
 
-FOCUS STATES
-├── Ring:        orange-500
-└── Ring offset: gray-900
-```
+Visual priority, highest to lowest:
 
-**Stone in dark mode**: Reading-focused components (ReadingMode, VerseFocus, IntroCard, ChapterSelector) use `stone-800/900` instead of `gray-800/900` for a warmer feel that aligns with the "quiet library" philosophy.
+| Level | Content | Treatment |
+|-------|---------|-----------|
+| 1. Hero | Sanskrit verse | Largest, most prominent, warm accent |
+| 2. Primary | Translation, key message | Standard body, secondary color |
+| 3. Secondary | Metadata, labels | Smaller, muted, sans-serif |
+| 4. Tertiary | Navigation, controls | Smallest, appears on interaction |
 
-**Text hierarchy in dark mode**: Use `gray-100` for primary content, `gray-300` for secondary labels, `gray-400` for tertiary/helper text, and `gray-500` sparingly for truly de-emphasized content. Avoid using the same gray value for both light and dark modes — dark mode typically needs one step lighter for equivalent visual weight.
+**Principle**: If something competes with scripture for attention, it's too loud.
 
-#### Semantic Colors
+---
 
-Reserved for specific content types:
+## Visual Language
 
-| Color | Use Case | Components |
-|-------|----------|------------|
-| Purple/Pink | Reflections & contemplation | ReflectionsSection, case views |
-| Green | Steps, success, positive actions | StepsSection, confirmations |
-| Blue | Follow-ups, secondary paths | Follow-up questions, info states |
-| Red | Favorites, destructive actions | Heart icons, delete buttons |
+### Color Philosophy
 
-```
-REFLECTIONS (purple-pink gradient)
-Light                              Dark
-├── Background: purple-50/pink-50  ├── Background: purple-900/20, pink-900/20
-├── Border:     purple-100         ├── Border:     purple-800
-├── Icon:       purple-600         ├── Icon:       purple-400
-└── Text:       purple-700         └── Text:       purple-400
+Our palette centers on amber and orange—the colors of lamp flame, aged parchment, and sunrise. These colors evoke:
 
-STEPS (green)
-Light                              Dark
-├── Background: green-100          ├── Background: green-900/40
-├── Border:     green-300          ├── Border:     green-700
-├── Icon:       green-600          ├── Icon:       green-400
-└── Text:       green-700          └── Text:       green-400
+- **Continuity**: Manuscripts preserved for millennia
+- **Invitation**: Welcoming warmth, not clinical distance
+- **Focus**: Warm surfaces reduce eye strain during extended reading
 
-FOLLOW-UPS (blue)
-Light                              Dark
-├── Background: blue-50            ├── Background: blue-900/30
-├── Border:     blue-100           ├── Border:     blue-800
-├── Icon:       blue-600           ├── Icon:       blue-400
-└── Text:       blue-700           └── Text:       blue-400
+**Color roles** (not specific values—those live in tokens):
 
-FAVORITES & ERRORS (red)
-Light                              Dark
-├── Filled:     red-500            ├── Filled:     red-500
-├── Unfilled:   gray-400           ├── Unfilled:   gray-500
-├── Error bg:   red-50             ├── Error bg:   red-900/20
-└── Error text: red-600            └── Error text: red-400
-```
+| Role | Meaning | Examples |
+|------|---------|----------|
+| Primary (orange) | Action, brand, navigation | CTAs, links, highlights |
+| Warm (amber) | Comfort, content, context | Backgrounds, badges, soft actions |
+| Neutral | Structure, text, borders | Body text, dividers, shadows |
+| Purple/Pink | Reflection, contemplation | Insights section, reflections |
+| Green | Growth, progress, success | Steps completed, confirmations |
+| Blue | Information, secondary paths | Follow-ups, info callouts |
+| Red | Emotion, favorites, caution | Hearts, errors, destructive actions |
 
-Amber creates warmth. Orange signals action. Gray provides contrast.
+### Typography: Three Voices
 
-### Typography
+Typography signals the nature of content:
 
-| Usage | Font | Scale |
-|-------|------|-------|
-| Headings | Spectral (serif) | 2xl → 4xl |
-| Body | Source Sans Pro | base → lg |
-| Sanskrit | Noto Serif Devanagari | base → 3xl |
+| Voice | Font | Purpose |
+|-------|------|---------|
+| **Tradition** | Spectral (serif) | Headings, translations—the voice of lineage |
+| **Clarity** | Source Sans Pro | Body text, UI labels—the voice of accessibility |
+| **Scripture** | Noto Serif Devanagari | Sanskrit verses—the voice of the source |
 
-```
-Mobile (base)           Desktop (lg+)
-─────────────           ─────────────
-H1: text-2xl     →      text-4xl
-H2: text-xl      →      text-2xl
-Body: text-base  →      text-lg
-```
+**Scale**: Typography sizes follow Tailwind's responsive syntax (`text-sm sm:text-base lg:text-lg`) rather than tokens, enabling responsive adjustments at each breakpoint.
 
-### Spacing
+### Spacing: Breathing Room
 
-Responsive padding scales with viewport:
+Scripture needs space to breathe. Generous whitespace isn't wasted—it creates the visual silence that allows words to resonate.
 
-```
-Cards:    p-3 sm:p-4 lg:p-6
-Sections: py-6 sm:py-8 lg:py-12
-Gaps:     gap-3 sm:gap-4 lg:gap-6
-```
+**Principles**:
+- Cards have substantial padding that increases with viewport
+- Sections are separated by meaningful vertical rhythm
+- Text blocks never feel cramped
+- Dense grids expand as screens allow
 
-## Responsive Patterns
+**Pattern**: `p-3 sm:p-4 lg:p-6` for cards, `gap-3 sm:gap-4 lg:gap-6` for grids.
 
-Two primary breakpoints:
+### Motion: Stillness
 
-| Breakpoint | Width | Use Case |
-|------------|-------|----------|
-| `sm:` | 640px | Most responsive changes |
-| `lg:` | 1024px | Desktop enhancements |
+Motion should be nearly invisible—a gentle acknowledgment, not a performance.
 
-`md:` (768px) is reserved for navigation toggle only.
+- Transitions are short (150ms for interactions, 300ms for reveals)
+- No autoplaying animations
+- Shimmer effects are subtle, not distracting
+- Respect `prefers-reduced-motion` via `--motion-safe-*` tokens
 
-### Grid Layouts
-
-```
-Mobile          Tablet           Desktop
-1 column        2 columns        3-4 columns
-─────────       ─────────        ─────────
-  [card]          [card][card]     [card][card][card][card]
-  [card]          [card][card]     [card][card][card][card]
-```
-
-Implementation: `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4`
-
-### Navigation
-
-Mobile shows hamburger menu with slide-out drawer. Desktop shows inline links.
-
-```
-Mobile                    Desktop
-──────                    ───────
-[Logo] [≡]                [Logo] [Read] [Verses] [Search] [Ask →]
-```
+---
 
 ## Component Patterns
 
-### Buttons
+### Buttons: Navigational vs Action
 
-**Navigational vs Action principle:** Primary CTA colors are reserved for action buttons. Navigational elements (tabs, filters, chips) use subdued `--chip-selected-*` / `--badge-warm-*` tokens — selected states should be visible but not "loud."
+**Critical distinction**: Primary CTA colors (orange) are reserved for page-level actions that drive decisions. In-content actions use softer amber tones.
 
-Two-tier color system aligned with "quiet library" design philosophy:
-
-#### Primary CTAs (Orange-600)
-Page-level actions that drive navigation or major decisions.
-
-| Use Case | Example |
-|----------|---------|
-| Hero buttons | "Get Started", "Explore Verses" |
-| Form submissions | Login, Signup, Submit Consultation |
-| Navigation CTAs | "New Consultation", "Go Home" |
-| Primary filters | Featured/All/Chapter filter pills |
-| Search buttons | Main search submit |
+#### Primary (Orange)
+Page-level actions: "Get Started", "Submit", "Login"
 
 ```
-Light:  bg-orange-600 hover:bg-orange-700 text-white
-Dark:   dark:bg-orange-600 dark:hover:bg-orange-500 text-white
-Focus:  focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 focus:ring-orange-500
-
-px-6 py-3 rounded-xl (hero)
-px-4 py-2 rounded-lg (inline)
+Token: --interactive-primary
+Visual: High contrast, draws the eye
+Rule: ONE primary button per viewport
 ```
 
-#### Contextual Actions (Amber-600)
-In-content interactions that feel softer, more contemplative.
-
-| Use Case | Example |
-|----------|---------|
-| Reading mode controls | "Start Reading", "Start Intro" |
-| Secondary filters | Topic/principle pills |
-| Clear/reset actions | "Clear filters" within content |
-| Toggle switches | Translation toggle |
-| Non-destructive confirms | Modal confirms (non-delete) |
+#### Contextual (Amber)
+In-content actions: "Begin Reading", "Apply Filter", "Toggle"
 
 ```
-bg-amber-600 hover:bg-amber-700 text-white
-px-4 py-2 rounded-lg
+Token: --interactive-contextual
+Visual: Softer, blends with content
+Rule: Use within content areas, not heroes
 ```
 
 #### Secondary (Outline)
+Dismissive or alternative: "Cancel", "Maybe Later"
+
 ```
-bg-amber-100 text-amber-800 border border-amber-200
-hover:bg-amber-200
+Token: --interactive-secondary-*
+Visual: Border only, minimal fill
+Rule: Pairs with primary as the "other option"
 ```
 
-#### Ghost
-```
-text-orange-600 hover:text-orange-700
-```
+#### Ghost (Text)
+Subtle inline actions: "Learn more", "See details"
 
-Hero CTAs scale: `px-6 py-3 sm:px-8 sm:py-3.5`
+```
+Token: --interactive-ghost-*
+Visual: Text-only, hover reveals intent
+Rule: For tertiary actions that shouldn't compete
+```
 
 ### Cards
 
-```
-┌───────────────────────────────────────────┐
-│  Light: bg-amber-50 border-amber-200      │
-│  Dark:  dark:bg-gray-800 dark:border-gray-700
-│                                           │
-│  p-3 sm:p-4 rounded-xl                    │
-│  hover:shadow-md hover:-translate-y-0.5   │
-│  transition-all duration-150              │
-└───────────────────────────────────────────┘
-```
+Cards are containers for content, not content themselves.
 
-For elevated/highlighted cards:
-```
-Light: bg-white shadow-lg border-amber-200
-Dark:  dark:bg-gray-800 dark:border-gray-700
+**Principles**:
+- Warm backgrounds that create subtle elevation
+- Borders that define without dominating
+- Hover feedback: gentle lift, deeper shadow
+- Never more visual weight than their content
+
+**Pattern**:
+```tsx
+className="bg-[var(--surface-card)] border border-[var(--border-default)]
+           rounded-[var(--radius-card)] shadow-[var(--shadow-card)]
+           hover:shadow-[var(--shadow-card-hover)] hover:-translate-y-0.5
+           transition-all duration-150"
 ```
 
 ### Form Inputs
 
-```css
-/* Sizing */
-px-3 sm:px-4 py-2.5 sm:py-2
-text-base sm:text-sm
-rounded-lg
+**Principles**:
+- Larger touch targets on mobile (py-2.5), compact on desktop (py-2)
+- Clear focus states with brand-colored rings
+- Placeholder text is muted, not invisible
+- Error states are red but not aggressive
 
-/* Light mode */
-bg-white border-amber-200
-text-gray-900 placeholder-gray-500
-
-/* Dark mode */
-dark:bg-gray-800 dark:border-gray-600
-dark:text-gray-100 dark:placeholder-gray-400
-
-/* Focus (both modes) */
-focus:ring-2 focus:ring-orange-500 focus:border-transparent
+**Pattern**:
+```tsx
+className="w-full px-3 py-2.5 sm:py-2
+           bg-[var(--input-bg)] border border-[var(--input-border)]
+           rounded-[var(--radius-input)] text-[var(--text-primary)]
+           placeholder:text-[var(--text-muted)]
+           focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-transparent"
 ```
-
-Larger touch targets on mobile (py-2.5), compact on desktop (py-2).
 
 ### Loading States
 
-Skeleton loaders match final layout structure:
+Skeleton loaders match final layout structure—same heights, widths, and spacing as loaded content.
+
+**Shimmer**: Subtle gradient animation that suggests loading without demanding attention.
 
 ```
-┌──────────────────────┐   ┌──────────────────────┐
-│  ████████░░░░░░░░░   │   │  ॥ 2.47 ॥            │
-│  ██████████████░░░   │ → │  कर्मण्येवाधिकारस्ते         │
-│  ████████░░░░░░░░░   │   │  "Focus on duty..."  │
-└──────────────────────┘   └──────────────────────┘
-     skeleton                   loaded
+Direction: Left to right
+Speed: 1.5s per cycle
+Colors: Warm tints (amber-based), not gray
 ```
 
-### Thinking Animation
+### Navigation
 
-Shimmer effect for AI processing:
+| Context | Pattern |
+|---------|---------|
+| Mobile | Hamburger menu with slide-out drawer |
+| Desktop | Inline links in header |
+| Reading mode | Minimal: back button, chapter selector only |
 
-```css
-@keyframes shimmer {
-  0%   { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-background: linear-gradient(
-  90deg,
-  amber-100 0%,
-  amber-50 50%,
-  amber-100 100%
-);
-background-size: 200% 100%;
-animation: shimmer 1.5s infinite;
-```
+---
 
-## Page Layouts
+## Layout Patterns
 
-### Standard Page
+### Responsive Philosophy
 
-```
-┌──────────────────────────────────────────────────────┐
-│  [Navbar]                                            │
-├──────────────────────────────────────────────────────┤
-│                                                      │
-│    [Page Title]                                      │
-│    [Subtitle]                                        │
-│                                                      │
-│    ┌────────────────────────────────────────────┐    │
-│    │  [Main Content Area]                       │    │
-│    │  max-w-6xl mx-auto px-4                    │    │
-│    └────────────────────────────────────────────┘    │
-│                                                      │
-├──────────────────────────────────────────────────────┤
-│  [Footer]                                            │
-└──────────────────────────────────────────────────────┘
-```
+Mobile is the primary context, not a fallback. Design for 375px first, then enhance.
 
-### Reading Mode
+| Breakpoint | Width | Purpose |
+|------------|-------|---------|
+| Base | <640px | Phone portrait—the default |
+| `sm:` | 640px | Tablet, phone landscape—grid expansion |
+| `lg:` | 1024px | Desktop—full navigation, larger type |
+
+**Note**: `md:` (768px) is reserved for navigation toggle only. Avoid using it for content to maintain simplicity.
+
+### Grid System
 
 ```
-┌──────────────────────────────────────────────────────┐
-│  [Minimal Header]                                    │
-├──────────────────────────────────────────────────────┤
-│                                                      │
-│                        ॐ                            │
-│           [Large Sanskrit Text]                      │
-│                  ॥ 2.47 ॥                           │
-│                                                      │
-│         [Tap for translation]                        │
-│                                                      │
-│  ← swipe →                                           │
-│                                                      │
-├──────────────────────────────────────────────────────┤
-│  [◀] [Chapter Selector] [Font Size] [▶]              │
-└──────────────────────────────────────────────────────┘
+Mobile (base)     Tablet (sm:)      Desktop (lg:)
+1 column          2 columns         3-4 columns
+```
+
+**Pattern**: `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4`
+
+### Page Templates
+
+#### Standard Page
+```
+┌──────────────────────────────────────────┐
+│  [Navbar]                                │
+├──────────────────────────────────────────┤
+│                                          │
+│    [Page Title]                          │
+│    [Subtitle]                            │
+│                                          │
+│    ┌────────────────────────────────┐    │
+│    │  [Content Area]                │    │
+│    │  max-w-6xl mx-auto px-4        │    │
+│    └────────────────────────────────┘    │
+│                                          │
+├──────────────────────────────────────────┤
+│  [Footer]                                │
+└──────────────────────────────────────────┘
+```
+
+#### Reading Mode
+```
+┌──────────────────────────────────────────┐
+│  [Minimal Header]                        │
+├──────────────────────────────────────────┤
+│                                          │
+│                    ॐ                    │
+│           [Large Sanskrit Text]          │
+│                  ॥ 2.47 ॥               │
+│                                          │
+│         [Tap for translation]            │
+│                                          │
+│  ← swipe →                               │
+│                                          │
+├──────────────────────────────────────────┤
+│  [◀] [Chapter Selector] [Font] [▶]       │
+└──────────────────────────────────────────┘
 ```
 
 Minimal chrome. Sanskrit is the hero. Progressive disclosure.
 
+---
+
 ## Interaction Patterns
 
-### Navigation
+### Gestures & Shortcuts
 
 | Action | Mobile | Desktop |
 |--------|--------|---------|
 | Next verse | Swipe left | → or J |
-| Previous | Swipe right | ← or K |
+| Previous verse | Swipe right | ← or K |
 | Toggle translation | Tap verse | Tap verse |
-| Quick search | — | ⌘K |
+| Quick search | — | ⌘K / Ctrl+K |
 
 ### Focus Management
 
-- `focus-visible:ring-2 focus-visible:ring-orange-500`
-- Focus visible only on keyboard navigation
-- Logical tab order
+- `focus-visible` only—no focus rings on mouse clicks
+- Logical tab order follows visual flow
+- Focus trapped in modals
+- Focus restored after modal close
 
 ### Transitions
 
-```css
-transition-all duration-150    /* Quick interactions */
-transition-all duration-300    /* Panel reveals */
-ease-in-out                    /* Natural motion */
-```
+| Type | Duration | Use |
+|------|----------|-----|
+| Quick | 150ms | Hovers, color changes |
+| Normal | 200ms | Most interactions |
+| Reveal | 300ms | Panel opens, accordions |
 
-## Accessibility
+All use `ease-in-out` for natural motion.
 
-- **Contrast**: WCAG 2.1 AA compliant (4.5:1 minimum for text, documented in token comments)
-- **Touch targets**: 44x44px minimum on mobile
-- **Focus indicators**: Visible on all interactive elements
-- **Screen readers**: ARIA labels and semantic HTML
-- **Reduced motion**: Respects `prefers-reduced-motion` via `--motion-safe-*` tokens
+---
 
-## Dark Mode Guidelines
+## Accessibility Commitments
 
-Dark mode is a first-class feature, not a retrofit. With the token system (v1.16.0), dark mode is handled automatically via CSS custom property overrides.
+These are requirements, not suggestions.
 
-### Principles
+### Contrast (WCAG 2.1 AA)
 
-1. **Use semantic tokens** — `--text-primary`, `--surface-warm`, not raw colors
-2. **No `dark:` prefixes** — Token values change automatically in `.dark` context
-3. **Shift, don't invert** — Dark mode isn't just inverted colors; tokens are tuned for visual weight
-4. **Quiet library aesthetic** — Soft off-white text (`neutral-200` primary), not harsh white; subdued backgrounds retain theme warmth
-5. **Test both modes** — Verify readability and aesthetics in light and dark before shipping
+| Element | Minimum Ratio |
+|---------|---------------|
+| Normal text | 4.5:1 |
+| Large text (18px+) | 3:1 |
+| UI components | 3:1 |
+| Focus indicators | 3:1 |
 
-### Token-Based Approach (v1.16.0)
+Token comments document actual ratios. Dark mode tokens are tuned separately.
 
-Components use semantic tokens that automatically adapt to dark mode:
+### Touch Targets
 
-```tsx
-// ✅ Correct - uses semantic tokens
-className="bg-[var(--surface-warm)] text-[var(--text-primary)] border-[var(--border-default)]"
+- Minimum 44×44px on mobile
+- Adequate spacing between adjacent targets
+- Larger targets for frequently-used actions
 
-// ❌ Avoid - hardcoded colors require dark: prefixes
-className="bg-amber-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-```
+### Screen Readers
 
-### Common Token Mappings
+- Semantic HTML (proper headings, landmarks, lists)
+- ARIA labels on all icon-only buttons
+- Logical reading order matches visual order
+- Live regions for dynamic content
 
-| Purpose | Token | Light Value | Dark Value |
-|---------|-------|-------------|------------|
-| Page background | `--surface-base` | gray-50 | gray-900 |
-| Card background | `--surface-warm` | amber-50 tint | gray-800 + amber tint |
-| Primary text | `--text-primary` | gray-900 | gray-100 |
-| Secondary text | `--text-secondary` | gray-600 | gray-400 |
-| Muted text | `--text-muted` | gray-400 | gray-600 |
-| Borders | `--border-default` | gray-200 | gray-700 |
-| Focus ring | `--focus-ring` | primary-500 | primary-400 |
-| Focus offset | `--focus-ring-offset` | white | gray-900 |
+### Motion Sensitivity
 
-### Status Colors
+- Respect `prefers-reduced-motion`
+- No content conveyed only through animation
+- Pause/stop controls for any looping motion
+- Tokens handle reduced motion automatically
 
-Status tokens also adapt automatically:
+---
 
-| Status | Token | Light | Dark |
-|--------|-------|-------|------|
-| Error | `--status-error-bg` | red-50 | red-900 |
-| Success | `--status-success-bg` | green-50 | green-900 |
-| Warning | `--status-warning-bg` | yellow-100 | yellow-900 |
-| Info | `--status-info-bg` | blue-100 | blue-900/40 |
+## Theme Compatibility
 
-## Theming System (v1.16.0)
+### The Parity Principle
 
-The design system uses a 3-tier CSS custom property architecture enabling full theming without code changes.
+Every component must work correctly across:
+- 4 built-in themes (Geetanjali, Sutra, Serenity, Forest)
+- 2 modes each (light and dark)
+- = **8 combinations to test**
 
-### Built-in Themes
+### Token-First Development
 
-| Theme | Personality | Typography | Dark Mode |
-|-------|-------------|------------|-----------|
-| **Geetanjali** | Temple lamp glow, ancient manuscript warmth | Mixed (Spectral + Source Sans) | Amber-tinted neutrals |
-| **Sutra** | Ink on paper, scholarly clarity | Serif (Spectral) | Pure monochrome |
-| **Serenity** | Twilight violet, contemplative calm | Mixed | Purple-tinted stone |
-| **Forest** | Sacred grove, morning dew freshness | Sans (Source Sans) | Green-tinted grays |
-
-Each theme defines its own color primitives and contrast overrides in `frontend/src/config/themes.ts`.
-
-### Token Architecture
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│  Tier 1: PRIMITIVES (frontend/src/styles/tokens/primitives.css)    │
-│  └─ Raw scales: color palettes, font families, spacing, radii      │
-│  └─ Customizable foundation for themes                              │
-├─────────────────────────────────────────────────────────────────────┤
-│  Tier 2: SEMANTIC (frontend/src/styles/tokens/semantic.css)        │
-│  └─ Purpose-driven: --text-primary, --surface-elevated             │
-│  └─ Light mode defaults + .dark {} overrides                        │
-├─────────────────────────────────────────────────────────────────────┤
-│  Tier 3: DERIVED (frontend/src/styles/tokens/derived.css)          │
-│  └─ State-specific: hover, focus, disabled                          │
-│  └─ Reduced motion preferences                                       │
-└─────────────────────────────────────────────────────────────────────┘
-```
-
-### Using Tokens in Components
-
-Components use semantic tokens via Tailwind's arbitrary value syntax:
+Components use semantic tokens exclusively. No hardcoded colors.
 
 ```tsx
-// Colors - use semantic tokens
+// ✅ Correct
 className="bg-[var(--surface-warm)] text-[var(--text-primary)]"
-className="border-[var(--border-default)]"
 
-// Fonts - use Tailwind utilities (reference tokens internally)
-className="font-serif"      // Uses --font-family-display
-className="font-sanskrit"   // Uses --font-family-sanskrit
-className="font-body"       // Uses --font-family-body
+// ❌ Wrong - hardcoded values
+className="bg-amber-50 text-gray-900"
+
+// ❌ Wrong - dark: prefixes bypass token system
+className="bg-amber-50 dark:bg-gray-800"
 ```
 
-### Dark Mode
+### The No-Prefix Rule
 
-Dark mode is handled automatically via CSS token overrides. No `dark:` prefixes in components:
+**Never use `dark:` prefixes for colors.**
 
-```css
-/* semantic.css */
-:root {
-  --surface-warm: var(--color-warm-50);      /* Light: amber-50 */
-  --text-primary: var(--color-neutral-900);  /* Light: gray-900 */
-}
+The token system handles dark mode automatically. When `.dark` class is on `<html>`, all CSS variables resolve to their dark values. Adding `dark:` prefixes:
+1. Duplicates logic (dark handling in CSS *and* component)
+2. Breaks theme overrides (themes can't control component-level classes)
+3. Creates maintenance burden (two places to update)
 
-.dark {
-  --surface-warm: color-mix(in srgb, var(--color-warm-900) 15%, var(--color-neutral-800));
-  --text-primary: var(--color-neutral-100);  /* Dark: gray-100 */
-}
-```
+**For implementation details**: See [Theming Documentation](./theming.md)
 
-### Token Categories
+---
 
-| Category | Primitives | Semantic | Usage |
-|----------|------------|----------|-------|
-| **Colors** | `--color-primary-600` | `--text-primary` | All colors |
-| **Typography** | `--font-family-display` | `--font-heading` | Font styles |
-| **Spacing** | `--spacing-4` | `--spacing-card` | Margins, padding |
-| **Radius** | `--radius-lg` | `--radius-button` | Border radius |
-| **Shadows** | `--shadow-md` | `--shadow-card` | Elevation |
-| **Motion** | `--duration-200` | `--transition-normal` | Animations |
+## Creating New Components
 
-### Checklist for New Components
+### Pre-Development Questions
 
-- [ ] Use semantic tokens (`--surface-*`, `--text-*`) not primitives
-- [ ] No `dark:` prefixes - dark mode via token overrides
-- [ ] Use `--focus-ring` and `--focus-ring-offset` for focus states
-- [ ] Test in both light and dark themes
+Before writing code, answer:
+
+1. **What content does this serve?**
+   Scripture > translation > metadata > UI. Know your place in the hierarchy.
+
+2. **Is this an action or navigation?**
+   Actions use contextual (amber) styling. Navigation uses primary (orange).
+
+3. **What's the ONE most important thing?**
+   If you can't identify it, the component is too complex.
+
+4. **Does it need to work on mobile?**
+   Always yes. Start there.
+
+### Implementation Checklist
+
+Before marking complete:
+
+- [ ] Uses semantic tokens (`--surface-*`, `--text-*`, `--border-*`)
+- [ ] No `dark:` prefixes for colors
+- [ ] Focus states use `--focus-ring` tokens
+- [ ] Touch targets are 44×44px minimum on mobile
+- [ ] Text contrast meets WCAG AA (4.5:1)
+- [ ] Tested in all 8 theme/mode combinations
+- [ ] Skeleton loader matches final layout
+- [ ] Transitions use token-based motion values
+- [ ] Works without JavaScript (progressive enhancement)
+
+### Review Criteria
+
+A component is ready when:
+
+1. It looks intentional in every theme (not just "works")
+2. Keyboard navigation is logical
+3. Screen reader announces it sensibly
+4. It follows the content hierarchy
+5. It doesn't compete with scripture for attention
+
+---
 
 ## Implementation Notes
 
 ### Font Loading
 
-Google Fonts with `font-display: swap`:
+Google Fonts with `font-display: swap` to prevent FOIT:
 
 ```html
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="...Spectral|Source+Sans+3|Noto+Serif+Devanagari" rel="stylesheet">
 ```
 
-### Tailwind Config
+### Tailwind Configuration
 
-Font utilities reference CSS custom properties for theming:
+Font utilities reference CSS variables for theme flexibility:
 
 ```js
 fontFamily: {
   heading: ['var(--font-family-display)', 'Georgia', 'serif'],
   body: ['var(--font-family-body)', 'system-ui', 'sans-serif'],
   sanskrit: ['var(--font-family-sanskrit)', 'serif'],
-  mono: ['var(--font-family-mono)', 'ui-monospace', 'monospace'],
 }
 ```
 
-### CSS Token Files
+### File Locations
 
-Located in `frontend/src/styles/tokens/`:
-
-| File | Purpose | Customizable |
-|------|---------|--------------|
-| `primitives.css` | Raw design scales | Yes - theme foundation |
-| `semantic.css` | Contextual tokens | Rarely - stable API |
-| `derived.css` | State tokens | Rarely - stable API |
+| File | Purpose |
+|------|---------|
+| `src/styles/tokens/*.css` | Token definitions |
+| `src/config/themes.ts` | Theme configurations |
+| `src/contexts/ThemeContext.tsx` | Theme state management |
+| `docs/theming.md` | Token architecture reference |
