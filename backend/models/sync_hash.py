@@ -35,7 +35,7 @@ class SyncHash(Base):
     __tablename__ = "sync_hashes"
 
     content_type: Mapped[str] = mapped_column(String(50), primary_key=True)
-    content_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    content_hash: Mapped[str] = mapped_column(String(128), nullable=False)
     synced_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, nullable=False
     )
