@@ -19,7 +19,12 @@ interface ConfirmModalProps {
   requireText?: string;
   /** Placeholder/hint for the text input */
   requireTextHint?: string;
-  onConfirm: () => void;
+  /** If true, show password field for re-authentication */
+  requirePassword?: boolean;
+  /** Error message to show for password field (e.g., "Incorrect password") */
+  passwordError?: string;
+  /** Called with password when requirePassword is true */
+  onConfirm: (password?: string) => void;
   onCancel: () => void;
 }
 
@@ -33,24 +38,31 @@ export function ConfirmModal({
   loading = false,
   requireText,
   requireTextHint,
+  requirePassword = false,
+  passwordError,
   onConfirm,
   onCancel,
 }: ConfirmModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   const [confirmInput, setConfirmInput] = useState("");
+  const [password, setPassword] = useState("");
 
   const textMatches =
     !requireText || confirmInput.toLowerCase() === requireText.toLowerCase();
+  const passwordValid = !requirePassword || password.length > 0;
 
   // Wrap handlers to reset input
   const handleCancel = () => {
     setConfirmInput("");
+    setPassword("");
     onCancel();
   };
 
   const handleConfirm = () => {
+    const pwd = requirePassword ? password : undefined;
     setConfirmInput("");
-    onConfirm();
+    setPassword("");
+    onConfirm(pwd);
   };
 
   // Trap focus within modal (WCAG 2.1)
@@ -64,6 +76,7 @@ export function ConfirmModal({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && !loading) {
         setConfirmInput("");
+        setPassword("");
         onCancel();
       }
     };
@@ -218,6 +231,42 @@ export function ConfirmModal({
             </div>
           )}
 
+          {/* Password re-authentication input */}
+          {requirePassword && (
+            <div className="mb-4">
+              <label
+                htmlFor="confirm-password-input"
+                className="block text-xs text-[var(--text-tertiary)] mb-1.5 text-center"
+              >
+                Enter your password to confirm
+              </label>
+              <input
+                id="confirm-password-input"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Your password"
+                disabled={loading}
+                aria-invalid={passwordError ? true : undefined}
+                aria-describedby={passwordError ? "password-error" : undefined}
+                className={`w-full px-3 py-2 text-sm text-center border bg-[var(--input-bg)] text-[var(--input-text)] placeholder:text-[var(--input-text-placeholder)] rounded-[var(--radius-input)] focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-transparent disabled:opacity-50 disabled:bg-[var(--input-bg-disabled)] ${
+                  passwordError
+                    ? "border-[var(--status-error-border)]"
+                    : "border-[var(--input-border)]"
+                }`}
+                autoComplete="current-password"
+              />
+              {passwordError && (
+                <p
+                  id="password-error"
+                  className="mt-1.5 text-xs text-center text-[var(--status-error-text)]"
+                >
+                  {passwordError}
+                </p>
+              )}
+            </div>
+          )}
+
           {/* Actions */}
           <div className="flex gap-3">
             <button
@@ -231,7 +280,7 @@ export function ConfirmModal({
             <button
               type="button"
               onClick={handleConfirm}
-              disabled={loading || !textMatches}
+              disabled={loading || !textMatches || !passwordValid}
               className={`flex-1 px-4 py-2.5 text-sm font-medium text-[var(--text-inverted)] rounded-[var(--radius-card)] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] disabled:opacity-50 disabled:cursor-not-allowed transition-[var(--transition-color)] ${styles.confirmButton}`}
             >
               {loading ? (

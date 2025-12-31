@@ -165,6 +165,9 @@ export default function Settings() {
   const [showDeleteAccountConfirm, setShowDeleteAccountConfirm] =
     useState(false);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [deleteAccountError, setDeleteAccountError] = useState<string | null>(
+    null
+  );
 
   // Prefill from logged-in user
   useEffect(() => {
@@ -340,10 +343,17 @@ export default function Settings() {
     }
   };
 
-  const handleDeleteAccount = async () => {
+  const handleDeleteAccount = async (password?: string) => {
+    if (!password) {
+      setDeleteAccountError("Password is required");
+      return;
+    }
+
     setIsDeletingAccount(true);
+    setDeleteAccountError(null);
+
     try {
-      await api.delete("/auth/account");
+      await api.delete("/auth/account", { data: { password } });
 
       // Clear all local data using centralized registry
       clearAllLocalStorage();
@@ -354,8 +364,18 @@ export default function Settings() {
       window.location.reload();
     } catch (err) {
       console.error("Failed to delete account:", err);
+      // Check for 401 (wrong password)
+      if (err instanceof Error && "response" in err) {
+        const response = (err as { response?: { status?: number } }).response;
+        if (response?.status === 401) {
+          setDeleteAccountError("Incorrect password. Please try again.");
+        } else {
+          setDeleteAccountError("Failed to delete account. Please try again.");
+        }
+      } else {
+        setDeleteAccountError("Failed to delete account. Please try again.");
+      }
       setIsDeletingAccount(false);
-      setShowDeleteAccountConfirm(false);
     }
   };
 
@@ -1307,7 +1327,10 @@ export default function Settings() {
       {/* Delete account confirmation modal */}
       <ConfirmModal
         isOpen={showDeleteAccountConfirm}
-        onCancel={() => setShowDeleteAccountConfirm(false)}
+        onCancel={() => {
+          setShowDeleteAccountConfirm(false);
+          setDeleteAccountError(null);
+        }}
         onConfirm={handleDeleteAccount}
         title="We're sad to see you go"
         message="This will permanently delete your account and all associated data including consultations, preferences, and favorites. You can create a new account with the same email later if you wish to return."
@@ -1315,6 +1338,8 @@ export default function Settings() {
         variant="danger"
         loading={isDeletingAccount}
         requireText="goodbye"
+        requirePassword
+        passwordError={deleteAccountError || undefined}
       />
     </div>
   );
