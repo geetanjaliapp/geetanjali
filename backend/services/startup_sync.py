@@ -129,6 +129,12 @@ class StartupSyncService:
             self._sync_audio_metadata,
         )
 
+        # Audio file durations (requires audio_metadata rows to exist)
+        self._sync_with_error_handling(
+            "Audio Durations",
+            self._sync_audio_durations,
+        )
+
         # Log summary
         total_duration_ms = int((time.time() - start_time) * 1000)
         self._log_summary(total_duration_ms)
@@ -395,6 +401,149 @@ class StartupSyncService:
             created=stats["created"],
             updated=stats["updated"],
         )
+
+    def _sync_audio_durations(self) -> SyncResult | None:
+        """
+        Sync audio file durations from MP3 files to database.
+
+        Scans the audio directory for MP3 files, extracts durations using ffprobe,
+        and updates audio_file_path and audio_duration_ms in verse_audio_metadata.
+
+        Hash is computed from file list (names + sizes) to detect new/changed files.
+        """
+        import json
+        import subprocess
+        from pathlib import Path
+
+        from models import VerseAudioMetadata
+
+        # Check if audio metadata rows exist
+        audio_count = self.db.query(VerseAudioMetadata).count()
+        if audio_count == 0:
+            return SyncResult(
+                name="Audio Durations",
+                action="skipped_no_data",
+                reason="No audio metadata rows (sync audio metadata first)",
+            )
+
+        # Get audio directory
+        from services.audio import get_audio_directory
+
+        audio_dir = get_audio_directory()
+        mp3_dir = audio_dir / "mp3"
+
+        if not mp3_dir.exists():
+            return SyncResult(
+                name="Audio Durations",
+                action="skipped_no_data",
+                reason=f"Audio directory not found: {mp3_dir}",
+            )
+
+        # Scan for MP3 files and build file list for hashing
+        file_list = []
+        for chapter_num in range(1, 19):
+            chapter_dir = mp3_dir / f"{chapter_num:02d}"
+            if chapter_dir.exists():
+                for mp3_file in sorted(chapter_dir.glob("BG_*.mp3")):
+                    stat = mp3_file.stat()
+                    file_list.append(
+                        {"name": mp3_file.name, "size": stat.st_size}
+                    )
+
+        if not file_list:
+            return SyncResult(
+                name="Audio Durations",
+                action="skipped_no_data",
+                reason="No audio files found in mp3 directory",
+            )
+
+        # Compute hash from file list
+        content_type = "audio_durations"
+        current_hash = compute_content_hash(file_list)
+
+        if not self._needs_sync(content_type, current_hash):
+            return SyncResult(
+                name="Audio Durations",
+                action="skipped_no_change",
+                reason="Audio files unchanged",
+            )
+
+        # Sync needed - extract durations and update DB
+        logger.info(f"STARTUP SYNC: Extracting durations from {len(file_list)} audio files...")
+
+        updated = 0
+        errors = 0
+
+        for chapter_num in range(1, 19):
+            chapter_dir = mp3_dir / f"{chapter_num:02d}"
+            if not chapter_dir.exists():
+                continue
+
+            for mp3_file in chapter_dir.glob("BG_*.mp3"):
+                canonical_id = mp3_file.stem  # e.g., BG_2_47
+
+                # Extract duration using ffprobe
+                duration_ms = self._get_audio_duration_ms(mp3_file)
+                if duration_ms is None:
+                    errors += 1
+                    continue
+
+                # Compute relative path for storage
+                rel_path = f"mp3/{chapter_num:02d}/{mp3_file.name}"
+
+                # Update database
+                self.db.query(VerseAudioMetadata).filter(
+                    VerseAudioMetadata.canonical_id == canonical_id
+                ).update(
+                    {
+                        "audio_file_path": rel_path,
+                        "audio_duration_ms": duration_ms,
+                    }
+                )
+                updated += 1
+
+        self.db.commit()
+        self._update_stored_hash(content_type, current_hash)
+
+        if errors > 0:
+            logger.warning(f"STARTUP SYNC: {errors} audio files failed duration extraction")
+
+        return SyncResult(
+            name="Audio Durations",
+            action="synced",
+            reason="Extracted durations from audio files",
+            synced=updated,
+            updated=updated,
+        )
+
+    def _get_audio_duration_ms(self, file_path) -> int | None:
+        """Extract audio duration in milliseconds using ffprobe."""
+        import json
+        import subprocess
+
+        try:
+            result = subprocess.run(
+                [
+                    "ffprobe",
+                    "-v", "quiet",
+                    "-show_entries", "format=duration",
+                    "-of", "json",
+                    str(file_path),
+                ],
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+
+            if result.returncode != 0:
+                return None
+
+            data = json.loads(result.stdout)
+            duration_seconds = float(data["format"]["duration"])
+            return int(duration_seconds * 1000)
+
+        except (subprocess.TimeoutExpired, json.JSONDecodeError, KeyError, ValueError):
+            return None
 
     def _log_summary(self, total_duration_ms: int) -> None:
         """Log summary of sync operations."""

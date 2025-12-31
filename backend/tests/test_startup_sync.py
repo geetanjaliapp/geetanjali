@@ -69,8 +69,8 @@ class TestStartupSyncService:
         service = StartupSyncService(db_session)
         results = service.sync_all()
 
-        # Verify results - now 4 content types (metadata combined)
-        assert len(results) == 4
+        # Verify results - now 5 content types (metadata combined + audio durations)
+        assert len(results) == 5
 
         # Metadata (book + chapters) should be synced
         metadata_result = next(r for r in results if r.name == "Metadata")
@@ -83,12 +83,15 @@ class TestStartupSyncService:
         assert dhyanam_result.action == "synced"
         assert dhyanam_result.synced == 9  # 9 dhyanam verses
 
-        # Featured/Audio should be skipped (no verses in DB)
+        # Featured/Audio/AudioDurations should be skipped (no verses in DB)
         featured_result = next(r for r in results if r.name == "Featured Verses")
         assert featured_result.action == "skipped_no_data"
 
         audio_result = next(r for r in results if r.name == "Audio Metadata")
         assert audio_result.action == "skipped_no_data"
+
+        durations_result = next(r for r in results if r.name == "Audio Durations")
+        assert durations_result.action == "skipped_no_data"
 
         # Verify data was created
         assert db_session.query(BookMetadata).count() == 1
@@ -178,8 +181,8 @@ class TestStartupSyncService:
         monkeypatch.setattr(service, "_sync_metadata", mock_sync_metadata)
         results = service.sync_all()
 
-        # Should have 4 results
-        assert len(results) == 4
+        # Should have 5 results (metadata, dhyanam, featured, audio metadata, audio durations)
+        assert len(results) == 5
 
         # Metadata should have error
         metadata_result = next(r for r in results if r.name == "Metadata")
