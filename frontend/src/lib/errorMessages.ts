@@ -69,8 +69,9 @@ const HTTP_STATUS_MESSAGES: Record<
     general: "The requested item was not found.",
   },
   409: {
+    // Vague message - doesn't confirm email exists (prevents account enumeration)
     signup:
-      "An account with this email already exists. Please sign in instead.",
+      "Unable to create account. If you already have an account, try signing in or resetting your password.",
     case_analyze: "Analysis already in progress.",
     follow_up: "A follow-up is already being processed. Please wait a moment.",
     general: "A conflict occurred. Please try again.",

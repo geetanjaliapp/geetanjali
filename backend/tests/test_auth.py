@@ -37,7 +37,7 @@ def test_signup_success(client):
 
 
 def test_signup_duplicate_email(client):
-    """Test signup with already registered email."""
+    """Test signup with already registered email returns vague error (prevents enumeration)."""
     signup_data = {
         "email": "duplicate@example.com",
         "name": "First User",
@@ -53,7 +53,8 @@ def test_signup_duplicate_email(client):
     response2 = client.post("/api/v1/auth/signup", json=signup_data)
 
     assert response2.status_code == status.HTTP_409_CONFLICT
-    assert "already registered" in response2.json()["detail"].lower()
+    # Vague message - doesn't confirm email exists (prevents account enumeration)
+    assert "unable to create account" in response2.json()["detail"].lower()
 
 
 def test_signup_invalid_email(client):

@@ -147,9 +147,11 @@ async def signup(
 
     if existing_user:
         if existing_user.is_active:
-            # Active user with same email - reject
+            # Active user with same email - reject with vague message
+            # Prevents account enumeration (doesn't confirm email exists)
             raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT, detail="Email already registered"
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Unable to create account. If you already have an account, try signing in or resetting your password.",
             )
         else:
             # Inactive user - reactivate with fresh data (fresh start)

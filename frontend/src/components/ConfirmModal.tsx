@@ -65,6 +65,18 @@ export function ConfirmModal({
     onConfirm(pwd);
   };
 
+  // Handle Enter key in inputs - trigger confirm if valid, always prevent default
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      e.stopPropagation();
+      // Only trigger confirm if all conditions are met
+      if (!loading && textMatches && passwordValid) {
+        handleConfirm();
+      }
+    }
+  };
+
   // Trap focus within modal (WCAG 2.1)
   // Note: Focuses Cancel button first (safer default for destructive actions)
   useFocusTrap(modalRef, isOpen);
@@ -219,6 +231,7 @@ export function ConfirmModal({
                 type="text"
                 value={confirmInput}
                 onChange={(e) => setConfirmInput(e.target.value)}
+                onKeyDown={handleKeyDown}
                 placeholder={requireTextHint || requireText}
                 disabled={loading}
                 aria-invalid={
@@ -245,6 +258,7 @@ export function ConfirmModal({
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={handleKeyDown}
                 placeholder="Your password"
                 disabled={loading}
                 aria-invalid={passwordError ? true : undefined}
