@@ -1,7 +1,7 @@
 # Geetanjali Backend Dependencies
 
 # Web Framework
-fastapi==0.127.0
+fastapi==0.128.0
 uvicorn[standard]==0.40.0
 python-multipart==0.0.21
 
@@ -16,7 +16,7 @@ pydantic-settings==2.12.0
 email-validator==2.3.0  # Required for pydantic EmailStr validation
 
 # Vector Database
-chromadb==1.3.7
+chromadb==1.4.0
 
 # Embeddings
 sentence-transformers==5.2.0
@@ -31,7 +31,7 @@ pytest-asyncio>=1.0.0  # pytest 9.x requires pytest-asyncio 1.x
 pytest-cov==7.0.0
 
 # Code Quality
-ruff==0.8.6  # Fast linter and formatter (replaces flake8+black)
+ruff==0.14.10  # Fast linter and formatter (replaces flake8+black)
 mypy==1.19.1
 types-requests==2.32.4.20250913  # Type stubs for requests
 types-PyYAML==6.0.12.20250915  # Type stubs for PyYAML
