@@ -88,8 +88,9 @@ describe("getErrorMessage", () => {
 
     it("should handle 409 Conflict", () => {
       const error = createAxiosError(409);
+      // Vague message - doesn't confirm email exists (prevents account enumeration)
       expect(getErrorMessage(error, "signup")).toBe(
-        "An account with this email already exists. Please sign in instead.",
+        "Unable to create account. If you already have an account, try signing in or resetting your password.",
       );
     });
 
