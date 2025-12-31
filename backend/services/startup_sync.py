@@ -79,8 +79,8 @@ class StartupSyncService:
 
     Performance optimizations:
     - Batch fetches all stored hashes in one query at startup
-    - Fast-path skips expensive operations (file scans) when hash exists
-    - Lazy hash computation only when needed
+    - Hash comparison skips expensive operations (ffprobe) when unchanged
+    - File scanning still needed for hash computation, but is fast (~700 stat calls)
     """
 
     # Hash version prefix - increment when hash algorithm/serialization changes
