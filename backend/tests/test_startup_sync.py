@@ -132,6 +132,7 @@ class TestStartupSyncService:
             .filter(SyncHash.content_type == "dhyanam_verses")
             .first()
         )
+        assert dhyanam_hash is not None, "Dhyanam hash should exist after first sync"
         original_hash = dhyanam_hash.content_hash
         dhyanam_hash.content_hash = "corrupted_hash_value_that_differs"
         db_session.commit()
