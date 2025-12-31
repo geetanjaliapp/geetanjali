@@ -18,7 +18,6 @@ from services.startup_sync import (
     compute_content_hash,
 )
 
-
 # Mark all tests in this module as integration tests (require DB)
 pytestmark = pytest.mark.integration
 

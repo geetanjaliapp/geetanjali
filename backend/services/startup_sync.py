@@ -30,8 +30,9 @@ import hashlib
 import json
 import logging
 import time
+from collections.abc import Callable
 from datetime import datetime
-from typing import Any, Callable, NamedTuple
+from typing import Any, NamedTuple
 
 from sqlalchemy.orm import Session
 
@@ -358,7 +359,10 @@ class StartupSyncService:
             SPEAKER_DEFAULTS,
             get_all_metadata,
         )
-        from data.verse_audio_metadata.maha_vakyas import KEY_TEACHING_VERSES, MAHA_VAKYAS
+        from data.verse_audio_metadata.maha_vakyas import (
+            KEY_TEACHING_VERSES,
+            MAHA_VAKYAS,
+        )
 
         content_type = "audio_metadata"
         source_data = {
