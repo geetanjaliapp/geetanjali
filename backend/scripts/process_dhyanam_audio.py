@@ -177,7 +177,7 @@ def process_zip(zip_path: Path, output_dir: Path, dry_run: bool = False):
                     print("  ⚠ QA skipped (mutagen not available)")
                 elif qa["passed"]:
                     duration = qa.get("duration", 0)
-                    if isinstance(duration, (int, float)):
+                    if isinstance(duration, int | float):
                         print(f"  ✓ QA passed ({duration:.1f}s)")
                     else:
                         print("  ✓ QA passed")
