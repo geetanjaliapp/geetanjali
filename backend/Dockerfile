@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.4
 # Backend Dockerfile for Geetanjali - Optimized for fast rebuilds
 
-FROM python:3.10-slim
+FROM python:3.11-slim
 
 # Set working directory
 WORKDIR /app
