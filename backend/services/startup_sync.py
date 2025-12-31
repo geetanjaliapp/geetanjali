@@ -220,6 +220,7 @@ class StartupSyncService:
         """
         if self._stored_hashes is None:
             self._load_stored_hashes()
+            assert self._stored_hashes is not None  # Set by _load_stored_hashes
 
         stored = self._stored_hashes.get(content_type)
         if stored is None:
