@@ -25,6 +25,7 @@ from api.errors import (
 from api.middleware.auth import get_current_user, get_session_id
 from api.schemas import (
     AuthResponse,
+    DeleteAccountRequest,
     EmailVerificationResponse,
     ForgotPasswordRequest,
     LoginRequest,
@@ -526,11 +527,15 @@ async def delete_account(
     request: Request,
     response: Response,
     background_tasks: BackgroundTasks,
+    delete_request: DeleteAccountRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     """
     Delete current user's account (soft delete).
+
+    Requires password re-authentication to prevent accidental deletion
+    or deletion from stolen JWT tokens.
 
     This will:
     - Delete all user's cases, preferences, and refresh tokens (CASCADE data)
@@ -544,17 +549,30 @@ async def delete_account(
     Args:
         request: FastAPI request object
         response: FastAPI response object
+        delete_request: Request body containing password for re-auth
         db: Database session
         current_user: Current authenticated user
 
     Returns:
         Success message
+
+    Raises:
+        HTTPException 401: If password is incorrect
     """
     from models.case import Case
     from models.feedback import Feedback
     from models.refresh_token import RefreshToken
     from models.subscriber import Subscriber
     from models.user_preferences import UserPreferences
+
+    # Verify password for re-authentication
+    if not current_user.password_hash or not verify_password(
+        delete_request.password, current_user.password_hash
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect password. Please verify your password to delete your account.",
+        )
 
     user_id = current_user.id
     user_email = current_user.email

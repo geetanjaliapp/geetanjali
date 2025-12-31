@@ -132,6 +132,12 @@ class ResetPasswordRequest(BaseModel):
         return validate_password_complexity(v)
 
 
+class DeleteAccountRequest(BaseModel):
+    """Schema for account deletion request."""
+
+    password: str = Field(..., description="Current password for re-authentication")
+
+
 class MessageResponse(BaseModel):
     """Generic message response schema."""
 

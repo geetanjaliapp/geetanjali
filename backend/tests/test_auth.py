@@ -413,3 +413,118 @@ def test_resend_verification_already_verified(client, db_session):
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     data = response.json()
     assert "already verified" in data["detail"].lower()
+
+
+# =============================================================================
+# Account Deletion Tests
+# =============================================================================
+
+
+def test_delete_account_requires_password(client, db_session):
+    """Test that account deletion requires password re-authentication."""
+    from models.user import User
+
+    # Create and login user
+    signup_data = {
+        "email": "todelete@example.com",
+        "name": "Delete Me",
+        "password": "SecurePass123!",
+    }
+    signup_response = client.post("/api/v1/auth/signup", json=signup_data)
+    assert signup_response.status_code == status.HTTP_201_CREATED
+    token = signup_response.json()["access_token"]
+    csrf_token = signup_response.json().get("csrf_token")
+
+    # Try to delete without password
+    headers = {"Authorization": f"Bearer {token}"}
+    if csrf_token:
+        headers["X-CSRF-Token"] = csrf_token
+
+    response = client.delete("/api/v1/auth/account", headers=headers)
+
+    # Should fail because no password provided
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+
+
+def test_delete_account_wrong_password(client, db_session):
+    """Test that account deletion fails with wrong password."""
+    import json
+
+    from models.user import User
+
+    # Create and login user
+    signup_data = {
+        "email": "wrongpwd@example.com",
+        "name": "Wrong Password",
+        "password": "SecurePass123!",
+    }
+    signup_response = client.post("/api/v1/auth/signup", json=signup_data)
+    assert signup_response.status_code == status.HTTP_201_CREATED
+    token = signup_response.json()["access_token"]
+    csrf_token = signup_response.json().get("csrf_token")
+
+    # Try to delete with wrong password
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json",
+    }
+    if csrf_token:
+        headers["X-CSRF-Token"] = csrf_token
+
+    response = client.request(
+        "DELETE",
+        "/api/v1/auth/account",
+        headers=headers,
+        content=json.dumps({"password": "WrongPassword123!"}),
+    )
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    assert "incorrect password" in response.json()["detail"].lower()
+
+    # User should still exist
+    user = db_session.query(User).filter(User.email == "wrongpwd@example.com").first()
+    assert user is not None
+    assert user.is_active is True
+
+
+def test_delete_account_correct_password(client, db_session):
+    """Test successful account deletion with correct password."""
+    import json
+
+    from models.user import User
+
+    # Create and login user
+    signup_data = {
+        "email": "correctpwd@example.com",
+        "name": "Correct Password",
+        "password": "SecurePass123!",
+    }
+    signup_response = client.post("/api/v1/auth/signup", json=signup_data)
+    assert signup_response.status_code == status.HTTP_201_CREATED
+    token = signup_response.json()["access_token"]
+    csrf_token = signup_response.json().get("csrf_token")
+
+    # Delete with correct password
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json",
+    }
+    if csrf_token:
+        headers["X-CSRF-Token"] = csrf_token
+
+    response = client.request(
+        "DELETE",
+        "/api/v1/auth/account",
+        headers=headers,
+        content=json.dumps({"password": "SecurePass123!"}),
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert "deleted" in response.json()["message"].lower()
+
+    # User should be soft-deleted
+    user = db_session.query(User).filter(User.email == "correctpwd@example.com").first()
+    assert user is not None
+    assert user.is_active is False
+    assert user.deleted_at is not None
+    assert user.password_hash is None
