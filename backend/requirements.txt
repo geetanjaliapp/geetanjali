@@ -75,3 +75,6 @@ apscheduler==3.11.2  # Background task scheduler for metrics collection
 mutagen==1.47.0  # Audio file metadata (duration) for TTS QA
 edge-tts==7.2.7  # Microsoft Edge TTS for English narration
 
+
+# Type stubs
+typing_extensions>=4.0.0

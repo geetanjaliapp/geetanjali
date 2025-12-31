@@ -14,7 +14,9 @@ Content authored with attention to:
 Sync to database via: POST /api/v1/admin/sync-metadata
 """
 
-from typing import NotRequired, TypedDict, cast
+from typing import TypedDict, cast
+
+from typing_extensions import NotRequired
 
 
 class BookMetadata(TypedDict):
