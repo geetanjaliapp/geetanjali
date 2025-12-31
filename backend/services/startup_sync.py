@@ -76,7 +76,16 @@ class StartupSyncService:
     Ensures all code-first curated content is synced to the database.
 
     Each sync operation is independent - failures in one don't block others.
+
+    Performance optimizations:
+    - Batch fetches all stored hashes in one query at startup
+    - Fast-path skips expensive operations (file scans) when hash exists
+    - Lazy hash computation only when needed
     """
+
+    # Hash version prefix - increment when hash algorithm/serialization changes
+    # This ensures old hashes are treated as "no hash" after algorithm changes
+    HASH_VERSION = "v1:"
 
     def __init__(self, db: Session, force_sync: bool = False):
         """
@@ -89,6 +98,7 @@ class StartupSyncService:
         self.db = db
         self.force_sync = force_sync or getattr(settings, "FORCE_CONTENT_SYNC", False)
         self.results: list[SyncResult] = []
+        self._stored_hashes: dict[str, str] | None = None  # Lazy-loaded cache
 
     def sync_all(self) -> list[SyncResult]:
         """
@@ -107,6 +117,9 @@ class StartupSyncService:
         if self.force_sync:
             logger.info("STARTUP SYNC: Force sync enabled - ignoring hashes")
         logger.info("=" * 60)
+
+        # Batch fetch all stored hashes upfront (1 query instead of 5)
+        self._load_stored_hashes()
 
         # Independent content (no dependencies)
         # Note: Book and chapter metadata are synced together to avoid duplicate calls
@@ -181,20 +194,51 @@ class StartupSyncService:
                 )
             )
 
-    def _get_stored_hash(self, content_type: str) -> str | None:
-        """Get stored hash for a content type, or None if not exists."""
+    def _load_stored_hashes(self) -> None:
+        """
+        Batch load all stored hashes into memory.
+
+        This reduces 5 individual DB queries to 1, significantly improving
+        startup performance when all content is unchanged.
+        """
         from models import SyncHash
 
-        record = (
-            self.db.query(SyncHash)
-            .filter(SyncHash.content_type == content_type)
-            .first()
-        )
-        return record.content_hash if record else None
+        self._stored_hashes = {}
+        records = self.db.query(SyncHash).all()
+        for record in records:
+            self._stored_hashes[record.content_type] = record.content_hash
+
+        logger.debug(f"Loaded {len(self._stored_hashes)} stored hashes")
+
+    def _get_stored_hash(self, content_type: str) -> str | None:
+        """
+        Get stored hash for a content type from cache.
+
+        Returns None if:
+        - No hash exists for this content type
+        - Hash exists but has wrong version prefix (algorithm changed)
+        """
+        if self._stored_hashes is None:
+            self._load_stored_hashes()
+
+        stored = self._stored_hashes.get(content_type)
+        if stored is None:
+            return None
+
+        # Check version prefix - treat old hashes as "no hash"
+        if not stored.startswith(self.HASH_VERSION):
+            logger.debug(f"{content_type}: Hash version mismatch, re-sync needed")
+            return None
+
+        return stored
 
     def _update_stored_hash(self, content_type: str, content_hash: str) -> None:
         """Update or create stored hash for a content type."""
         from models import SyncHash
+
+        # Ensure hash has version prefix
+        if not content_hash.startswith(self.HASH_VERSION):
+            content_hash = self.HASH_VERSION + content_hash
 
         record = (
             self.db.query(SyncHash)
@@ -215,6 +259,10 @@ class StartupSyncService:
 
         self.db.commit()
 
+        # Update cache
+        if self._stored_hashes is not None:
+            self._stored_hashes[content_type] = content_hash
+
     def _needs_sync(self, content_type: str, current_hash: str) -> bool:
         """Check if content needs sync by comparing hashes."""
         if self.force_sync:
@@ -227,10 +275,13 @@ class StartupSyncService:
             logger.debug(f"{content_type}: No stored hash, sync needed")
             return True
 
-        if stored_hash != current_hash:
+        # Add version prefix to current hash for comparison
+        versioned_current = self.HASH_VERSION + current_hash
+
+        if stored_hash != versioned_current:
             logger.debug(f"{content_type}: Hash changed, sync needed")
-            logger.debug(f"  Stored: {stored_hash[:16]}...")
-            logger.debug(f"  Current: {current_hash[:16]}...")
+            logger.debug(f"  Stored: {stored_hash[:20]}...")
+            logger.debug(f"  Current: {versioned_current[:20]}...")
             return True
 
         logger.debug(f"{content_type}: Hash unchanged, skip sync")
@@ -409,12 +460,20 @@ class StartupSyncService:
         Scans the audio directory for MP3 files, extracts durations using ffprobe,
         and updates audio_file_path and audio_duration_ms in verse_audio_metadata.
 
-        Hash is computed from file list (names + sizes) to detect new/changed files.
+        Includes both verse audio (BG_*.mp3) and dhyanam audio (dhyanam_*.mp3).
+
+        Hash is computed from file list (names + sizes) to detect changes.
+        File scanning is required to compute hash, but ffprobe calls only happen
+        when hash indicates changes.
         """
-        from models import VerseAudioMetadata
+        from pathlib import Path
+
+        from models import DhyanamVerse, VerseAudioMetadata
         from services.audio import extract_duration_ffprobe, get_audio_directory
 
-        # Check if audio metadata rows exist
+        content_type = "audio_durations"
+
+        # Check if audio metadata rows exist (cheap DB query)
         audio_count = self.db.query(VerseAudioMetadata).count()
         if audio_count == 0:
             return SyncResult(
@@ -435,15 +494,43 @@ class StartupSyncService:
             )
 
         # Scan for MP3 files and build file list for hashing
+        # Includes: chapters 01-18 (BG_*.mp3) and dhyanam/ (dhyanam_*.mp3)
         file_list = []
+        audio_files: list[tuple[str, str, str]] = []  # (path, canonical_id, rel_path)
+
+        # Chapter audio files (BG_1_1.mp3 through BG_18_78.mp3)
         for chapter_num in range(1, 19):
             chapter_dir = mp3_dir / f"{chapter_num:02d}"
             if chapter_dir.exists():
                 for mp3_file in sorted(chapter_dir.glob("BG_*.mp3")):
                     stat = mp3_file.stat()
                     file_list.append(
-                        {"name": mp3_file.name, "size": stat.st_size}
+                        {"name": mp3_file.name, "size": stat.st_size, "dir": f"{chapter_num:02d}"}
                     )
+                    audio_files.append((
+                        str(mp3_file),
+                        mp3_file.stem,  # BG_2_47
+                        f"mp3/{chapter_num:02d}/{mp3_file.name}",
+                    ))
+
+        # Dhyanam audio files (dhyanam_1.mp3 through dhyanam_9.mp3)
+        dhyanam_dir = mp3_dir / "dhyanam"
+        if dhyanam_dir.exists():
+            for mp3_file in sorted(dhyanam_dir.glob("dhyanam_*.mp3")):
+                stat = mp3_file.stat()
+                file_list.append(
+                    {"name": mp3_file.name, "size": stat.st_size, "dir": "dhyanam"}
+                )
+                # Extract verse number from filename (dhyanam_1.mp3 -> 1)
+                try:
+                    verse_num = int(mp3_file.stem.split("_")[1])
+                    audio_files.append((
+                        str(mp3_file),
+                        f"dhyanam_{verse_num}",  # Special ID for dhyanam
+                        f"mp3/dhyanam/{mp3_file.name}",
+                    ))
+                except (IndexError, ValueError):
+                    logger.warning(f"Unexpected dhyanam filename: {mp3_file.name}")
 
         if not file_list:
             return SyncResult(
@@ -453,7 +540,6 @@ class StartupSyncService:
             )
 
         # Compute hash from file list
-        content_type = "audio_durations"
         current_hash = compute_content_hash(file_list)
 
         if not self._needs_sync(content_type, current_hash):
@@ -464,30 +550,36 @@ class StartupSyncService:
             )
 
         # Sync needed - extract durations and update DB
-        logger.info(f"STARTUP SYNC: Extracting durations from {len(file_list)} audio files...")
+        logger.info(f"STARTUP SYNC: Extracting durations from {len(audio_files)} audio files...")
 
         updated = 0
         errors = 0
 
-        for chapter_num in range(1, 19):
-            chapter_dir = mp3_dir / f"{chapter_num:02d}"
-            if not chapter_dir.exists():
+        for file_path, canonical_id, rel_path in audio_files:
+            # Extract duration using ffprobe
+            duration_ms = extract_duration_ffprobe(Path(file_path))
+            if duration_ms is None:
+                errors += 1
+                logger.debug(f"Failed to extract duration: {file_path}")
                 continue
 
-            for mp3_file in chapter_dir.glob("BG_*.mp3"):
-                canonical_id = mp3_file.stem  # e.g., BG_2_47
-
-                # Extract duration using ffprobe
-                duration_ms = extract_duration_ffprobe(mp3_file)
-                if duration_ms is None:
-                    errors += 1
-                    continue
-
-                # Compute relative path for storage
-                rel_path = f"mp3/{chapter_num:02d}/{mp3_file.name}"
-
-                # Update database
-                self.db.query(VerseAudioMetadata).filter(
+            # Update database based on type
+            if canonical_id.startswith("dhyanam_"):
+                # Update DhyanamVerse table
+                verse_num = int(canonical_id.split("_")[1])
+                rows = self.db.query(DhyanamVerse).filter(
+                    DhyanamVerse.verse_number == verse_num
+                ).update(
+                    {
+                        "audio_url": f"/audio/{rel_path}",
+                        "duration_ms": duration_ms,
+                    }
+                )
+                if rows > 0:
+                    updated += 1
+            else:
+                # Update VerseAudioMetadata table
+                rows = self.db.query(VerseAudioMetadata).filter(
                     VerseAudioMetadata.canonical_id == canonical_id
                 ).update(
                     {
@@ -495,7 +587,8 @@ class StartupSyncService:
                         "audio_duration_ms": duration_ms,
                     }
                 )
-                updated += 1
+                if rows > 0:
+                    updated += 1
 
         self.db.commit()
         self._update_stored_hash(content_type, current_hash)
