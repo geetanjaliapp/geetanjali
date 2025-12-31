@@ -9,17 +9,22 @@
  * - Single-play button on verse card
  * - Summary screen after verse 9
  * - No auto-play on page load (user must tap to start)
+ * - Deep linking support: /read/dhyanam/3 starts at verse 3
+ * - URL sync: URL updates as user navigates for shareable links
  *
- * Route: /read/dhyanam
+ * Routes:
+ * - /read/dhyanam - Start at verse 1
+ * - /read/dhyanam/:verseNumber - Start at specific verse (1-9)
  *
  * Design: Mobile-first, 44×44px touch targets, content-forward
  *
  * Phase 3.7c: Refactored to use shared useAutoAdvance hook and MiniPlayer
+ * Phase 3.7d: Added deep linking and URL sync for shareable verse links
  */
 
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
-import { readingApi } from "../lib/api";
+import { useNavigate, useParams } from "react-router-dom";
+import { dhyanamApi } from "../lib/api";
 import type { GeetaDhyanamVerse } from "../types";
 import { Navbar } from "../components";
 import { DhyanamVerseFocus } from "../components/DhyanamVerseFocus";
@@ -202,10 +207,20 @@ function NavigationControls({
 
 export default function DhyanamPage() {
   const navigate = useNavigate();
+  const { verseNumber } = useParams<{ verseNumber?: string }>();
+
+  // Parse and validate verse number from URL (1-9, default 1)
+  const initialIndex = useMemo(() => {
+    if (!verseNumber) return 0;
+    const parsed = parseInt(verseNumber, 10);
+    if (isNaN(parsed) || parsed < 1) return 0;
+    if (parsed > 9) return 8; // Clamp to max
+    return parsed - 1; // Convert to 0-based index
+  }, [verseNumber]);
 
   // Core state
   const [verses, setVerses] = useState<GeetaDhyanamVerse[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [pageState, setPageState] = useState<DhyanamState>("loading");
   const [error, setError] = useState<string | null>(null);
   const [showTranslation, setShowTranslation] = useState(false);
@@ -255,7 +270,7 @@ export default function DhyanamPage() {
   useEffect(() => {
     async function loadVerses() {
       try {
-        const data = await readingApi.getGeetaDhyanam();
+        const data = await dhyanamApi.getAll();
         setVerses(data);
         setPageState("viewing");
       } catch {
@@ -265,6 +280,19 @@ export default function DhyanamPage() {
     }
     loadVerses();
   }, []);
+
+  // Sync URL with current verse (for shareable deep links)
+  useEffect(() => {
+    if (pageState !== "viewing" || verses.length === 0) return;
+
+    const newVerseNumber = currentIndex + 1;
+    const currentUrlVerseNumber = verseNumber ? parseInt(verseNumber, 10) : 1;
+
+    // Only update URL if it differs (avoid unnecessary history entries)
+    if (newVerseNumber !== currentUrlVerseNumber) {
+      navigate(`/read/dhyanam/${newVerseNumber}`, { replace: true });
+    }
+  }, [currentIndex, pageState, verses.length, verseNumber, navigate]);
 
   // Single-play: Auto-dismiss after completion or error
   const SINGLE_PLAY_DISMISS_DELAY_MS = 1500;

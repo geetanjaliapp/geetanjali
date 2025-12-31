@@ -146,7 +146,7 @@ function App() {
             <Route path="/search" element={<SearchRedirect />} />
             <Route path="/verses/:canonicalId" element={<VerseDetail />} />
             <Route path="/read" element={<ReadingMode />} />
-            <Route path="/read/dhyanam" element={<DhyanamPage />} />
+            <Route path="/read/dhyanam/:verseNumber?" element={<DhyanamPage />} />
             {/* Redirects for legacy path-based reading URLs */}
             <Route
               path="/read/:chapter/:verse"
