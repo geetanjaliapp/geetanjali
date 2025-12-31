@@ -8,7 +8,7 @@ Sentry is only initialized when SENTRY_DSN is configured.
 """
 
 import logging
-from typing import Any, Dict
+from typing import Any
 
 from config import settings
 
@@ -40,9 +40,9 @@ def init_sentry(service_name: str = "backend") -> bool:
     try:
         import sentry_sdk
         from sentry_sdk.integrations.fastapi import FastApiIntegration
-        from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
         from sentry_sdk.integrations.logging import LoggingIntegration
         from sentry_sdk.integrations.rq import RqIntegration
+        from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 
         sentry_sdk.init(
             dsn=settings.SENTRY_DSN,
@@ -86,7 +86,7 @@ def init_sentry(service_name: str = "backend") -> bool:
         return False
 
 
-def _filter_event(event: Any, _hint: Dict[str, Any]) -> Any:
+def _filter_event(event: Any, _hint: dict[str, Any]) -> Any:
     """Filter sensitive data from Sentry events before sending.
 
     This is the before_send hook that runs on every event.
@@ -152,7 +152,7 @@ def _filter_event(event: Any, _hint: Dict[str, Any]) -> Any:
     return event
 
 
-def _traces_sampler(sampling_context: Dict[str, Any]) -> float:
+def _traces_sampler(sampling_context: dict[str, Any]) -> float:
     """Custom sampler to avoid tracing health checks and static assets."""
     # Get transaction name from context
     transaction_context = sampling_context.get("transaction_context", {})

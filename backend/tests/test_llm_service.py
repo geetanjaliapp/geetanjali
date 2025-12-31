@@ -1,8 +1,9 @@
 """Tests for LLM service."""
 
 import time
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
 
 # Mark all tests in this module as unit tests (fast, mocked externals)
 pytestmark = pytest.mark.unit
@@ -23,7 +24,9 @@ class TestLLMCircuitBreaker:
         """Test circuit breaker opens after threshold failures."""
         from services.llm import LLMCircuitBreaker
 
-        cb = LLMCircuitBreaker(provider="test", failure_threshold=3, recovery_timeout=60)
+        cb = LLMCircuitBreaker(
+            provider="test", failure_threshold=3, recovery_timeout=60
+        )
 
         cb.record_failure()
         cb.record_failure()
@@ -54,7 +57,9 @@ class TestLLMCircuitBreaker:
         """Test circuit breaker transitions to half_open after recovery timeout."""
         from services.llm import LLMCircuitBreaker
 
-        cb = LLMCircuitBreaker(provider="test", failure_threshold=2, recovery_timeout=0.1)
+        cb = LLMCircuitBreaker(
+            provider="test", failure_threshold=2, recovery_timeout=0.1
+        )
 
         # Open the circuit
         cb.record_failure()
@@ -73,7 +78,9 @@ class TestLLMCircuitBreaker:
         """Test successful request in half_open state closes circuit."""
         from services.llm import LLMCircuitBreaker
 
-        cb = LLMCircuitBreaker(provider="test", failure_threshold=2, recovery_timeout=0.1)
+        cb = LLMCircuitBreaker(
+            provider="test", failure_threshold=2, recovery_timeout=0.1
+        )
 
         # Open the circuit
         cb.record_failure()
@@ -93,7 +100,9 @@ class TestLLMCircuitBreaker:
         """Test failed request in half_open state reopens circuit."""
         from services.llm import LLMCircuitBreaker
 
-        cb = LLMCircuitBreaker(provider="test", failure_threshold=2, recovery_timeout=0.1)
+        cb = LLMCircuitBreaker(
+            provider="test", failure_threshold=2, recovery_timeout=0.1
+        )
 
         # Open the circuit
         cb.record_failure()
@@ -251,8 +260,9 @@ class TestLLMServiceCircuitBreakerIntegration:
 
     def test_timeout_error_triggers_retry_not_immediate_circuit_failure(self):
         """Test APITimeoutError triggers retry, doesn't immediately record circuit failure."""
-        from services.llm import LLMService
         from anthropic import APITimeoutError
+
+        from services.llm import LLMService
 
         with patch("services.llm.settings") as mock_settings:
             mock_settings.USE_MOCK_LLM = False
@@ -296,8 +306,9 @@ class TestLLMServiceCircuitBreakerIntegration:
 
     def test_connection_error_triggers_retry(self):
         """Test APIConnectionError triggers retry before circuit breaker failure."""
-        from services.llm import LLMService
         from anthropic import APIConnectionError
+
+        from services.llm import LLMService
 
         with patch("services.llm.settings") as mock_settings:
             mock_settings.USE_MOCK_LLM = False

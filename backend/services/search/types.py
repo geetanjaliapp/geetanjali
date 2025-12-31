@@ -6,7 +6,7 @@ used across search modules are defined here for consistency.
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class MatchType(str, Enum):
@@ -46,7 +46,7 @@ class SearchMatch:
     type: MatchType
     field: str  # canonical_id, sanskrit_iast, translation_en, etc.
     score: float  # 0.0 to 1.0
-    highlight: Optional[str] = None  # Matched text with <mark> tags
+    highlight: str | None = None  # Matched text with <mark> tags
     match_count: int = 1  # Number of query keywords matched (for hybrid OR ranking)
 
 
@@ -60,11 +60,11 @@ class SearchResult:
     canonical_id: str
     chapter: int
     verse: int
-    sanskrit_devanagari: Optional[str]
-    sanskrit_iast: Optional[str]
-    translation_en: Optional[str]
-    paraphrase_en: Optional[str]
-    principles: List[str]
+    sanskrit_devanagari: str | None
+    sanskrit_iast: str | None
+    translation_en: str | None
+    paraphrase_en: str | None
+    principles: list[str]
     is_featured: bool
     match: SearchMatch
     rank_score: float = 0.0  # Computed by ranking algorithm
@@ -81,9 +81,9 @@ class SearchResponse:
     strategy: str  # Primary strategy that produced results
     total: int  # Results in this page
     total_count: int  # Total matching results (for pagination)
-    results: List[SearchResult]
-    moderation: Optional[Dict[str, Any]] = None
-    suggestion: Optional[Dict[str, Any]] = None  # e.g., consultation CTA
+    results: list[SearchResult]
+    moderation: dict[str, Any] | None = None
+    suggestion: dict[str, Any] | None = None  # e.g., consultation CTA
 
 
 @dataclass
@@ -91,7 +91,7 @@ class ModerationResult:
     """Content moderation check result."""
 
     blocked: bool
-    message: Optional[str] = None
+    message: str | None = None
 
 
 @dataclass
@@ -101,10 +101,10 @@ class SearchSuggestion:
     type: str  # "consultation"
     message: str
     cta: str
-    prefill: Optional[str] = None
+    prefill: str | None = None
 
 
-def serialize_search_response(response: SearchResponse) -> Dict[str, Any]:
+def serialize_search_response(response: SearchResponse) -> dict[str, Any]:
     """Convert SearchResponse to API-compatible dict.
 
     Handles dataclass serialization including nested objects.

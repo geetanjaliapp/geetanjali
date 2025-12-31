@@ -5,6 +5,7 @@ import sys
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config, pool
+
 from alembic import context
 
 # Add parent directory to path to import models
@@ -18,15 +19,15 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 # Import all models for autogenerate support
-from models.base import Base  # noqa: E402
 from models import (  # noqa: E402, F401
-    User,
     Case,
-    Output,
-    Verse,
     Commentary,
+    Output,
     Translation,
+    User,
+    Verse,
 )
+from models.base import Base  # noqa: E402
 
 target_metadata = Base.metadata
 

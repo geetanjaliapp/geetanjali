@@ -37,6 +37,8 @@ Free. Open source. Private by default.
 ### Discovery
 - **Verse Browser** - Explore 701 verses across 18 chapters with translations
 - **Reading Mode** - Distraction-free sequential reading, Sanskrit-first
+- **Audio Recitations** - AI-generated Sanskrit verse audio with speed control and loop mode
+- **Listen/Read Modes** - Auto-advance through verses with audio or timed text
 - **Search** - Find verses by reference, Sanskrit, keywords, or meaning
 - **Favorites** - Save verses for quick access
 - **Verse Sharing** - Generate shareable images with Sanskrit and translation
@@ -55,6 +57,9 @@ Requirements: Docker and Docker Compose
 ```bash
 git clone https://github.com/geetanjaliapp/geetanjali.git
 cd geetanjali
+
+# Pull audio files (requires Git LFS)
+git lfs pull
 
 # Start all services
 docker compose up -d
@@ -82,6 +87,7 @@ Services:
 | Cache | Redis 7 |
 | LLM | Ollama (qwen2.5:3b) primary, configurable fallback |
 | Embeddings | sentence-transformers/all-MiniLM-L6-v2 |
+| Audio | Indic Parler-TTS (AI4Bharat), Edge TTS |
 
 The system uses circuit breakers for service resilience: Ollama falls back to Anthropic, ChromaDB falls back to SQL keyword search. See [Architecture](docs/architecture.md) for details.
 
@@ -148,6 +154,7 @@ Full API documentation at `/docs` when running.
 - [Discovery Journey](docs/discovery.md) - Verse Browser and Reading Mode
 - [Consultation Journey](docs/consultation.md) - Case analysis and follow-up
 - [Search](docs/search.md) - Multi-strategy hybrid search
+- [Audio Recitations](docs/audio.md) - Sanskrit verse audio playback
 
 **Reference:**
 - [Setup Guide](docs/setup.md) - Development environment and configuration

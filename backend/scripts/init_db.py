@@ -7,14 +7,15 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from sqlalchemy import create_engine  # noqa: E402
+
 from config import settings  # noqa: E402
 from models.base import Base  # noqa: E402
-from models.user import User  # noqa: E402, F401
 from models.case import Case  # noqa: E402, F401
 from models.message import Message  # noqa: E402, F401
 from models.output import Output  # noqa: E402, F401
 from models.refresh_token import RefreshToken  # noqa: E402, F401
-from models.verse import Verse, Translation  # noqa: E402, F401
+from models.user import User  # noqa: E402, F401
+from models.verse import Translation, Verse  # noqa: E402, F401
 
 
 def init_database():

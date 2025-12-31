@@ -8,11 +8,10 @@ Handles exact lookups by verse reference:
 This is the fastest and most precise search strategy.
 """
 
-from typing import List
-
 from sqlalchemy.orm import Session
 
 from models.verse import Verse
+
 from ..types import MatchType, SearchMatch, SearchResult
 from ..utils import verse_to_result
 
@@ -21,7 +20,7 @@ def canonical_search(
     db: Session,
     chapter: int,
     verse: int,
-) -> List[SearchResult]:
+) -> list[SearchResult]:
     """Search by exact canonical verse reference.
 
     Args:

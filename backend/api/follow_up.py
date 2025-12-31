@@ -17,21 +17,20 @@ Flow:
 import logging
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
-from sqlalchemy.orm import Session
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
+from sqlalchemy.orm import Session
 
-from config import settings
-
-from api.schemas import FollowUpRequest, ChatMessageResponse
 from api.dependencies import get_case_with_access, limiter
-from db.connection import get_db, SessionLocal
+from api.schemas import ChatMessageResponse, FollowUpRequest
+from config import settings
+from db.connection import SessionLocal, get_db
 from db.repositories.message_repository import MessageRepository
 from db.repositories.output_repository import OutputRepository
 from models.case import Case, CaseStatus
-from services.content_filter import validate_submission_content, ContentPolicyError
+from services.cache import cache, public_case_messages_key
+from services.content_filter import ContentPolicyError, validate_submission_content
 from services.follow_up import get_follow_up_pipeline
 from services.tasks import enqueue_task
-from services.cache import cache, public_case_messages_key
 from utils.exceptions import LLMError
 
 logger = logging.getLogger(__name__)

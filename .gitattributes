@@ -1,0 +1,8 @@
+# Git LFS tracking for audio files
+# Enabled in v1.17.0 to prevent repository bloat (~94MB of MP3 files)
+#
+# To set up on a new machine:
+#   brew install git-lfs && git lfs install
+#   git lfs pull
+public/audio/**/*.mp3 filter=lfs diff=lfs merge=lfs -text
+public/audio/**/*.wav filter=lfs diff=lfs merge=lfs -text

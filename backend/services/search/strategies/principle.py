@@ -6,13 +6,12 @@ Uses PostgreSQL JSONB contains operator for efficient querying.
 Principles include: karma_yoga, detachment, duty_focused_action, etc.
 """
 
-from typing import List
-
 from sqlalchemy import cast
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Session
 
 from models.verse import Verse
+
 from ..config import SearchConfig
 from ..types import MatchType, SearchMatch, SearchResult
 from ..utils import verse_to_result
@@ -22,7 +21,7 @@ def principle_search(
     db: Session,
     principle: str,
     config: SearchConfig,
-) -> List[SearchResult]:
+) -> list[SearchResult]:
     """Search verses by principle/topic tag.
 
     Uses PostgreSQL JSONB contains operator for efficient array search.

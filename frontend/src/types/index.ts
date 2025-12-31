@@ -43,6 +43,8 @@ export interface Verse {
   source?: string;
   license?: string;
   created_at: string;
+  audio_url?: string | null; // URL to audio recitation (null if not available)
+  duration_ms?: number | null; // Audio duration in milliseconds (for auto-advance timing)
 }
 
 export interface Option {
@@ -217,6 +219,19 @@ export interface ChapterMetadata {
   summary: string;
   verse_count: number;
   key_themes?: string[];
+  hero_verse_id?: string;
+}
+
+/** Geeta Dhyanam verse (invocation verse) */
+export interface GeetaDhyanamVerse {
+  verse_number: number;
+  sanskrit: string;
+  iast: string;
+  english: string;
+  hindi: string;
+  theme: string;
+  duration_ms: number;  // Audio duration in milliseconds
+  audio_url: string;    // Path to pre-generated audio file
 }
 
 // Search Types
@@ -251,6 +266,7 @@ export interface SearchResult {
   is_featured: boolean;
   match: SearchMatch;
   rank_score: number;
+  audio_url: string | null;
 }
 
 /** Moderation result for blocked queries */

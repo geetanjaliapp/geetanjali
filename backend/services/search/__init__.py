@@ -1,6 +1,6 @@
 """Search service package.
 
-Provides unified search across Bhagavad Gita verses using
+Provides unified search across Bhagavad Geeta verses using
 multiple strategies: canonical, Sanskrit, keyword, principle,
 and semantic (vector) search.
 

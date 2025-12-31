@@ -4,7 +4,16 @@ import hashlib
 import logging
 import secrets
 from datetime import datetime, timedelta
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status, Response, Request
+
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Depends,
+    HTTPException,
+    Request,
+    Response,
+    status,
+)
 from sqlalchemy.orm import Session
 
 from api.dependencies import limiter
@@ -13,38 +22,38 @@ from api.errors import (
     ERR_INVALID_REFRESH_TOKEN,
     ERR_USER_NOT_FOUND,
 )
-from api.schemas import (
-    SignupRequest,
-    LoginRequest,
-    AuthResponse,
-    RefreshResponse,
-    UserResponse,
-    ForgotPasswordRequest,
-    ResetPasswordRequest,
-    MessageResponse,
-    EmailVerificationResponse,
-)
 from api.middleware.auth import get_current_user, get_session_id
-from db.connection import get_db
-from db.repositories.user_repository import UserRepository
-from db.repositories.refresh_token_repository import RefreshTokenRepository
-from db.repositories.case_repository import CaseRepository
-from models.user import User
-from utils.auth import (
-    hash_password,
-    verify_password,
-    validate_password_strength,
-    validate_email,
-)
-from utils.jwt import create_access_token, create_refresh_token
-from utils.csrf import generate_csrf_token, set_csrf_cookie
-from services.email import (
-    send_password_reset_email,
-    send_account_verification_email,
-    send_password_changed_email,
-    send_account_deleted_email,
+from api.schemas import (
+    AuthResponse,
+    EmailVerificationResponse,
+    ForgotPasswordRequest,
+    LoginRequest,
+    MessageResponse,
+    RefreshResponse,
+    ResetPasswordRequest,
+    SignupRequest,
+    UserResponse,
 )
 from config import settings
+from db.connection import get_db
+from db.repositories.case_repository import CaseRepository
+from db.repositories.refresh_token_repository import RefreshTokenRepository
+from db.repositories.user_repository import UserRepository
+from models.user import User
+from services.email import (
+    send_account_deleted_email,
+    send_account_verification_email,
+    send_password_changed_email,
+    send_password_reset_email,
+)
+from utils.auth import (
+    hash_password,
+    validate_email,
+    validate_password_strength,
+    verify_password,
+)
+from utils.csrf import generate_csrf_token, set_csrf_cookie
+from utils.jwt import create_access_token, create_refresh_token
 
 # Email verification token settings
 EMAIL_VERIFICATION_TOKEN_EXPIRE_HOURS = 24
@@ -185,7 +194,9 @@ async def signup(
     verification_expires = datetime.utcnow() + timedelta(
         hours=EMAIL_VERIFICATION_TOKEN_EXPIRE_HOURS
     )
-    user_repo.set_email_verification_token(user, verification_token, verification_expires)
+    user_repo.set_email_verification_token(
+        user, verification_token, verification_expires
+    )
 
     verify_url = f"{settings.FRONTEND_URL}/verify-email/{verification_token}"
     email_sent = send_account_verification_email(user.email, user.name, verify_url)
@@ -540,10 +551,10 @@ async def delete_account(
         Success message
     """
     from models.case import Case
-    from models.user_preferences import UserPreferences
-    from models.refresh_token import RefreshToken
     from models.feedback import Feedback
+    from models.refresh_token import RefreshToken
     from models.subscriber import Subscriber
+    from models.user_preferences import UserPreferences
 
     user_id = current_user.id
     user_email = current_user.email
@@ -705,6 +716,4 @@ async def resend_verification(
         )
 
     logger.info(f"Verification email resent for user: {current_user.id}")
-    return MessageResponse(
-        message="Verification email sent. Please check your inbox."
-    )
+    return MessageResponse(message="Verification email sent. Please check your inbox.")

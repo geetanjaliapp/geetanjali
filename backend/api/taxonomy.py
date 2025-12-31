@@ -7,7 +7,7 @@ These serve as the single source of truth for the frontend.
 import json
 import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional, cast
+from typing import Any, cast
 
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field
@@ -22,23 +22,23 @@ router = APIRouter(prefix="/api/v1/taxonomy")
 CONFIG_DIR = Path(__file__).parent.parent / "config"
 
 
-def _load_json(filename: str) -> Dict[str, Any]:
+def _load_json(filename: str) -> dict[str, Any]:
     """Load a JSON config file."""
     filepath = CONFIG_DIR / filename
     if not filepath.exists():
         logger.error(f"Config file not found: {filepath}")
         return {}
-    with open(filepath, "r", encoding="utf-8") as f:
-        return cast(Dict[str, Any], json.load(f))
+    with open(filepath, encoding="utf-8") as f:
+        return cast(dict[str, Any], json.load(f))
 
 
 # Cache loaded taxonomy data
-_principles_cache: Optional[Dict[str, Any]] = None
-_goals_cache: Optional[Dict[str, Any]] = None
-_groups_cache: Optional[Dict[str, Any]] = None
+_principles_cache: dict[str, Any] | None = None
+_goals_cache: dict[str, Any] | None = None
+_groups_cache: dict[str, Any] | None = None
 
 
-def get_principles() -> Dict[str, Any]:
+def get_principles() -> dict[str, Any]:
     """Get principles taxonomy with caching."""
     global _principles_cache
     if _principles_cache is None:
@@ -46,7 +46,7 @@ def get_principles() -> Dict[str, Any]:
     return _principles_cache
 
 
-def get_goals() -> Dict[str, Any]:
+def get_goals() -> dict[str, Any]:
     """Get goals taxonomy with caching."""
     global _goals_cache
     if _goals_cache is None:
@@ -54,7 +54,7 @@ def get_goals() -> Dict[str, Any]:
     return _goals_cache
 
 
-def get_groups() -> Dict[str, Any]:
+def get_groups() -> dict[str, Any]:
     """Get principle groups with caching."""
     global _groups_cache
     if _groups_cache is None:
@@ -62,7 +62,7 @@ def get_groups() -> Dict[str, Any]:
     return _groups_cache
 
 
-def _ensure_id(key: str, data: Dict[str, Any]) -> Dict[str, Any]:
+def _ensure_id(key: str, data: dict[str, Any]) -> dict[str, Any]:
     """Ensure item has 'id' field, adding from dict key if missing."""
     return {**data, "id": key} if "id" not in data else data
 
@@ -84,11 +84,11 @@ class PrincipleResponse(BaseModel):
     leadershipContext: str = Field(
         ..., description="How this applies to leadership/work"
     )
-    keywords: List[str] = Field(
+    keywords: list[str] = Field(
         default_factory=list, description="Keywords for matching"
     )
     group: str = Field(..., description="Parent yoga group ID")
-    chapterFocus: List[int] = Field(
+    chapterFocus: list[int] = Field(
         default_factory=list, description="Key chapters for this principle"
     )
 
@@ -101,7 +101,7 @@ class PrincipleGroupResponse(BaseModel):
     sanskrit: str = Field(..., description="Sanskrit name in Devanagari")
     transliteration: str = Field(..., description="Sanskrit transliteration")
     description: str = Field(..., description="Brief description of the path")
-    principles: List[str] = Field(
+    principles: list[str] = Field(
         default_factory=list, description="Principle IDs in this group"
     )
 
@@ -109,10 +109,10 @@ class PrincipleGroupResponse(BaseModel):
 class PrinciplesListResponse(BaseModel):
     """Response for listing all principles."""
 
-    principles: List[PrincipleResponse] = Field(
+    principles: list[PrincipleResponse] = Field(
         default_factory=list, description="All principles"
     )
-    groups: List[PrincipleGroupResponse] = Field(
+    groups: list[PrincipleGroupResponse] = Field(
         default_factory=list, description="Principle groupings"
     )
     count: int = Field(..., description="Total number of principles")
@@ -125,7 +125,7 @@ class GoalResponse(BaseModel):
     label: str = Field(..., description="Display label")
     description: str = Field(..., description="Brief description")
     icon: str = Field(..., description="Icon identifier")
-    principles: List[str] = Field(
+    principles: list[str] = Field(
         default_factory=list, description="Mapped principle IDs"
     )
 
@@ -133,7 +133,7 @@ class GoalResponse(BaseModel):
 class GoalsListResponse(BaseModel):
     """Response for listing all goals."""
 
-    goals: List[GoalResponse] = Field(default_factory=list, description="All goals")
+    goals: list[GoalResponse] = Field(default_factory=list, description="All goals")
     count: int = Field(..., description="Total number of goals")
 
 
@@ -144,7 +144,7 @@ class GoalsListResponse(BaseModel):
 
 @router.get("/principles", response_model=PrinciplesListResponse)
 @limiter.limit("60/minute")
-async def list_principles(request: Request) -> Dict[str, Any]:
+async def list_principles(request: Request) -> dict[str, Any]:
     """
     Get all principles with full metadata.
 
@@ -171,7 +171,7 @@ async def list_principles(request: Request) -> Dict[str, Any]:
 
 @router.get("/principles/{principle_id}", response_model=PrincipleResponse)
 @limiter.limit("60/minute")
-async def get_principle(request: Request, principle_id: str) -> Dict[str, Any]:
+async def get_principle(request: Request, principle_id: str) -> dict[str, Any]:
     """
     Get a single principle by ID.
 
@@ -190,7 +190,7 @@ async def get_principle(request: Request, principle_id: str) -> Dict[str, Any]:
 
 @router.get("/goals", response_model=GoalsListResponse)
 @limiter.limit("60/minute")
-async def list_goals(request: Request) -> Dict[str, Any]:
+async def list_goals(request: Request) -> dict[str, Any]:
     """
     Get all learning goals with principle mappings.
 
@@ -217,7 +217,7 @@ async def list_goals(request: Request) -> Dict[str, Any]:
 
 @router.get("/goals/{goal_id}", response_model=GoalResponse)
 @limiter.limit("60/minute")
-async def get_goal(request: Request, goal_id: str) -> Dict[str, Any]:
+async def get_goal(request: Request, goal_id: str) -> dict[str, Any]:
     """
     Get a single goal by ID.
 
@@ -231,9 +231,9 @@ async def get_goal(request: Request, goal_id: str) -> Dict[str, Any]:
     return _ensure_id(goal_id, goals_data[goal_id])
 
 
-@router.get("/groups", response_model=List[PrincipleGroupResponse])
+@router.get("/groups", response_model=list[PrincipleGroupResponse])
 @limiter.limit("60/minute")
-async def list_groups(request: Request) -> List[Dict[str, Any]]:
+async def list_groups(request: Request) -> list[dict[str, Any]]:
     """
     Get all principle groups (yoga paths).
 

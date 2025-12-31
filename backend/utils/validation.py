@@ -8,7 +8,7 @@ def validate_canonical_id(canonical_id: Any) -> bool:
     """
     Validate that canonical_id follows BG_X_Y format.
 
-    The Bhagavad Gita has 18 chapters (max 2 digits) and verses
+    The Bhagavad Geeta has 18 chapters (max 2 digits) and verses
     up to ~78 per chapter (max 3 digits).
 
     Valid formats:

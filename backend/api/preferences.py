@@ -3,7 +3,6 @@
 import logging
 import re
 from datetime import datetime, timezone
-from typing import Optional
 
 from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -23,7 +22,7 @@ router = APIRouter(prefix="/api/v1/users/me", tags=["preferences"])
 MIN_DATETIME = datetime.min.replace(tzinfo=timezone.utc)
 
 
-def normalize_timestamp(ts: Optional[datetime]) -> datetime:
+def normalize_timestamp(ts: datetime | None) -> datetime:
     """Normalize timestamp to timezone-aware UTC for comparison."""
     if ts is None:
         return MIN_DATETIME
@@ -31,6 +30,7 @@ def normalize_timestamp(ts: Optional[datetime]) -> datetime:
     if ts.tzinfo is None:
         return ts.replace(tzinfo=timezone.utc)
     return ts
+
 
 # Maximum favorites per user
 MAX_FAVORITES = 500
@@ -54,11 +54,11 @@ class FavoritesResponse(BaseModel):
 class ReadingProgressResponse(BaseModel):
     """Reading progress data in preferences response."""
 
-    chapter: Optional[int] = None
-    verse: Optional[int] = None
+    chapter: int | None = None
+    verse: int | None = None
     font_size: str = "medium"
     section_prefs: dict = Field(default_factory=dict)
-    updated_at: Optional[datetime] = None
+    updated_at: datetime | None = None
 
     model_config = {"from_attributes": True}
 
@@ -67,7 +67,7 @@ class LearningGoalsResponse(BaseModel):
     """Learning goals data in preferences response."""
 
     goal_ids: list[str] = Field(default_factory=list)
-    updated_at: Optional[datetime] = None
+    updated_at: datetime | None = None
 
     model_config = {"from_attributes": True}
 
@@ -78,7 +78,7 @@ class ThemeResponse(BaseModel):
     mode: str = "system"  # light/dark/system
     theme_id: str = "default"  # default/sutra/serenity/forest
     font_family: str = "mixed"  # serif/sans/mixed
-    updated_at: Optional[datetime] = None
+    updated_at: datetime | None = None
 
     model_config = {"from_attributes": True}
 
@@ -121,10 +121,10 @@ class ReadingProgressUpdate(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    chapter: Optional[int] = None
-    verse: Optional[int] = None
-    font_size: Optional[str] = None
-    section_prefs: Optional[dict] = None
+    chapter: int | None = None
+    verse: int | None = None
+    font_size: str | None = None
+    section_prefs: dict | None = None
 
 
 class LearningGoalsUpdate(BaseModel):
@@ -140,27 +140,27 @@ class ThemeUpdate(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    mode: Optional[str] = None  # light/dark/system
-    theme_id: Optional[str] = None  # default/sutra/serenity/forest
-    font_family: Optional[str] = None  # serif/sans/mixed
+    mode: str | None = None  # light/dark/system
+    theme_id: str | None = None  # default/sutra/serenity/forest
+    font_family: str | None = None  # serif/sans/mixed
 
     @field_validator("mode")
     @classmethod
-    def validate_mode(cls, v: Optional[str]) -> Optional[str]:
+    def validate_mode(cls, v: str | None) -> str | None:
         if v is not None and v not in ("light", "dark", "system"):
             raise ValueError("mode must be light, dark, or system")
         return v
 
     @field_validator("theme_id")
     @classmethod
-    def validate_theme_id(cls, v: Optional[str]) -> Optional[str]:
+    def validate_theme_id(cls, v: str | None) -> str | None:
         if v is not None and v not in ("default", "sutra", "serenity", "forest"):
             raise ValueError("theme_id must be default, sutra, serenity, or forest")
         return v
 
     @field_validator("font_family")
     @classmethod
-    def validate_font_family(cls, v: Optional[str]) -> Optional[str]:
+    def validate_font_family(cls, v: str | None) -> str | None:
         if v is not None and v not in ("serif", "sans", "mixed"):
             raise ValueError("font_family must be serif, sans, or mixed")
         return v
@@ -171,10 +171,10 @@ class PreferencesUpdate(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    favorites: Optional[FavoritesUpdate] = None
-    reading: Optional[ReadingProgressUpdate] = None
-    learning_goals: Optional[LearningGoalsUpdate] = None
-    theme: Optional[ThemeUpdate] = None
+    favorites: FavoritesUpdate | None = None
+    reading: ReadingProgressUpdate | None = None
+    learning_goals: LearningGoalsUpdate | None = None
+    theme: ThemeUpdate | None = None
 
 
 class LocalFavorites(BaseModel):
@@ -183,7 +183,7 @@ class LocalFavorites(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     items: list[str] = Field(default_factory=list)
-    updated_at: Optional[datetime] = None
+    updated_at: datetime | None = None
 
     @field_validator("items")
     @classmethod
@@ -200,11 +200,11 @@ class LocalReadingProgress(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    chapter: Optional[int] = None
-    verse: Optional[int] = None
-    font_size: Optional[str] = None
-    section_prefs: Optional[dict] = None
-    updated_at: Optional[datetime] = None
+    chapter: int | None = None
+    verse: int | None = None
+    font_size: str | None = None
+    section_prefs: dict | None = None
+    updated_at: datetime | None = None
 
 
 class LocalLearningGoals(BaseModel):
@@ -213,7 +213,7 @@ class LocalLearningGoals(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     goal_ids: list[str] = Field(default_factory=list)
-    updated_at: Optional[datetime] = None
+    updated_at: datetime | None = None
 
 
 class LocalTheme(BaseModel):
@@ -221,10 +221,10 @@ class LocalTheme(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    mode: Optional[str] = None  # light/dark/system
-    theme_id: Optional[str] = None  # default/sutra/serenity/forest
-    font_family: Optional[str] = None  # serif/sans/mixed
-    updated_at: Optional[datetime] = None
+    mode: str | None = None  # light/dark/system
+    theme_id: str | None = None  # default/sutra/serenity/forest
+    font_family: str | None = None  # serif/sans/mixed
+    updated_at: datetime | None = None
 
 
 class LocalPreferences(BaseModel):
@@ -232,10 +232,10 @@ class LocalPreferences(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    favorites: Optional[LocalFavorites] = None
-    reading: Optional[LocalReadingProgress] = None
-    learning_goals: Optional[LocalLearningGoals] = None
-    theme: Optional[LocalTheme] = None
+    favorites: LocalFavorites | None = None
+    reading: LocalReadingProgress | None = None
+    learning_goals: LocalLearningGoals | None = None
+    theme: LocalTheme | None = None
 
 
 # --- Helper Functions ---

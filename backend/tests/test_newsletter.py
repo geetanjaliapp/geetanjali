@@ -1,9 +1,9 @@
 """Tests for newsletter subscription endpoints."""
 
-import pytest
-import threading
 from datetime import datetime, timedelta
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+import pytest
 from fastapi import status
 
 from models import Subscriber
@@ -16,8 +16,9 @@ pytestmark = pytest.mark.integration
 def reset_rate_limiter():
     """Reset rate limiter storage before each test."""
     from api.dependencies import limiter
+
     # Clear the in-memory storage to reset rate limits
-    if hasattr(limiter, '_storage') and limiter._storage:
+    if hasattr(limiter, "_storage") and limiter._storage:
         limiter._storage.reset()
     yield
 
@@ -32,9 +33,7 @@ class TestSubscribe:
 
     def test_subscribe_new_user_success(self, client, db_session):
         """Test successful new subscription."""
-        with patch(
-            "api.newsletter.send_newsletter_verification_email"
-        ) as mock_send:
+        with patch("api.newsletter.send_newsletter_verification_email") as mock_send:
             mock_send.return_value = True
 
             response = client.post(
@@ -117,9 +116,7 @@ class TestSubscribe:
         db_session.add(subscriber)
         db_session.commit()
 
-        with patch(
-            "api.newsletter.send_newsletter_verification_email"
-        ) as mock_send:
+        with patch("api.newsletter.send_newsletter_verification_email") as mock_send:
             mock_send.return_value = True
 
             response = client.post(
@@ -153,9 +150,7 @@ class TestSubscribe:
         db_session.add(subscriber)
         db_session.commit()
 
-        with patch(
-            "api.newsletter.send_newsletter_verification_email"
-        ) as mock_send:
+        with patch("api.newsletter.send_newsletter_verification_email") as mock_send:
             mock_send.return_value = True
 
             response = client.post(
@@ -243,7 +238,10 @@ class TestSubscribe:
                 "/api/v1/newsletter/subscribe",
                 json={
                     "email": "validgoals@example.com",
-                    "goal_ids": ["inner_peace", "resilience"],  # Valid goals from taxonomy
+                    "goal_ids": [
+                        "inner_peace",
+                        "resilience",
+                    ],  # Valid goals from taxonomy
                     "send_time": "morning",
                 },
             )
@@ -361,9 +359,7 @@ class TestVerify:
         db_session.add(subscriber)
         db_session.commit()
 
-        with patch(
-            "api.newsletter.send_newsletter_welcome_email"
-        ) as mock_send:
+        with patch("api.newsletter.send_newsletter_welcome_email") as mock_send:
             mock_send.return_value = True
 
             response = client.post("/api/v1/newsletter/verify/valid-token-123")
@@ -471,9 +467,7 @@ class TestUnsubscribe:
         db_session.add(subscriber)
         db_session.commit()
 
-        response = client.post(
-            "/api/v1/newsletter/unsubscribe/already-unsub-token"
-        )
+        response = client.post("/api/v1/newsletter/unsubscribe/already-unsub-token")
 
         assert response.status_code == status.HTTP_200_OK
         data = response.json()

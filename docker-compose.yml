@@ -168,10 +168,12 @@ services:
       CHROMA_PORT: 8000
       REDIS_URL: redis://:${REDIS_PASSWORD:-redis_dev_pass}@redis:6379/0
       OLLAMA_BASE_URL: http://ollama:11434
+      AUDIO_FILES_PATH: /app/public/audio
     # No external port - nginx proxies via Docker network (http://backend:8000)
     volumes:
       - ./backend:/app
       - backend_chroma:/app/chroma_data
+      - ./public/audio:/app/public/audio  # Audio files (rw for processing, serving)
     # Security hardening
     cap_drop:
       - ALL
@@ -269,6 +271,8 @@ services:
       - /etc/letsencrypt/archive/geetanjaliapp.com:/etc/letsencrypt/archive/geetanjaliapp.com:ro
       # Mount certbot challenge directory
       - /var/www/certbot:/var/www/certbot:ro
+      # Mount audio files for nginx to serve directly
+      - ./public/audio:/app/public/audio:ro
     # Add ssl-cert group (GID 1002 on production) for reading SSL private keys
     group_add:
       - "1002"

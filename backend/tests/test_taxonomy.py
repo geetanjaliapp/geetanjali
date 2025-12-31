@@ -62,7 +62,9 @@ class TestPrinciplesEndpoint:
 
         for principle in data["principles"]:
             for field in required_fields:
-                assert field in principle, f"Missing field '{field}' in principle {principle.get('id')}"
+                assert (
+                    field in principle
+                ), f"Missing field '{field}' in principle {principle.get('id')}"
 
     def test_principles_grouped_correctly(self, client):
         """Verify each principle belongs to a valid group."""
@@ -73,9 +75,9 @@ class TestPrinciplesEndpoint:
 
         valid_groups = {"karma", "jnana", "bhakti", "sadachara"}
         for principle in data["principles"]:
-            assert principle["group"] in valid_groups, (
-                f"Principle {principle['id']} has invalid group {principle['group']}"
-            )
+            assert (
+                principle["group"] in valid_groups
+            ), f"Principle {principle['id']} has invalid group {principle['group']}"
 
     def test_each_group_has_4_principles(self, client):
         """Verify balanced 4x4 grouping."""
@@ -166,7 +168,9 @@ class TestGoalsEndpoint:
 
         for goal in data["goals"]:
             for field in required_fields:
-                assert field in goal, f"Missing field '{field}' in goal {goal.get('id')}"
+                assert (
+                    field in goal
+                ), f"Missing field '{field}' in goal {goal.get('id')}"
 
     def test_goal_ids_are_correct(self, client):
         """Verify expected goal IDs are present."""
@@ -201,9 +205,9 @@ class TestGoalsEndpoint:
                 assert goal["principles"] == []
             else:
                 # Other goals should have 4 principles
-                assert len(goal["principles"]) == 4, (
-                    f"Goal '{goal['id']}' has {len(goal['principles'])} principles, expected 4"
-                )
+                assert (
+                    len(goal["principles"]) == 4
+                ), f"Goal '{goal['id']}' has {len(goal['principles'])} principles, expected 4"
 
 
 class TestGoalDetailEndpoint:
@@ -271,7 +275,9 @@ class TestGroupsEndpoint:
 
         for group in data:
             for field in required_fields:
-                assert field in group, f"Missing field '{field}' in group {group.get('id')}"
+                assert (
+                    field in group
+                ), f"Missing field '{field}' in group {group.get('id')}"
 
     def test_groups_are_yoga_paths(self, client):
         """Verify groups represent the yoga paths."""
@@ -291,9 +297,9 @@ class TestGroupsEndpoint:
         data = response.json()
 
         for group in data:
-            assert len(group["principles"]) == 4, (
-                f"Group '{group['id']}' has {len(group['principles'])} principles"
-            )
+            assert (
+                len(group["principles"]) == 4
+            ), f"Group '{group['id']}' has {len(group['principles'])} principles"
 
     def test_karma_group_has_correct_principles(self, client):
         """Verify Karma yoga group has correct principles."""
@@ -344,6 +350,6 @@ class TestTaxonomyConsistency:
 
         for goal in goals:
             for principle_id in goal["principles"]:
-                assert principle_id in valid_principle_ids, (
-                    f"Goal '{goal['id']}' references invalid principle '{principle_id}'"
-                )
+                assert (
+                    principle_id in valid_principle_ids
+                ), f"Goal '{goal['id']}' references invalid principle '{principle_id}'"

@@ -10,13 +10,14 @@ and lets other strategies (keyword) provide results.
 """
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from sqlalchemy.orm import Session
 
 from models.verse import Verse
 from services.vector_store import get_vector_store
 from utils.circuit_breaker import CircuitBreakerOpen
+
 from ..config import SearchConfig
 from ..types import MatchType, SearchMatch, SearchResult
 from ..utils import verse_to_result
@@ -28,7 +29,7 @@ def semantic_search(
     query: str,
     db: Session,
     config: SearchConfig,
-) -> List[SearchResult]:
+) -> list[SearchResult]:
     """Semantic search using vector embeddings.
 
     Uses ChromaDB for similarity search, then enriches results
@@ -50,7 +51,7 @@ def semantic_search(
         return []
 
     # Build metadata filter for ChromaDB
-    where_filter: Optional[Dict[str, Any]] = None
+    where_filter: dict[str, Any] | None = None
     if config.chapter:
         where_filter = {"chapter": config.chapter}
 
@@ -86,9 +87,9 @@ def semantic_search(
 
 
 def _compute_relevance_scores(
-    vector_results: Dict[str, Any],
+    vector_results: dict[str, Any],
     min_score: float,
-) -> Dict[str, float]:
+) -> dict[str, float]:
     """Convert ChromaDB distances to relevance scores.
 
     ChromaDB returns distances (lower = more similar).
@@ -101,11 +102,12 @@ def _compute_relevance_scores(
     Returns:
         Mapping of canonical_id to relevance score
     """
-    id_to_score: Dict[str, float] = {}
+    id_to_score: dict[str, float] = {}
 
     for canonical_id, distance in zip(
         vector_results["ids"],
         vector_results["distances"],
+        strict=False,
     ):
         # Convert distance to relevance (1.0 - distance for cosine)
         relevance = 1.0 - distance
@@ -119,8 +121,8 @@ def _compute_relevance_scores(
 
 def _enrich_with_verse_data(
     db: Session,
-    id_to_score: Dict[str, float],
-) -> List[SearchResult]:
+    id_to_score: dict[str, float],
+) -> list[SearchResult]:
     """Fetch full verse data and create SearchResults.
 
     Args:

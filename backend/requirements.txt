@@ -31,8 +31,7 @@ pytest-asyncio>=1.0.0  # pytest 9.x requires pytest-asyncio 1.x
 pytest-cov==7.0.0
 
 # Code Quality
-black==25.12.0
-flake8==7.3.0
+ruff==0.8.6  # Fast linter and formatter (replaces flake8+black)
 mypy==1.19.1
 types-requests==2.32.4.20250913  # Type stubs for requests
 types-PyYAML==6.0.12.20250915  # Type stubs for PyYAML
@@ -71,4 +70,8 @@ prometheus-client==0.23.1  # Prometheus client library
 
 # Scheduling
 apscheduler==3.11.2  # Background task scheduler for metrics collection
+
+# Audio Processing
+mutagen==1.47.0  # Audio file metadata (duration) for TTS QA
+edge-tts==7.2.7  # Microsoft Edge TTS for English narration
 

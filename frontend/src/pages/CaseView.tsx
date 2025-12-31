@@ -10,6 +10,7 @@ import {
   ContentNotFound,
   GuidanceMarkdown,
 } from "../components";
+import { SpeakButton } from "../components/SpeakButton";
 import { errorMessages } from "../lib/errorMessages";
 import { validateContent } from "../lib/contentFilter";
 import { groupMessagesIntoExchanges } from "../lib/messageGrouping";
@@ -824,13 +825,23 @@ ${messages
                           )}
                         </div>
                         <div
-                          className={`text-xs font-semibold uppercase tracking-wide mb-2 ${
-                            isFirst
-                              ? "text-[var(--interactive-ghost-text)]"
-                              : "text-[var(--interactive-ghost-text)]"
-                          }`}
+                          className={`flex items-center justify-between mb-2`}
                         >
-                          {isFirst ? "Wisdom from the Geeta" : "Guidance"}
+                          <span
+                            className={`text-xs font-semibold uppercase tracking-wide ${
+                              isFirst
+                                ? "text-[var(--interactive-ghost-text)]"
+                                : "text-[var(--interactive-ghost-text)]"
+                            }`}
+                          >
+                            {isFirst ? "Wisdom from the Geeta" : "Guidance"}
+                          </span>
+                          <SpeakButton
+                            text={exchange.assistant.content}
+                            lang="en"
+                            size="sm"
+                            aria-label="Listen to guidance"
+                          />
                         </div>
 
                         <div

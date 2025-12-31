@@ -3,25 +3,38 @@
 import logging
 import uuid
 from datetime import datetime
-from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status, Request, BackgroundTasks, Response
-from sqlalchemy.orm import Session
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Depends,
+    HTTPException,
+    Request,
+    Response,
+    status,
+)
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
+from sqlalchemy.orm import Session
 
-from db import get_db, SessionLocal
-from db.repositories.message_repository import MessageRepository
-from models.output import Output
-from models.case import Case, CaseStatus
-from models.user import User
-from api.schemas import OutputResponse, CaseResponse, FeedbackCreate, FeedbackResponse, UserFeedbackSummary
-from api.middleware.auth import get_optional_user, require_role, get_session_id
 from api.dependencies import get_case_with_access, get_output_with_access, limiter
+from api.middleware.auth import get_optional_user, get_session_id, require_role
+from api.schemas import (
+    CaseResponse,
+    FeedbackCreate,
+    FeedbackResponse,
+    OutputResponse,
+    UserFeedbackSummary,
+)
+from config import settings
+from db import SessionLocal, get_db
+from db.repositories.message_repository import MessageRepository
+from models.case import Case, CaseStatus
+from models.feedback import Feedback
+from models.output import Output
+from models.user import User
+from services.cache import cache, public_case_messages_key, public_case_outputs_key
 from services.rag import get_rag_pipeline
 from services.tasks import enqueue_task
-from services.cache import cache, public_case_outputs_key, public_case_messages_key
-from models.feedback import Feedback
-from config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -238,14 +251,14 @@ async def get_output(
     return output
 
 
-@router.get("/cases/{case_id}/outputs", response_model=List[OutputResponse])
+@router.get("/cases/{case_id}/outputs", response_model=list[OutputResponse])
 @limiter.limit("60/minute")
 async def list_case_outputs(
     request: Request,
     case: Case = Depends(get_case_with_access),
     db: Session = Depends(get_db),
-    current_user: Optional[User] = Depends(get_optional_user),
-    session_id: Optional[str] = Depends(get_session_id),
+    current_user: User | None = Depends(get_optional_user),
+    session_id: str | None = Depends(get_session_id),
 ):
     """
     List all outputs for a case (supports anonymous users).
@@ -361,8 +374,8 @@ async def submit_feedback(
     output_id: str,
     feedback_data: FeedbackCreate,
     db: Session = Depends(get_db),
-    current_user: Optional[User] = Depends(get_optional_user),
-    session_id: Optional[str] = Depends(get_session_id),
+    current_user: User | None = Depends(get_optional_user),
+    session_id: str | None = Depends(get_session_id),
 ):
     """
     Submit or update feedback (thumbs up/down + optional comment) for an output.
@@ -448,8 +461,8 @@ async def delete_feedback(
     request: Request,
     output_id: str,
     db: Session = Depends(get_db),
-    current_user: Optional[User] = Depends(get_optional_user),
-    session_id: Optional[str] = Depends(get_session_id),
+    current_user: User | None = Depends(get_optional_user),
+    session_id: str | None = Depends(get_session_id),
 ):
     """
     Delete feedback for an output (un-vote).

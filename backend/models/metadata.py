@@ -1,9 +1,10 @@
 """Book and Chapter metadata models for Reading Mode."""
 
-from sqlalchemy import String, Text, Integer, CheckConstraint, JSON
-from sqlalchemy.orm import Mapped, mapped_column
 import uuid
-from typing import Optional, Any
+from typing import Any
+
+from sqlalchemy import JSON, CheckConstraint, Integer, String, Text
+from sqlalchemy.orm import Mapped, mapped_column
 
 from models.base import Base, TimestampMixin
 
@@ -67,19 +68,21 @@ class ChapterMetadata(Base, TimestampMixin):
     sanskrit_name: Mapped[str] = mapped_column(String(200), nullable=False)
     transliteration: Mapped[str] = mapped_column(String(200), nullable=False)
     english_title: Mapped[str] = mapped_column(String(300), nullable=False)
-    subtitle: Mapped[Optional[str]] = mapped_column(String(300), nullable=True)
+    subtitle: Mapped[str | None] = mapped_column(String(300), nullable=True)
 
     # Content
     summary: Mapped[str] = mapped_column(Text, nullable=False)
 
     # Stats and metadata
     verse_count: Mapped[int] = mapped_column(Integer, nullable=False)
-    key_themes: Mapped[Optional[Any]] = mapped_column(JSON, nullable=True)  # List of theme strings
+    key_themes: Mapped[Any | None] = mapped_column(
+        JSON, nullable=True
+    )  # List of theme strings
 
     __table_args__ = (
         CheckConstraint(
             "chapter_number >= 1 AND chapter_number <= 18",
-            name="check_chapter_number_range"
+            name="check_chapter_number_range",
         ),
     )
 

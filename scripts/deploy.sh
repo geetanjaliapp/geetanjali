@@ -63,9 +63,9 @@ fi
 log "Pushing to origin..."
 git push origin main || error "Failed to push to origin"
 
-# Step 3: Pull on remote
+# Step 3: Pull on remote (including LFS files like audio)
 log "Pulling changes on server..."
-$SSH_CMD "cd ${DEPLOY_DIR} && git pull origin main" || error "Failed to pull on server"
+$SSH_CMD "cd ${DEPLOY_DIR} && git pull origin main && git lfs pull" || error "Failed to pull on server"
 
 # Step 4: Decrypt .env file using SOPS + age
 log "Decrypting .env file..."

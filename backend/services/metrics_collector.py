@@ -6,47 +6,48 @@ updating Prometheus gauges for scraping.
 
 import logging
 from datetime import datetime, timedelta
-from sqlalchemy import func, text
+
 import httpx
+from sqlalchemy import func, text
 
 from config import settings
 from db.connection import SessionLocal
-from models.user import User
 from models.case import Case
-from models.output import Output
-from models.verse import Verse
 from models.message import Message
-from services.cache import get_redis_client, cache, daily_views_counter_key
+from models.output import Output
+from models.user import User
+from models.verse import Verse
+from services.cache import cache, daily_views_counter_key, get_redis_client
 from utils.metrics import (
-    consultations_total,
-    verses_served_total,
-    exports_total,
-    registered_users_total,
     active_users_24h,
-    consultations_24h,
-    signups_24h,
-    consultation_completion_rate,
-    exports_24h,
     avg_messages_per_case,
-    redis_connections,
-    redis_memory_usage_percent,
-    queue_depth,
-    worker_count,
+    case_views_24h,
+    chromadb_collection_count,
+    chromadb_up,
+    consultation_completion_rate,
+    consultations_24h,
+    consultations_total,
+    exports_24h,
+    exports_total,
     failed_jobs,
+    feedback_positive_rate,
+    newsletter_emails_sent_24h,
+    newsletter_subscribers_by_time,
+    newsletter_subscribers_total,
+    ollama_models_loaded,
+    ollama_up,
     postgres_connections_active,
     postgres_connections_idle,
     postgres_database_size_bytes,
     postgres_up,
-    ollama_up,
-    ollama_models_loaded,
-    chromadb_up,
-    chromadb_collection_count,
-    newsletter_subscribers_total,
-    newsletter_subscribers_by_time,
-    newsletter_emails_sent_24h,
+    queue_depth,
+    redis_connections,
+    redis_memory_usage_percent,
+    registered_users_total,
     shared_cases_total,
-    case_views_24h,
-    feedback_positive_rate,
+    signups_24h,
+    verses_served_total,
+    worker_count,
 )
 
 logger = logging.getLogger(__name__)
@@ -114,18 +115,14 @@ def _collect_business_metrics() -> None:
 
         # New signups in last 24 hours
         signups_24h_count = (
-            db.query(func.count(User.id))
-            .filter(User.created_at >= yesterday)
-            .scalar()
+            db.query(func.count(User.id)).filter(User.created_at >= yesterday).scalar()
             or 0
         )
         signups_24h.set(signups_24h_count)
 
         # Consultation completion rate (completed / total non-deleted)
         total_cases = (
-            db.query(func.count(Case.id))
-            .filter(Case.is_deleted.is_(False))
-            .scalar()
+            db.query(func.count(Case.id)).filter(Case.is_deleted.is_(False)).scalar()
             or 0
         )
         if total_cases > 0:
@@ -172,8 +169,8 @@ def _collect_engagement_metrics() -> None:
     db = SessionLocal()
     try:
         # Import models here to avoid circular imports
-        from models.subscriber import Subscriber
         from models.feedback import Feedback
+        from models.subscriber import Subscriber
 
         yesterday = datetime.utcnow() - timedelta(hours=24)
 
@@ -227,9 +224,7 @@ def _collect_engagement_metrics() -> None:
         # Feedback positive rate
         total_feedback = db.query(func.count(Feedback.id)).scalar() or 0
         positive_feedback = (
-            db.query(func.count(Feedback.id))
-            .filter(Feedback.rating.is_(True))
-            .scalar()
+            db.query(func.count(Feedback.id)).filter(Feedback.rating.is_(True)).scalar()
             or 0
         )
         if total_feedback > 0:

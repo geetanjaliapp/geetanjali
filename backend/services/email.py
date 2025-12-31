@@ -3,15 +3,16 @@
 import html
 import logging
 import time
+from collections.abc import Callable
 from functools import wraps
-from typing import Callable, Optional, TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING, TypeVar
 
 from config import settings
-from utils.circuit_breaker import CircuitBreaker, CircuitBreakerOpen
+from utils.circuit_breaker import CircuitBreaker
 from utils.metrics_events import (
-    email_sends_total,
-    email_send_duration_seconds,
     email_circuit_breaker_state,
+    email_send_duration_seconds,
+    email_sends_total,
 )
 
 if TYPE_CHECKING:
@@ -64,7 +65,7 @@ class EmailSendError(EmailError):
     May be transient (rate limit, network) or permanent (invalid recipient).
     """
 
-    def __init__(self, message: str, cause: Optional[Exception] = None):
+    def __init__(self, message: str, cause: Exception | None = None):
         super().__init__(message)
         self.cause = cause
 
@@ -174,13 +175,12 @@ def with_email_retry(
 
             # Check circuit breaker before attempting
             if circuit and not circuit.allow_request():
-                logger.warning(
-                    f"Email circuit breaker OPEN - skipping {func.__name__}"
-                )
-                email_sends_total.labels(email_type=email_type, result="circuit_open").inc()
+                logger.warning(f"Email circuit breaker OPEN - skipping {func.__name__}")
+                email_sends_total.labels(
+                    email_type=email_type, result="circuit_open"
+                ).inc()
                 return False
 
-            last_error: Optional[Exception] = None
             start_time = time.time()
 
             for attempt in range(max_retries + 1):
@@ -196,21 +196,25 @@ def with_email_retry(
                     if result:
                         if circuit:
                             circuit.record_success()
-                        email_sends_total.labels(email_type=email_type, result="success").inc()
+                        email_sends_total.labels(
+                            email_type=email_type, result="success"
+                        ).inc()
                     else:
                         # Function returned False (e.g., not configured)
-                        email_sends_total.labels(email_type=email_type, result="failure").inc()
+                        email_sends_total.labels(
+                            email_type=email_type, result="failure"
+                        ).inc()
 
                     return result
 
                 except (EmailConfigurationError, EmailServiceUnavailable):
                     # Non-retryable errors - don't retry
-                    email_sends_total.labels(email_type=email_type, result="failure").inc()
+                    email_sends_total.labels(
+                        email_type=email_type, result="failure"
+                    ).inc()
                     raise
 
                 except Exception as e:
-                    last_error = e
-
                     # Record failure for circuit breaker
                     if circuit:
                         circuit.record_failure()
@@ -227,15 +231,19 @@ def with_email_retry(
                         # Re-check circuit breaker after delay
                         if circuit and not circuit.allow_request():
                             logger.warning(
-                                f"Email circuit breaker opened during retry - aborting"
+                                "Email circuit breaker opened during retry - aborting"
                             )
-                            email_sends_total.labels(email_type=email_type, result="circuit_open").inc()
+                            email_sends_total.labels(
+                                email_type=email_type, result="circuit_open"
+                            ).inc()
                             return False
                     else:
                         logger.error(
                             f"Email send failed after {max_retries + 1} attempts: {e}"
                         )
-                        email_sends_total.labels(email_type=email_type, result="failure").inc()
+                        email_sends_total.labels(
+                            email_type=email_type, result="failure"
+                        ).inc()
 
             return False
 
@@ -245,8 +253,8 @@ def with_email_retry(
 
 
 # Lazy import resend to avoid import errors if not installed
-_resend_client: Optional[object] = None
-_resend_init_error: Optional[str] = None
+_resend_client: object | None = None
+_resend_init_error: str | None = None
 
 
 def _get_resend():
@@ -399,7 +407,9 @@ def _email_section(title: str, content: str, accent: bool = False) -> str:
         HTML string for section
     """
     border_style = "border-left: 3px solid #f59e0b;" if accent else ""
-    bg_style = "background: #fefce8;" if accent else "background: rgba(254, 243, 199, 0.5);"
+    bg_style = (
+        "background: #fefce8;" if accent else "background: rgba(254, 243, 199, 0.5);"
+    )
 
     return f"""
                 <div style="margin-bottom: 24px; padding: 16px 20px; {bg_style} border-radius: 10px; {border_style}">
@@ -557,7 +567,7 @@ def send_alert_email(subject: str, message: str) -> bool:
 
 @with_email_retry(max_retries=2, base_delay=1.0)
 def send_contact_email(
-    name: str, email: str, message_type: str, subject: Optional[str], message: str
+    name: str, email: str, message_type: str, subject: str | None, message: str
 ) -> bool:
     """
     Send contact form message via email.
@@ -623,9 +633,8 @@ def send_contact_email(
     message_html = f'<div style="color: #374151; line-height: 1.7; white-space: pre-wrap;">{safe_message}</div>'
 
     # Compose body content
-    body_content = (
-        _email_section("Contact Details", contact_html)
-        + _email_section("Message", message_html, accent=True)
+    body_content = _email_section("Contact Details", contact_html) + _email_section(
+        "Message", message_html, accent=True
     )
 
     header = _email_header("Contact Form")
@@ -747,7 +756,7 @@ Geetanjali - Ethical Guidance from the Bhagavad Geeta
 
 @with_email_retry(max_retries=2, base_delay=1.0)
 def send_newsletter_verification_email(
-    email: str, name: Optional[str], verify_url: str
+    email: str, name: str | None, verify_url: str
 ) -> bool:
     """
     Send newsletter verification email (double opt-in).
@@ -767,7 +776,9 @@ def send_newsletter_verification_email(
         return False
 
     if not settings.CONTACT_EMAIL_FROM:
-        logger.warning("CONTACT_EMAIL_FROM not configured - verification email not sent")
+        logger.warning(
+            "CONTACT_EMAIL_FROM not configured - verification email not sent"
+        )
         return False
 
     # HTML-escape name as defense-in-depth (regex already sanitizes, but be safe)
@@ -833,7 +844,7 @@ Geetanjali - Ethical Guidance from the Bhagavad Geeta
 @with_email_retry(max_retries=2, base_delay=1.0)
 def send_newsletter_welcome_email(
     email: str,
-    name: Optional[str],
+    name: str | None,
     unsubscribe_url: str,
     preferences_url: str,
     app_url: str = "https://geetanjali.app",
@@ -885,11 +896,13 @@ def send_newsletter_welcome_email(
     )
 
     header = _email_header("Daily Wisdom")
-    footer = _email_footer([
-        ("Visit App", EMAIL_APP_URL),
-        ("Preferences", preferences_url),
-        ("Unsubscribe", unsubscribe_url),
-    ])
+    footer = _email_footer(
+        [
+            ("Visit App", EMAIL_APP_URL),
+            ("Preferences", preferences_url),
+            ("Unsubscribe", unsubscribe_url),
+        ]
+    )
     html_body = _email_html_wrapper(body_content, header, footer)
 
     # Plain text version
@@ -980,8 +993,8 @@ def send_newsletter_digest_email(
     greeting: str,
     verse: "Verse",
     goal_labels: str,
-    milestone_message: Optional[str],
-    reflection_prompt: Optional[str],
+    milestone_message: str | None,
+    reflection_prompt: str | None,
     verse_url: str,
     unsubscribe_url: str,
     preferences_url: str,
@@ -1115,11 +1128,13 @@ def send_newsletter_digest_email(
 
     # Compose final HTML using shared components
     header = _email_header("Daily Wisdom")
-    footer = _email_footer([
-        ("Visit App", EMAIL_APP_URL),
-        ("Preferences", preferences_url),
-        ("Unsubscribe", unsubscribe_url),
-    ])
+    footer = _email_footer(
+        [
+            ("Visit App", EMAIL_APP_URL),
+            ("Preferences", preferences_url),
+            ("Unsubscribe", unsubscribe_url),
+        ]
+    )
     html_body = _email_html_wrapper(body_content, header, footer)
 
     # Plain text version
@@ -1189,9 +1204,7 @@ Unsubscribe: {unsubscribe_url}
 
 
 @with_email_retry(max_retries=2, base_delay=1.0)
-def send_account_verification_email(
-    email: str, name: str, verify_url: str
-) -> bool:
+def send_account_verification_email(email: str, name: str, verify_url: str) -> bool:
     """
     Send email verification for new account signups.
 
@@ -1212,7 +1225,9 @@ def send_account_verification_email(
         return False
 
     if not settings.CONTACT_EMAIL_FROM:
-        logger.warning("CONTACT_EMAIL_FROM not configured - verification email not sent")
+        logger.warning(
+            "CONTACT_EMAIL_FROM not configured - verification email not sent"
+        )
         return False
 
     # HTML-escape name
@@ -1295,7 +1310,9 @@ def send_password_changed_email(email: str, name: str) -> bool:
         return False
 
     if not settings.CONTACT_EMAIL_FROM:
-        logger.warning("CONTACT_EMAIL_FROM not configured - password changed email not sent")
+        logger.warning(
+            "CONTACT_EMAIL_FROM not configured - password changed email not sent"
+        )
         return False
 
     # HTML-escape name
@@ -1303,6 +1320,7 @@ def send_password_changed_email(email: str, name: str) -> bool:
 
     # Get current timestamp for the email
     from datetime import datetime
+
     current_time = datetime.utcnow().strftime("%B %d, %Y at %H:%M UTC")
 
     # Build body content using composable components
@@ -1311,9 +1329,7 @@ def send_password_changed_email(email: str, name: str) -> bool:
         + _email_paragraph(
             f"Your Geetanjali account password was successfully changed on {current_time}."
         )
-        + _email_paragraph(
-            "If you made this change, no further action is needed."
-        )
+        + _email_paragraph("If you made this change, no further action is needed.")
         + _email_paragraph(
             "<strong>If you did not make this change</strong>, please secure your account immediately "
             "by resetting your password and contact us if you need assistance.",
@@ -1380,7 +1396,9 @@ def send_account_deleted_email(email: str, name: str) -> bool:
         return False
 
     if not settings.CONTACT_EMAIL_FROM:
-        logger.warning("CONTACT_EMAIL_FROM not configured - account deleted email not sent")
+        logger.warning(
+            "CONTACT_EMAIL_FROM not configured - account deleted email not sent"
+        )
         return False
 
     # HTML-escape name

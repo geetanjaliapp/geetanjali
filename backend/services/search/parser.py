@@ -9,7 +9,7 @@ Analyzes user queries to determine search intent:
 
 import re
 import unicodedata
-from typing import List, Optional, Pattern, Set, Tuple
+from re import Pattern
 
 
 class QueryParser:
@@ -29,7 +29,7 @@ class QueryParser:
 
     # Canonical ID patterns
     # Supports: BG_2_47, BG-2-47, 2.47, 2:47, 2-47, chapter 2 verse 47
-    CANONICAL_PATTERNS: List[str] = [
+    CANONICAL_PATTERNS: list[str] = [
         r"^BG[_-]?(\d{1,2})[_-](\d{1,3})$",  # BG_2_47, BG-2-47
         r"^(\d{1,2})[:.\-](\d{1,3})$",  # 2.47, 2:47, 2-47
         r"^chapter\s*(\d{1,2})\s*(?:verse|v|shloka|sloka)?\s*(\d{1,3})$",
@@ -37,13 +37,13 @@ class QueryParser:
     ]
 
     # Devanagari Unicode range (for Sanskrit detection)
-    DEVANAGARI_RANGE: Tuple[int, int] = (0x0900, 0x097F)
+    DEVANAGARI_RANGE: tuple[int, int] = (0x0900, 0x097F)
 
     # IAST diacritical characters (for Sanskrit detection)
-    IAST_CHARS: Set[str] = set("āīūṛṝḷḹēōṃḥñṅṭḍṇśṣĀĪŪṚṜḶḸĒŌṂḤÑṄṬḌṆŚṢ")
+    IAST_CHARS: set[str] = set("āīūṛṝḷḹēōṃḥñṅṭḍṇśṣĀĪŪṚṜḶḸĒŌṂḤÑṄṬḌṆŚṢ")
 
     # Situational query patterns (indicate personal dilemma)
-    SITUATIONAL_PATTERNS: List[str] = [
+    SITUATIONAL_PATTERNS: list[str] = [
         r"\b(my|i|we|our)\b.*\b(struggling|facing|dealing|worried|concerned|confused)\b",
         r"\bhow\s+(do|can|should)\s+(i|we)\b",
         r"\b(help|advice|guidance)\s+(me|us)\b",
@@ -60,14 +60,14 @@ class QueryParser:
 
     def __init__(self) -> None:
         """Initialize parser with compiled regex patterns."""
-        self._canonical_re: List[Pattern[str]] = [
+        self._canonical_re: list[Pattern[str]] = [
             re.compile(p, re.IGNORECASE) for p in self.CANONICAL_PATTERNS
         ]
-        self._situational_re: List[Pattern[str]] = [
+        self._situational_re: list[Pattern[str]] = [
             re.compile(p, re.IGNORECASE) for p in self.SITUATIONAL_PATTERNS
         ]
 
-    def parse_canonical(self, query: str) -> Optional[Tuple[int, int]]:
+    def parse_canonical(self, query: str) -> tuple[int, int] | None:
         """Try to parse query as a canonical verse reference.
 
         Args:

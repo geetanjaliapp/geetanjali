@@ -1,11 +1,12 @@
 """Case model for ethical dilemma consultations."""
 
-from datetime import datetime
-from sqlalchemy import String, Text, ForeignKey, JSON, Boolean, DateTime, Integer
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-import uuid
 import enum
-from typing import Optional, Any
+import uuid
+from datetime import datetime
+from typing import Any
+
+from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models.base import Base, TimestampMixin
 
@@ -30,25 +31,25 @@ class Case(Base, TimestampMixin):
     id: Mapped[str] = mapped_column(
         String(36), primary_key=True, default=lambda: str(uuid.uuid4())
     )
-    user_id: Mapped[Optional[str]] = mapped_column(
+    user_id: Mapped[str | None] = mapped_column(
         String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         index=True,
         nullable=True,
     )
-    session_id: Mapped[Optional[str]] = mapped_column(
+    session_id: Mapped[str | None] = mapped_column(
         String(255), index=True, nullable=True
     )
 
     # Content
     title: Mapped[str] = mapped_column(String(500), nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=False)
-    role: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
-    stakeholders: Mapped[Optional[Any]] = mapped_column(JSON, nullable=True)
-    constraints: Mapped[Optional[Any]] = mapped_column(JSON, nullable=True)
-    horizon: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    role: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    stakeholders: Mapped[Any | None] = mapped_column(JSON, nullable=True)
+    constraints: Mapped[Any | None] = mapped_column(JSON, nullable=True)
+    horizon: Mapped[str | None] = mapped_column(String(50), nullable=True)
     sensitivity: Mapped[str] = mapped_column(String(50), default="low")
-    attachments: Mapped[Optional[Any]] = mapped_column(JSON, nullable=True)
+    attachments: Mapped[Any | None] = mapped_column(JSON, nullable=True)
     locale: Mapped[str] = mapped_column(String(10), default="en")
 
     # Status
@@ -58,13 +59,13 @@ class Case(Base, TimestampMixin):
 
     # Sharing
     is_public: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
-    public_slug: Mapped[Optional[str]] = mapped_column(
+    public_slug: Mapped[str | None] = mapped_column(
         String(12), unique=True, nullable=True, index=True
     )
-    shared_at: Mapped[Optional[datetime]] = mapped_column(
+    shared_at: Mapped[datetime | None] = mapped_column(
         DateTime, nullable=True
     )  # When case was first made public (for expiration)
-    share_mode: Mapped[Optional[str]] = mapped_column(
+    share_mode: Mapped[str | None] = mapped_column(
         String(20), nullable=True, default=None
     )  # Values: 'full', 'essential', or null (not shared)
     view_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)

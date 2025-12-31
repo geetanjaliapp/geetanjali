@@ -1,8 +1,9 @@
-import { memo, useMemo } from "react";
+import { memo, useMemo, useCallback, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { formatSanskritLines, isSpeakerIntro } from "../lib/sanskritFormatter";
 import { getPrincipleShortLabel } from "../constants/principles";
-import { StarIcon, HeartIcon } from "./icons";
+import { StarIcon, HeartIcon, PlayIcon, PauseIcon, SpinnerIcon, RepeatIcon, CloseIcon, CheckIcon, AlertCircleIcon } from "./icons";
+import { useAudioPlayer, AudioProgress, AudioSpeedControl } from "./audio";
 import type { Verse } from "../types";
 
 /**
@@ -116,6 +117,100 @@ function HighlightedText({ text }: { text: string }) {
 }
 
 /**
+ * Overlay audio controls for VerseCard.
+ * Appears over the translation area when audio is active.
+ * Designed to match translation section height (2-3 lines).
+ */
+function AudioControlsOverlay({
+  isThisPlaying,
+  linkTo,
+  onStop,
+}: {
+  isThisPlaying: boolean;
+  linkTo?: string;
+  onStop: () => void;
+}) {
+  const {
+    progress,
+    currentTime,
+    duration,
+    playbackSpeed,
+    isLooping,
+    seek,
+    setPlaybackSpeed,
+    toggleLoop,
+    state: audioState,
+  } = useAudioPlayer();
+
+  const handleStop = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      onStop();
+    },
+    [onStop],
+  );
+
+  return (
+    <div
+      className={`bg-[var(--surface-warm)] rounded-[var(--radius-button)] p-2 ${linkTo ? "relative z-10 pointer-events-auto" : ""}`}
+    >
+      {/* Row 1: Progress bar with time */}
+      <div className="mb-1.5">
+        <AudioProgress
+          progress={isThisPlaying ? progress : 0}
+          currentTime={isThisPlaying ? currentTime : 0}
+          duration={isThisPlaying ? duration : 0}
+          disabled={audioState === "loading"}
+          onSeek={seek}
+          showTime
+          compact
+        />
+      </div>
+
+      {/* Row 2: Speed, loop, dismiss - centered */}
+      <div className="flex items-center justify-center gap-2">
+        <AudioSpeedControl
+          speed={playbackSpeed}
+          onSpeedChange={setPlaybackSpeed}
+          compact
+        />
+
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleLoop();
+          }}
+          aria-label={isLooping ? "Disable loop" : "Enable loop"}
+          aria-pressed={isLooping}
+          className={`
+            p-2.5 -m-1.5 sm:p-1 sm:m-0 rounded-[var(--radius-badge)] transition-[var(--transition-button)]
+            focus:outline-hidden focus-visible:ring-2
+            focus-visible:ring-[var(--focus-ring)]
+            ${
+              isLooping
+                ? "text-[var(--interactive-primary)] bg-[var(--interactive-primary)]/10"
+                : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
+            }
+          `}
+        >
+          <RepeatIcon className="w-4 h-4" />
+        </button>
+
+        <button
+          onClick={handleStop}
+          aria-label="Stop audio"
+          className="p-2.5 -m-1.5 sm:p-1 sm:m-0 rounded-[var(--radius-badge)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-muted)] transition-[var(--transition-button)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+        >
+          <CloseIcon className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/**
  * P1.5 FIX: Memoized verse card component to prevent unnecessary re-renders.
  * Uses React.memo and useMemo for formatSanskritLines computation.
  */
@@ -133,6 +228,86 @@ export const VerseCard = memo(function VerseCard({
   match,
 }: VerseCardProps) {
   const isCompact = displayMode === "compact";
+
+  // Audio player state
+  const {
+    currentlyPlaying,
+    state: audioState,
+    error: audioError,
+    play: audioPlay,
+    pause: audioPause,
+    resume: audioResume,
+    stop: audioStop,
+    retry: audioRetry,
+  } = useAudioPlayer();
+
+  // Check if this verse is currently playing
+  const isThisPlaying = currentlyPlaying === verse.canonical_id;
+  const hasAudio = Boolean(verse.audio_url);
+
+  // Handle audio play/pause
+  const handleAudioClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (!verse.audio_url) return;
+
+      if (isThisPlaying) {
+        if (audioState === "error") {
+          audioRetry();
+        } else if (audioState === "playing") {
+          audioPause();
+        } else if (audioState === "paused") {
+          audioResume();
+        } else {
+          // completed or idle - restart
+          audioPlay(verse.canonical_id, verse.audio_url);
+        }
+      } else {
+        audioPlay(verse.canonical_id, verse.audio_url);
+      }
+    },
+    [verse.audio_url, verse.canonical_id, isThisPlaying, audioState, audioPlay, audioPause, audioResume, audioRetry],
+  );
+
+  // Auto-show/hide controls based on audio state (with delay for user reaction time)
+  // Auto-dismiss timing matches AudioPlayerContext (1.5s after completion)
+  const AUTO_DISMISS_DELAY_MS = 1500;
+  const [showControls, setShowControls] = useState(false);
+
+  useEffect(() => {
+    if (!isThisPlaying) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: sync UI controls with audio state
+      setShowControls(false);
+      return;
+    }
+
+    if (audioState === "playing" || audioState === "loading") {
+      // Show controls immediately when playing/loading
+       
+      setShowControls(true);
+    } else if (audioState === "paused") {
+      // Keep controls visible while paused (user may resume)
+       
+      setShowControls(true);
+    } else if (audioState === "completed" || audioState === "error") {
+      // Auto-hide after 1.5s on complete/error
+       
+      setShowControls(true);
+      const timer = setTimeout(() => {
+        setShowControls(false);
+      }, AUTO_DISMISS_DELAY_MS);
+      return () => clearTimeout(timer);
+    } else {
+      // idle - hide controls
+       
+      setShowControls(false);
+    }
+  }, [isThisPlaying, audioState]);
+
+  // Check if audio is actively playing (for visual indicator)
+  const isAudioPlaying = isThisPlaying && audioState === "playing";
 
   // P1.5 FIX: Memoize expensive formatSanskritLines computation
   const sanskritLines = useMemo(
@@ -152,7 +327,11 @@ export const VerseCard = memo(function VerseCard({
       : "";
 
     return (
-      <div className="relative bg-[var(--surface-card)] rounded-[var(--radius-card)] p-3 sm:p-4 border border-[var(--border-warm)] shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] hover:border-[var(--border-warm-hover)] hover:-translate-y-0.5 transition-[var(--transition-card)]">
+      <div className={`relative bg-[var(--surface-card)] rounded-[var(--radius-card)] p-3 sm:p-4 border hover:-translate-y-0.5 transition-[var(--transition-card)] ${
+        isAudioPlaying
+          ? "border-[var(--interactive-primary)] shadow-[var(--shadow-card-hover)]"
+          : "border-[var(--border-warm)] shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] hover:border-[var(--border-warm-hover)]"
+      }`}>
         {/* Stretched link - covers entire card for navigation (accessibility pattern) */}
         {linkTo && (
           <Link
@@ -171,7 +350,7 @@ export const VerseCard = memo(function VerseCard({
           </div>
         )}
 
-        {/* Top-right: Match badge + Heart (flex row, heart always rightmost) */}
+        {/* Top-right: Match badge + Heart + Audio (play button furthest right for consistency) */}
         <div className="absolute top-2 right-2 sm:top-3 sm:right-3 z-10 flex items-center gap-1.5">
           {match && (
             <span className="inline-flex items-center px-1.5 py-0.5 rounded-[var(--radius-badge)] bg-[var(--badge-match-bg)] text-[var(--badge-match-text)] text-[10px] sm:text-xs font-medium">
@@ -185,7 +364,7 @@ export const VerseCard = memo(function VerseCard({
                 e.stopPropagation();
                 onToggleFavorite(verse.canonical_id);
               }}
-              className={`p-2.5 sm:p-1 -m-1.5 sm:m-0 rounded-[var(--radius-badge)] transition-[var(--transition-card)] pointer-events-auto focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
+              className={`p-2 sm:p-1 -m-1 sm:m-0 rounded-[var(--radius-badge)] transition-[var(--transition-card)] pointer-events-auto focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
                 isFavorite
                   ? "text-[var(--icon-favorite)]"
                   : "text-[var(--text-muted)] hover:text-[var(--icon-favorite)] hover:scale-110"
@@ -194,8 +373,55 @@ export const VerseCard = memo(function VerseCard({
                 isFavorite ? "Remove from favorites" : "Add to favorites"
               }
             >
-              <HeartIcon className="w-4 h-4" filled={isFavorite} />
+              <HeartIcon className="w-5 h-5 sm:w-4 sm:h-4" filled={isFavorite} />
             </button>
+          )}
+          {/* Audio play button - furthest right for consistent placement */}
+          {hasAudio && (
+            <div className="flex flex-col items-end gap-0.5">
+              <button
+                onClick={handleAudioClick}
+                disabled={isThisPlaying && audioState === "loading"}
+                className={`p-3 sm:p-1 -m-1 sm:m-0 rounded-full transition-[var(--transition-all)] pointer-events-auto focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
+                  isThisPlaying && audioState === "error"
+                    ? "text-[var(--status-error-text)] bg-[var(--status-error-text)]/10"
+                    : isThisPlaying && audioState === "completed"
+                      ? "text-[var(--status-success-text)] bg-[var(--status-success-text)]/10"
+                      : isThisPlaying && audioState === "playing"
+                        ? "text-[var(--interactive-primary)] bg-[var(--interactive-primary)]/10"
+                        : "text-[var(--text-muted)] hover:text-[var(--interactive-primary)] hover:bg-[var(--surface-muted)]"
+                } ${isThisPlaying && audioState === "loading" ? "opacity-50" : ""}`}
+                aria-label={
+                  isThisPlaying && audioState === "error"
+                    ? `Retry verse ${formatVerseRef(verse)} audio`
+                    : isThisPlaying && audioState === "completed"
+                      ? `Replay verse ${formatVerseRef(verse)} audio`
+                      : isThisPlaying && audioState === "playing"
+                        ? `Pause verse ${formatVerseRef(verse)} audio`
+                        : isThisPlaying && audioState === "loading"
+                          ? `Loading verse ${formatVerseRef(verse)} audio`
+                          : `Play verse ${formatVerseRef(verse)} audio`
+                }
+              >
+                {isThisPlaying && audioState === "loading" ? (
+                  <SpinnerIcon className="w-5 h-5 sm:w-4 sm:h-4" />
+                ) : isThisPlaying && audioState === "error" ? (
+                  <AlertCircleIcon className="w-5 h-5 sm:w-4 sm:h-4" />
+                ) : isThisPlaying && audioState === "completed" ? (
+                  <CheckIcon className="w-5 h-5 sm:w-4 sm:h-4" />
+                ) : isThisPlaying && audioState === "playing" ? (
+                  <PauseIcon className="w-5 h-5 sm:w-4 sm:h-4" />
+                ) : (
+                  <PlayIcon className="w-5 h-5 sm:w-4 sm:h-4" />
+                )}
+              </button>
+              {/* Error message tooltip */}
+              {isThisPlaying && audioState === "error" && audioError && (
+                <span className="text-[10px] text-[var(--status-error-text)] bg-[var(--surface-elevated)] px-1.5 py-0.5 rounded-[var(--radius-badge)] shadow-sm max-w-24 text-right truncate pointer-events-auto">
+                  {audioError}
+                </span>
+              )}
+            </div>
           )}
         </div>
 
@@ -220,32 +446,39 @@ export const VerseCard = memo(function VerseCard({
             ))}
           </div>
 
-          {/* Translation preview - with match highlighting when available */}
-          {(match?.highlight ||
-            (showTranslationPreview && translationText)) && (
+          {/* Translation preview OR Audio controls overlay - consistent height */}
+          {(showControls && hasAudio) || match?.highlight || (showTranslationPreview && translationText) ? (
             <>
               {/* Subtle divider */}
               <div className="my-2 sm:my-3 border-t border-[var(--border-warm-subtle)]" />
-              {/* Translation with highlighting or line-clamp */}
-              {match?.highlight ? (
-                <p className="text-xs sm:text-sm text-[var(--text-secondary)] text-center leading-relaxed">
-                  {'"'}
-                  <HighlightedText text={match.highlight} />
-                  {'"'}
-                </p>
-              ) : (
-                <p className="text-xs sm:text-sm text-[var(--text-secondary)] text-center leading-relaxed line-clamp-2 sm:line-clamp-3">
-                  "{translationText}"
-                </p>
-              )}
+              {/* Content area with consistent min-height (matches 2-3 lines of text) */}
+              <div className="min-h-[2.5rem] sm:min-h-[3.5rem]">
+                {showControls && hasAudio ? (
+                  <AudioControlsOverlay
+                    isThisPlaying={isThisPlaying}
+                    linkTo={linkTo}
+                    onStop={audioStop}
+                  />
+                ) : match?.highlight ? (
+                  <p className="text-xs sm:text-sm text-[var(--text-secondary)] text-center leading-relaxed">
+                    {'"'}
+                    <HighlightedText text={match.highlight} />
+                    {'"'}
+                  </p>
+                ) : (
+                  <p className="text-xs sm:text-sm text-[var(--text-secondary)] text-center leading-relaxed line-clamp-2 sm:line-clamp-3">
+                    "{translationText}"
+                  </p>
+                )}
+              </div>
               {/* "Matched in" indicator for search results */}
-              {match?.field && (
+              {!showControls && match?.field && (
                 <p className="mt-1 text-center text-[10px] text-[var(--text-muted)]">
                   Matched in: {match.field}
                 </p>
               )}
             </>
-          )}
+          ) : null}
         </div>
 
         {/* Principle Tags - pointer-events-auto so they're clickable above the stretched link */}

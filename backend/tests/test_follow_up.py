@@ -1,11 +1,12 @@
 """Tests for follow-up conversation endpoint and pipeline."""
 
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
 from fastapi import status
 
 from services.follow_up import FollowUpPipeline, FollowUpResult
-from services.prompts import build_follow_up_prompt, FOLLOW_UP_SYSTEM_PROMPT
+from services.prompts import FOLLOW_UP_SYSTEM_PROMPT, build_follow_up_prompt
 
 # Mark all tests in this module as integration tests (require DB)
 pytestmark = pytest.mark.integration
@@ -163,10 +164,11 @@ class TestFollowUpPipeline:
 def case_with_output(client, db_session):
     """Create a case with a completed consultation (Output)."""
     import uuid
-    from models.case import Case
-    from models.output import Output
-    from models.message import Message, MessageRole
     from datetime import datetime
+
+    from models.case import Case
+    from models.message import Message, MessageRole
+    from models.output import Output
 
     # Create case with session ID
     session_id = str(uuid.uuid4())
@@ -263,6 +265,7 @@ def case_with_output(client, db_session):
 def case_without_output(client, db_session):
     """Create a case without any consultation (no Output)."""
     import uuid
+
     from models.case import Case
 
     session_id = str(uuid.uuid4())
@@ -339,8 +342,8 @@ def test_follow_up_returns_response(client, case_with_output):
 
 def test_follow_up_creates_user_message(client, case_with_output, db_session):
     """Test that follow-up creates user message immediately (async processing)."""
-    from models.message import Message
     from models.case import Case
+    from models.message import Message
 
     case_id = case_with_output["case"].id
     session_id = case_with_output["session_id"]

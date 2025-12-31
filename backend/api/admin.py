@@ -3,17 +3,17 @@
 import logging
 import threading
 import time
-from typing import Optional
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
-from sqlalchemy.orm import Session
+
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
 
 from api.dependencies import verify_admin_api_key
+from data.featured_verses import get_featured_verse_ids
 from db.connection import get_db
 from models import Verse
-from services.ingestion.pipeline import IngestionPipeline
 from services.email import send_alert_email
-from data.featured_verses import get_featured_verse_ids
+from services.ingestion.pipeline import IngestionPipeline
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +23,7 @@ router = APIRouter(prefix="/api/v1/admin")
 class IngestionRequest(BaseModel):
     """Request model for data ingestion."""
 
-    source_type: Optional[str] = (
+    source_type: str | None = (
         None  # sanskrit, translations, commentaries, or None for all
     )
     force_refresh: bool = False
@@ -148,7 +148,7 @@ def trigger_ingestion(
         raise HTTPException(status_code=500, detail="Failed to queue ingestion")
 
 
-def run_ingestion_task(source_type: Optional[str] = None, force_refresh: bool = False):
+def run_ingestion_task(source_type: str | None = None, force_refresh: bool = False):
     """
     Background task to run data ingestion.
 
@@ -242,12 +242,12 @@ def sync_featured_verses(db: Session) -> dict:
     # Step 3: Find which IDs weren't found (only if needed for logging)
     not_found = []
     if synced < len(featured_ids):
-        found_ids = set(
+        found_ids = {
             row[0]
             for row in db.query(Verse.canonical_id)
             .filter(Verse.canonical_id.in_(featured_ids))
             .all()
-        )
+        }
         not_found = [cid for cid in featured_ids if cid not in found_ids]
 
     db.commit()
@@ -324,7 +324,8 @@ def sync_metadata(db: Session) -> dict:
         Stats dict with sync results
     """
     from datetime import datetime
-    from data.chapter_metadata import get_book_metadata, get_all_chapter_metadata
+
+    from data.chapter_metadata import get_all_chapter_metadata, get_book_metadata
     from models import BookMetadata, ChapterMetadata
 
     book_data = get_book_metadata()
@@ -332,9 +333,9 @@ def sync_metadata(db: Session) -> dict:
 
     # Sync book metadata
     book_synced = False
-    existing_book = db.query(BookMetadata).filter(
-        BookMetadata.book_key == "bhagavad_geeta"
-    ).first()
+    existing_book = (
+        db.query(BookMetadata).filter(BookMetadata.book_key == "bhagavad_geeta").first()
+    )
 
     if existing_book:
         # Update existing
@@ -365,9 +366,11 @@ def sync_metadata(db: Session) -> dict:
     # Sync chapter metadata
     chapters_synced = 0
     for ch_data in chapters_data:
-        existing_ch = db.query(ChapterMetadata).filter(
-            ChapterMetadata.chapter_number == ch_data["chapter_number"]
-        ).first()
+        existing_ch = (
+            db.query(ChapterMetadata)
+            .filter(ChapterMetadata.chapter_number == ch_data["chapter_number"])
+            .first()
+        )
 
         if existing_ch:
             # Update existing
@@ -568,7 +571,7 @@ def run_enrich_task(limit: int = 0, force: bool = False):
 
     def enrich_with_retry(verse_dict: dict, verse_id: str) -> dict:
         """Enrich a verse with exponential backoff on rate limit errors."""
-        last_error: Optional[Exception] = None
+        last_error: Exception | None = None
         for attempt in range(MAX_RETRIES + 1):
             try:
                 return enricher.enrich_verse(
@@ -583,7 +586,7 @@ def run_enrich_task(limit: int = 0, force: bool = False):
                 # Check for rate limit error (429)
                 if "429" in error_str or "rate" in error_str or "too many" in error_str:
                     if attempt < MAX_RETRIES:
-                        backoff = INITIAL_BACKOFF * (BACKOFF_MULTIPLIER ** attempt)
+                        backoff = INITIAL_BACKOFF * (BACKOFF_MULTIPLIER**attempt)
                         logger.warning(
                             f"Rate limit hit for {verse_id}, "
                             f"retry {attempt + 1}/{MAX_RETRIES} after {backoff}s"
@@ -601,7 +604,9 @@ def run_enrich_task(limit: int = 0, force: bool = False):
         logger.info(f"Limit: {limit or 'all'}")
         logger.info(f"Force re-enrich: {force}")
         logger.info(f"Rate limiting: {DELAY_BETWEEN_VERSES}s delay (~20 verses/min)")
-        logger.info(f"Retry policy: {MAX_RETRIES} retries with {INITIAL_BACKOFF}s initial backoff")
+        logger.info(
+            f"Retry policy: {MAX_RETRIES} retries with {INITIAL_BACKOFF}s initial backoff"
+        )
         logger.info("=" * 80)
 
         # Load verses with translations

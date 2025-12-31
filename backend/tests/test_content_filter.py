@@ -1,17 +1,18 @@
 """Tests for content filter module."""
 
-import pytest
 from unittest.mock import patch
+
+import pytest
 
 # Mark all tests in this module as unit tests (fast, no DB required)
 pytestmark = pytest.mark.unit
 from services.content_filter import (
-    check_blocklist,
-    detect_llm_refusal,
-    validate_submission_content,
-    get_policy_violation_response,
     ContentPolicyError,
     ViolationType,
+    check_blocklist,
+    detect_llm_refusal,
+    get_policy_violation_response,
+    validate_submission_content,
 )
 
 

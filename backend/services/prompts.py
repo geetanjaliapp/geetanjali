@@ -2,7 +2,7 @@
 
 import logging
 import re
-from typing import Any, Dict, List
+from typing import Any
 
 from utils.json_parsing import extract_json_from_markdown
 
@@ -105,7 +105,7 @@ This two-part structure keeps options concise while maintaining full metadata. O
 
 
 def build_user_prompt(
-    case_data: Dict[str, Any], retrieved_verses: List[Dict[str, Any]]
+    case_data: dict[str, Any], retrieved_verses: list[dict[str, Any]]
 ) -> str:
     """
     Build user prompt for RAG pipeline.
@@ -290,7 +290,7 @@ Use verse IDs like BG_2_47. Output ONLY valid JSON."""
 
 
 def build_ollama_prompt(
-    case_data: Dict[str, Any], retrieved_verses: List[Dict[str, Any]]
+    case_data: dict[str, Any], retrieved_verses: list[dict[str, Any]]
 ) -> str:
     """
     Build simplified prompt for Ollama fallback.
@@ -337,8 +337,8 @@ def build_ollama_prompt(
 
 
 def post_process_ollama_response(
-    raw_response: str, retrieved_verses: List[Dict[str, Any]]
-) -> Dict[str, Any]:
+    raw_response: str, retrieved_verses: list[dict[str, Any]]
+) -> dict[str, Any]:
     """
     Post-process Ollama response to ensure it matches expected format.
 
@@ -500,8 +500,8 @@ Write as a continuation of the same conversation—natural, focused, and grounde
 
 def build_follow_up_prompt(
     case_description: str,
-    prior_output: Dict[str, Any],
-    conversation: List[Dict[str, Any]],
+    prior_output: dict[str, Any],
+    conversation: list[dict[str, Any]],
     follow_up_question: str,
     max_conversation_messages: int = 8,
 ) -> str:
@@ -562,7 +562,9 @@ def build_follow_up_prompt(
             if cid:
                 verse_ids.append(cid)
         if verse_ids:
-            parts.append(f"\n**IMPORTANT**: ONLY cite these verses: {', '.join(verse_ids)}. Do NOT reference any other verses.\n\n")
+            parts.append(
+                f"\n**IMPORTANT**: ONLY cite these verses: {', '.join(verse_ids)}. Do NOT reference any other verses.\n\n"
+            )
         else:
             parts.append("\n")
 
@@ -629,20 +631,12 @@ def format_executive_summary(text: str) -> str:
         # Add paragraph break BEFORE header if not already there
         # Matches: non-newline char + optional space + header
         # Replaces with: char + double newline + header
-        result = re.sub(
-            rf"([^\n])[ \t]*({header_pattern})",
-            r"\1\n\n\2",
-            result
-        )
+        result = re.sub(rf"([^\n])[ \t]*({header_pattern})", r"\1\n\n\2", result)
 
         # Add paragraph break AFTER header if text follows on same line
         # Matches: header + optional colon + space + non-newline text
         # Replaces with: header + colon + double newline + text
-        result = re.sub(
-            rf"({header_pattern}:?)[ \t]+([^\n])",
-            r"\1\n\n\2",
-            result
-        )
+        result = re.sub(rf"({header_pattern}:?)[ \t]+([^\n])", r"\1\n\n\2", result)
 
     # 2. Verse Reference Normalization
     # Convert BG_X.Y to BG_X_Y (some LLMs use dots)

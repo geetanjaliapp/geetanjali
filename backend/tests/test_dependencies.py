@@ -1,8 +1,9 @@
 """Tests for API dependencies (access control)."""
 
+import uuid
+
 import pytest
 from fastapi import status
-import uuid
 
 # Mark all tests in this module as integration tests (require DB)
 pytestmark = pytest.mark.integration

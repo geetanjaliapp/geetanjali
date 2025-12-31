@@ -1,11 +1,11 @@
 """Repository for User model operations."""
 
 from datetime import datetime
-from typing import Optional
+
 from sqlalchemy.orm import Session
 
-from models.user import User
 from db.repositories.base import BaseRepository
+from models.user import User
 
 
 class UserRepository(BaseRepository):
@@ -14,7 +14,7 @@ class UserRepository(BaseRepository):
     def __init__(self, db: Session):
         super().__init__(User, db)
 
-    def get_by_email(self, email: str) -> Optional[User]:
+    def get_by_email(self, email: str) -> User | None:
         """
         Get user by email address.
 
@@ -63,7 +63,7 @@ class UserRepository(BaseRepository):
         result: User = self.create(user_data)  # type: ignore[assignment]
         return result
 
-    def get_by_reset_token_id(self, token_id: str) -> Optional[User]:
+    def get_by_reset_token_id(self, token_id: str) -> User | None:
         """
         Get user by reset token ID (O(1) indexed lookup).
 
@@ -83,7 +83,7 @@ class UserRepository(BaseRepository):
             .first()
         )
 
-    def get_by_email_verification_token(self, token: str) -> Optional[User]:
+    def get_by_email_verification_token(self, token: str) -> User | None:
         """
         Get user by email verification token (O(1) indexed lookup).
 
@@ -94,9 +94,7 @@ class UserRepository(BaseRepository):
             User if found, None otherwise (does not check expiry)
         """
         return (
-            self.db.query(User)
-            .filter(User.email_verification_token == token)
-            .first()
+            self.db.query(User).filter(User.email_verification_token == token).first()
         )
 
     def set_email_verification_token(

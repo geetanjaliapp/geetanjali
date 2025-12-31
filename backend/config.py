@@ -2,7 +2,8 @@
 
 import logging
 import warnings
-from typing import List, Union, Optional
+from pathlib import Path
+
 from pydantic import field_validator, model_validator
 from pydantic_settings import BaseSettings
 
@@ -41,7 +42,7 @@ class Settings(BaseSettings):
     DB_ECHO: bool = False  # Log all SQL queries (very verbose, for debugging only)
 
     # Vector Database (ChromaDB)
-    CHROMA_HOST: Optional[str] = None  # If set, use HTTP client instead of local
+    CHROMA_HOST: str | None = None  # If set, use HTTP client instead of local
     CHROMA_PORT: int = 8000
     CHROMA_PERSIST_DIRECTORY: str = "./chroma_data"
     CHROMA_COLLECTION_NAME: str = "gita_verses"
@@ -67,7 +68,7 @@ class Settings(BaseSettings):
     USE_MOCK_LLM: bool = False  # Use mock LLM for testing (overrides provider setting)
 
     # Anthropic (Claude)
-    ANTHROPIC_API_KEY: Optional[str] = None  # Required for Anthropic
+    ANTHROPIC_API_KEY: str | None = None  # Required for Anthropic
     ANTHROPIC_MODEL: str = (
         "claude-haiku-4-5-20251001"  # Haiku 4.5 - fast, cost-effective
     )
@@ -108,7 +109,7 @@ class Settings(BaseSettings):
 
     # API
     API_V1_PREFIX: str = "/api/v1"
-    CORS_ORIGINS: Union[str, List[str]] = [
+    CORS_ORIGINS: str | list[str] = [
         "http://localhost",
         "http://localhost:3000",
         "http://localhost:5173",
@@ -141,7 +142,7 @@ class Settings(BaseSettings):
     CSRF_HEADER_NAME: str = "X-CSRF-Token"
 
     # Redis Cache (optional - app works without it)
-    REDIS_URL: Optional[str] = None
+    REDIS_URL: str | None = None
     REDIS_ENABLED: bool = True  # Set False to disable caching entirely
 
     # Cache TTLs (seconds)
@@ -152,14 +153,18 @@ class Settings(BaseSettings):
     CACHE_TTL_SEARCH: int = 300  # 5 minutes - short TTL for burst protection
     CACHE_TTL_PRINCIPLES: int = 3600  # 1 hour - principles list rarely changes
     CACHE_TTL_FEATURED_COUNT: int = 3600  # 1 hour - featured count rarely changes
-    CACHE_TTL_FEATURED_CASES: int = 86400  # 24 hours - featured cases are static content
+    CACHE_TTL_FEATURED_CASES: int = (
+        86400  # 24 hours - featured cases are static content
+    )
     CACHE_TTL_VIEW_DEDUPE: int = 86400  # 24 hours - view count deduplication window
     CACHE_TTL_PUBLIC_CASE: int = 3600  # 1 hour Redis TTL for public cases
     CACHE_TTL_PUBLIC_CASE_HTTP: int = 300  # 5 minutes browser cache
     CACHE_TTL_SITEMAP: int = 3600  # 1 hour
     CACHE_TTL_FEED: int = 3600  # 1 hour
     CACHE_TTL_RAG_OUTPUT: int = 86400  # 24 hours
-    CACHE_TTL_DAILY_COUNTER: int = 172800  # 48 hours - daily counters with timezone safety
+    CACHE_TTL_DAILY_COUNTER: int = (
+        172800  # 48 hours - daily counters with timezone safety
+    )
 
     # Public case sharing
     PUBLIC_CASE_EXPIRY_DAYS: int = 90  # Days until public case links expire (0 = never)
@@ -178,20 +183,23 @@ class Settings(BaseSettings):
     # Frontend
     FRONTEND_URL: str = "http://localhost:5173"
 
+    # Audio Files
+    AUDIO_FILES_PATH: str = "../public/audio"  # Relative to backend/ or absolute
+
     # Email (Resend)
-    RESEND_API_KEY: Optional[str] = None  # Set in .env to enable email
-    CONTACT_EMAIL_TO: Optional[str] = (
-        None  # Recipient for contact form - MUST set in .env
-    )
-    CONTACT_EMAIL_FROM: Optional[str] = (
+    RESEND_API_KEY: str | None = None  # Set in .env to enable email
+    CONTACT_EMAIL_TO: str | None = None  # Recipient for contact form - MUST set in .env
+    CONTACT_EMAIL_FROM: str | None = (
         None  # Sender address - MUST set in .env (use verified domain)
     )
 
     # Newsletter
-    NEWSLETTER_DRY_RUN: bool = True  # Default safe: log emails, don't send. Set False in prod.
+    NEWSLETTER_DRY_RUN: bool = (
+        True  # Default safe: log emails, don't send. Set False in prod.
+    )
 
     # Monitoring (Sentry)
-    SENTRY_DSN: Optional[str] = None  # Set in .env to enable error tracking
+    SENTRY_DSN: str | None = None  # Set in .env to enable error tracking
     SENTRY_TRACES_SAMPLE_RATE: float = 0.1  # 10% of requests for performance monitoring
 
     # Circuit Breaker Configuration
@@ -223,7 +231,7 @@ class Settings(BaseSettings):
         mode="before",
     )
     @classmethod
-    def empty_string_to_none(cls, v: Optional[str]) -> Optional[str]:
+    def empty_string_to_none(cls, v: str | None) -> str | None:
         """Convert empty strings to None for Optional fields only.
 
         This handles Docker Compose ${VAR:-} for optional API keys/URLs.
@@ -248,7 +256,7 @@ class Settings(BaseSettings):
 
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
-    def parse_cors_origins(cls, v: Union[str, List[str]]) -> List[str]:
+    def parse_cors_origins(cls, v: str | list[str]) -> list[str]:
         """Parse CORS_ORIGINS from comma-separated string or list."""
         if isinstance(v, str):
             return [origin.strip() for origin in v.split(",")]
@@ -401,6 +409,19 @@ class Settings(BaseSettings):
             logger.warning(
                 "PRODUCTION: RESEND_API_KEY is set but CONTACT_EMAIL_TO or CONTACT_EMAIL_FROM missing. "
                 "Set both in .env for email to work."
+            )
+
+        # ========================================
+        # OPTIONAL: Audio files path validation
+        # ========================================
+        audio_path = Path(self.AUDIO_FILES_PATH)
+        if not audio_path.is_absolute():
+            # Resolve relative to backend/ directory
+            audio_path = Path(__file__).parent / self.AUDIO_FILES_PATH
+        if not audio_path.exists():
+            logger.warning(
+                f"PRODUCTION: AUDIO_FILES_PATH '{self.AUDIO_FILES_PATH}' does not exist. "
+                "Audio recitations will not be available. Run 'git lfs pull' to download audio files."
             )
 
         # ========================================

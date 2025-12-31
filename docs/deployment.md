@@ -37,6 +37,27 @@ Services exposed:
 
 ### Production Deployment
 
+#### First-time Server Setup
+
+Run the setup script once on a fresh server to install all dependencies:
+
+```bash
+# SSH to server and run setup
+ssh your-server
+curl -fsSL https://raw.githubusercontent.com/geetanjaliapp/geetanjali/main/scripts/setup-server.sh | sudo bash
+
+# Or after cloning the repo
+sudo ./scripts/setup-server.sh
+```
+
+This installs:
+- Docker & Docker Compose
+- Git LFS (for audio files)
+- SOPS + age (for secrets)
+- fail2ban, unattended-upgrades
+
+#### Ongoing Deployments
+
 Production settings are controlled via the `.env` file (decrypted from `.env.enc` during deployment):
 
 ```bash
@@ -172,6 +193,46 @@ For automated testing:
                              │
                              ▼
                  External: ports 80, 443 only
+```
+
+## Audio Files (Git LFS)
+
+Audio recitations (~94MB, 710 MP3 files) are stored using Git LFS.
+
+### Initial Setup
+
+After cloning, pull audio files:
+
+```bash
+# Install Git LFS (done by setup-server.sh on production)
+git lfs install
+
+# Pull audio files
+git lfs pull
+```
+
+### Deployment
+
+The `make deploy` command automatically runs `git lfs pull` after `git pull`.
+
+Audio files are mounted into the frontend container:
+
+```yaml
+frontend:
+  volumes:
+    - ./public/audio:/app/public/audio:ro
+```
+
+### Verification
+
+```bash
+# Check LFS files are present (not pointer files)
+file public/audio/mp3/01/BG_1_1.mp3
+# Should show: MPEG audio layer III
+
+# Count audio files
+find public/audio/mp3 -name "*.mp3" | wc -l
+# Should show: 710
 ```
 
 ## Volume Management

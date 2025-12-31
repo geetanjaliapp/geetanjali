@@ -28,7 +28,6 @@ import logging
 import time
 from abc import ABC, abstractmethod
 from threading import Lock
-from typing import Optional
 
 from utils.metrics_events import circuit_breaker_transitions_total
 
@@ -95,7 +94,7 @@ class CircuitBreaker(ABC):
         self.failure_threshold = failure_threshold
         self.recovery_timeout = recovery_timeout
         self._failure_count = 0
-        self._last_failure_time: Optional[float] = None
+        self._last_failure_time: float | None = None
         self._state = self.STATE_CLOSED
         self._lock = Lock()
 
@@ -171,9 +170,7 @@ class CircuitBreaker(ABC):
 
             if self._state == self.STATE_HALF_OPEN:
                 # Failed during probe - reopen immediately
-                logger.warning(
-                    f"Circuit breaker '{self.name}' OPEN after failed probe"
-                )
+                logger.warning(f"Circuit breaker '{self.name}' OPEN after failed probe")
                 self._transition_to(self.STATE_OPEN)
             elif self._failure_count >= self.failure_threshold:
                 if self._state != self.STATE_OPEN:

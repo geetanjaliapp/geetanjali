@@ -372,7 +372,9 @@ def test_resend_verification_success(client):
 
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
-    assert "sent" in data["message"].lower() or "verification" in data["message"].lower()
+    assert (
+        "sent" in data["message"].lower() or "verification" in data["message"].lower()
+    )
 
 
 def test_resend_verification_already_verified(client, db_session):

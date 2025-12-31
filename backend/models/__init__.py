@@ -1,19 +1,20 @@
 """Database models for Geetanjali."""
 
 from models.base import Base
-from models.user import User
-from models.refresh_token import RefreshToken
 from models.case import Case
-from models.output import Output
-from models.message import Message, MessageRole
-from models.verse import Verse, Commentary, Translation
-from models.feedback import Feedback
 from models.contact import ContactMessage, ContactType
 from models.experiment import ExperimentEvent
-from models.metadata import BookMetadata, ChapterMetadata
-from models.subscriber import Subscriber, SendTime
 from models.featured_case import FeaturedCase
+from models.feedback import Feedback
+from models.message import Message, MessageRole
+from models.metadata import BookMetadata, ChapterMetadata
+from models.output import Output
+from models.refresh_token import RefreshToken
+from models.subscriber import SendTime, Subscriber
+from models.user import User
 from models.user_preferences import UserPreferences
+from models.verse import Commentary, Translation, Verse
+from models.verse_audio_metadata import VerseAudioMetadata
 
 __all__ = [
     "Base",
@@ -36,4 +37,5 @@ __all__ = [
     "SendTime",
     "FeaturedCase",
     "UserPreferences",
+    "VerseAudioMetadata",
 ]

@@ -6,6 +6,7 @@ import type { Verse, SearchResult } from "../types";
 import { Navbar, SearchInput, saveRecentSearch } from "../components";
 import { Footer } from "../components/Footer";
 import { VerseCard, VerseCardSkeleton } from "../components/VerseCard";
+import { FloatingAudioBar } from "../components/audio";
 import type { VerseMatch } from "../components/VerseCard";
 import { BackToTopButton } from "../components/BackToTopButton";
 import {
@@ -1739,6 +1740,9 @@ export default function Verses() {
 
       {/* Footer */}
       <Footer />
+
+      {/* Floating Audio Bar - shows when audio is playing */}
+      <FloatingAudioBar />
 
       {/* Back to Top Button */}
       <BackToTopButton />

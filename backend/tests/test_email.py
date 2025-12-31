@@ -1,7 +1,8 @@
 """Tests for email service."""
 
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
 
 # Mark all tests in this module as unit tests (fast, mocked externals)
 pytestmark = pytest.mark.unit
@@ -162,10 +163,10 @@ class TestEmailExceptions:
     def test_exception_hierarchy(self):
         """Test that all exceptions inherit from EmailError."""
         from services.email import (
-            EmailError,
             EmailConfigurationError,
-            EmailServiceUnavailable,
+            EmailError,
             EmailSendError,
+            EmailServiceUnavailable,
         )
 
         assert issubclass(EmailConfigurationError, EmailError)
@@ -232,7 +233,7 @@ class TestDigestEmailFailures:
 
     def test_digest_email_configuration_error(self):
         """Test digest email returns False when not configured."""
-        from services.email import send_newsletter_digest_email, EmailConfigurationError
+        from services.email import EmailConfigurationError, send_newsletter_digest_email
 
         with patch(
             "services.email._get_resend_or_raise",
@@ -262,7 +263,7 @@ class TestDigestEmailFailures:
 
     def test_digest_email_service_unavailable(self):
         """Test digest email returns False when service unavailable."""
-        from services.email import send_newsletter_digest_email, EmailServiceUnavailable
+        from services.email import EmailServiceUnavailable, send_newsletter_digest_email
 
         with patch(
             "services.email._get_resend_or_raise",
@@ -569,6 +570,7 @@ class TestEmailCircuitBreaker:
     def test_circuit_breaker_half_open_after_timeout(self):
         """Test circuit breaker transitions to half_open after recovery timeout."""
         import time
+
         from services.email import EmailCircuitBreaker
 
         cb = EmailCircuitBreaker(failure_threshold=2, recovery_timeout=0.1)
@@ -588,6 +590,7 @@ class TestEmailCircuitBreaker:
     def test_circuit_breaker_half_open_success_closes(self):
         """Test successful request in half_open state closes circuit."""
         import time
+
         from services.email import EmailCircuitBreaker
 
         cb = EmailCircuitBreaker(failure_threshold=2, recovery_timeout=0.1)
@@ -609,6 +612,7 @@ class TestEmailCircuitBreaker:
     def test_circuit_breaker_half_open_failure_reopens(self):
         """Test failed request in half_open state reopens circuit."""
         import time
+
         from services.email import EmailCircuitBreaker
 
         cb = EmailCircuitBreaker(failure_threshold=2, recovery_timeout=0.1)
@@ -633,7 +637,7 @@ class TestEmailRetryDecorator:
 
     def test_retry_success_on_first_attempt(self):
         """Test successful email send on first attempt."""
-        from services.email import with_email_retry, get_circuit_breaker
+        from services.email import get_circuit_breaker, with_email_retry
 
         # Reset circuit breaker
         get_circuit_breaker().reset()
@@ -652,7 +656,7 @@ class TestEmailRetryDecorator:
 
     def test_retry_success_after_failure(self):
         """Test successful email send after transient failure."""
-        from services.email import with_email_retry, get_circuit_breaker
+        from services.email import get_circuit_breaker, with_email_retry
 
         get_circuit_breaker().reset()
 
@@ -672,7 +676,7 @@ class TestEmailRetryDecorator:
 
     def test_retry_exhausted(self):
         """Test email fails after all retries exhausted."""
-        from services.email import with_email_retry, get_circuit_breaker
+        from services.email import get_circuit_breaker, with_email_retry
 
         get_circuit_breaker().reset()
 
@@ -690,7 +694,7 @@ class TestEmailRetryDecorator:
 
     def test_circuit_breaker_blocks_requests(self):
         """Test circuit breaker blocks requests when open."""
-        from services.email import with_email_retry, get_circuit_breaker
+        from services.email import get_circuit_breaker, with_email_retry
 
         cb = get_circuit_breaker()
         cb.reset()
@@ -718,7 +722,7 @@ class TestEmailRetryDecorator:
 
     def test_retry_aborts_when_circuit_opens_during_retry(self):
         """Test retry aborts if circuit opens between attempts."""
-        from services.email import with_email_retry, get_circuit_breaker
+        from services.email import get_circuit_breaker, with_email_retry
 
         cb = get_circuit_breaker()
         cb.reset()
@@ -747,7 +751,7 @@ class TestEmailRetryDecorator:
 
     def test_retry_records_metrics(self):
         """Test that retry decorator records Prometheus metrics."""
-        from services.email import with_email_retry, get_circuit_breaker
+        from services.email import get_circuit_breaker, with_email_retry
         from utils.metrics import email_sends_total
 
         cb = get_circuit_breaker()

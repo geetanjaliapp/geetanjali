@@ -5,7 +5,6 @@ Critical paths:
 - Admin endpoints require API key authentication
 """
 
-import pytest
 from models import Verse
 
 

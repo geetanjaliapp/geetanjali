@@ -7,11 +7,11 @@ This is the main entry point for all search operations.
 """
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from sqlalchemy.orm import Session
 
-from services.content_filter import check_search_query, ContentCheckResult
+from services.content_filter import ContentCheckResult, check_search_query
 
 from .config import SearchConfig
 from .parser import QueryParser
@@ -53,8 +53,8 @@ class SearchService:
         query: str,
         limit: int = 20,
         offset: int = 0,
-        chapter: Optional[int] = None,
-        principle: Optional[str] = None,
+        chapter: int | None = None,
+        principle: str | None = None,
     ) -> SearchResponse:
         """Execute unified search across all strategies.
 
@@ -169,9 +169,9 @@ class SearchService:
     def _check_moderation(
         self,
         query: str,
-        canonical_ref: Optional[tuple],
+        canonical_ref: tuple | None,
         is_sanskrit: bool = False,
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """Check query against content moderation.
 
         Uses search-specific filter that:
@@ -228,9 +228,9 @@ class SearchService:
         self,
         query: str,
         config: SearchConfig,
-        canonical_ref: Optional[tuple],
+        canonical_ref: tuple | None,
         is_sanskrit: bool,
-    ) -> Dict[SearchStrategy, List[SearchResult]]:
+    ) -> dict[SearchStrategy, list[SearchResult]]:
         """Execute relevant search strategies based on query intent.
 
         Strategy priority:
@@ -249,7 +249,7 @@ class SearchService:
         Returns:
             Dict mapping strategies to their results
         """
-        results: Dict[SearchStrategy, List[SearchResult]] = {}
+        results: dict[SearchStrategy, list[SearchResult]] = {}
 
         # Strategy 1: Canonical reference
         if canonical_ref:
@@ -292,7 +292,7 @@ class SearchService:
         return results
 
 
-def get_available_principles(db: Session) -> List[str]:
+def get_available_principles(db: Session) -> list[str]:
     """Get list of all available consulting principles.
 
     Extracts unique principles from verse consulting_principles arrays.

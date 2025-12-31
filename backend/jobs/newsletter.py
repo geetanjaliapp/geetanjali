@@ -12,19 +12,18 @@ import logging
 import random
 import uuid
 from datetime import datetime
-from typing import List, Optional, Set
 
 # Thread-safe random for worker processes
 _secure_random = random.SystemRandom()
 
-from sqlalchemy import or_, cast
+from sqlalchemy import cast, or_
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Session
 
+from api.taxonomy import get_goals
 from config import settings
 from db.connection import SessionLocal
-from models import Subscriber, Verse, SendTime
-from api.taxonomy import get_goals
+from models import SendTime, Subscriber, Verse
 from services.email import send_newsletter_digest_email
 
 logger = logging.getLogger(__name__)
@@ -73,7 +72,7 @@ REFLECTION_PROMPTS = [
 # =============================================================================
 
 
-def get_principles_for_goals(goal_ids: List[str]) -> Set[str]:
+def get_principles_for_goals(goal_ids: list[str]) -> set[str]:
     """
     Get union of all principles from the given goal IDs.
 
@@ -89,7 +88,7 @@ def get_principles_for_goals(goal_ids: List[str]) -> Set[str]:
         return set()
 
     goals_data = get_goals()
-    principles: Set[str] = set()
+    principles: set[str] = set()
 
     for goal_id in real_goals:
         goal = goals_data.get(goal_id)
@@ -102,9 +101,9 @@ def get_principles_for_goals(goal_ids: List[str]) -> Set[str]:
 def select_verse_for_subscriber(
     db: Session,
     subscriber: Subscriber,
-    exclude_ids: List[str],
+    exclude_ids: list[str],
     fallback_to_featured: bool = False,
-) -> Optional[Verse]:
+) -> Verse | None:
     """
     Select a verse for the subscriber based on their goals.
 
@@ -129,8 +128,7 @@ def select_verse_for_subscriber(
     if principles:
         # Filter by principles (OR logic - any matching principle)
         conditions = [
-            cast(Verse.consulting_principles, JSONB).contains([p])
-            for p in principles
+            cast(Verse.consulting_principles, JSONB).contains([p]) for p in principles
         ]
         query = query.filter(Verse.consulting_principles.isnot(None))
         query = query.filter(or_(*conditions))
@@ -155,7 +153,9 @@ def select_verse_for_subscriber(
         )
         featured_query = db.query(Verse).filter(Verse.is_featured == True)  # noqa: E712
         if exclude_ids:
-            featured_query = featured_query.filter(Verse.canonical_id.notin_(exclude_ids))
+            featured_query = featured_query.filter(
+                Verse.canonical_id.notin_(exclude_ids)
+            )
         featured_verses = featured_query.all()
         if featured_verses:
             return _secure_random.choice(featured_verses)
@@ -163,13 +163,13 @@ def select_verse_for_subscriber(
     return None
 
 
-def get_goal_labels(goal_ids: List[str]) -> str:
+def get_goal_labels(goal_ids: list[str]) -> str:
     """Get human-readable labels for goal IDs."""
     if not goal_ids:
-        return "exploring the Gita's wisdom"
+        return "exploring the Geeta's wisdom"
 
     goals_data = get_goals()
-    labels: List[str] = []
+    labels: list[str] = []
 
     for goal_id in goal_ids:
         goal = goals_data.get(goal_id)
@@ -178,7 +178,7 @@ def get_goal_labels(goal_ids: List[str]) -> str:
             labels.append(label)
 
     if not labels:
-        return "exploring the Gita's wisdom"
+        return "exploring the Geeta's wisdom"
 
     if len(labels) == 1:
         return labels[0]
@@ -206,7 +206,7 @@ def should_show_reflection(verses_sent_count: int) -> bool:
     return verses_sent_count > 0 and verses_sent_count % 7 == 0
 
 
-def get_reflection_prompt(verses_sent_count: int) -> Optional[str]:
+def get_reflection_prompt(verses_sent_count: int) -> str | None:
     """Get a reflection prompt if applicable."""
     if not should_show_reflection(verses_sent_count):
         return None
@@ -216,10 +216,10 @@ def get_reflection_prompt(verses_sent_count: int) -> Optional[str]:
 
 
 def update_30d_window(
-    current_list: List[str],
+    current_list: list[str],
     new_verse_id: str,
     max_size: int = 30,
-) -> List[str]:
+) -> list[str]:
     """
     Update the 30-day rolling window of sent verses.
 
@@ -276,7 +276,9 @@ def send_subscriber_digest(subscriber_id: str, send_time: str) -> dict:
     except (ValueError, TypeError):
         result["status"] = "failed"
         result["error"] = "Invalid subscriber_id format"
-        logger.warning(f"Invalid subscriber_id format: {subscriber_id[:8] if subscriber_id else 'None'}...")
+        logger.warning(
+            f"Invalid subscriber_id format: {subscriber_id[:8] if subscriber_id else 'None'}..."
+        )
         return result
 
     if send_time not in [t.value for t in SendTime]:
@@ -301,7 +303,9 @@ def send_subscriber_digest(subscriber_id: str, send_time: str) -> dict:
         if not subscriber.is_active:
             result["status"] = "skipped"
             result["error"] = "Subscriber not active"
-            logger.info(f"Subscriber {_mask_email(subscriber.email)} no longer active, skipping")
+            logger.info(
+                f"Subscriber {_mask_email(subscriber.email)} no longer active, skipping"
+            )
             return result
 
         # Idempotency check: skip if recently sent (prevents duplicates on retry/re-run)
@@ -335,7 +339,9 @@ def send_subscriber_digest(subscriber_id: str, send_time: str) -> dict:
             if not verse:
                 result["status"] = "failed"
                 result["error"] = "No verse available after reset"
-                logger.error(f"No verse available for subscriber {subscriber_id} after reset")
+                logger.error(
+                    f"No verse available for subscriber {subscriber_id} after reset"
+                )
                 db.rollback()
                 return result
 
@@ -392,7 +398,9 @@ def send_subscriber_digest(subscriber_id: str, send_time: str) -> dict:
             db.commit()
         except Exception:
             db.rollback()
-            logger.exception(f"Failed to update tracking for subscriber {subscriber_id}")
+            logger.exception(
+                f"Failed to update tracking for subscriber {subscriber_id}"
+            )
             # Email was sent, so don't retry - just log the tracking failure
             result["status"] = "sent_tracking_failed"
             result["error"] = "Tracking update failed"

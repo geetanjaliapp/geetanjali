@@ -12,5 +12,14 @@ Utility scripts for development, deployment, and maintenance.
 
 ## Production
 
+- `setup-server.sh` — **One-time** server setup (installs Docker, git-lfs, SOPS, age)
 - `deploy.sh` — Deploy to production (requires `DEPLOY_HOST`, `DEPLOY_DIR`, `DEPLOY_AGE_KEY`)
+- `setup-crons.sh` — Install cron jobs for maintenance and newsletters
 - `maintenance.sh` — Automated backup, cleanup, and health checks (runs via cron)
+
+### First-time Server Setup
+
+```bash
+# On the production server (run once, after cloning)
+sudo ./scripts/setup-server.sh
+```

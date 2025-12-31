@@ -8,6 +8,7 @@ import {
   useParams,
 } from "react-router-dom";
 import { useAuth } from "./contexts/AuthContext";
+import { TTSProvider } from "./contexts/TTSContext";
 import { useNewsletterSync } from "./hooks";
 import { FloatingActionButton, SkipLink, OfflineIndicator } from "./components";
 import { lazyWithRetry } from "./lib/lazyWithRetry";
@@ -30,6 +31,7 @@ const ResetPassword = lazyWithRetry(() => import("./pages/ResetPassword"));
 const About = lazyWithRetry(() => import("./pages/About"));
 const PublicCaseView = lazyWithRetry(() => import("./pages/PublicCaseView"));
 const ReadingMode = lazyWithRetry(() => import("./pages/ReadingMode"));
+const DhyanamPage = lazyWithRetry(() => import("./pages/DhyanamPage"));
 const Settings = lazyWithRetry(() => import("./pages/Settings"));
 const NewsletterVerify = lazyWithRetry(
   () => import("./pages/NewsletterVerify"),
@@ -124,10 +126,11 @@ function App() {
 
   return (
     <Router>
-      <SkipLink />
-      <OfflineIndicator />
-      <FloatingActionButton />
-      <main id="main-content">
+      <TTSProvider>
+        <SkipLink />
+        <OfflineIndicator />
+        <FloatingActionButton />
+        <main id="main-content">
         <Suspense fallback={<PageLoader />}>
           <Routes>
             {/* Public routes - accessible to everyone */}
@@ -143,6 +146,7 @@ function App() {
             <Route path="/search" element={<SearchRedirect />} />
             <Route path="/verses/:canonicalId" element={<VerseDetail />} />
             <Route path="/read" element={<ReadingMode />} />
+            <Route path="/read/dhyanam" element={<DhyanamPage />} />
             {/* Redirects for legacy path-based reading URLs */}
             <Route
               path="/read/:chapter/:verse"
@@ -176,7 +180,8 @@ function App() {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
-      </main>
+        </main>
+      </TTSProvider>
     </Router>
   );
 }

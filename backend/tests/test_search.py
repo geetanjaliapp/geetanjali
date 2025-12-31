@@ -1,13 +1,14 @@
 """Tests for unified hybrid search service and API."""
 
-import pytest
-from fastapi import status
-from models.verse import Verse, Translation
 import uuid
 
+import pytest
+from fastapi import status
+
+from models.verse import Translation, Verse
 from services.search import (
-    SearchService,
     MatchType,
+    SearchService,
 )
 from services.search.parser import QueryParser
 from services.search.utils import highlight_match

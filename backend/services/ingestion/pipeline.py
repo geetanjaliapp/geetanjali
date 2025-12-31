@@ -3,17 +3,18 @@ Pipeline orchestrator for coordinating the data ingestion flow.
 """
 
 import logging
-import yaml
 from pathlib import Path
-from typing import Dict, List, Optional, Protocol
+from typing import Protocol
+
+import yaml
 from sqlalchemy.orm import Session
 
+from services.ingestion.enricher import Enricher
 from services.ingestion.fetcher import Fetcher
 from services.ingestion.parsers.html_parser import HTMLParser
 from services.ingestion.parsers.json_parser import JSONParser
-from services.ingestion.validator import Validator
-from services.ingestion.enricher import Enricher
 from services.ingestion.persister import Persister
+from services.ingestion.validator import Validator
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +22,7 @@ logger = logging.getLogger(__name__)
 class Parser(Protocol):
     """Protocol for parser interface."""
 
-    def parse(self, raw_data: str, source_config: Dict) -> List[Dict]: ...
+    def parse(self, raw_data: str, source_config: dict) -> list[dict]: ...
 
 
 class IngestionPipeline:
@@ -52,7 +53,7 @@ class IngestionPipeline:
 
         # Initialize services
         self.fetcher = Fetcher()
-        self.parsers: Dict[str, Parser] = {
+        self.parsers: dict[str, Parser] = {
             "html": HTMLParser(),
             "json": JSONParser(),
         }
@@ -62,7 +63,7 @@ class IngestionPipeline:
 
         logger.info("IngestionPipeline initialized")
 
-    def _load_config(self) -> Dict:
+    def _load_config(self) -> dict:
         """
         Load data sources configuration from YAML.
 
@@ -74,7 +75,7 @@ class IngestionPipeline:
             return {}
 
         try:
-            with open(self.config_path, "r", encoding="utf-8") as f:
+            with open(self.config_path, encoding="utf-8") as f:
                 config = yaml.safe_load(f)
             logger.info(f"Loaded configuration from {self.config_path}")
             return dict(config) if config else {}
@@ -84,11 +85,11 @@ class IngestionPipeline:
 
     def ingest_source(
         self,
-        source_config: Dict,
+        source_config: dict,
         force_refresh: bool = False,
         enrich: bool = True,
         dry_run: bool = False,
-    ) -> Dict[str, int]:
+    ) -> dict[str, int]:
         """
         Ingest data from a single source.
 
@@ -166,7 +167,7 @@ class IngestionPipeline:
             stats["errors"] = stats.get("errors", 0) + 1
             return stats
 
-    def _fetch_stage(self, source_config: Dict, force_refresh: bool) -> Optional[str]:
+    def _fetch_stage(self, source_config: dict, force_refresh: bool) -> str | None:
         """
         Stage 1: Fetch data from source.
 
@@ -195,7 +196,7 @@ class IngestionPipeline:
             logger.error(f"Fetch failed: {e}")
             return None
 
-    def _parse_stage(self, raw_data: str, source_config: Dict) -> List[Dict]:
+    def _parse_stage(self, raw_data: str, source_config: dict) -> list[dict]:
         """
         Stage 2: Parse raw data into structured format.
 
@@ -282,8 +283,8 @@ class IngestionPipeline:
             return []
 
     def _validate_stage(
-        self, parsed_data: List[Dict], source_config: Dict
-    ) -> List[Dict]:
+        self, parsed_data: list[dict], source_config: dict
+    ) -> list[dict]:
         """
         Stage 3: Validate parsed data.
 
@@ -316,7 +317,7 @@ class IngestionPipeline:
 
         return valid_items
 
-    def _enrich_stage(self, valid_data: List[Dict], source_config: Dict) -> List[Dict]:
+    def _enrich_stage(self, valid_data: list[dict], source_config: dict) -> list[dict]:
         """
         Stage 4: Enrich data with LLM-generated metadata.
 
@@ -348,7 +349,7 @@ class IngestionPipeline:
             logger.error(f"Enrichment failed: {e}")
             return valid_data  # Return un-enriched on error
 
-    def _persist_stage(self, enriched_data: List[Dict]) -> Dict[str, int]:
+    def _persist_stage(self, enriched_data: list[dict]) -> dict[str, int]:
         """
         Stage 5: Persist data to database and vector store.
 
@@ -365,7 +366,7 @@ class IngestionPipeline:
             logger.error(f"Persistence failed: {e}")
             return {"created": 0, "updated": 0, "errors": len(enriched_data)}
 
-    def _get_enabled_sources(self, source_type: str) -> List[Dict]:
+    def _get_enabled_sources(self, source_type: str) -> list[dict]:
         """
         Get enabled sources for a type, sorted by priority.
 
@@ -387,11 +388,11 @@ class IngestionPipeline:
 
     def _ingest_single_source_with_stats(
         self,
-        source: Dict,
+        source: dict,
         force_refresh: bool,
         enrich: bool,
         dry_run: bool,
-    ) -> Dict[str, int]:
+    ) -> dict[str, int]:
         """
         Ingest a single source and return stats, handling exceptions.
 
@@ -422,12 +423,12 @@ class IngestionPipeline:
     def _ingest_source_group(
         self,
         source_type: str,
-        enabled_sources: List[Dict],
+        enabled_sources: list[dict],
         force_refresh: bool,
         enrich: bool,
         dry_run: bool,
         use_fallback: bool,
-    ) -> Dict[str, Dict]:
+    ) -> dict[str, dict]:
         """
         Ingest a group of sources with fallback support.
 
@@ -501,12 +502,12 @@ class IngestionPipeline:
 
     def ingest_all_sources(
         self,
-        source_types: Optional[List[str]] = None,
+        source_types: list[str] | None = None,
         force_refresh: bool = False,
         enrich: bool = True,
         dry_run: bool = False,
         use_fallback: bool = True,
-    ) -> Dict[str, Dict]:
+    ) -> dict[str, dict]:
         """
         Ingest data from all configured sources with fallback support.
 
@@ -525,7 +526,7 @@ class IngestionPipeline:
             logger.error("No sources configured")
             return {}
 
-        all_stats: Dict[str, Dict] = {}
+        all_stats: dict[str, dict] = {}
         sources_config = self.config["sources"]
 
         if source_types is None:
@@ -567,7 +568,7 @@ class IngestionPipeline:
 
         return all_stats
 
-    def get_pipeline_status(self) -> Dict:
+    def get_pipeline_status(self) -> dict:
         """
         Get status of all pipeline components.
 

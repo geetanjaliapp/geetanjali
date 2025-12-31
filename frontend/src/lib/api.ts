@@ -11,6 +11,7 @@ import type {
   Message,
   BookMetadata,
   ChapterMetadata,
+  GeetaDhyanamVerse,
   SearchResponse,
   FeaturedCasesResponse,
   UserPreferences,
@@ -345,6 +346,12 @@ export const readingApi = {
   /** Get metadata for a specific chapter */
   getChapter: async (chapterNumber: number): Promise<ChapterMetadata> => {
     const response = await api.get(`/reading/chapters/${chapterNumber}`);
+    return response.data;
+  },
+
+  /** Get Geeta Dhyanam - 9 sacred invocation verses */
+  getGeetaDhyanam: async (): Promise<GeetaDhyanamVerse[]> => {
+    const response = await api.get(`/reading/geeta-dhyanam`);
     return response.data;
   },
 };

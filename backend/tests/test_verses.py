@@ -1,9 +1,11 @@
 """Tests for verse endpoints."""
 
+import uuid
+
 import pytest
 from fastapi import status
+
 from models.verse import Verse
-import uuid
 
 # Mark all tests in this module as integration tests (require DB)
 pytestmark = pytest.mark.integration

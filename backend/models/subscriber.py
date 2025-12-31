@@ -3,9 +3,8 @@
 import uuid
 from datetime import datetime
 from enum import Enum
-from typing import Optional, List
 
-from sqlalchemy import String, Boolean, DateTime, ForeignKey, Index, JSON, Integer
+from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, Index, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models.base import Base, TimestampMixin
@@ -42,10 +41,10 @@ class Subscriber(Base, TimestampMixin):
     email: Mapped[str] = mapped_column(
         String(255), unique=True, nullable=False, index=True
     )
-    name: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    name: Mapped[str | None] = mapped_column(String(100), nullable=True)
 
     # Preferences
-    goal_ids: Mapped[List[str]] = mapped_column(
+    goal_ids: Mapped[list[str]] = mapped_column(
         JSON, default=list, nullable=False
     )  # e.g., ["inner_peace", "resilience"]
     send_time: Mapped[str] = mapped_column(
@@ -54,22 +53,20 @@ class Subscriber(Base, TimestampMixin):
 
     # Verification (double opt-in)
     verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    verification_token: Mapped[Optional[str]] = mapped_column(
+    verification_token: Mapped[str | None] = mapped_column(
         String(64), nullable=True, index=True
     )
-    verification_expires_at: Mapped[Optional[datetime]] = mapped_column(
+    verification_expires_at: Mapped[datetime | None] = mapped_column(
         DateTime, nullable=True
     )
 
     # Subscription lifecycle
-    verified_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
-    unsubscribed_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    verified_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    unsubscribed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
     # Verse tracking (30-day rolling window)
-    last_verse_sent_at: Mapped[Optional[datetime]] = mapped_column(
-        DateTime, nullable=True
-    )
-    verses_sent_30d: Mapped[List[str]] = mapped_column(
+    last_verse_sent_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    verses_sent_30d: Mapped[list[str]] = mapped_column(
         JSON, default=list, nullable=False
     )  # Verse canonical IDs sent in last 30 days
     verses_sent_count: Mapped[int] = mapped_column(
@@ -79,7 +76,7 @@ class Subscriber(Base, TimestampMixin):
     # Optional link to user account
     # Allows logged-in users to subscribe with a different email
     # SET NULL on delete to preserve subscription data
-    user_id: Mapped[Optional[str]] = mapped_column(
+    user_id: Mapped[str | None] = mapped_column(
         String(36),
         ForeignKey("users.id", ondelete="SET NULL"),
         index=True,

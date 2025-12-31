@@ -5,13 +5,11 @@ overridden via environment variables through settings.py.
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, Optional
 
 from .types import MatchType
 
-
 # Default ranking weights - can be tuned based on user feedback
-DEFAULT_MATCH_TYPE_SCORES: Dict[MatchType, float] = {
+DEFAULT_MATCH_TYPE_SCORES: dict[MatchType, float] = {
     MatchType.EXACT_CANONICAL: 1.0,
     MatchType.EXACT_SANSKRIT: 0.95,
     MatchType.KEYWORD_TRANSLATION: 0.8,
@@ -44,8 +42,8 @@ class SearchConfig:
     offset: int = 0
 
     # Filters
-    chapter: Optional[int] = None
-    principle: Optional[str] = None
+    chapter: int | None = None
+    principle: str | None = None
 
     # Semantic search tuning
     semantic_top_k: int = 10
@@ -58,7 +56,7 @@ class SearchConfig:
     weight_match_count: float = 0.1  # Bonus per matched keyword (for hybrid OR)
 
     # Match type priority scores
-    match_type_scores: Dict[MatchType, float] = field(
+    match_type_scores: dict[MatchType, float] = field(
         default_factory=lambda: DEFAULT_MATCH_TYPE_SCORES.copy()
     )
 

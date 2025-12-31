@@ -8,6 +8,7 @@ import {
   Footer,
   GuidanceMarkdown,
 } from "../components";
+import { SpeakButton } from "../components/SpeakButton";
 import { groupMessagesIntoExchanges } from "../lib/messageGrouping";
 import { useSEO } from "../hooks";
 
@@ -266,13 +267,23 @@ export default function PublicCaseView() {
                         )}
                       </div>
                       <div
-                        className={`text-xs font-semibold uppercase tracking-wide mb-1.5 sm:mb-2 ${
-                          isFirst
-                            ? "text-[var(--interactive-ghost-text)]"
-                            : "text-[var(--interactive-ghost-text)]"
-                        }`}
+                        className={`flex items-center justify-between mb-1.5 sm:mb-2`}
                       >
-                        {isFirst ? "Wisdom from the Geeta" : "Guidance"}
+                        <span
+                          className={`text-xs font-semibold uppercase tracking-wide ${
+                            isFirst
+                              ? "text-[var(--interactive-ghost-text)]"
+                              : "text-[var(--interactive-ghost-text)]"
+                          }`}
+                        >
+                          {isFirst ? "Wisdom from the Geeta" : "Guidance"}
+                        </span>
+                        <SpeakButton
+                          text={exchange.assistant.content}
+                          lang="en"
+                          size="sm"
+                          aria-label="Listen to guidance"
+                        />
                       </div>
 
                       <div
@@ -435,7 +446,7 @@ export default function PublicCaseView() {
                       onClick={() => setShowPaths(!showPaths)}
                       className="w-full text-left"
                     >
-                      <div className="flex items-center justify-between bg-[var(--surface-elevated)] rounded-[var(--radius-card)] p-3 sm:p-4 shadow-[var(--shadow-button)] border border-[var(--border-warm)] hover:shadow-[var(--shadow-card)] transition-[var(--transition-[var(--transition-shadow)])]">
+                      <div className="flex items-center justify-between bg-[var(--surface-elevated)] rounded-[var(--radius-card)] p-3 sm:p-4 shadow-[var(--shadow-button)] border border-[var(--border-warm)] hover:shadow-[var(--shadow-card)] transition-[var(--transition-shadow)]">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-[var(--radius-avatar)] bg-[var(--badge-primary-bg)] flex items-center justify-center">
                             <svg
@@ -506,12 +517,19 @@ export default function PublicCaseView() {
                         </div>
 
                         <div className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] shadow-[var(--shadow-button)] p-3 sm:p-4 border border-[var(--border-default)]">
-                          <h4 className="font-semibold text-[var(--text-primary)] text-sm sm:text-base">
-                            {
-                              firstOutput.result_json.options[selectedOption]
-                                .title
-                            }
-                          </h4>
+                          <div className="flex items-start justify-between gap-2">
+                            <h4 className="font-semibold text-[var(--text-primary)] text-sm sm:text-base">
+                              {
+                                firstOutput.result_json.options[selectedOption]
+                                  .title
+                              }
+                            </h4>
+                            <SpeakButton
+                              text={`Paths to Consider. Path ${selectedOption + 1}: ${firstOutput.result_json.options[selectedOption].title}. Benefits: ${firstOutput.result_json.options[selectedOption].pros.join(". ")}. Considerations: ${firstOutput.result_json.options[selectedOption].cons.join(". ")}.`}
+                              size="sm"
+                              aria-label="Listen to this path"
+                            />
+                          </div>
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-3 sm:mt-4">
                             <div>
                               <div className="text-xs font-semibold text-[var(--status-success-text)] mb-1">
@@ -562,9 +580,14 @@ export default function PublicCaseView() {
                   (firstOutput.result_json.recommended_action.steps?.length ??
                     0) > 0 && (
                     <div className="mb-4">
-                      <button
+                      <div
+                        role="button"
+                        tabIndex={0}
                         onClick={() => setShowSteps(!showSteps)}
-                        className="w-full text-left"
+                        onKeyDown={(e) =>
+                          e.key === "Enter" && setShowSteps(!showSteps)
+                        }
+                        className="w-full text-left cursor-pointer"
                       >
                         <div className="flex items-center justify-between bg-[var(--surface-elevated)] rounded-[var(--radius-card)] p-3 sm:p-4 shadow-[var(--shadow-button)] border border-[var(--status-success-border)] hover:shadow-[var(--shadow-card)] transition-[var(--transition-shadow)]">
                           <div className="flex items-center gap-3">
@@ -598,21 +621,30 @@ export default function PublicCaseView() {
                               </p>
                             </div>
                           </div>
-                          <svg
-                            className={`w-5 h-5 text-[var(--text-muted)] transition-transform ${showSteps ? "rotate-180" : ""}`}
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 9l-7 7-7-7"
-                            />
-                          </svg>
+                          <div className="flex items-center gap-1">
+                            <span onClick={(e) => e.stopPropagation()}>
+                              <SpeakButton
+                                text={"Recommended Steps. " + (firstOutput.result_json.recommended_action as { steps: string[] }).steps.map((s, i) => `Step ${i + 1}: ${s}`).join(". ")}
+                                size="sm"
+                                aria-label="Listen to recommended steps"
+                              />
+                            </span>
+                            <svg
+                              className={`w-5 h-5 text-[var(--text-muted)] transition-transform ${showSteps ? "rotate-180" : ""}`}
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 9l-7 7-7-7"
+                              />
+                            </svg>
+                          </div>
                         </div>
-                      </button>
+                      </div>
 
                       {showSteps && (
                         <div className="mt-2 sm:mt-3 bg-[var(--surface-elevated)] rounded-[var(--radius-card)] shadow-[var(--shadow-button)] p-3 sm:p-4 border border-[var(--status-success-border)]">
@@ -643,11 +675,16 @@ export default function PublicCaseView() {
                 {/* Reflection Prompts */}
                 {firstOutput.result_json.reflection_prompts?.length > 0 && (
                   <div className="mb-4">
-                    <button
+                    <div
+                      role="button"
+                      tabIndex={0}
                       onClick={() => setShowReflections(!showReflections)}
-                      className="w-full text-left"
+                      onKeyDown={(e) =>
+                        e.key === "Enter" && setShowReflections(!showReflections)
+                      }
+                      className="w-full text-left cursor-pointer"
                     >
-                      <div className="flex items-center justify-between bg-[var(--surface-card)] rounded-[var(--radius-card)] p-3 sm:p-4 shadow-[var(--shadow-button)] border border-[var(--border-warm)] hover:shadow-[var(--shadow-card)] transition-[var(--transition-[var(--transition-shadow)])]">
+                      <div className="flex items-center justify-between bg-[var(--surface-card)] rounded-[var(--radius-card)] p-3 sm:p-4 shadow-[var(--shadow-button)] border border-[var(--border-warm)] hover:shadow-[var(--shadow-card)] transition-[var(--transition-shadow)]">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-[var(--radius-avatar)] bg-[var(--badge-warm-bg)] flex items-center justify-center">
                             <svg
@@ -677,21 +714,30 @@ export default function PublicCaseView() {
                             </p>
                           </div>
                         </div>
-                        <svg
-                          className={`w-5 h-5 text-[var(--text-muted)] transition-transform ${showReflections ? "rotate-180" : ""}`}
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M19 9l-7 7-7-7"
-                          />
-                        </svg>
+                        <div className="flex items-center gap-1">
+                          <span onClick={(e) => e.stopPropagation()}>
+                            <SpeakButton
+                              text={"Questions for Reflection. " + firstOutput.result_json.reflection_prompts.map((p, i) => `Question ${i + 1}: ${p}`).join(". ")}
+                              size="sm"
+                              aria-label="Listen to reflection questions"
+                            />
+                          </span>
+                          <svg
+                            className={`w-5 h-5 text-[var(--text-muted)] transition-transform ${showReflections ? "rotate-180" : ""}`}
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 9l-7 7-7-7"
+                            />
+                          </svg>
+                        </div>
                       </div>
-                    </button>
+                    </div>
 
                     {showReflections && (
                       <div className="mt-2 sm:mt-3 bg-[var(--surface-card)] rounded-[var(--radius-card)] p-3 sm:p-4 border border-[var(--border-warm)]">

@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Audio symlink (for local dev - points to ../../public/audio)
+public/audio

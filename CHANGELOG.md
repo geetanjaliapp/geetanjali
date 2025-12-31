@@ -2,6 +2,36 @@
 
 All notable changes to Geetanjali are documented here.
 
+## [1.17.0] - 2025-12-30
+
+Audio recitation support for all 701 verses with AI-generated Sanskrit audio.
+
+### Features
+- **Sanskrit Verse Audio** - Every verse includes AI-generated Sanskrit recitation by Aryan, powered by AI4Bharat's Indic Parler-TTS
+- **MiniPlayer** - Persistent audio controls in Reading Mode with play/pause, speed control (0.75x-1.5x), and loop mode
+- **Listen Mode** - Auto-advance through verses with audio playback in Reading Mode and Dhyanam
+- **Read Mode** - Auto-advance with timed text display for self-paced reading
+- **Audio Preloading** - Smart preloading at 80% progress for instant playback
+- **Geeta Dhyanam** - New `/read/dhyanam` page for the 9 sacred invocation verses with audio
+- **Media Session API** - Lock screen controls on iOS Safari and Chrome Android
+- **Floating Audio Bar** - Fixed bottom bar when scrolling away from playing verse in Verse Browser
+
+### Technical
+- 710 MP3 files (~94MB) for all verses and Dhyanam
+- Single Audio element pattern prevents concurrent playback conflicts
+- Connection-aware preloading (skips on slow connections, respects data saver)
+- Umami analytics for audio events (play, pause, complete, error, speed change)
+- Backend TTS API with Edge TTS for on-demand text-to-speech
+
+### Documentation
+- New `docs/audio.md` - Audio feature documentation
+- New `docs/content-management.md` - Content ingestion and audio generation guide
+
+### Infrastructure
+- Git LFS for audio file storage
+- nginx audio serving with 1-year immutable cache
+- ffmpeg added to backend Docker image for audio processing
+
 ## [1.16.0] - 2025-12-27
 
 Tailwind CSS v4 migration with design token architecture, theme personalities, and cross-device theme sync.

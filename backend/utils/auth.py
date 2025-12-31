@@ -1,7 +1,8 @@
 """Authentication utilities for password hashing and verification."""
 
-from passlib.context import CryptContext
 import re
+
+from passlib.context import CryptContext
 
 # bcrypt context with cost factor 12
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__rounds=12)

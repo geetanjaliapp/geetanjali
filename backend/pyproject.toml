@@ -1,18 +1,36 @@
-[tool.black]
+[tool.ruff]
 line-length = 88
-target-version = ['py310']
-include = '\.pyi?$'
-extend-exclude = '''
-/(
-  # directories
-  \.eggs
-  | \.git
-  | \.venv
-  | venv
-  | build
-  | dist
-)/
-'''
+target-version = "py310"
+exclude = [
+    ".eggs",
+    ".git",
+    ".venv",
+    "venv",
+    "build",
+    "dist",
+    "__pycache__",
+    "alembic/versions",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "C4"]
+ignore = [
+    "E501",  # Line too long (handled by formatter)
+    "B008",  # Function call in default argument (standard FastAPI pattern for Depends)
+    "B904",  # Raise from within except (noisy, not always appropriate)
+    "E402",  # Module level import not at top (intentional for circular import avoidance)
+    "UP038", # Use X | Y in isinstance (breaks for type(None))
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["F401", "F841", "E741"]  # Unused imports/vars, ambiguous names in tests
+"scripts/*" = ["F401"]  # Unused imports in standalone scripts
+"alembic/*" = ["F401"]  # Unused imports in migrations
+"data/*" = ["F401"]  # Unused imports in data modules
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
 
 [tool.mypy]
 python_version = "3.10"
@@ -27,6 +45,7 @@ python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = "-v --cov=. --cov-report=term-missing --cov-report=html"
+asyncio_mode = "strict"
 markers = [
     "unit: Fast isolated tests, no DB required",
     "integration: Tests requiring DB or external services",

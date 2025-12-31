@@ -7,8 +7,8 @@ This script pulls actual production outputs with validation issues
 and confirms they are now handled correctly by our improvements.
 """
 
-import sys
 import logging
+import sys
 
 # Set up logging
 logging.basicConfig(

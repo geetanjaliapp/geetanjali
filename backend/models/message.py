@@ -1,11 +1,11 @@
 """Message model for conversation threading."""
 
-from sqlalchemy import String, Text, ForeignKey, Enum, DateTime
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+import enum
 import uuid
 from datetime import datetime
-import enum
-from typing import Optional
+
+from sqlalchemy import DateTime, Enum, ForeignKey, String, Text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models.base import Base
 
@@ -44,7 +44,7 @@ class Message(Base):
         Enum(MessageRole), nullable=False, index=True
     )
     content: Mapped[str] = mapped_column(Text, nullable=False)
-    output_id: Mapped[Optional[str]] = mapped_column(
+    output_id: Mapped[str | None] = mapped_column(
         String(36), ForeignKey("outputs.id", ondelete="SET NULL"), nullable=True
     )
 

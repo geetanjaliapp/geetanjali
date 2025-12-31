@@ -19,11 +19,13 @@ import { formatSanskritLines, isSpeakerIntro } from "../lib/sanskritFormatter";
 import { getTranslatorPriority } from "../constants/translators";
 import { HeartIcon } from "./icons";
 import { useSyncedFavorites } from "../hooks";
+import { SpeakButton } from "./SpeakButton";
 import {
   setStorageItem,
   setStorageItemRaw,
   STORAGE_KEYS,
 } from "../lib/storage";
+import { prepareHindiTTS, prepareEnglishTTS } from "../lib/ttsPreprocess";
 import type { Verse, Translation } from "../types";
 
 /** Font size options for Sanskrit text */
@@ -79,6 +81,10 @@ interface CollapsibleSectionProps {
   bgClass: string;
   /** Content to render when expanded */
   children: React.ReactNode;
+  /** Optional text for TTS (shows speak button when provided) */
+  speakText?: string;
+  /** Language for TTS ('en' or 'hi') */
+  speakLang?: "en" | "hi";
 }
 
 function CollapsibleSection({
@@ -89,6 +95,8 @@ function CollapsibleSection({
   onToggle,
   bgClass,
   children,
+  speakText,
+  speakLang = "en",
 }: CollapsibleSectionProps) {
   return (
     <div
@@ -138,7 +146,19 @@ function CollapsibleSection({
             : "max-h-0 opacity-0 overflow-hidden"
         }`}
       >
-        <div className="px-4 pb-4">{children}</div>
+        <div className="px-4 pb-4">
+          <div className="flex items-start gap-2">
+            <div className="flex-1">{children}</div>
+            {speakText && (
+              <SpeakButton
+                text={speakText}
+                lang={speakLang}
+                size="sm"
+                aria-label={`Listen to ${label.toLowerCase()}`}
+              />
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -484,6 +504,8 @@ export function VerseFocus({
                   isExpanded={sectionPrefs.insight}
                   onToggle={toggleSection}
                   bgClass="bg-linear-to-br from-[var(--gradient-warm-from)] to-[var(--gradient-warm-to)]"
+                  speakText={prepareEnglishTTS(verse.paraphrase_en, verse.chapter, verse.verse)}
+                  speakLang="en"
                 >
                   <p className="text-base text-[var(--text-primary)] leading-relaxed">
                     {verse.paraphrase_en}
@@ -500,6 +522,8 @@ export function VerseFocus({
                   isExpanded={sectionPrefs.hindi}
                   onToggle={toggleSection}
                   bgClass="bg-[var(--surface-warm-subtle)]"
+                  speakText={prepareHindiTTS(hindiTranslation.text, verse.chapter, verse.verse)}
+                  speakLang="hi"
                 >
                   <p
                     className="text-base text-[var(--text-primary)] leading-relaxed"
@@ -519,6 +543,8 @@ export function VerseFocus({
                   isExpanded={sectionPrefs.english}
                   onToggle={toggleSection}
                   bgClass="bg-[var(--surface-warm-subtle)]"
+                  speakText={prepareEnglishTTS(englishTranslation.text, verse.chapter, verse.verse)}
+                  speakLang="en"
                 >
                   <p className="text-base text-[var(--text-primary)] leading-relaxed">
                     {englishTranslation.text}
@@ -536,6 +562,8 @@ export function VerseFocus({
                     isExpanded={sectionPrefs.english}
                     onToggle={toggleSection}
                     bgClass="bg-[var(--surface-warm-subtle)]"
+                    speakText={prepareEnglishTTS(verse.translation_en, verse.chapter, verse.verse)}
+                    speakLang="en"
                   >
                     <p className="text-base text-[var(--text-primary)] leading-relaxed">
                       {verse.translation_en}

@@ -13,8 +13,8 @@ This design minimizes latency while maintaining conversation continuity.
 """
 
 import logging
-from typing import Dict, Any, List, Optional
 from dataclasses import dataclass
+from typing import Any
 
 from config import settings
 from services.llm import get_llm_service
@@ -30,8 +30,8 @@ class FollowUpResult:
     content: str  # Markdown response
     model: str  # LLM model used
     provider: str  # LLM provider (anthropic/ollama)
-    input_tokens: Optional[int] = None
-    output_tokens: Optional[int] = None
+    input_tokens: int | None = None
+    output_tokens: int | None = None
 
 
 class FollowUpPipeline:
@@ -50,8 +50,8 @@ class FollowUpPipeline:
     def run(
         self,
         case_description: str,
-        prior_output: Dict[str, Any],
-        conversation: List[Dict[str, Any]],
+        prior_output: dict[str, Any],
+        conversation: list[dict[str, Any]],
         follow_up_question: str,
     ) -> FollowUpResult:
         """
@@ -109,7 +109,7 @@ class FollowUpPipeline:
 
 
 # Module-level instance for singleton pattern
-_follow_up_pipeline: Optional[FollowUpPipeline] = None
+_follow_up_pipeline: FollowUpPipeline | None = None
 
 
 def get_follow_up_pipeline() -> FollowUpPipeline:

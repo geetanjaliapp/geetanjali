@@ -1,21 +1,26 @@
 """Reading Mode metadata endpoints."""
 
 import logging
-from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
 from api.dependencies import limiter
-from db import get_db
-from api.schemas import BookMetadataResponse, ChapterMetadataResponse
-from models.metadata import BookMetadata, ChapterMetadata
-from services.cache import (
-    cache,
-    book_metadata_key,
-    chapters_metadata_key,
-    chapter_metadata_key,
+from api.schemas import (
+    BookMetadataResponse,
+    ChapterMetadataResponse,
+    GeetaDhyanamVerseResponse,
 )
 from config import settings
+from data.geeta_dhyanam import get_geeta_dhyanam
+from db import get_db
+from models.metadata import BookMetadata, ChapterMetadata
+from services.cache import (
+    book_metadata_key,
+    cache,
+    chapter_metadata_key,
+    chapters_metadata_key,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -47,9 +52,9 @@ async def get_book_metadata(
         logger.debug("Cache hit for book metadata")
         return cached
 
-    book = db.query(BookMetadata).filter(
-        BookMetadata.book_key == "bhagavad_geeta"
-    ).first()
+    book = (
+        db.query(BookMetadata).filter(BookMetadata.book_key == "bhagavad_geeta").first()
+    )
 
     if not book:
         raise HTTPException(
@@ -64,7 +69,7 @@ async def get_book_metadata(
     return book
 
 
-@router.get("/chapters", response_model=List[ChapterMetadataResponse])
+@router.get("/chapters", response_model=list[ChapterMetadataResponse])
 @limiter.limit("60/minute")
 async def get_all_chapters(
     request: Request,
@@ -85,11 +90,7 @@ async def get_all_chapters(
         logger.debug("Cache hit for all chapters metadata")
         return cached
 
-    chapters = (
-        db.query(ChapterMetadata)
-        .order_by(ChapterMetadata.chapter_number)
-        .all()
-    )
+    chapters = db.query(ChapterMetadata).order_by(ChapterMetadata.chapter_number).all()
 
     # Cache the result
     chapters_data = [
@@ -132,9 +133,11 @@ async def get_chapter_metadata(
         logger.debug(f"Cache hit for chapter {chapter_number} metadata")
         return cached
 
-    chapter = db.query(ChapterMetadata).filter(
-        ChapterMetadata.chapter_number == chapter_number
-    ).first()
+    chapter = (
+        db.query(ChapterMetadata)
+        .filter(ChapterMetadata.chapter_number == chapter_number)
+        .first()
+    )
 
     if not chapter:
         raise HTTPException(
@@ -147,3 +150,31 @@ async def get_chapter_metadata(
     cache.set(cache_key, chapter_data, settings.CACHE_TTL_METADATA)
 
     return chapter
+
+
+@router.get("/geeta-dhyanam", response_model=list[GeetaDhyanamVerseResponse])
+@limiter.limit("60/minute")
+async def get_geeta_dhyanam_verses(request: Request):
+    """
+    Get Geeta Dhyanam - 9 sacred invocation verses.
+
+    These traditional verses are recited before studying the Bhagavad Geeta.
+    Returns all 9 verses with Sanskrit, IAST, English, and Hindi translations.
+
+    Returns:
+        List of 9 Geeta Dhyanam verses
+    """
+    # Static data from code - no database needed
+    # Cache is optional since data is already in memory
+    cache_key = "geeta_dhyanam_all"
+    cached = cache.get(cache_key)
+    if cached:
+        logger.debug("Cache hit for Geeta Dhyanam")
+        return cached
+
+    verses = get_geeta_dhyanam()
+
+    # Cache for consistency with other endpoints
+    cache.set(cache_key, verses, settings.CACHE_TTL_METADATA)
+
+    return verses

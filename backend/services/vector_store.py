@@ -1,16 +1,17 @@
 """Vector store service using ChromaDB with built-in embeddings."""
 
 import logging
-from typing import List, Dict, Any, Optional
+from typing import Any
+
 import chromadb
 from chromadb.config import Settings as ChromaSettings
 from chromadb.utils import embedding_functions
 from tenacity import (
+    before_sleep_log,
     retry,
+    retry_if_exception_type,
     stop_after_attempt,
     wait_exponential,
-    retry_if_exception_type,
-    before_sleep_log,
 )
 
 from config import settings
@@ -109,8 +110,8 @@ class VectorStore:
         self,
         canonical_id: str,
         text: str,
-        metadata: Dict[str, Any],
-        embedding: Optional[List[float]] = None,
+        metadata: dict[str, Any],
+        embedding: list[float] | None = None,
     ):
         """
         Add a verse to the vector store.
@@ -151,10 +152,10 @@ class VectorStore:
     )
     def add_verses_batch(
         self,
-        canonical_ids: List[str],
-        texts: List[str],
-        metadatas: List[Dict[str, Any]],
-        embeddings: Optional[List[List[float]]] = None,
+        canonical_ids: list[str],
+        texts: list[str],
+        metadatas: list[dict[str, Any]],
+        embeddings: list[list[float]] | None = None,
     ):
         """
         Add multiple verses in batch.
@@ -187,8 +188,8 @@ class VectorStore:
         logger.info(f"Added {len(canonical_ids)} verses to vector store")
 
     def search(
-        self, query: str, top_k: int = 5, where: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
+        self, query: str, top_k: int = 5, where: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
         """
         Search for similar verses using vector similarity.
 
@@ -231,8 +232,8 @@ class VectorStore:
         reraise=True,
     )
     def _search_with_retry(
-        self, query: str, top_k: int = 5, where: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
+        self, query: str, top_k: int = 5, where: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
         """
         Internal search method with retry logic.
 
@@ -255,7 +256,7 @@ class VectorStore:
             "metadatas": results["metadatas"][0],
         }
 
-    def get_by_id(self, canonical_id: str) -> Optional[Dict[str, Any]]:
+    def get_by_id(self, canonical_id: str) -> dict[str, Any] | None:
         """
         Get a verse by canonical ID.
 

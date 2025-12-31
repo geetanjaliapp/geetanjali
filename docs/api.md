@@ -195,6 +195,38 @@ curl "http://localhost:8000/api/v1/search?q=karma&chapter=2"
 | GET | `/reading/chapters` | Get all chapter metadata |
 | GET | `/reading/chapters/{n}` | Get specific chapter metadata |
 
+### Text-to-Speech (TTS)
+
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/tts` | Generate audio from text |
+| GET | `/tts/voices` | Get available voices |
+
+**Generate Audio:**
+```bash
+curl -X POST http://localhost:8000/api/v1/tts \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "कर्मण्येवाधिकारस्ते मा फलेषु कदाचन",
+    "lang": "hi",
+    "rate": "+0%",
+    "pitch": "+0Hz"
+  }' \
+  --output audio.mp3
+```
+
+**Parameters:**
+- `text` (required): Text to speak (max 5000 chars)
+- `lang`: Language code (`en` or `hi`, default: `en`)
+- `rate`: Speech rate (`-50%` to `+100%`, default: `+0%`)
+- `pitch`: Voice pitch (`-50Hz` to `+50Hz`, default: `+0Hz`)
+
+**Response:** MP3 audio stream with headers:
+- `Content-Type: audio/mpeg`
+- `X-Cache: HIT` or `MISS`
+
+**Rate Limit:** 30 requests/minute
+
 ### Admin (Requires X-API-Key)
 
 | Method | Path | Description |

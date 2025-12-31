@@ -1,7 +1,8 @@
 """APScheduler setup for periodic metrics collection."""
 
 import logging
-from typing import Callable
+from collections.abc import Callable
+
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 

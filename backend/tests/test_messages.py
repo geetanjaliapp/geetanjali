@@ -1,6 +1,7 @@
 """Tests for message endpoints."""
 
 import uuid
+
 import pytest
 from fastapi import status
 

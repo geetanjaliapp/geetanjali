@@ -1,7 +1,8 @@
 """CSRF protection middleware."""
 
 import logging
-from fastapi import Request, HTTPException, status
+
+from fastapi import HTTPException, Request, status
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from utils.csrf import validate_csrf
@@ -21,11 +22,13 @@ CSRF_EXEMPT_PATHS = {
     "/api/v1/auth/reset-password",  # Pre-auth flow, uses one-time token
     # Newsletter endpoints - protected by rate limiting and/or secret tokens
     "/api/v1/newsletter/subscribe",  # Rate limited 3/hr, requires email verification
+    # TTS endpoint - rate limited 30/min, returns audio data (read-only)
+    "/api/v1/tts",
 }
 
 # Path prefixes exempt from CSRF (for parameterized routes)
 CSRF_EXEMPT_PREFIXES = (
-    "/api/v1/newsletter/verify/",      # Token-based auth (token in URL)
+    "/api/v1/newsletter/verify/",  # Token-based auth (token in URL)
     "/api/v1/newsletter/unsubscribe/",  # Token-based auth (token in URL)
     "/api/v1/newsletter/preferences/",  # Token-based auth (token in URL)
 )

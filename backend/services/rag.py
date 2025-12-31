@@ -2,32 +2,32 @@
 
 import hashlib
 import logging
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 from config import settings
-from services.vector_store import get_vector_store
-from utils.circuit_breaker import CircuitBreakerOpen
-from services.llm import get_llm_service
-from services.prompts import (
-    SYSTEM_PROMPT,
-    FEW_SHOT_EXAMPLE,
-    build_user_prompt,
-    OLLAMA_SYSTEM_PROMPT,
-    build_ollama_prompt,
-    post_process_ollama_response,
-    format_executive_summary,
-)
+from db import SessionLocal
+from db.repositories.verse_repository import VerseRepository
+from services.cache import cache, rag_output_key
 from services.content_filter import (
     detect_llm_refusal,
     get_policy_violation_response,
 )
-from services.cache import cache, rag_output_key
-from db import SessionLocal
-from db.repositories.verse_repository import VerseRepository
-from utils.json_parsing import extract_json_from_text
-from utils.validation import validate_canonical_id
-from utils.metrics_events import vector_search_fallback_total
+from services.llm import get_llm_service
+from services.prompts import (
+    FEW_SHOT_EXAMPLE,
+    OLLAMA_SYSTEM_PROMPT,
+    SYSTEM_PROMPT,
+    build_ollama_prompt,
+    build_user_prompt,
+    format_executive_summary,
+    post_process_ollama_response,
+)
+from services.vector_store import get_vector_store
+from utils.circuit_breaker import CircuitBreakerOpen
 from utils.input_normalization import normalize_input
+from utils.json_parsing import extract_json_from_text
+from utils.metrics_events import vector_search_fallback_total
+from utils.validation import validate_canonical_id
 
 logger = logging.getLogger(__name__)
 
@@ -69,7 +69,7 @@ def _validate_relevance(relevance: Any) -> bool:
 
 
 def _validate_source_reference(
-    source_id: str, available_sources: List[Dict[str, Any]]
+    source_id: str, available_sources: list[dict[str, Any]]
 ) -> bool:
     """
     Validate that a source reference (in options) cites a verse that exists in sources.
@@ -93,7 +93,7 @@ def _validate_source_reference(
     return source_id in source_canonical_ids
 
 
-def _validate_option_structure(option: Dict[str, Any]) -> tuple[bool, str]:
+def _validate_option_structure(option: dict[str, Any]) -> tuple[bool, str]:
     """
     Validate a single option has correct structure and types.
 
@@ -136,7 +136,7 @@ def _validate_option_structure(option: Dict[str, Any]) -> tuple[bool, str]:
     return True, ""
 
 
-def _validate_source_object_structure(source: Dict[str, Any]) -> tuple[bool, str]:
+def _validate_source_object_structure(source: dict[str, Any]) -> tuple[bool, str]:
     """
     Validate a source object in the root sources array has correct structure.
 
@@ -171,7 +171,7 @@ def _validate_source_object_structure(source: Dict[str, Any]) -> tuple[bool, str
     return True, ""
 
 
-def _ensure_required_fields(output: Dict[str, Any]) -> None:
+def _ensure_required_fields(output: dict[str, Any]) -> None:
     """
     Ensure all required fields exist in output, setting safe defaults.
 
@@ -235,7 +235,7 @@ def _extract_canonical_id(verse: Any, fallback: str) -> str:
     return fallback
 
 
-def _generate_default_options(base_verses: List[Any]) -> List[Dict[str, Any]]:
+def _generate_default_options(base_verses: list[Any]) -> list[dict[str, Any]]:
     """Generate 3 default options when LLM fails to provide any."""
     # Extract canonical IDs safely, handling both dict and string formats
     verse_ids = []
@@ -301,7 +301,7 @@ def _generate_default_options(base_verses: List[Any]) -> List[Dict[str, Any]]:
     ]
 
 
-def _validate_and_fix_options(output: Dict[str, Any]) -> None:
+def _validate_and_fix_options(output: dict[str, Any]) -> None:
     """
     Validate options array has exactly 3 options, filling gaps if needed.
 
@@ -346,7 +346,9 @@ def _validate_and_fix_options(output: Dict[str, Any]) -> None:
 
         while len(options) < 3:
             idx = len(options) + 1
-            verse_id = verse_ids[idx - 1] if idx - 1 < len(verse_ids) else f"BG_{idx}_{idx}"
+            verse_id = (
+                verse_ids[idx - 1] if idx - 1 < len(verse_ids) else f"BG_{idx}_{idx}"
+            )
 
             missing_option = {
                 "title": f"Option {idx}: Alternative Perspective",
@@ -366,7 +368,9 @@ def _validate_and_fix_options(output: Dict[str, Any]) -> None:
                 "sources": [verse_id],
             }
             options.append(missing_option)
-            logger.info(f"Generated missing Option {idx} to meet requirement of 3 options")
+            logger.info(
+                f"Generated missing Option {idx} to meet requirement of 3 options"
+            )
 
         output["options"] = options
 
@@ -377,7 +381,7 @@ def _validate_and_fix_options(output: Dict[str, Any]) -> None:
         output["confidence"] = 0.4
 
 
-def _validate_field_types(output: Dict[str, Any]) -> None:
+def _validate_field_types(output: dict[str, Any]) -> None:
     """
     Validate field types for executive_summary, reflection_prompts, recommended_action.
 
@@ -389,7 +393,9 @@ def _validate_field_types(output: Dict[str, Any]) -> None:
         or len(str(output.get("executive_summary", "")).strip()) == 0
     ):
         logger.warning("Invalid or missing executive_summary, using default")
-        output["executive_summary"] = "Ethical analysis based on Bhagavad Geeta principles."
+        output["executive_summary"] = (
+            "Ethical analysis based on Bhagavad Geeta principles."
+        )
 
     # Validate reflection_prompts
     if (
@@ -417,12 +423,19 @@ def _validate_field_types(output: Dict[str, Any]) -> None:
         }
     else:
         # Validate option field
-        if not isinstance(recommended_action.get("option"), int) or recommended_action.get("option") not in [1, 2, 3]:
-            logger.warning(f"Invalid recommended_action.option: {recommended_action.get('option')}, defaulting to 1")
+        if not isinstance(
+            recommended_action.get("option"), int
+        ) or recommended_action.get("option") not in [1, 2, 3]:
+            logger.warning(
+                f"Invalid recommended_action.option: {recommended_action.get('option')}, defaulting to 1"
+            )
             recommended_action["option"] = 1
 
         # Validate steps
-        if not isinstance(recommended_action.get("steps"), list) or len(recommended_action.get("steps", [])) == 0:
+        if (
+            not isinstance(recommended_action.get("steps"), list)
+            or len(recommended_action.get("steps", [])) == 0
+        ):
             logger.warning("Invalid or missing recommended_action.steps")
             recommended_action["steps"] = [
                 "Reflect on the situation",
@@ -438,7 +451,7 @@ def _validate_field_types(output: Dict[str, Any]) -> None:
     output["recommended_action"] = recommended_action
 
 
-def _validate_option_structures(output: Dict[str, Any]) -> None:
+def _validate_option_structures(output: dict[str, Any]) -> None:
     """
     Validate each option has correct structure.
 
@@ -450,7 +463,9 @@ def _validate_option_structures(output: Dict[str, Any]) -> None:
             logger.warning(f"Option {i} validation failed: {error_msg}")
             if "title" not in option or not isinstance(option.get("title"), str):
                 option["title"] = f"Option {i + 1}"
-            if "description" not in option or not isinstance(option.get("description"), str):
+            if "description" not in option or not isinstance(
+                option.get("description"), str
+            ):
                 option["description"] = "An alternative approach"
             if "pros" not in option or not isinstance(option.get("pros"), list):
                 option["pros"] = []
@@ -460,7 +475,7 @@ def _validate_option_structures(output: Dict[str, Any]) -> None:
                 option["sources"] = []
 
 
-def _validate_sources_array(output: Dict[str, Any]) -> None:
+def _validate_sources_array(output: dict[str, Any]) -> None:
     """
     Validate sources array structure and individual source objects.
 
@@ -488,7 +503,7 @@ def _validate_sources_array(output: Dict[str, Any]) -> None:
         output["sources"] = valid_sources
 
 
-def _filter_source_references(output: Dict[str, Any]) -> None:
+def _filter_source_references(output: dict[str, Any]) -> None:
     """
     Filter invalid source references in options and recommended_action.
 
@@ -515,14 +530,18 @@ def _filter_source_references(output: Dict[str, Any]) -> None:
                     valid_sources_for_option.append(src)
                 elif not sources_array and validate_canonical_id(src):
                     valid_sources_for_option.append(src)
-                    logger.debug(f"Option {option_idx}: accepting orphan source {src} (valid format)")
+                    logger.debug(
+                        f"Option {option_idx}: accepting orphan source {src} (valid format)"
+                    )
                 else:
                     invalid_sources.append(src)
             else:
                 invalid_sources.append(str(src))
 
         if invalid_sources:
-            logger.warning(f"Option {option_idx}: removed invalid source refs: {invalid_sources}")
+            logger.warning(
+                f"Option {option_idx}: removed invalid source refs: {invalid_sources}"
+            )
             option["sources"] = valid_sources_for_option
 
     # Filter recommended_action sources
@@ -544,13 +563,15 @@ def _filter_source_references(output: Dict[str, Any]) -> None:
                 invalid_rec.append(str(src))
 
         if invalid_rec:
-            logger.warning(f"recommended_action: removed invalid citations {invalid_rec}")
+            logger.warning(
+                f"recommended_action: removed invalid citations {invalid_rec}"
+            )
             rec_action["sources"] = valid_rec_sources
 
 
 def _inject_rag_verses(
-    output: Dict[str, Any],
-    retrieved_verses: Optional[List[Dict[str, Any]]],
+    output: dict[str, Any],
+    retrieved_verses: list[dict[str, Any]] | None,
 ) -> None:
     """
     Inject RAG-retrieved verses when sources drop below minimum threshold.
@@ -581,7 +602,9 @@ def _inject_rag_verses(
         if injected_count >= num_to_inject:
             break
 
-        verse_id = verse.get("canonical_id") or verse.get("metadata", {}).get("canonical_id")
+        verse_id = verse.get("canonical_id") or verse.get("metadata", {}).get(
+            "canonical_id"
+        )
         if not verse_id or verse_id in existing_ids:
             continue
 
@@ -605,7 +628,9 @@ def _inject_rag_verses(
         existing_ids.add(verse_id)
         injected_count += 1
 
-        logger.info(f"Injected RAG verse {verse_id} (relevance: {verse.get('relevance', 0.7):.2f})")
+        logger.info(
+            f"Injected RAG verse {verse_id} (relevance: {verse.get('relevance', 0.7):.2f})"
+        )
 
     if injected_count > 0:
         output["sources"] = sources_array
@@ -629,8 +654,8 @@ class RAGPipeline:
         logger.info("RAG Pipeline initialized")
 
     def retrieve_verses(
-        self, query: str, top_k: Optional[int] = None
-    ) -> List[Dict[str, Any]]:
+        self, query: str, top_k: int | None = None
+    ) -> list[dict[str, Any]]:
         """
         Retrieve relevant verses using vector similarity with SQL fallback.
 
@@ -670,9 +695,7 @@ class RAGPipeline:
             vector_search_fallback_total.labels(reason="error").inc()
             return self._retrieve_verses_sql_fallback(query, top_k)
 
-    def _format_vector_results(
-        self, results: Dict[str, Any]
-    ) -> List[Dict[str, Any]]:
+    def _format_vector_results(self, results: dict[str, Any]) -> list[dict[str, Any]]:
         """Format vector search results into verse dicts."""
         verses = []
         for i in range(len(results["ids"])):
@@ -686,12 +709,14 @@ class RAGPipeline:
             }
             verses.append(verse)
 
-        logger.debug(f"Retrieved verses (vector): {[v['canonical_id'] for v in verses]}")
+        logger.debug(
+            f"Retrieved verses (vector): {[v['canonical_id'] for v in verses]}"
+        )
         return verses
 
     def _retrieve_verses_sql_fallback(
         self, query: str, top_k: int
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Fallback verse retrieval using SQL keyword search.
 
@@ -700,8 +725,8 @@ class RAGPipeline:
         ChromaDB is unavailable.
         """
         from db.connection import SessionLocal
-        from services.search.strategies.keyword import keyword_search
         from services.search.config import SearchConfig
+        from services.search.strategies.keyword import keyword_search
 
         db = SessionLocal()
         try:
@@ -735,8 +760,8 @@ class RAGPipeline:
             db.close()
 
     def enrich_verses_with_translations(
-        self, verses: List[Dict[str, Any]]
-    ) -> List[Dict[str, Any]]:
+        self, verses: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
         """
         Enrich retrieved verses with translations from the database.
 
@@ -794,9 +819,7 @@ class RAGPipeline:
                             }
                             for t in db_verse.translations
                             if t.translator != "Swami Gambirananda"
-                        ][
-                            :3
-                        ]  # Limit to 3 translations after filtering
+                        ][:3]  # Limit to 3 translations after filtering
                         if other_translations:
                             verse["metadata"]["translations"] = other_translations
 
@@ -810,7 +833,7 @@ class RAGPipeline:
             db.close()
 
     def construct_context(
-        self, case_data: Dict[str, Any], retrieved_verses: List[Dict[str, Any]]
+        self, case_data: dict[str, Any], retrieved_verses: list[dict[str, Any]]
     ) -> str:
         """
         Construct prompt context from case and retrieved verses.
@@ -834,10 +857,10 @@ class RAGPipeline:
         self,
         prompt: str,
         temperature: float = 0.7,
-        fallback_prompt: Optional[str] = None,
-        fallback_system: Optional[str] = None,
-        retrieved_verses: Optional[List[Dict[str, Any]]] = None,
-    ) -> Tuple[Dict[str, Any], bool]:
+        fallback_prompt: str | None = None,
+        fallback_system: str | None = None,
+        retrieved_verses: list[dict[str, Any]] | None = None,
+    ) -> tuple[dict[str, Any], bool]:
         """
         Generate consulting brief using LLM.
 
@@ -932,9 +955,9 @@ class RAGPipeline:
 
     def validate_output(
         self,
-        output: Dict[str, Any],
-        retrieved_verses: Optional[List[Dict[str, Any]]] = None,
-    ) -> Dict[str, Any]:
+        output: dict[str, Any],
+        retrieved_verses: list[dict[str, Any]] | None = None,
+    ) -> dict[str, Any]:
         """
         Validate and enrich LLM output, handling incomplete or malformed responses.
 
@@ -1016,8 +1039,8 @@ class RAGPipeline:
         return output
 
     def _create_fallback_response(
-        self, case_data: Dict[str, Any], error_message: str
-    ) -> Dict[str, Any]:
+        self, case_data: dict[str, Any], error_message: str
+    ) -> dict[str, Any]:
         """
         Create fallback response when pipeline fails.
 
@@ -1080,8 +1103,8 @@ class RAGPipeline:
         }
 
     def run(
-        self, case_data: Dict[str, Any], top_k: Optional[int] = None
-    ) -> Tuple[Dict[str, Any], bool]:
+        self, case_data: dict[str, Any], top_k: int | None = None
+    ) -> tuple[dict[str, Any], bool]:
         """
         Run complete RAG pipeline with graceful degradation.
 
@@ -1117,7 +1140,9 @@ class RAGPipeline:
             )
 
         if normalization_result.has_warnings:
-            logger.warning(f"Input normalization warnings: {normalization_result.warnings}")
+            logger.warning(
+                f"Input normalization warnings: {normalization_result.warnings}"
+            )
 
         # P1.1 FIX: Check cache before running expensive pipeline
         # Note: Only successful (non-policy-violation) results are cached.
@@ -1131,7 +1156,7 @@ class RAGPipeline:
             logger.info(f"RAG cache hit for key {cache_key[:24]}")
             return cached_result, False  # Cached results are never policy violations
 
-        retrieved_verses: List[Dict[str, Any]] = []
+        retrieved_verses: list[dict[str, Any]] = []
 
         # Step 1: Retrieve relevant verses (with fallback)
         try:

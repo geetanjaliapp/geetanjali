@@ -64,3 +64,17 @@ circuit_breaker_transitions_total = Counter(
     "Circuit breaker state transitions by service and transition type",
     ["service", "from_state", "to_state"],
 )
+
+# TTS (Text-to-Speech) Metrics
+tts_requests_total = Counter(
+    "geetanjali_tts_requests_total",
+    "Total TTS API requests by language and result",
+    ["lang", "result"],  # result: success, error, cache_hit
+)
+
+tts_request_duration_seconds = Histogram(
+    "geetanjali_tts_request_duration_seconds",
+    "TTS generation duration in seconds (excludes cache hits)",
+    ["lang"],
+    buckets=[0.5, 1.0, 2.0, 3.0, 5.0, 10.0, 15.0, 30.0],
+)

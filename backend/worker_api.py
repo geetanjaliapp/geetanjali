@@ -11,16 +11,15 @@ from datetime import datetime, timezone
 from typing import Any
 
 from fastapi import Depends, FastAPI, HTTPException, status
-from pydantic import BaseModel
 from prometheus_fastapi_instrumentator import Instrumentator
-
-from api.dependencies import verify_admin_api_key
-from config import settings
-from services.cache import get_redis_client
+from pydantic import BaseModel
 
 # Import worker-specific metrics - explicitly excludes business/infra gauges
 # See utils/metrics_worker.py for detailed documentation on what's exposed
 import utils.metrics_worker  # noqa: F401
+from api.dependencies import verify_admin_api_key
+from config import settings
+from services.cache import get_redis_client
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +27,7 @@ logger = logging.getLogger(__name__)
 def _utc_now() -> str:
     """Return current UTC time as ISO format string."""
     return datetime.now(timezone.utc).isoformat()
+
 
 # FastAPI app for worker
 app = FastAPI(
@@ -199,7 +199,11 @@ async def worker_status() -> WorkerStatusResponse:
                     # Handle both bytes and string keys (depends on decode_responses)
                     state_key = b"state" if b"state" in worker_data else "state"
                     raw_state = worker_data.get(state_key, "unknown")
-                    state = raw_state.decode() if isinstance(raw_state, bytes) else str(raw_state)
+                    state = (
+                        raw_state.decode()
+                        if isinstance(raw_state, bytes)
+                        else str(raw_state)
+                    )
                     workers_info.append({"name": worker_name, "state": state})
 
             # Get queue depths

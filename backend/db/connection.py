@@ -1,9 +1,11 @@
 """Database connection and session management."""
 
+from collections.abc import Generator
+from typing import Any
+
 from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
-from typing import Any, Generator
+from sqlalchemy.orm import Session, sessionmaker
 
 from config import settings
 

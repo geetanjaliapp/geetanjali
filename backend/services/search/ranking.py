@@ -9,8 +9,6 @@ Ranking factors:
 3. Raw match score
 """
 
-from typing import Dict, List, Optional, Set, Tuple
-
 from .config import SearchConfig
 from .types import SearchResult, SearchStrategy
 
@@ -55,9 +53,9 @@ def compute_rank_score(result: SearchResult, config: SearchConfig) -> float:
 
 
 def merge_results(
-    results_by_strategy: Dict[SearchStrategy, List[SearchResult]],
+    results_by_strategy: dict[SearchStrategy, list[SearchResult]],
     config: SearchConfig,
-) -> Tuple[List[SearchResult], SearchStrategy, int]:
+) -> tuple[list[SearchResult], SearchStrategy, int]:
     """Merge results from multiple strategies with deduplication and ranking.
 
     Processes strategies in priority order, deduplicates by canonical_id,
@@ -73,9 +71,9 @@ def merge_results(
         - Primary strategy (first with results)
         - Total count (before pagination)
     """
-    seen_ids: Set[str] = set()
-    all_results: List[SearchResult] = []
-    primary_strategy: Optional[SearchStrategy] = None
+    seen_ids: set[str] = set()
+    all_results: list[SearchResult] = []
+    primary_strategy: SearchStrategy | None = None
 
     # Process strategies in priority order
     strategy_priority = [

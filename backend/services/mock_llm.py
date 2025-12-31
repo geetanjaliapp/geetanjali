@@ -1,10 +1,10 @@
 """Mock LLM service for fast testing without external API calls."""
 
-import logging
-import json
 import hashlib
+import json
+import logging
 import time
-from typing import Dict, Any, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +38,7 @@ class MockLLMService:
         logger.info(f"Mock LLM simulating {delay:.1f}s delay")
         time.sleep(delay)
 
-    def _is_follow_up_request(self, system_prompt: Optional[str]) -> bool:
+    def _is_follow_up_request(self, system_prompt: str | None) -> bool:
         """Detect if this is a follow-up conversation request."""
         if not system_prompt:
             return False
@@ -283,12 +283,12 @@ Three paths emerge from this wisdom: **acting from duty** rather than desire, **
     def generate(
         self,
         prompt: str,
-        system_prompt: Optional[str] = None,
+        system_prompt: str | None = None,
         temperature: float = 0.7,
-        max_tokens: Optional[int] = None,
-        fallback_prompt: Optional[str] = None,
-        fallback_system: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        max_tokens: int | None = None,
+        fallback_prompt: str | None = None,
+        fallback_system: str | None = None,
+    ) -> dict[str, Any]:
         """
         Generate mock response with simulated delay.
 
@@ -333,10 +333,10 @@ Three paths emerge from this wisdom: **acting from duty** rather than desire, **
     def generate_json(
         self,
         prompt: str,
-        system_prompt: Optional[str] = None,
+        system_prompt: str | None = None,
         temperature: float = 0.3,
-        fallback_prompt: Optional[str] = None,
-        fallback_system: Optional[str] = None,
+        fallback_prompt: str | None = None,
+        fallback_system: str | None = None,
     ) -> str:
         """
         Generate mock JSON response.

@@ -3,10 +3,11 @@
 import logging
 import re
 from contextlib import contextmanager
-from fastapi import Request, status, HTTPException
-from fastapi.responses import JSONResponse
+
+from fastapi import HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
-from sqlalchemy.exc import SQLAlchemyError, OperationalError
+from fastapi.responses import JSONResponse
+from sqlalchemy.exc import OperationalError, SQLAlchemyError
 
 from utils.metrics import api_errors_total
 from utils.sentry import capture_exception as sentry_capture
@@ -22,6 +23,7 @@ def _normalize_endpoint(path: str) -> str:
     normalized = re.sub(r"/[a-z0-9]{10,}", "/:slug", normalized)
     # Limit length to prevent abuse
     return normalized[:100]
+
 
 # Export all exception handlers
 __all__ = [

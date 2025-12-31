@@ -6,8 +6,9 @@ Critical paths:
 - CRLF injection prevention
 """
 
+from unittest.mock import patch
+
 import pytest
-from unittest.mock import patch, MagicMock
 
 
 @pytest.fixture(autouse=True)
@@ -132,7 +133,9 @@ class TestContactCRLFPrevention:
     the validation error response. The security feature is working correctly.
     """
 
-    @pytest.mark.skip(reason="Test infrastructure issue: ValueError not JSON serializable")
+    @pytest.mark.skip(
+        reason="Test infrastructure issue: ValueError not JSON serializable"
+    )
     def test_reject_newline_in_name(self, client, db_session):
         """Name field cannot contain newline characters."""
         response = client.post(
@@ -145,7 +148,9 @@ class TestContactCRLFPrevention:
         )
         assert response.status_code != 200
 
-    @pytest.mark.skip(reason="Test infrastructure issue: ValueError not JSON serializable")
+    @pytest.mark.skip(
+        reason="Test infrastructure issue: ValueError not JSON serializable"
+    )
     def test_reject_carriage_return_in_subject(self, client, db_session):
         """Subject field cannot contain carriage return."""
         response = client.post(

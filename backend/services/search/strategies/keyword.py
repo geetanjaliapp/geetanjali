@@ -9,22 +9,20 @@ Uses hybrid OR logic: multi-word queries match verses containing ANY
 keyword, ranked by how many keywords match (more matches = higher rank).
 """
 
-from typing import List, Set, Tuple
-
 from sqlalchemy import or_
 from sqlalchemy.orm import Session, joinedload
 
-from models.verse import Verse, Translation
+from models.verse import Translation, Verse
+
 from ..config import SearchConfig
 from ..types import MatchType, SearchMatch, SearchResult
 from ..utils import escape_like_pattern, highlight_match, verse_to_result
-
 
 # Minimum keyword length to search (skip very short words)
 MIN_KEYWORD_LENGTH = 2
 
 
-def _split_query_to_keywords(query: str) -> List[str]:
+def _split_query_to_keywords(query: str) -> list[str]:
     """Split query into searchable keywords.
 
     Filters out very short words that would match too broadly.
@@ -40,7 +38,7 @@ def _split_query_to_keywords(query: str) -> List[str]:
     return [w for w in words if len(w) >= MIN_KEYWORD_LENGTH]
 
 
-def _count_keyword_matches(text: str, keywords: List[str]) -> int:
+def _count_keyword_matches(text: str, keywords: list[str]) -> int:
     """Count how many keywords appear in the text.
 
     Args:
@@ -56,7 +54,7 @@ def _count_keyword_matches(text: str, keywords: List[str]) -> int:
     return sum(1 for kw in keywords if kw in text_lower)
 
 
-def _get_best_match_count(verse: Verse, keywords: List[str]) -> Tuple[int, str]:
+def _get_best_match_count(verse: Verse, keywords: list[str]) -> tuple[int, str]:
     """Get the best match count across translations and paraphrase.
 
     Args:
@@ -70,7 +68,7 @@ def _get_best_match_count(verse: Verse, keywords: List[str]) -> Tuple[int, str]:
     best_field = "translation"
 
     # Check translations (includes the text that's copied to translation_en)
-    if hasattr(verse, 'translations') and verse.translations:
+    if hasattr(verse, "translations") and verse.translations:
         for trans in verse.translations:
             count = _count_keyword_matches(trans.text, keywords)
             if count > best_count:
@@ -90,7 +88,7 @@ def keyword_search(
     db: Session,
     query: str,
     config: SearchConfig,
-) -> List[SearchResult]:
+) -> list[SearchResult]:
     """Full-text keyword search with hybrid OR logic.
 
     Multi-word queries use OR logic - verses matching ANY keyword are returned.
@@ -109,8 +107,8 @@ def keyword_search(
     Returns:
         List of matching verses with match counts for ranking
     """
-    results: List[SearchResult] = []
-    seen_ids: Set[str] = set()
+    results: list[SearchResult] = []
+    seen_ids: set[str] = set()
 
     # Split query into keywords
     keywords = _split_query_to_keywords(query)
@@ -149,11 +147,11 @@ def _search_translations(
     db: Session,
     base_query,
     query: str,
-    keywords: List[str],
-    keyword_patterns: List[str],
+    keywords: list[str],
+    keyword_patterns: list[str],
     config: SearchConfig,
-    results: List[SearchResult],
-    seen_ids: Set[str],
+    results: list[SearchResult],
+    seen_ids: set[str],
 ) -> None:
     """Search in Translation model (scholar translations) with OR logic."""
     # Build OR clause for any keyword match
@@ -205,20 +203,18 @@ def _search_translations(
 def _search_verse_translation(
     base_query,
     query: str,
-    keywords: List[str],
-    keyword_patterns: List[str],
+    keywords: list[str],
+    keyword_patterns: list[str],
     config: SearchConfig,
-    results: List[SearchResult],
-    seen_ids: Set[str],
+    results: list[SearchResult],
+    seen_ids: set[str],
 ) -> None:
     """Search in Verse.translation_en (preferred translation) with OR logic."""
-    or_conditions = [Verse.translation_en.ilike(pattern) for pattern in keyword_patterns]
+    or_conditions = [
+        Verse.translation_en.ilike(pattern) for pattern in keyword_patterns
+    ]
 
-    verses = (
-        base_query.filter(or_(*or_conditions))
-        .limit(config.limit * 2)
-        .all()
-    )
+    verses = base_query.filter(or_(*or_conditions)).limit(config.limit * 2).all()
 
     for verse in verses:
         if verse.canonical_id in seen_ids:
@@ -247,20 +243,18 @@ def _search_verse_translation(
 def _search_paraphrase(
     base_query,
     query: str,
-    keywords: List[str],
-    keyword_patterns: List[str],
+    keywords: list[str],
+    keyword_patterns: list[str],
     config: SearchConfig,
-    results: List[SearchResult],
-    seen_ids: Set[str],
+    results: list[SearchResult],
+    seen_ids: set[str],
 ) -> None:
     """Search in Verse.paraphrase_en (leadership paraphrase) with OR logic."""
     # Build OR clause for any keyword match
     or_conditions = [Verse.paraphrase_en.ilike(pattern) for pattern in keyword_patterns]
 
     paraphrase_verses = (
-        base_query.filter(or_(*or_conditions))
-        .limit(config.limit * 2)
-        .all()
+        base_query.filter(or_(*or_conditions)).limit(config.limit * 2).all()
     )
 
     for verse in paraphrase_verses:

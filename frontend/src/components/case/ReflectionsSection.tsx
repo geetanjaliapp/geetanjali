@@ -1,7 +1,16 @@
+import { SpeakButton } from "../SpeakButton";
+
 interface ReflectionsSectionProps {
   prompts: string[];
   showReflections: boolean;
   onToggle: () => void;
+}
+
+/**
+ * Format reflection prompts for TTS
+ */
+function formatReflectionsForSpeech(prompts: string[]): string {
+  return "Questions for Reflection. " + prompts.map((p, i) => `Question ${i + 1}: ${p}`).join(". ");
 }
 
 export function ReflectionsSection({
@@ -29,7 +38,13 @@ export function ReflectionsSection({
         </svg>
       </div>
 
-      <button onClick={onToggle} className="w-full text-left">
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={onToggle}
+        onKeyDown={(e) => e.key === "Enter" && onToggle()}
+        className="w-full text-left cursor-pointer"
+      >
         <div className="flex items-center justify-between bg-[var(--status-info-bg)] rounded-[var(--radius-card)] p-3 sm:p-4 shadow-[var(--shadow-button)] border border-[var(--status-info-border)] hover:shadow-[var(--shadow-card)] transition-[var(--transition-all)]">
           <div>
             <div className="text-xs font-semibold text-[var(--status-info-text)] uppercase tracking-wide">
@@ -39,21 +54,30 @@ export function ReflectionsSection({
               {prompts.length} prompts for deeper insight
             </p>
           </div>
-          <svg
-            className={`w-5 h-5 text-[var(--text-muted)] transition-transform ${showReflections ? "rotate-180" : ""}`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 9l-7 7-7-7"
-            />
-          </svg>
+          <div className="flex items-center gap-1">
+            <span onClick={(e) => e.stopPropagation()}>
+              <SpeakButton
+                text={formatReflectionsForSpeech(prompts)}
+                size="sm"
+                aria-label="Listen to reflection questions"
+              />
+            </span>
+            <svg
+              className={`w-5 h-5 text-[var(--text-muted)] transition-transform ${showReflections ? "rotate-180" : ""}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </div>
         </div>
-      </button>
+      </div>
 
       {showReflections && (
         <div className="mt-2 sm:mt-3 bg-[var(--status-info-bg)] rounded-[var(--radius-card)] p-3 sm:p-4 border border-[var(--status-info-border)]">

@@ -6,6 +6,7 @@ Helper functions for highlighting, escaping, and text processing.
 import re
 
 from models.verse import Verse
+
 from .types import SearchMatch, SearchResult
 
 

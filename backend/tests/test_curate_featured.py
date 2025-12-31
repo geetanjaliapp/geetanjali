@@ -1,15 +1,13 @@
 """Tests for featured case curation job."""
 
-import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 from jobs.curate_featured import (
-    curate_missing_categories,
+    CURATED_DILEMMAS,
     _generate_unique_slug,
     _invalidate_featured_cache,
-    CURATED_DILEMMAS,
+    curate_missing_categories,
 )
-
 
 # =============================================================================
 # Test CURATED_DILEMMAS structure
@@ -34,7 +32,9 @@ class TestCuratedDilemmasStructure:
     def test_followups_are_non_empty_lists(self):
         """Test that followups are non-empty lists."""
         for category, data in CURATED_DILEMMAS.items():
-            assert isinstance(data["followups"], list), f"{category} followups not a list"
+            assert isinstance(
+                data["followups"], list
+            ), f"{category} followups not a list"
             assert len(data["followups"]) > 0, f"{category} has empty followups"
 
     def test_dilemmas_are_substantial(self):
@@ -65,7 +65,9 @@ class TestCurateMissingCategoriesValidation:
     @patch("jobs.curate_featured._create_curated_case")
     @patch("jobs.curate_featured._invalidate_featured_cache")
     @patch("jobs.curate_featured.time.sleep")
-    def test_empty_list_returns_empty_results(self, mock_sleep, mock_cache, mock_create):
+    def test_empty_list_returns_empty_results(
+        self, mock_sleep, mock_cache, mock_create
+    ):
         """Test that empty category list returns empty results."""
         result = curate_missing_categories([])
 
@@ -136,7 +138,9 @@ class TestCurateMissingCategoriesExecution:
     @patch("jobs.curate_featured._create_curated_case")
     @patch("jobs.curate_featured._invalidate_featured_cache")
     @patch("jobs.curate_featured.time.sleep")
-    def test_cache_invalidated_after_completion(self, mock_sleep, mock_cache, mock_create):
+    def test_cache_invalidated_after_completion(
+        self, mock_sleep, mock_cache, mock_create
+    ):
         """Test that cache is invalidated after curation completes."""
         mock_create.return_value = "test-case-id"
 
@@ -191,7 +195,11 @@ class TestGenerateUniqueSlug:
 
         slug = _generate_unique_slug(mock_db)
 
-        assert slug.islower() or slug.isdigit() or all(c.islower() or c.isdigit() for c in slug)
+        assert (
+            slug.islower()
+            or slug.isdigit()
+            or all(c.islower() or c.isdigit() for c in slug)
+        )
 
     def test_retries_on_collision(self):
         """Test that function retries when slug already exists."""

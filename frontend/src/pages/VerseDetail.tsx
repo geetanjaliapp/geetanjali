@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 import { versesApi } from "../lib/api";
 import { formatSanskritLines, isSpeakerIntro } from "../lib/sanskritFormatter";
+import { prepareHindiTTS, prepareEnglishTTS } from "../lib/ttsPreprocess";
 import {
   getPrincipleShortLabel,
   getPrincipleLabel,
@@ -20,9 +21,11 @@ import {
   ChapterContextBar,
   StickyBottomNav,
   FloatingNavArrow,
+  SpeakButton,
 } from "../components";
-import { HeartIcon, ShareIcon, ChevronDownIcon } from "../components/icons";
+import { HeartIcon, ShareIcon, ChevronDownIcon, PlayIcon, PauseIcon, SpinnerIcon, CloseIcon, RepeatIcon, CheckIcon, AlertCircleIcon } from "../components/icons";
 import { ShareModal } from "../components/verse";
+import { useAudioPlayer, AudioProgress, AudioSpeedControl } from "../components/audio";
 import { errorMessages } from "../lib/errorMessages";
 import { useSEO, useAdjacentVerses, useSyncedFavorites } from "../hooks";
 import { STORAGE_KEYS, getStorageItem, setStorageItem } from "../lib/storage";
@@ -111,6 +114,58 @@ export default function VerseDetail() {
 
   // Favorites (synced across devices for logged-in users)
   const { isFavorite, toggleFavorite } = useSyncedFavorites();
+
+  // Audio player
+  const {
+    state: audioState,
+    play,
+    pause,
+    resume,
+    stop,
+    retry,
+    isPlaying,
+    currentlyPlaying,
+    progress,
+    currentTime,
+    duration,
+    error: audioError,
+    playbackSpeed,
+    isLooping,
+    seek,
+    setPlaybackSpeed,
+    toggleLoop,
+  } = useAudioPlayer();
+
+  // Check if this verse is currently active (playing or paused)
+  const isThisVerseActive = verse ? currentlyPlaying === verse.canonical_id : false;
+
+  // Auto-dismiss timing for audio controls (matches AudioPlayerContext)
+  const AUTO_DISMISS_DELAY_MS = 1500;
+  const [showAudioControls, setShowAudioControls] = useState(false);
+
+  useEffect(() => {
+    if (!isThisVerseActive) {
+      setShowAudioControls(false);
+      return;
+    }
+
+    if (audioState === "playing" || audioState === "loading") {
+      setShowAudioControls(true);
+    } else if (audioState === "paused") {
+      // Keep controls visible while paused
+      setShowAudioControls(true);
+    } else if (audioState === "completed" || audioState === "error") {
+      // Auto-hide after 1.5s on completion or error (matches VerseCard pattern)
+      setShowAudioControls(true);
+      const timer = setTimeout(() => {
+        setShowAudioControls(false);
+      }, AUTO_DISMISS_DELAY_MS);
+      return () => clearTimeout(timer);
+    } else {
+      // idle - hide controls
+      setShowAudioControls(false);
+    }
+  }, [isThisVerseActive, audioState]);
 
   // Redirect to canonical uppercase URL if case doesn't match
   const canonicalUppercase = canonicalId?.toUpperCase();
@@ -374,7 +429,65 @@ export default function VerseDetail() {
           />
 
           {/* Main Spotlight Section */}
-          <div className="animate-fade-in bg-linear-to-br from-[var(--gradient-warm-from)] via-[var(--gradient-warm-via)] to-[var(--gradient-warm-to)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] lg:rounded-[var(--radius-modal)] shadow-[var(--shadow-card-elevated)] sm:shadow-[var(--shadow-modal)] p-4 sm:p-8 lg:p-12 mb-4 sm:mb-6 lg:mb-8 border border-[var(--border-warm-subtle)]">
+          <div className="relative animate-fade-in bg-linear-to-br from-[var(--gradient-warm-from)] via-[var(--gradient-warm-via)] to-[var(--gradient-warm-to)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] lg:rounded-[var(--radius-modal)] shadow-[var(--shadow-card-elevated)] sm:shadow-[var(--shadow-modal)] p-4 sm:p-8 lg:p-12 mb-4 sm:mb-6 lg:mb-8 border border-[var(--border-warm-subtle)]">
+            {/* Audio play button - top right corner */}
+            {verse.audio_url && (
+              <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 flex flex-col items-end gap-1">
+                <button
+                  onClick={() => {
+                    if (isThisVerseActive && audioState === "error") {
+                      retry();
+                    } else if (isThisVerseActive && audioState === "paused") {
+                      resume();
+                    } else if (isPlaying(verse.canonical_id)) {
+                      pause();
+                    } else {
+                      play(verse.canonical_id, verse.audio_url!);
+                    }
+                  }}
+                  disabled={audioState === "loading" && isThisVerseActive}
+                  className={`p-3 sm:p-2 rounded-full transition-[var(--transition-all)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
+                    isThisVerseActive && audioState === "error"
+                      ? "text-[var(--status-error-text)] bg-[var(--status-error-text)]/10"
+                      : isThisVerseActive && audioState === "completed"
+                        ? "text-[var(--status-success-text)] bg-[var(--status-success-text)]/10"
+                        : isPlaying(verse.canonical_id)
+                          ? "text-[var(--interactive-primary)] bg-[var(--interactive-primary)]/10"
+                          : "text-[var(--text-muted)] hover:text-[var(--interactive-primary)] hover:bg-[var(--surface-muted)]"
+                  } ${audioState === "loading" && isThisVerseActive ? "opacity-50" : ""}`}
+                  aria-label={
+                    isThisVerseActive && audioState === "error"
+                      ? "Retry loading audio"
+                      : isThisVerseActive && audioState === "completed"
+                        ? "Replay recitation"
+                        : isPlaying(verse.canonical_id)
+                          ? "Pause recitation"
+                          : audioState === "loading" && isThisVerseActive
+                            ? "Loading..."
+                            : "Play recitation"
+                  }
+                >
+                  {audioState === "loading" && isThisVerseActive ? (
+                    <SpinnerIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+                  ) : isThisVerseActive && audioState === "error" ? (
+                    <AlertCircleIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+                  ) : isThisVerseActive && audioState === "completed" ? (
+                    <CheckIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+                  ) : isPlaying(verse.canonical_id) ? (
+                    <PauseIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+                  ) : (
+                    <PlayIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+                  )}
+                </button>
+                {/* Error message */}
+                {isThisVerseActive && audioState === "error" && audioError && (
+                  <span className="text-xs text-[var(--status-error-text)] bg-[var(--surface-elevated)] px-2 py-1 rounded-[var(--radius-badge)] shadow-sm max-w-32 text-right">
+                    {audioError}
+                  </span>
+                )}
+              </div>
+            )}
+
             {/* Sanskrit Spotlight */}
             {verse.sanskrit_devanagari && (
               <div className="mb-4 sm:mb-6 lg:mb-8 text-center pt-2 sm:pt-4">
@@ -406,7 +519,7 @@ export default function VerseDetail() {
                     ),
                   )}
                 </div>
-                {/* Verse Reference with integrated actions */}
+                {/* Verse Reference with integrated actions - clean center alignment */}
                 <div className="flex items-center justify-center gap-2 sm:gap-4">
                   {/* Favorite button */}
                   <button
@@ -443,13 +556,68 @@ export default function VerseDetail() {
                   </button>
                 </div>
 
-                {/* Reading Mode link - subtle, non-intrusive */}
-                <Link
-                  to={`/read?c=${verse.chapter}&v=${verse.verse}`}
-                  className="inline-block mt-3 text-xs text-[var(--text-accent-muted)] hover:text-[var(--text-accent)] transition-[var(--transition-color)]"
-                >
-                  Read in context →
-                </Link>
+                {/* Reading Mode link OR Audio controls (same space, no page shift) */}
+                <div className="mt-3">
+                  {showAudioControls && verse.audio_url ? (
+                    /* Single-row audio controls */
+                    <div className="flex items-center justify-center gap-2 sm:gap-3">
+                      {/* Progress bar */}
+                      <div className="flex-1 max-w-[200px]">
+                        <AudioProgress
+                          progress={progress}
+                          currentTime={currentTime}
+                          duration={duration}
+                          disabled={false}
+                          onSeek={seek}
+                          showTime
+                          compact
+                        />
+                      </div>
+
+                      {/* Speed control */}
+                      <AudioSpeedControl
+                        speed={playbackSpeed}
+                        onSpeedChange={setPlaybackSpeed}
+                        compact
+                      />
+
+                      {/* Loop toggle */}
+                      <button
+                        onClick={toggleLoop}
+                        aria-label={isLooping ? "Disable loop" : "Enable loop"}
+                        aria-pressed={isLooping}
+                        className={`
+                          p-2.5 -m-1.5 sm:p-1 sm:m-0 rounded-[var(--radius-badge)] transition-[var(--transition-button)]
+                          focus:outline-hidden focus-visible:ring-2
+                          focus-visible:ring-[var(--focus-ring)]
+                          ${
+                            isLooping
+                              ? "text-[var(--interactive-primary)] bg-[var(--interactive-primary)]/10"
+                              : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
+                          }
+                        `}
+                      >
+                        <RepeatIcon className="w-4 h-4" />
+                      </button>
+
+                      {/* Dismiss button */}
+                      <button
+                        onClick={stop}
+                        aria-label="Stop audio"
+                        className="p-2.5 -m-1.5 sm:p-1 sm:m-0 rounded-[var(--radius-badge)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-muted)] transition-[var(--transition-button)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                      >
+                        <CloseIcon className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <Link
+                      to={`/read?c=${verse.chapter}&v=${verse.verse}`}
+                      className="inline-block text-xs text-[var(--text-accent-muted)] hover:text-[var(--text-accent)] transition-[var(--transition-color)]"
+                    >
+                      Read in context →
+                    </Link>
+                  )}
+                </div>
               </div>
             )}
 
@@ -582,9 +750,17 @@ export default function VerseDetail() {
                     {/* Hindi Translation */}
                     {primaryHindi && (
                       <div>
-                        <p className="text-xs font-semibold text-[var(--text-accent-muted)] uppercase tracking-widest mb-2 sm:mb-4">
-                          हिंदी अनुवाद
-                        </p>
+                        <div className="flex items-center justify-between mb-2 sm:mb-4">
+                          <span className="text-xs font-semibold text-[var(--text-accent-muted)] uppercase tracking-widest">
+                            हिंदी अनुवाद
+                          </span>
+                          <SpeakButton
+                            text={prepareHindiTTS(primaryHindi.text, verse.chapter, verse.verse)}
+                            lang="hi"
+                            size="sm"
+                            aria-label="हिंदी अनुवाद सुनें"
+                          />
+                        </div>
                         <p className="text-base sm:text-lg text-[var(--text-primary)] leading-relaxed italic">
                           "{primaryHindi.text}"
                         </p>
@@ -599,9 +775,17 @@ export default function VerseDetail() {
                     {/* English Translation */}
                     {primaryEnglish && (
                       <div>
-                        <p className="text-xs font-semibold text-[var(--text-accent-muted)] uppercase tracking-widest mb-2 sm:mb-4">
-                          English Translation
-                        </p>
+                        <div className="flex items-center justify-between mb-2 sm:mb-4">
+                          <span className="text-xs font-semibold text-[var(--text-accent-muted)] uppercase tracking-widest">
+                            English Translation
+                          </span>
+                          <SpeakButton
+                            text={prepareEnglishTTS(primaryEnglish.text, verse.chapter, verse.verse)}
+                            lang="en"
+                            size="sm"
+                            aria-label="Listen to English translation"
+                          />
+                        </div>
                         <p className="text-base sm:text-lg text-[var(--text-primary)] leading-relaxed italic">
                           "{primaryEnglish.text}"
                         </p>

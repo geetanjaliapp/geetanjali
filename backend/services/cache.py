@@ -7,11 +7,12 @@ This module provides a caching layer that:
 - Includes cache stampede protection via TTL jitter
 """
 
+import hashlib
 import json
 import logging
 import random
-from typing import Optional, Any
 from datetime import datetime, timedelta
+from typing import Any
 
 from config import settings
 from utils.metrics_events import cache_hits_total, cache_misses_total
@@ -44,12 +45,13 @@ def _extract_key_type(key: str) -> str:
     else:
         return "other"
 
+
 # Thread-safe random for TTL jitter (cryptographically secure)
 _system_random = random.SystemRandom()
 
 # Redis client (lazy initialized)
 _redis_client = None
-_redis_available: Optional[bool] = None
+_redis_available: bool | None = None
 
 
 def get_redis_client():
@@ -166,7 +168,7 @@ class CacheService:
     """
 
     @staticmethod
-    def get(key: str) -> Optional[Any]:
+    def get(key: str) -> Any | None:
         """
         Get value from cache.
 
@@ -360,9 +362,9 @@ def verse_key(canonical_id: str) -> str:
 
 
 def verse_list_key(
-    chapter: Optional[int] = None,
-    featured: Optional[bool] = None,
-    principles: Optional[str] = None,
+    chapter: int | None = None,
+    featured: bool | None = None,
+    principles: str | None = None,
     skip: int = 0,
     limit: int = 100,
 ) -> str:
@@ -474,6 +476,88 @@ def daily_views_counter_key() -> str:
     so it automatically resets daily.
     """
     return f"case_views_daily:{datetime.utcnow().date().isoformat()}"
+
+
+# TTS Binary Cache (separate from JSON cache)
+# Uses a binary Redis client without decode_responses
+_redis_binary_client = None
+_redis_binary_available: bool | None = None
+
+# TTS cache TTL (24 hours - audio content doesn't change)
+TTS_CACHE_TTL = 86400
+
+
+def _get_binary_redis_client():
+    """Get Redis client for binary data (without decode_responses)."""
+    global _redis_binary_client, _redis_binary_available
+
+    if not settings.REDIS_ENABLED or not settings.REDIS_URL:
+        return None
+
+    if _redis_binary_available is False:
+        return None
+
+    if _redis_binary_client is None:
+        try:
+            import redis
+
+            _redis_binary_client = redis.from_url(
+                settings.REDIS_URL,
+                decode_responses=False,  # Keep binary data as bytes
+                socket_timeout=2,
+                socket_connect_timeout=2,
+            )
+            _redis_binary_client.ping()
+            _redis_binary_available = True
+            logger.debug("Redis binary cache connected")
+        except Exception as e:
+            logger.warning(f"Redis binary unavailable: {e}")
+            _redis_binary_available = False
+            _redis_binary_client = None
+
+    return _redis_binary_client
+
+
+def tts_cache_key(text: str, lang: str, rate: str, pitch: str) -> str:
+    """Build cache key for TTS audio.
+
+    Uses hash of text to keep key size reasonable.
+    """
+    text_hash = hashlib.sha256(text.encode()).hexdigest()[:16]
+    return f"tts:{lang}:{rate}:{pitch}:{text_hash}"
+
+
+def tts_cache_get(key: str) -> bytes | None:
+    """Get TTS audio bytes from cache."""
+    client = _get_binary_redis_client()
+    if not client:
+        return None
+
+    try:
+        data = client.get(key)
+        if data:
+            cache_hits_total.labels(key_type="tts").inc()
+            return data
+        cache_misses_total.labels(key_type="tts").inc()
+    except Exception as e:
+        logger.warning(f"TTS cache get error for {key}: {e}")
+        cache_misses_total.labels(key_type="tts").inc()
+
+    return None
+
+
+def tts_cache_set(key: str, audio_bytes: bytes, ttl: int = TTS_CACHE_TTL) -> bool:
+    """Store TTS audio bytes in cache."""
+    client = _get_binary_redis_client()
+    if not client or ttl <= 0:
+        return False
+
+    try:
+        client.setex(key, ttl, audio_bytes)
+        return True
+    except Exception as e:
+        logger.warning(f"TTS cache set error for {key}: {e}")
+        return False
 
 
 # Convenience instance

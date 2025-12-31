@@ -28,23 +28,22 @@ Importing this module registers these metrics in the worker's registry:
 """
 
 # LLM Metrics - from dedicated module
-from utils.metrics_llm import (
-    llm_requests_total,
-    llm_tokens_total,
-    llm_fallback_total,
-    llm_circuit_breaker_state,
-)
-
 # Event Metrics - from dedicated module (NOT from utils.metrics!)
 from utils.metrics_events import (
-    email_sends_total,
-    email_send_duration_seconds,
-    email_circuit_breaker_state,
     cache_hits_total,
     cache_misses_total,
-    vector_search_fallback_total,
     chromadb_circuit_breaker_state,
     circuit_breaker_transitions_total,
+    email_circuit_breaker_state,
+    email_send_duration_seconds,
+    email_sends_total,
+    vector_search_fallback_total,
+)
+from utils.metrics_llm import (
+    llm_circuit_breaker_state,
+    llm_fallback_total,
+    llm_requests_total,
+    llm_tokens_total,
 )
 
 __all__ = [
