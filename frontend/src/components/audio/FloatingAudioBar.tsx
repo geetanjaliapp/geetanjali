@@ -10,7 +10,9 @@
  * - Stop button to end playback
  * - Shows verse reference
  * - Links to verse detail
- * - Progress bar
+ * - Progress bar with seeking
+ * - Playback speed control (0.75x, 1x, 1.25x)
+ * - Loop toggle for memorization
  *
  * Uses design tokens for theming support.
  */
@@ -18,12 +20,14 @@
 import { Link } from "react-router-dom";
 import { useAudioPlayer } from "./AudioPlayerContext";
 import { AudioProgress } from "./AudioProgress";
+import { AudioSpeedControl } from "./AudioSpeedControl";
 import {
   PlayIcon,
   PauseIcon,
   SpinnerIcon,
   StopIcon,
   AlertCircleIcon,
+  RepeatIcon,
 } from "../icons";
 import { formatVerseId } from "./audioUtils";
 
@@ -35,11 +39,15 @@ export function FloatingAudioBar() {
     currentTime,
     duration,
     error,
+    playbackSpeed,
+    isLooping,
     pause,
     resume,
     stop,
     seek,
     retry,
+    setPlaybackSpeed,
+    toggleLoop,
   } = useAudioPlayer();
 
   // Only show when audio is active (not idle or completed)
@@ -132,6 +140,33 @@ export function FloatingAudioBar() {
               />
             )}
           </div>
+
+          {/* Speed Control - hidden on mobile, shown on sm+ */}
+          <div className="hidden sm:block">
+            <AudioSpeedControl
+              speed={playbackSpeed}
+              onSpeedChange={setPlaybackSpeed}
+              compact
+            />
+          </div>
+
+          {/* Loop Toggle */}
+          <button
+            onClick={toggleLoop}
+            aria-label={isLooping ? "Disable loop" : "Enable loop"}
+            aria-pressed={isLooping}
+            className={`
+              p-2.5 -m-0.5 rounded-full transition-[var(--transition-all)]
+              focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]
+              ${
+                isLooping
+                  ? "text-[var(--interactive-primary)] bg-[var(--interactive-primary)]/10"
+                  : "text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-muted)]"
+              }
+            `}
+          >
+            <RepeatIcon className="w-5 h-5" />
+          </button>
 
           {/* Stop Button */}
           <button

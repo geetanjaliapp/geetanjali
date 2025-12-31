@@ -1,9 +1,9 @@
-import { memo, useMemo, useCallback, useState, useEffect } from "react";
+import { memo, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { formatSanskritLines, isSpeakerIntro } from "../lib/sanskritFormatter";
 import { getPrincipleShortLabel } from "../constants/principles";
-import { StarIcon, HeartIcon, PlayIcon, PauseIcon, SpinnerIcon, RepeatIcon, CloseIcon, CheckIcon, AlertCircleIcon } from "./icons";
-import { useAudioPlayer, AudioProgress, AudioSpeedControl } from "./audio";
+import { StarIcon, HeartIcon, PlayIcon, PauseIcon, SpinnerIcon, CheckIcon, AlertCircleIcon } from "./icons";
+import { useAudioPlayer } from "./audio";
 import type { Verse } from "../types";
 
 /**
@@ -117,100 +117,6 @@ function HighlightedText({ text }: { text: string }) {
 }
 
 /**
- * Overlay audio controls for VerseCard.
- * Appears over the translation area when audio is active.
- * Designed to match translation section height (2-3 lines).
- */
-function AudioControlsOverlay({
-  isThisPlaying,
-  linkTo,
-  onStop,
-}: {
-  isThisPlaying: boolean;
-  linkTo?: string;
-  onStop: () => void;
-}) {
-  const {
-    progress,
-    currentTime,
-    duration,
-    playbackSpeed,
-    isLooping,
-    seek,
-    setPlaybackSpeed,
-    toggleLoop,
-    state: audioState,
-  } = useAudioPlayer();
-
-  const handleStop = useCallback(
-    (e: React.MouseEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      onStop();
-    },
-    [onStop],
-  );
-
-  return (
-    <div
-      className={`bg-[var(--surface-warm)] rounded-[var(--radius-button)] p-2 ${linkTo ? "relative z-10 pointer-events-auto" : ""}`}
-    >
-      {/* Row 1: Progress bar with time */}
-      <div className="mb-1.5">
-        <AudioProgress
-          progress={isThisPlaying ? progress : 0}
-          currentTime={isThisPlaying ? currentTime : 0}
-          duration={isThisPlaying ? duration : 0}
-          disabled={audioState === "loading"}
-          onSeek={seek}
-          showTime
-          compact
-        />
-      </div>
-
-      {/* Row 2: Speed, loop, dismiss - centered */}
-      <div className="flex items-center justify-center gap-2">
-        <AudioSpeedControl
-          speed={playbackSpeed}
-          onSpeedChange={setPlaybackSpeed}
-          compact
-        />
-
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            toggleLoop();
-          }}
-          aria-label={isLooping ? "Disable loop" : "Enable loop"}
-          aria-pressed={isLooping}
-          className={`
-            p-2.5 -m-1.5 sm:p-1 sm:m-0 rounded-[var(--radius-badge)] transition-[var(--transition-button)]
-            focus:outline-hidden focus-visible:ring-2
-            focus-visible:ring-[var(--focus-ring)]
-            ${
-              isLooping
-                ? "text-[var(--interactive-primary)] bg-[var(--interactive-primary)]/10"
-                : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
-            }
-          `}
-        >
-          <RepeatIcon className="w-4 h-4" />
-        </button>
-
-        <button
-          onClick={handleStop}
-          aria-label="Stop audio"
-          className="p-2.5 -m-1.5 sm:p-1 sm:m-0 rounded-[var(--radius-badge)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-muted)] transition-[var(--transition-button)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
-        >
-          <CloseIcon className="w-4 h-4" />
-        </button>
-      </div>
-    </div>
-  );
-}
-
-/**
  * P1.5 FIX: Memoized verse card component to prevent unnecessary re-renders.
  * Uses React.memo and useMemo for formatSanskritLines computation.
  */
@@ -237,7 +143,6 @@ export const VerseCard = memo(function VerseCard({
     play: audioPlay,
     pause: audioPause,
     resume: audioResume,
-    stop: audioStop,
     retry: audioRetry,
   } = useAudioPlayer();
 
@@ -270,41 +175,6 @@ export const VerseCard = memo(function VerseCard({
     },
     [verse.audio_url, verse.canonical_id, isThisPlaying, audioState, audioPlay, audioPause, audioResume, audioRetry],
   );
-
-  // Auto-show/hide controls based on audio state (with delay for user reaction time)
-  // Auto-dismiss timing matches AudioPlayerContext (1.5s after completion)
-  const AUTO_DISMISS_DELAY_MS = 1500;
-  const [showControls, setShowControls] = useState(false);
-
-  useEffect(() => {
-    if (!isThisPlaying) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: sync UI controls with audio state
-      setShowControls(false);
-      return;
-    }
-
-    if (audioState === "playing" || audioState === "loading") {
-      // Show controls immediately when playing/loading
-       
-      setShowControls(true);
-    } else if (audioState === "paused") {
-      // Keep controls visible while paused (user may resume)
-       
-      setShowControls(true);
-    } else if (audioState === "completed" || audioState === "error") {
-      // Auto-hide after 1.5s on complete/error
-       
-      setShowControls(true);
-      const timer = setTimeout(() => {
-        setShowControls(false);
-      }, AUTO_DISMISS_DELAY_MS);
-      return () => clearTimeout(timer);
-    } else {
-      // idle - hide controls
-       
-      setShowControls(false);
-    }
-  }, [isThisPlaying, audioState]);
 
   // Check if audio is actively playing (for visual indicator)
   const isAudioPlaying = isThisPlaying && audioState === "playing";
@@ -446,20 +316,14 @@ export const VerseCard = memo(function VerseCard({
             ))}
           </div>
 
-          {/* Translation preview OR Audio controls overlay - consistent height */}
-          {(showControls && hasAudio) || match?.highlight || (showTranslationPreview && translationText) ? (
+          {/* Translation preview - always visible (audio controls moved to FloatingAudioBar) */}
+          {match?.highlight || (showTranslationPreview && translationText) ? (
             <>
               {/* Subtle divider */}
               <div className="my-2 sm:my-3 border-t border-[var(--border-warm-subtle)]" />
-              {/* Content area with consistent min-height (matches 2-3 lines of text) */}
+              {/* Content area */}
               <div className="min-h-[2.5rem] sm:min-h-[3.5rem]">
-                {showControls && hasAudio ? (
-                  <AudioControlsOverlay
-                    isThisPlaying={isThisPlaying}
-                    linkTo={linkTo}
-                    onStop={audioStop}
-                  />
-                ) : match?.highlight ? (
+                {match?.highlight ? (
                   <p className="text-xs sm:text-sm text-[var(--text-secondary)] text-center leading-relaxed">
                     {'"'}
                     <HighlightedText text={match.highlight} />
@@ -472,7 +336,7 @@ export const VerseCard = memo(function VerseCard({
                 )}
               </div>
               {/* "Matched in" indicator for search results */}
-              {!showControls && match?.field && (
+              {match?.field && (
                 <p className="mt-1 text-center text-[10px] text-[var(--text-muted)]">
                   Matched in: {match.field}
                 </p>
