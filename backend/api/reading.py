@@ -13,13 +13,14 @@ from api.schemas import (
 )
 from config import settings
 from db import get_db
-from models import DhyanamVerse
+from db.repositories import DhyanamRepository
 from models.metadata import BookMetadata, ChapterMetadata
 from services.cache import (
     book_metadata_key,
     cache,
     chapter_metadata_key,
     chapters_metadata_key,
+    dhyanam_all_key,
 )
 
 logger = logging.getLogger(__name__)
@@ -164,22 +165,21 @@ async def get_geeta_dhyanam_verses(
     These traditional verses are recited before studying the Bhagavad Geeta.
     Returns all 9 verses with Sanskrit, IAST, English, and Hindi translations.
 
-    Data is synced from code-first curation via POST /api/v1/admin/sync-dhyanam.
+    Note: Prefer using GET /api/v1/dhyanam for the dedicated dhyanam API.
 
     Returns:
         List of 9 Geeta Dhyanam verses
     """
     # Check cache first
-    cache_key = "geeta_dhyanam_all"
+    cache_key = dhyanam_all_key()
     cached = cache.get(cache_key)
     if cached:
         logger.debug("Cache hit for Geeta Dhyanam")
         return cached
 
-    # Query from database
-    verses = (
-        db.query(DhyanamVerse).order_by(DhyanamVerse.verse_number).all()
-    )
+    # Query from database using repository
+    repo = DhyanamRepository(db)
+    verses = repo.get_all_ordered()
 
     if not verses:
         raise HTTPException(
@@ -189,17 +189,7 @@ async def get_geeta_dhyanam_verses(
 
     # Convert to response format
     verses_data = [
-        {
-            "verse_number": v.verse_number,
-            "sanskrit": v.sanskrit,
-            "iast": v.iast,
-            "english": v.english,
-            "hindi": v.hindi,
-            "theme": v.theme,
-            "duration_ms": v.duration_ms,
-            "audio_url": v.audio_url,
-        }
-        for v in verses
+        GeetaDhyanamVerseResponse.model_validate(v).model_dump() for v in verses
     ]
 
     # Cache for consistency with other endpoints

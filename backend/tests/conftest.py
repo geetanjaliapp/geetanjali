@@ -57,6 +57,7 @@ requires_postgresql = pytest.mark.skipif(
 from models import (  # noqa: F401
     Base,  # noqa: F401
     Case,
+    DhyanamVerse,
     Feedback,
     Message,
     Output,

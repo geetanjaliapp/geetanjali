@@ -27,6 +27,7 @@ from api import (
     auth,
     cases,
     contact,
+    dhyanam,
     experiments,
     feed,
     follow_up,
@@ -280,6 +281,7 @@ app.include_router(sitemap.router, tags=["SEO"])
 app.include_router(feed.router, tags=["SEO"])
 app.include_router(experiments.router, tags=["Experiments"])
 app.include_router(reading.router, tags=["Reading"])
+app.include_router(dhyanam.router, tags=["Dhyanam"])
 app.include_router(search.router, tags=["Search"])
 app.include_router(taxonomy.router, tags=["Taxonomy"])
 app.include_router(newsletter.router, tags=["Newsletter"])

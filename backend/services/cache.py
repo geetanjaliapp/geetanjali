@@ -42,6 +42,8 @@ def _extract_key_type(key: str) -> str:
         return "rag"
     elif key.startswith("featured_cases:"):
         return "featured"
+    elif key.startswith("dhyanam:"):
+        return "dhyanam"
     else:
         return "other"
 
@@ -458,6 +460,16 @@ def rag_output_key(description_hash: str) -> str:
 def featured_cases_key() -> str:
     """Build cache key for featured cases."""
     return "featured_cases:all"
+
+
+def dhyanam_all_key() -> str:
+    """Build cache key for all Geeta Dhyanam verses."""
+    return "dhyanam:all"
+
+
+def dhyanam_verse_key(verse_number: int) -> str:
+    """Build cache key for a single Geeta Dhyanam verse."""
+    return f"dhyanam:verse:{verse_number}"
 
 
 def public_case_view_key(slug: str, client_id: str) -> str:
