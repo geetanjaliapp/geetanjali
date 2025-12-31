@@ -75,6 +75,16 @@ def _load_vector_store_sync() -> None:
         )
 
 
+def _sync_curated_content() -> None:
+    """Sync curated content to database if not present."""
+    try:
+        from services.startup_sync import run_startup_sync
+
+        run_startup_sync()
+    except Exception as e:
+        logger.error(f"Failed to sync curated content: {e}")
+
+
 def _warm_daily_verse_cache() -> None:
     """Pre-warm daily verse cache to avoid cold-start latency."""
     try:
@@ -164,8 +174,12 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # === STARTUP ===
     logger.info(f"Starting {settings.APP_NAME} in {settings.APP_ENV} mode")
 
-    # Run blocking I/O in thread pool to avoid blocking event loop
+    # Sync curated content first (runs synchronously, needed before cache warming)
+    # This uses hash-based change detection to only sync when content changes
     loop = asyncio.get_event_loop()
+    await loop.run_in_executor(None, _sync_curated_content)
+
+    # Run blocking I/O in thread pool to avoid blocking event loop
     loop.run_in_executor(None, _load_vector_store_sync)
     loop.run_in_executor(None, _warm_daily_verse_cache)
 
