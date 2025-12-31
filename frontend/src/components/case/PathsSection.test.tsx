@@ -1,6 +1,20 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
+import { BrowserRouter } from "react-router-dom";
 import { PathsSection } from "./PathsSection";
+import { TTSProvider } from "../../contexts/TTSContext";
+import { AudioPlayerProvider } from "../../components/audio";
+import type { ReactNode } from "react";
+
+// Wrapper with providers for tests that render SpeakButton
+// TTSProvider requires AudioPlayerProvider (for stopping audio recitation) and Router (for useLocation)
+const wrapper = ({ children }: { children: ReactNode }) => (
+  <BrowserRouter>
+    <AudioPlayerProvider>
+      <TTSProvider>{children}</TTSProvider>
+    </AudioPlayerProvider>
+  </BrowserRouter>
+);
 
 const mockOptions = [
   {
@@ -54,7 +68,7 @@ describe("PathsSection", () => {
 
   describe("expanded state", () => {
     it("should show all path options when expanded", () => {
-      render(<PathsSection {...defaultProps} showPaths={true} />);
+      render(<PathsSection {...defaultProps} showPaths={true} />, { wrapper });
 
       expect(screen.getByText("Path 1")).toBeInTheDocument();
       expect(screen.getByText("Path 2")).toBeInTheDocument();
@@ -64,6 +78,7 @@ describe("PathsSection", () => {
     it("should show selected option details", () => {
       render(
         <PathsSection {...defaultProps} showPaths={true} selectedOption={0} />,
+        { wrapper },
       );
 
       expect(screen.getByText("Direct Approach")).toBeInTheDocument();
@@ -79,6 +94,7 @@ describe("PathsSection", () => {
           showPaths={true}
           onSelectOption={onSelectOption}
         />,
+        { wrapper },
       );
 
       fireEvent.click(screen.getByText("Path 2"));
@@ -88,6 +104,7 @@ describe("PathsSection", () => {
     it("should display pros and cons for selected option", () => {
       render(
         <PathsSection {...defaultProps} showPaths={true} selectedOption={1} />,
+        { wrapper },
       );
 
       // Selected option: Gradual Approach
@@ -99,7 +116,7 @@ describe("PathsSection", () => {
     });
 
     it("should show Benefits and Consider sections", () => {
-      render(<PathsSection {...defaultProps} showPaths={true} />);
+      render(<PathsSection {...defaultProps} showPaths={true} />, { wrapper });
 
       expect(screen.getByText("Benefits")).toBeInTheDocument();
       expect(screen.getByText("Consider")).toBeInTheDocument();

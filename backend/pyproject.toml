@@ -19,7 +19,6 @@ ignore = [
     "B008",  # Function call in default argument (standard FastAPI pattern for Depends)
     "B904",  # Raise from within except (noisy, not always appropriate)
     "E402",  # Module level import not at top (intentional for circular import avoidance)
-    "UP038", # Use X | Y in isinstance (breaks for type(None))
 ]
 
 [tool.ruff.lint.per-file-ignores]
