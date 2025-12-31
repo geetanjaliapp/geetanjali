@@ -436,6 +436,256 @@ def trigger_sync_metadata(
         raise HTTPException(status_code=500, detail="Failed to sync metadata")
 
 
+# =============================================================================
+# Dhyanam Sync (9 Invocation Verses)
+# =============================================================================
+
+
+class SyncDhyanamResponse(BaseModel):
+    """Response model for dhyanam sync."""
+
+    status: str
+    message: str
+    total_dhyanam: int
+    synced: int
+
+
+def sync_geeta_dhyanam(db: Session) -> dict[str, int]:
+    """
+    Sync Geeta Dhyanam verses from static data to database.
+
+    This syncs the 9 invocation verses from data/geeta_dhyanam.py
+    to the dhyanam_verses table.
+
+    Args:
+        db: Database session
+
+    Returns:
+        Stats dict with sync results
+    """
+    from datetime import datetime
+
+    from data.geeta_dhyanam import get_geeta_dhyanam
+    from models import DhyanamVerse
+
+    dhyanam_data = get_geeta_dhyanam()
+
+    synced = 0
+    for verse_data in dhyanam_data:
+        existing = (
+            db.query(DhyanamVerse)
+            .filter(DhyanamVerse.verse_number == verse_data["verse_number"])
+            .first()
+        )
+
+        if existing:
+            # Update existing
+            existing.sanskrit = verse_data["sanskrit"]
+            existing.iast = verse_data["iast"]
+            existing.english = verse_data["english"]
+            existing.hindi = verse_data["hindi"]
+            existing.theme = verse_data["theme"]
+            existing.duration_ms = verse_data["duration_ms"]
+            existing.audio_url = verse_data["audio_url"]
+            existing.updated_at = datetime.utcnow()
+        else:
+            # Create new
+            new_verse = DhyanamVerse(
+                verse_number=verse_data["verse_number"],
+                sanskrit=verse_data["sanskrit"],
+                iast=verse_data["iast"],
+                english=verse_data["english"],
+                hindi=verse_data["hindi"],
+                theme=verse_data["theme"],
+                duration_ms=verse_data["duration_ms"],
+                audio_url=verse_data["audio_url"],
+            )
+            db.add(new_verse)
+
+        synced += 1
+
+    db.commit()
+
+    logger.info(f"Synced {synced} Geeta Dhyanam verses")
+
+    return {
+        "total_dhyanam": len(dhyanam_data),
+        "synced": synced,
+    }
+
+
+@router.post("/sync-dhyanam", response_model=SyncDhyanamResponse)
+def trigger_sync_dhyanam(
+    db: Session = Depends(get_db), _: bool = Depends(verify_admin_api_key)
+):
+    """
+    Sync Geeta Dhyanam invocation verses from curated content to database.
+
+    This populates/updates the dhyanam_verses table with the 9 sacred
+    verses traditionally recited before studying the Bhagavad Geeta.
+
+    Returns:
+        Sync statistics
+    """
+    try:
+        stats = sync_geeta_dhyanam(db)
+
+        return SyncDhyanamResponse(
+            status="success",
+            message=f"Synced {stats['synced']} Geeta Dhyanam verses.",
+            total_dhyanam=stats["total_dhyanam"],
+            synced=stats["synced"],
+        )
+
+    except Exception as e:
+        logger.error(f"Failed to sync Dhyanam: {e}")
+        raise HTTPException(status_code=500, detail="Failed to sync Dhyanam")
+
+
+# =============================================================================
+# Verse Audio Metadata Sync
+# =============================================================================
+
+
+class SyncAudioMetadataResponse(BaseModel):
+    """Response model for audio metadata sync."""
+
+    status: str
+    message: str
+    total_verses: int
+    synced: int
+    created: int
+    updated: int
+
+
+def sync_verse_audio_metadata(db: Session, chapter: int | None = None) -> dict[str, int]:
+    """
+    Sync verse audio metadata from static data to database.
+
+    This syncs metadata from data/verse_audio_metadata/ to the
+    verse_audio_metadata table, providing TTS generation hints.
+
+    Args:
+        db: Database session
+        chapter: Optional chapter filter (1-18)
+
+    Returns:
+        Stats dict with sync results
+    """
+    from datetime import datetime
+
+    from data.verse_audio_metadata import get_verse_metadata
+    from models import Verse, VerseAudioMetadata
+
+    # Get verses to sync
+    query = db.query(Verse)
+    if chapter:
+        query = query.filter(Verse.chapter == chapter)
+    verses = query.all()
+
+    synced = 0
+    created = 0
+    updated = 0
+
+    for verse in verses:
+        metadata = get_verse_metadata(verse.canonical_id)
+
+        existing = (
+            db.query(VerseAudioMetadata)
+            .filter(VerseAudioMetadata.canonical_id == verse.canonical_id)
+            .first()
+        )
+
+        # Extract discourse_context once for use in both branches
+        discourse_ctx = metadata.get("discourse_context")
+        discourse_context_str = str(discourse_ctx) if discourse_ctx else None
+
+        if existing:
+            # Update existing (preserve audio file paths if set)
+            existing.speaker = str(metadata.get("speaker", "krishna"))
+            existing.addressee = str(metadata.get("addressee", "arjuna"))
+            existing.discourse_type = str(metadata.get("discourse_type", "teaching"))
+            existing.discourse_context = discourse_context_str
+            existing.emotional_tone = str(metadata.get("emotional_tone", "neutral"))
+            existing.intensity = str(metadata.get("intensity", "moderate"))
+            existing.pacing = str(metadata.get("pacing", "moderate"))
+            existing.theological_weight = str(
+                metadata.get("theological_weight", "standard")
+            )
+            existing.updated_at = datetime.utcnow()
+            updated += 1
+        else:
+            # Create new
+            new_meta = VerseAudioMetadata(
+                verse_id=verse.id,
+                canonical_id=verse.canonical_id,
+                speaker=str(metadata.get("speaker", "krishna")),
+                addressee=str(metadata.get("addressee", "arjuna")),
+                discourse_type=str(metadata.get("discourse_type", "teaching")),
+                discourse_context=discourse_context_str,
+                emotional_tone=str(metadata.get("emotional_tone", "neutral")),
+                intensity=str(metadata.get("intensity", "moderate")),
+                pacing=str(metadata.get("pacing", "moderate")),
+                theological_weight=str(metadata.get("theological_weight", "standard")),
+            )
+            db.add(new_meta)
+            created += 1
+
+        synced += 1
+
+    db.commit()
+
+    chapter_msg = f" for chapter {chapter}" if chapter else ""
+    logger.info(f"Synced {synced} verse audio metadata entries{chapter_msg}")
+
+    return {
+        "total_verses": len(verses),
+        "synced": synced,
+        "created": created,
+        "updated": updated,
+    }
+
+
+@router.post("/sync-audio-metadata", response_model=SyncAudioMetadataResponse)
+def trigger_sync_audio_metadata(
+    chapter: int | None = None,
+    db: Session = Depends(get_db),
+    _: bool = Depends(verify_admin_api_key),
+):
+    """
+    Sync verse audio metadata from curated content to database.
+
+    This populates/updates the verse_audio_metadata table with TTS
+    generation hints (speaker, tone, pacing, etc.) from the code-first
+    curation in data/verse_audio_metadata/.
+
+    Args:
+        chapter: Optional chapter filter (1-18). If not provided, syncs all.
+
+    Returns:
+        Sync statistics
+    """
+    if chapter is not None and (chapter < 1 or chapter > 18):
+        raise HTTPException(status_code=400, detail="Chapter must be between 1 and 18")
+
+    try:
+        stats = sync_verse_audio_metadata(db, chapter)
+
+        chapter_msg = f" for chapter {chapter}" if chapter else ""
+        return SyncAudioMetadataResponse(
+            status="success",
+            message=f"Synced {stats['synced']} verse audio metadata entries{chapter_msg}.",
+            total_verses=stats["total_verses"],
+            synced=stats["synced"],
+            created=stats["created"],
+            updated=stats["updated"],
+        )
+
+    except Exception as e:
+        logger.error(f"Failed to sync audio metadata: {e}")
+        raise HTTPException(status_code=500, detail="Failed to sync audio metadata")
+
+
 class EnrichRequest(BaseModel):
     """Request model for enriching verses with LLM-generated content."""
 

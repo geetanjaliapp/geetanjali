@@ -3,6 +3,7 @@
 from models.base import Base
 from models.case import Case
 from models.contact import ContactMessage, ContactType
+from models.dhyanam import DhyanamVerse
 from models.experiment import ExperimentEvent
 from models.featured_case import FeaturedCase
 from models.feedback import Feedback
@@ -33,6 +34,7 @@ __all__ = [
     "ExperimentEvent",
     "BookMetadata",
     "ChapterMetadata",
+    "DhyanamVerse",
     "Subscriber",
     "SendTime",
     "FeaturedCase",

@@ -12,8 +12,8 @@ from api.schemas import (
     GeetaDhyanamVerseResponse,
 )
 from config import settings
-from data.geeta_dhyanam import get_geeta_dhyanam
 from db import get_db
+from models import DhyanamVerse
 from models.metadata import BookMetadata, ChapterMetadata
 from services.cache import (
     book_metadata_key,
@@ -154,27 +154,55 @@ async def get_chapter_metadata(
 
 @router.get("/geeta-dhyanam", response_model=list[GeetaDhyanamVerseResponse])
 @limiter.limit("60/minute")
-async def get_geeta_dhyanam_verses(request: Request):
+async def get_geeta_dhyanam_verses(
+    request: Request,
+    db: Session = Depends(get_db),
+):
     """
     Get Geeta Dhyanam - 9 sacred invocation verses.
 
     These traditional verses are recited before studying the Bhagavad Geeta.
     Returns all 9 verses with Sanskrit, IAST, English, and Hindi translations.
 
+    Data is synced from code-first curation via POST /api/v1/admin/sync-dhyanam.
+
     Returns:
         List of 9 Geeta Dhyanam verses
     """
-    # Static data from code - no database needed
-    # Cache is optional since data is already in memory
+    # Check cache first
     cache_key = "geeta_dhyanam_all"
     cached = cache.get(cache_key)
     if cached:
         logger.debug("Cache hit for Geeta Dhyanam")
         return cached
 
-    verses = get_geeta_dhyanam()
+    # Query from database
+    verses = (
+        db.query(DhyanamVerse).order_by(DhyanamVerse.verse_number).all()
+    )
+
+    if not verses:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Geeta Dhyanam verses not found. Run sync-dhyanam to populate.",
+        )
+
+    # Convert to response format
+    verses_data = [
+        {
+            "verse_number": v.verse_number,
+            "sanskrit": v.sanskrit,
+            "iast": v.iast,
+            "english": v.english,
+            "hindi": v.hindi,
+            "theme": v.theme,
+            "duration_ms": v.duration_ms,
+            "audio_url": v.audio_url,
+        }
+        for v in verses
+    ]
 
     # Cache for consistency with other endpoints
-    cache.set(cache_key, verses, settings.CACHE_TTL_METADATA)
+    cache.set(cache_key, verses_data, settings.CACHE_TTL_METADATA)
 
-    return verses
+    return verses_data
