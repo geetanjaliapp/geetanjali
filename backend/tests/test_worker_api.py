@@ -158,31 +158,35 @@ class TestStatusEndpoints:
 
 
 class TestAdminEndpoints:
-    """Tests for admin endpoints (require API key)."""
+    """Tests for admin endpoints (require API key).
+
+    Security: Admin endpoints return 404 (not 401/422) for missing or invalid
+    API keys to avoid revealing endpoint existence to unauthorized callers.
+    """
 
     def test_pause_status_no_auth(self, worker_client):
-        """Test pause status without API key returns 422 (missing required header)."""
+        """Test pause status without API key returns 404 (hides endpoint)."""
         response = worker_client.get("/admin/pause-status")
-        # FastAPI returns 422 for missing required headers
-        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+        # Returns 404 to hide endpoint existence
+        assert response.status_code == status.HTTP_404_NOT_FOUND
 
     def test_request_pause_no_auth(self, worker_client):
-        """Test request pause without API key returns 422."""
+        """Test request pause without API key returns 404."""
         response = worker_client.post("/admin/request-pause")
-        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+        assert response.status_code == status.HTTP_404_NOT_FOUND
 
     def test_clear_pause_no_auth(self, worker_client):
-        """Test clear pause without API key returns 422."""
+        """Test clear pause without API key returns 404."""
         response = worker_client.post("/admin/clear-pause")
-        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+        assert response.status_code == status.HTTP_404_NOT_FOUND
 
     def test_pause_status_invalid_key(self, worker_client):
-        """Test pause status with invalid API key returns 401."""
+        """Test pause status with invalid API key returns 404."""
         response = worker_client.get(
             "/admin/pause-status",
             headers={"X-API-Key": "wrong-key"},
         )
-        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert response.status_code == status.HTTP_404_NOT_FOUND
 
     @patch("worker_api.get_redis_client")
     @patch("api.dependencies.settings")

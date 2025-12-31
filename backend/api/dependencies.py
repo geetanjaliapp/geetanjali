@@ -16,7 +16,6 @@ from api.errors import (
     ERR_AUTH_REQUIRED,
     ERR_CASE_ACCESS_DENIED,
     ERR_CASE_NOT_FOUND,
-    ERR_INVALID_API_KEY,
     ERR_OUTPUT_ACCESS_DENIED,
     ERR_OUTPUT_NOT_FOUND,
 )
@@ -45,16 +44,21 @@ __all__ = [
 limiter = Limiter(key_func=get_remote_address)
 
 
-def verify_admin_api_key(x_api_key: str = Header(..., alias="X-API-Key")) -> bool:
+def verify_admin_api_key(
+    x_api_key: str | None = Header(None, alias="X-API-Key"),
+) -> bool:
     """
     Verify admin API key for protected endpoints.
 
     This is a simple guard until proper admin user roles are implemented.
     Requires X-API-Key header matching the configured API_KEY.
     Uses constant-time comparison to prevent timing attacks.
+
+    Security: Returns 404 (not 401/422) when key is missing or invalid
+    to avoid revealing endpoint existence to unauthorized callers.
     """
-    if not secrets.compare_digest(x_api_key, settings.API_KEY):
-        raise HTTPException(status_code=401, detail=ERR_INVALID_API_KEY)
+    if not x_api_key or not secrets.compare_digest(x_api_key, settings.API_KEY):
+        raise HTTPException(status_code=404, detail="Not found")
     return True
 
 

@@ -67,74 +67,78 @@ class TestAdminStatus:
 
 
 class TestAdminAuthentication:
-    """Test admin endpoints require authentication."""
+    """Test admin endpoints require authentication.
+
+    Security: Admin endpoints return 404 (not 401/403) for missing or invalid
+    API keys to avoid revealing endpoint existence to unauthorized callers.
+    """
 
     def test_ingest_with_invalid_api_key(self, client):
-        """POST /ingest rejects invalid API key."""
+        """POST /ingest returns 404 with invalid API key (hides endpoint)."""
         response = client.post(
             "/api/v1/admin/ingest",
             json={"force_refresh": False},
             headers={"X-API-Key": "invalid-key"},
         )
 
-        # Should return 401 or 403 with invalid API key
-        assert response.status_code in [401, 403]
+        # Returns 404 to hide endpoint existence
+        assert response.status_code == 404
 
     def test_sync_featured_with_invalid_api_key(self, client):
-        """POST /sync-featured rejects invalid API key."""
+        """POST /sync-featured returns 404 with invalid API key."""
         response = client.post(
             "/api/v1/admin/sync-featured",
             headers={"X-API-Key": "invalid-key"},
         )
 
-        assert response.status_code in [401, 403]
+        assert response.status_code == 404
 
     def test_sync_metadata_with_invalid_api_key(self, client):
-        """POST /sync-metadata rejects invalid API key."""
+        """POST /sync-metadata returns 404 with invalid API key."""
         response = client.post(
             "/api/v1/admin/sync-metadata",
             headers={"X-API-Key": "invalid-key"},
         )
 
-        assert response.status_code in [401, 403]
+        assert response.status_code == 404
 
     def test_enrich_with_invalid_api_key(self, client):
-        """POST /enrich rejects invalid API key."""
+        """POST /enrich returns 404 with invalid API key."""
         response = client.post(
             "/api/v1/admin/enrich",
             json={"limit": 10},
             headers={"X-API-Key": "invalid-key"},
         )
 
-        assert response.status_code in [401, 403]
+        assert response.status_code == 404
 
     def test_alert_with_invalid_api_key(self, client):
-        """POST /alert rejects invalid API key."""
+        """POST /alert returns 404 with invalid API key."""
         response = client.post(
             "/api/v1/admin/alert",
             json={"subject": "Test", "message": "Test message"},
             headers={"X-API-Key": "invalid-key"},
         )
 
-        assert response.status_code in [401, 403]
+        assert response.status_code == 404
 
     def test_sync_dhyanam_with_invalid_api_key(self, client):
-        """POST /sync-dhyanam rejects invalid API key."""
+        """POST /sync-dhyanam returns 404 with invalid API key."""
         response = client.post(
             "/api/v1/admin/sync-dhyanam",
             headers={"X-API-Key": "invalid-key"},
         )
 
-        assert response.status_code in [401, 403]
+        assert response.status_code == 404
 
     def test_sync_audio_metadata_with_invalid_api_key(self, client):
-        """POST /sync-audio-metadata rejects invalid API key."""
+        """POST /sync-audio-metadata returns 404 with invalid API key."""
         response = client.post(
             "/api/v1/admin/sync-audio-metadata",
             headers={"X-API-Key": "invalid-key"},
         )
 
-        assert response.status_code in [401, 403]
+        assert response.status_code == 404
 
 
 class TestSyncDhyanam:
