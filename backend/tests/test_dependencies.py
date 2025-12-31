@@ -126,9 +126,9 @@ def test_list_cases_filters_by_session(client):
     assert all(c["title"] != "Other Session" for c in cases)
 
 
-def test_list_cases_no_auth_returns_empty(client):
-    """Test that list cases without auth or session returns empty."""
+def test_list_cases_no_auth_returns_401(client):
+    """Test that list cases without auth or session returns 401."""
     response = client.get("/api/v1/cases")
 
-    assert response.status_code == status.HTTP_200_OK
-    assert response.json()["cases"] == []
+    # Cases endpoint now requires authentication (returns 401 without auth/session)
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED

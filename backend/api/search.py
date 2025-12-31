@@ -15,6 +15,7 @@ from config import settings
 from db import get_db
 from services.cache import cache, principles_key, search_key
 from services.search import SearchService, serialize_search_response
+from utils.sanitization import strip_angle_brackets
 
 logger = logging.getLogger(__name__)
 
@@ -213,6 +214,18 @@ async def search_verses(
     - `/search?q=How%20to%20overcome%20fear` → Semantic similarity search
     - `/search?q=कर्म` → Sanskrit text search
     """
+    # Sanitize query to prevent XSS (strip HTML tags and angle brackets)
+    q = strip_angle_brackets(q)
+    if not q:
+        # If query becomes empty after sanitization, return empty results
+        return {
+            "query": "",
+            "results": [],
+            "total": 0,
+            "limit": limit,
+            "offset": offset,
+        }
+
     # Try cache first (short TTL for burst protection)
     cache_key = search_key(q, chapter, principle, limit, offset)
     cached = cache.get(cache_key)

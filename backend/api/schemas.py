@@ -13,6 +13,8 @@ from pydantic import (
     model_validator,
 )
 
+from utils.sanitization import SafeMediumText, SafeName, SafeText, SafeTitle
+
 T = TypeVar("T")
 
 
@@ -73,7 +75,7 @@ class SignupRequest(BaseModel):
     """Schema for user signup request."""
 
     email: EmailStr = Field(..., description="User email address")
-    name: str = Field(..., min_length=1, max_length=255, description="User full name")
+    name: SafeName = Field(..., min_length=1, description="User full name")
     password: str = Field(
         ...,
         min_length=8,
@@ -154,15 +156,18 @@ class EmailVerificationResponse(BaseModel):
 class CaseBase(BaseModel):
     """Base case schema."""
 
-    title: str = Field(..., max_length=500, description="Short problem title")
-    description: str = Field(
+    title: SafeTitle = Field(..., description="Short problem title")
+    description: SafeText = Field(
         ...,
-        max_length=10000,
-        description="Detailed problem statement (max 10,000 characters)",
+        description="Detailed problem statement (max 5,000 characters)",
     )
     role: str | None = Field(None, max_length=100, description="Requester's role")
-    stakeholders: list[str] | None = Field(None, description="Key affected parties")
-    constraints: list[str] | None = Field(None, description="Hard constraints")
+    stakeholders: list[SafeMediumText] | None = Field(
+        None, description="Key affected parties"
+    )
+    constraints: list[SafeMediumText] | None = Field(
+        None, description="Hard constraints"
+    )
     horizon: str | None = Field(None, description="Time horizon: short/medium/long")
     sensitivity: str = Field("low", description="Sensitivity level: low/medium/high")
     attachments: dict[str, Any] | None = Field(
@@ -396,7 +401,7 @@ class OutputResponse(BaseModel):
 class MessageCreate(BaseModel):
     """Schema for creating a message."""
 
-    content: str = Field(..., max_length=10000, description="Message content")
+    content: SafeText = Field(..., description="Message content")
 
 
 class ChatMessageResponse(BaseModel):
@@ -421,10 +426,9 @@ class ChatMessageResponse(BaseModel):
 class FollowUpRequest(BaseModel):
     """Schema for follow-up conversation request."""
 
-    content: str = Field(
+    content: SafeText = Field(
         ...,
         min_length=1,
-        max_length=10000,
         description="The follow-up question or message",
     )
 
@@ -459,8 +463,8 @@ class FeedbackCreate(BaseModel):
     """Schema for creating feedback on an output."""
 
     rating: bool = Field(..., description="True for thumbs up, False for thumbs down")
-    comment: str | None = Field(
-        None, max_length=1000, description="Optional feedback comment"
+    comment: SafeMediumText | None = Field(
+        None, description="Optional feedback comment"
     )
 
 

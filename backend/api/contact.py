@@ -12,6 +12,7 @@ from db.connection import get_db
 from models.contact import ContactMessage, ContactType
 from services.content_filter import ContentPolicyError, validate_submission_content
 from services.email import send_contact_email
+from utils.sanitization import SafeName, SafeText, SafeTitle
 
 logger = logging.getLogger(__name__)
 
@@ -31,17 +32,13 @@ class ContactTypeEnum(str, Enum):
 class ContactRequest(BaseModel):
     """Request model for contact form submission."""
 
-    name: str = Field(..., min_length=1, max_length=100, description="Sender's name")
+    name: SafeName = Field(..., min_length=1, description="Sender's name")
     email: EmailStr = Field(..., description="Sender's email address")
     message_type: ContactTypeEnum = Field(
         default=ContactTypeEnum.feedback, description="Type of message"
     )
-    subject: str | None = Field(
-        None, max_length=200, description="Optional subject line"
-    )
-    message: str = Field(
-        ..., min_length=10, max_length=5000, description="Message content"
-    )
+    subject: SafeTitle | None = Field(None, description="Optional subject line")
+    message: SafeText = Field(..., min_length=10, description="Message content")
 
     @field_validator("name", "subject")
     @classmethod

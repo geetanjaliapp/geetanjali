@@ -19,6 +19,7 @@ from services.email import (
     send_newsletter_verification_email,
     send_newsletter_welcome_email,
 )
+from utils.sanitization import SafeName
 
 logger = logging.getLogger(__name__)
 
@@ -49,10 +50,9 @@ class SubscribeRequest(BaseModel):
     """Request to subscribe to Daily Wisdom newsletter."""
 
     email: EmailStr = Field(..., description="Email address for newsletter")
-    name: str | None = Field(
+    name: SafeName | None = Field(
         None,
         min_length=1,
-        max_length=100,
         description="How to greet subscriber",
     )
     goal_ids: list[str] = Field(
@@ -90,10 +90,9 @@ class PreferencesRequest(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    name: str | None = Field(
+    name: SafeName | None = Field(
         None,
         min_length=1,
-        max_length=100,
     )
     goal_ids: list[str] | None = Field(None, max_length=10)
     send_time: str | None = None
