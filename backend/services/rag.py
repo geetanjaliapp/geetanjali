@@ -63,7 +63,7 @@ def _validate_relevance(relevance: Any) -> bool:
     Returns:
         True if valid, False otherwise
     """
-    if not isinstance(relevance, (int, float)):
+    if not isinstance(relevance, int | float):
         return False
     return 0.0 <= relevance <= 1.0
 
@@ -1010,7 +1010,7 @@ class RAGPipeline:
 
         # Step 8: Final validation (confidence, scholar_flag, formatting)
         confidence = output.get("confidence", 0.5)
-        if not isinstance(confidence, (int, float)) or confidence < 0 or confidence > 1:
+        if not isinstance(confidence, int | float) or confidence < 0 or confidence > 1:
             logger.warning(f"Invalid confidence value: {confidence}. Setting to 0.5")
             output["confidence"] = 0.5
         else:

@@ -128,7 +128,7 @@ def _sanitize_error(error: dict) -> dict:
         if key == "ctx":
             # Convert context values to strings (handles ValueError, etc.)
             sanitized[key] = {k: str(v) for k, v in value.items()} if value else {}
-        elif isinstance(value, (str, int, float, bool, type(None), list, tuple)):
+        elif isinstance(value, str | int | float | bool | type(None) | list | tuple):
             sanitized[key] = value
         else:
             sanitized[key] = str(value)

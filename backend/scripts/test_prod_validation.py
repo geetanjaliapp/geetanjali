@@ -149,7 +149,7 @@ def test_production_output():
         ),
         "confidence": (
             "number between 0 and 1",
-            lambda x: isinstance(x, (int, float)) and 0 <= x <= 1,
+            lambda x: isinstance(x, int | float) and 0 <= x <= 1,
         ),
         "scholar_flag": ("boolean", lambda x: isinstance(x, bool)),
     }
