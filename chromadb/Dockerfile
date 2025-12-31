@@ -1,6 +1,6 @@
 # Custom ChromaDB Dockerfile with built-in embedding support
 # Matches backend chromadb version for compatibility
-FROM python:3.10-slim
+FROM python:3.11-slim
 
 WORKDIR /chroma
 
