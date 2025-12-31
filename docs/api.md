@@ -229,11 +229,16 @@ curl -X POST http://localhost:8000/api/v1/tts \
 
 ### Admin (Requires X-API-Key)
 
+> **Note**: Sync endpoints are rarely needed—startup sync handles everything automatically.
+
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | `/admin/status` | System health status |
 | POST | `/admin/ingest` | Trigger data ingestion |
-| POST | `/admin/sync-featured` | Sync featured cases |
+| POST | `/admin/sync-featured` | Sync featured verses |
+| POST | `/admin/sync-metadata` | Sync book/chapter metadata |
+| POST | `/admin/sync-dhyanam` | Sync Geeta Dhyanam verses |
+| POST | `/admin/sync-audio-metadata` | Sync verse audio metadata |
 | POST | `/admin/enrich` | Enrich verse metadata |
 
 ```bash

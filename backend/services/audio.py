@@ -144,3 +144,40 @@ def get_audio_info(canonical_id: str) -> tuple[str | None, int | None]:
     url = get_audio_url(canonical_id)
     duration = get_audio_duration_ms(canonical_id) if url else None
     return url, duration
+
+
+def extract_duration_ffprobe(file_path: Path) -> int | None:
+    """Extract audio duration in milliseconds using ffprobe.
+
+    Args:
+        file_path: Path to audio file (MP3, etc.)
+
+    Returns:
+        Duration in milliseconds, or None if extraction fails
+    """
+    import json
+    import subprocess
+
+    try:
+        result = subprocess.run(
+            [
+                "ffprobe",
+                "-v", "quiet",
+                "-show_entries", "format=duration",
+                "-of", "json",
+                str(file_path),
+            ],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+
+        if result.returncode != 0:
+            return None
+
+        data = json.loads(result.stdout)
+        duration_seconds = float(data["format"]["duration"])
+        return int(duration_seconds * 1000)
+
+    except (subprocess.TimeoutExpired, json.JSONDecodeError, KeyError, ValueError):
+        return None

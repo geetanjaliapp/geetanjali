@@ -13,10 +13,11 @@ Geetanjali uses a **code-first approach** where content metadata is authored in 
 | Type | Source | Records | Sync Method |
 |------|--------|---------|-------------|
 | **Verses** | External APIs | 700 | `ingest_data.py` |
-| **Featured Verses** | `featured_verses.py` | 180 | `/admin/sync-featured` |
-| **Chapter Metadata** | `chapter_metadata.py` | 18 + 1 book | `/admin/sync-metadata` |
-| **Geeta Dhyanam** | `geeta_dhyanam.py` | 9 | Direct API query |
-| **Audio Metadata** | `verse_audio_metadata/` | 700 | `extract_audio_durations.py` |
+| **Featured Verses** | `featured_verses.py` | 180 | Automatic startup sync |
+| **Chapter Metadata** | `chapter_metadata.py` | 18 + 1 book | Automatic startup sync |
+| **Geeta Dhyanam** | `geeta_dhyanam.py` | 9 | Automatic startup sync |
+| **Audio Metadata** | `verse_audio_metadata/` | 700 | Automatic startup sync |
+| **Audio Durations** | MP3 files (ffprobe) | 700 | Automatic startup sync |
 | **Audio Files** | Colab TTS pipeline | 709 MP3s | Manual |
 
 ---
@@ -40,13 +41,28 @@ Geetanjali uses a **code-first approach** where content metadata is authored in 
 | `process_tts_audio.py` | Convert Colab WAV to MP3 |
 | `process_dhyanam_audio.py` | Convert Dhyanam WAV to MP3 |
 | `qa_audio_files.py` | QA check for truncation/anomalies |
-| `extract_audio_durations.py` | Extract MP3 durations to DB |
 
 All scripts are in `backend/scripts/`.
 
+> **Note**: Audio durations are extracted automatically on startup via `StartupSyncService`. No manual script needed.
+
 ---
 
+## Automatic Startup Sync
+
+On each backend startup, `StartupSyncService` automatically syncs all curated content using hash-based change detection:
+
+1. **Metadata** (book + 18 chapters)
+2. **Dhyanam Verses** (9 invocation verses)
+3. **Featured Verses** (180 flagged verses)
+4. **Audio Metadata** (speaker, tone, pacing for TTS)
+5. **Audio Durations** (extracted from MP3 files via ffprobe)
+
+The service computes SHA256 hashes of source data and only syncs when content has changed. Force sync with `FORCE_CONTENT_SYNC=true` env var.
+
 ## Admin API
+
+Manual sync endpoints for testing or recovery:
 
 ```bash
 # Sync featured verses
@@ -55,6 +71,14 @@ curl -X POST http://localhost:8000/api/v1/admin/sync-featured \
 
 # Sync chapter metadata
 curl -X POST http://localhost:8000/api/v1/admin/sync-metadata \
+  -H "X-API-Key: YOUR_KEY"
+
+# Sync dhyanam verses
+curl -X POST http://localhost:8000/api/v1/admin/sync-dhyanam \
+  -H "X-API-Key: YOUR_KEY"
+
+# Sync audio metadata (TTS hints)
+curl -X POST http://localhost:8000/api/v1/admin/sync-audio-metadata \
   -H "X-API-Key: YOUR_KEY"
 
 # Trigger verse enrichment (LLM paraphrases)
@@ -67,6 +91,8 @@ curl -X POST http://localhost:8000/api/v1/admin/enrich \
 curl http://localhost:8000/api/v1/admin/status \
   -H "X-API-Key: YOUR_KEY"
 ```
+
+> **Note**: These endpoints are redundant for normal operation—startup sync handles everything. Use for manual intervention or testing.
 
 ---
 
@@ -105,11 +131,11 @@ Full pipeline:
 3. Process audio
    docker compose exec backend python /app/scripts/process_tts_audio.py chapter_N_wav.zip
 
-4. Extract durations
-   docker compose exec backend python /app/scripts/extract_audio_durations.py
-
-5. QA check
+4. QA check
    docker compose exec backend python /app/scripts/qa_audio_files.py --chapter N
+
+5. Restart backend (durations extracted automatically on startup)
+   docker compose restart backend
 ```
 
 ### QA Thresholds
@@ -140,7 +166,7 @@ Full pipeline:
 | Sync returns 0 records | Run `ingest_data.py` first |
 | Audio not playing | Check `audio_file_path` in verse_audio_metadata |
 | TTS truncation | Text normalizer should convert `।` to `,` |
-| Duration missing | Run `extract_audio_durations.py` |
+| Duration missing | Restart backend (auto-extracts on startup) or check MP3 files exist |
 
 ### Verification
 

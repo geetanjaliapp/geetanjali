@@ -411,11 +411,8 @@ class StartupSyncService:
 
         Hash is computed from file list (names + sizes) to detect new/changed files.
         """
-        import json
-        import subprocess
-        from pathlib import Path
-
         from models import VerseAudioMetadata
+        from services.audio import extract_duration_ffprobe, get_audio_directory
 
         # Check if audio metadata rows exist
         audio_count = self.db.query(VerseAudioMetadata).count()
@@ -427,8 +424,6 @@ class StartupSyncService:
             )
 
         # Get audio directory
-        from services.audio import get_audio_directory
-
         audio_dir = get_audio_directory()
         mp3_dir = audio_dir / "mp3"
 
@@ -483,7 +478,7 @@ class StartupSyncService:
                 canonical_id = mp3_file.stem  # e.g., BG_2_47
 
                 # Extract duration using ffprobe
-                duration_ms = self._get_audio_duration_ms(mp3_file)
+                duration_ms = extract_duration_ffprobe(mp3_file)
                 if duration_ms is None:
                     errors += 1
                     continue
@@ -515,35 +510,6 @@ class StartupSyncService:
             synced=updated,
             updated=updated,
         )
-
-    def _get_audio_duration_ms(self, file_path) -> int | None:
-        """Extract audio duration in milliseconds using ffprobe."""
-        import json
-        import subprocess
-
-        try:
-            result = subprocess.run(
-                [
-                    "ffprobe",
-                    "-v", "quiet",
-                    "-show_entries", "format=duration",
-                    "-of", "json",
-                    str(file_path),
-                ],
-                capture_output=True,
-                text=True,
-                timeout=10,
-            )
-
-            if result.returncode != 0:
-                return None
-
-            data = json.loads(result.stdout)
-            duration_seconds = float(data["format"]["duration"])
-            return int(duration_seconds * 1000)
-
-        except (subprocess.TimeoutExpired, json.JSONDecodeError, KeyError, ValueError):
-            return None
 
     def _log_summary(self, total_duration_ms: int) -> None:
         """Log summary of sync operations."""

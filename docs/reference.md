@@ -244,11 +244,16 @@ python scripts/backfill_paraphrase_metadata.py
 
 Protected endpoints require `X-API-Key` header.
 
+> **Note**: Content syncing happens automatically on startup. These endpoints are for manual intervention only.
+
 | Endpoint | Method | Purpose |
 |----------|--------|---------|
 | `/api/v1/admin/status` | GET | System status |
 | `/api/v1/admin/ingest` | POST | Trigger data ingestion |
-| `/api/v1/admin/sync-featured` | POST | Sync featured cases |
+| `/api/v1/admin/sync-featured` | POST | Sync featured verses |
+| `/api/v1/admin/sync-metadata` | POST | Sync book/chapter metadata |
+| `/api/v1/admin/sync-dhyanam` | POST | Sync Geeta Dhyanam verses |
+| `/api/v1/admin/sync-audio-metadata` | POST | Sync verse audio metadata |
 | `/api/v1/admin/enrich` | POST | Enrich verse metadata |
 
 ```bash
