@@ -9,18 +9,15 @@ from api.dependencies import limiter
 from api.schemas import (
     BookMetadataResponse,
     ChapterMetadataResponse,
-    GeetaDhyanamVerseResponse,
 )
 from config import settings
 from db import get_db
-from db.repositories import DhyanamRepository
 from models.metadata import BookMetadata, ChapterMetadata
 from services.cache import (
     book_metadata_key,
     cache,
     chapter_metadata_key,
     chapters_metadata_key,
-    dhyanam_all_key,
 )
 
 logger = logging.getLogger(__name__)
@@ -151,48 +148,3 @@ async def get_chapter_metadata(
     cache.set(cache_key, chapter_data, settings.CACHE_TTL_METADATA)
 
     return chapter
-
-
-@router.get("/geeta-dhyanam", response_model=list[GeetaDhyanamVerseResponse])
-@limiter.limit("60/minute")
-async def get_geeta_dhyanam_verses(
-    request: Request,
-    db: Session = Depends(get_db),
-):
-    """
-    Get Geeta Dhyanam - 9 sacred invocation verses.
-
-    These traditional verses are recited before studying the Bhagavad Geeta.
-    Returns all 9 verses with Sanskrit, IAST, English, and Hindi translations.
-
-    Note: Prefer using GET /api/v1/dhyanam for the dedicated dhyanam API.
-
-    Returns:
-        List of 9 Geeta Dhyanam verses
-    """
-    # Check cache first
-    cache_key = dhyanam_all_key()
-    cached = cache.get(cache_key)
-    if cached:
-        logger.debug("Cache hit for Geeta Dhyanam")
-        return cached
-
-    # Query from database using repository
-    repo = DhyanamRepository(db)
-    verses = repo.get_all_ordered()
-
-    if not verses:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Geeta Dhyanam verses not available.",
-        )
-
-    # Convert to response format
-    verses_data = [
-        GeetaDhyanamVerseResponse.model_validate(v).model_dump() for v in verses
-    ]
-
-    # Cache for consistency with other endpoints
-    cache.set(cache_key, verses_data, settings.CACHE_TTL_METADATA)
-
-    return verses_data

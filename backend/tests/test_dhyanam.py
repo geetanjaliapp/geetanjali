@@ -125,21 +125,3 @@ class TestDhyanamAPI:
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
         assert data["count"] == 0
-
-
-class TestReadingDhyanamEndpoint:
-    """Tests for legacy /api/v1/reading/geeta-dhyanam endpoint."""
-
-    def test_get_geeta_dhyanam_from_reading(self, client, all_dhyanam_verses):
-        """Test the reading endpoint still works."""
-        response = client.get("/api/v1/reading/geeta-dhyanam")
-
-        assert response.status_code == status.HTTP_200_OK
-        data = response.json()
-        assert len(data) == 9
-
-    def test_get_geeta_dhyanam_empty(self, client):
-        """Test reading endpoint when no verses exist."""
-        response = client.get("/api/v1/reading/geeta-dhyanam")
-
-        assert response.status_code == status.HTTP_404_NOT_FOUND
