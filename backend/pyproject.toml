@@ -55,6 +55,8 @@ markers = [
 [tool.pyright]
 pythonVersion = "3.11"
 pythonPlatform = "Darwin"
+venvPath = "."
+venv = "venv"
 typeCheckingMode = "basic"
 reportMissingImports = true
 reportMissingTypeStubs = false

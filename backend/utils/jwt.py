@@ -76,10 +76,10 @@ def decode_access_token(token: str) -> dict | None:
             return None
 
         # Extract user_id and role
-        user_id: str = payload.get("sub")
-        role: str = payload.get("role")
+        user_id = payload.get("sub")
+        role = payload.get("role")
 
-        if user_id is None:
+        if user_id is None or not isinstance(user_id, str):
             return None
 
         return {"user_id": user_id, "role": role or "user", "exp": payload.get("exp")}

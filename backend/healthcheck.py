@@ -15,6 +15,8 @@ def check_redis():
     try:
         from redis import Redis
 
+        if not settings.REDIS_URL:
+            return False
         redis_conn = Redis.from_url(settings.REDIS_URL)
         redis_conn.ping()
         return True

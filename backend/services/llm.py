@@ -215,7 +215,12 @@ class LLMService:
                 timeout=settings.ANTHROPIC_TIMEOUT,
             )
 
-            response_text = response.content[0].text
+            content_block = response.content[0]
+            response_text = (
+                content_block.text
+                if hasattr(content_block, "text")
+                else str(content_block)
+            )
 
             logger.info(
                 f"Anthropic response: {len(response_text)} chars, "
