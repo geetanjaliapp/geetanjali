@@ -348,14 +348,6 @@ export const readingApi = {
     const response = await api.get(`/reading/chapters/${chapterNumber}`);
     return response.data;
   },
-
-  /** Get Geeta Dhyanam - 9 sacred invocation verses
-   * @deprecated Use dhyanamApi.getAll() instead
-   */
-  getGeetaDhyanam: async (): Promise<GeetaDhyanamVerse[]> => {
-    const response = await api.get(`/reading/geeta-dhyanam`);
-    return response.data;
-  },
 };
 
 // Dhyanam API - Geeta Dhyanam (9 Sacred Invocation Verses)

@@ -184,7 +184,7 @@ async def get_geeta_dhyanam_verses(
     if not verses:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Geeta Dhyanam verses not found. Run sync-dhyanam to populate.",
+            detail="Geeta Dhyanam verses not available.",
         )
 
     # Convert to response format

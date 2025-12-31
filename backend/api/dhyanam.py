@@ -49,7 +49,7 @@ async def get_all_dhyanam_verses(
     if not verses:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Geeta Dhyanam verses not found. Run sync-dhyanam to populate.",
+            detail="Geeta Dhyanam verses not available.",
         )
 
     # Convert to response format
@@ -75,9 +75,20 @@ async def get_dhyanam_count(
     Returns:
         Count of dhyanam verses (should be 9)
     """
+    # Cache count (static - always 9 after sync)
+    cache_key = "dhyanam:count"
+    cached = cache.get(cache_key)
+    if cached is not None:
+        return cached
+
     repo = DhyanamRepository(db)
     count = repo.count()
-    return {"count": count}
+    result = {"count": count}
+
+    # Cache for 24 hours (static content)
+    cache.set(cache_key, result, settings.CACHE_TTL_METADATA)
+
+    return result
 
 
 @router.get("/{verse_number}", response_model=GeetaDhyanamVerseResponse)
@@ -119,7 +130,7 @@ async def get_dhyanam_verse(
     if not verse:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Dhyanam verse {verse_number} not found. Run sync-dhyanam to populate.",
+            detail=f"Dhyanam verse {verse_number} not found.",
         )
 
     # Convert to response and cache

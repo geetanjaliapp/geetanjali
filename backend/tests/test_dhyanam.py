@@ -74,7 +74,7 @@ class TestDhyanamAPI:
         response = client.get("/api/v1/dhyanam")
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
-        assert "Run sync-dhyanam" in response.json()["detail"]
+        assert "not available" in response.json()["detail"]
 
     def test_get_single_dhyanam_verse(self, client, sample_dhyanam_verse):
         """Test getting a single dhyanam verse by number."""
@@ -94,7 +94,7 @@ class TestDhyanamAPI:
         response = client.get("/api/v1/dhyanam/9")
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
-        assert "Run sync-dhyanam" in response.json()["detail"]
+        assert "not found" in response.json()["detail"]
 
     def test_get_dhyanam_verse_invalid_number_low(self, client):
         """Test getting dhyanam verse with number below 1."""
