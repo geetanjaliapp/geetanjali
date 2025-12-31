@@ -63,6 +63,8 @@ def strip_angle_brackets(value: str) -> str:
     value = re.sub(r"<[^>]*>", "", value)
     # Remove any remaining stray angle brackets
     value = re.sub(r"[<>]", "", value)
+    # Normalize whitespace (collapse multiple spaces to single)
+    value = re.sub(r"\s+", " ", value)
     return value.strip()
 
 

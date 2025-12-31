@@ -500,8 +500,8 @@ export default function Consultations() {
           )}
 
           {/* Consultations List */}
-          {filterCounts.all === 0 ? (
-            // No cases at all
+          {filterCounts.all === 0 && !error ? (
+            // No cases at all (only show if no error - error takes precedence)
             <div className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] shadow-[var(--shadow-dropdown)] sm:shadow-[var(--shadow-modal)] p-8 sm:p-12 text-center">
               <img
                 src="/logo.svg"
@@ -519,7 +519,7 @@ export default function Consultations() {
                 Ask Your First Question
               </Link>
             </div>
-          ) : cases.length === 0 ? (
+          ) : cases.length === 0 && !error ? (
             // Filter returned no results (but user has cases)
             <div className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] shadow-[var(--shadow-dropdown)] p-6 sm:p-8 text-center">
               <p className="text-[var(--text-secondary)] mb-4 text-sm sm:text-base">

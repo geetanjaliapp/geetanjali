@@ -31,10 +31,11 @@ class TestStripAngleBrackets:
     def test_removes_tag_like_content(self):
         """Content that looks like tags (< ... >) is removed entirely."""
         # "< b >" looks like a tag and is removed entirely
-        assert strip_angle_brackets("a < b > c") == "a  c"
+        # Whitespace is normalized to single space
+        assert strip_angle_brackets("a < b > c") == "a c"
         # Stray single brackets are also removed
-        assert strip_angle_brackets("a < b") == "a  b"
-        assert strip_angle_brackets("a > b") == "a  b"
+        assert strip_angle_brackets("a < b") == "a b"
+        assert strip_angle_brackets("a > b") == "a b"
 
     def test_preserves_normal_text(self):
         """Normal text without brackets is preserved."""
