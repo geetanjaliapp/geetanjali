@@ -490,9 +490,11 @@ async def list_cases(
         )
         counts = repo.count_by_session(session_id)
     else:
-        # No auth and no session - return empty
-        cases = []
-        counts = {"all": 0, "completed": 0, "in_progress": 0, "failed": 0, "shared": 0}
+        # No auth and no session - require identification
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication or session required to list cases",
+        )
 
     return {
         "cases": [
