@@ -115,9 +115,15 @@ def get_audio_duration(audio_path: Path) -> float | None:
         return None
 
 
-def run_qa_check(chapter: int, mp3_dir: Path, verses: dict[str, str]) -> dict[str, list[str]]:
+def run_qa_check(
+    chapter: int, mp3_dir: Path, verses: dict[str, str]
+) -> dict[str, list[str | dict[str, object]]]:
     """Run QA on processed audio files."""
-    results: dict[str, list[str]] = {"ok": [], "flagged": [], "missing": []}
+    results: dict[str, list[str | dict[str, object]]] = {
+        "ok": [],
+        "flagged": [],
+        "missing": [],
+    }
 
     for canonical_id, text in verses.items():
         mp3_path = mp3_dir / f"{canonical_id}.mp3"
