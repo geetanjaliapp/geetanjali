@@ -169,6 +169,9 @@ services:
       REDIS_URL: redis://:${REDIS_PASSWORD:-redis_dev_pass}@redis:6379/0
       OLLAMA_BASE_URL: http://ollama:11434
       AUDIO_FILES_PATH: /app/public/audio
+      # PostgreSQL connection info for pg_isready health check
+      PGHOST: postgres
+      PGUSER: ${POSTGRES_USER:-geetanjali}
     # No external port - nginx proxies via Docker network (http://backend:8000)
     volumes:
       - ./backend:/app
@@ -216,10 +219,16 @@ services:
       CHROMA_PORT: 8000
       REDIS_URL: redis://:${REDIS_PASSWORD:-redis_dev_pass}@redis:6379/0
       OLLAMA_BASE_URL: http://ollama:11434
-      # Skip migrations - backend service manages DB schema
-      SKIP_MIGRATIONS: "true"
+      # Worker mode: Skip DB initialization (backend manages schema, migrations, sync)
+      SKIP_DB_INIT: "true"
+      # PostgreSQL connection info for pg_isready health check
+      PGHOST: postgres
+      PGUSER: ${POSTGRES_USER:-geetanjali}
+      # Audio files path (read-only access for metadata checks)
+      AUDIO_FILES_PATH: /app/public/audio
     volumes:
       - ./backend:/app
+      - ./public/audio:/app/public/audio:ro  # Audio files (read-only for worker)
     # No external port - only accessible within Docker network
     # Prometheus scrapes via http://worker:8001/metrics
     # Security hardening

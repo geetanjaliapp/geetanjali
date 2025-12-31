@@ -1,42 +1,36 @@
 #!/bin/bash
 set -e
 
-echo "=== Geetanjali Backend Initialization ==="
+# Determine service type based on SKIP_DB_INIT
+SERVICE_TYPE="${SKIP_DB_INIT:+Worker}"
+SERVICE_TYPE="${SERVICE_TYPE:-Backend}"
 
-# Wait for PostgreSQL to be ready
+echo "=== Geetanjali $SERVICE_TYPE Initialization ==="
+
+# Wait for PostgreSQL to be ready (required by both backend and worker)
 echo "Waiting for PostgreSQL..."
-until python3 -c "
-import psycopg2
-import os
-import sys
-from urllib.parse import urlparse
-
-db_url = os.environ.get('DATABASE_URL', '')
-if not db_url:
-    print('No DATABASE_URL set')
-    sys.exit(1)
-
-parsed = urlparse(db_url)
-try:
-    conn = psycopg2.connect(
-        host=parsed.hostname,
-        port=parsed.port or 5432,
-        user=parsed.username,
-        password=parsed.password,
-        database=parsed.path[1:],
-        connect_timeout=3
-    )
-    conn.close()
-    print('PostgreSQL is ready')
-except Exception as e:
-    print(f'PostgreSQL not ready: {e}')
-    sys.exit(1)
-" 2>/dev/null; do
+until pg_isready -h "${PGHOST:-postgres}" -p "${PGPORT:-5432}" -U "${PGUSER:-geetanjali}" -q 2>/dev/null; do
   echo "PostgreSQL is unavailable - sleeping"
   sleep 2
 done
-
 echo "PostgreSQL is ready!"
+
+# Worker mode: Skip DB initialization, migrations, and ingestion
+# Worker only needs database connectivity for queries, not schema management
+if [ "${SKIP_DB_INIT:-false}" = "true" ]; then
+    echo "Worker mode: Skipping DB initialization (backend manages schema)"
+    echo "=== Initialization Complete ==="
+    echo ""
+
+    # If arguments are passed (e.g., "python worker.py"), run those
+    if [ $# -gt 0 ]; then
+        echo "Starting: $@"
+        exec "$@"
+    fi
+    exit 0
+fi
+
+# === BACKEND ONLY: Full initialization ===
 
 # Wait for ChromaDB to be ready (with timeout)
 echo "Waiting for ChromaDB..."
@@ -76,13 +70,10 @@ Base.metadata.create_all(bind=engine)
 print('✓ Database tables initialized')
 "
 
-# Run database migrations (only if not skipped - worker should skip)
-if [ "${SKIP_MIGRATIONS:-false}" = "true" ]; then
-    echo "Skipping database migrations (SKIP_MIGRATIONS=true)"
-else
-    echo "Running database migrations..."
-    # Check if alembic_version table exists (means migrations have been run before)
-    HAS_ALEMBIC=$(python3 -c "
+# Run database migrations
+echo "Running database migrations..."
+# Check if alembic_version table exists (means migrations have been run before)
+HAS_ALEMBIC=$(python3 -c "
 from db.connection import SessionLocal
 from sqlalchemy import text
 db = SessionLocal()
@@ -95,17 +86,16 @@ finally:
     db.close()
 ")
 
-    if [ "$HAS_ALEMBIC" = "no" ]; then
-        echo "First run - stamping database with current schema version..."
-        alembic stamp head
-    fi
-
-    # Now run any pending migrations
-    alembic upgrade head || {
-        echo "⚠️  Warning: Migrations may have failed, but continuing..."
-    }
-    echo "✓ Database migrations complete"
+if [ "$HAS_ALEMBIC" = "no" ]; then
+    echo "First run - stamping database with current schema version..."
+    alembic stamp head
 fi
+
+# Now run any pending migrations
+alembic upgrade head || {
+    echo "⚠️  Warning: Migrations may have failed, but continuing..."
+}
+echo "✓ Database migrations complete"
 
 # Check if data ingestion is needed
 echo "Checking if initial data ingestion is needed..."
