@@ -12,9 +12,9 @@ independently or combined by the SearchService.
 """
 
 from .canonical import canonical_search
-from .sanskrit import sanskrit_search
 from .keyword import keyword_search
 from .principle import principle_search
+from .sanskrit import sanskrit_search
 from .semantic import semantic_search
 
 __all__ = [

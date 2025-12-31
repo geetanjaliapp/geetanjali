@@ -1,7 +1,16 @@
+import { SpeakButton } from "../SpeakButton";
+
 interface StepsSectionProps {
   steps: string[];
   showSteps: boolean;
   onToggle: () => void;
+}
+
+/**
+ * Format steps for TTS
+ */
+function formatStepsForSpeech(steps: string[]): string {
+  return "Recommended Steps. " + steps.map((step, i) => `Step ${i + 1}: ${step}`).join(". ");
 }
 
 export function StepsSection({
@@ -29,7 +38,13 @@ export function StepsSection({
         </svg>
       </div>
 
-      <button onClick={onToggle} className="w-full text-left">
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={onToggle}
+        onKeyDown={(e) => e.key === "Enter" && onToggle()}
+        className="w-full text-left cursor-pointer"
+      >
         <div className="flex items-center justify-between bg-[var(--surface-elevated)] rounded-[var(--radius-card)] p-3 sm:p-4 shadow-[var(--shadow-button)] border border-[var(--status-success-border)] hover:shadow-[var(--shadow-card)] transition-[var(--transition-all)]">
           <div>
             <div className="text-xs font-semibold text-[var(--status-success-text)] uppercase tracking-wide">
@@ -39,21 +54,30 @@ export function StepsSection({
               {steps.length} actionable steps
             </p>
           </div>
-          <svg
-            className={`w-5 h-5 text-[var(--text-muted)] transition-transform ${showSteps ? "rotate-180" : ""}`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 9l-7 7-7-7"
-            />
-          </svg>
+          <div className="flex items-center gap-1">
+            <span onClick={(e) => e.stopPropagation()}>
+              <SpeakButton
+                text={formatStepsForSpeech(steps)}
+                size="sm"
+                aria-label="Listen to recommended steps"
+              />
+            </span>
+            <svg
+              className={`w-5 h-5 text-[var(--text-muted)] transition-transform ${showSteps ? "rotate-180" : ""}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </div>
         </div>
-      </button>
+      </div>
 
       {showSteps && (
         <div className="mt-2 sm:mt-3 bg-[var(--surface-elevated)] rounded-[var(--radius-card)] shadow-[var(--shadow-button)] p-3 sm:p-4 border border-[var(--status-success-border)]">

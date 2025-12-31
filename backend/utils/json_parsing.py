@@ -7,12 +7,12 @@ These utilities provide robust extraction strategies.
 import json
 import logging
 import re
-from typing import Any, Dict, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
 
-def extract_json_from_text(response_text: str) -> Dict[str, Any]:
+def extract_json_from_text(response_text: str) -> dict[str, Any]:
     """
     Robustly extract JSON from LLM response text.
 
@@ -51,7 +51,9 @@ def extract_json_from_text(response_text: str) -> Dict[str, Any]:
                 parsed = json.loads(json_text)
                 if isinstance(parsed, dict):
                     return parsed
-                logger.debug(f"Markdown block returned {type(parsed).__name__}, expected dict")
+                logger.debug(
+                    f"Markdown block returned {type(parsed).__name__}, expected dict"
+                )
             except json.JSONDecodeError as e:
                 logger.debug(
                     f"Markdown block parse failed at pos {e.pos}: "
@@ -80,7 +82,7 @@ def extract_json_from_text(response_text: str) -> Dict[str, Any]:
     raise ValueError("No valid JSON found in LLM response")
 
 
-def extract_json_from_markdown(response_text: str) -> Optional[Dict[str, Any]]:
+def extract_json_from_markdown(response_text: str) -> dict[str, Any] | None:
     """
     Extract JSON from markdown code blocks only.
 

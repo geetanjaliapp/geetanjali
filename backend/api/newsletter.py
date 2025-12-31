@@ -3,20 +3,22 @@
 import logging
 import secrets
 from datetime import datetime, timedelta
-from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Request, BackgroundTasks
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from db.connection import get_db
 from api.dependencies import limiter
 from api.middleware.auth import get_optional_user
 from api.taxonomy import get_goals
-from models import Subscriber, SendTime, User
-from services.email import send_newsletter_verification_email, send_newsletter_welcome_email
 from config import settings
+from db.connection import get_db
+from models import SendTime, Subscriber, User
+from services.email import (
+    send_newsletter_verification_email,
+    send_newsletter_welcome_email,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -47,13 +49,13 @@ class SubscribeRequest(BaseModel):
     """Request to subscribe to Daily Wisdom newsletter."""
 
     email: EmailStr = Field(..., description="Email address for newsletter")
-    name: Optional[str] = Field(
+    name: str | None = Field(
         None,
         min_length=1,
         max_length=100,
         description="How to greet subscriber",
     )
-    goal_ids: List[str] = Field(
+    goal_ids: list[str] = Field(
         default_factory=list,
         max_length=10,  # Max 10 goals
         description="Learning goal IDs",
@@ -88,21 +90,21 @@ class PreferencesRequest(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    name: Optional[str] = Field(
+    name: str | None = Field(
         None,
         min_length=1,
         max_length=100,
     )
-    goal_ids: Optional[List[str]] = Field(None, max_length=10)
-    send_time: Optional[str] = None
+    goal_ids: list[str] | None = Field(None, max_length=10)
+    send_time: str | None = None
 
 
 class PreferencesResponse(BaseModel):
     """Response with current preferences."""
 
     email: str
-    name: Optional[str]
-    goal_ids: List[str]
+    name: str | None
+    goal_ids: list[str]
     send_time: str
     verified: bool
 
@@ -123,17 +125,17 @@ def generate_verification_token() -> str:
     return secrets.token_urlsafe(32)
 
 
-def get_subscriber_by_email(db: Session, email: str) -> Optional[Subscriber]:
+def get_subscriber_by_email(db: Session, email: str) -> Subscriber | None:
     """Get subscriber by email address."""
     return db.query(Subscriber).filter(Subscriber.email == email.lower()).first()
 
 
-def get_subscriber_by_token(db: Session, token: str) -> Optional[Subscriber]:
+def get_subscriber_by_token(db: Session, token: str) -> Subscriber | None:
     """Get subscriber by verification token."""
     return db.query(Subscriber).filter(Subscriber.verification_token == token).first()
 
 
-def validate_goal_ids(goal_ids: List[str]) -> List[str]:
+def validate_goal_ids(goal_ids: list[str]) -> list[str]:
     """
     Validate goal IDs against the taxonomy.
 
@@ -163,7 +165,7 @@ async def subscribe(
     data: SubscribeRequest,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
-    current_user: Optional[User] = Depends(get_optional_user),
+    current_user: User | None = Depends(get_optional_user),
 ):
     """
     Subscribe to Daily Wisdom newsletter.
@@ -211,8 +213,12 @@ async def subscribe(
                 db.commit()
             except Exception:
                 db.rollback()
-                logger.exception(f"Error reactivating subscription for {_mask_email(email)}")
-                raise HTTPException(status_code=500, detail="An error occurred. Please try again.")
+                logger.exception(
+                    f"Error reactivating subscription for {_mask_email(email)}"
+                )
+                raise HTTPException(
+                    status_code=500, detail="An error occurred. Please try again."
+                )
             logger.info(f"Reactivating subscription for {_mask_email(email)}")
         elif subscriber.verified:
             # Already subscribed and verified
@@ -235,8 +241,12 @@ async def subscribe(
                 db.commit()
             except Exception:
                 db.rollback()
-                logger.exception(f"Error resending verification for {_mask_email(email)}")
-                raise HTTPException(status_code=500, detail="An error occurred. Please try again.")
+                logger.exception(
+                    f"Error resending verification for {_mask_email(email)}"
+                )
+                raise HTTPException(
+                    status_code=500, detail="An error occurred. Please try again."
+                )
             logger.info(f"Resending verification for {_mask_email(email)}")
     else:
         # Create new subscriber
@@ -272,10 +282,14 @@ async def subscribe(
                     hours=VERIFICATION_TOKEN_EXPIRY_HOURS
                 )
                 db.commit()
-                logger.info(f"Race condition handled, resending verification for {_mask_email(email)}")
+                logger.info(
+                    f"Race condition handled, resending verification for {_mask_email(email)}"
+                )
             else:
                 # Unexpected: IntegrityError but no subscriber found
-                logger.error(f"IntegrityError but subscriber not found for {_mask_email(email)}")
+                logger.error(
+                    f"IntegrityError but subscriber not found for {_mask_email(email)}"
+                )
                 raise HTTPException(
                     status_code=500,
                     detail="An error occurred. Please try again.",
@@ -313,10 +327,15 @@ async def verify_subscription(
     subscriber = get_subscriber_by_token(db, token)
 
     if not subscriber:
-        raise HTTPException(status_code=404, detail="Invalid or expired verification link")
+        raise HTTPException(
+            status_code=404, detail="Invalid or expired verification link"
+        )
 
     # Check expiry
-    if subscriber.verification_expires_at and subscriber.verification_expires_at < datetime.utcnow():
+    if (
+        subscriber.verification_expires_at
+        and subscriber.verification_expires_at < datetime.utcnow()
+    ):
         raise HTTPException(
             status_code=400,
             detail="Verification link has expired. Please subscribe again.",
@@ -341,8 +360,12 @@ async def verify_subscription(
         db.commit()
     except Exception:
         db.rollback()
-        logger.exception(f"Error verifying subscription for {_mask_email(subscriber.email)}")
-        raise HTTPException(status_code=500, detail="An error occurred. Please try again.")
+        logger.exception(
+            f"Error verifying subscription for {_mask_email(subscriber.email)}"
+        )
+        raise HTTPException(
+            status_code=500, detail="An error occurred. Please try again."
+        )
 
     logger.info(f"Subscription verified for {_mask_email(subscriber.email)}")
 
@@ -398,7 +421,9 @@ async def unsubscribe(
     except Exception:
         db.rollback()
         logger.exception(f"Error unsubscribing {_mask_email(subscriber.email)}")
-        raise HTTPException(status_code=500, detail="An error occurred. Please try again.")
+        raise HTTPException(
+            status_code=500, detail="An error occurred. Please try again."
+        )
 
     logger.info(f"Unsubscribed: {_mask_email(subscriber.email)}")
 
@@ -412,7 +437,7 @@ class StatusWithPrefsResponse(BaseModel):
     """Response for subscription status check with optional preferences."""
 
     subscribed: bool
-    preferences: Optional[PreferencesResponse] = None
+    preferences: PreferencesResponse | None = None
 
 
 @router.get("/status", response_model=StatusWithPrefsResponse)
@@ -468,10 +493,14 @@ async def update_my_preferences(
     subscriber = get_subscriber_by_email(db, current_user.email)
 
     if not subscriber:
-        raise HTTPException(status_code=404, detail="No subscription found for your email")
+        raise HTTPException(
+            status_code=404, detail="No subscription found for your email"
+        )
 
     if subscriber.unsubscribed_at:
-        raise HTTPException(status_code=400, detail="This subscription is no longer active")
+        raise HTTPException(
+            status_code=400, detail="This subscription is no longer active"
+        )
 
     # Update fields if provided
     if data.name is not None:
@@ -497,8 +526,12 @@ async def update_my_preferences(
         db.refresh(subscriber)
     except Exception:
         db.rollback()
-        logger.exception(f"Error updating preferences for {_mask_email(subscriber.email)}")
-        raise HTTPException(status_code=500, detail="An error occurred. Please try again.")
+        logger.exception(
+            f"Error updating preferences for {_mask_email(subscriber.email)}"
+        )
+        raise HTTPException(
+            status_code=500, detail="An error occurred. Please try again."
+        )
 
     logger.info(f"Preferences updated via auth for {_mask_email(subscriber.email)}")
 
@@ -548,7 +581,9 @@ async def update_preferences(
         raise HTTPException(status_code=404, detail="Invalid link")
 
     if subscriber.unsubscribed_at:
-        raise HTTPException(status_code=400, detail="This subscription is no longer active")
+        raise HTTPException(
+            status_code=400, detail="This subscription is no longer active"
+        )
 
     # Update fields if provided
     if data.name is not None:
@@ -576,8 +611,12 @@ async def update_preferences(
         db.refresh(subscriber)
     except Exception:
         db.rollback()
-        logger.exception(f"Error updating preferences for {_mask_email(subscriber.email)}")
-        raise HTTPException(status_code=500, detail="An error occurred. Please try again.")
+        logger.exception(
+            f"Error updating preferences for {_mask_email(subscriber.email)}"
+        )
+        raise HTTPException(
+            status_code=500, detail="An error occurred. Please try again."
+        )
 
     logger.info(f"Preferences updated for {_mask_email(subscriber.email)}")
 

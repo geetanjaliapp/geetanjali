@@ -1,9 +1,10 @@
 """Refresh token model for JWT authentication."""
 
-from sqlalchemy import String, ForeignKey, Boolean, DateTime
-from sqlalchemy.orm import Mapped, mapped_column, relationship
 import uuid
 from datetime import datetime, timedelta
+
+from sqlalchemy import Boolean, DateTime, ForeignKey, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models.base import Base
 

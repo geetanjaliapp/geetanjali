@@ -1,11 +1,11 @@
 """Repository for Message model operations."""
 
-from typing import List, Optional
-from sqlalchemy.orm import Session
 from datetime import datetime
 
-from models.message import Message, MessageRole
+from sqlalchemy.orm import Session
+
 from db.repositories.base import BaseRepository
+from models.message import Message, MessageRole
 
 
 class MessageRepository(BaseRepository):
@@ -14,7 +14,7 @@ class MessageRepository(BaseRepository):
     def __init__(self, db: Session):
         super().__init__(Message, db)
 
-    def get_by_case(self, case_id: str) -> List[Message]:
+    def get_by_case(self, case_id: str) -> list[Message]:
         """
         Get all messages for a case, ordered chronologically.
 
@@ -52,7 +52,7 @@ class MessageRepository(BaseRepository):
         return result
 
     def create_assistant_message(
-        self, case_id: str, content: str, output_id: Optional[str] = None
+        self, case_id: str, content: str, output_id: str | None = None
     ) -> Message:
         """
         Create a new assistant message, optionally linked to an output.
@@ -78,7 +78,7 @@ class MessageRepository(BaseRepository):
         result: Message = self.create(message_data)  # type: ignore[assignment]
         return result
 
-    def get_last_user_message(self, case_id: str) -> Optional[Message]:
+    def get_last_user_message(self, case_id: str) -> Message | None:
         """
         Get the most recent user message for a case.
 

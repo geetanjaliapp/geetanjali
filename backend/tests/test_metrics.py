@@ -1,18 +1,19 @@
 """Tests for metrics collector and Prometheus instrumentation."""
 
-import pytest
 from unittest.mock import MagicMock, patch
+
+import pytest
 
 # Mark all tests in this module as unit tests (fast, mocked externals)
 pytestmark = pytest.mark.unit
 
 from services.metrics_collector import (
-    collect_metrics,
     _collect_business_metrics,
-    _collect_redis_metrics,
-    _collect_postgres_metrics,
-    _collect_ollama_metrics,
     _collect_chromadb_metrics,
+    _collect_ollama_metrics,
+    _collect_postgres_metrics,
+    _collect_redis_metrics,
+    collect_metrics,
 )
 
 
@@ -28,9 +29,7 @@ class TestMetricsCollector:
         """Test that collect_metrics runs without raising exceptions."""
         mock_db = MagicMock()
         mock_session.return_value = mock_db
-        mock_db.query.return_value.filter.return_value.filter.return_value.scalar.return_value = (
-            0
-        )
+        mock_db.query.return_value.filter.return_value.filter.return_value.scalar.return_value = 0
         mock_db.query.return_value.scalar.return_value = 0
         mock_db.query.return_value.filter.return_value.scalar.return_value = 0
         mock_db.execute.return_value.fetchone.return_value = (0, 0)
@@ -64,9 +63,7 @@ class TestMetricsCollector:
         mock_session.return_value = mock_db
 
         # Mock scalar returns for different queries
-        mock_db.query.return_value.filter.return_value.filter.return_value.scalar.return_value = (
-            10  # consultations
-        )
+        mock_db.query.return_value.filter.return_value.filter.return_value.scalar.return_value = 10  # consultations
         mock_db.query.return_value.scalar.side_effect = [
             100,  # verses
             50,  # exports
@@ -88,9 +85,7 @@ class TestMetricsCollector:
         """Test that None values from queries are handled as 0."""
         mock_db = MagicMock()
         mock_session.return_value = mock_db
-        mock_db.query.return_value.filter.return_value.filter.return_value.scalar.return_value = (
-            None
-        )
+        mock_db.query.return_value.filter.return_value.filter.return_value.scalar.return_value = None
         mock_db.query.return_value.scalar.return_value = None
         mock_db.query.return_value.filter.return_value.scalar.return_value = None
 

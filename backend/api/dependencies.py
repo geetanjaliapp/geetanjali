@@ -3,7 +3,6 @@
 import logging
 import secrets
 from datetime import datetime, timedelta
-from typing import Optional
 
 from fastapi import Depends, Header, HTTPException, status
 from slowapi import Limiter
@@ -13,21 +12,21 @@ from sqlalchemy.orm import Session
 from config import settings
 
 logger = logging.getLogger(__name__)
-from db.connection import get_db
-from db.repositories.case_repository import CaseRepository
 from api.errors import (
     ERR_AUTH_REQUIRED,
-    ERR_CASE_NOT_FOUND,
     ERR_CASE_ACCESS_DENIED,
-    ERR_OUTPUT_NOT_FOUND,
-    ERR_OUTPUT_ACCESS_DENIED,
+    ERR_CASE_NOT_FOUND,
     ERR_INVALID_API_KEY,
+    ERR_OUTPUT_ACCESS_DENIED,
+    ERR_OUTPUT_NOT_FOUND,
 )
 from api.middleware.auth import (
     get_optional_user,
     get_session_id,
     user_can_access_resource,
 )
+from db.connection import get_db
+from db.repositories.case_repository import CaseRepository
 from models.case import Case, CaseStatus
 from models.output import Output
 from models.user import User
@@ -81,8 +80,8 @@ class CaseAccessDep:
         self,
         case_id: str,
         db: Session = Depends(get_db),
-        current_user: Optional[User] = Depends(get_optional_user),
-        session_id: Optional[str] = Depends(get_session_id),
+        current_user: User | None = Depends(get_optional_user),
+        session_id: str | None = Depends(get_session_id),
     ) -> Case:
         """
         Retrieve case and validate access.
@@ -171,8 +170,8 @@ class OutputAccessDep:
         self,
         output_id: str,
         db: Session = Depends(get_db),
-        current_user: Optional[User] = Depends(get_optional_user),
-        session_id: Optional[str] = Depends(get_session_id),
+        current_user: User | None = Depends(get_optional_user),
+        session_id: str | None = Depends(get_session_id),
     ) -> Output:
         """
         Retrieve output and validate access via parent case.

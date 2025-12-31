@@ -1,8 +1,9 @@
 """Tests for output/analysis endpoints."""
 
+import uuid
+
 import pytest
 from fastapi import status
-import uuid
 
 # Mark all tests in this module as integration tests (require DB)
 pytestmark = pytest.mark.integration
@@ -120,8 +121,9 @@ def test_outputs_accessible_for_session_case(client, case_for_analysis):
 @pytest.fixture
 def output_with_session(client, db_session):
     """Create a case with an output for feedback testing."""
-    from models import Case, Output
     from datetime import datetime
+
+    from models import Case, Output
 
     session_id = str(uuid.uuid4())
 

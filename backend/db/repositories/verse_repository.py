@@ -1,12 +1,11 @@
 """Verse repository for database operations."""
 
-from typing import Optional, List
-from sqlalchemy.orm import Session
-from sqlalchemy import or_, cast
+from sqlalchemy import cast, or_
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import Session
 
-from models.verse import Verse
 from db.repositories.base import BaseRepository
+from models.verse import Verse
 
 
 class VerseRepository(BaseRepository[Verse]):  # type: ignore[type-var]
@@ -15,7 +14,7 @@ class VerseRepository(BaseRepository[Verse]):  # type: ignore[type-var]
     def __init__(self, db: Session):
         super().__init__(Verse, db)
 
-    def get_by_canonical_id(self, canonical_id: str) -> Optional[Verse]:
+    def get_by_canonical_id(self, canonical_id: str) -> Verse | None:
         """
         Get verse by canonical ID.
 
@@ -27,7 +26,7 @@ class VerseRepository(BaseRepository[Verse]):  # type: ignore[type-var]
         """
         return self.db.query(Verse).filter(Verse.canonical_id == canonical_id).first()
 
-    def get_by_chapter(self, chapter: int) -> List[Verse]:
+    def get_by_chapter(self, chapter: int) -> list[Verse]:
         """
         Get all verses in a chapter.
 
@@ -44,7 +43,7 @@ class VerseRepository(BaseRepository[Verse]):  # type: ignore[type-var]
             .all()
         )
 
-    def search_by_principles(self, principles: List[str]) -> List[Verse]:
+    def search_by_principles(self, principles: list[str]) -> list[Verse]:
         """
         Search verses by consulting principles.
 
@@ -70,7 +69,7 @@ class VerseRepository(BaseRepository[Verse]):  # type: ignore[type-var]
             .all()
         )
 
-    def get_featured_verses(self) -> List[Verse]:
+    def get_featured_verses(self) -> list[Verse]:
         """
         Get featured verses for display.
 
@@ -79,7 +78,7 @@ class VerseRepository(BaseRepository[Verse]):  # type: ignore[type-var]
         """
         return self.get_all()
 
-    def get_with_translations(self, canonical_id: str) -> Optional[Verse]:
+    def get_with_translations(self, canonical_id: str) -> Verse | None:
         """
         Get verse with translations eagerly loaded.
 
@@ -98,7 +97,7 @@ class VerseRepository(BaseRepository[Verse]):  # type: ignore[type-var]
             .first()
         )
 
-    def get_many_with_translations(self, canonical_ids: List[str]) -> List[Verse]:
+    def get_many_with_translations(self, canonical_ids: list[str]) -> list[Verse]:
         """
         Get multiple verses with translations eagerly loaded.
 

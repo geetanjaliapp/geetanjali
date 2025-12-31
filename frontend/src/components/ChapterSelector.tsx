@@ -24,6 +24,8 @@ interface ChapterSelectorProps {
   onClose: () => void;
   /** Whether the selector is visible */
   isOpen: boolean;
+  /** Callback when Dhyanam is selected (Phase 3.6) */
+  onDhyanam?: () => void;
 }
 
 export function ChapterSelector({
@@ -31,6 +33,7 @@ export function ChapterSelector({
   onSelect,
   onClose,
   isOpen,
+  onDhyanam,
 }: ChapterSelectorProps) {
   // Close on Escape key
   useEffect(() => {
@@ -55,6 +58,14 @@ export function ChapterSelector({
     [onSelect, onClose],
   );
 
+  // Handle Dhyanam selection
+  const handleDhyanam = useCallback(() => {
+    if (onDhyanam) {
+      onDhyanam();
+      onClose();
+    }
+  }, [onDhyanam, onClose]);
+
   if (!isOpen) return null;
 
   const chapters = Object.keys(CHAPTERS).map(Number);
@@ -77,6 +88,23 @@ export function ChapterSelector({
         aria-modal="true"
         aria-label="Select chapter"
       >
+        {/* Dhyanam link - persistent entry point (Phase 3.6) */}
+        {onDhyanam && (
+          <button
+            onClick={handleDhyanam}
+            className="w-full mb-3 py-2.5 flex items-center justify-center gap-2
+                       text-sm font-medium text-[var(--text-primary)]
+                       bg-[var(--surface-warm-subtle)] hover:bg-[var(--surface-warm-hover)]
+                       border border-[var(--border-warm-subtle)] hover:border-[var(--border-warm)]
+                       rounded-[var(--radius-button)] transition-[var(--transition-color)]
+                       focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+          >
+            <span>🙏</span>
+            <span>गीता ध्यानम्</span>
+            <span className="text-[var(--text-tertiary)]">· Invocation</span>
+          </button>
+        )}
+
         {/* Compact chapter grid - 6 columns with improved touch targets */}
         <div className="grid grid-cols-6 gap-2">
           {chapters.map((chapter) => {

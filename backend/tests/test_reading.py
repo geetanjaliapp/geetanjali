@@ -6,7 +6,6 @@ Critical paths:
 - Get specific chapter (valid and invalid chapter numbers)
 """
 
-import pytest
 from models.metadata import BookMetadata, ChapterMetadata
 
 
@@ -20,7 +19,7 @@ class TestBookMetadata:
             book_key="bhagavad_geeta",
             sanskrit_title="श्रीमद्भगवद्गीता",
             transliteration="Śrīmad Bhagavad Gītā",
-            english_title="The Bhagavad Gita",
+            english_title="The Bhagavad Geeta",
             tagline="The Song of the Divine",
             intro_text="An ancient dialogue between Krishna and Arjuna.",
             verse_count=700,

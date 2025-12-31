@@ -1,19 +1,20 @@
 """Hybrid LLM service with Anthropic Claude primary and Ollama fallback."""
 
 import logging
-import httpx
-from typing import Dict, Any, Optional
 from enum import Enum
+from typing import Any
+
+import httpx
 from tenacity import (
+    before_sleep_log,
     retry,
+    retry_if_exception_type,
     stop_after_attempt,
     wait_exponential,
-    retry_if_exception_type,
-    before_sleep_log,
 )
 
 try:
-    from anthropic import Anthropic, AnthropicError, APITimeoutError, APIConnectionError
+    from anthropic import Anthropic, AnthropicError, APIConnectionError, APITimeoutError
 
     ANTHROPIC_AVAILABLE = True
 except ImportError:
@@ -24,10 +25,10 @@ from services.mock_llm import MockLLMService
 from utils.circuit_breaker import CircuitBreaker, CircuitBreakerOpen
 from utils.exceptions import LLMError, RetryableLLMError
 from utils.metrics_llm import (
-    llm_requests_total,
-    llm_tokens_total,
     llm_circuit_breaker_state,
     llm_fallback_total,
+    llm_requests_total,
+    llm_tokens_total,
 )
 
 logger = logging.getLogger(__name__)
@@ -179,10 +180,10 @@ class LLMService:
     def _generate_anthropic(
         self,
         prompt: str,
-        system_prompt: Optional[str] = None,
+        system_prompt: str | None = None,
         temperature: float = 0.7,
-        max_tokens: Optional[int] = None,
-    ) -> Dict[str, Any]:
+        max_tokens: int | None = None,
+    ) -> dict[str, Any]:
         """Generate response using Anthropic Claude with retry and circuit breaker.
 
         Retry: Up to 3 attempts with exponential backoff (2s, 4s, 8s).
@@ -262,7 +263,7 @@ class LLMService:
         before_sleep=before_sleep_log(logger, logging.WARNING),
         reraise=True,
     )
-    def _make_ollama_request(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+    def _make_ollama_request(self, payload: dict[str, Any]) -> dict[str, Any]:
         """Make Ollama request with retry logic using persistent client."""
         response = self.ollama_client.post("/api/generate", json=payload)
         response.raise_for_status()
@@ -271,12 +272,12 @@ class LLMService:
     def _generate_ollama(
         self,
         prompt: str,
-        system_prompt: Optional[str] = None,
+        system_prompt: str | None = None,
         temperature: float = 0.7,
-        max_tokens: Optional[int] = None,
+        max_tokens: int | None = None,
         simplified: bool = False,
         json_mode: bool = True,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Generate response using Ollama with circuit breaker.
 
@@ -331,7 +332,9 @@ class LLMService:
             # Track LLM metrics and record circuit breaker success
             eval_count = result.get("eval_count", 0)
             llm_requests_total.labels(provider="ollama", status="success").inc()
-            llm_tokens_total.labels(provider="ollama", token_type="output").inc(eval_count)
+            llm_tokens_total.labels(provider="ollama", token_type="output").inc(
+                eval_count
+            )
             self._ollama_breaker.record_success()
 
             return {
@@ -361,13 +364,13 @@ class LLMService:
     def generate(
         self,
         prompt: str,
-        system_prompt: Optional[str] = None,
+        system_prompt: str | None = None,
         temperature: float = 0.7,
-        max_tokens: Optional[int] = None,
-        fallback_prompt: Optional[str] = None,
-        fallback_system: Optional[str] = None,
+        max_tokens: int | None = None,
+        fallback_prompt: str | None = None,
+        fallback_system: str | None = None,
         json_mode: bool = True,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Generate text using primary LLM with fallback.
 
@@ -479,9 +482,7 @@ class LLMService:
                             fb_prompt, fb_system, temperature, max_tokens
                         )
                     else:
-                        raise LLMError(
-                            "Anthropic fallback not available (no API key)"
-                        )
+                        raise LLMError("Anthropic fallback not available (no API key)")
                 else:
                     raise LLMError(
                         f"Unknown fallback provider: {self.fallback_provider}"
@@ -499,10 +500,10 @@ class LLMService:
     def generate_json(
         self,
         prompt: str,
-        system_prompt: Optional[str] = None,
+        system_prompt: str | None = None,
         temperature: float = 0.3,
-        fallback_prompt: Optional[str] = None,
-        fallback_system: Optional[str] = None,
+        fallback_prompt: str | None = None,
+        fallback_system: str | None = None,
     ) -> str:
         """
         Generate JSON response from LLM.

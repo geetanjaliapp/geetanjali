@@ -85,6 +85,7 @@ Understand what users experience:
 - **[Consultation Journey](consultation.md)** — Submit a dilemma, get structured guidance with verse citations
 - **[Discovery Journey](discovery.md)** — Browse verses, read chapters, explore at your pace
 - **[Search](search.md)** — Find verses by reference, Sanskrit text, keywords, or meaning
+- **[Audio Recitations](audio.md)** — AI-generated Sanskrit verse recitations
 
 ---
 
@@ -106,6 +107,7 @@ For operators and contributors:
 
 - **[Setup Guide](setup.md)** — Local development, environment variables, common commands
 - **[Deployment](deployment.md)** — Docker Compose, deployment modes, container orchestration
+- **[Content Management](content-management.md)** — Scripts, data files, audio generation, admin API
 - **[Security](security.md)** — Container hardening, secrets management, incident response
 - **[Observability](observability.md)** — Prometheus metrics, Grafana dashboards, alerting
 - **[Troubleshooting](troubleshooting.md)** — Common issues and quick fixes

@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { trackEvent } from "../lib/experiment";
+import { useAudioPlayer } from "./audio";
 
 interface FloatingActionButtonProps {
   /** Override the default destination */
@@ -31,6 +32,16 @@ export function FloatingActionButton({
 }: FloatingActionButtonProps) {
   const location = useLocation();
   const isHomepage = location.pathname === "/";
+
+  // Check if audio bar is visible (audio actively playing/paused/loading/error)
+  const { currentlyPlaying, state: audioState } = useAudioPlayer();
+  const isAudioBarVisible = Boolean(
+    currentlyPlaying &&
+      (audioState === "playing" ||
+        audioState === "paused" ||
+        audioState === "loading" ||
+        audioState === "error")
+  );
 
   // Track whether CTA is in viewport (only relevant on homepage)
   const [ctaInView, setCtaInView] = useState(isHomepage);
@@ -76,8 +87,20 @@ export function FloatingActionButton({
     return null;
   }
 
-  // Position higher on pages with bottom navigation
-  const needsHigherPosition = isOnReadingMode || isOnCaseView;
+  // Determine bottom offset based on page layout:
+  // - Reading Mode: bottom nav + MiniPlayer always visible → bottom-36 (144px)
+  // - Case view: bottom nav → bottom-20 (80px)
+  // - Verses with audio playing: FloatingAudioBar → bottom-20 (80px)
+  // - Default: bottom-6 (24px)
+  const getBottomClass = () => {
+    if (isOnReadingMode) {
+      return "bottom-36"; // Bottom nav + MiniPlayer always present
+    }
+    if (isOnCaseView || isAudioBarVisible) {
+      return "bottom-20"; // Bottom nav or floating audio bar
+    }
+    return "bottom-6"; // Default
+  };
 
   return (
     <Link
@@ -85,7 +108,7 @@ export function FloatingActionButton({
       onClick={handleFabClick}
       className={`
         fixed right-6 z-40
-        ${needsHigherPosition ? "bottom-20" : "bottom-6"}
+        ${getBottomClass()}
         md:hidden
         flex items-center gap-2
         bg-linear-to-r from-[var(--gradient-fab-from)] to-[var(--gradient-fab-to)]

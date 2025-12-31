@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import Home from "./Home";
 import { AuthProvider } from "../contexts/AuthContext";
 import { ThemeProvider } from "../contexts/ThemeContext";
+import { AudioPlayerProvider } from "../components/audio";
 import * as api from "../lib/api";
 import { authApi, tokenStorage } from "../api/auth";
 import { mockCase, mockVerse, mockUser } from "../test/fixtures";
@@ -55,10 +56,13 @@ vi.mock("../api/auth", () => ({
 }));
 
 // ThemeProvider requires AuthProvider context for backend sync
+// AudioPlayerProvider is required for components that use audio functionality
 const wrapper = ({ children }: { children: ReactNode }) => (
   <BrowserRouter>
     <AuthProvider>
-      <ThemeProvider>{children}</ThemeProvider>
+      <ThemeProvider>
+        <AudioPlayerProvider>{children}</AudioPlayerProvider>
+      </ThemeProvider>
     </AuthProvider>
   </BrowserRouter>
 );

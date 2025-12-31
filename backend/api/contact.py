@@ -1,17 +1,17 @@
 """Contact form API endpoint."""
 
 import logging
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Request, status
-from sqlalchemy.orm import Session
-from pydantic import BaseModel, EmailStr, Field, field_validator
-from typing import Optional
 from enum import Enum
+
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
+from pydantic import BaseModel, EmailStr, Field, field_validator
+from sqlalchemy.orm import Session
 
 from api.dependencies import limiter
 from db.connection import get_db
 from models.contact import ContactMessage, ContactType
+from services.content_filter import ContentPolicyError, validate_submission_content
 from services.email import send_contact_email
-from services.content_filter import validate_submission_content, ContentPolicyError
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +36,7 @@ class ContactRequest(BaseModel):
     message_type: ContactTypeEnum = Field(
         default=ContactTypeEnum.feedback, description="Type of message"
     )
-    subject: Optional[str] = Field(
+    subject: str | None = Field(
         None, max_length=200, description="Optional subject line"
     )
     message: str = Field(
@@ -45,7 +45,7 @@ class ContactRequest(BaseModel):
 
     @field_validator("name", "subject")
     @classmethod
-    def reject_crlf(cls, v: Optional[str]) -> Optional[str]:
+    def reject_crlf(cls, v: str | None) -> str | None:
         """Reject CRLF characters to prevent email header injection."""
         if v is None:
             return v
@@ -59,7 +59,7 @@ class ContactResponse(BaseModel):
 
     success: bool
     message: str
-    id: Optional[str] = None
+    id: str | None = None
 
 
 @router.post("", response_model=ContactResponse)
@@ -156,7 +156,7 @@ def send_contact_email_task(
     name: str,
     email: str,
     message_type: str,
-    subject: Optional[str],
+    subject: str | None,
     message: str,
 ):
     """

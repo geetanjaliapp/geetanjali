@@ -26,7 +26,7 @@ import logging
 import re
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Optional, Pattern, Tuple
+from re import Pattern
 
 from config import settings
 
@@ -48,7 +48,7 @@ class ContentCheckResult:
     """Result of content moderation check."""
 
     is_violation: bool
-    violation_type: Optional[ViolationType] = None
+    violation_type: ViolationType | None = None
     # Never include the actual content - privacy protection
 
 
@@ -92,13 +92,13 @@ _SPAM_PATTERNS = [
 ]
 
 # Compile all patterns for performance
-_COMPILED_SEXUAL: List[Pattern[str]] = [
+_COMPILED_SEXUAL: list[Pattern[str]] = [
     re.compile(p, re.IGNORECASE) for p in _EXPLICIT_SEXUAL_PATTERNS
 ]
-_COMPILED_VIOLENCE: List[Pattern[str]] = [
+_COMPILED_VIOLENCE: list[Pattern[str]] = [
     re.compile(p, re.IGNORECASE) for p in _EXPLICIT_VIOLENCE_PATTERNS
 ]
-_COMPILED_SPAM: List[Pattern[str]] = [
+_COMPILED_SPAM: list[Pattern[str]] = [
     re.compile(p, re.IGNORECASE) for p in _SPAM_PATTERNS
 ]
 
@@ -130,10 +130,10 @@ _SLUR_PATTERNS = [
     r"\b(k[i1]+ke+s?)\b",
 ]
 
-_COMPILED_PROFANITY: List[Pattern[str]] = [
+_COMPILED_PROFANITY: list[Pattern[str]] = [
     re.compile(p, re.IGNORECASE) for p in _PROFANITY_PATTERNS
 ]
-_COMPILED_SLURS: List[Pattern[str]] = [
+_COMPILED_SLURS: list[Pattern[str]] = [
     re.compile(p, re.IGNORECASE) for p in _SLUR_PATTERNS
 ]
 
@@ -151,7 +151,7 @@ _ABUSE_PATTERNS = [
     r"\b(n+[i1*]+gg+[ae3*]+r?|f+[a@4]+gg*[o0]+t|r+[e3]+t+[a@4]+r+d)\b",
 ]
 
-_COMPILED_ABUSE: List[Pattern[str]] = [
+_COMPILED_ABUSE: list[Pattern[str]] = [
     re.compile(p, re.IGNORECASE) for p in _ABUSE_PATTERNS
 ]
 
@@ -515,9 +515,7 @@ _COMMON_WORDS = frozenset(
 # Minimum thresholds for gibberish detection
 # Relaxed significantly - we only want to catch true spam/nonsense, not valid English
 _MIN_COMMON_WORD_RATIO = 0.12  # At least 12% common words
-_MIN_DISTINCT_COMMON_WORDS = (
-    1  # Need at least 1 common word for longer texts
-)
+_MIN_DISTINCT_COMMON_WORDS = 1  # Need at least 1 common word for longer texts
 
 
 def _is_gibberish(text: str) -> bool:
@@ -543,7 +541,7 @@ def _is_gibberish(text: str) -> bool:
 
     # Count distinct common words (not just occurrences)
     # "as as as a a" should count as 2 distinct, not 5 occurrences
-    found_common = set(word for word in words if word in _COMMON_WORDS)
+    found_common = {word for word in words if word in _COMMON_WORDS}
     distinct_common_count = len(found_common)
     total_words = len(words)
 
@@ -724,7 +722,7 @@ def _is_search_gibberish(text: str) -> bool:
         return False
 
     # For longer queries (4+ words), require at least one common word
-    found_common = set(word for word in words if word in _COMMON_WORDS)
+    found_common = {word for word in words if word in _COMMON_WORDS}
     return len(found_common) < 1
 
 
@@ -836,7 +834,7 @@ _LLM_REFUSAL_PATTERNS = [
     r"not something I(?:'m able| can) (?:to )?(?:help|assist) with",
 ]
 
-_COMPILED_REFUSAL: List[Pattern[str]] = [
+_COMPILED_REFUSAL: list[Pattern[str]] = [
     re.compile(p, re.IGNORECASE) for p in _LLM_REFUSAL_PATTERNS
 ]
 
@@ -916,7 +914,7 @@ def _is_match_inside_quotes(text: str, match_start: int, match_end: int) -> bool
     return (single_quote_openers % 2 == 1) or (double_quotes % 2 == 1)
 
 
-def detect_llm_refusal(response_text: str) -> Tuple[bool, Optional[str]]:
+def detect_llm_refusal(response_text: str) -> tuple[bool, str | None]:
     """
     Detect if LLM response indicates a refusal (Layer 2).
 

@@ -1,11 +1,12 @@
 """Contact message model for About page feedback/queries."""
 
-from sqlalchemy import String, Text, DateTime, Enum as SQLEnum, Boolean
-from sqlalchemy.orm import Mapped, mapped_column
 import uuid
 from datetime import datetime
 from enum import Enum
-from typing import Optional
+
+from sqlalchemy import Boolean, DateTime, String, Text
+from sqlalchemy import Enum as SQLEnum
+from sqlalchemy.orm import Mapped, mapped_column
 
 from models.base import Base
 
@@ -49,7 +50,7 @@ class ContactMessage(Base):
         nullable=False,
         default=ContactType.FEEDBACK,
     )
-    subject: Mapped[Optional[str]] = mapped_column(String(200), nullable=True)
+    subject: Mapped[str | None] = mapped_column(String(200), nullable=True)
     message: Mapped[str] = mapped_column(Text, nullable=False)
 
     # Status

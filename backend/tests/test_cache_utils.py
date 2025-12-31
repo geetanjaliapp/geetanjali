@@ -26,9 +26,9 @@ class TestTTLJitter:
         max_expected = int(base_ttl * (1 + jitter_percent))  # 1100
 
         for result in results:
-            assert min_expected <= result <= max_expected, (
-                f"Result {result} outside range [{min_expected}, {max_expected}]"
-            )
+            assert (
+                min_expected <= result <= max_expected
+            ), f"Result {result} outside range [{min_expected}, {max_expected}]"
 
     def test_add_ttl_jitter_has_variance(self):
         """Test that jitter actually produces different values."""

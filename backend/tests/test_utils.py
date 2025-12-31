@@ -7,9 +7,9 @@ pytestmark = pytest.mark.unit
 
 from utils.auth import (
     hash_password,
-    verify_password,
-    validate_password_strength,
     validate_email,
+    validate_password_strength,
+    verify_password,
 )
 from utils.jwt import (
     create_access_token,

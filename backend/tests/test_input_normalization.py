@@ -3,11 +3,11 @@
 import pytest
 
 from utils.input_normalization import (
-    normalize_input,
-    NormalizationResult,
     BASE64_PATTERN,
     CHAT_TIMESTAMP_PATTERN,
     CONTROL_CHAR_PATTERN,
+    NormalizationResult,
+    normalize_input,
 )
 
 

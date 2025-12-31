@@ -7,7 +7,7 @@ This module provides a task queue that:
 """
 
 import logging
-from typing import Callable, Optional, List
+from collections.abc import Callable
 
 from config import settings
 
@@ -15,10 +15,10 @@ logger = logging.getLogger(__name__)
 
 # RQ queue (lazy initialized)
 _queue = None
-_rq_available: Optional[bool] = None
+_rq_available: bool | None = None
 
 
-def _parse_retry_delays() -> List[int]:
+def _parse_retry_delays() -> list[int]:
     """Parse retry delays from config string."""
     try:
         return [int(d.strip()) for d in settings.RQ_RETRY_DELAYS.split(",")]
@@ -77,8 +77,8 @@ def reset_queue_connection():
 
 
 def enqueue_task(
-    func: Callable, *args, retry_delays: Optional[List[int]] = None, **kwargs
-) -> Optional[str]:
+    func: Callable, *args, retry_delays: list[int] | None = None, **kwargs
+) -> str | None:
     """
     Enqueue a task to RQ with retry support.
 
@@ -123,7 +123,7 @@ def is_rq_available() -> bool:
     return get_queue() is not None
 
 
-def get_job_status(job_id: str) -> Optional[str]:
+def get_job_status(job_id: str) -> str | None:
     """
     Get status of a queued job.
 

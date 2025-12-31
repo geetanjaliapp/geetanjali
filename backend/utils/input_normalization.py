@@ -18,7 +18,6 @@ References:
 import logging
 import re
 from dataclasses import dataclass, field
-from typing import List
 
 from prometheus_client import Counter
 
@@ -43,7 +42,7 @@ class NormalizationResult:
     """Result of input normalization."""
 
     text: str
-    warnings: List[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
     original_length: int = 0
     normalized_length: int = 0
     lines_removed: int = 0
@@ -116,7 +115,7 @@ def normalize_input(text: str) -> NormalizationResult:
         )
 
     original_length = len(text)
-    warnings: List[str] = []
+    warnings: list[str] = []
 
     # Step 1: Strip control characters
     text = CONTROL_CHAR_PATTERN.sub("", text)
@@ -130,7 +129,9 @@ def normalize_input(text: str) -> NormalizationResult:
     chat_matches = CHAT_TIMESTAMP_PATTERN.findall(text)
     if len(chat_matches) >= 3:
         warnings.append("chat_log_format")
-        logger.info(f"Input appears to be chat log format ({len(chat_matches)} timestamps)")
+        logger.info(
+            f"Input appears to be chat log format ({len(chat_matches)} timestamps)"
+        )
 
     # Step 4: Deduplicate lines while preserving order
     seen = set()

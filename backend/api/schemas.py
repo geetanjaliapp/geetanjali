@@ -1,9 +1,17 @@
 """Pydantic schemas for API request/response validation."""
 
 import re
-from typing import List, Optional, Dict, Any, TypeVar, Generic
 from datetime import datetime
-from pydantic import BaseModel, Field, EmailStr, model_validator, field_validator
+from typing import Any, Generic, TypeVar
+
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    EmailStr,
+    Field,
+    field_validator,
+    model_validator,
+)
 
 T = TypeVar("T")
 
@@ -18,8 +26,8 @@ class UserBase(BaseModel):
 
     email: EmailStr
     name: str
-    role: Optional[str] = None
-    org_id: Optional[str] = None
+    role: str | None = None
+    org_id: str | None = None
 
 
 class UserCreate(UserBase):
@@ -152,18 +160,16 @@ class CaseBase(BaseModel):
         max_length=10000,
         description="Detailed problem statement (max 10,000 characters)",
     )
-    role: Optional[str] = Field(None, max_length=100, description="Requester's role")
-    stakeholders: Optional[List[str]] = Field(None, description="Key affected parties")
-    constraints: Optional[List[str]] = Field(None, description="Hard constraints")
-    horizon: Optional[str] = Field(None, description="Time horizon: short/medium/long")
+    role: str | None = Field(None, max_length=100, description="Requester's role")
+    stakeholders: list[str] | None = Field(None, description="Key affected parties")
+    constraints: list[str] | None = Field(None, description="Hard constraints")
+    horizon: str | None = Field(None, description="Time horizon: short/medium/long")
     sensitivity: str = Field("low", description="Sensitivity level: low/medium/high")
-    attachments: Optional[Dict[str, Any]] = Field(
+    attachments: dict[str, Any] | None = Field(
         None, description="Optional supporting docs"
     )
     locale: str = Field("en", description="Language/locale preference")
-    session_id: Optional[str] = Field(
-        None, description="Session ID for anonymous users"
-    )
+    session_id: str | None = Field(None, description="Session ID for anonymous users")
 
 
 class CaseCreate(CaseBase):
@@ -176,17 +182,17 @@ class CaseResponse(CaseBase):
     """Schema for case response."""
 
     id: str
-    user_id: Optional[str]
-    session_id: Optional[str]
+    user_id: str | None
+    session_id: str | None
     status: str = Field(
         "draft",
         description="Processing status: draft/pending/processing/completed/failed",
     )
     is_public: bool = Field(False, description="Whether case is publicly accessible")
-    public_slug: Optional[str] = Field(
+    public_slug: str | None = Field(
         None, description="Short slug for public URL when is_public=True"
     )
-    share_mode: Optional[str] = Field(
+    share_mode: str | None = Field(
         None, description="Share visibility mode: 'full' or 'essential'"
     )
     view_count: int = Field(0, description="Number of times public case was viewed")
@@ -202,7 +208,7 @@ class CaseShareToggle(BaseModel):
     """Schema for toggling case public visibility."""
 
     is_public: bool = Field(..., description="Whether to make the case public")
-    share_mode: Optional[str] = Field(
+    share_mode: str | None = Field(
         "full", description="Share visibility mode: 'full' or 'essential'"
     )
 
@@ -220,19 +226,17 @@ class VerseBase(BaseModel):
     )
     chapter: int = Field(..., ge=1, le=18, description="Chapter number (1-18)")
     verse: int = Field(..., ge=1, description="Verse number")
-    sanskrit_iast: Optional[str] = Field(
+    sanskrit_iast: str | None = Field(
         None, description="Sanskrit in IAST transliteration"
     )
-    sanskrit_devanagari: Optional[str] = Field(
+    sanskrit_devanagari: str | None = Field(
         None, description="Sanskrit in Devanagari script"
     )
-    translation_en: Optional[str] = Field(
-        None, description="Primary English translation"
-    )
-    paraphrase_en: Optional[str] = Field(
+    translation_en: str | None = Field(None, description="Primary English translation")
+    paraphrase_en: str | None = Field(
         None, description="LLM-generated leadership summary"
     )
-    consulting_principles: Optional[List[str]] = Field(
+    consulting_principles: list[str] | None = Field(
         None, description="Leadership principles"
     )
 
@@ -249,9 +253,31 @@ class VerseResponse(VerseBase):
 
     id: str
     is_featured: bool = Field(default=False, description="Whether verse is featured")
-    source: Optional[str]
-    license: Optional[str]
+    source: str | None
+    license: str | None
     created_at: datetime
+    audio_url: str | None = Field(
+        None, description="URL to audio recitation if available"
+    )
+    duration_ms: int | None = Field(None, description="Audio duration in milliseconds")
+
+    @model_validator(mode="after")
+    def compute_audio_info(self) -> "VerseResponse":
+        """Compute audio_url and duration_ms based on canonical_id.
+
+        Note: This creates coupling between schema and services layer.
+        Consider moving to API layer in future refactoring (v1.18+).
+        The import is deferred to avoid circular dependencies.
+        """
+        if self.canonical_id and (self.audio_url is None or self.duration_ms is None):
+            from services.audio import get_audio_info
+
+            url, duration = get_audio_info(self.canonical_id)
+            if self.audio_url is None:
+                self.audio_url = url
+            if self.duration_ms is None:
+                self.duration_ms = duration
+        return self
 
     class Config:
         from_attributes = True
@@ -269,11 +295,11 @@ class TranslationResponse(BaseModel):
     verse_id: str
     text: str
     language: str = "en"
-    translator: Optional[str] = None
-    school: Optional[str] = None
-    source: Optional[str] = None
-    license: Optional[str] = None
-    year: Optional[int] = None
+    translator: str | None = None
+    school: str | None = None
+    source: str | None = None
+    license: str | None = None
+    year: int | None = None
     created_at: datetime
 
     class Config:
@@ -290,17 +316,17 @@ class OptionSchema(BaseModel):
 
     title: str
     description: str
-    pros: List[str]
-    cons: List[str]
-    sources: List[str] = Field(..., description="Canonical verse IDs")
+    pros: list[str]
+    cons: list[str]
+    sources: list[str] = Field(..., description="Canonical verse IDs")
 
 
 class RecommendedActionSchema(BaseModel):
     """Schema for recommended action."""
 
     option: int = Field(..., description="Option number (1-based)")
-    steps: List[str] = Field(..., description="Implementation steps")
-    sources: List[str] = Field(..., description="Canonical verse IDs")
+    steps: list[str] = Field(..., description="Implementation steps")
+    sources: list[str] = Field(..., description="Canonical verse IDs")
 
 
 class SourceSchema(BaseModel):
@@ -316,10 +342,10 @@ class OutputResultSchema(BaseModel):
 
     executive_summary: str
     # Allow 0+ options for degraded/legacy outputs (target is 3)
-    options: List[OptionSchema] = Field(default_factory=list)
-    recommended_action: Optional[RecommendedActionSchema] = None
-    reflection_prompts: List[str] = Field(default_factory=list)
-    sources: List[SourceSchema] = Field(default_factory=list)
+    options: list[OptionSchema] = Field(default_factory=list)
+    recommended_action: RecommendedActionSchema | None = None
+    reflection_prompts: list[str] = Field(default_factory=list)
+    sources: list[SourceSchema] = Field(default_factory=list)
     confidence: float = Field(default=0.5, ge=0.0, le=1.0)
     scholar_flag: bool = True
 
@@ -343,7 +369,7 @@ class UserFeedbackSummary(BaseModel):
     """Summary of current user's feedback on an output."""
 
     rating: bool  # True = thumbs up, False = thumbs down
-    comment: Optional[str] = None
+    comment: str | None = None
 
 
 class OutputResponse(BaseModel):
@@ -356,7 +382,7 @@ class OutputResponse(BaseModel):
     confidence: float
     scholar_flag: bool
     created_at: datetime
-    user_feedback: Optional[UserFeedbackSummary] = None
+    user_feedback: UserFeedbackSummary | None = None
 
     class Config:
         from_attributes = True
@@ -380,7 +406,7 @@ class ChatMessageResponse(BaseModel):
     case_id: str
     role: str  # "user" or "assistant"
     content: str
-    output_id: Optional[str] = None
+    output_id: str | None = None
     created_at: datetime
 
     class Config:
@@ -408,8 +434,8 @@ class LLMAttributionSchema(BaseModel):
 
     model: str = Field(..., description="LLM model used")
     provider: str = Field(..., description="LLM provider (anthropic/ollama)")
-    input_tokens: Optional[int] = Field(None, description="Input tokens used")
-    output_tokens: Optional[int] = Field(None, description="Output tokens generated")
+    input_tokens: int | None = Field(None, description="Input tokens used")
+    output_tokens: int | None = Field(None, description="Output tokens generated")
 
 
 class FollowUpResponse(BaseModel):
@@ -419,7 +445,7 @@ class FollowUpResponse(BaseModel):
     content: str = Field(..., description="Markdown response from assistant")
     role: str = Field(default="assistant", description="Message role")
     created_at: datetime = Field(..., description="Timestamp of response")
-    llm_attribution: Optional[LLMAttributionSchema] = Field(
+    llm_attribution: LLMAttributionSchema | None = Field(
         None, description="LLM metadata (may be omitted)"
     )
 
@@ -433,7 +459,7 @@ class FeedbackCreate(BaseModel):
     """Schema for creating feedback on an output."""
 
     rating: bool = Field(..., description="True for thumbs up, False for thumbs down")
-    comment: Optional[str] = Field(
+    comment: str | None = Field(
         None, max_length=1000, description="Optional feedback comment"
     )
 
@@ -443,9 +469,9 @@ class FeedbackResponse(BaseModel):
 
     id: str
     output_id: str
-    user_id: Optional[str] = None
+    user_id: str | None = None
     rating: bool
-    comment: Optional[str] = None
+    comment: str | None = None
     created_at: datetime
 
     class Config:
@@ -469,7 +495,7 @@ class ReadinessCheckResponse(BaseModel):
     """Schema for readiness check response."""
 
     status: str
-    checks: Dict[str, bool]
+    checks: dict[str, bool]
 
 
 # ============================================================================
@@ -488,7 +514,7 @@ class PaginatedResponse(BaseModel, Generic[T]):
             return PaginatedResponse.create(items, total, skip // limit + 1, limit)
     """
 
-    data: List[T] = Field(..., description="List of items")
+    data: list[T] = Field(..., description="List of items")
     total: int = Field(..., description="Total number of items", ge=0)
     page: int = Field(..., description="Current page number", ge=1)
     page_size: int = Field(..., description="Items per page", ge=1)
@@ -496,7 +522,7 @@ class PaginatedResponse(BaseModel, Generic[T]):
 
     @classmethod
     def create(
-        cls, items: List[T], total: int, page: int, page_size: int
+        cls, items: list[T], total: int, page: int, page_size: int
     ) -> "PaginatedResponse[T]":
         """Create a paginated response.
 
@@ -547,13 +573,29 @@ class ChapterMetadataResponse(BaseModel):
     sanskrit_name: str = Field(..., description="Chapter name in Sanskrit")
     transliteration: str = Field(..., description="Romanized chapter name")
     english_title: str = Field(..., description="English chapter title")
-    subtitle: Optional[str] = Field(None, description="Optional subtitle")
+    subtitle: str | None = Field(None, description="Optional subtitle")
     summary: str = Field(..., description="Chapter summary/introduction")
     verse_count: int = Field(..., description="Number of verses in chapter")
-    key_themes: Optional[List[str]] = Field(None, description="Key themes in chapter")
+    key_themes: list[str] | None = Field(None, description="Key themes in chapter")
+    hero_verse_id: str | None = Field(None, description="Hero verse canonical ID")
 
     class Config:
         from_attributes = True
+
+
+class GeetaDhyanamVerseResponse(BaseModel):
+    """Schema for a single Geeta Dhyanam (invocation) verse."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    verse_number: int = Field(..., ge=1, le=9, description="Verse number (1-9)")
+    sanskrit: str = Field(..., description="Sanskrit text in Devanagari")
+    iast: str = Field(..., description="IAST transliteration")
+    english: str = Field(..., description="English translation")
+    hindi: str = Field(..., description="Hindi translation")
+    theme: str = Field(..., description="Theme/purpose of the verse")
+    duration_ms: int = Field(..., description="Audio duration in milliseconds")
+    audio_url: str = Field(..., description="Path to pre-generated audio file")
 
 
 # ============================================================================
@@ -571,7 +613,7 @@ class VerseRefResponse(BaseModel):
 class FeaturedCaseResponse(BaseModel):
     """Schema for a single featured case on homepage."""
 
-    slug: Optional[str] = Field(
+    slug: str | None = Field(
         None, description="Public slug for linking (null for fallback)"
     )
     category: str = Field(
@@ -581,10 +623,10 @@ class FeaturedCaseResponse(BaseModel):
     guidance_summary: str = Field(
         ..., description="Executive summary excerpt (~300 chars)"
     )
-    recommended_steps: List[str] = Field(
+    recommended_steps: list[str] = Field(
         default_factory=list, description="First 2-3 recommended action steps"
     )
-    verse_references: List[VerseRefResponse] = Field(
+    verse_references: list[VerseRefResponse] = Field(
         default_factory=list, description="Up to 3 verse references"
     )
     has_followups: bool = Field(
@@ -595,8 +637,8 @@ class FeaturedCaseResponse(BaseModel):
 class FeaturedCasesResponse(BaseModel):
     """Schema for featured cases API response."""
 
-    cases: List[FeaturedCaseResponse] = Field(
+    cases: list[FeaturedCaseResponse] = Field(
         ..., description="Featured cases by category"
     )
-    categories: List[str] = Field(..., description="Available categories")
+    categories: list[str] = Field(..., description="Available categories")
     cached_at: datetime = Field(..., description="When response was cached")

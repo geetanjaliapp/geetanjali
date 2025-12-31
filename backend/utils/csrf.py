@@ -1,7 +1,7 @@
 """CSRF protection utilities."""
 
 import secrets
-from typing import Optional
+
 from fastapi import Request, Response
 
 from config import settings
@@ -24,12 +24,12 @@ def set_csrf_cookie(response: Response, token: str) -> None:
     )
 
 
-def get_csrf_from_cookie(request: Request) -> Optional[str]:
+def get_csrf_from_cookie(request: Request) -> str | None:
     """Get CSRF token from cookie."""
     return request.cookies.get(settings.CSRF_TOKEN_COOKIE_KEY)
 
 
-def get_csrf_from_header(request: Request) -> Optional[str]:
+def get_csrf_from_header(request: Request) -> str | None:
     """Get CSRF token from header."""
     return request.headers.get(settings.CSRF_HEADER_NAME)
 

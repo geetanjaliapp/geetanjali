@@ -1,10 +1,9 @@
 """User preferences model for cross-device sync."""
 
-from datetime import datetime, timezone
-from typing import Optional
 import uuid
+from datetime import datetime, timezone
 
-from sqlalchemy import String, Integer, DateTime, ForeignKey, JSON
+from sqlalchemy import JSON, DateTime, ForeignKey, Integer, String
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -46,8 +45,8 @@ class UserPreferences(Base, TimestampMixin):
     )
 
     # Reading progress (Phase 4b)
-    reading_chapter: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
-    reading_verse: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    reading_chapter: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    reading_verse: Mapped[int | None] = mapped_column(Integer, nullable=True)
     reading_font_size: Mapped[str] = mapped_column(
         String(10), default="medium", nullable=False
     )
@@ -55,9 +54,7 @@ class UserPreferences(Base, TimestampMixin):
     reading_section_prefs: Mapped[dict] = mapped_column(
         JSON().with_variant(JSONB(), "postgresql"), default=dict, nullable=False
     )
-    reading_updated_at: Mapped[Optional[datetime]] = mapped_column(
-        DateTime, nullable=True
-    )
+    reading_updated_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
     # Learning goals (Phase 4b) - list of goal IDs from taxonomy
     learning_goal_ids: Mapped[list[str]] = mapped_column(
@@ -65,7 +62,7 @@ class UserPreferences(Base, TimestampMixin):
         default=list,
         nullable=False,
     )
-    learning_goal_updated_at: Mapped[Optional[datetime]] = mapped_column(
+    learning_goal_updated_at: Mapped[datetime | None] = mapped_column(
         DateTime, nullable=True
     )
 
@@ -79,9 +76,7 @@ class UserPreferences(Base, TimestampMixin):
     font_family: Mapped[str] = mapped_column(
         String(10), default="mixed", nullable=False
     )  # serif/sans/mixed
-    theme_updated_at: Mapped[Optional[datetime]] = mapped_column(
-        DateTime, nullable=True
-    )
+    theme_updated_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
     # Relationship back to User
     user = relationship("User", back_populates="preferences")

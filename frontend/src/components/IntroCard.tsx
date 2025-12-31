@@ -10,11 +10,13 @@
  * - Sanskrit title/name as hero text
  * - Tap to reveal more details (like translation reveal in VerseFocus)
  * - Consistent styling with the verse reading experience
+ * - Dhyanam entry point on Book Intro (Phase 3.6)
  */
 
 import { useState, useCallback, useEffect } from "react";
 import type { BookMetadata, ChapterMetadata } from "../types";
 import type { FontSize } from "./VerseFocus";
+import { SpeakButton } from "./SpeakButton";
 
 // Font size classes matching VerseFocus - dramatic steps for noticeable difference
 const FONT_SIZE_CLASSES: Record<FontSize, string> = {
@@ -28,7 +30,10 @@ interface BookIntroProps {
   book: BookMetadata;
   chapter?: never;
   fontSize?: FontSize;
+  /** Called when user clicks "Begin Reading" */
   onBegin?: () => void;
+  /** Called when user clicks "Start with Dhyanam" */
+  onStartDhyanam?: () => void;
 }
 
 interface ChapterIntroProps {
@@ -76,7 +81,7 @@ export function IntroCard(props: IntroCardProps) {
   }, [handleToggle]);
 
   if (type === "book") {
-    const { book, onBegin } = props;
+    const { book, onBegin, onStartDhyanam } = props;
     return (
       <div className="w-full max-w-2xl mx-auto flex flex-col">
         <div className="shrink-0">
@@ -144,24 +149,42 @@ export function IntroCard(props: IntroCardProps) {
               </p>
             </div>
 
-            {/* Begin Journey CTA */}
-            {onBegin && (
-              <div className="text-center">
+            {/* Dual CTAs: Dhyanam and Begin Reading */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              {onStartDhyanam && (
+                <button
+                  onClick={onStartDhyanam}
+                  className="w-full sm:w-auto px-6 py-2.5 bg-[var(--surface-warm-subtle)] hover:bg-[var(--surface-warm-hover)] text-[var(--text-primary)] font-medium rounded-[var(--radius-card)] border border-[var(--border-warm)] hover:border-[var(--border-warm-hover)] transition-[var(--transition-color)]"
+                >
+                  <span className="mr-1.5">🙏</span>
+                  Start with Dhyanam
+                </button>
+              )}
+              {onBegin && (
                 <button
                   onClick={onBegin}
-                  className="px-8 py-2.5 bg-[var(--interactive-contextual)] hover:bg-[var(--interactive-contextual-hover)] active:bg-[var(--interactive-contextual-active)] text-[var(--interactive-contextual-text)] font-medium rounded-[var(--radius-card)] transition-[var(--transition-color)] shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-dropdown)]"
+                  className="w-full sm:w-auto px-6 py-2.5 bg-[var(--interactive-contextual)] hover:bg-[var(--interactive-contextual-hover)] active:bg-[var(--interactive-contextual-active)] text-[var(--interactive-contextual-text)] font-medium rounded-[var(--radius-card)] transition-[var(--transition-color)] shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-dropdown)]"
                 >
-                  Begin Journey
+                  Begin Reading
                 </button>
-              </div>
-            )}
+              )}
+            </div>
 
             {/* Intro text */}
             <div className="bg-[var(--surface-elevated-translucent-subtle)] rounded-[var(--radius-card)] p-3 border border-[var(--border-warm-subtle)]">
-              <p className="text-sm sm:text-base text-[var(--text-primary)] leading-relaxed">
-                {book.intro_text}
-              </p>
+              <div className="flex items-start gap-2">
+                <p className="flex-1 text-sm sm:text-base text-[var(--text-primary)] leading-relaxed">
+                  {book.intro_text}
+                </p>
+                <SpeakButton
+                  text={book.intro_text}
+                  lang="en"
+                  size="sm"
+                  aria-label="Listen to introduction"
+                />
+              </div>
             </div>
+
           </div>
         </div>
       </div>
@@ -260,9 +283,17 @@ export function IntroCard(props: IntroCardProps) {
 
           {/* Summary */}
           <div className="bg-[var(--surface-elevated-translucent-subtle)] rounded-[var(--radius-card)] p-3 border border-[var(--border-warm-subtle)]">
-            <p className="text-sm sm:text-base text-[var(--text-primary)] leading-relaxed">
-              {chapter.summary}
-            </p>
+            <div className="flex items-start gap-2">
+              <p className="flex-1 text-sm sm:text-base text-[var(--text-primary)] leading-relaxed">
+                {chapter.summary}
+              </p>
+              <SpeakButton
+                text={chapter.summary}
+                lang="en"
+                size="sm"
+                aria-label="Listen to chapter summary"
+              />
+            </div>
           </div>
 
           {/* Key themes */}

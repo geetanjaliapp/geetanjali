@@ -52,15 +52,16 @@ export function formatSanskritLines(
   // Remove the verse number at the end (e.g., ।।2.52।। or ॥2.52॥)
   const withoutVerseNum = text.replace(/[।॥]+\d+\.\d+[।॥]+\s*$/, "");
 
-  // Break line after speaker intros (वाच = "said/spoke")
+  // Break line after speaker intros (उवाच = "said/spoke")
   // This handles cases where speaker intro is inline with verse content
   // e.g., "श्रीभगवानुवाचऊर्ध्वमूलम्..." → "श्रीभगवानुवाच\nऊर्ध्वमूलम्..."
   //
-  // IMPORTANT: Only match वाच at the START of the verse (before first danda)
-  // वाच appearing later in the verse is regular word content, not speaker cue
-  // Using lookahead to ensure वाच is followed by non-danda content (the actual verse)
+  // IMPORTANT: Only match वाच when NOT preceded by space
+  // - "भगवानुवाच" ✓ (merged form, no space before वाच)
+  // - "सञ्जय उवाच" ✓ (separate, but उ before वाच, no space before वाच)
+  // - "पुष्पितां वाचं" ✗ (space before वाच = "speech", not "said") - see BG 2.42
   const withSpeakerBreaks = withoutVerseNum.replace(
-    /^([^।]*वाच)\s*(?=[^।])/,
+    /^([^।]*(?<!\s)वाच)\s*(?=[^।])/,
     "$1\n",
   );
 
@@ -77,7 +78,8 @@ export function formatSanskritLines(
   for (const line of lines) {
     // Check if this line is a speaker intro (ends with वाच - said/spoke)
     // e.g., "सञ्जय उवाच", "श्रीभगवानुवाच"
-    if (/वाच\s*$/.test(line)) {
+    // Uses negative lookbehind to avoid matching " वाचं" (speech) vs "उवाच" (said)
+    if (/(?<!\s)वाच\s*$/.test(line)) {
       if (shouldIncludeSpeaker) {
         // Include speaker intro as-is
         result.push(line);
@@ -135,12 +137,14 @@ export function formatSanskritLines(
 /**
  * Check if a verse line is a speaker introduction
  * Speaker intros end with वाच (said/spoke) - e.g., "सञ्जय उवाच", "श्रीभगवानुवाच"
+ * Uses negative lookbehind to avoid matching " वाचं" (speech) - see BG 2.42
  * @param line - The verse line to check
- * @returns True if line is a speaker introduction (ends with वाच)
+ * @returns True if line is a speaker introduction (ends with वाच not preceded by space)
  */
 export function isSpeakerIntro(line: string): boolean {
   // Speaker intro lines end with वाच (possibly with trailing whitespace)
-  return /वाच\s*$/.test(line);
+  // Must NOT be preceded by space (to avoid matching "वाचं" = speech)
+  return /(?<!\s)वाच\s*$/.test(line);
 }
 
 /**

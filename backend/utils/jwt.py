@@ -1,10 +1,10 @@
 """JWT token utilities for authentication."""
 
-from datetime import datetime, timedelta
-from typing import Optional
-from jose import JWTError, jwt
-import secrets
 import hashlib
+import secrets
+from datetime import datetime, timedelta
+
+from jose import JWTError, jwt
 
 from config import settings
 
@@ -56,7 +56,7 @@ def hash_token(token: str) -> str:
     return hashlib.sha256(token.encode()).hexdigest()
 
 
-def decode_access_token(token: str) -> Optional[dict]:
+def decode_access_token(token: str) -> dict | None:
     """
     Decode and validate a JWT access token.
 

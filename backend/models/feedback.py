@@ -1,10 +1,10 @@
 """Feedback model for user ratings on consultation outputs."""
 
-from sqlalchemy import String, Boolean, Text, ForeignKey, DateTime
-from sqlalchemy.orm import Mapped, mapped_column, relationship
 import uuid
 from datetime import datetime
-from typing import Optional
+
+from sqlalchemy import Boolean, DateTime, ForeignKey, String, Text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models.base import Base
 
@@ -29,19 +29,19 @@ class Feedback(Base):
         nullable=False,
         index=True,
     )
-    user_id: Mapped[Optional[str]] = mapped_column(
+    user_id: Mapped[str | None] = mapped_column(
         String(36),
         ForeignKey("users.id", ondelete="SET NULL"),
         nullable=True,
         index=True,
     )
-    session_id: Mapped[Optional[str]] = mapped_column(
+    session_id: Mapped[str | None] = mapped_column(
         String(36), nullable=True, index=True
     )
 
     # Content
     rating: Mapped[bool] = mapped_column(Boolean, nullable=False)
-    comment: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    comment: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     # Timestamps
     created_at: Mapped[datetime] = mapped_column(

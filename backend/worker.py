@@ -8,7 +8,6 @@ The worker will automatically reconnect if Redis connection is lost.
 
 import sys
 import threading
-from typing import Optional
 
 import uvicorn
 
@@ -26,7 +25,7 @@ logger = setup_logging()
 WORKER_API_PORT = 8001
 
 # Global reference for graceful shutdown
-_api_server: Optional[uvicorn.Server] = None
+_api_server: uvicorn.Server | None = None
 
 
 def start_api_server() -> uvicorn.Server:
@@ -74,7 +73,7 @@ def run_worker():
 
     try:
         from redis import Redis
-        from rq import Worker, Queue
+        from rq import Queue, Worker
 
         redis_conn = Redis.from_url(settings.REDIS_URL)
 
@@ -82,9 +81,12 @@ def run_worker():
         redis_conn.ping()
         # Mask password in log output
         from urllib.parse import urlparse
+
         parsed = urlparse(settings.REDIS_URL)
         db_path = parsed.path.lstrip("/") if parsed.path else "0"
-        safe_url = f"{parsed.scheme}://{parsed.hostname}:{parsed.port or 6379}/{db_path}"
+        safe_url = (
+            f"{parsed.scheme}://{parsed.hostname}:{parsed.port or 6379}/{db_path}"
+        )
         logger.info(f"Connected to Redis at {safe_url}")
 
         queues = [Queue(settings.RQ_QUEUE_NAME, connection=redis_conn)]

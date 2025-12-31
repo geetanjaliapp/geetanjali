@@ -1,7 +1,8 @@
 """Tests for worker API endpoints."""
 
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
 from fastapi import status
 from fastapi.testclient import TestClient
 
@@ -242,7 +243,9 @@ class TestAdminEndpoints:
 
     @patch("worker_api.get_redis_client")
     @patch("api.dependencies.settings")
-    def test_admin_endpoint_redis_unavailable(self, mock_settings, mock_redis, worker_client):
+    def test_admin_endpoint_redis_unavailable(
+        self, mock_settings, mock_redis, worker_client
+    ):
         """Test admin endpoint when Redis unavailable returns 503."""
         mock_settings.API_KEY = "test-admin-key"
         mock_redis.return_value = None

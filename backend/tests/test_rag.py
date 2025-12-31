@@ -1,8 +1,9 @@
 """Tests for RAG pipeline with mocked vector store and LLM."""
 
 import json
+from unittest.mock import MagicMock, Mock, patch
+
 import pytest
-from unittest.mock import Mock, patch, MagicMock
 
 # Mark all tests in this module as unit tests (uses mocked services)
 pytestmark = pytest.mark.unit
@@ -446,7 +447,7 @@ class TestPromptConstruction:
 
     def test_build_ollama_prompt_is_simplified(self):
         """Test Ollama prompt is shorter/simpler."""
-        from services.prompts import build_user_prompt, build_ollama_prompt
+        from services.prompts import build_ollama_prompt, build_user_prompt
 
         verses = [
             {

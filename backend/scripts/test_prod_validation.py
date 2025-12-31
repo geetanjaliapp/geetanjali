@@ -7,8 +7,8 @@ This script pulls actual production outputs with validation issues
 and confirms they are now handled correctly by our improvements.
 """
 
-import sys
 import logging
+import sys
 
 # Set up logging
 logging.basicConfig(
@@ -149,7 +149,7 @@ def test_production_output():
         ),
         "confidence": (
             "number between 0 and 1",
-            lambda x: isinstance(x, (int, float)) and 0 <= x <= 1,
+            lambda x: isinstance(x, int | float) and 0 <= x <= 1,
         ),
         "scholar_flag": ("boolean", lambda x: isinstance(x, bool)),
     }

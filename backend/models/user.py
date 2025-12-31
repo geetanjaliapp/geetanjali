@@ -1,10 +1,10 @@
 """User model for authentication and authorization."""
 
-from sqlalchemy import String, Boolean, DateTime
-from sqlalchemy.orm import Mapped, mapped_column, relationship
 import uuid
 from datetime import datetime
-from typing import Optional
+
+from sqlalchemy import Boolean, DateTime, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models.base import Base, TimestampMixin
 
@@ -25,33 +25,33 @@ class User(Base, TimestampMixin):
 
     # Account status
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
-    deleted_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
     # Authentication
-    password_hash: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    password_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
     email_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    email_verification_token: Mapped[Optional[str]] = mapped_column(
+    email_verification_token: Mapped[str | None] = mapped_column(
         String(64), nullable=True, index=True
     )
-    email_verification_expires_at: Mapped[Optional[datetime]] = mapped_column(
+    email_verification_expires_at: Mapped[datetime | None] = mapped_column(
         DateTime, nullable=True
     )
-    email_verified_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
-    last_login: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    email_verified_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    last_login: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
     # Password Reset
-    reset_token_id: Mapped[Optional[str]] = mapped_column(
+    reset_token_id: Mapped[str | None] = mapped_column(
         String(64), unique=True, index=True, nullable=True
     )
-    reset_token_hash: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
-    reset_token_expires: Mapped[Optional[datetime]] = mapped_column(
+    reset_token_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    reset_token_expires: Mapped[datetime | None] = mapped_column(
         DateTime, nullable=True
     )
 
     # Authorization
     role: Mapped[str] = mapped_column(String(100), default="user")
-    org_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
-    api_key: Mapped[Optional[str]] = mapped_column(
+    org_id: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    api_key: Mapped[str | None] = mapped_column(
         String(255), unique=True, index=True, nullable=True
     )
 

@@ -8,12 +8,11 @@ Handles searches in:
 Supports partial matching and diacritic normalization.
 """
 
-from typing import List
-
 from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 
 from models.verse import Verse
+
 from ..config import SearchConfig
 from ..parser import QueryParser
 from ..types import MatchType, SearchMatch, SearchResult
@@ -25,7 +24,7 @@ def sanskrit_search(
     query: str,
     config: SearchConfig,
     parser: QueryParser,
-) -> List[SearchResult]:
+) -> list[SearchResult]:
     """Search by Sanskrit text (Devanagari or IAST).
 
     Searches in both sanskrit_iast and sanskrit_devanagari fields.
@@ -40,7 +39,7 @@ def sanskrit_search(
     Returns:
         List of matching verses sorted by relevance
     """
-    results: List[SearchResult] = []
+    results: list[SearchResult] = []
 
     # Escape special SQL LIKE characters
     escaped_query = escape_like_pattern(query)

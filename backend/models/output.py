@@ -1,10 +1,11 @@
 """Output model for LLM consultation results."""
 
-from sqlalchemy import String, Text, ForeignKey, JSON, Float, Boolean, DateTime
-from sqlalchemy.orm import Mapped, mapped_column, relationship
 import uuid
 from datetime import datetime
-from typing import Optional, Any
+from typing import Any
+
+from sqlalchemy import JSON, Boolean, DateTime, Float, ForeignKey, String, Text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models.base import Base
 
@@ -24,18 +25,18 @@ class Output(Base):
 
     # Content
     result_json: Mapped[Any] = mapped_column(JSON, nullable=False)
-    executive_summary: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-    confidence: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    executive_summary: Mapped[str | None] = mapped_column(Text, nullable=True)
+    confidence: Mapped[float | None] = mapped_column(Float, nullable=True)
 
     # Debug - only populated for policy violations
-    raw_llm_response: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    raw_llm_response: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     # Review
     scholar_flag: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
-    reviewed_by: Mapped[Optional[str]] = mapped_column(
+    reviewed_by: Mapped[str | None] = mapped_column(
         String(36), ForeignKey("users.id"), nullable=True
     )
-    reviewed_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    reviewed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
     # Timestamps
     created_at: Mapped[datetime] = mapped_column(

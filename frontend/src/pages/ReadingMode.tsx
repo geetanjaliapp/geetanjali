@@ -10,8 +10,8 @@
  * Route: /read
  */
 
-import { useSearchParams } from "react-router-dom";
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { versesApi, readingApi } from "../lib/api";
 import type { Verse, BookMetadata, ChapterMetadata } from "../types";
 import {
@@ -21,13 +21,16 @@ import {
   ChapterSelector,
   IntroCard,
   Toast,
+  ChapterComplete,
 } from "../components";
-import { HeartIcon } from "../components/icons";
+import { HeartIcon, PlayIcon } from "../components/icons";
+import { MiniPlayer, useAudioPlayer } from "../components/audio";
 import {
   useSEO,
   useSwipeNavigation,
   useSyncedReading,
   useSyncedFavorites,
+  useAutoAdvance,
 } from "../hooks";
 import {
   getChapterName,
@@ -132,6 +135,16 @@ export default function ReadingMode() {
   // Onboarding starts hidden, then shows after 3-second delay for first-time users
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showNewsletterToast, setShowNewsletterToast] = useState(false);
+  // Chapter completion prompt (shown at chapter boundary during auto-advance)
+  const [showChapterComplete, setShowChapterComplete] = useState(false);
+  // Single-play mode (triggered by header play button, not auto-advance)
+  const [isSinglePlayMode, setIsSinglePlayMode] = useState(false);
+
+  // Audio player for single-play mode (header play button)
+  const audioPlayer = useAudioPlayer();
+
+  // Ref for header play button (focus management on single-play exit)
+  const headerPlayButtonRef = useRef<HTMLButtonElement>(null);
 
   // Show onboarding after 3-second delay to let users see the UI first
   useEffect(() => {
@@ -153,6 +166,8 @@ export default function ReadingMode() {
   const [bookMetadata, setBookMetadata] = useState<BookMetadata | null>(null);
   const [chapterMetadata, setChapterMetadata] =
     useState<ChapterMetadata | null>(null);
+  // Navigation for Dhyanam page
+  const navigate = useNavigate();
 
   // Translation visibility - persists within chapter, resets on chapter change
   const [showTranslation, setShowTranslation] = useState(false);
@@ -254,6 +269,119 @@ export default function ReadingMode() {
       ? state.chapterVerses[state.pageIndex]
       : null;
 
+  // Next verse for preloading
+  const nextVerse =
+    state.pageIndex >= 0 && state.pageIndex < state.chapterVerses.length - 1
+      ? state.chapterVerses[state.pageIndex + 1]
+      : null;
+
+  // Auto-advance hook for Listen/Read modes (Phase 3.7)
+  const autoAdvance = useAutoAdvance({
+    currentIndex: state.pageIndex,
+    totalCount: state.chapterVerses.length,
+    audioUrl: currentVerse?.audio_url,
+    durationMs: currentVerse?.duration_ms,
+    audioId: currentVerse?.canonical_id || "",
+    nextAudioUrl: nextVerse?.audio_url,
+    onAdvance: (nextIndex: number) => {
+      // Hide translation and advance to next verse
+      setShowTranslation(false);
+      setSlideDirection("from-right");
+      setState((prev) => ({ ...prev, pageIndex: nextIndex }));
+    },
+    onComplete: () => {
+      // End of chapter reached - show completion prompt
+      if (state.chapter < TOTAL_CHAPTERS) {
+        setShowChapterComplete(true);
+      } else {
+        // Last chapter - just stop auto-advance
+        autoAdvance.stop();
+      }
+    },
+  });
+
+  // Handle chapter completion: continue to next chapter
+  const handleChapterContinue = useCallback(() => {
+    setShowChapterComplete(false);
+    setShowTranslation(false);
+    // Go to next chapter and restart auto-advance
+    const nextChapter = state.chapter + 1;
+    if (nextChapter <= TOTAL_CHAPTERS) {
+      setState((prev) => ({
+        ...prev,
+        chapter: nextChapter,
+        pageIndex: PAGE_CHAPTER_INTRO,
+        chapterVerses: [],
+      }));
+      // After chapter loads, we'll need to restart auto-advance
+      // This is handled by the user tapping Listen/Read again after chapter intro
+    }
+  }, [state.chapter]);
+
+  // Handle chapter completion: stop auto-advance
+  const handleChapterStop = useCallback(() => {
+    setShowChapterComplete(false);
+    autoAdvance.stop();
+  }, [autoAdvance]);
+
+  // Handle single-play from header play button
+  const handleSinglePlay = useCallback(() => {
+    if (!currentVerse?.audio_url) return;
+
+    // Stop any auto-advance mode first
+    if (autoAdvance.isActive) {
+      autoAdvance.stop();
+    }
+
+    // Start single-play mode
+    setIsSinglePlayMode(true);
+    audioPlayer.play(currentVerse.canonical_id, currentVerse.audio_url);
+  }, [currentVerse, autoAdvance, audioPlayer]);
+
+  // Auto-dismiss delay for single-play mode (matches AudioPlayerContext completed state duration)
+  const SINGLE_PLAY_DISMISS_DELAY_MS = 1500;
+
+  // Track previous verse ID to detect changes
+  const prevVerseIdRef = useRef<string | null>(null);
+
+  // Auto-dismiss single-play mode after completion
+  useEffect(() => {
+    if (!isSinglePlayMode) return;
+
+    const isCompleted =
+      audioPlayer.currentlyPlaying === currentVerse?.canonical_id &&
+      audioPlayer.state === "completed";
+
+    if (isCompleted) {
+      const timer = setTimeout(() => {
+        setIsSinglePlayMode(false);
+      }, SINGLE_PLAY_DISMISS_DELAY_MS);
+      return () => clearTimeout(timer);
+    }
+  }, [isSinglePlayMode, audioPlayer.currentlyPlaying, audioPlayer.state, currentVerse?.canonical_id]);
+
+  // Exit single-play mode when verse changes
+  useEffect(() => {
+    const currentId = currentVerse?.canonical_id || null;
+    const prevId = prevVerseIdRef.current;
+
+    // Only trigger cleanup if verse actually changed while in single-play mode
+    if (prevId !== null && currentId !== prevId && isSinglePlayMode) {
+      setIsSinglePlayMode(false);
+      audioPlayer.stop();
+    }
+
+    prevVerseIdRef.current = currentId;
+  }, [currentVerse?.canonical_id, isSinglePlayMode, audioPlayer]);
+
+  // Exit single-play mode when entering auto-advance
+  useEffect(() => {
+    if (autoAdvance.isActive && isSinglePlayMode) {
+      setIsSinglePlayMode(false);
+      audioPlayer.stop(); // Stop audio when switching to auto-advance
+    }
+  }, [autoAdvance.isActive, isSinglePlayMode, audioPlayer]);
+
   // Determine what type of page we're showing
   const isBookCover = state.pageIndex === PAGE_BOOK_COVER;
   const isChapterIntro = state.pageIndex === PAGE_CHAPTER_INTRO;
@@ -262,6 +390,12 @@ export default function ReadingMode() {
   const progress = currentVerse
     ? getVerseProgress(state.chapter, currentVerse.verse)
     : { position: 0, total: 0, percentage: 0 };
+
+  // Memoize versePosition to prevent unnecessary MiniPlayer re-renders
+  const versePosition = useMemo(() => ({
+    current: Math.max(1, state.pageIndex + 1), // Ensure positive (1-indexed)
+    total: state.chapterVerses.length,
+  }), [state.pageIndex, state.chapterVerses.length]);
 
   // SEO
   useSEO({
@@ -507,6 +641,8 @@ export default function ReadingMode() {
 
   // Navigation functions - use refs to avoid stale closures
   const nextPage = useCallback(() => {
+    // Stop auto-advance on manual navigation
+    autoAdvance.handleManualNavigation();
     // Set slide animation direction (content slides in from right)
     setSlideDirection("from-right");
     setState((prev) => {
@@ -538,9 +674,11 @@ export default function ReadingMode() {
       }
       return prev;
     });
-  }, [targetVerse]);
+  }, [targetVerse, autoAdvance]);
 
   const prevPage = useCallback(() => {
+    // Stop auto-advance on manual navigation
+    autoAdvance.handleManualNavigation();
     // Set slide animation direction (content slides in from left)
     setSlideDirection("from-left");
     setState((prev) => {
@@ -563,7 +701,7 @@ export default function ReadingMode() {
       }
       return prev;
     });
-  }, []);
+  }, [autoAdvance]);
 
   // Check navigation boundaries
   // Can go prev: not at book cover
@@ -609,12 +747,40 @@ export default function ReadingMode() {
       ) {
         event.preventDefault();
         nextPage();
+      } else if (event.key === " " || event.key === "Spacebar") {
+        // Space: Pause/resume auto-advance or single-play when active
+        if (autoAdvance.isActive) {
+          event.preventDefault();
+          if (autoAdvance.isPaused) {
+            autoAdvance.resume();
+          } else {
+            autoAdvance.pause();
+          }
+        } else if (isSinglePlayMode) {
+          // Single-play mode: pause/resume audio
+          event.preventDefault();
+          if (audioPlayer.state === "playing") {
+            audioPlayer.pause();
+          } else if (audioPlayer.state === "paused") {
+            audioPlayer.resume();
+          }
+        }
+      } else if (event.key === "Escape") {
+        // Escape: Stop auto-advance or single-play
+        if (autoAdvance.isActive) {
+          event.preventDefault();
+          autoAdvance.stop();
+        } else if (isSinglePlayMode) {
+          event.preventDefault();
+          setIsSinglePlayMode(false);
+          audioPlayer.stop();
+        }
       }
     };
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [canGoPrev, canGoNext, prevPage, nextPage]);
+  }, [canGoPrev, canGoNext, prevPage, nextPage, autoAdvance, isSinglePlayMode, audioPlayer]);
 
   return (
     <div className="min-h-screen bg-linear-to-br from-[var(--gradient-page-from)] to-[var(--gradient-page-to)] flex flex-col">
@@ -633,6 +799,24 @@ export default function ReadingMode() {
               </span>
             </div>
             <div className="flex items-center gap-1 sm:gap-2">
+              {/* Play button - single verse playback */}
+              {currentVerse && (
+                <button
+                  ref={headerPlayButtonRef}
+                  onClick={handleSinglePlay}
+                  disabled={!currentVerse.audio_url}
+                  aria-disabled={!currentVerse.audio_url}
+                  className={`flex items-center justify-center min-w-[44px] min-h-[44px] p-2 rounded-[var(--radius-button)] transition-[var(--transition-all)] ${
+                    currentVerse.audio_url
+                      ? "text-[var(--text-reading-muted)] hover:text-[var(--text-reading-primary)] hover:bg-[var(--interactive-reading-hover-bg)]"
+                      : "text-[var(--interactive-reading-disabled)] cursor-not-allowed"
+                  }`}
+                  aria-label={currentVerse.audio_url ? "Play recitation" : "No audio available"}
+                  title={currentVerse.audio_url ? "Play recitation" : "No audio available"}
+                >
+                  <PlayIcon className="w-5 h-5" />
+                </button>
+              )}
               {/* Favorite button - thumb-friendly position in header */}
               {currentVerse && (
                 <button
@@ -775,6 +959,7 @@ export default function ReadingMode() {
               book={bookMetadata}
               fontSize={settings.fontSize}
               onBegin={nextPage}
+              onStartDhyanam={() => navigate("/read/dhyanam")}
             />
           </div>
         ) : isChapterIntro && chapterMetadata ? (
@@ -825,6 +1010,46 @@ export default function ReadingMode() {
           </div>
         )}
       </main>
+
+      {/* Chapter Complete prompt - shown at chapter boundary during auto-advance */}
+      {showChapterComplete && (
+        <div className="fixed inset-0 z-40 bg-[var(--surface-reading)] flex items-center justify-center">
+          <ChapterComplete
+            chapter={state.chapter}
+            verseCount={state.chapterVerses.length}
+            hasNextChapter={state.chapter < TOTAL_CHAPTERS}
+            onContinue={handleChapterContinue}
+            onStop={handleChapterStop}
+          />
+        </div>
+      )}
+
+      {/* Audio MiniPlayer - shown when current verse has audio or single-play is active */}
+      {(currentVerse?.audio_url || isSinglePlayMode) && (
+        <MiniPlayer
+          verseId={currentVerse?.canonical_id || ""}
+          audioUrl={currentVerse?.audio_url || ""}
+          autoPlay={false}
+          // Single-play mode (Phase 3.7b)
+          singlePlayMode={isSinglePlayMode}
+          onExitSinglePlay={() => {
+            setIsSinglePlayMode(false);
+            // Return focus to header play button for accessibility
+            setTimeout(() => headerPlayButtonRef.current?.focus(), 100);
+          }}
+          // Auto-advance props (Phase 3.7)
+          autoAdvanceMode={autoAdvance.mode}
+          isAutoAdvancePaused={autoAdvance.isPaused}
+          textModeProgress={autoAdvance.textModeProgress}
+          durationMs={currentVerse?.duration_ms}
+          versePosition={versePosition}
+          onStartAudioMode={autoAdvance.startAudioMode}
+          onStartTextMode={autoAdvance.startTextMode}
+          onPauseAutoAdvance={autoAdvance.pause}
+          onResumeAutoAdvance={autoAdvance.resume}
+          onStopAutoAdvance={autoAdvance.stop}
+        />
+      )}
 
       {/* Bottom Navigation Bar */}
       <nav
@@ -900,6 +1125,7 @@ export default function ReadingMode() {
         onSelect={goToChapter}
         onClose={() => setShowChapterSelector(false)}
         isOpen={showChapterSelector}
+        onDhyanam={() => navigate("/read/dhyanam")}
       />
 
       {/* Onboarding Overlay - First-time users */}

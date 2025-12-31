@@ -5,7 +5,6 @@ Enricher service for enhancing verse data using LLM and transliteration.
 import json
 import logging
 from pathlib import Path
-from typing import Dict, List
 
 from services.llm import get_llm_service
 from utils.json_parsing import extract_json_from_markdown
@@ -72,7 +71,7 @@ class Enricher:
 
         return text
 
-    def _load_principles(self) -> Dict:
+    def _load_principles(self) -> dict:
         """
         Load consulting principles taxonomy from config.
 
@@ -86,7 +85,7 @@ class Enricher:
             return {}
 
         try:
-            with open(taxonomy_file, "r", encoding="utf-8") as f:
+            with open(taxonomy_file, encoding="utf-8") as f:
                 principles = json.load(f)
             logger.info(f"Loaded {len(principles)} principles from taxonomy")
             return dict(principles)
@@ -96,7 +95,7 @@ class Enricher:
 
     def extract_principles(
         self, verse_text: str, temperature: float = 0.1
-    ) -> List[str]:
+    ) -> list[str]:
         """
         Extract consulting principles from verse using LLM with Geeta Expert persona.
 
@@ -288,11 +287,11 @@ Just a single concise sentence or brief paragraph."""
 
     def enrich_verse(
         self,
-        verse_data: Dict,
+        verse_data: dict,
         extract_principles: bool = True,
         generate_paraphrase: bool = True,
         transliterate: bool = True,
-    ) -> Dict:
+    ) -> dict:
         """
         Apply all enrichments to a verse.
 
@@ -335,7 +334,7 @@ Just a single concise sentence or brief paragraph."""
 
         return enriched
 
-    def enrich_batch(self, verses: List[Dict], **kwargs) -> List[Dict]:
+    def enrich_batch(self, verses: list[dict], **kwargs) -> list[dict]:
         """
         Enrich multiple verses in batch.
 

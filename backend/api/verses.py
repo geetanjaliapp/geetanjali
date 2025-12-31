@@ -2,32 +2,32 @@
 
 import logging
 import random
-from typing import List, Optional
 
 # Thread-safe random for concurrent request handling
 _secure_random = random.SystemRandom()
 from datetime import date
-from fastapi import APIRouter, Depends, HTTPException, status, Query, Request
-from sqlalchemy.orm import Session
+
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy import func
+from sqlalchemy.orm import Session
 
 from api.dependencies import limiter
 from api.errors import ERR_NO_VERSES_IN_DB, ERR_VERSE_NOT_FOUND
+from api.schemas import TranslationResponse, VerseResponse
+from config import settings
 from db import get_db
 from db.repositories.verse_repository import VerseRepository
-from api.schemas import VerseResponse, TranslationResponse
-from models.verse import Verse, Translation
+from models.verse import Translation, Verse
 from services.cache import (
+    all_verse_ids_key,
     cache,
-    verse_key,
-    verse_list_key,
+    calculate_midnight_ttl_with_jitter,
     daily_verse_key,
     featured_count_key,
     featured_verse_ids_key,
-    all_verse_ids_key,
-    calculate_midnight_ttl_with_jitter,
+    verse_key,
+    verse_list_key,
 )
-from config import settings
 
 # Use centralized cache TTL from config
 VERSE_IDS_CACHE_TTL = settings.CACHE_TTL_VERSE_LIST
@@ -41,9 +41,9 @@ router = APIRouter(prefix="/api/v1/verses")
 @limiter.limit("60/minute")
 async def get_verses_count(
     request: Request,
-    chapter: Optional[int] = Query(None, ge=1, le=18, description="Filter by chapter"),
-    featured: Optional[bool] = Query(None, description="Filter by featured status"),
-    principles: Optional[str] = Query(None, description="Comma-separated principle tags"),
+    chapter: int | None = Query(None, ge=1, le=18, description="Filter by chapter"),
+    featured: bool | None = Query(None, description="Filter by featured status"),
+    principles: str | None = Query(None, description="Comma-separated principle tags"),
     db: Session = Depends(get_db),
 ):
     """
@@ -58,9 +58,8 @@ async def get_verses_count(
     Returns:
         Count of matching verses
     """
-    from sqlalchemy import or_
+    from sqlalchemy import cast, or_
     from sqlalchemy.dialects.postgresql import JSONB
-    from sqlalchemy import cast
 
     query = db.query(func.count(Verse.id))
 
@@ -73,7 +72,8 @@ async def get_verses_count(
     if principles:
         principle_list = [p.strip() for p in principles.split(",")]
         conditions = [
-            cast(Verse.consulting_principles, JSONB).contains([p]) for p in principle_list
+            cast(Verse.consulting_principles, JSONB).contains([p])
+            for p in principle_list
         ]
         query = query.filter(Verse.consulting_principles.isnot(None))
         query = query.filter(or_(*conditions))
@@ -82,18 +82,16 @@ async def get_verses_count(
     return {"count": count}
 
 
-@router.get("", response_model=List[VerseResponse])
+@router.get("", response_model=list[VerseResponse])
 @limiter.limit("60/minute")
 async def search_verses(
     request: Request,
-    q: Optional[str] = Query(
+    q: str | None = Query(
         None, max_length=200, description="Search by canonical ID or principle"
     ),
-    chapter: Optional[int] = Query(None, ge=1, le=18, description="Filter by chapter"),
-    featured: Optional[bool] = Query(None, description="Filter by featured status"),
-    principles: Optional[str] = Query(
-        None, description="Comma-separated principle tags"
-    ),
+    chapter: int | None = Query(None, ge=1, le=18, description="Filter by chapter"),
+    featured: bool | None = Query(None, description="Filter by featured status"),
+    principles: str | None = Query(None, description="Comma-separated principle tags"),
     skip: int = Query(default=0, ge=0, description="Number of records to skip"),
     limit: int = Query(
         default=20, ge=1, le=50, description="Maximum number of records (1-50)"
@@ -117,9 +115,8 @@ async def search_verses(
     """
     repo = VerseRepository(db)
 
-    from sqlalchemy import or_
+    from sqlalchemy import cast, or_
     from sqlalchemy.dialects.postgresql import JSONB
-    from sqlalchemy import cast
 
     # Search by canonical ID if query looks like one (not cached - specific lookups)
     if q and q.startswith("BG_"):
@@ -133,7 +130,8 @@ async def search_verses(
     if principles:
         principle_list = [p.strip() for p in principles.split(",")]
         conditions = [
-            cast(Verse.consulting_principles, JSONB).contains([p]) for p in principle_list
+            cast(Verse.consulting_principles, JSONB).contains([p])
+            for p in principle_list
         ]
         query = query.filter(Verse.consulting_principles.isnot(None))
         query = query.filter(or_(*conditions))
@@ -148,7 +146,11 @@ async def search_verses(
 
     # P2.3 FIX: Cache filtered verse list queries (including principle queries)
     cache_key = verse_list_key(
-        chapter=chapter, featured=featured, principles=principles, skip=skip, limit=limit
+        chapter=chapter,
+        featured=featured,
+        principles=principles,
+        skip=skip,
+        limit=limit,
     )
     cached_result = cache.get(cache_key)
     if cached_result:
@@ -256,7 +258,9 @@ async def get_random_verse(
         # Rare race condition: ID cached but verse deleted
         # Invalidate ID cache and return error (next request will rebuild)
         cache.delete(cache_key)
-        logger.warning(f"Cached verse ID {selected_id} not found in DB, cache invalidated")
+        logger.warning(
+            f"Cached verse ID {selected_id} not found in DB, cache invalidated"
+        )
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=ERR_VERSE_NOT_FOUND
         )
@@ -343,11 +347,13 @@ async def get_verse_of_the_day(request: Request, db: Session = Depends(get_db)):
     return verse
 
 
-@router.get("/batch", response_model=List[VerseResponse])
+@router.get("/batch", response_model=list[VerseResponse])
 @limiter.limit("30/minute")
 async def get_verses_batch(
     request: Request,
-    ids: str = Query(..., description="Comma-separated canonical IDs (e.g., BG_2_47,BG_3_35)"),
+    ids: str = Query(
+        ..., description="Comma-separated canonical IDs (e.g., BG_2_47,BG_3_35)"
+    ),
     db: Session = Depends(get_db),
 ):
     """
@@ -389,17 +395,15 @@ async def get_verses_batch(
 
     # Batch load uncached verses from DB
     if uncached_ids:
-        repo = VerseRepository(db)
-        verses = (
-            db.query(Verse)
-            .filter(Verse.canonical_id.in_(uncached_ids))
-            .all()
-        )
+        VerseRepository(db)
+        verses = db.query(Verse).filter(Verse.canonical_id.in_(uncached_ids)).all()
 
         for verse in verses:
             verse_data = VerseResponse.model_validate(verse).model_dump()
             # Cache for future requests
-            cache.set(verse_key(verse.canonical_id), verse_data, settings.CACHE_TTL_VERSE)
+            cache.set(
+                verse_key(verse.canonical_id), verse_data, settings.CACHE_TTL_VERSE
+            )
             results[verse.canonical_id] = verse_data
 
     # Return in requested order, skipping missing
@@ -445,7 +449,7 @@ async def get_verse(request: Request, canonical_id: str, db: Session = Depends(g
     return verse
 
 
-@router.get("/{canonical_id}/translations", response_model=List[TranslationResponse])
+@router.get("/{canonical_id}/translations", response_model=list[TranslationResponse])
 @limiter.limit("60/minute")
 async def get_verse_translations(
     request: Request, canonical_id: str, db: Session = Depends(get_db)

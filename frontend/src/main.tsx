@@ -5,6 +5,7 @@ import App from "./App.tsx";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { LearningGoalProvider } from "./contexts/LearningGoalContext";
+import { AudioPlayerProvider } from "./components/audio";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import {
   initSentry,
@@ -35,7 +36,9 @@ createRoot(document.getElementById("root")!).render(
       <AuthProvider>
         <ThemeProvider>
           <LearningGoalProvider>
-            <App />
+            <AudioPlayerProvider>
+              <App />
+            </AudioPlayerProvider>
           </LearningGoalProvider>
         </ThemeProvider>
       </AuthProvider>

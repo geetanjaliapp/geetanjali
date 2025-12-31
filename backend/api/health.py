@@ -1,13 +1,14 @@
 """Health check endpoints."""
 
 import logging
-from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
-from sqlalchemy.exc import OperationalError, SQLAlchemyError
-import httpx
 
-from db import get_db, check_db_connection
+import httpx
+from fastapi import APIRouter, Depends
+from sqlalchemy.exc import OperationalError, SQLAlchemyError
+from sqlalchemy.orm import Session
+
 from config import settings
+from db import check_db_connection, get_db
 
 logger = logging.getLogger(__name__)
 

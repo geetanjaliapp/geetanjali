@@ -161,6 +161,9 @@ shell-worker: ## Open shell in worker container
 # Deployment
 # =============================================================================
 
+setup-server: ## First-time server setup (run on production server)
+	./scripts/setup-server.sh
+
 deploy: ## Deploy to production
 	./scripts/deploy.sh
 

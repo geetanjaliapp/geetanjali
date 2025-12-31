@@ -1,10 +1,9 @@
 """Output repository for database operations."""
 
-from typing import List
 from sqlalchemy.orm import Session
 
-from models.output import Output
 from db.repositories.base import BaseRepository
+from models.output import Output
 
 
 class OutputRepository(BaseRepository[Output]):  # type: ignore[type-var]
@@ -13,7 +12,7 @@ class OutputRepository(BaseRepository[Output]):  # type: ignore[type-var]
     def __init__(self, db: Session):
         super().__init__(Output, db)
 
-    def get_by_case_id(self, case_id: str) -> List[Output]:
+    def get_by_case_id(self, case_id: str) -> list[Output]:
         """
         Get all outputs for a case, ordered by creation date (newest first).
 
@@ -30,7 +29,7 @@ class OutputRepository(BaseRepository[Output]):  # type: ignore[type-var]
             .all()
         )
 
-    def get_by_case_id_ascending(self, case_id: str) -> List[Output]:
+    def get_by_case_id_ascending(self, case_id: str) -> list[Output]:
         """
         Get all outputs for a case, ordered by creation date (oldest first).
 
@@ -47,7 +46,7 @@ class OutputRepository(BaseRepository[Output]):  # type: ignore[type-var]
             .all()
         )
 
-    def get_flagged_for_review(self, skip: int = 0, limit: int = 100) -> List[Output]:
+    def get_flagged_for_review(self, skip: int = 0, limit: int = 100) -> list[Output]:
         """
         Get outputs flagged for scholar review.
 
@@ -67,7 +66,7 @@ class OutputRepository(BaseRepository[Output]):  # type: ignore[type-var]
             .all()
         )
 
-    def get_unreviewed(self, skip: int = 0, limit: int = 100) -> List[Output]:
+    def get_unreviewed(self, skip: int = 0, limit: int = 100) -> list[Output]:
         """
         Get outputs that are flagged but not yet reviewed.
 

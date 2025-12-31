@@ -4,8 +4,6 @@ This test prevents regressions where worker accidentally imports
 business/infrastructure gauges that should only come from backend.
 """
 
-import pytest
-
 
 class TestWorkerMetricsIsolation:
     """Verify worker only registers event-based metrics."""
@@ -13,7 +11,6 @@ class TestWorkerMetricsIsolation:
     def test_worker_does_not_import_business_metrics(self):
         """Worker should NOT register business gauges."""
         # Import worker metrics module (simulates what worker_api.py does)
-        from prometheus_client import REGISTRY
 
         # Clear any existing metrics first by getting a fresh count
         # Note: We can't fully clear the registry, so we check what's registered
@@ -94,7 +91,8 @@ class TestWorkerMetricsIsolation:
 
         # Get actual exports (filter out dunder methods and module imports)
         actual_exports = {
-            name for name in dir(utils.metrics_worker)
+            name
+            for name in dir(utils.metrics_worker)
             if not name.startswith("_") and name not in {"annotations"}
         }
 
@@ -109,21 +107,25 @@ class TestWorkerMetricsIsolation:
         """Verify metrics are split into correct modules."""
         # Business metrics should be in metrics_business
         from utils.metrics_business import consultations_total, registered_users_total
+
         assert consultations_total is not None
         assert registered_users_total is not None
 
         # Infra metrics should be in metrics_infra
         from utils.metrics_infra import postgres_up, redis_connections
+
         assert postgres_up is not None
         assert redis_connections is not None
 
         # Event metrics should be in metrics_events
-        from utils.metrics_events import email_sends_total, cache_hits_total
+        from utils.metrics_events import cache_hits_total, email_sends_total
+
         assert email_sends_total is not None
         assert cache_hits_total is not None
 
         # LLM metrics should be in metrics_llm
         from utils.metrics_llm import llm_requests_total
+
         assert llm_requests_total is not None
 
     def test_backend_facade_exports_all(self):

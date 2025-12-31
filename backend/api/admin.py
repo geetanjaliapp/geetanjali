@@ -3,17 +3,17 @@
 import logging
 import threading
 import time
-from typing import Optional
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
-from sqlalchemy.orm import Session
+
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
 
 from api.dependencies import verify_admin_api_key
+from data.featured_verses import get_featured_verse_ids
 from db.connection import get_db
 from models import Verse
-from services.ingestion.pipeline import IngestionPipeline
 from services.email import send_alert_email
-from data.featured_verses import get_featured_verse_ids
+from services.ingestion.pipeline import IngestionPipeline
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +23,7 @@ router = APIRouter(prefix="/api/v1/admin")
 class IngestionRequest(BaseModel):
     """Request model for data ingestion."""
 
-    source_type: Optional[str] = (
+    source_type: str | None = (
         None  # sanskrit, translations, commentaries, or None for all
     )
     force_refresh: bool = False
@@ -148,7 +148,7 @@ def trigger_ingestion(
         raise HTTPException(status_code=500, detail="Failed to queue ingestion")
 
 
-def run_ingestion_task(source_type: Optional[str] = None, force_refresh: bool = False):
+def run_ingestion_task(source_type: str | None = None, force_refresh: bool = False):
     """
     Background task to run data ingestion.
 
@@ -242,12 +242,12 @@ def sync_featured_verses(db: Session) -> dict:
     # Step 3: Find which IDs weren't found (only if needed for logging)
     not_found = []
     if synced < len(featured_ids):
-        found_ids = set(
+        found_ids = {
             row[0]
             for row in db.query(Verse.canonical_id)
             .filter(Verse.canonical_id.in_(featured_ids))
             .all()
-        )
+        }
         not_found = [cid for cid in featured_ids if cid not in found_ids]
 
     db.commit()
@@ -324,7 +324,8 @@ def sync_metadata(db: Session) -> dict:
         Stats dict with sync results
     """
     from datetime import datetime
-    from data.chapter_metadata import get_book_metadata, get_all_chapter_metadata
+
+    from data.chapter_metadata import get_all_chapter_metadata, get_book_metadata
     from models import BookMetadata, ChapterMetadata
 
     book_data = get_book_metadata()
@@ -332,9 +333,9 @@ def sync_metadata(db: Session) -> dict:
 
     # Sync book metadata
     book_synced = False
-    existing_book = db.query(BookMetadata).filter(
-        BookMetadata.book_key == "bhagavad_geeta"
-    ).first()
+    existing_book = (
+        db.query(BookMetadata).filter(BookMetadata.book_key == "bhagavad_geeta").first()
+    )
 
     if existing_book:
         # Update existing
@@ -365,9 +366,11 @@ def sync_metadata(db: Session) -> dict:
     # Sync chapter metadata
     chapters_synced = 0
     for ch_data in chapters_data:
-        existing_ch = db.query(ChapterMetadata).filter(
-            ChapterMetadata.chapter_number == ch_data["chapter_number"]
-        ).first()
+        existing_ch = (
+            db.query(ChapterMetadata)
+            .filter(ChapterMetadata.chapter_number == ch_data["chapter_number"])
+            .first()
+        )
 
         if existing_ch:
             # Update existing
@@ -431,6 +434,267 @@ def trigger_sync_metadata(
     except Exception as e:
         logger.error(f"Failed to sync metadata: {e}")
         raise HTTPException(status_code=500, detail="Failed to sync metadata")
+
+
+# =============================================================================
+# Dhyanam Sync (9 Invocation Verses)
+# =============================================================================
+
+
+class SyncDhyanamResponse(BaseModel):
+    """Response model for dhyanam sync."""
+
+    status: str
+    message: str
+    total_dhyanam: int
+    synced: int
+    created: int
+    updated: int
+
+
+def sync_geeta_dhyanam(db: Session) -> dict[str, int]:
+    """
+    Sync Geeta Dhyanam verses from static data to database.
+
+    This syncs the 9 invocation verses from data/geeta_dhyanam.py
+    to the dhyanam_verses table.
+
+    Args:
+        db: Database session
+
+    Returns:
+        Stats dict with sync results
+    """
+    from datetime import datetime
+
+    from data.geeta_dhyanam import get_geeta_dhyanam
+    from models import DhyanamVerse
+
+    dhyanam_data = get_geeta_dhyanam()
+
+    synced = 0
+    created = 0
+    updated = 0
+
+    for verse_data in dhyanam_data:
+        existing = (
+            db.query(DhyanamVerse)
+            .filter(DhyanamVerse.verse_number == verse_data["verse_number"])
+            .first()
+        )
+
+        if existing:
+            # Update existing
+            existing.sanskrit = verse_data["sanskrit"]
+            existing.iast = verse_data["iast"]
+            existing.english = verse_data["english"]
+            existing.hindi = verse_data["hindi"]
+            existing.theme = verse_data["theme"]
+            existing.duration_ms = verse_data["duration_ms"]
+            existing.audio_url = verse_data["audio_url"]
+            existing.updated_at = datetime.utcnow()
+            updated += 1
+        else:
+            # Create new
+            new_verse = DhyanamVerse(
+                verse_number=verse_data["verse_number"],
+                sanskrit=verse_data["sanskrit"],
+                iast=verse_data["iast"],
+                english=verse_data["english"],
+                hindi=verse_data["hindi"],
+                theme=verse_data["theme"],
+                duration_ms=verse_data["duration_ms"],
+                audio_url=verse_data["audio_url"],
+            )
+            db.add(new_verse)
+            created += 1
+
+        synced += 1
+
+    db.commit()
+
+    logger.info(f"Synced {synced} Geeta Dhyanam verses (created={created}, updated={updated})")
+
+    return {
+        "total_dhyanam": len(dhyanam_data),
+        "synced": synced,
+        "created": created,
+        "updated": updated,
+    }
+
+
+@router.post("/sync-dhyanam", response_model=SyncDhyanamResponse)
+def trigger_sync_dhyanam(
+    db: Session = Depends(get_db), _: bool = Depends(verify_admin_api_key)
+):
+    """
+    Sync Geeta Dhyanam invocation verses from curated content to database.
+
+    This populates/updates the dhyanam_verses table with the 9 sacred
+    verses traditionally recited before studying the Bhagavad Geeta.
+
+    Returns:
+        Sync statistics
+    """
+    try:
+        stats = sync_geeta_dhyanam(db)
+
+        return SyncDhyanamResponse(
+            status="success",
+            message=f"Synced {stats['synced']} Geeta Dhyanam verses ({stats['created']} created, {stats['updated']} updated).",
+            total_dhyanam=stats["total_dhyanam"],
+            synced=stats["synced"],
+            created=stats["created"],
+            updated=stats["updated"],
+        )
+
+    except Exception as e:
+        logger.error(f"Failed to sync Dhyanam: {e}")
+        raise HTTPException(status_code=500, detail="Failed to sync Dhyanam")
+
+
+# =============================================================================
+# Verse Audio Metadata Sync
+# =============================================================================
+
+
+class SyncAudioMetadataResponse(BaseModel):
+    """Response model for audio metadata sync."""
+
+    status: str
+    message: str
+    total_verses: int
+    synced: int
+    created: int
+    updated: int
+
+
+def sync_verse_audio_metadata(db: Session, chapter: int | None = None) -> dict[str, int]:
+    """
+    Sync verse audio metadata from static data to database.
+
+    This syncs metadata from data/verse_audio_metadata/ to the
+    verse_audio_metadata table, providing TTS generation hints.
+
+    Args:
+        db: Database session
+        chapter: Optional chapter filter (1-18)
+
+    Returns:
+        Stats dict with sync results
+    """
+    from datetime import datetime
+
+    from data.verse_audio_metadata import get_verse_metadata
+    from models import Verse, VerseAudioMetadata
+
+    # Get verses to sync
+    query = db.query(Verse)
+    if chapter:
+        query = query.filter(Verse.chapter == chapter)
+    verses = query.all()
+
+    synced = 0
+    created = 0
+    updated = 0
+
+    for verse in verses:
+        metadata = get_verse_metadata(verse.canonical_id)
+
+        existing = (
+            db.query(VerseAudioMetadata)
+            .filter(VerseAudioMetadata.canonical_id == verse.canonical_id)
+            .first()
+        )
+
+        # Extract discourse_context once for use in both branches
+        discourse_ctx = metadata.get("discourse_context")
+        discourse_context_str = str(discourse_ctx) if discourse_ctx else None
+
+        if existing:
+            # Update existing (preserve audio file paths if set)
+            existing.speaker = str(metadata.get("speaker", "krishna"))
+            existing.addressee = str(metadata.get("addressee", "arjuna"))
+            existing.discourse_type = str(metadata.get("discourse_type", "teaching"))
+            existing.discourse_context = discourse_context_str
+            existing.emotional_tone = str(metadata.get("emotional_tone", "neutral"))
+            existing.intensity = str(metadata.get("intensity", "moderate"))
+            existing.pacing = str(metadata.get("pacing", "moderate"))
+            existing.theological_weight = str(
+                metadata.get("theological_weight", "standard")
+            )
+            existing.updated_at = datetime.utcnow()
+            updated += 1
+        else:
+            # Create new
+            new_meta = VerseAudioMetadata(
+                verse_id=verse.id,
+                canonical_id=verse.canonical_id,
+                speaker=str(metadata.get("speaker", "krishna")),
+                addressee=str(metadata.get("addressee", "arjuna")),
+                discourse_type=str(metadata.get("discourse_type", "teaching")),
+                discourse_context=discourse_context_str,
+                emotional_tone=str(metadata.get("emotional_tone", "neutral")),
+                intensity=str(metadata.get("intensity", "moderate")),
+                pacing=str(metadata.get("pacing", "moderate")),
+                theological_weight=str(metadata.get("theological_weight", "standard")),
+            )
+            db.add(new_meta)
+            created += 1
+
+        synced += 1
+
+    db.commit()
+
+    chapter_msg = f" for chapter {chapter}" if chapter else ""
+    logger.info(f"Synced {synced} verse audio metadata entries{chapter_msg}")
+
+    return {
+        "total_verses": len(verses),
+        "synced": synced,
+        "created": created,
+        "updated": updated,
+    }
+
+
+@router.post("/sync-audio-metadata", response_model=SyncAudioMetadataResponse)
+def trigger_sync_audio_metadata(
+    chapter: int | None = None,
+    db: Session = Depends(get_db),
+    _: bool = Depends(verify_admin_api_key),
+):
+    """
+    Sync verse audio metadata from curated content to database.
+
+    This populates/updates the verse_audio_metadata table with TTS
+    generation hints (speaker, tone, pacing, etc.) from the code-first
+    curation in data/verse_audio_metadata/.
+
+    Args:
+        chapter: Optional chapter filter (1-18). If not provided, syncs all.
+
+    Returns:
+        Sync statistics
+    """
+    if chapter is not None and (chapter < 1 or chapter > 18):
+        raise HTTPException(status_code=400, detail="Chapter must be between 1 and 18")
+
+    try:
+        stats = sync_verse_audio_metadata(db, chapter)
+
+        chapter_msg = f" for chapter {chapter}" if chapter else ""
+        return SyncAudioMetadataResponse(
+            status="success",
+            message=f"Synced {stats['synced']} verse audio metadata entries{chapter_msg}.",
+            total_verses=stats["total_verses"],
+            synced=stats["synced"],
+            created=stats["created"],
+            updated=stats["updated"],
+        )
+
+    except Exception as e:
+        logger.error(f"Failed to sync audio metadata: {e}")
+        raise HTTPException(status_code=500, detail="Failed to sync audio metadata")
 
 
 class EnrichRequest(BaseModel):
@@ -568,7 +832,7 @@ def run_enrich_task(limit: int = 0, force: bool = False):
 
     def enrich_with_retry(verse_dict: dict, verse_id: str) -> dict:
         """Enrich a verse with exponential backoff on rate limit errors."""
-        last_error: Optional[Exception] = None
+        last_error: Exception | None = None
         for attempt in range(MAX_RETRIES + 1):
             try:
                 return enricher.enrich_verse(
@@ -583,7 +847,7 @@ def run_enrich_task(limit: int = 0, force: bool = False):
                 # Check for rate limit error (429)
                 if "429" in error_str or "rate" in error_str or "too many" in error_str:
                     if attempt < MAX_RETRIES:
-                        backoff = INITIAL_BACKOFF * (BACKOFF_MULTIPLIER ** attempt)
+                        backoff = INITIAL_BACKOFF * (BACKOFF_MULTIPLIER**attempt)
                         logger.warning(
                             f"Rate limit hit for {verse_id}, "
                             f"retry {attempt + 1}/{MAX_RETRIES} after {backoff}s"
@@ -601,7 +865,9 @@ def run_enrich_task(limit: int = 0, force: bool = False):
         logger.info(f"Limit: {limit or 'all'}")
         logger.info(f"Force re-enrich: {force}")
         logger.info(f"Rate limiting: {DELAY_BETWEEN_VERSES}s delay (~20 verses/min)")
-        logger.info(f"Retry policy: {MAX_RETRIES} retries with {INITIAL_BACKOFF}s initial backoff")
+        logger.info(
+            f"Retry policy: {MAX_RETRIES} retries with {INITIAL_BACKOFF}s initial backoff"
+        )
         logger.info("=" * 80)
 
         # Load verses with translations

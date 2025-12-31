@@ -1,8 +1,9 @@
 """Tests for database repositories."""
 
-import pytest
 import uuid
 from datetime import datetime, timedelta
+
+import pytest
 
 # Mark all tests in this module as integration tests (require DB)
 pytestmark = pytest.mark.integration

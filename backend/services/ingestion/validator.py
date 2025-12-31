@@ -3,7 +3,7 @@ Validator service for ensuring data quality and compliance.
 """
 
 import logging
-from typing import Dict, List, Optional, Tuple
+
 from sqlalchemy.orm import Session
 
 from models.verse import Verse
@@ -37,7 +37,7 @@ class Validator:
         self.db = db
         logger.info("Validator initialized")
 
-    def _validate_required_fields(self, data: Dict) -> List[str]:
+    def _validate_required_fields(self, data: dict) -> list[str]:
         """Validate required fields are present."""
         errors = []
         if not data.get("canonical_id"):
@@ -48,14 +48,14 @@ class Validator:
             errors.append("Missing required field: verse")
         return errors
 
-    def _validate_canonical_id_format(self, canonical_id: Optional[str]) -> List[str]:
+    def _validate_canonical_id_format(self, canonical_id: str | None) -> list[str]:
         """Validate canonical ID format (BG_chapter_verse)."""
         if not canonical_id:
             return []  # Empty/None handled by required field validation
         error = validate_canonical_id_format(canonical_id)
         return [error] if error else []
 
-    def _validate_chapter(self, chapter: Optional[int]) -> List[str]:
+    def _validate_chapter(self, chapter: int | None) -> list[str]:
         """Validate chapter number is between 1-18."""
         if chapter is None:
             return []
@@ -67,7 +67,7 @@ class Validator:
             return [f"Chapter must be an integer, got: {chapter}"]
         return []
 
-    def _validate_verse_number(self, verse: Optional[int]) -> List[str]:
+    def _validate_verse_number(self, verse: int | None) -> list[str]:
         """Validate verse number is positive."""
         if verse is None:
             return []
@@ -79,7 +79,7 @@ class Validator:
             return [f"Verse number must be an integer, got: {verse}"]
         return []
 
-    def _validate_content(self, data: Dict) -> List[str]:
+    def _validate_content(self, data: dict) -> list[str]:
         """Validate that verse has required content fields."""
         is_translation_data = data.get("_is_translation_data", False)
 
@@ -104,7 +104,7 @@ class Validator:
                 ]
         return []
 
-    def _check_license(self, data: Dict) -> None:
+    def _check_license(self, data: dict) -> None:
         """Log warning if license is not in allowed list."""
         license_val = data.get("license")
         if license_val and license_val not in self.ALLOWED_LICENSES:
@@ -112,14 +112,14 @@ class Validator:
                 f"License '{license_val}' not in allowed list: {self.ALLOWED_LICENSES}"
             )
 
-    def _check_duplicate(self, canonical_id: Optional[str]) -> None:
+    def _check_duplicate(self, canonical_id: str | None) -> None:
         """Log debug message if verse already exists."""
         if canonical_id:
             existing = self.db.query(Verse).filter_by(canonical_id=canonical_id).first()
             if existing:
                 logger.debug(f"Verse {canonical_id} already exists in database")
 
-    def validate_verse(self, data: Dict) -> Tuple[bool, List[str]]:
+    def validate_verse(self, data: dict) -> tuple[bool, list[str]]:
         """
         Validate verse data structure and uniqueness.
 
@@ -129,7 +129,7 @@ class Validator:
         Returns:
             Tuple of (is_valid, error_messages)
         """
-        errors: List[str] = []
+        errors: list[str] = []
         canonical_id = data.get("canonical_id")
 
         # Collect all validation errors
@@ -149,7 +149,7 @@ class Validator:
 
         return (is_valid, errors)
 
-    def validate_translation(self, data: Dict) -> Tuple[bool, List[str]]:
+    def validate_translation(self, data: dict) -> tuple[bool, list[str]]:
         """
         Validate translation data.
 
@@ -181,7 +181,7 @@ class Validator:
         is_valid = len(errors) == 0
         return (is_valid, errors)
 
-    def validate_commentary(self, data: Dict) -> Tuple[bool, List[str]]:
+    def validate_commentary(self, data: dict) -> tuple[bool, list[str]]:
         """
         Validate commentary data.
 
@@ -207,7 +207,7 @@ class Validator:
         is_valid = len(errors) == 0
         return (is_valid, errors)
 
-    def validate_license(self, source_config: Dict) -> bool:
+    def validate_license(self, source_config: dict) -> bool:
         """
         Validate that source has acceptable license.
 
@@ -233,7 +233,7 @@ class Validator:
 
         return True
 
-    def check_canonical_id_consistency(self, data: Dict) -> bool:
+    def check_canonical_id_consistency(self, data: dict) -> bool:
         """
         Check if canonical_id matches chapter and verse numbers.
 
@@ -260,7 +260,7 @@ class Validator:
 
         return True
 
-    def get_verse_by_canonical_id(self, canonical_id: str) -> Optional[Verse]:
+    def get_verse_by_canonical_id(self, canonical_id: str) -> Verse | None:
         """
         Retrieve existing verse by canonical ID.
 
@@ -272,7 +272,7 @@ class Validator:
         """
         return self.db.query(Verse).filter_by(canonical_id=canonical_id).first()  # type: ignore[return-value]
 
-    def get_statistics(self) -> Dict:
+    def get_statistics(self) -> dict:
         """
         Get validation and database statistics.
 

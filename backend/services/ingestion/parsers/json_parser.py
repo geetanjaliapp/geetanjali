@@ -4,7 +4,6 @@ JSON Parser for extracting Bhagavad Geeta verses from structured JSON sources.
 
 import json
 import logging
-from typing import Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +19,7 @@ class JSONParser:
         """Initialize JSON parser."""
         logger.info("JSONParser initialized")
 
-    def parse(self, json_str: str, source_config: Dict) -> List[Dict]:
+    def parse(self, json_str: str, source_config: dict) -> list[dict]:
         """
         Parse JSON content based on source configuration.
 
@@ -63,7 +62,7 @@ class JSONParser:
             )
             return []
 
-    def _parse_verse_array(self, verses: List, source_config: Dict) -> List[Dict]:
+    def _parse_verse_array(self, verses: list, source_config: dict) -> list[dict]:
         """
         Parse array of verse objects.
 
@@ -84,7 +83,7 @@ class JSONParser:
         logger.info(f"Parsed {len(parsed_verses)} verses from array")
         return parsed_verses
 
-    def _parse_chapters_format(self, chapters: List, source_config: Dict) -> List[Dict]:
+    def _parse_chapters_format(self, chapters: list, source_config: dict) -> list[dict]:
         """
         Parse nested chapter/verse structure.
 
@@ -117,9 +116,7 @@ class JSONParser:
         logger.info(f"Parsed {len(all_verses)} verses from chapters format")
         return all_verses
 
-    def _parse_single_verse(
-        self, verse_data: Dict, source_config: Dict
-    ) -> Optional[Dict]:
+    def _parse_single_verse(self, verse_data: dict, source_config: dict) -> dict | None:
         """
         Parse a single verse dictionary and standardize fields.
 
@@ -194,7 +191,7 @@ class JSONParser:
 
         return verse
 
-    def _extract_number(self, data: Dict, field_names: List[str]) -> Optional[int]:
+    def _extract_number(self, data: dict, field_names: list[str]) -> int | None:
         """
         Extract numeric value from dict trying multiple field names.
 
@@ -214,7 +211,7 @@ class JSONParser:
                     continue
         return None
 
-    def _extract_text(self, data: Dict, field_names: List[str]) -> str:
+    def _extract_text(self, data: dict, field_names: list[str]) -> str:
         """
         Extract text value from dict trying multiple field names.
 
@@ -232,8 +229,8 @@ class JSONParser:
         return ""
 
     def _parse_translations_array(
-        self, translations: List, source_config: Dict
-    ) -> List[Dict]:
+        self, translations: list, source_config: dict
+    ) -> list[dict]:
         """
         Parse array of translation objects from gita/gita translation.json format.
 

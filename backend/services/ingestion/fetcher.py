@@ -6,7 +6,6 @@ import hashlib
 import logging
 import time
 from pathlib import Path
-from typing import Optional
 
 import requests
 from tenacity import retry, stop_after_attempt, wait_exponential
@@ -118,7 +117,7 @@ class Fetcher:
             logger.error(f"Failed to read {file_path}: {e}")
             raise
 
-    def clear_cache(self, url: Optional[str] = None) -> int:
+    def clear_cache(self, url: str | None = None) -> int:
         """
         Clear cache for specific URL or all cached content.
 

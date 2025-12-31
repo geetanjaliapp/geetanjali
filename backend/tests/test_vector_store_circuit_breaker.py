@@ -4,8 +4,9 @@ These are unit tests that don't require ChromaDB infrastructure.
 """
 
 import time
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
 
 # Mark all tests in this module as unit tests (fast, no infrastructure needed)
 pytestmark = pytest.mark.unit

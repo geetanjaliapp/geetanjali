@@ -4,7 +4,7 @@ HTML Parser for extracting Bhagavad Geeta verses from web sources.
 
 import logging
 import re
-from typing import Dict, List, Optional
+
 from bs4 import BeautifulSoup
 
 logger = logging.getLogger(__name__)
@@ -21,7 +21,7 @@ class HTMLParser:
         """Initialize HTML parser."""
         logger.info("HTMLParser initialized")
 
-    def parse(self, html: str, source_config: Dict) -> List[Dict]:
+    def parse(self, html: str, source_config: dict) -> list[dict]:
         """
         Parse HTML content based on source configuration.
 
@@ -43,7 +43,7 @@ class HTMLParser:
             logger.warning(f"Unknown HTML source format for: {source_name}")
             return []
 
-    def parse_sacred_texts(self, html: str, source_config: Dict) -> List[Dict]:
+    def parse_sacred_texts(self, html: str, source_config: dict) -> list[dict]:
         """
         Parse sacred-texts.com Bhagavad Geeta format.
 
@@ -105,7 +105,7 @@ class HTMLParser:
         logger.info(f"Parsed {len(verses)} verses from chapter {chapter_num}")
         return verses
 
-    def _extract_chapter_number(self, soup: BeautifulSoup, url: str) -> Optional[int]:
+    def _extract_chapter_number(self, soup: BeautifulSoup, url: str) -> int | None:
         """
         Extract chapter number from page title or URL.
 
@@ -143,7 +143,7 @@ class HTMLParser:
 
         return None
 
-    def _find_verse_blocks(self, soup: BeautifulSoup) -> List[tuple]:
+    def _find_verse_blocks(self, soup: BeautifulSoup) -> list[tuple]:
         """
         Find and extract verse blocks from the page.
 
@@ -236,7 +236,7 @@ class HTMLParser:
         devanagari_pattern = re.compile(r"[\u0900-\u097F]")
         return bool(devanagari_pattern.search(text))
 
-    def get_chapter_urls(self, index_html: str, base_url: str) -> List[str]:
+    def get_chapter_urls(self, index_html: str, base_url: str) -> list[str]:
         """
         Extract chapter URLs from index page.
 

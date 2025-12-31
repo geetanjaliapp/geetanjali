@@ -8,19 +8,21 @@ Tests the three-layer defense architecture:
 """
 
 import json
+
 import pytest
 
 # Mark all tests in this module as unit tests (fast, no DB required)
 pytestmark = pytest.mark.unit
 from unittest.mock import patch
+
+from services.rag import (
+    _validate_option_structure,
+    _validate_relevance,
+    _validate_source_object_structure,
+    _validate_source_reference,
+)
 from utils.json_parsing import extract_json_from_text
 from utils.validation import validate_canonical_id
-from services.rag import (
-    _validate_relevance,
-    _validate_source_reference,
-    _validate_option_structure,
-    _validate_source_object_structure,
-)
 
 
 class TestJSONExtraction:

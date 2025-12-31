@@ -18,15 +18,14 @@ All cross-boundary imports are deferred (inside functions) to break cycles.
 """
 
 import logging
-import time
-import uuid
 import secrets
 import string
+import time
+import uuid
 from datetime import datetime
-from typing import Optional
 
 from db.connection import SessionLocal
-from models import Case, FeaturedCase, Message
+from models import Case, FeaturedCase
 from models.case import CaseStatus
 from services.cache import cache, featured_cases_key
 
@@ -121,7 +120,7 @@ def curate_missing_categories(categories: list[str]) -> dict[str, list[str]]:
     return results
 
 
-def _create_curated_case(category: str) -> Optional[str]:
+def _create_curated_case(category: str) -> str | None:
     """
     Create a curated case via internal consultation flow.
 
@@ -172,7 +171,7 @@ def _create_curated_case(category: str) -> Optional[str]:
         db.commit()
 
         # Run analysis (synchronously in worker context)
-        from api.outputs import run_analysis_background, _build_case_data
+        from api.outputs import _build_case_data, run_analysis_background
 
         case_data = _build_case_data(case)
         run_analysis_background(case_id, case_data, f"curate-{category}")

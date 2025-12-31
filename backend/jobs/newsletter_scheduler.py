@@ -21,13 +21,13 @@ import argparse
 import logging
 import signal
 import sys
-from datetime import datetime, date
-from typing import Optional, Any
+from datetime import date, datetime
+from typing import Any
 
 from db.connection import SessionLocal
-from models import Subscriber, SendTime
-from services.tasks import enqueue_task, is_rq_available, get_queue
 from jobs.newsletter import send_subscriber_digest
+from models import SendTime, Subscriber
+from services.tasks import enqueue_task, get_queue, is_rq_available
 
 # Set up logging
 logging.basicConfig(
@@ -46,6 +46,7 @@ SCHEDULER_TIMEOUT_SECONDS = 240
 
 class SchedulerTimeoutError(Exception):
     """Raised when scheduler exceeds maximum execution time."""
+
     pass
 
 
@@ -54,7 +55,7 @@ def _timeout_handler(signum, frame):
     raise SchedulerTimeoutError("Scheduler exceeded maximum execution time")
 
 
-def _acquire_scheduler_lock(send_time: str) -> Optional[str]:
+def _acquire_scheduler_lock(send_time: str) -> str | None:
     """
     Acquire a distributed lock to prevent duplicate scheduler runs.
 
@@ -64,7 +65,9 @@ def _acquire_scheduler_lock(send_time: str) -> Optional[str]:
     queue = get_queue()
     if not queue:
         # No Redis available, can't lock - proceed with warning
-        logger.warning("Redis unavailable for distributed lock, proceeding without lock")
+        logger.warning(
+            "Redis unavailable for distributed lock, proceeding without lock"
+        )
         return ""  # Empty string indicates "no lock needed"
 
     # Capture lock_key once to avoid midnight boundary issues
@@ -76,7 +79,7 @@ def _acquire_scheduler_lock(send_time: str) -> Optional[str]:
             lock_key,
             datetime.utcnow().isoformat(),
             nx=True,  # Only set if not exists
-            ex=SCHEDULER_LOCK_TTL_SECONDS
+            ex=SCHEDULER_LOCK_TTL_SECONDS,
         )
         if not acquired:
             logger.warning(f"Scheduler lock already held for {send_time}, exiting")
@@ -150,10 +153,12 @@ def schedule_daily_digests(send_time: str, dry_run: bool = False) -> dict[str, A
         "jobs_failed": 0,
     }
 
-    logger.info(f"Starting newsletter scheduler for send_time={send_time} (dry_run={dry_run})")
+    logger.info(
+        f"Starting newsletter scheduler for send_time={send_time} (dry_run={dry_run})"
+    )
 
     # Acquire distributed lock to prevent duplicate runs
-    lock_key: Optional[str] = None
+    lock_key: str | None = None
     if not dry_run:
         lock_key = _acquire_scheduler_lock(send_time)
         if lock_key is None:
@@ -184,7 +189,9 @@ def schedule_daily_digests(send_time: str, dry_run: bool = False) -> dict[str, A
         # Enqueue jobs
         for subscriber in subscribers:
             if dry_run:
-                logger.info(f"[DRY-RUN] Would enqueue job for subscriber {subscriber.id}")
+                logger.info(
+                    f"[DRY-RUN] Would enqueue job for subscriber {subscriber.id}"
+                )
                 jobs_queued += 1
             else:
                 try:
@@ -196,13 +203,19 @@ def schedule_daily_digests(send_time: str, dry_run: bool = False) -> dict[str, A
                     )
                     if job_id:
                         jobs_queued += 1
-                        logger.debug(f"Queued job {job_id} for subscriber {subscriber.id}")
+                        logger.debug(
+                            f"Queued job {job_id} for subscriber {subscriber.id}"
+                        )
                     else:
                         jobs_failed += 1
-                        logger.error(f"Failed to enqueue job for subscriber {subscriber.id}")
+                        logger.error(
+                            f"Failed to enqueue job for subscriber {subscriber.id}"
+                        )
                 except Exception:
                     jobs_failed += 1
-                    logger.exception(f"Error enqueueing job for subscriber {subscriber.id}")
+                    logger.exception(
+                        f"Error enqueueing job for subscriber {subscriber.id}"
+                    )
 
         # Store counters back in stats for return value
         stats["jobs_queued"] = jobs_queued

@@ -1,8 +1,9 @@
 """Logging configuration."""
 
+import contextvars
 import logging
 import sys
-import contextvars
+
 from config import settings
 
 # Correlation ID context variable for tracing requests

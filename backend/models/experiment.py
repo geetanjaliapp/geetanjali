@@ -1,11 +1,11 @@
 """Experiment events model for A/B testing analytics."""
 
-from sqlalchemy import String, DateTime, Index, JSON
-from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.dialects.postgresql import JSONB
 import uuid
 from datetime import datetime
-from typing import Optional
+
+from sqlalchemy import JSON, DateTime, Index, String
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import Mapped, mapped_column
 
 from models.base import Base
 
@@ -28,14 +28,14 @@ class ExperimentEvent(Base):
     # Experiment info
     experiment: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
     event: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
-    variant: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    variant: Mapped[str | None] = mapped_column(String(50), nullable=True)
 
     # Context
-    session_id: Mapped[Optional[str]] = mapped_column(
+    session_id: Mapped[str | None] = mapped_column(
         String(36), nullable=True, index=True
     )
     # Use JSON with JSONB variant for PostgreSQL (SQLite uses plain JSON)
-    properties: Mapped[Optional[dict]] = mapped_column(
+    properties: Mapped[dict | None] = mapped_column(
         JSON().with_variant(JSONB(), "postgresql"), nullable=True
     )
 

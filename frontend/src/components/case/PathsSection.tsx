@@ -1,3 +1,5 @@
+import { SpeakButton } from "../SpeakButton";
+
 interface PathOption {
   title: string;
   pros: string[];
@@ -10,6 +12,20 @@ interface PathsSectionProps {
   showPaths: boolean;
   onToggle: () => void;
   onSelectOption: (index: number) => void;
+}
+
+/**
+ * Format path option for TTS
+ */
+function formatPathForSpeech(option: PathOption, index: number): string {
+  let text = `Paths Before You. Path ${index + 1}: ${option.title}. `;
+  if (option.pros.length > 0) {
+    text += `Benefits: ${option.pros.join(". ")}. `;
+  }
+  if (option.cons.length > 0) {
+    text += `Considerations: ${option.cons.join(". ")}.`;
+  }
+  return text;
 }
 
 export function PathsSection({
@@ -95,9 +111,16 @@ export function PathsSection({
 
           {/* Selected path details */}
           <div className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] shadow-[var(--shadow-button)] p-3 sm:p-4 border border-[var(--border-warm)]">
-            <h4 className="font-semibold text-[var(--text-primary)] text-sm sm:text-base">
-              {options[selectedOption].title}
-            </h4>
+            <div className="flex items-start justify-between gap-2">
+              <h4 className="font-semibold text-[var(--text-primary)] text-sm sm:text-base">
+                {options[selectedOption].title}
+              </h4>
+              <SpeakButton
+                text={formatPathForSpeech(options[selectedOption], selectedOption)}
+                size="sm"
+                aria-label="Listen to this path"
+              />
+            </div>
             {/* Stack on mobile, side-by-side on larger screens */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-3 sm:mt-4">
               <div>

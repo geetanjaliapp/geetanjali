@@ -26,8 +26,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from main import app
 from db import get_db
+from main import app
 
 
 def pytest_configure(config):
@@ -48,16 +48,26 @@ def pytest_configure(config):
 # Skip marker for PostgreSQL-only tests (JSONB, etc.)
 requires_postgresql = pytest.mark.skipif(
     True,  # Always skip in test suite using SQLite
-    reason="Test requires PostgreSQL JSONB features (SQLite used in CI)"
+    reason="Test requires PostgreSQL JSONB features (SQLite used in CI)",
 )
 
 
 # Import all models to register them with Base.metadata
 # These imports are required to register models with SQLAlchemy Base.metadata
-from models import Base  # noqa: F401
-from models import User, RefreshToken, Case, Output, Message, Verse, Subscriber, Feedback  # noqa: F401
-from models.metadata import BookMetadata, ChapterMetadata  # noqa: F401
+from models import (  # noqa: F401
+    Base,  # noqa: F401
+    Case,
+    DhyanamVerse,
+    Feedback,
+    Message,
+    Output,
+    RefreshToken,
+    Subscriber,
+    User,
+    Verse,
+)
 from models.contact import ContactMessage  # noqa: F401
+from models.metadata import BookMetadata, ChapterMetadata  # noqa: F401
 from models.user_preferences import UserPreferences  # noqa: F401
 
 # Use in-memory SQLite with StaticPool for single connection across threads
@@ -118,8 +128,10 @@ def mock_email_sending():
     This fixture runs automatically for all tests to ensure no actual emails
     are sent to Resend or any other email service.
     """
-    with patch("api.auth.send_account_verification_email", return_value=True), \
-         patch("api.auth.send_password_changed_email", return_value=True), \
-         patch("api.auth.send_account_deleted_email", return_value=True), \
-         patch("api.newsletter.send_newsletter_verification_email", return_value=True):
+    with (
+        patch("api.auth.send_account_verification_email", return_value=True),
+        patch("api.auth.send_password_changed_email", return_value=True),
+        patch("api.auth.send_account_deleted_email", return_value=True),
+        patch("api.newsletter.send_newsletter_verification_email", return_value=True),
+    ):
         yield

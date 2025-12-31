@@ -99,6 +99,7 @@ def test_list_cases(client):
 def test_list_cases_with_counts(client, db_session):
     """Test that list_cases returns proper filter counts."""
     import uuid
+
     from models.case import Case, CaseStatus
 
     session_id = str(uuid.uuid4())
@@ -160,6 +161,7 @@ def test_list_cases_with_counts(client, db_session):
 def test_list_cases_status_filter_completed(client, db_session):
     """Test filtering cases by completed status."""
     import uuid
+
     from models.case import Case, CaseStatus
 
     session_id = str(uuid.uuid4())
@@ -201,6 +203,7 @@ def test_list_cases_status_filter_completed(client, db_session):
 def test_list_cases_status_filter_in_progress(client, db_session):
     """Test filtering cases by in-progress status."""
     import uuid
+
     from models.case import Case, CaseStatus
 
     session_id = str(uuid.uuid4())
@@ -251,6 +254,7 @@ def test_list_cases_status_filter_in_progress(client, db_session):
 def test_list_cases_status_filter_shared(client, db_session):
     """Test filtering cases by shared (public) status."""
     import uuid
+
     from models.case import Case, CaseStatus
 
     session_id = str(uuid.uuid4())
@@ -295,6 +299,7 @@ def test_list_cases_status_filter_shared(client, db_session):
 def test_list_cases_excludes_deleted(client, db_session):
     """Test that soft-deleted cases are excluded from results and counts."""
     import uuid
+
     from models.case import Case, CaseStatus
 
     session_id = str(uuid.uuid4())

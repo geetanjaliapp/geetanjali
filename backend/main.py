@@ -2,54 +2,56 @@
 
 import asyncio
 import uuid
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator
 
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
-from fastapi.exceptions import RequestValidationError
+from fastapi.staticfiles import StaticFiles
+from prometheus_fastapi_instrumentator import Instrumentator
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
-from prometheus_fastapi_instrumentator import Instrumentator
-
 from config import settings
-from utils.logging import setup_logging
-from utils.sentry import init_sentry
-from utils.metrics_scheduler import start_metrics_scheduler, stop_metrics_scheduler
 from services.metrics_collector import collect_metrics
+from utils.logging import setup_logging
+from utils.metrics_scheduler import start_metrics_scheduler, stop_metrics_scheduler
+from utils.sentry import init_sentry
 
 # Initialize Sentry before anything else (captures startup errors)
 init_sentry(service_name="backend")
-from utils.exceptions import (
-    GeetanjaliException,
-    http_exception_handler,
-    geetanjali_exception_handler,
-    validation_exception_handler,
-    general_exception_handler,
-)
 from api import (
-    health,
-    cases,
-    verses,
-    outputs,
-    messages,
-    auth,
     admin,
+    auth,
+    cases,
     contact,
-    sitemap,
-    feed,
+    dhyanam,
     experiments,
+    feed,
     follow_up,
+    health,
+    messages,
+    newsletter,
+    outputs,
+    preferences,
     reading,
     search,
+    sitemap,
     taxonomy,
-    newsletter,
-    preferences,
+    tts,
+    verses,
 )
-from api.middleware.csrf import CSRFMiddleware
 from api.dependencies import limiter
+from api.middleware.csrf import CSRFMiddleware
+from utils.exceptions import (
+    GeetanjaliException,
+    geetanjali_exception_handler,
+    general_exception_handler,
+    http_exception_handler,
+    validation_exception_handler,
+)
 
 logger = setup_logging()
 
@@ -68,24 +70,43 @@ def _load_vector_store_sync() -> None:
         get_vector_store()  # Initialize vector store
         logger.info("Vector store pre-loaded successfully")
     except Exception as e:
-        logger.error(f"Failed to pre-load vector store: {e} (will load on first request)")
+        logger.error(
+            f"Failed to pre-load vector store: {e} (will load on first request)"
+        )
+
+
+def _sync_curated_content() -> None:
+    """
+    Sync curated content to database if not present.
+
+    NOTE: This only runs in the main backend service (main.py lifespan).
+    The worker service uses worker_api.py which has no lifespan handler,
+    so this sync does NOT run in worker processes.
+    """
+    try:
+        from services.startup_sync import run_startup_sync
+
+        run_startup_sync()
+    except Exception as e:
+        logger.error(f"Failed to sync curated content: {e}")
 
 
 def _warm_daily_verse_cache() -> None:
     """Pre-warm daily verse cache to avoid cold-start latency."""
     try:
         from datetime import date
+
         from sqlalchemy import func
 
+        from api.schemas import VerseResponse
         from db import SessionLocal
         from models.verse import Verse
-        from api.schemas import VerseResponse
         from services.cache import (
             cache,
+            calculate_midnight_ttl,
             daily_verse_key,
             featured_count_key,
             featured_verse_ids_key,
-            calculate_midnight_ttl,
         )
 
         # Skip if cache is not available
@@ -140,7 +161,9 @@ def _warm_daily_verse_cache() -> None:
                     verse_data = VerseResponse.model_validate(verse).model_dump()
                     ttl = calculate_midnight_ttl()
                     cache.set(cache_key, verse_data, ttl)
-                    logger.info(f"Daily verse cached: {verse.canonical_id} (TTL: {ttl}s)")
+                    logger.info(
+                        f"Daily verse cached: {verse.canonical_id} (TTL: {ttl}s)"
+                    )
 
     except Exception as e:
         logger.warning(f"Failed to warm daily verse cache: {e}")
@@ -157,8 +180,12 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # === STARTUP ===
     logger.info(f"Starting {settings.APP_NAME} in {settings.APP_ENV} mode")
 
-    # Run blocking I/O in thread pool to avoid blocking event loop
+    # Sync curated content first (runs synchronously, needed before cache warming)
+    # This uses hash-based change detection to only sync when content changes
     loop = asyncio.get_event_loop()
+    await loop.run_in_executor(None, _sync_curated_content)
+
+    # Run blocking I/O in thread pool to avoid blocking event loop
     loop.run_in_executor(None, _load_vector_store_sync)
     loop.run_in_executor(None, _warm_daily_verse_cache)
 
@@ -274,13 +301,23 @@ app.include_router(sitemap.router, tags=["SEO"])
 app.include_router(feed.router, tags=["SEO"])
 app.include_router(experiments.router, tags=["Experiments"])
 app.include_router(reading.router, tags=["Reading"])
+app.include_router(dhyanam.router, tags=["Dhyanam"])
 app.include_router(search.router, tags=["Search"])
 app.include_router(taxonomy.router, tags=["Taxonomy"])
 app.include_router(newsletter.router, tags=["Newsletter"])
 app.include_router(preferences.router, tags=["Preferences"])
+app.include_router(tts.router, tags=["TTS"])
+
+# Serve audio files (development only - nginx serves these in production)
+from services.audio import get_audio_directory
+
+audio_dir = get_audio_directory()
+if audio_dir.exists():
+    app.mount("/audio", StaticFiles(directory=str(audio_dir)), name="audio")
 
 # Prometheus metrics instrumentation (excludes /metrics from instrumentation)
 Instrumentator().instrument(app).expose(app, include_in_schema=False)
+
 
 @app.get("/")
 async def root():

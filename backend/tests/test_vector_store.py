@@ -7,9 +7,10 @@ Circuit breaker tests are unit tests and run without ChromaDB.
 """
 
 import os
-import pytest
 import uuid
 from unittest.mock import patch
+
+import pytest
 
 # Mark as slow (infrastructure-dependent) and skip in CI
 pytestmark = [

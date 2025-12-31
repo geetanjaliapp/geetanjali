@@ -185,6 +185,47 @@ After initial analysis, users can ask follow-up questions via `POST /cases/{id}/
 
 Full OpenAPI docs at `/docs` when running.
 
+## Audio Subsystem
+
+Geetanjali includes AI-generated Sanskrit recitations for all 701 verses plus Geeta Dhyanam invocations.
+
+### Audio Delivery
+
+```
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│   Frontend      │────▶│     Nginx       │────▶│  /audio/mp3/    │
+│   <audio>       │     │   (static)      │     │   (Git LFS)     │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+                                │
+                                └── Cache-Control: 1 year, immutable
+```
+
+- **Storage**: 710 MP3 files (~94MB total) tracked via Git LFS
+- **Serving**: Nginx serves static files directly (not proxied to backend)
+- **Caching**: 1-year browser cache with immutable headers
+
+### Text-to-Speech (TTS) API
+
+Real-time TTS for user-selected text using Edge TTS:
+
+```
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│   Frontend      │────▶│   /api/v1/tts   │────▶│    Edge TTS     │
+│   POST text     │     │   (backend)     │     │   (Microsoft)   │
+└─────────────────┘     └────────┬────────┘     └─────────────────┘
+                                 │
+                                 ▼
+                        ┌─────────────────┐
+                        │   Redis Cache   │
+                        │   (24h TTL)     │
+                        └─────────────────┘
+```
+
+- **Voices**: Hindi (`hi-IN-MadhurNeural`) and English (`en-US-AriaNeural`)
+- **Caching**: Redis with 24-hour TTL, SHA256-based cache keys
+- **Rate limiting**: 30 requests/minute per user
+- **Metrics**: `geetanjali_tts_*` Prometheus counters
+
 ## Deployment
 
 Docker Compose orchestrates core services (7) plus optional observability (2):

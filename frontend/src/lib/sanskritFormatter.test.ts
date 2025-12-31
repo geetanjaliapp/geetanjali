@@ -56,7 +56,7 @@ describe("sanskritFormatter", () => {
   });
 
   describe("isSpeakerIntro", () => {
-    it("should return true for lines containing वाच", () => {
+    it("should return true for lines ending with वाच (speaker intro)", () => {
       expect(isSpeakerIntro("श्रीभगवानुवाच")).toBe(true);
       expect(isSpeakerIntro("अर्जुन उवाच")).toBe(true);
       expect(isSpeakerIntro("संजय उवाच")).toBe(true);
@@ -65,6 +65,12 @@ describe("sanskritFormatter", () => {
     it("should return false for regular verse lines", () => {
       expect(isSpeakerIntro("कर्मण्येवाधिकारस्ते")).toBe(false);
       expect(isSpeakerIntro("धर्मक्षेत्रे कुरुक्षेत्रे")).toBe(false);
+    });
+
+    it("should return false when वाच is preceded by space (BG 2.42)", () => {
+      // "पुष्पितां वाचं" = "flowery speech" - NOT a speaker intro
+      expect(isSpeakerIntro("पुष्पितां वाच")).toBe(false);
+      expect(isSpeakerIntro("यामिमां पुष्पितां वाच")).toBe(false);
     });
   });
 });

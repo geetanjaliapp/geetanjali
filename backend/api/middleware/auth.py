@@ -1,16 +1,16 @@
 """Authentication middleware for protecting routes."""
 
 import re
-from typing import Optional
-from fastapi import Depends, HTTPException, status, Header
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+
+from fastapi import Depends, Header, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
+from api.errors import ERR_INVALID_TOKEN, ERR_USER_NOT_FOUND
 from db.connection import get_db
 from db.repositories.user_repository import UserRepository
 from models.user import User
 from utils.jwt import decode_access_token
-from api.errors import ERR_INVALID_TOKEN, ERR_USER_NOT_FOUND
 
 # UUID v4 format regex for session ID validation
 SESSION_ID_PATTERN = re.compile(
@@ -72,11 +72,11 @@ async def get_current_user(
 
 
 async def get_optional_user(
-    credentials: Optional[HTTPAuthorizationCredentials] = Depends(
+    credentials: HTTPAuthorizationCredentials | None = Depends(
         HTTPBearer(auto_error=False)
     ),
     db: Session = Depends(get_db),
-) -> Optional[User]:
+) -> User | None:
     """
     Dependency to optionally get the current user (doesn't raise error if no token).
 
@@ -137,8 +137,8 @@ def require_role(required_role: str):
 
 
 async def get_session_id(
-    x_session_id: Optional[str] = Header(None, alias="X-Session-ID")
-) -> Optional[str]:
+    x_session_id: str | None = Header(None, alias="X-Session-ID"),
+) -> str | None:
     """
     Extract and validate session ID from X-Session-ID header for anonymous users.
 
@@ -165,10 +165,10 @@ async def get_session_id(
 
 
 def user_can_access_resource(
-    resource_user_id: Optional[str],
-    resource_session_id: Optional[str],
-    current_user: Optional[User],
-    session_id: Optional[str],
+    resource_user_id: str | None,
+    resource_session_id: str | None,
+    current_user: User | None,
+    session_id: str | None,
 ) -> bool:
     """
     Check if a user/session can access a resource.

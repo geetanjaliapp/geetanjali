@@ -1,9 +1,10 @@
 """Verse, Commentary, and Translation models for Bhagavad Geeta scripture."""
 
-from sqlalchemy import String, Text, Integer, ForeignKey, JSON, CheckConstraint, Boolean
-from sqlalchemy.orm import Mapped, mapped_column, relationship
 import uuid
-from typing import Optional, Any
+from typing import Any
+
+from sqlalchemy import JSON, Boolean, CheckConstraint, ForeignKey, Integer, String, Text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models.base import Base, TimestampMixin
 
@@ -31,18 +32,18 @@ class Verse(Base, TimestampMixin):
     )
 
     # Sanskrit text
-    sanskrit_iast: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-    sanskrit_devanagari: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    sanskrit_iast: Mapped[str | None] = mapped_column(Text, nullable=True)
+    sanskrit_devanagari: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     # English content
-    translation_en: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-    paraphrase_en: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    translation_en: Mapped[str | None] = mapped_column(Text, nullable=True)
+    paraphrase_en: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     # Metadata
-    consulting_principles: Mapped[Optional[Any]] = mapped_column(JSON, nullable=True)
+    consulting_principles: Mapped[Any | None] = mapped_column(JSON, nullable=True)
     is_featured: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
-    source: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
-    license: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    source: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    license: Mapped[str | None] = mapped_column(String(100), nullable=True)
 
     # Relationships
     commentaries = relationship(
@@ -79,15 +80,11 @@ class Commentary(Base, TimestampMixin):
     language: Mapped[str] = mapped_column(String(10), default="en")
 
     # Attribution
-    author: Mapped[Optional[str]] = mapped_column(
-        String(255), index=True, nullable=True
-    )
-    school: Mapped[Optional[str]] = mapped_column(
-        String(100), index=True, nullable=True
-    )
-    translator: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
-    source: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
-    license: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    author: Mapped[str | None] = mapped_column(String(255), index=True, nullable=True)
+    school: Mapped[str | None] = mapped_column(String(100), index=True, nullable=True)
+    translator: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    source: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    license: Mapped[str | None] = mapped_column(String(100), nullable=True)
 
     # Relationships
     verse = relationship("Verse", back_populates="commentaries")
@@ -114,13 +111,13 @@ class Translation(Base, TimestampMixin):
     language: Mapped[str] = mapped_column(String(10), default="en", index=True)
 
     # Attribution
-    translator: Mapped[Optional[str]] = mapped_column(
+    translator: Mapped[str | None] = mapped_column(
         String(255), index=True, nullable=True
     )
-    school: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
-    source: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
-    license: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
-    year: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    school: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    source: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    license: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    year: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     # Relationships
     verse = relationship("Verse", back_populates="translations")

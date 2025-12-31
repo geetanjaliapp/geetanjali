@@ -4,16 +4,15 @@ import logging
 import secrets
 import string
 import uuid
+from collections.abc import Callable
 from datetime import datetime, timedelta
-from typing import Any, Callable, List, Optional, TypeVar
+from typing import Any, TypeVar
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from sqlalchemy.orm import Session
 
-from db import get_db
-from db.repositories.case_repository import CaseRepository
-from db.repositories.message_repository import MessageRepository
-from db.repositories.output_repository import OutputRepository
+from api.dependencies import get_case_with_access, limiter
+from api.middleware.auth import get_optional_user, get_session_id
 from api.schemas import (
     CaseCreate,
     CaseResponse,
@@ -22,8 +21,11 @@ from api.schemas import (
     OutputResponse,
     VerseRefResponse,
 )
-from api.middleware.auth import get_optional_user, get_session_id
-from api.dependencies import get_case_with_access, limiter
+from config import settings
+from db import get_db
+from db.repositories.case_repository import CaseRepository
+from db.repositories.message_repository import MessageRepository
+from db.repositories.output_repository import OutputRepository
 from models.case import Case
 from models.user import User
 from services.cache import (
@@ -36,10 +38,9 @@ from services.cache import (
     public_case_view_key,
 )
 from services.content_filter import (
-    validate_submission_content,
     ContentPolicyError,
+    validate_submission_content,
 )
-from config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -73,12 +74,12 @@ def generate_unique_public_slug(db: Session, max_candidates: int = 10) -> str:
     candidates = [generate_public_slug() for _ in range(max_candidates)]
 
     # Single query to check which candidates already exist
-    existing_slugs = set(
+    existing_slugs = {
         row[0]
         for row in db.query(Case.public_slug)
         .filter(Case.public_slug.in_(candidates))
         .all()
-    )
+    }
 
     # Find first non-existing slug
     for slug in candidates:
@@ -175,8 +176,8 @@ async def create_case(
     request: Request,
     case_data: CaseCreate,
     db: Session = Depends(get_db),
-    current_user: Optional[User] = Depends(get_optional_user),
-    session_id: Optional[str] = Depends(get_session_id),
+    current_user: User | None = Depends(get_optional_user),
+    session_id: str | None = Depends(get_session_id),
 ):
     """
     Create a new ethical dilemma case (supports anonymous users).
@@ -265,7 +266,7 @@ def _extract_summary(output) -> str:
 
 def _extract_steps(
     output, max_steps: int = 2, max_chars: int | None = None
-) -> List[str]:
+) -> list[str]:
     """Extract recommended action steps from output.
 
     Args:
@@ -284,7 +285,7 @@ def _extract_steps(
     return steps[:max_steps]
 
 
-def _extract_verse_refs(output, max_refs: int = 3) -> List[VerseRefResponse]:
+def _extract_verse_refs(output, max_refs: int = 3) -> list[VerseRefResponse]:
     """Extract verse references from output sources."""
 
     if not output or not output.result_json:
@@ -323,13 +324,12 @@ async def get_featured_cases(
 
     Cached in Redis (1 hour). Triggers background curation if categories missing.
     """
-    from models import FeaturedCase
-    from models.case import CaseStatus
     from api.schemas import (
         FeaturedCaseResponse,
         FeaturedCasesResponse,
-        VerseRefResponse,
     )
+    from models import FeaturedCase
+    from models.case import CaseStatus
 
     # Enable browser caching for static content (featured cases rarely change)
     # Redis handles server-side caching with 24h TTL
@@ -376,8 +376,8 @@ async def get_featured_cases(
         else:
             logger.info(f"Missing featured categories: {missing}, triggering curation")
             try:
-                from services.tasks import enqueue_task
                 from jobs.curate_featured import curate_missing_categories
+                from services.tasks import enqueue_task
 
                 enqueue_task(curate_missing_categories, list(missing))
                 # Set cooldown to prevent repeated triggers
@@ -456,10 +456,10 @@ async def list_cases(
     request: Request,
     skip: int = 0,
     limit: int = 100,
-    status_filter: Optional[str] = None,
+    status_filter: str | None = None,
     db: Session = Depends(get_db),
-    current_user: Optional[User] = Depends(get_optional_user),
-    session_id: Optional[str] = Depends(get_session_id),
+    current_user: User | None = Depends(get_optional_user),
+    session_id: str | None = Depends(get_session_id),
 ):
     """
     List cases for the user (supports anonymous and authenticated users).
@@ -495,7 +495,9 @@ async def list_cases(
         counts = {"all": 0, "completed": 0, "in_progress": 0, "failed": 0, "shared": 0}
 
     return {
-        "cases": [CaseResponse.model_validate(c).model_dump(mode="json") for c in cases],
+        "cases": [
+            CaseResponse.model_validate(c).model_dump(mode="json") for c in cases
+        ],
         "counts": counts,
     }
 
@@ -676,7 +678,7 @@ async def get_public_case(
     )
 
 
-@router.get("/public/{slug}/messages", response_model=List[ChatMessageResponse])
+@router.get("/public/{slug}/messages", response_model=list[ChatMessageResponse])
 @limiter.limit("60/minute")
 async def get_public_case_messages(
     request: Request,
@@ -704,7 +706,7 @@ async def get_public_case_messages(
     )
 
 
-@router.get("/public/{slug}/outputs", response_model=List[OutputResponse])
+@router.get("/public/{slug}/outputs", response_model=list[OutputResponse])
 @limiter.limit("60/minute")
 async def get_public_case_outputs(
     request: Request,
@@ -782,8 +784,12 @@ async def record_public_view(
         # Increment daily views counter for accurate 24h metrics
         cache.incr(daily_views_counter_key(), ttl=settings.CACHE_TTL_DAILY_COUNTER)
 
-        logger.debug(f"Public case {slug} new view from {client_ip}, count: {case.view_count}")
+        logger.debug(
+            f"Public case {slug} new view from {client_ip}, count: {case.view_count}"
+        )
     else:
-        logger.debug(f"Public case {slug} duplicate view from {client_ip}, count unchanged")
+        logger.debug(
+            f"Public case {slug} duplicate view from {client_ip}, count unchanged"
+        )
 
     return {"view_count": case.view_count}

@@ -1,13 +1,13 @@
 """Experiment events API for A/B testing analytics."""
 
 import logging
-from fastapi import APIRouter, Depends, Request, HTTPException
-from sqlalchemy.orm import Session
-from pydantic import BaseModel, Field
-from typing import Optional
 from datetime import datetime
 
-from api.dependencies import limiter, get_session_id, verify_admin_api_key
+from fastapi import APIRouter, Depends, HTTPException, Request
+from pydantic import BaseModel, Field
+from sqlalchemy.orm import Session
+
+from api.dependencies import get_session_id, limiter, verify_admin_api_key
 from db.connection import get_db
 from models.experiment import ExperimentEvent
 
@@ -21,15 +21,15 @@ class ExperimentEventCreate(BaseModel):
 
     experiment: str = Field(..., min_length=1, max_length=100)
     event: str = Field(..., min_length=1, max_length=100)
-    properties: Optional[dict] = Field(default=None)
-    timestamp: Optional[datetime] = Field(default=None)
+    properties: dict | None = Field(default=None)
+    timestamp: datetime | None = Field(default=None)
 
 
 class ExperimentEventResponse(BaseModel):
     """Response model for experiment event."""
 
     success: bool
-    id: Optional[str] = None
+    id: str | None = None
 
 
 @router.post("/events", response_model=ExperimentEventResponse)
@@ -38,7 +38,7 @@ async def track_event(
     request: Request,
     event_data: ExperimentEventCreate,
     db: Session = Depends(get_db),
-    session_id: Optional[str] = Depends(get_session_id),
+    session_id: str | None = Depends(get_session_id),
 ):
     """
     Track an experiment event.
@@ -108,7 +108,7 @@ async def get_experiment_stats(
 
     Returns counts of events by variant.
     """
-    from sqlalchemy import func, distinct
+    from sqlalchemy import distinct, func
 
     try:
         # Get unique sessions and event counts by variant

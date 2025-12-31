@@ -29,11 +29,14 @@ export { ProgressBar } from "./ProgressBar";
 export { StickyBottomNav } from "./StickyBottomNav";
 export { FloatingNavArrow } from "./FloatingNavArrow";
 export { VerseFocus } from "./VerseFocus";
+export { DhyanamVerseFocus } from "./DhyanamVerseFocus";
 export { ChapterSelector } from "./ChapterSelector";
 export { IntroCard } from "./IntroCard";
 export { VersePopover } from "./VersePopover";
 export { GuidanceMarkdown } from "./GuidanceMarkdown";
 export { FeaturedConsultations } from "./FeaturedConsultations";
+export { SpeakButton } from "./SpeakButton";
+export { ChapterComplete } from "./ChapterComplete";
 
 // Case-related components
 export {

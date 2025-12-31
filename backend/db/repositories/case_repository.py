@@ -1,11 +1,10 @@
 """Case repository for database operations."""
 
-from typing import List, Optional
 from sqlalchemy import Integer
 from sqlalchemy.orm import Session
 
-from models.case import Case
 from db.repositories.base import BaseRepository
+from models.case import Case
 
 
 class CaseRepository(BaseRepository[Case]):  # type: ignore[type-var]
@@ -19,8 +18,8 @@ class CaseRepository(BaseRepository[Case]):  # type: ignore[type-var]
         user_id: str,
         skip: int = 0,
         limit: int = 100,
-        status_filter: Optional[str] = None,
-    ) -> List[Case]:
+        status_filter: str | None = None,
+    ) -> list[Case]:
         """
         Get all non-deleted cases for a user.
 
@@ -34,13 +33,16 @@ class CaseRepository(BaseRepository[Case]):  # type: ignore[type-var]
             List of cases (excluding soft-deleted)
         """
         query = self.db.query(Case).filter(
-            Case.user_id == user_id, Case.is_deleted == False  # noqa: E712
+            Case.user_id == user_id,
+            Case.is_deleted == False,  # noqa: E712
         )
         query = self._apply_status_filter(query, status_filter)
-        result: List[Case] = query.order_by(Case.created_at.desc()).offset(skip).limit(limit).all()
+        result: list[Case] = (
+            query.order_by(Case.created_at.desc()).offset(skip).limit(limit).all()
+        )
         return result
 
-    def _apply_status_filter(self, query, status_filter: Optional[str]):
+    def _apply_status_filter(self, query, status_filter: str | None):
         """Apply status filter to query."""
         from models.case import CaseStatus
 
@@ -48,7 +50,11 @@ class CaseRepository(BaseRepository[Case]):  # type: ignore[type-var]
             # Completed includes: completed, policy_violation, or no status (legacy)
             query = query.filter(
                 Case.status.in_(
-                    [CaseStatus.COMPLETED.value, CaseStatus.POLICY_VIOLATION.value, None]
+                    [
+                        CaseStatus.COMPLETED.value,
+                        CaseStatus.POLICY_VIOLATION.value,
+                        None,
+                    ]
                 )
             )
         elif status_filter == "in-progress":
@@ -74,40 +80,54 @@ class CaseRepository(BaseRepository[Case]):  # type: ignore[type-var]
             Dict with counts: {all, completed, in_progress, shared}
         """
         from sqlalchemy import func
+
         from models.case import CaseStatus
 
         base_filter = (Case.user_id == user_id) & (Case.is_deleted == False)  # noqa: E712
 
         # Single query with conditional aggregation
-        result = self.db.query(
-            func.count(Case.id).label("all"),
-            func.sum(
-                func.cast(
-                    Case.status.in_(
-                        [CaseStatus.COMPLETED.value, CaseStatus.POLICY_VIOLATION.value]
+        result = (
+            self.db.query(
+                func.count(Case.id).label("all"),
+                func.sum(
+                    func.cast(
+                        Case.status.in_(
+                            [
+                                CaseStatus.COMPLETED.value,
+                                CaseStatus.POLICY_VIOLATION.value,
+                            ]
+                        )
+                        | Case.status.is_(None),
+                        Integer,
                     )
-                    | Case.status.is_(None),
-                    Integer,
-                )
-            ).label("completed"),
-            func.sum(
-                func.cast(
-                    Case.status.in_(
-                        [CaseStatus.PENDING.value, CaseStatus.PROCESSING.value]
-                    ),
-                    Integer,
-                )
-            ).label("in_progress"),
-            func.sum(
-                func.cast(Case.status == CaseStatus.FAILED.value, Integer)
-            ).label("failed"),
-            func.sum(func.cast(Case.is_public == True, Integer)).label(  # noqa: E712
-                "shared"
-            ),
-        ).filter(base_filter).first()
+                ).label("completed"),
+                func.sum(
+                    func.cast(
+                        Case.status.in_(
+                            [CaseStatus.PENDING.value, CaseStatus.PROCESSING.value]
+                        ),
+                        Integer,
+                    )
+                ).label("in_progress"),
+                func.sum(
+                    func.cast(Case.status == CaseStatus.FAILED.value, Integer)
+                ).label("failed"),
+                func.sum(func.cast(Case.is_public == True, Integer)).label(  # noqa: E712
+                    "shared"
+                ),
+            )
+            .filter(base_filter)
+            .first()
+        )
 
         if result is None:
-            return {"all": 0, "completed": 0, "in_progress": 0, "failed": 0, "shared": 0}
+            return {
+                "all": 0,
+                "completed": 0,
+                "in_progress": 0,
+                "failed": 0,
+                "shared": 0,
+            }
 
         return {
             "all": result.all or 0,
@@ -122,8 +142,8 @@ class CaseRepository(BaseRepository[Case]):  # type: ignore[type-var]
         session_id: str,
         skip: int = 0,
         limit: int = 100,
-        status_filter: Optional[str] = None,
-    ) -> List[Case]:
+        status_filter: str | None = None,
+    ) -> list[Case]:
         """
         Get all non-deleted cases for an anonymous session.
 
@@ -142,7 +162,9 @@ class CaseRepository(BaseRepository[Case]):  # type: ignore[type-var]
             Case.is_deleted == False,  # noqa: E712
         )
         query = self._apply_status_filter(query, status_filter)
-        result: List[Case] = query.order_by(Case.created_at.desc()).offset(skip).limit(limit).all()
+        result: list[Case] = (
+            query.order_by(Case.created_at.desc()).offset(skip).limit(limit).all()
+        )
         return result
 
     def count_by_session(self, session_id: str) -> dict:
@@ -156,6 +178,7 @@ class CaseRepository(BaseRepository[Case]):  # type: ignore[type-var]
             Dict with counts: {all, completed, in_progress, shared}
         """
         from sqlalchemy import func
+
         from models.case import CaseStatus
 
         base_filter = (
@@ -164,35 +187,48 @@ class CaseRepository(BaseRepository[Case]):  # type: ignore[type-var]
             & (Case.is_deleted == False)  # noqa: E712
         )
 
-        result = self.db.query(
-            func.count(Case.id).label("all"),
-            func.sum(
-                func.cast(
-                    Case.status.in_(
-                        [CaseStatus.COMPLETED.value, CaseStatus.POLICY_VIOLATION.value]
+        result = (
+            self.db.query(
+                func.count(Case.id).label("all"),
+                func.sum(
+                    func.cast(
+                        Case.status.in_(
+                            [
+                                CaseStatus.COMPLETED.value,
+                                CaseStatus.POLICY_VIOLATION.value,
+                            ]
+                        )
+                        | Case.status.is_(None),
+                        Integer,
                     )
-                    | Case.status.is_(None),
-                    Integer,
-                )
-            ).label("completed"),
-            func.sum(
-                func.cast(
-                    Case.status.in_(
-                        [CaseStatus.PENDING.value, CaseStatus.PROCESSING.value]
-                    ),
-                    Integer,
-                )
-            ).label("in_progress"),
-            func.sum(
-                func.cast(Case.status == CaseStatus.FAILED.value, Integer)
-            ).label("failed"),
-            func.sum(func.cast(Case.is_public == True, Integer)).label(  # noqa: E712
-                "shared"
-            ),
-        ).filter(base_filter).first()
+                ).label("completed"),
+                func.sum(
+                    func.cast(
+                        Case.status.in_(
+                            [CaseStatus.PENDING.value, CaseStatus.PROCESSING.value]
+                        ),
+                        Integer,
+                    )
+                ).label("in_progress"),
+                func.sum(
+                    func.cast(Case.status == CaseStatus.FAILED.value, Integer)
+                ).label("failed"),
+                func.sum(func.cast(Case.is_public == True, Integer)).label(  # noqa: E712
+                    "shared"
+                ),
+            )
+            .filter(base_filter)
+            .first()
+        )
 
         if result is None:
-            return {"all": 0, "completed": 0, "in_progress": 0, "failed": 0, "shared": 0}
+            return {
+                "all": 0,
+                "completed": 0,
+                "in_progress": 0,
+                "failed": 0,
+                "shared": 0,
+            }
 
         return {
             "all": result.all or 0,
@@ -204,7 +240,7 @@ class CaseRepository(BaseRepository[Case]):  # type: ignore[type-var]
 
     def get_by_sensitivity(
         self, sensitivity: str, skip: int = 0, limit: int = 100
-    ) -> List[Case]:
+    ) -> list[Case]:
         """
         Get cases by sensitivity level.
 
@@ -252,7 +288,7 @@ class CaseRepository(BaseRepository[Case]):  # type: ignore[type-var]
         self.db.commit()
         return count
 
-    def get_by_public_slug(self, slug: str) -> Optional[Case]:
+    def get_by_public_slug(self, slug: str) -> Case | None:
         """
         Get a case by its public slug.
 
@@ -264,7 +300,7 @@ class CaseRepository(BaseRepository[Case]):  # type: ignore[type-var]
         """
         return self.db.query(Case).filter(Case.public_slug == slug).first()
 
-    def get_public_cases(self, skip: int = 0, limit: int = 100) -> List[Case]:
+    def get_public_cases(self, skip: int = 0, limit: int = 100) -> list[Case]:
         """
         Get all public cases.
 
@@ -284,7 +320,7 @@ class CaseRepository(BaseRepository[Case]):  # type: ignore[type-var]
             .all()
         )
 
-    def soft_delete(self, case_id: str) -> Optional[Case]:
+    def soft_delete(self, case_id: str) -> Case | None:
         """
         Soft delete a case by setting is_deleted=True.
 
@@ -319,6 +355,7 @@ class CaseRepository(BaseRepository[Case]):  # type: ignore[type-var]
             Number of cases marked as failed
         """
         from datetime import datetime, timedelta
+
         from models.case import CaseStatus
 
         cutoff = datetime.utcnow() - timedelta(minutes=timeout_minutes)

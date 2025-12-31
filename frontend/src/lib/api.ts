@@ -11,6 +11,7 @@ import type {
   Message,
   BookMetadata,
   ChapterMetadata,
+  GeetaDhyanamVerse,
   SearchResponse,
   FeaturedCasesResponse,
   UserPreferences,
@@ -345,6 +346,27 @@ export const readingApi = {
   /** Get metadata for a specific chapter */
   getChapter: async (chapterNumber: number): Promise<ChapterMetadata> => {
     const response = await api.get(`/reading/chapters/${chapterNumber}`);
+    return response.data;
+  },
+};
+
+// Dhyanam API - Geeta Dhyanam (9 Sacred Invocation Verses)
+export const dhyanamApi = {
+  /** Get all 9 Dhyanam verses */
+  getAll: async (): Promise<GeetaDhyanamVerse[]> => {
+    const response = await api.get(`/dhyanam`);
+    return response.data;
+  },
+
+  /** Get a single Dhyanam verse by number (1-9) */
+  getByNumber: async (verseNumber: number): Promise<GeetaDhyanamVerse> => {
+    const response = await api.get(`/dhyanam/${verseNumber}`);
+    return response.data;
+  },
+
+  /** Get count of Dhyanam verses */
+  getCount: async (): Promise<{ count: number }> => {
+    const response = await api.get(`/dhyanam/count`);
     return response.data;
   },
 };

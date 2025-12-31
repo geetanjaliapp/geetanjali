@@ -19,6 +19,7 @@ from typing import TypedDict
 
 class BookMetadata(TypedDict):
     """Structure for the book intro / cover page."""
+
     sanskrit_title: str
     transliteration: str
     english_title: str
@@ -28,8 +29,14 @@ class BookMetadata(TypedDict):
     intro_text: str
 
 
-class ChapterMetadata(TypedDict):
-    """Structure for chapter intro pages."""
+class ChapterMetadata(TypedDict, total=False):
+    """Structure for chapter intro pages.
+
+    Required fields are marked in the class; optional audio-related
+    fields use total=False to allow gradual addition.
+    """
+
+    # Required fields (existing)
     chapter_number: int
     sanskrit_name: str
     transliteration: str
@@ -38,6 +45,21 @@ class ChapterMetadata(TypedDict):
     summary: str
     verse_count: int
     key_themes: list[str]
+
+    # Hero verse: most representative/celebrated verse from the chapter
+    # Used in chapter intro UI to give a taste of the chapter's essence
+    hero_verse_id: str  # Format: "BG_chapter_verse" e.g., "BG_2_47"
+
+    # Optional: Dhyana shloka (invocation verse for the chapter)
+    # These are traditionally recited before studying each chapter
+    dhyana_shloka_sanskrit: str  # Devanagari text
+    dhyana_shloka_iast: str  # IAST transliteration
+    dhyana_shloka_meaning: str  # English meaning
+    dhyana_shloka_source: str  # "Geeta Dhyanam" / "Traditional"
+
+    # Optional: Audio generation tracking
+    audio_intro_path: str | None  # Path to generated intro audio
+    audio_intro_duration_ms: int | None  # Duration in milliseconds
 
 
 # =============================================================================
@@ -80,6 +102,7 @@ CHAPTER_METADATA: list[ChapterMetadata] = [
         ),
         "verse_count": 47,
         "key_themes": ["moral crisis", "attachment", "compassion", "dharma conflict"],
+        "hero_verse_id": "BG_1_47",  # Arjuna drops his bow in despair
     },
     {
         "chapter_number": 2,
@@ -95,6 +118,7 @@ CHAPTER_METADATA: list[ChapterMetadata] = [
         ),
         "verse_count": 72,
         "key_themes": ["immortal Self", "detachment", "karma yoga", "equanimity"],
+        "hero_verse_id": "BG_2_47",  # Karma yoga essence - right to action, not fruits
     },
     {
         "chapter_number": 3,
@@ -110,6 +134,7 @@ CHAPTER_METADATA: list[ChapterMetadata] = [
         ),
         "verse_count": 43,
         "key_themes": ["selfless action", "duty", "sacrifice", "leadership by example"],
+        "hero_verse_id": "BG_3_19",  # Work without attachment attains the Supreme
     },
     {
         "chapter_number": 4,
@@ -124,7 +149,13 @@ CHAPTER_METADATA: list[ChapterMetadata] = [
             "inaction in action, and action in inaction."
         ),
         "verse_count": 42,
-        "key_themes": ["divine incarnation", "knowledge as purifier", "guru", "sacrifice"],
+        "key_themes": [
+            "divine incarnation",
+            "knowledge as purifier",
+            "guru",
+            "sacrifice",
+        ],
+        "hero_verse_id": "BG_4_7",  # Yada yada hi dharmasya - divine descent
     },
     {
         "chapter_number": 5,
@@ -140,6 +171,7 @@ CHAPTER_METADATA: list[ChapterMetadata] = [
         ),
         "verse_count": 29,
         "key_themes": ["renunciation", "equality", "inner peace", "true sannyasa"],
+        "hero_verse_id": "BG_5_18",  # Equal vision - brahmin, cow, elephant, dog
     },
     {
         "chapter_number": 6,
@@ -154,7 +186,13 @@ CHAPTER_METADATA: list[ChapterMetadata] = [
             "Even the yogi who falls from the path is not lost."
         ),
         "verse_count": 47,
-        "key_themes": ["meditation", "self-discipline", "mind control", "gradual progress"],
+        "key_themes": [
+            "meditation",
+            "self-discipline",
+            "mind control",
+            "gradual progress",
+        ],
+        "hero_verse_id": "BG_6_5",  # Self as friend and enemy
     },
     {
         "chapter_number": 7,
@@ -170,6 +208,7 @@ CHAPTER_METADATA: list[ChapterMetadata] = [
         ),
         "verse_count": 30,
         "key_themes": ["divine nature", "maya", "devotion", "rare knowledge"],
+        "hero_verse_id": "BG_7_7",  # All strung on Me like pearls on a thread
     },
     {
         "chapter_number": 8,
@@ -185,6 +224,7 @@ CHAPTER_METADATA: list[ChapterMetadata] = [
         ),
         "verse_count": 28,
         "key_themes": ["death", "remembrance", "cosmic cycles", "liberation"],
+        "hero_verse_id": "BG_8_6",  # Whatever one remembers at death...
     },
     {
         "chapter_number": 9,
@@ -200,6 +240,7 @@ CHAPTER_METADATA: list[ChapterMetadata] = [
         ),
         "verse_count": 34,
         "key_themes": ["supreme secret", "devotion", "universal presence", "grace"],
+        "hero_verse_id": "BG_9_22",  # Yoga-kshema - I carry what they lack
     },
     {
         "chapter_number": 10,
@@ -215,6 +256,7 @@ CHAPTER_METADATA: list[ChapterMetadata] = [
         ),
         "verse_count": 42,
         "key_themes": ["divine glories", "omnipresence", "excellence", "wonder"],
+        "hero_verse_id": "BG_10_20",  # I am the Self in all beings
     },
     {
         "chapter_number": 11,
@@ -229,7 +271,13 @@ CHAPTER_METADATA: list[ChapterMetadata] = [
             "awe and terror. He begs Krishna to return to his gentle human form."
         ),
         "verse_count": 55,
-        "key_themes": ["cosmic form", "time as destroyer", "divine vision", "surrender"],
+        "key_themes": [
+            "cosmic form",
+            "time as destroyer",
+            "divine vision",
+            "surrender",
+        ],
+        "hero_verse_id": "BG_11_32",  # Kalo'smi - I am Time, the destroyer
     },
     {
         "chapter_number": 12,
@@ -244,7 +292,13 @@ CHAPTER_METADATA: list[ChapterMetadata] = [
             "He describes the qualities that make a devotee dear to him."
         ),
         "verse_count": 20,
-        "key_themes": ["devotion", "personal vs impersonal", "qualities of devotee", "love"],
+        "key_themes": [
+            "devotion",
+            "personal vs impersonal",
+            "qualities of devotee",
+            "love",
+        ],
+        "hero_verse_id": "BG_12_13",  # Qualities of a devotee dear to Me
     },
     {
         "chapter_number": 13,
@@ -259,7 +313,13 @@ CHAPTER_METADATA: list[ChapterMetadata] = [
             "understands this distinction is liberated."
         ),
         "verse_count": 35,
-        "key_themes": ["body and Self", "true knowledge", "prakriti and purusha", "discrimination"],
+        "key_themes": [
+            "body and Self",
+            "true knowledge",
+            "prakriti and purusha",
+            "discrimination",
+        ],
+        "hero_verse_id": "BG_13_2",  # Know Me as the Knower of the field
     },
     {
         "chapter_number": 14,
@@ -274,7 +334,13 @@ CHAPTER_METADATA: list[ChapterMetadata] = [
             "all three through devotion attains liberation."
         ),
         "verse_count": 27,
-        "key_themes": ["three gunas", "bondage", "transcendence", "qualities of nature"],
+        "key_themes": [
+            "three gunas",
+            "bondage",
+            "transcendence",
+            "qualities of nature",
+        ],
+        "hero_verse_id": "BG_14_5",  # Three gunas bind the soul to body
     },
     {
         "chapter_number": 15,
@@ -289,7 +355,13 @@ CHAPTER_METADATA: list[ChapterMetadata] = [
             "beyond both the perishable and imperishable."
         ),
         "verse_count": 20,
-        "key_themes": ["supreme person", "world tree", "liberation", "ultimate reality"],
+        "key_themes": [
+            "supreme person",
+            "world tree",
+            "liberation",
+            "ultimate reality",
+        ],
+        "hero_verse_id": "BG_15_15",  # I am in all hearts, memory and knowledge
     },
     {
         "chapter_number": 16,
@@ -304,7 +376,13 @@ CHAPTER_METADATA: list[ChapterMetadata] = [
             "to ruin: lust, anger, and greed. One should let scripture guide action."
         ),
         "verse_count": 24,
-        "key_themes": ["divine qualities", "demonic qualities", "three gates of hell", "discernment"],
+        "key_themes": [
+            "divine qualities",
+            "demonic qualities",
+            "three gates of hell",
+            "discernment",
+        ],
+        "hero_verse_id": "BG_16_1",  # Divine qualities - fearlessness, purity...
     },
     {
         "chapter_number": 17,
@@ -320,6 +398,7 @@ CHAPTER_METADATA: list[ChapterMetadata] = [
         ),
         "verse_count": 28,
         "key_themes": ["three types of faith", "food", "austerity", "charity"],
+        "hero_verse_id": "BG_17_3",  # Faith determines one's nature
     },
     {
         "chapter_number": 18,
@@ -335,7 +414,14 @@ CHAPTER_METADATA: list[ChapterMetadata] = [
             "him from all sin."
         ),
         "verse_count": 78,
-        "key_themes": ["renunciation", "surrender", "dharma", "liberation", "final instruction"],
+        "key_themes": [
+            "renunciation",
+            "surrender",
+            "dharma",
+            "liberation",
+            "final instruction",
+        ],
+        "hero_verse_id": "BG_18_66",  # Sarva dharman - surrender to Me alone
     },
 ]
 

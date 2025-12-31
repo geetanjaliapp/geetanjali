@@ -10,9 +10,9 @@ Usage:
     python scripts/backfill_paraphrase_metadata.py [--dry-run]
 """
 
-import sys
 import argparse
 import logging
+import sys
 from pathlib import Path
 
 # Add parent directory to path for imports
@@ -20,8 +20,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from db.connection import SessionLocal
 from models.verse import Verse
-from services.vector_store import get_vector_store
 from services.cache import cache, verse_key
+from services.vector_store import get_vector_store
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

@@ -1,11 +1,11 @@
 """Repository for RefreshToken model operations."""
 
-from typing import Optional
-from sqlalchemy.orm import Session
 from datetime import datetime
 
-from models.refresh_token import RefreshToken
+from sqlalchemy.orm import Session
+
 from db.repositories.base import BaseRepository
+from models.refresh_token import RefreshToken
 from utils.jwt import hash_token
 
 
@@ -35,7 +35,7 @@ class RefreshTokenRepository(BaseRepository):
         result: RefreshToken = self.create(token_data)  # type: ignore[assignment]
         return result
 
-    def get_by_token(self, token: str) -> Optional[RefreshToken]:
+    def get_by_token(self, token: str) -> RefreshToken | None:
         """
         Get refresh token by plain token value.
 

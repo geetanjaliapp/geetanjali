@@ -1,17 +1,18 @@
 """Tests for newsletter worker job and scheduler."""
 
-import pytest
 from datetime import datetime, timedelta
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
-from jobs.newsletter import send_subscriber_digest, _mask_email, IDEMPOTENCY_WINDOW_SECONDS
-from jobs.newsletter_scheduler import (
-    schedule_daily_digests,
-    get_active_subscribers,
-    _acquire_scheduler_lock,
-    _release_scheduler_lock,
+import pytest
+
+from jobs.newsletter import (
+    _mask_email,
+    send_subscriber_digest,
 )
-
+from jobs.newsletter_scheduler import (
+    get_active_subscribers,
+    schedule_daily_digests,
+)
 
 # =============================================================================
 # Test _mask_email helper
@@ -71,8 +72,7 @@ class TestSendSubscriberDigestValidation:
     def test_invalid_send_time(self):
         """Test rejection of invalid send_time."""
         result = send_subscriber_digest(
-            "12345678-1234-1234-1234-123456789012",
-            "midnight"
+            "12345678-1234-1234-1234-123456789012", "midnight"
         )
 
         assert result["status"] == "failed"
@@ -95,8 +95,7 @@ class TestSendSubscriberDigestStates:
         mock_session.return_value = mock_db
 
         result = send_subscriber_digest(
-            "12345678-1234-1234-1234-123456789012",
-            "morning"
+            "12345678-1234-1234-1234-123456789012", "morning"
         )
 
         assert result["status"] == "skipped"
@@ -111,12 +110,13 @@ class TestSendSubscriberDigestStates:
         mock_subscriber.email = "test@example.com"
 
         mock_db = MagicMock()
-        mock_db.query.return_value.filter.return_value.first.return_value = mock_subscriber
+        mock_db.query.return_value.filter.return_value.first.return_value = (
+            mock_subscriber
+        )
         mock_session.return_value = mock_db
 
         result = send_subscriber_digest(
-            "12345678-1234-1234-1234-123456789012",
-            "morning"
+            "12345678-1234-1234-1234-123456789012", "morning"
         )
 
         assert result["status"] == "skipped"
@@ -132,12 +132,13 @@ class TestSendSubscriberDigestStates:
         mock_subscriber.email = "test@example.com"
 
         mock_db = MagicMock()
-        mock_db.query.return_value.filter.return_value.first.return_value = mock_subscriber
+        mock_db.query.return_value.filter.return_value.first.return_value = (
+            mock_subscriber
+        )
         mock_session.return_value = mock_db
 
         result = send_subscriber_digest(
-            "12345678-1234-1234-1234-123456789012",
-            "morning"
+            "12345678-1234-1234-1234-123456789012", "morning"
         )
 
         assert result["status"] == "skipped"
@@ -162,18 +163,25 @@ class TestSendSubscriberDigestStates:
         mock_verse.canonical_id = "BG_2_47"
 
         mock_db = MagicMock()
-        mock_db.query.return_value.filter.return_value.first.return_value = mock_subscriber
+        mock_db.query.return_value.filter.return_value.first.return_value = (
+            mock_subscriber
+        )
         mock_session.return_value = mock_db
 
-        with patch("jobs.newsletter.select_verse_for_subscriber", return_value=mock_verse):
-            with patch("jobs.newsletter.send_newsletter_digest_email", return_value=True):
+        with patch(
+            "jobs.newsletter.select_verse_for_subscriber", return_value=mock_verse
+        ):
+            with patch(
+                "jobs.newsletter.send_newsletter_digest_email", return_value=True
+            ):
                 result = send_subscriber_digest(
-                    "12345678-1234-1234-1234-123456789012",
-                    "morning"
+                    "12345678-1234-1234-1234-123456789012", "morning"
                 )
 
         # Should proceed to send (or at least past idempotency check)
-        assert result["status"] != "skipped" or result["error"] != "Already sent recently"
+        assert (
+            result["status"] != "skipped" or result["error"] != "Already sent recently"
+        )
 
 
 # =============================================================================
@@ -204,15 +212,16 @@ class TestSendSubscriberDigestEmail:
         mock_verse.canonical_id = "BG_2_47"
 
         mock_db = MagicMock()
-        mock_db.query.return_value.filter.return_value.first.return_value = mock_subscriber
+        mock_db.query.return_value.filter.return_value.first.return_value = (
+            mock_subscriber
+        )
         mock_session.return_value = mock_db
 
         mock_select.return_value = mock_verse
         mock_send.return_value = True
 
         result = send_subscriber_digest(
-            "12345678-1234-1234-1234-123456789012",
-            "morning"
+            "12345678-1234-1234-1234-123456789012", "morning"
         )
 
         assert result["status"] == "sent"
@@ -240,17 +249,16 @@ class TestSendSubscriberDigestEmail:
         mock_verse.canonical_id = "BG_2_47"
 
         mock_db = MagicMock()
-        mock_db.query.return_value.filter.return_value.first.return_value = mock_subscriber
+        mock_db.query.return_value.filter.return_value.first.return_value = (
+            mock_subscriber
+        )
         mock_session.return_value = mock_db
 
         mock_select.return_value = mock_verse
         mock_send.return_value = False  # Email fails
 
         with pytest.raises(Exception) as exc_info:
-            send_subscriber_digest(
-                "12345678-1234-1234-1234-123456789012",
-                "morning"
-            )
+            send_subscriber_digest("12345678-1234-1234-1234-123456789012", "morning")
 
         assert "Email send failed" in str(exc_info.value)
         mock_db.close.assert_called_once()
@@ -258,7 +266,9 @@ class TestSendSubscriberDigestEmail:
     @patch("jobs.newsletter.SessionLocal")
     @patch("jobs.newsletter.select_verse_for_subscriber")
     @patch("jobs.newsletter.send_newsletter_digest_email")
-    def test_tracking_failure_does_not_retry(self, mock_send, mock_select, mock_session):
+    def test_tracking_failure_does_not_retry(
+        self, mock_send, mock_select, mock_session
+    ):
         """Test tracking update failure doesn't trigger retry (email was sent)."""
         mock_subscriber = MagicMock()
         mock_subscriber.is_active = True
@@ -275,7 +285,9 @@ class TestSendSubscriberDigestEmail:
         mock_verse.canonical_id = "BG_2_47"
 
         mock_db = MagicMock()
-        mock_db.query.return_value.filter.return_value.first.return_value = mock_subscriber
+        mock_db.query.return_value.filter.return_value.first.return_value = (
+            mock_subscriber
+        )
         mock_db.commit.side_effect = Exception("DB Error")  # Commit fails
         mock_session.return_value = mock_db
 
@@ -284,8 +296,7 @@ class TestSendSubscriberDigestEmail:
 
         # Should NOT raise (would cause duplicate email on retry)
         result = send_subscriber_digest(
-            "12345678-1234-1234-1234-123456789012",
-            "morning"
+            "12345678-1234-1234-1234-123456789012", "morning"
         )
 
         assert result["status"] == "sent_tracking_failed"
@@ -326,7 +337,9 @@ class TestScheduleDailyDigests:
     @patch("jobs.newsletter_scheduler._acquire_scheduler_lock")
     @patch("jobs.newsletter_scheduler._release_scheduler_lock")
     @patch("jobs.newsletter_scheduler.is_rq_available")
-    def test_rq_unavailable_returns_error(self, mock_rq, mock_release, mock_lock, mock_session):
+    def test_rq_unavailable_returns_error(
+        self, mock_rq, mock_release, mock_lock, mock_session
+    ):
         """Test scheduler returns error when RQ unavailable."""
         lock_key = "newsletter:scheduler:lock:morning:2024-01-01"
         mock_lock.return_value = lock_key
@@ -365,7 +378,13 @@ class TestScheduleDailyDigests:
     @patch("jobs.newsletter_scheduler.get_active_subscribers")
     @patch("jobs.newsletter_scheduler.enqueue_task")
     def test_enqueues_jobs_for_subscribers(
-        self, mock_enqueue, mock_get_subs, mock_rq, mock_release, mock_lock, mock_session
+        self,
+        mock_enqueue,
+        mock_get_subs,
+        mock_rq,
+        mock_release,
+        mock_lock,
+        mock_session,
     ):
         """Test scheduler enqueues jobs for each subscriber."""
         mock_lock.return_value = "newsletter:scheduler:lock:morning:2024-01-01"

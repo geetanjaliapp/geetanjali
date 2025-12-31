@@ -4,19 +4,20 @@ Persister service for saving verses to PostgreSQL and ChromaDB.
 
 import logging
 import uuid
-from typing import Dict, List, Any
+from typing import Any
+
 from sqlalchemy.orm import Session
 
-from models.verse import Verse, Translation
-from services.vector_store import get_vector_store
+from models.verse import Translation, Verse
 from services.cache import (
+    all_verse_ids_key,
     cache,
-    verse_key,
     featured_count_key,
     featured_verse_ids_key,
-    all_verse_ids_key,
     principles_key,
+    verse_key,
 )
+from services.vector_store import get_vector_store
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +41,7 @@ class Persister:
 
         logger.info("Persister initialized")
 
-    def persist_verse(self, verse_data: Dict, update_existing: bool = True) -> Verse:
+    def persist_verse(self, verse_data: dict, update_existing: bool = True) -> Verse:
         """
         Persist a single verse to database and vector store.
 
@@ -77,7 +78,7 @@ class Persister:
 
         return verse
 
-    def _create_verse(self, verse_data: Dict) -> Verse:
+    def _create_verse(self, verse_data: dict) -> Verse:
         """
         Create new verse in database.
 
@@ -108,7 +109,7 @@ class Persister:
 
         return verse
 
-    def _update_verse(self, existing_verse: Verse, verse_data: Dict) -> Verse:
+    def _update_verse(self, existing_verse: Verse, verse_data: dict) -> Verse:
         """
         Update existing verse with new data.
 
@@ -191,7 +192,7 @@ class Persister:
             # Log but don't fail - cache invalidation is best-effort
             logger.warning(f"Failed to invalidate cache for {canonical_id}: {e}")
 
-    def _persist_embedding(self, verse: Verse, verse_data: Dict):
+    def _persist_embedding(self, verse: Verse, verse_data: dict):
         """
         Persist verse to vector store. ChromaDB handles embedding generation.
 
@@ -215,7 +216,7 @@ class Persister:
         combined_text = " ".join(text_parts)
 
         # Prepare metadata (ChromaDB only accepts str, int, float, bool - not None or list)
-        metadata: Dict[str, Any] = {}
+        metadata: dict[str, Any] = {}
 
         # Only add chapter/verse if they have valid values
         if verse.chapter is not None:
@@ -257,7 +258,7 @@ class Persister:
             )
             # Don't fail the whole operation if vector store fails
 
-    def persist_translation(self, verse_id: str, translation_data: Dict) -> Translation:
+    def persist_translation(self, verse_id: str, translation_data: dict) -> Translation:
         """
         Persist a translation for a verse.
 
@@ -288,8 +289,8 @@ class Persister:
         return translation
 
     def persist_batch(
-        self, verses_data: List[Dict], batch_size: int = 50
-    ) -> Dict[str, int]:
+        self, verses_data: list[dict], batch_size: int = 50
+    ) -> dict[str, int]:
         """
         Persist multiple verses in batches with transaction handling.
 
@@ -407,7 +408,7 @@ class Persister:
         logger.info(f"Batch persist complete: {stats}")
         return stats
 
-    def get_statistics(self) -> Dict:
+    def get_statistics(self) -> dict:
         """
         Get persistence statistics.
 

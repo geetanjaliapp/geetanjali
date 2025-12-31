@@ -4,16 +4,17 @@ Provides transparent, multi-strategy search across verses with intelligent ranki
 """
 
 import logging
-from typing import Optional, List, Any, Dict, cast
+from typing import Any, cast
+
 from fastapi import APIRouter, Depends, Query, Request
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from sqlalchemy.orm import Session
 
 from api.dependencies import limiter
-from db import get_db
-from services.search import SearchService, serialize_search_response
-from services.cache import cache, search_key, principles_key
 from config import settings
+from db import get_db
+from services.cache import cache, principles_key, search_key
+from services.search import SearchService, serialize_search_response
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +37,7 @@ class SearchMatchResponse(BaseModel):
         ..., description="Field that matched: canonical_id, translation_en, etc."
     )
     score: float = Field(..., description="Match quality score (0.0 to 1.0)")
-    highlight: Optional[str] = Field(
+    highlight: str | None = Field(
         None, description="Matched text excerpt with <mark> tags"
     )
 
@@ -47,19 +48,15 @@ class SearchResultResponse(BaseModel):
     canonical_id: str = Field(..., description="Verse identifier (e.g., BG_2_47)")
     chapter: int = Field(..., description="Chapter number (1-18)")
     verse: int = Field(..., description="Verse number within chapter")
-    sanskrit_devanagari: Optional[str] = Field(
+    sanskrit_devanagari: str | None = Field(
         None, description="Sanskrit in Devanagari script"
     )
-    sanskrit_iast: Optional[str] = Field(
+    sanskrit_iast: str | None = Field(
         None, description="Sanskrit in IAST transliteration"
     )
-    translation_en: Optional[str] = Field(
-        None, description="Primary English translation"
-    )
-    paraphrase_en: Optional[str] = Field(
-        None, description="Leadership-focused paraphrase"
-    )
-    principles: List[str] = Field(
+    translation_en: str | None = Field(None, description="Primary English translation")
+    paraphrase_en: str | None = Field(None, description="Leadership-focused paraphrase")
+    principles: list[str] = Field(
         default_factory=list, description="Associated consulting principles"
     )
     is_featured: bool = Field(False, description="Whether verse is featured/curated")
@@ -69,6 +66,18 @@ class SearchResultResponse(BaseModel):
     rank_score: float = Field(
         ..., description="Final ranking score (higher = more relevant)"
     )
+    audio_url: str | None = Field(
+        None, description="URL to audio recitation if available"
+    )
+
+    @model_validator(mode="after")
+    def compute_audio_url(self) -> "SearchResultResponse":
+        """Compute audio_url based on canonical_id if audio file exists."""
+        if self.audio_url is None and self.canonical_id:
+            from services.audio import get_audio_url
+
+            self.audio_url = get_audio_url(self.canonical_id)
+        return self
 
 
 class SearchModerationResponse(BaseModel):
@@ -84,7 +93,7 @@ class SearchSuggestionResponse(BaseModel):
     type: str = Field(..., description="Suggestion type: consultation")
     message: str = Field(..., description="Suggestion message")
     cta: str = Field(..., description="Call-to-action button text")
-    prefill: Optional[str] = Field(
+    prefill: str | None = Field(
         None, description="Text to prefill in consultation form"
     )
 
@@ -99,13 +108,13 @@ class SearchResponse(BaseModel):
     )
     total: int = Field(..., description="Number of results in this response")
     total_count: int = Field(..., description="Total matching results (for pagination)")
-    results: List[SearchResultResponse] = Field(
+    results: list[SearchResultResponse] = Field(
         default_factory=list, description="Ranked search results"
     )
-    moderation: Optional[SearchModerationResponse] = Field(
+    moderation: SearchModerationResponse | None = Field(
         None, description="Moderation result if query was blocked"
     )
-    suggestion: Optional[SearchSuggestionResponse] = Field(
+    suggestion: SearchSuggestionResponse | None = Field(
         None, description="Alternative action suggestion"
     )
 
@@ -156,13 +165,13 @@ async def search_verses(
         max_length=500,
         description="Search query: verse reference (2.47, BG_2_47), Sanskrit text, keywords, or meaning",
     ),
-    chapter: Optional[int] = Query(
+    chapter: int | None = Query(
         None,
         ge=1,
         le=18,
         description="Filter results to specific chapter (1-18)",
     ),
-    principle: Optional[str] = Query(
+    principle: str | None = Query(
         None,
         max_length=100,
         description="Filter by consulting principle/topic",
@@ -179,7 +188,7 @@ async def search_verses(
         description="Number of results to skip (for pagination)",
     ),
     db: Session = Depends(get_db),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Search verses using unified hybrid search.
 
@@ -209,7 +218,7 @@ async def search_verses(
     cached = cache.get(cache_key)
     if cached:
         logger.debug(f"Cache hit for search: {q}")
-        return cast(Dict[str, Any], cached)
+        return cast(dict[str, Any], cached)
 
     # Execute search with individual parameters
     search_service = SearchService(db)
@@ -230,12 +239,12 @@ async def search_verses(
     return result
 
 
-@router.get("/principles", response_model=List[str])
+@router.get("/principles", response_model=list[str])
 @limiter.limit("60/minute")
 async def get_available_principles(
     request: Request,
     db: Session = Depends(get_db),
-) -> List[str]:
+) -> list[str]:
     """
     Get all available consulting principles for filtering.
 
@@ -247,9 +256,10 @@ async def get_available_principles(
     cached = cache.get(cache_key)
     if cached:
         logger.debug("Cache hit for principles list")
-        return cast(List[str], cached)
+        return cast(list[str], cached)
 
     from sqlalchemy import text
+
     from models.verse import Verse
 
     # Get all unique principles from JSON array
@@ -273,14 +283,16 @@ async def get_available_principles(
         # Fallback for SQLite (used in tests) which doesn't have jsonb_array_elements_text
         # OPTIMIZATION: Only load consulting_principles column, not entire verse objects
         # Reduces memory usage significantly for 701 verses
-        result = db.query(Verse.consulting_principles).filter(
-            Verse.consulting_principles.isnot(None)
-        ).all()
+        result = (
+            db.query(Verse.consulting_principles)
+            .filter(Verse.consulting_principles.isnot(None))
+            .all()
+        )
         principles_set: set[str] = set()
         for (principles_json,) in result:
             if principles_json:
                 principles_set.update(principles_json)
-        principles = sorted(list(principles_set))
+        principles = sorted(principles_set)
 
     # Cache the result
     cache.set(cache_key, principles, settings.CACHE_TTL_PRINCIPLES)
