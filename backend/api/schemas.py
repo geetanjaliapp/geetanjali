@@ -4,7 +4,14 @@ import re
 from datetime import datetime
 from typing import Any, Generic, TypeVar
 
-from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    EmailStr,
+    Field,
+    field_validator,
+    model_validator,
+)
 
 T = TypeVar("T")
 
@@ -578,6 +585,8 @@ class ChapterMetadataResponse(BaseModel):
 
 class GeetaDhyanamVerseResponse(BaseModel):
     """Schema for a single Geeta Dhyanam (invocation) verse."""
+
+    model_config = ConfigDict(from_attributes=True)
 
     verse_number: int = Field(..., ge=1, le=9, description="Verse number (1-9)")
     sanskrit: str = Field(..., description="Sanskrit text in Devanagari")

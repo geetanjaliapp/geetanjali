@@ -448,6 +448,8 @@ class SyncDhyanamResponse(BaseModel):
     message: str
     total_dhyanam: int
     synced: int
+    created: int
+    updated: int
 
 
 def sync_geeta_dhyanam(db: Session) -> dict[str, int]:
@@ -471,6 +473,9 @@ def sync_geeta_dhyanam(db: Session) -> dict[str, int]:
     dhyanam_data = get_geeta_dhyanam()
 
     synced = 0
+    created = 0
+    updated = 0
+
     for verse_data in dhyanam_data:
         existing = (
             db.query(DhyanamVerse)
@@ -488,6 +493,7 @@ def sync_geeta_dhyanam(db: Session) -> dict[str, int]:
             existing.duration_ms = verse_data["duration_ms"]
             existing.audio_url = verse_data["audio_url"]
             existing.updated_at = datetime.utcnow()
+            updated += 1
         else:
             # Create new
             new_verse = DhyanamVerse(
@@ -501,16 +507,19 @@ def sync_geeta_dhyanam(db: Session) -> dict[str, int]:
                 audio_url=verse_data["audio_url"],
             )
             db.add(new_verse)
+            created += 1
 
         synced += 1
 
     db.commit()
 
-    logger.info(f"Synced {synced} Geeta Dhyanam verses")
+    logger.info(f"Synced {synced} Geeta Dhyanam verses (created={created}, updated={updated})")
 
     return {
         "total_dhyanam": len(dhyanam_data),
         "synced": synced,
+        "created": created,
+        "updated": updated,
     }
 
 
@@ -532,9 +541,11 @@ def trigger_sync_dhyanam(
 
         return SyncDhyanamResponse(
             status="success",
-            message=f"Synced {stats['synced']} Geeta Dhyanam verses.",
+            message=f"Synced {stats['synced']} Geeta Dhyanam verses ({stats['created']} created, {stats['updated']} updated).",
             total_dhyanam=stats["total_dhyanam"],
             synced=stats["synced"],
+            created=stats["created"],
+            updated=stats["updated"],
         )
 
     except Exception as e:
