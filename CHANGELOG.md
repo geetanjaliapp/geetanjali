@@ -2,7 +2,7 @@
 
 All notable changes to Geetanjali are documented here.
 
-## [1.17.0] - 2025-12-30
+## [1.17.0] - 2025-12-31
 
 Audio recitation support for all 701 verses with AI-generated Sanskrit audio.
 
@@ -22,6 +22,9 @@ Audio recitation support for all 701 verses with AI-generated Sanskrit audio.
 - Connection-aware preloading (skips on slow connections, respects data saver)
 - Umami analytics for audio events (play, pause, complete, error, speed change)
 - Backend TTS API with Edge TTS for on-demand text-to-speech
+- **Startup Sync Service** - Hash-based change detection for curated content (metadata, dhyanam, featured, audio). Only syncs when source files change.
+- **DhyanamVerse Model** - Geeta Dhyanam elevated to first-class database entity with sync support
+- **Error Isolation** - Failures in one content sync don't block others; each operation independent
 
 ### Documentation
 - New `docs/audio.md` - Audio feature documentation
