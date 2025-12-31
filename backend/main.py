@@ -76,7 +76,13 @@ def _load_vector_store_sync() -> None:
 
 
 def _sync_curated_content() -> None:
-    """Sync curated content to database if not present."""
+    """
+    Sync curated content to database if not present.
+
+    NOTE: This only runs in the main backend service (main.py lifespan).
+    The worker service uses worker_api.py which has no lifespan handler,
+    so this sync does NOT run in worker processes.
+    """
     try:
         from services.startup_sync import run_startup_sync
 

@@ -5,6 +5,8 @@ These tests verify that:
 2. Content is synced when missing or changed
 3. Content is skipped when unchanged
 4. Dependencies are respected (featured/audio need verses)
+5. Errors in one sync don't block others
+6. Force sync option bypasses hash check
 """
 
 import pytest
@@ -68,16 +70,14 @@ class TestStartupSyncService:
         service = StartupSyncService(db_session)
         results = service.sync_all()
 
-        # Verify results
-        assert len(results) == 5  # All 5 content types
+        # Verify results - now 4 content types (metadata combined)
+        assert len(results) == 4
 
-        # Book metadata should be synced
-        book_result = next(r for r in results if r.name == "Book Metadata")
-        assert book_result.action == "synced"
-
-        # Chapter metadata should be synced
-        chapter_result = next(r for r in results if r.name == "Chapter Metadata")
-        assert chapter_result.action == "synced"
+        # Metadata (book + chapters) should be synced
+        metadata_result = next(r for r in results if r.name == "Metadata")
+        assert metadata_result.action == "synced"
+        assert metadata_result.synced == 19  # 1 book + 18 chapters
+        assert metadata_result.duration_ms >= 0
 
         # Dhyanam should be synced
         dhyanam_result = next(r for r in results if r.name == "Dhyanam Verses")
@@ -96,30 +96,28 @@ class TestStartupSyncService:
         assert db_session.query(ChapterMetadata).count() == 18
         assert db_session.query(DhyanamVerse).count() == 9
 
-        # Verify hashes were stored
-        assert db_session.query(SyncHash).count() == 3  # book, chapter, dhyanam
+        # Verify hashes were stored (metadata, dhyanam)
+        assert db_session.query(SyncHash).count() == 2
 
     def test_second_sync_skips_unchanged(self, db_session: Session):
         """Second run skips unchanged content (hash matches)."""
-        from models import SyncHash
-
         # First sync
         service1 = StartupSyncService(db_session)
         results1 = service1.sync_all()
 
         synced_first = [r for r in results1 if r.action == "synced"]
-        assert len(synced_first) == 3  # book, chapter, dhyanam
+        assert len(synced_first) == 2  # metadata, dhyanam
 
         # Second sync
         service2 = StartupSyncService(db_session)
         results2 = service2.sync_all()
 
-        # All should be skipped (unchanged)
+        # All should be skipped (unchanged) or skipped_no_data
         synced_second = [r for r in results2 if r.action == "synced"]
         assert len(synced_second) == 0
 
         unchanged = [r for r in results2 if r.action == "skipped_no_change"]
-        assert len(unchanged) == 3  # book, chapter, dhyanam
+        assert len(unchanged) == 2  # metadata, dhyanam
 
     def test_sync_detects_hash_change(self, db_session: Session):
         """Sync detects when stored hash differs from current."""
@@ -150,6 +148,48 @@ class TestStartupSyncService:
         # Hash should be updated back to correct value
         db_session.refresh(dhyanam_hash)
         assert dhyanam_hash.content_hash == original_hash
+
+    def test_force_sync_ignores_hash(self, db_session: Session):
+        """Force sync option syncs regardless of hash match."""
+        # First sync
+        service1 = StartupSyncService(db_session)
+        service1.sync_all()
+
+        # Second sync with force=True
+        service2 = StartupSyncService(db_session, force_sync=True)
+        results2 = service2.sync_all()
+
+        # Should sync even though hash matches
+        synced = [r for r in results2 if r.action == "synced"]
+        assert len(synced) == 2  # metadata, dhyanam (not featured/audio - no verses)
+
+    def test_error_in_one_sync_doesnt_block_others(
+        self, db_session: Session, monkeypatch
+    ):
+        """Error in one sync operation doesn't prevent others from running."""
+        from models import DhyanamVerse
+
+        # Make _sync_metadata raise an exception
+        def mock_sync_metadata():
+            raise Exception("Simulated failure")
+
+        # Run sync with patched method
+        service = StartupSyncService(db_session)
+        monkeypatch.setattr(service, "_sync_metadata", mock_sync_metadata)
+        results = service.sync_all()
+
+        # Should have 4 results
+        assert len(results) == 4
+
+        # Metadata should have error
+        metadata_result = next(r for r in results if r.name == "Metadata")
+        assert metadata_result.action == "error"
+        assert "Simulated failure" in metadata_result.reason
+
+        # Dhyanam should still sync successfully
+        dhyanam_result = next(r for r in results if r.name == "Dhyanam Verses")
+        assert dhyanam_result.action == "synced"
+        assert db_session.query(DhyanamVerse).count() == 9
 
 
 class TestSyncHashModel:
@@ -189,8 +229,6 @@ class TestSyncHashModel:
         db_session.add(hash_record)
         db_session.commit()
 
-        original_synced_at = hash_record.synced_at
-
         # Update
         hash_record.content_hash = "b" * 64
         hash_record.synced_at = datetime.utcnow()
@@ -199,3 +237,17 @@ class TestSyncHashModel:
         # Verify update
         db_session.refresh(hash_record)
         assert hash_record.content_hash == "b" * 64
+
+
+class TestSyncResultTiming:
+    """Tests for sync operation timing."""
+
+    def test_sync_results_include_timing(self, db_session: Session):
+        """All sync results include duration_ms field."""
+        service = StartupSyncService(db_session)
+        results = service.sync_all()
+
+        for result in results:
+            assert hasattr(result, "duration_ms")
+            assert isinstance(result.duration_ms, int)
+            assert result.duration_ms >= 0
