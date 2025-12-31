@@ -35,7 +35,11 @@
  */
 
 import { useState, useCallback, useRef, useEffect } from "react";
-import { useAudioPlayer, ADVANCE_DELAY_MS, PRELOAD_THRESHOLD } from "../components/audio";
+import {
+  useAudioPlayer,
+  ADVANCE_DELAY_MS,
+  PRELOAD_THRESHOLD,
+} from "../components/audio";
 import { preloadAudio } from "../lib/audioPreload";
 
 /** Auto-advance mode */
@@ -110,7 +114,9 @@ export interface UseAutoAdvanceReturn {
  *
  * Both modes pause on manual navigation and support pause/resume.
  */
-export function useAutoAdvance(config: UseAutoAdvanceConfig): UseAutoAdvanceReturn {
+export function useAutoAdvance(
+  config: UseAutoAdvanceConfig,
+): UseAutoAdvanceReturn {
   const {
     currentIndex,
     totalCount,
@@ -193,9 +199,12 @@ export function useAutoAdvance(config: UseAutoAdvanceConfig): UseAutoAdvanceRetu
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (textModeIntervalRef.current) clearInterval(textModeIntervalRef.current);
-      if (textModeAdvanceTimerRef.current) clearTimeout(textModeAdvanceTimerRef.current);
-      if (audioModeAdvanceTimerRef.current) clearTimeout(audioModeAdvanceTimerRef.current);
+      if (textModeIntervalRef.current)
+        clearInterval(textModeIntervalRef.current);
+      if (textModeAdvanceTimerRef.current)
+        clearTimeout(textModeAdvanceTimerRef.current);
+      if (audioModeAdvanceTimerRef.current)
+        clearTimeout(audioModeAdvanceTimerRef.current);
     };
   }, []);
 
@@ -223,7 +232,8 @@ export function useAutoAdvance(config: UseAutoAdvanceConfig): UseAutoAdvanceRetu
   // Audio state derived values
   const isPlaying = currentlyPlaying === audioId && audioState === "playing";
   const isAudioPaused = currentlyPlaying === audioId && audioState === "paused";
-  const isAudioCompleted = currentlyPlaying === audioId && audioState === "completed";
+  const isAudioCompleted =
+    currentlyPlaying === audioId && audioState === "completed";
 
   // Combined pause state
   const isPaused = mode === "audio" ? isAudioPaused : isPausedState;
@@ -308,7 +318,16 @@ export function useAutoAdvance(config: UseAutoAdvanceConfig): UseAutoAdvanceRetu
         textModeIntervalRef.current = null;
       }
     };
-  }, [mode, isPausedState, durationMs, totalCount, advanceDelayMs, textModeScale, onAdvance, onComplete]);
+  }, [
+    mode,
+    isPausedState,
+    durationMs,
+    totalCount,
+    advanceDelayMs,
+    textModeScale,
+    onAdvance,
+    onComplete,
+  ]);
 
   // Audio mode: Handle audio completion → auto-advance
   useEffect(() => {
@@ -360,7 +379,18 @@ export function useAutoAdvance(config: UseAutoAdvanceConfig): UseAutoAdvanceRetu
         onComplete();
       }
     }, advanceDelayMs);
-  }, [isAudioCompleted, mode, currentIndex, audioId, totalCount, advanceDelayMs, audioProgress, onAdvance, onComplete, stopAudio]);
+  }, [
+    isAudioCompleted,
+    mode,
+    currentIndex,
+    audioId,
+    totalCount,
+    advanceDelayMs,
+    audioProgress,
+    onAdvance,
+    onComplete,
+    stopAudio,
+  ]);
 
   // Auto-play next verse after advancing (audio mode only)
   useEffect(() => {
@@ -375,44 +405,49 @@ export function useAutoAdvance(config: UseAutoAdvanceConfig): UseAutoAdvanceRetu
   }, [justAdvanced, mode, audioUrl, audioId, play]);
 
   // Stop all modes helper
-  const stopAllModes = useCallback((isCompletion = false) => {
-    // Track stop event (only if mode was active and not a natural completion)
-    if (modeRef.current !== "off" && !isCompletion && window.umami) {
-      window.umami.track("auto_advance_stop", {
-        mode: modeRef.current,
-        stopped_at_index: currentIndexRef.current,
-        total_count: totalCount,
-        progress_percent: Math.round((currentIndexRef.current / totalCount) * 100),
-      });
-    }
+  const stopAllModes = useCallback(
+    (isCompletion = false) => {
+      // Track stop event (only if mode was active and not a natural completion)
+      if (modeRef.current !== "off" && !isCompletion && window.umami) {
+        window.umami.track("auto_advance_stop", {
+          mode: modeRef.current,
+          stopped_at_index: currentIndexRef.current,
+          total_count: totalCount,
+          progress_percent: Math.round(
+            (currentIndexRef.current / totalCount) * 100,
+          ),
+        });
+      }
 
-    textModeActiveRef.current = false;
-    stopAudio();
+      textModeActiveRef.current = false;
+      stopAudio();
 
-    if (textModeAdvanceTimerRef.current) {
-      clearTimeout(textModeAdvanceTimerRef.current);
-      textModeAdvanceTimerRef.current = null;
-    }
-    if (textModeIntervalRef.current) {
-      clearInterval(textModeIntervalRef.current);
-      textModeIntervalRef.current = null;
-    }
-    if (audioModeAdvanceTimerRef.current) {
-      clearTimeout(audioModeAdvanceTimerRef.current);
-      audioModeAdvanceTimerRef.current = null;
-    }
+      if (textModeAdvanceTimerRef.current) {
+        clearTimeout(textModeAdvanceTimerRef.current);
+        textModeAdvanceTimerRef.current = null;
+      }
+      if (textModeIntervalRef.current) {
+        clearInterval(textModeIntervalRef.current);
+        textModeIntervalRef.current = null;
+      }
+      if (audioModeAdvanceTimerRef.current) {
+        clearTimeout(audioModeAdvanceTimerRef.current);
+        audioModeAdvanceTimerRef.current = null;
+      }
 
-    textAdvanceScheduledForRef.current = null;
-    audioAdvanceScheduledForRef.current = null;
-    processedAudioCompletionRef.current = null;
-    audioStartedPlayingRef.current = null;
-    textModeElapsedRef.current = 0;
+      textAdvanceScheduledForRef.current = null;
+      audioAdvanceScheduledForRef.current = null;
+      processedAudioCompletionRef.current = null;
+      audioStartedPlayingRef.current = null;
+      textModeElapsedRef.current = 0;
 
-    setMode("off");
-    setIsPausedState(false);
-    setTextModeProgress(0);
-    setJustAdvanced(false);
-  }, [stopAudio, totalCount]);
+      setMode("off");
+      setIsPausedState(false);
+      setTextModeProgress(0);
+      setJustAdvanced(false);
+    },
+    [stopAudio, totalCount],
+  );
 
   // Public API
   const startAudioMode = useCallback(() => {
@@ -455,8 +490,10 @@ export function useAutoAdvance(config: UseAutoAdvanceConfig): UseAutoAdvanceRetu
       pauseAudio();
     } else if (mode === "text") {
       setIsPausedState(true);
-      if (textModeAdvanceTimerRef.current) clearTimeout(textModeAdvanceTimerRef.current);
-      if (textModeIntervalRef.current) clearInterval(textModeIntervalRef.current);
+      if (textModeAdvanceTimerRef.current)
+        clearTimeout(textModeAdvanceTimerRef.current);
+      if (textModeIntervalRef.current)
+        clearInterval(textModeIntervalRef.current);
     }
   }, [mode, pauseAudio]);
 

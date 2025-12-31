@@ -97,7 +97,13 @@ class TestSanitizeDangerous:
         ]
         for tag in dangerous:
             result = sanitize_dangerous(f"<{tag}>bad</{tag}>safe")
-            assert "bad" not in result or tag in ["input", "button", "link", "meta", "base"]
+            assert "bad" not in result or tag in [
+                "input",
+                "button",
+                "link",
+                "meta",
+                "base",
+            ]
             assert "safe" in result
 
     def test_preserves_less_than_comparison(self):
@@ -115,7 +121,9 @@ class TestSanitizeDangerous:
 
     def test_removes_multiple_event_handlers(self):
         """Multiple event handlers are removed."""
-        result = sanitize_dangerous('<div onclick="bad" onmouseover="also bad">text</div>')
+        result = sanitize_dangerous(
+            '<div onclick="bad" onmouseover="also bad">text</div>'
+        )
         assert "onclick" not in result
         assert "onmouseover" not in result
 

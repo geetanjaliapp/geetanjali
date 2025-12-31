@@ -51,7 +51,12 @@ export function FloatingAudioBar() {
   } = useAudioPlayer();
 
   // Only show when audio is active (not idle or completed)
-  const isActive = currentlyPlaying && (state === "playing" || state === "paused" || state === "loading" || state === "error");
+  const isActive =
+    currentlyPlaying &&
+    (state === "playing" ||
+      state === "paused" ||
+      state === "loading" ||
+      state === "error");
 
   if (!isActive) {
     return null;

@@ -504,7 +504,11 @@ export function VerseFocus({
                   isExpanded={sectionPrefs.insight}
                   onToggle={toggleSection}
                   bgClass="bg-linear-to-br from-[var(--gradient-warm-from)] to-[var(--gradient-warm-to)]"
-                  speakText={prepareEnglishTTS(verse.paraphrase_en, verse.chapter, verse.verse)}
+                  speakText={prepareEnglishTTS(
+                    verse.paraphrase_en,
+                    verse.chapter,
+                    verse.verse,
+                  )}
                   speakLang="en"
                 >
                   <p className="text-base text-[var(--text-primary)] leading-relaxed">
@@ -522,7 +526,11 @@ export function VerseFocus({
                   isExpanded={sectionPrefs.hindi}
                   onToggle={toggleSection}
                   bgClass="bg-[var(--surface-warm-subtle)]"
-                  speakText={prepareHindiTTS(hindiTranslation.text, verse.chapter, verse.verse)}
+                  speakText={prepareHindiTTS(
+                    hindiTranslation.text,
+                    verse.chapter,
+                    verse.verse,
+                  )}
                   speakLang="hi"
                 >
                   <p
@@ -543,7 +551,11 @@ export function VerseFocus({
                   isExpanded={sectionPrefs.english}
                   onToggle={toggleSection}
                   bgClass="bg-[var(--surface-warm-subtle)]"
-                  speakText={prepareEnglishTTS(englishTranslation.text, verse.chapter, verse.verse)}
+                  speakText={prepareEnglishTTS(
+                    englishTranslation.text,
+                    verse.chapter,
+                    verse.verse,
+                  )}
                   speakLang="en"
                 >
                   <p className="text-base text-[var(--text-primary)] leading-relaxed">
@@ -562,7 +574,11 @@ export function VerseFocus({
                     isExpanded={sectionPrefs.english}
                     onToggle={toggleSection}
                     bgClass="bg-[var(--surface-warm-subtle)]"
-                    speakText={prepareEnglishTTS(verse.translation_en, verse.chapter, verse.verse)}
+                    speakText={prepareEnglishTTS(
+                      verse.translation_en,
+                      verse.chapter,
+                      verse.verse,
+                    )}
                     speakLang="en"
                   >
                     <p className="text-base text-[var(--text-primary)] leading-relaxed">

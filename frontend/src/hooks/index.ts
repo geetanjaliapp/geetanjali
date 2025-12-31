@@ -29,6 +29,10 @@ export { useFeedback } from "./useFeedback";
 export { useNewsletterSync } from "./useNewsletterSync";
 export { useResendVerification } from "./useResendVerification";
 export { useAutoAdvance } from "./useAutoAdvance";
-export type { AutoAdvanceMode, UseAutoAdvanceConfig, UseAutoAdvanceReturn } from "./useAutoAdvance";
+export type {
+  AutoAdvanceMode,
+  UseAutoAdvanceConfig,
+  UseAutoAdvanceReturn,
+} from "./useAutoAdvance";
 // Re-export audio types for convenience
 export type { AudioState, PlaybackSpeed } from "../components/audio";

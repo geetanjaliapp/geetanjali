@@ -184,7 +184,6 @@ export function IntroCard(props: IntroCardProps) {
                 />
               </div>
             </div>
-
           </div>
         </div>
       </div>

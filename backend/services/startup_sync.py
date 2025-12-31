@@ -506,13 +506,19 @@ class StartupSyncService:
                 for mp3_file in sorted(chapter_dir.glob("BG_*.mp3")):
                     stat = mp3_file.stat()
                     file_list.append(
-                        {"name": mp3_file.name, "size": stat.st_size, "dir": f"{chapter_num:02d}"}
+                        {
+                            "name": mp3_file.name,
+                            "size": stat.st_size,
+                            "dir": f"{chapter_num:02d}",
+                        }
                     )
-                    audio_files.append((
-                        str(mp3_file),
-                        mp3_file.stem,  # BG_2_47
-                        f"mp3/{chapter_num:02d}/{mp3_file.name}",
-                    ))
+                    audio_files.append(
+                        (
+                            str(mp3_file),
+                            mp3_file.stem,  # BG_2_47
+                            f"mp3/{chapter_num:02d}/{mp3_file.name}",
+                        )
+                    )
 
         # Dhyanam audio files (dhyanam_1.mp3 through dhyanam_9.mp3)
         dhyanam_dir = mp3_dir / "dhyanam"
@@ -525,11 +531,13 @@ class StartupSyncService:
                 # Extract verse number from filename (dhyanam_1.mp3 -> 1)
                 try:
                     verse_num = int(mp3_file.stem.split("_")[1])
-                    audio_files.append((
-                        str(mp3_file),
-                        f"dhyanam_{verse_num}",  # Special ID for dhyanam
-                        f"mp3/dhyanam/{mp3_file.name}",
-                    ))
+                    audio_files.append(
+                        (
+                            str(mp3_file),
+                            f"dhyanam_{verse_num}",  # Special ID for dhyanam
+                            f"mp3/dhyanam/{mp3_file.name}",
+                        )
+                    )
                 except (IndexError, ValueError):
                     logger.warning(f"Unexpected dhyanam filename: {mp3_file.name}")
 
@@ -551,7 +559,9 @@ class StartupSyncService:
             )
 
         # Sync needed - extract durations and update DB
-        logger.info(f"STARTUP SYNC: Extracting durations from {len(audio_files)} audio files...")
+        logger.info(
+            f"STARTUP SYNC: Extracting durations from {len(audio_files)} audio files..."
+        )
 
         updated = 0
         errors = 0
@@ -568,25 +578,29 @@ class StartupSyncService:
             if canonical_id.startswith("dhyanam_"):
                 # Update DhyanamVerse table
                 verse_num = int(canonical_id.split("_")[1])
-                rows = self.db.query(DhyanamVerse).filter(
-                    DhyanamVerse.verse_number == verse_num
-                ).update(
-                    {
-                        "audio_url": f"/audio/{rel_path}",
-                        "duration_ms": duration_ms,
-                    }
+                rows = (
+                    self.db.query(DhyanamVerse)
+                    .filter(DhyanamVerse.verse_number == verse_num)
+                    .update(
+                        {
+                            "audio_url": f"/audio/{rel_path}",
+                            "duration_ms": duration_ms,
+                        }
+                    )
                 )
                 if rows > 0:
                     updated += 1
             else:
                 # Update VerseAudioMetadata table
-                rows = self.db.query(VerseAudioMetadata).filter(
-                    VerseAudioMetadata.canonical_id == canonical_id
-                ).update(
-                    {
-                        "audio_file_path": rel_path,
-                        "audio_duration_ms": duration_ms,
-                    }
+                rows = (
+                    self.db.query(VerseAudioMetadata)
+                    .filter(VerseAudioMetadata.canonical_id == canonical_id)
+                    .update(
+                        {
+                            "audio_file_path": rel_path,
+                            "audio_duration_ms": duration_ms,
+                        }
+                    )
                 )
                 if rows > 0:
                     updated += 1
@@ -595,7 +609,9 @@ class StartupSyncService:
         self._update_stored_hash(content_type, current_hash)
 
         if errors > 0:
-            logger.warning(f"STARTUP SYNC: {errors} audio files failed duration extraction")
+            logger.warning(
+                f"STARTUP SYNC: {errors} audio files failed duration extraction"
+            )
 
         return SyncResult(
             name="Audio Durations",

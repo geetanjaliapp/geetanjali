@@ -23,9 +23,24 @@ import {
   FloatingNavArrow,
   SpeakButton,
 } from "../components";
-import { HeartIcon, ShareIcon, ChevronDownIcon, PlayIcon, PauseIcon, SpinnerIcon, CloseIcon, RepeatIcon, CheckIcon, AlertCircleIcon } from "../components/icons";
+import {
+  HeartIcon,
+  ShareIcon,
+  ChevronDownIcon,
+  PlayIcon,
+  PauseIcon,
+  SpinnerIcon,
+  CloseIcon,
+  RepeatIcon,
+  CheckIcon,
+  AlertCircleIcon,
+} from "../components/icons";
 import { ShareModal } from "../components/verse";
-import { useAudioPlayer, AudioProgress, AudioSpeedControl } from "../components/audio";
+import {
+  useAudioPlayer,
+  AudioProgress,
+  AudioSpeedControl,
+} from "../components/audio";
 import { errorMessages } from "../lib/errorMessages";
 import { useSEO, useAdjacentVerses, useSyncedFavorites } from "../hooks";
 import { STORAGE_KEYS, getStorageItem, setStorageItem } from "../lib/storage";
@@ -137,7 +152,9 @@ export default function VerseDetail() {
   } = useAudioPlayer();
 
   // Check if this verse is currently active (playing or paused)
-  const isThisVerseActive = verse ? currentlyPlaying === verse.canonical_id : false;
+  const isThisVerseActive = verse
+    ? currentlyPlaying === verse.canonical_id
+    : false;
 
   // Auto-dismiss timing for audio controls (matches AudioPlayerContext)
   const AUTO_DISMISS_DELAY_MS = 1500;
@@ -755,7 +772,11 @@ export default function VerseDetail() {
                             हिंदी अनुवाद
                           </span>
                           <SpeakButton
-                            text={prepareHindiTTS(primaryHindi.text, verse.chapter, verse.verse)}
+                            text={prepareHindiTTS(
+                              primaryHindi.text,
+                              verse.chapter,
+                              verse.verse,
+                            )}
                             lang="hi"
                             size="sm"
                             aria-label="हिंदी अनुवाद सुनें"
@@ -780,7 +801,11 @@ export default function VerseDetail() {
                             English Translation
                           </span>
                           <SpeakButton
-                            text={prepareEnglishTTS(primaryEnglish.text, verse.chapter, verse.verse)}
+                            text={prepareEnglishTTS(
+                              primaryEnglish.text,
+                              verse.chapter,
+                              verse.verse,
+                            )}
                             lang="en"
                             size="sm"
                             aria-label="Listen to English translation"

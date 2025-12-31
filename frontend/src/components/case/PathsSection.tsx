@@ -116,7 +116,10 @@ export function PathsSection({
                 {options[selectedOption].title}
               </h4>
               <SpeakButton
-                text={formatPathForSpeech(options[selectedOption], selectedOption)}
+                text={formatPathForSpeech(
+                  options[selectedOption],
+                  selectedOption,
+                )}
                 size="sm"
                 aria-label="Listen to this path"
               />

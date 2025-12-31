@@ -21,8 +21,10 @@ import { IconButton, type IconButtonProps } from "./ui/IconButton";
 
 type TTSLanguage = "en" | "hi";
 
-interface SpeakButtonProps
-  extends Omit<IconButtonProps, "aria-label" | "children" | "onClick"> {
+interface SpeakButtonProps extends Omit<
+  IconButtonProps,
+  "aria-label" | "children" | "onClick"
+> {
   /** Text to speak */
   text: string;
   /** Language: 'en' for English, 'hi' for Hindi */
@@ -122,7 +124,8 @@ export function SpeakButton({
   }, [isSpeaking, isLoading, stop, speak, text, lang]);
 
   // Determine icon size based on button size
-  const iconSize = size === "lg" ? "h-6 w-6" : size === "sm" ? "h-4 w-4" : "h-5 w-5";
+  const iconSize =
+    size === "lg" ? "h-6 w-6" : size === "sm" ? "h-4 w-4" : "h-5 w-5";
 
   // Determine current state for accessibility
   const stateLabel = isLoading

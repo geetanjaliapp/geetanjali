@@ -19,7 +19,10 @@ function cleanTextForTTS(text: string | null | undefined): string {
       // Replace parenthetical verse refs like (BG 2.47) or (2.47)
       .replace(/\s*\([^)]*\d+\.\d+[^)]*\)\s*/g, " ")
       // Remove inline verse refs like "BG 2.47" or "Geeta 2.47"
-      .replace(/\b(?:BG|Geeta|Gita|Bhagavad Geeta|Bhagavad Gita)\s*\d+\.\d+\b/gi, "")
+      .replace(
+        /\b(?:BG|Geeta|Gita|Bhagavad Geeta|Bhagavad Gita)\s*\d+\.\d+\b/gi,
+        "",
+      )
       // Remove standalone verse refs like "2.47" (chapter.verse pattern)
       .replace(/\b\d{1,2}\.\d{1,3}\b/g, "")
       // Replace em-dashes and en-dashes with commas for natural pause
@@ -56,7 +59,7 @@ function getEnglishVersePrefix(chapter: number, verse: number): string {
 export function prepareHindiTTS(
   text: string | null | undefined,
   chapter: number,
-  verse: number
+  verse: number,
 ): string {
   const cleaned = cleanTextForTTS(text);
   if (!cleaned) return "";
@@ -72,7 +75,7 @@ export function prepareHindiTTS(
 export function prepareEnglishTTS(
   text: string | null | undefined,
   chapter: number,
-  verse: number
+  verse: number,
 ): string {
   const cleaned = cleanTextForTTS(text);
   if (!cleaned) return "";

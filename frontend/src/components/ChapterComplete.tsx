@@ -48,8 +48,19 @@ export function ChapterComplete({
       {/* Success badge */}
       <div className="mb-6">
         <span className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--status-success-bg)] text-[var(--status-success-text)] text-lg font-medium rounded-[var(--radius-chip)]">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M5 13l4 4L19 7"
+            />
           </svg>
           Chapter {chapter} Complete
         </span>

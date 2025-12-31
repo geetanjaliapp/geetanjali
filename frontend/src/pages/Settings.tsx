@@ -166,7 +166,7 @@ export default function Settings() {
     useState(false);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [deleteAccountError, setDeleteAccountError] = useState<string | null>(
-    null
+    null,
   );
 
   // Prefill from logged-in user

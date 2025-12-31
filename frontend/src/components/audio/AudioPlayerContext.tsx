@@ -42,7 +42,13 @@ export const PLAYBACK_SPEEDS = [0.75, 1, 1.25] as const;
 export type PlaybackSpeed = (typeof PLAYBACK_SPEEDS)[number];
 
 // Audio playback state ("completed" briefly shows after audio ends)
-export type AudioState = "idle" | "loading" | "playing" | "paused" | "error" | "completed";
+export type AudioState =
+  | "idle"
+  | "loading"
+  | "playing"
+  | "paused"
+  | "error"
+  | "completed";
 
 // Audio error messages by MediaError code
 const AUDIO_ERROR_MESSAGES: Record<number, string> = {
@@ -141,7 +147,9 @@ export function AudioPlayerProvider({ children }: AudioPlayerProviderProps) {
   // Track if audio element is initialized
   const isInitializedRef = useRef(false);
   // Completion timeout ref for cleanup
-  const completionTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const completionTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
 
   // Update media session metadata
   const updateMediaSession = useCallback((verseId: string | null) => {
@@ -398,25 +406,28 @@ export function AudioPlayerProvider({ children }: AudioPlayerProviderProps) {
   }, []);
 
   // Set playback speed
-  const setPlaybackSpeed = useCallback((speed: PlaybackSpeed) => {
-    const oldSpeed = playbackSpeed;
-    setPlaybackSpeedState(speed);
-    try {
-      localStorage.setItem(STORAGE_KEY_SPEED, speed.toString());
-    } catch {
-      // Ignore localStorage errors (private browsing, quota exceeded)
-    }
-    if (audioRef.current) {
-      audioRef.current.playbackRate = speed;
-    }
-    // Track speed change
-    if (window.umami && oldSpeed !== speed) {
-      window.umami.track("audio_speed_change", {
-        old_speed: oldSpeed,
-        new_speed: speed,
-      });
-    }
-  }, [playbackSpeed]);
+  const setPlaybackSpeed = useCallback(
+    (speed: PlaybackSpeed) => {
+      const oldSpeed = playbackSpeed;
+      setPlaybackSpeedState(speed);
+      try {
+        localStorage.setItem(STORAGE_KEY_SPEED, speed.toString());
+      } catch {
+        // Ignore localStorage errors (private browsing, quota exceeded)
+      }
+      if (audioRef.current) {
+        audioRef.current.playbackRate = speed;
+      }
+      // Track speed change
+      if (window.umami && oldSpeed !== speed) {
+        window.umami.track("audio_speed_change", {
+          old_speed: oldSpeed,
+          new_speed: speed,
+        });
+      }
+    },
+    [playbackSpeed],
+  );
 
   // Toggle loop
   const toggleLoop = useCallback(() => {
@@ -504,7 +515,6 @@ export function AudioPlayerProvider({ children }: AudioPlayerProviderProps) {
         message = "";
     }
 
-     
     setAnnouncement(message);
   }, [state, currentlyPlaying, error]);
 
@@ -572,7 +582,9 @@ export function AudioPlayerProvider({ children }: AudioPlayerProviderProps) {
 export function useAudioPlayer(): AudioContextValue {
   const context = useContext(AudioContext);
   if (context === undefined) {
-    throw new Error("useAudioPlayer must be used within an AudioPlayerProvider");
+    throw new Error(
+      "useAudioPlayer must be used within an AudioPlayerProvider",
+    );
   }
   return context;
 }

@@ -26,13 +26,18 @@ function shouldSkipPreload(): boolean {
   if (typeof navigator === "undefined") return false;
 
   // Check Network Information API (Chrome/Edge only, graceful fallback)
-  const connection = (navigator as Navigator & {
-    connection?: { effectiveType?: string; saveData?: boolean };
-  }).connection;
+  const connection = (
+    navigator as Navigator & {
+      connection?: { effectiveType?: string; saveData?: boolean };
+    }
+  ).connection;
 
   if (connection) {
     // Skip on slow connections
-    if (connection.effectiveType === "slow-2g" || connection.effectiveType === "2g") {
+    if (
+      connection.effectiveType === "slow-2g" ||
+      connection.effectiveType === "2g"
+    ) {
       return true;
     }
     // Respect data saver mode

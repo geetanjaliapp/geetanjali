@@ -148,8 +148,9 @@ export function DhyanamVerseFocus({
     : internalShowTranslation;
 
   // Section expansion preferences (local to Dhyanam, not persisted)
-  const [sectionPrefs, setSectionPrefs] =
-    useState<SectionPrefs>(DEFAULT_SECTION_PREFS);
+  const [sectionPrefs, setSectionPrefs] = useState<SectionPrefs>(
+    DEFAULT_SECTION_PREFS,
+  );
 
   // Toggle a section's expanded state
   const toggleSection = useCallback((id: SectionId) => {
@@ -163,7 +164,7 @@ export function DhyanamVerseFocus({
       setInternalShowTranslation(false);
     }
     // Reset section prefs for new verse
-     
+
     setSectionPrefs(DEFAULT_SECTION_PREFS);
   }, [verse.verse_number, isControlled]);
 
@@ -199,7 +200,9 @@ export function DhyanamVerseFocus({
   }, [handleToggle]);
 
   // Parse Sanskrit lines
-  const sanskritLines = verse.sanskrit.split("\n").filter((line) => line.trim());
+  const sanskritLines = verse.sanskrit
+    .split("\n")
+    .filter((line) => line.trim());
 
   return (
     <div className="w-full max-w-2xl mx-auto flex flex-col">

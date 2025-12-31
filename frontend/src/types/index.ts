@@ -230,8 +230,8 @@ export interface GeetaDhyanamVerse {
   english: string;
   hindi: string;
   theme: string;
-  duration_ms: number;  // Audio duration in milliseconds
-  audio_url: string;    // Path to pre-generated audio file
+  duration_ms: number; // Audio duration in milliseconds
+  audio_url: string; // Path to pre-generated audio file
 }
 
 // Search Types

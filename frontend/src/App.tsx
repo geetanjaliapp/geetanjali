@@ -131,55 +131,58 @@ function App() {
         <OfflineIndicator />
         <FloatingActionButton />
         <main id="main-content">
-        <Suspense fallback={<PageLoader />}>
-          <Routes>
-            {/* Public routes - accessible to everyone */}
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/cases/new" element={<NewCase />} />
-            <Route path="/cases/:id" element={<CaseView />} />
-            <Route path="/consultations" element={<Consultations />} />
-            <Route path="/verses" element={<Verses />} />
-            <Route path="/search" element={<SearchRedirect />} />
-            <Route path="/verses/:canonicalId" element={<VerseDetail />} />
-            <Route path="/read" element={<ReadingMode />} />
-            <Route path="/read/dhyanam/:verseNumber?" element={<DhyanamPage />} />
-            {/* Redirects for legacy path-based reading URLs */}
-            <Route
-              path="/read/:chapter/:verse"
-              element={<ReadingModePathRedirect />}
-            />
-            <Route
-              path="/read/:chapter"
-              element={<ReadingModePathRedirect />}
-            />
-            <Route path="/about" element={<About />} />
-            <Route path="/settings" element={<Settings />} />
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              {/* Public routes - accessible to everyone */}
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/cases/new" element={<NewCase />} />
+              <Route path="/cases/:id" element={<CaseView />} />
+              <Route path="/consultations" element={<Consultations />} />
+              <Route path="/verses" element={<Verses />} />
+              <Route path="/search" element={<SearchRedirect />} />
+              <Route path="/verses/:canonicalId" element={<VerseDetail />} />
+              <Route path="/read" element={<ReadingMode />} />
+              <Route
+                path="/read/dhyanam/:verseNumber?"
+                element={<DhyanamPage />}
+              />
+              {/* Redirects for legacy path-based reading URLs */}
+              <Route
+                path="/read/:chapter/:verse"
+                element={<ReadingModePathRedirect />}
+              />
+              <Route
+                path="/read/:chapter"
+                element={<ReadingModePathRedirect />}
+              />
+              <Route path="/about" element={<About />} />
+              <Route path="/settings" element={<Settings />} />
 
-            {/* Public shared consultation view */}
-            <Route path="/c/:slug" element={<PublicCaseView />} />
+              {/* Public shared consultation view */}
+              <Route path="/c/:slug" element={<PublicCaseView />} />
 
-            {/* Email verification route */}
-            <Route path="/verify-email/:token" element={<VerifyEmail />} />
+              {/* Email verification route */}
+              <Route path="/verify-email/:token" element={<VerifyEmail />} />
 
-            {/* Newsletter routes */}
-            <Route path="/n/verify/:token" element={<NewsletterVerify />} />
-            <Route
-              path="/n/unsubscribe/:token"
-              element={<NewsletterUnsubscribe />}
-            />
-            <Route
-              path="/n/preferences/:token"
-              element={<NewsletterPreferences />}
-            />
+              {/* Newsletter routes */}
+              <Route path="/n/verify/:token" element={<NewsletterVerify />} />
+              <Route
+                path="/n/unsubscribe/:token"
+                element={<NewsletterUnsubscribe />}
+              />
+              <Route
+                path="/n/preferences/:token"
+                element={<NewsletterPreferences />}
+              />
 
-            {/* 404 fallback */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
+              {/* 404 fallback */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
         </main>
       </TTSProvider>
     </Router>

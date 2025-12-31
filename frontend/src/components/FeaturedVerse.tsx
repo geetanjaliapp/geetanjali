@@ -2,7 +2,13 @@ import { useCallback } from "react";
 import { Link } from "react-router-dom";
 import { formatSanskritLines } from "../lib/sanskritFormatter";
 import { useAudioPlayer } from "./audio";
-import { PlayIcon, PauseIcon, SpinnerIcon, CheckIcon, AlertCircleIcon } from "./icons";
+import {
+  PlayIcon,
+  PauseIcon,
+  SpinnerIcon,
+  CheckIcon,
+  AlertCircleIcon,
+} from "./icons";
 import type { Verse } from "../types";
 
 interface FeaturedVerseProps {
@@ -54,7 +60,16 @@ export function FeaturedVerse({
         audioPlay(verse.canonical_id, verse.audio_url);
       }
     },
-    [verse?.audio_url, verse?.canonical_id, isThisPlaying, audioState, audioPlay, audioPause, audioResume, audioRetry],
+    [
+      verse?.audio_url,
+      verse?.canonical_id,
+      isThisPlaying,
+      audioState,
+      audioPlay,
+      audioPause,
+      audioResume,
+      audioRetry,
+    ],
   );
 
   // Format verse reference for aria-labels

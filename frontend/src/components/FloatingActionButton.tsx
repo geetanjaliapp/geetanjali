@@ -37,10 +37,10 @@ export function FloatingActionButton({
   const { currentlyPlaying, state: audioState } = useAudioPlayer();
   const isAudioBarVisible = Boolean(
     currentlyPlaying &&
-      (audioState === "playing" ||
-        audioState === "paused" ||
-        audioState === "loading" ||
-        audioState === "error")
+    (audioState === "playing" ||
+      audioState === "paused" ||
+      audioState === "loading" ||
+      audioState === "error"),
   );
 
   // Track whether CTA is in viewport (only relevant on homepage)

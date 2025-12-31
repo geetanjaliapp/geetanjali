@@ -2,7 +2,15 @@ import { memo, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { formatSanskritLines, isSpeakerIntro } from "../lib/sanskritFormatter";
 import { getPrincipleShortLabel } from "../constants/principles";
-import { StarIcon, HeartIcon, PlayIcon, PauseIcon, SpinnerIcon, CheckIcon, AlertCircleIcon } from "./icons";
+import {
+  StarIcon,
+  HeartIcon,
+  PlayIcon,
+  PauseIcon,
+  SpinnerIcon,
+  CheckIcon,
+  AlertCircleIcon,
+} from "./icons";
 import { useAudioPlayer } from "./audio";
 import type { Verse } from "../types";
 
@@ -173,7 +181,16 @@ export const VerseCard = memo(function VerseCard({
         audioPlay(verse.canonical_id, verse.audio_url);
       }
     },
-    [verse.audio_url, verse.canonical_id, isThisPlaying, audioState, audioPlay, audioPause, audioResume, audioRetry],
+    [
+      verse.audio_url,
+      verse.canonical_id,
+      isThisPlaying,
+      audioState,
+      audioPlay,
+      audioPause,
+      audioResume,
+      audioRetry,
+    ],
   );
 
   // Check if audio is actively playing (for visual indicator)
@@ -197,11 +214,13 @@ export const VerseCard = memo(function VerseCard({
       : "";
 
     return (
-      <div className={`relative bg-[var(--surface-card)] rounded-[var(--radius-card)] p-3 sm:p-4 border hover:-translate-y-0.5 transition-[var(--transition-card)] ${
-        isAudioPlaying
-          ? "border-[var(--interactive-primary)] shadow-[var(--shadow-card-hover)]"
-          : "border-[var(--border-warm)] shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] hover:border-[var(--border-warm-hover)]"
-      }`}>
+      <div
+        className={`relative bg-[var(--surface-card)] rounded-[var(--radius-card)] p-3 sm:p-4 border hover:-translate-y-0.5 transition-[var(--transition-card)] ${
+          isAudioPlaying
+            ? "border-[var(--interactive-primary)] shadow-[var(--shadow-card-hover)]"
+            : "border-[var(--border-warm)] shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] hover:border-[var(--border-warm-hover)]"
+        }`}
+      >
         {/* Stretched link - covers entire card for navigation (accessibility pattern) */}
         {linkTo && (
           <Link
@@ -243,7 +262,10 @@ export const VerseCard = memo(function VerseCard({
                 isFavorite ? "Remove from favorites" : "Add to favorites"
               }
             >
-              <HeartIcon className="w-5 h-5 sm:w-4 sm:h-4" filled={isFavorite} />
+              <HeartIcon
+                className="w-5 h-5 sm:w-4 sm:h-4"
+                filled={isFavorite}
+              />
             </button>
           )}
           {/* Audio play button - furthest right for consistent placement */}

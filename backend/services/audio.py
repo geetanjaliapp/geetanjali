@@ -162,9 +162,12 @@ def extract_duration_ffprobe(file_path: Path) -> int | None:
         result = subprocess.run(
             [
                 "ffprobe",
-                "-v", "quiet",
-                "-show_entries", "format=duration",
-                "-of", "json",
+                "-v",
+                "quiet",
+                "-show_entries",
+                "format=duration",
+                "-of",
+                "json",
                 str(file_path),
             ],
             capture_output=True,

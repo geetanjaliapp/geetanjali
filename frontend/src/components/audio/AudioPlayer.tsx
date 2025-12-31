@@ -67,7 +67,9 @@ export function AudioPlayer({
   } = useAudioPlayer();
 
   const isThisPlaying = currentlyPlaying === verseId;
-  const isActive = isThisPlaying && (state === "playing" || state === "paused" || state === "loading");
+  const isActive =
+    isThisPlaying &&
+    (state === "playing" || state === "paused" || state === "loading");
 
   // Handle play/pause toggle
   const handlePlayPause = useCallback(() => {
@@ -288,10 +290,7 @@ export function AudioPlayer({
       {isThisPlaying && state === "error" && (
         <div className="text-sm text-[var(--status-error)] text-center">
           {error}
-          <button
-            onClick={retry}
-            className="ml-2 underline hover:no-underline"
-          >
+          <button onClick={retry} className="ml-2 underline hover:no-underline">
             Retry
           </button>
         </div>

@@ -5,7 +5,13 @@
  * Uses design tokens for theming support.
  */
 
-import { useCallback, useRef, useState, type MouseEvent, type TouchEvent } from "react";
+import {
+  useCallback,
+  useRef,
+  useState,
+  type MouseEvent,
+  type TouchEvent,
+} from "react";
 import { formatTime } from "./audioUtils";
 
 interface AudioProgressProps {
@@ -38,20 +44,26 @@ export function AudioProgress({
   const [seekAnnouncement, setSeekAnnouncement] = useState("");
 
   // Announce seek position for screen readers
-  const announceSeek = useCallback((newPosition: number) => {
-    const newTime = newPosition * duration;
-    setSeekAnnouncement("");
-    setTimeout(() => {
-      setSeekAnnouncement(`Seeking to ${formatTime(newTime)}`);
-    }, 50);
-  }, [duration]);
+  const announceSeek = useCallback(
+    (newPosition: number) => {
+      const newTime = newPosition * duration;
+      setSeekAnnouncement("");
+      setTimeout(() => {
+        setSeekAnnouncement(`Seeking to ${formatTime(newTime)}`);
+      }, 50);
+    },
+    [duration],
+  );
 
   const handleSeek = useCallback(
     (clientX: number) => {
       if (disabled || !progressRef.current) return;
 
       const rect = progressRef.current.getBoundingClientRect();
-      const position = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+      const position = Math.max(
+        0,
+        Math.min(1, (clientX - rect.left) / rect.width),
+      );
       onSeek(position);
       announceSeek(position);
     },
@@ -161,7 +173,12 @@ export function AudioProgress({
       )}
 
       {/* Live region for seek announcements */}
-      <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+      <div
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className="sr-only"
+      >
         {seekAnnouncement}
       </div>
     </div>

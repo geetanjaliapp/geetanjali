@@ -49,7 +49,13 @@ const TTSContext = createContext<TTSContextValue | null>(null);
 
 // Voice preferences for Web Speech API fallback
 const FALLBACK_VOICE_PREFERENCES: Record<TTSLanguage, string[]> = {
-  en: ["Samantha", "Google UK English Female", "Microsoft Zira", "en-IN", "en-US"],
+  en: [
+    "Samantha",
+    "Google UK English Female",
+    "Microsoft Zira",
+    "en-IN",
+    "en-US",
+  ],
   hi: ["Google हिन्दी", "hi-IN", "Hindi"],
 };
 
@@ -86,14 +92,15 @@ export function TTSProvider({ children }: { children: ReactNode }) {
       const preferences = FALLBACK_VOICE_PREFERENCES[lang];
       for (const pref of preferences) {
         const voice = voices.find(
-          (v) => v.name.includes(pref) || v.lang.startsWith(pref) || v.lang === pref
+          (v) =>
+            v.name.includes(pref) || v.lang.startsWith(pref) || v.lang === pref,
         );
         if (voice) return voice;
       }
       const langPrefix = lang === "hi" ? "hi" : "en";
       return voices.find((v) => v.lang.startsWith(langPrefix)) || null;
     },
-    [hasFallback]
+    [hasFallback],
   );
 
   const speakWithFallback = useCallback(
@@ -129,7 +136,7 @@ export function TTSProvider({ children }: { children: ReactNode }) {
         }
       });
     },
-    [hasFallback, findBestVoice]
+    [hasFallback, findBestVoice],
   );
 
   const speakWithEdgeTTS = useCallback(
@@ -175,7 +182,7 @@ export function TTSProvider({ children }: { children: ReactNode }) {
         }
       });
     },
-    []
+    [],
   );
 
   const stop = useCallback(() => {
@@ -223,7 +230,8 @@ export function TTSProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const handleRecitationStart = () => stop();
     window.addEventListener("audioRecitationStart", handleRecitationStart);
-    return () => window.removeEventListener("audioRecitationStart", handleRecitationStart);
+    return () =>
+      window.removeEventListener("audioRecitationStart", handleRecitationStart);
   }, [stop]);
 
   // Announce TTS state changes to screen readers
@@ -276,7 +284,13 @@ export function TTSProvider({ children }: { children: ReactNode }) {
         setLoadingText(null);
       }
     },
-    [stop, stopAudioRecitation, speakWithEdgeTTS, speakWithFallback, hasFallback]
+    [
+      stop,
+      stopAudioRecitation,
+      speakWithEdgeTTS,
+      speakWithFallback,
+      hasFallback,
+    ],
   );
 
   return (

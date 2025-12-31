@@ -358,7 +358,12 @@ export default function ReadingMode() {
       }, SINGLE_PLAY_DISMISS_DELAY_MS);
       return () => clearTimeout(timer);
     }
-  }, [isSinglePlayMode, audioPlayer.currentlyPlaying, audioPlayer.state, currentVerse?.canonical_id]);
+  }, [
+    isSinglePlayMode,
+    audioPlayer.currentlyPlaying,
+    audioPlayer.state,
+    currentVerse?.canonical_id,
+  ]);
 
   // Exit single-play mode when verse changes
   useEffect(() => {
@@ -392,10 +397,13 @@ export default function ReadingMode() {
     : { position: 0, total: 0, percentage: 0 };
 
   // Memoize versePosition to prevent unnecessary MiniPlayer re-renders
-  const versePosition = useMemo(() => ({
-    current: Math.max(1, state.pageIndex + 1), // Ensure positive (1-indexed)
-    total: state.chapterVerses.length,
-  }), [state.pageIndex, state.chapterVerses.length]);
+  const versePosition = useMemo(
+    () => ({
+      current: Math.max(1, state.pageIndex + 1), // Ensure positive (1-indexed)
+      total: state.chapterVerses.length,
+    }),
+    [state.pageIndex, state.chapterVerses.length],
+  );
 
   // SEO
   useSEO({
@@ -780,7 +788,15 @@ export default function ReadingMode() {
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [canGoPrev, canGoNext, prevPage, nextPage, autoAdvance, isSinglePlayMode, audioPlayer]);
+  }, [
+    canGoPrev,
+    canGoNext,
+    prevPage,
+    nextPage,
+    autoAdvance,
+    isSinglePlayMode,
+    audioPlayer,
+  ]);
 
   return (
     <div className="min-h-screen bg-linear-to-br from-[var(--gradient-page-from)] to-[var(--gradient-page-to)] flex flex-col">
@@ -811,8 +827,16 @@ export default function ReadingMode() {
                       ? "text-[var(--text-reading-muted)] hover:text-[var(--text-reading-primary)] hover:bg-[var(--interactive-reading-hover-bg)]"
                       : "text-[var(--interactive-reading-disabled)] cursor-not-allowed"
                   }`}
-                  aria-label={currentVerse.audio_url ? "Play recitation" : "No audio available"}
-                  title={currentVerse.audio_url ? "Play recitation" : "No audio available"}
+                  aria-label={
+                    currentVerse.audio_url
+                      ? "Play recitation"
+                      : "No audio available"
+                  }
+                  title={
+                    currentVerse.audio_url
+                      ? "Play recitation"
+                      : "No audio available"
+                  }
                 >
                   <PlayIcon className="w-5 h-5" />
                 </button>

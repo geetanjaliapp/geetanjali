@@ -28,7 +28,14 @@ import { dhyanamApi } from "../lib/api";
 import type { GeetaDhyanamVerse } from "../types";
 import { Navbar } from "../components";
 import { DhyanamVerseFocus } from "../components/DhyanamVerseFocus";
-import { LogoIcon, PlayIcon, PauseIcon, SpinnerIcon, CheckIcon, AlertCircleIcon } from "../components/icons";
+import {
+  LogoIcon,
+  PlayIcon,
+  PauseIcon,
+  SpinnerIcon,
+  CheckIcon,
+  AlertCircleIcon,
+} from "../components/icons";
 import { useSwipeNavigation, useSyncedReading, useAutoAdvance } from "../hooks";
 import { MiniPlayer, useAudioPlayer } from "../components/audio";
 
@@ -112,7 +119,9 @@ function DhyanamSummary({
         <p className="text-sm text-[var(--text-secondary)] italic">
           "You have the right to work, but never to the fruit of work."
         </p>
-        <p className="text-xs text-[var(--text-muted)] mt-2">— Bhagavad Gita 2.47</p>
+        <p className="text-xs text-[var(--text-muted)] mt-2">
+          — Bhagavad Gita 2.47
+        </p>
       </div>
 
       {/* Completion badge */}
@@ -176,8 +185,18 @@ function NavigationControls({
           className="min-w-[44px] min-h-[44px] p-3 rounded-[var(--radius-button)] text-[var(--text-reading-tertiary)] hover:text-[var(--text-reading-secondary)] hover:bg-[var(--interactive-reading-hover-bg)] disabled:opacity-40 disabled:cursor-not-allowed transition-[var(--transition-button)] flex items-center justify-center"
           aria-label="Previous verse"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
           </svg>
         </button>
 
@@ -196,8 +215,18 @@ function NavigationControls({
           className="min-w-[44px] min-h-[44px] p-3 rounded-[var(--radius-button)] text-[var(--text-reading-tertiary)] hover:text-[var(--text-reading-secondary)] hover:bg-[var(--interactive-reading-hover-bg)] disabled:opacity-40 disabled:cursor-not-allowed transition-[var(--transition-button)] flex items-center justify-center"
           aria-label="Next verse"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 5l7 7-7 7"
+            />
           </svg>
         </button>
       </div>
@@ -237,7 +266,7 @@ export default function DhyanamPage() {
   // Current verse - memoized to prevent effect re-runs on every render
   const currentVerse = useMemo(
     () => verses[currentIndex],
-    [verses, currentIndex]
+    [verses, currentIndex],
   );
 
   // Audio ID for current verse
@@ -307,7 +336,12 @@ export default function DhyanamPage() {
       }, SINGLE_PLAY_DISMISS_DELAY_MS);
       return () => clearTimeout(timer);
     }
-  }, [isSinglePlayMode, audioPlayer.currentlyPlaying, audioPlayer.state, audioId]);
+  }, [
+    isSinglePlayMode,
+    audioPlayer.currentlyPlaying,
+    audioPlayer.state,
+    audioId,
+  ]);
 
   // Stop single-play when entering auto-advance mode
   useEffect(() => {
@@ -350,7 +384,7 @@ export default function DhyanamPage() {
         setShowTranslation(false);
       }
     },
-    [verses.length, autoAdvance]
+    [verses.length, autoAdvance],
   );
 
   // Swipe navigation
@@ -461,7 +495,15 @@ export default function DhyanamPage() {
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [pageState, goToPrev, goToNext, autoAdvance, isSinglePlayMode, audioPlayer, handleExitSinglePlay]);
+  }, [
+    pageState,
+    goToPrev,
+    goToNext,
+    autoAdvance,
+    isSinglePlayMode,
+    audioPlayer,
+    handleExitSinglePlay,
+  ]);
 
   // Loading state
   if (pageState === "loading") {
@@ -540,63 +582,71 @@ export default function DhyanamPage() {
 
         {/* Verse card - styled like FeaturedVerse on home page */}
         {currentVerse && (
-          <div className={`w-full max-w-2xl ${autoAdvance.isActive ? "flex-1 flex flex-col justify-center" : ""}`}>
+          <div
+            className={`w-full max-w-2xl ${autoAdvance.isActive ? "flex-1 flex flex-col justify-center" : ""}`}
+          >
             <div className="relative bg-[var(--surface-card)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] p-6 sm:p-8 border border-[var(--border-warm)] shadow-[var(--shadow-modal)]">
               {/* Single-play button - top right of card */}
-              {!autoAdvance.isActive && currentVerse.audio_url && (() => {
-                const isThisPlaying = audioPlayer.currentlyPlaying === audioId;
-                const state = isThisPlaying ? audioPlayer.state : "idle";
+              {!autoAdvance.isActive &&
+                currentVerse.audio_url &&
+                (() => {
+                  const isThisPlaying =
+                    audioPlayer.currentlyPlaying === audioId;
+                  const state = isThisPlaying ? audioPlayer.state : "idle";
 
-                // Determine button appearance based on state (subtle styling like FeaturedVerse)
-                const getButtonStyle = () => {
-                  if (state === "error") return "text-[var(--status-error-text)] bg-[var(--status-error-text)]/10";
-                  if (state === "completed") return "text-[var(--status-success-text)] bg-[var(--status-success-text)]/10";
-                  if (state === "playing" || state === "loading") return "text-[var(--interactive-primary)] bg-[var(--interactive-primary)]/10";
-                  return "text-[var(--text-muted)] hover:text-[var(--interactive-primary)] hover:bg-[var(--surface-muted)]";
-                };
+                  // Determine button appearance based on state (subtle styling like FeaturedVerse)
+                  const getButtonStyle = () => {
+                    if (state === "error")
+                      return "text-[var(--status-error-text)] bg-[var(--status-error-text)]/10";
+                    if (state === "completed")
+                      return "text-[var(--status-success-text)] bg-[var(--status-success-text)]/10";
+                    if (state === "playing" || state === "loading")
+                      return "text-[var(--interactive-primary)] bg-[var(--interactive-primary)]/10";
+                    return "text-[var(--text-muted)] hover:text-[var(--interactive-primary)] hover:bg-[var(--surface-muted)]";
+                  };
 
-                const getAriaLabel = () => {
-                  if (state === "loading") return "Loading verse audio";
-                  if (state === "playing") return "Pause verse audio";
-                  if (state === "paused") return "Resume verse audio";
-                  if (state === "completed") return "Replay verse audio";
-                  if (state === "error") return "Retry verse audio";
-                  return "Play this verse";
-                };
+                  const getAriaLabel = () => {
+                    if (state === "loading") return "Loading verse audio";
+                    if (state === "playing") return "Pause verse audio";
+                    if (state === "paused") return "Resume verse audio";
+                    if (state === "completed") return "Replay verse audio";
+                    if (state === "error") return "Retry verse audio";
+                    return "Play this verse";
+                  };
 
-                const handleClick = () => {
-                  if (state === "playing") {
-                    audioPlayer.pause();
-                  } else if (state === "paused") {
-                    audioPlayer.resume();
-                  } else if (state === "error") {
-                    audioPlayer.retry();
-                  } else {
-                    handleSinglePlay();
-                  }
-                };
+                  const handleClick = () => {
+                    if (state === "playing") {
+                      audioPlayer.pause();
+                    } else if (state === "paused") {
+                      audioPlayer.resume();
+                    } else if (state === "error") {
+                      audioPlayer.retry();
+                    } else {
+                      handleSinglePlay();
+                    }
+                  };
 
-                return (
-                  <button
-                    onClick={handleClick}
-                    disabled={state === "loading"}
-                    className={`absolute top-4 right-4 min-w-[44px] min-h-[44px] p-3 rounded-full transition-[var(--transition-all)] flex items-center justify-center focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] disabled:opacity-70 disabled:cursor-not-allowed ${getButtonStyle()}`}
-                    aria-label={getAriaLabel()}
-                  >
-                    {state === "loading" ? (
-                      <SpinnerIcon className="w-5 h-5" />
-                    ) : state === "playing" ? (
-                      <PauseIcon className="w-5 h-5" />
-                    ) : state === "completed" ? (
-                      <CheckIcon className="w-5 h-5" />
-                    ) : state === "error" ? (
-                      <AlertCircleIcon className="w-5 h-5" />
-                    ) : (
-                      <PlayIcon className="w-5 h-5" />
-                    )}
-                  </button>
-                );
-              })()}
+                  return (
+                    <button
+                      onClick={handleClick}
+                      disabled={state === "loading"}
+                      className={`absolute top-4 right-4 min-w-[44px] min-h-[44px] p-3 rounded-full transition-[var(--transition-all)] flex items-center justify-center focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] disabled:opacity-70 disabled:cursor-not-allowed ${getButtonStyle()}`}
+                      aria-label={getAriaLabel()}
+                    >
+                      {state === "loading" ? (
+                        <SpinnerIcon className="w-5 h-5" />
+                      ) : state === "playing" ? (
+                        <PauseIcon className="w-5 h-5" />
+                      ) : state === "completed" ? (
+                        <CheckIcon className="w-5 h-5" />
+                      ) : state === "error" ? (
+                        <AlertCircleIcon className="w-5 h-5" />
+                      ) : (
+                        <PlayIcon className="w-5 h-5" />
+                      )}
+                    </button>
+                  );
+                })()}
 
               <DhyanamVerseFocus
                 verse={currentVerse}

@@ -513,7 +513,9 @@ def sync_geeta_dhyanam(db: Session) -> dict[str, int]:
 
     db.commit()
 
-    logger.info(f"Synced {synced} Geeta Dhyanam verses (created={created}, updated={updated})")
+    logger.info(
+        f"Synced {synced} Geeta Dhyanam verses (created={created}, updated={updated})"
+    )
 
     return {
         "total_dhyanam": len(dhyanam_data),
@@ -569,7 +571,9 @@ class SyncAudioMetadataResponse(BaseModel):
     updated: int
 
 
-def sync_verse_audio_metadata(db: Session, chapter: int | None = None) -> dict[str, int]:
+def sync_verse_audio_metadata(
+    db: Session, chapter: int | None = None
+) -> dict[str, int]:
     """
     Sync verse audio metadata from static data to database.
 

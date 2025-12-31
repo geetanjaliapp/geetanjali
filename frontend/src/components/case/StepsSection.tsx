@@ -10,7 +10,10 @@ interface StepsSectionProps {
  * Format steps for TTS
  */
 function formatStepsForSpeech(steps: string[]): string {
-  return "Recommended Steps. " + steps.map((step, i) => `Step ${i + 1}: ${step}`).join(". ");
+  return (
+    "Recommended Steps. " +
+    steps.map((step, i) => `Step ${i + 1}: ${step}`).join(". ")
+  );
 }
 
 export function StepsSection({

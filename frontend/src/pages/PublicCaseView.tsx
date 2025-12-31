@@ -624,7 +624,15 @@ export default function PublicCaseView() {
                           <div className="flex items-center gap-1">
                             <span onClick={(e) => e.stopPropagation()}>
                               <SpeakButton
-                                text={"Recommended Steps. " + (firstOutput.result_json.recommended_action as { steps: string[] }).steps.map((s, i) => `Step ${i + 1}: ${s}`).join(". ")}
+                                text={
+                                  "Recommended Steps. " +
+                                  (
+                                    firstOutput.result_json
+                                      .recommended_action as { steps: string[] }
+                                  ).steps
+                                    .map((s, i) => `Step ${i + 1}: ${s}`)
+                                    .join(". ")
+                                }
                                 size="sm"
                                 aria-label="Listen to recommended steps"
                               />
@@ -680,7 +688,8 @@ export default function PublicCaseView() {
                       tabIndex={0}
                       onClick={() => setShowReflections(!showReflections)}
                       onKeyDown={(e) =>
-                        e.key === "Enter" && setShowReflections(!showReflections)
+                        e.key === "Enter" &&
+                        setShowReflections(!showReflections)
                       }
                       className="w-full text-left cursor-pointer"
                     >
@@ -717,7 +726,12 @@ export default function PublicCaseView() {
                         <div className="flex items-center gap-1">
                           <span onClick={(e) => e.stopPropagation()}>
                             <SpeakButton
-                              text={"Questions for Reflection. " + firstOutput.result_json.reflection_prompts.map((p, i) => `Question ${i + 1}: ${p}`).join(". ")}
+                              text={
+                                "Questions for Reflection. " +
+                                firstOutput.result_json.reflection_prompts
+                                  .map((p, i) => `Question ${i + 1}: ${p}`)
+                                  .join(". ")
+                              }
                               size="sm"
                               aria-label="Listen to reflection questions"
                             />

@@ -10,7 +10,10 @@ interface ReflectionsSectionProps {
  * Format reflection prompts for TTS
  */
 function formatReflectionsForSpeech(prompts: string[]): string {
-  return "Questions for Reflection. " + prompts.map((p, i) => `Question ${i + 1}: ${p}`).join(". ");
+  return (
+    "Questions for Reflection. " +
+    prompts.map((p, i) => `Question ${i + 1}: ${p}`).join(". ")
+  );
 }
 
 export function ReflectionsSection({
