@@ -537,7 +537,7 @@ def tts_cache_get(key: str) -> bytes | None:
         data = client.get(key)
         if data:
             cache_hits_total.labels(key_type="tts").inc()
-            return data
+            return bytes(data) if not isinstance(data, bytes) else data
         cache_misses_total.labels(key_type="tts").inc()
     except Exception as e:
         logger.warning(f"TTS cache get error for {key}: {e}")

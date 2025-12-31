@@ -83,13 +83,13 @@ def export_chapter(chapter: int) -> dict:
 
     # Build metadata for each verse
     chapter_metadata = get_chapter_metadata(chapter)
-    verse_list = []
+    verse_list: list[dict[str, object]] = []
 
     for verse_num in range(1, VERSE_COUNTS.get(chapter, 0) + 1):
         canonical_id = f"BG_{chapter}_{verse_num}"
 
-        # Start with defaults
-        metadata = get_defaults_for_verse(canonical_id)
+        # Start with defaults (convert TypedDict to regular dict)
+        metadata: dict[str, object] = dict(get_defaults_for_verse(canonical_id))
 
         # Override with explicit metadata
         explicit = chapter_metadata.get(canonical_id)

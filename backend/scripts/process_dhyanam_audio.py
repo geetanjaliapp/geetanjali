@@ -81,16 +81,20 @@ def convert_wav_to_mp3(wav_path: Path, mp3_path: Path) -> bool:
         return False
 
 
-def qa_audio_file(mp3_path: Path) -> dict:
+def qa_audio_file(mp3_path: Path) -> dict[str, object]:
     """Run QA checks on an MP3 file."""
-    issues = []
+    issues: list[str] = []
 
     if not HAS_MUTAGEN:
         return {"passed": True, "issues": [], "skipped": True}
 
     try:
         audio = MP3(str(mp3_path))
+        if audio.info is None:
+            return {"passed": False, "issues": ["Could not read audio info"]}
+
         duration = audio.info.length
+        bitrate = audio.info.bitrate // 1000
 
         # Check duration bounds
         if duration < MIN_DURATION_SECONDS:
@@ -99,7 +103,6 @@ def qa_audio_file(mp3_path: Path) -> dict:
             issues.append(f"Too long: {duration:.1f}s > {MAX_DURATION_SECONDS}s")
 
         # Check bitrate
-        bitrate = audio.info.bitrate // 1000
         if bitrate < 100:
             issues.append(f"Low bitrate: {bitrate}kbps")
 
@@ -148,7 +151,9 @@ def process_zip(zip_path: Path, output_dir: Path, dry_run: bool = False):
             print("✗ No WAV files found in archive")
             return False
 
-        results = {"success": 0, "failed": [], "qa_issues": []}
+        success_count = 0
+        failed_files: list[str] = []
+        qa_issues: list[tuple[str, list[object]]] = []
 
         for wav_file in sorted(wav_files):
             canonical_id = wav_file.stem  # e.g., DHYANAM_01
@@ -159,7 +164,7 @@ def process_zip(zip_path: Path, output_dir: Path, dry_run: bool = False):
 
             if dry_run:
                 print(f"  → Would convert to {mp3_path}")
-                results["success"] += 1
+                success_count += 1
                 continue
 
             # Convert WAV to MP3
@@ -172,39 +177,44 @@ def process_zip(zip_path: Path, output_dir: Path, dry_run: bool = False):
                     print("  ⚠ QA skipped (mutagen not available)")
                 elif qa["passed"]:
                     duration = qa.get("duration", 0)
-                    print(f"  ✓ QA passed ({duration:.1f}s)")
+                    if isinstance(duration, (int, float)):
+                        print(f"  ✓ QA passed ({duration:.1f}s)")
+                    else:
+                        print("  ✓ QA passed")
                 else:
-                    for issue in qa["issues"]:
-                        print(f"  ⚠ {issue}")
-                    results["qa_issues"].append((canonical_id, qa["issues"]))
+                    qa_issue_list = qa.get("issues", [])
+                    if isinstance(qa_issue_list, list):
+                        for issue in qa_issue_list:
+                            print(f"  ⚠ {issue}")
+                        qa_issues.append((canonical_id, qa_issue_list))
 
-                results["success"] += 1
+                success_count += 1
             else:
                 print("  ✗ Conversion failed")
-                results["failed"].append(canonical_id)
+                failed_files.append(canonical_id)
 
     # Summary
     print("\n" + "=" * 50)
     print("SUMMARY")
     print("=" * 50)
-    print(f"✓ Success: {results['success']}")
-    print(f"✗ Failed: {len(results['failed'])}")
-    print(f"⚠ QA Issues: {len(results['qa_issues'])}")
+    print(f"✓ Success: {success_count}")
+    print(f"✗ Failed: {len(failed_files)}")
+    print(f"⚠ QA Issues: {len(qa_issues)}")
 
-    if results["failed"]:
+    if failed_files:
         print("\nFailed files:")
-        for f in results["failed"]:
+        for f in failed_files:
             print(f"  - {f}")
 
-    if results["qa_issues"]:
+    if qa_issues:
         print("\nQA Issues:")
-        for cid, issues in results["qa_issues"]:
-            print(f"  {cid}: {', '.join(issues)}")
+        for cid, issues in qa_issues:
+            print(f"  {cid}: {', '.join(str(i) for i in issues)}")
 
     print(f"\nOutput: {output_dir}")
-    print(f"Files: {results['success']} MP3s")
+    print(f"Files: {success_count} MP3s")
 
-    return len(results["failed"]) == 0
+    return len(failed_files) == 0
 
 
 def main():

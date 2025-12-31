@@ -73,7 +73,7 @@ def build_tts_description(metadata: dict) -> str:
     """
     # Check for custom override first
     if metadata.get("tts_description_override"):
-        return metadata["tts_description_override"]
+        return str(metadata["tts_description_override"])
 
     parts = ["Aryan speaks"]
 

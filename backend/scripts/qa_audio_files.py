@@ -110,20 +110,23 @@ def get_audio_duration(audio_path: Path) -> float | None:
     """Get duration of MP3 file in seconds."""
     try:
         audio = MP3(str(audio_path))
-        return audio.info.length
+        if audio.info is None:
+            return None
+        return float(audio.info.length)
     except Exception:
         return None
 
 
 def analyze_verse(
     canonical_id: str, text: str, audio_path: Path, verbose: bool = False
-) -> dict:
+) -> dict[str, object]:
     """Analyze a single verse audio file."""
 
-    result = {
+    issues_list: list[str] = []
+    result: dict[str, object] = {
         "canonical_id": canonical_id,
         "status": "ok",
-        "issues": [],
+        "issues": issues_list,
         "duration": None,
         "syllables": None,
         "syllables_per_sec": None,
@@ -132,14 +135,14 @@ def analyze_verse(
     # Check if audio file exists
     if not audio_path.exists():
         result["status"] = "missing"
-        result["issues"].append("Audio file not found")
+        issues_list.append("Audio file not found")
         return result
 
     # Get duration
     duration = get_audio_duration(audio_path)
     if duration is None:
         result["status"] = "error"
-        result["issues"].append("Could not read audio file")
+        issues_list.append("Could not read audio file")
         return result
 
     result["duration"] = round(duration, 2)
@@ -153,7 +156,7 @@ def analyze_verse(
         rate = syllables / duration
         result["syllables_per_sec"] = round(rate, 2)
     else:
-        rate = 999
+        rate = 999.0
         result["syllables_per_sec"] = None
 
     # Check for issues
@@ -174,11 +177,13 @@ def analyze_verse(
     if issues:
         result["status"] = "flagged"
         result["issues"] = issues
+        issues_list.clear()
+        issues_list.extend(issues)
 
     return result
 
 
-def run_qa(chapter: int, audio_dir: Path, verbose: bool = False) -> dict:
+def run_qa(chapter: int, audio_dir: Path, verbose: bool = False) -> dict[str, object]:
     """Run QA on all verses in a chapter."""
 
     # Import here to avoid issues when running standalone
@@ -186,7 +191,7 @@ def run_qa(chapter: int, audio_dir: Path, verbose: bool = False) -> dict:
     from models.verse import Verse
 
     # Get verses from database
-    verses = {}
+    verses: dict[str, str] = {}
     with SessionLocal() as db:
         for cid, text in (
             db.query(Verse.canonical_id, Verse.sanskrit_devanagari)
@@ -199,15 +204,12 @@ def run_qa(chapter: int, audio_dir: Path, verbose: bool = False) -> dict:
     # Chapter audio directory
     chapter_dir = audio_dir / "mp3" / f"{chapter:02d}"
 
-    results = {
-        "chapter": chapter,
-        "total": 0,
-        "ok": 0,
-        "flagged": 0,
-        "missing": 0,
-        "error": 0,
-        "verses": [],
-    }
+    verses_list: list[dict[str, object]] = []
+    total = 0
+    ok_count = 0
+    flagged_count = 0
+    missing_count = 0
+    error_count = 0
 
     for verse_num in range(1, VERSE_COUNTS.get(chapter, 0) + 1):
         canonical_id = f"BG_{chapter}_{verse_num}"
@@ -215,11 +217,27 @@ def run_qa(chapter: int, audio_dir: Path, verbose: bool = False) -> dict:
         audio_path = chapter_dir / f"{canonical_id}.mp3"
 
         analysis = analyze_verse(canonical_id, text, audio_path, verbose)
-        results["verses"].append(analysis)
-        results["total"] += 1
-        results[analysis["status"]] += 1
+        verses_list.append(analysis)
+        total += 1
+        status = str(analysis.get("status", ""))
+        if status == "ok":
+            ok_count += 1
+        elif status == "flagged":
+            flagged_count += 1
+        elif status == "missing":
+            missing_count += 1
+        elif status == "error":
+            error_count += 1
 
-    return results
+    return {
+        "chapter": chapter,
+        "total": total,
+        "ok": ok_count,
+        "flagged": flagged_count,
+        "missing": missing_count,
+        "error": error_count,
+        "verses": verses_list,
+    }
 
 
 def print_report(results: dict, verbose: bool = False):

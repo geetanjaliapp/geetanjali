@@ -73,7 +73,7 @@ def register_chapter_metadata(chapter: int, metadata: dict[str, dict]) -> None:
     _CHAPTER_METADATA[chapter] = metadata
 
 
-def get_verse_metadata(canonical_id: str) -> dict:
+def get_verse_metadata(canonical_id: str) -> dict[str, object]:
     """
     Get metadata for a specific verse.
 
@@ -104,19 +104,18 @@ def get_verse_metadata(canonical_id: str) -> dict:
     # Check for maha vakya config
     mv_config = get_maha_vakya_config(canonical_id)
     if mv_config:
-        result = get_defaults_for_verse(
-            canonical_id, mv_config.get("speaker", "krishna")
-        )
+        speaker = str(mv_config.get("speaker", "krishna"))
+        result: dict[str, object] = dict(get_defaults_for_verse(canonical_id, speaker))
         result.update(mv_config)
         return result
 
     # Fall back to computed defaults
-    result = get_defaults_for_verse(canonical_id)
+    result_typed = get_defaults_for_verse(canonical_id)
 
     # Apply theological weight
-    result["theological_weight"] = get_theological_weight(canonical_id)
+    result_typed["theological_weight"] = get_theological_weight(canonical_id)
 
-    return result
+    return dict(result_typed)
 
 
 def get_chapter_metadata(chapter: int) -> dict[str, dict]:
