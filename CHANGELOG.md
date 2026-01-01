@@ -2,6 +2,46 @@
 
 All notable changes to Geetanjali are documented here.
 
+## [1.17.2] - 2026-01-01
+
+Security hardening, Reading Mode UX improvements, and Python 3.11 migration.
+
+### Security
+- **Password Re-authentication** - Account deletion now requires password confirmation
+- **XSS Prevention** - Input sanitization for user-generated content
+- **Admin Endpoint Hardening** - IP allowlist and 404 responses for admin routes
+- **Vague Error Messages** - Authentication errors no longer leak user existence
+
+### Fixes
+- **Reading Mode** - Fixed chapter transition not loading data when continuing from chapter complete
+- **Reading Mode** - Fixed URL not updating when navigating to chapter intro page
+- **Service Worker** - Skip caching audio files (206 partial responses unsupported)
+- **PWA** - Added apple-touch-icon.png to correct path
+
+### Changes
+- **Reading Mode UX** - Removed ChapterComplete modal; auto-advance now stops naturally at chapter end
+- **Legacy Cleanup** - Removed deprecated `/reading/geeta-dhyanam` endpoint
+
+### Infrastructure
+- **Python 3.11** - Migrated backend, worker, CI, and Docker from Python 3.10 to 3.11
+- **Type Safety** - Resolved basedpyright type errors across backend
+
+## [1.17.1] - 2025-12-31
+
+Startup sync optimizations and PWA improvements.
+
+### Features
+- **PWA Icons** - Pre-generated PNG icons (72-512px) for better device support
+- **Audio UX** - Consolidated audio controls to FloatingAudioBar
+
+### Technical
+- **Startup Sync** - Batch hash loading (5→1 DB query), version-prefixed hashes
+- **Audio Sync** - Dhyanam audio files included in automatic duration sync
+
+### Fixes
+- Extended sync_hashes.content_hash column to 128 chars
+- Fixed worker service attempting DB initialization
+
 ## [1.17.0] - 2025-12-31
 
 Audio recitation support for all 701 verses with AI-generated Sanskrit audio.
