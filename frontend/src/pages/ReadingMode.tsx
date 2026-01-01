@@ -301,20 +301,13 @@ export default function ReadingMode() {
   });
 
   // Handle chapter completion: continue to next chapter
+  // Note: Uses goToChapterRef to avoid circular dependency with loadChapter
   const handleChapterContinue = useCallback(() => {
     setShowChapterComplete(false);
-    setShowTranslation(false);
-    // Go to next chapter and restart auto-advance
+    // Go to next chapter (goToChapter handles state update, loading, and translation reset)
     const nextChapter = state.chapter + 1;
     if (nextChapter <= TOTAL_CHAPTERS) {
-      setState((prev) => ({
-        ...prev,
-        chapter: nextChapter,
-        pageIndex: PAGE_CHAPTER_INTRO,
-        chapterVerses: [],
-      }));
-      // After chapter loads, we'll need to restart auto-advance
-      // This is handled by the user tapping Listen/Read again after chapter intro
+      goToChapterRef.current(nextChapter);
     }
   }, [state.chapter]);
 
