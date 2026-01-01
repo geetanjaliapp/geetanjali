@@ -562,6 +562,8 @@ export default function ReadingMode() {
 
   // Fetch chapter metadata when chapter changes
   useEffect(() => {
+    // Clear stale metadata first to show loading state
+    setChapterMetadata(null);
     readingApi
       .getChapter(state.chapter)
       .then(setChapterMetadata)
@@ -940,8 +942,8 @@ export default function ReadingMode() {
         ref={swipeRef}
         className="flex-1 flex flex-col items-center justify-start px-4 pt-8 sm:pt-12 pb-8 touch-pan-y overflow-y-auto"
       >
-        {state.isLoading ? (
-          // Loading state
+        {state.isLoading || (isChapterIntro && !chapterMetadata) ? (
+          // Loading state (verses loading or chapter metadata loading)
           <div className="text-center">
             <div className="text-4xl text-[var(--decorative-om)] mb-4 animate-pulse">
               ॐ
