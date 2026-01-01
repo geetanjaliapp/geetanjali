@@ -36,7 +36,6 @@ export { VersePopover } from "./VersePopover";
 export { GuidanceMarkdown } from "./GuidanceMarkdown";
 export { FeaturedConsultations } from "./FeaturedConsultations";
 export { SpeakButton } from "./SpeakButton";
-export { ChapterComplete } from "./ChapterComplete";
 
 // Case-related components
 export {

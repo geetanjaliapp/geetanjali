@@ -21,7 +21,6 @@ import {
   ChapterSelector,
   IntroCard,
   Toast,
-  ChapterComplete,
 } from "../components";
 import { HeartIcon, PlayIcon } from "../components/icons";
 import { MiniPlayer, useAudioPlayer } from "../components/audio";
@@ -135,8 +134,6 @@ export default function ReadingMode() {
   // Onboarding starts hidden, then shows after 3-second delay for first-time users
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showNewsletterToast, setShowNewsletterToast] = useState(false);
-  // Chapter completion prompt (shown at chapter boundary during auto-advance)
-  const [showChapterComplete, setShowChapterComplete] = useState(false);
   // Single-play mode (triggered by header play button, not auto-advance)
   const [isSinglePlayMode, setIsSinglePlayMode] = useState(false);
 
@@ -290,32 +287,11 @@ export default function ReadingMode() {
       setState((prev) => ({ ...prev, pageIndex: nextIndex }));
     },
     onComplete: () => {
-      // End of chapter reached - show completion prompt
-      if (state.chapter < TOTAL_CHAPTERS) {
-        setShowChapterComplete(true);
-      } else {
-        // Last chapter - just stop auto-advance
-        autoAdvance.stop();
-      }
+      // End of chapter reached - stop auto-advance
+      // User stays on last verse and can navigate to next chapter when ready
+      autoAdvance.stop();
     },
   });
-
-  // Handle chapter completion: continue to next chapter
-  // Note: Uses goToChapterRef to avoid circular dependency with loadChapter
-  const handleChapterContinue = useCallback(() => {
-    setShowChapterComplete(false);
-    // Go to next chapter (goToChapter handles state update, loading, and translation reset)
-    const nextChapter = state.chapter + 1;
-    if (nextChapter <= TOTAL_CHAPTERS) {
-      goToChapterRef.current(nextChapter);
-    }
-  }, [state.chapter]);
-
-  // Handle chapter completion: stop auto-advance
-  const handleChapterStop = useCallback(() => {
-    setShowChapterComplete(false);
-    autoAdvance.stop();
-  }, [autoAdvance]);
 
   // Handle single-play from header play button
   const handleSinglePlay = useCallback(() => {
@@ -600,19 +576,29 @@ export default function ReadingMode() {
     }
   }, [state.chapterVerses, state.pageIndex]);
 
-  // Update URL and save position when verse changes
+  // Update URL and save position when verse/page changes
   useEffect(() => {
+    const newParams = new URLSearchParams();
+    newParams.set("c", state.chapter.toString());
+
     if (currentVerse) {
-      // Update URL for deep linking
-      const newParams = new URLSearchParams();
-      newParams.set("c", state.chapter.toString());
+      // On a verse - include verse number in URL
       newParams.set("v", currentVerse.verse.toString());
       setSearchParams(newParams, { replace: true });
-
       // Save position via synced hook (localStorage + server sync if logged in)
       savePosition(state.chapter, currentVerse.verse);
+    } else if (state.pageIndex === PAGE_CHAPTER_INTRO) {
+      // On chapter intro - URL is just ?c=N (no verse)
+      setSearchParams(newParams, { replace: true });
     }
-  }, [state.chapter, currentVerse, setSearchParams, savePosition]);
+    // Book cover (-2) doesn't update URL
+  }, [
+    state.chapter,
+    state.pageIndex,
+    currentVerse,
+    setSearchParams,
+    savePosition,
+  ]);
 
   // Navigate to a different chapter
   // startAtEnd: if true, start at the last verse (for prev navigation)
@@ -1029,19 +1015,6 @@ export default function ReadingMode() {
           </div>
         )}
       </main>
-
-      {/* Chapter Complete prompt - shown at chapter boundary during auto-advance */}
-      {showChapterComplete && (
-        <div className="fixed inset-0 z-40 bg-[var(--surface-reading)] flex items-center justify-center">
-          <ChapterComplete
-            chapter={state.chapter}
-            verseCount={state.chapterVerses.length}
-            hasNextChapter={state.chapter < TOTAL_CHAPTERS}
-            onContinue={handleChapterContinue}
-            onStop={handleChapterStop}
-          />
-        </div>
-      )}
 
       {/* Audio MiniPlayer - shown when current verse has audio or single-play is active */}
       {(currentVerse?.audio_url || isSinglePlayMode) && (
