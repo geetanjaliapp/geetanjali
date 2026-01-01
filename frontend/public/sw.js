@@ -66,6 +66,9 @@ self.addEventListener('fetch', (event) => {
   // Skip chrome-extension and other non-http(s) requests
   if (!url.protocol.startsWith('http')) return;
 
+  // Skip audio/video files - they use Range requests (206) which can't be cached
+  if (isMediaFile(url.pathname)) return;
+
   // API requests - network first, cache fallback
   if (url.pathname.startsWith('/api/')) {
     // Verse endpoints - cache for offline access
@@ -110,7 +113,8 @@ async function cacheFirst(request, cacheName) {
 
   try {
     const response = await fetch(request);
-    if (response.ok) {
+    // Only cache full responses (200), not partial (206) which can't be cached
+    if (response.ok && response.status === 200) {
       const cache = await caches.open(cacheName);
       cache.put(request, response.clone());
     }
@@ -133,7 +137,8 @@ async function cacheFirst(request, cacheName) {
 async function networkFirstWithCache(request, cacheName, maxAge = 3600) {
   try {
     const response = await fetch(request);
-    if (response.ok) {
+    // Only cache full responses (200), not partial (206) which can't be cached
+    if (response.ok && response.status === 200) {
       const cache = await caches.open(cacheName);
       cache.put(request, response.clone());
     }
@@ -156,6 +161,14 @@ async function networkFirstWithCache(request, cacheName, maxAge = 3600) {
  */
 function isStaticAsset(pathname) {
   return /\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$/.test(pathname);
+}
+
+/**
+ * Check if URL is a media file (audio/video)
+ * These use Range requests which return 206 status and can't be cached
+ */
+function isMediaFile(pathname) {
+  return /\.(mp3|wav|ogg|m4a|aac|flac|mp4|webm|mkv)$/i.test(pathname);
 }
 
 // Listen for messages from the app
