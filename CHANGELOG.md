@@ -2,6 +2,30 @@
 
 All notable changes to Geetanjali are documented here.
 
+## [1.17.3] - 2026-01-02
+
+Preference sync architecture overhaul with unified SyncEngine, multi-tab synchronization, and major code consolidation.
+
+### Technical
+- **SyncEngine** - Unified preference synchronization with tiered debouncing (reading: 15s, favorites/goals/theme: 5s), exponential retry backoff, and offline handling
+- **PreferencesContext** - Single source of truth for favorites, goals, and reading preferences with slice contexts for optimized re-renders
+- **Multi-Tab Sync** - Storage event listeners propagate preference changes across browser tabs in real-time
+- **Schema Migration** - Backward-compatible localStorage format migration (array → object with timestamps)
+- **Conflict Resolution** - Server-side last-write-wins with `updated_at` timestamps documented in code
+
+### Code Cleanup
+- Deleted 1,277 lines of duplicate/dead code:
+  - `preferenceSyncCoordinator.ts` (417 lines) - replaced by SyncEngine
+  - `useFavorites.ts` + test (416 lines) - replaced by usePreferences hooks
+  - `LearningGoalContext.tsx` (205 lines) - duplicate of PreferencesContext
+  - `useLearningGoal.ts` (166 lines) - duplicate hook
+  - `useSyncedFavorites/Goals/Reading` hooks - consolidated into usePreferences
+
+### Tests
+- 21 new tests for preferencesStorage schema migration
+- 24 new tests for PreferencesContext (favorites, goals, reading, sync, multi-tab)
+- SyncEngine unit tests for debouncing, retry logic, merge throttling
+
 ## [1.17.2] - 2026-01-01
 
 Security hardening, Reading Mode UX improvements, and Python 3.11 migration.
