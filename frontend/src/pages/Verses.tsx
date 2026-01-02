@@ -530,8 +530,8 @@ export default function Verses() {
         setFilterMode(newFilterMode);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]); // Only depend on searchParams, not state (to avoid infinite loops)
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only depend on searchParams to avoid infinite loops with filterMode
+  }, [searchParams]);
 
   // Derived state
   const selectedChapter = typeof filterMode === "number" ? filterMode : null;
@@ -709,8 +709,8 @@ export default function Verses() {
     if (initialQuery && !validationError) {
       search(initialQuery);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Only on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- runs once on mount with initial query from URL
+  }, []);
 
   // Close chapter dropdown on Escape key
   useEffect(() => {

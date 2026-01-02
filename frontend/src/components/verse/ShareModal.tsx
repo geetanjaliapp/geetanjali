@@ -356,17 +356,20 @@ export function ShareModal({
         {/* Theme + Format - side by side segmented controls */}
         <div className="flex gap-2 mb-3">
           {/* Theme segmented control */}
-          <div className="flex-1">
+          <div className="flex-1" role="radiogroup" aria-label="Image theme">
             <div className="flex bg-[var(--surface-muted)] rounded-[var(--radius-button)] p-0.5">
               {themes.map((t) => (
                 <button
                   key={t.id}
+                  role="radio"
+                  aria-checked={theme === t.id}
                   onClick={() => setTheme(t.id)}
                   className={`flex-1 py-1.5 rounded-[var(--radius-nav)] text-xs font-medium transition-[var(--transition-all)] ${
                     theme === t.id
                       ? "bg-[var(--surface-elevated)] text-[var(--text-accent)] shadow-[var(--shadow-button)]"
                       : "text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
                   }`}
+                  aria-label={`${t.label} theme`}
                   title={t.label}
                 >
                   {t.icon}
@@ -376,17 +379,20 @@ export function ShareModal({
           </div>
 
           {/* Format segmented control */}
-          <div className="flex-1">
+          <div className="flex-1" role="radiogroup" aria-label="Image format">
             <div className="flex bg-[var(--surface-muted)] rounded-[var(--radius-button)] p-0.5">
               {FORMATS.map((f) => (
                 <button
                   key={f.id}
+                  role="radio"
+                  aria-checked={format === f.id}
                   onClick={() => setFormat(f.id)}
                   className={`flex-1 py-1.5 rounded-[var(--radius-nav)] text-[10px] font-medium transition-[var(--transition-all)] ${
                     format === f.id
                       ? "bg-[var(--surface-elevated)] text-[var(--text-accent)] shadow-[var(--shadow-button)]"
                       : "text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
                   }`}
+                  aria-label={`${f.label} format (${f.ratio})`}
                   title={f.label}
                 >
                   {f.ratio}

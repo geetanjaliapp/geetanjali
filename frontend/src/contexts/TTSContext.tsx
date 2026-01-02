@@ -82,7 +82,7 @@ export function TTSProvider({ children }: { children: ReactNode }) {
     return () => {
       stop();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- cleanup runs once on unmount, stop is stable
   }, []);
 
   const findBestVoice = useCallback(

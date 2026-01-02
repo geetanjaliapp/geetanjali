@@ -65,72 +65,24 @@ describe("lazyWithRetry utilities", () => {
   });
 
   describe("isChunkLoadError", () => {
-    it("should detect Vite/ESM chunk errors", () => {
-      const error = new Error(
-        "Failed to fetch dynamically imported module: /assets/About-abc123.js",
-      );
-      expect(isChunkLoadError(error)).toBe(true);
-    });
-
-    it("should detect Vite loading errors", () => {
-      const error = new Error("Error loading dynamically imported module");
-      expect(isChunkLoadError(error)).toBe(true);
-    });
-
-    it("should detect Webpack chunk errors", () => {
-      const error = new Error("Loading chunk 5 failed");
-      expect(isChunkLoadError(error)).toBe(true);
-    });
-
-    it("should detect CSS chunk errors", () => {
-      const error = new Error("Loading CSS chunk styles-abc123 failed");
-      expect(isChunkLoadError(error)).toBe(true);
-    });
-
-    it("should detect generic load failures", () => {
-      const error = new Error(
-        "Failed to load resource: the server responded with 404",
-      );
-      expect(isChunkLoadError(error)).toBe(true);
-    });
-
-    it("should detect preload failures", () => {
-      const error = new Error("Unable to preload CSS for /assets/styles.css");
-      expect(isChunkLoadError(error)).toBe(true);
-    });
-
-    it("should detect network errors", () => {
-      const error = new Error("NetworkError when attempting to fetch resource");
-      expect(isChunkLoadError(error)).toBe(true);
-    });
-
-    it("should detect Safari-specific errors", () => {
-      const error = new Error(
-        "undefined is not an object (evaluating 'module.exports')",
-      );
-      expect(isChunkLoadError(error)).toBe(true);
-    });
-
-    it("should detect Firefox-specific errors", () => {
-      const error = new Error("error when evaluating a module script");
-      expect(isChunkLoadError(error)).toBe(true);
-    });
-
-    it("should NOT detect syntax errors", () => {
-      const error = new Error("Unexpected token '<'");
-      expect(isChunkLoadError(error)).toBe(false);
-    });
-
-    it("should NOT detect reference errors", () => {
-      const error = new Error("ReferenceError: foo is not defined");
-      expect(isChunkLoadError(error)).toBe(false);
-    });
-
-    it("should NOT detect type errors (non-chunk related)", () => {
-      const error = new Error(
-        "TypeError: Cannot read property 'map' of undefined",
-      );
-      expect(isChunkLoadError(error)).toBe(false);
+    it.each([
+      // Chunk load errors (should detect)
+      ["Failed to fetch dynamically imported module: /assets/About.js", true],
+      ["Error loading dynamically imported module", true],
+      ["Loading chunk 5 failed", true],
+      ["Loading CSS chunk styles-abc123 failed", true],
+      ["Failed to load resource: server responded with 404", true],
+      ["Unable to preload CSS for /assets/styles.css", true],
+      ["NetworkError when attempting to fetch resource", true],
+      ["undefined is not an object (evaluating 'module.exports')", true],
+      ["error when evaluating a module script", true],
+      ["FAILED TO FETCH DYNAMICALLY IMPORTED MODULE", true], // Case insensitive
+      // Non-chunk errors (should NOT detect)
+      ["Unexpected token '<'", false],
+      ["ReferenceError: foo is not defined", false],
+      ["TypeError: Cannot read property 'map' of undefined", false],
+    ])("isChunkLoadError('%s') should return %s", (message, expected) => {
+      expect(isChunkLoadError(new Error(message))).toBe(expected);
     });
 
     it("should return false for non-Error objects", () => {
@@ -138,11 +90,6 @@ describe("lazyWithRetry utilities", () => {
       expect(isChunkLoadError({ message: "object error" })).toBe(false);
       expect(isChunkLoadError(null)).toBe(false);
       expect(isChunkLoadError(undefined)).toBe(false);
-    });
-
-    it("should be case-insensitive", () => {
-      const error = new Error("FAILED TO FETCH DYNAMICALLY IMPORTED MODULE");
-      expect(isChunkLoadError(error)).toBe(true);
     });
   });
 
@@ -285,24 +232,11 @@ describe("lazyWithRetry utilities", () => {
 });
 
 describe("chunk error detection edge cases", () => {
-  it("should detect errors with extra context in message", () => {
-    const complexError = new Error(
-      "Uncaught (in promise) TypeError: Failed to fetch dynamically imported module: https://example.com/assets/Page-12345.js",
-    );
-    expect(isChunkLoadError(complexError)).toBe(true);
-  });
-
-  it("should detect errors wrapped in other text", () => {
-    const wrappedError = new Error(
-      "Module initialization failed: Loading chunk vendors failed (timeout)",
-    );
-    expect(isChunkLoadError(wrappedError)).toBe(true);
-  });
-
-  it("should handle errors with stack traces in message", () => {
-    const errorWithStack = new Error(
-      "Failed to load module\n    at async loadComponent (/app.js:123)\n    at async render",
-    );
-    expect(isChunkLoadError(errorWithStack)).toBe(true);
+  it.each([
+    ["Uncaught (in promise): Failed to fetch dynamically imported module", true],
+    ["Module initialization failed: Loading chunk vendors failed", true],
+    ["Failed to load module\n    at async loadComponent", true],
+  ])("should detect error: %s", (message, expected) => {
+    expect(isChunkLoadError(new Error(message))).toBe(expected);
   });
 });

@@ -126,7 +126,7 @@ export default function NewCase() {
       const timer = setTimeout(() => setDraftRestored(false), 3000);
       return () => clearTimeout(timer);
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- runs once on mount to check for restored draft
 
   // Debounced draft saving
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);

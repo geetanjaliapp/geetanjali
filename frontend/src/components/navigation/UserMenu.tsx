@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { useClickOutside } from "./hooks";
 import { NAV_ICONS } from "./navConfig";
@@ -57,19 +57,87 @@ export function UserMenu({
 }: UserMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   // Get favorites count and reading position for display
   const { favoritesCount, reading: { position } } = usePreferences();
 
   useClickOutside(menuRef, () => setIsOpen(false), isOpen);
 
-  const handleLogout = () => {
+  // Close menu and restore focus to trigger
+  const closeMenu = useCallback(() => {
     setIsOpen(false);
+    // Restore focus to trigger button (WCAG 2.1)
+    triggerRef.current?.focus();
+  }, []);
+
+  // Handle keyboard navigation (WCAG 2.1)
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const menuItems = menuRef.current?.querySelectorAll('[role="menuitem"]');
+      if (!menuItems?.length) return;
+
+      const itemsArray = Array.from(menuItems) as HTMLElement[];
+      const currentIndex = itemsArray.findIndex((item) => item === document.activeElement);
+
+      switch (e.key) {
+        case "Escape":
+          e.preventDefault();
+          closeMenu();
+          break;
+        case "ArrowDown":
+          e.preventDefault();
+          {
+            const nextIndex = currentIndex < itemsArray.length - 1 ? currentIndex + 1 : 0;
+            itemsArray[nextIndex]?.focus();
+          }
+          break;
+        case "ArrowUp":
+          e.preventDefault();
+          {
+            const prevIndex = currentIndex > 0 ? currentIndex - 1 : itemsArray.length - 1;
+            itemsArray[prevIndex]?.focus();
+          }
+          break;
+        case "Home":
+          e.preventDefault();
+          itemsArray[0]?.focus();
+          break;
+        case "End":
+          e.preventDefault();
+          itemsArray[itemsArray.length - 1]?.focus();
+          break;
+        case "Tab":
+          // Close menu on Tab (standard menu behavior)
+          closeMenu();
+          break;
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, closeMenu]);
+
+  // Focus first menu item when menu opens
+  useEffect(() => {
+    if (isOpen) {
+      // Small delay to ensure menu is rendered
+      requestAnimationFrame(() => {
+        const firstItem = menuRef.current?.querySelector('[role="menuitem"]');
+        (firstItem as HTMLElement)?.focus();
+      });
+    }
+  }, [isOpen]);
+
+  const handleLogout = () => {
+    closeMenu();
     onLogout();
   };
 
   const handleLinkClick = () => {
-    setIsOpen(false);
+    closeMenu();
   };
 
   const isDesktop = variant === "desktop";
@@ -98,6 +166,7 @@ export function UserMenu({
     <div className="relative" ref={menuRef}>
       {/* Trigger button */}
       <button
+        ref={triggerRef}
         onClick={() => setIsOpen(!isOpen)}
         className={
           isDesktop

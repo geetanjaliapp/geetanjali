@@ -433,22 +433,6 @@ export function themeToCss(theme: ThemeConfig): string {
 }
 
 /**
- * Legacy: Generate just the properties (for backward compatibility)
- * @deprecated Use themeToCss instead
- */
-export function themeToProperties(theme: ThemeConfig): string {
-  const properties: string[] = [];
-
-  if (theme.colors) {
-    properties.push(...colorsToCssProperties(theme.colors));
-  }
-
-  properties.push(...nonColorPropertiesToCss(theme));
-
-  return properties.join("\n  ");
-}
-
-/**
  * Apply a theme to the document by injecting CSS custom properties
  * Supports mode-specific colors with :root and .dark selectors
  */

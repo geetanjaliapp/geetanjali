@@ -59,10 +59,11 @@ export {
   clearNewsletterSubscribed,
 } from "../lib/newsletterStorage";
 
-// Notifications
+// Notifications & Status
 export { Toast } from "./Toast";
 export { OfflineIndicator } from "./OfflineIndicator";
 export { VerifyEmailBanner } from "./VerifyEmailBanner";
+export { SyncStatusIndicator } from "./SyncStatusIndicator";
 
 // UI Foundation Components (v1.16.0)
 export {

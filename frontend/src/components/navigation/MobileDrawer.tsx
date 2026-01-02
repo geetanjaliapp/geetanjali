@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   NAV_ITEMS,
@@ -74,6 +74,20 @@ export function MobileDrawer({
 
   // Trap focus within drawer when open (WCAG 2.1)
   useFocusTrap(drawerRef, isOpen);
+
+  // Close on Escape key (WCAG 2.1 - keyboard accessible)
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
 
   const handleLogout = () => {
     onClose();
