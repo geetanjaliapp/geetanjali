@@ -512,19 +512,23 @@ export default function Verses() {
       setSelectedPrinciple(urlTopic);
     }
 
-    // Sync filter mode
-    const newFilterMode: FilterMode = urlChapter
-      ? parseInt(urlChapter)
-      : urlAll === "true"
-        ? "all"
-        : urlFavorites === "true"
-          ? "favorites"
-          : urlRecommended === "true"
-            ? "recommended"
-            : "featured";
+    // Only sync filter mode if URL has explicit filter params
+    // This prevents overriding user's defaultVersesTab preference when navigating to /verses
+    const hasFilterParams = urlChapter || urlAll || urlFavorites || urlRecommended;
+    if (hasFilterParams) {
+      const newFilterMode: FilterMode = urlChapter
+        ? parseInt(urlChapter)
+        : urlAll === "true"
+          ? "all"
+          : urlFavorites === "true"
+            ? "favorites"
+            : urlRecommended === "true"
+              ? "recommended"
+              : "featured";
 
-    if (newFilterMode !== filterMode) {
-      setFilterMode(newFilterMode);
+      if (newFilterMode !== filterMode) {
+        setFilterMode(newFilterMode);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]); // Only depend on searchParams, not state (to avoid infinite loops)
