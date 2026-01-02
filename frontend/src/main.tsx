@@ -15,7 +15,6 @@ import {
   registerServiceWorker,
 } from "./lib/monitoring";
 import { checkAppVersion, startPeriodicVersionCheck } from "./lib/versionCheck";
-import { initFlushHandlers } from "./lib/preferenceSyncCoordinator";
 
 // Initialize monitoring and PWA features (production-only, silent if unconfigured)
 initSentry();
@@ -27,9 +26,6 @@ registerServiceWorker();
 // This runs on app init and periodically for long-running sessions
 checkAppVersion();
 startPeriodicVersionCheck();
-
-// Initialize preference sync flush handlers (visibility change, page unload)
-initFlushHandlers();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
