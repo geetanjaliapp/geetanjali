@@ -501,7 +501,7 @@ export default function ReadingMode() {
   // Load initial chapter
   useEffect(() => {
     loadChapter(state.chapter);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- runs once on mount to load initial chapter
 
   // Update URL on mount if resuming from saved position (no URL params)
   useEffect(() => {
@@ -511,7 +511,7 @@ export default function ReadingMode() {
       newParams.set("v", initial.verse.toString());
       setSearchParams(newParams, { replace: true });
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- runs once on mount with initial values
 
   // Fetch book metadata on mount (for cover page)
   useEffect(() => {
@@ -524,7 +524,7 @@ export default function ReadingMode() {
           setState((prev) => ({ ...prev, pageIndex: PAGE_CHAPTER_INTRO }));
         }
       });
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- runs once on mount to fetch metadata
 
   // Fetch chapter metadata when chapter changes
   useEffect(() => {

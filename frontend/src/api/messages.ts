@@ -1,7 +1,6 @@
 import { api } from "../lib/api";
 import type {
   Message,
-  MessageCreate,
   FollowUpRequest,
   FollowUpResponse,
 } from "../types";
@@ -12,15 +11,6 @@ export const messagesApi = {
    */
   async list(caseId: string): Promise<Message[]> {
     const response = await api.get(`/cases/${caseId}/messages`);
-    return response.data;
-  },
-
-  /**
-   * Create a new user message (follow-up question)
-   * @deprecated Use followUp() for lightweight conversational follow-ups
-   */
-  async create(caseId: string, data: MessageCreate): Promise<Message> {
-    const response = await api.post(`/cases/${caseId}/messages`, data);
     return response.data;
   },
 
