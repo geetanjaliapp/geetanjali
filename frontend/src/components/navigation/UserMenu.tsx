@@ -5,8 +5,7 @@ import { NAV_ICONS } from "./navConfig";
 import type { NavUser } from "./types";
 import { getInitials, getFirstName } from "./utils";
 import { HeartIcon } from "../icons";
-import { useSyncedFavorites } from "../../hooks/useSyncedFavorites";
-import { useSyncedReading } from "../../hooks/useSyncedReading";
+import { usePreferences } from "../../hooks";
 
 interface UserMenuProps {
   /** Current user object */
@@ -60,8 +59,7 @@ export function UserMenu({
   const menuRef = useRef<HTMLDivElement>(null);
 
   // Get favorites count and reading position for display
-  const { favoritesCount } = useSyncedFavorites();
-  const { position } = useSyncedReading();
+  const { favoritesCount, reading: { position } } = usePreferences();
 
   useClickOutside(menuRef, () => setIsOpen(false), isOpen);
 

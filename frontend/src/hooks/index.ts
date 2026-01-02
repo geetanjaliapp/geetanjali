@@ -13,16 +13,20 @@ export { useApiRequest } from "./useApiRequest";
 export { useCaseData } from "./useCaseData";
 export { useSEO } from "./useSEO";
 export { useShare, shareUrls } from "./useShare";
-export { useFavorites } from "./useFavorites";
-export { useSyncedFavorites } from "./useSyncedFavorites";
-export { useSyncedReading } from "./useSyncedReading";
-export { useSyncedGoal } from "./useSyncedGoal";
-export type { SyncStatus } from "./useSyncedFavorites";
+export {
+  usePreferences,
+  useFavoritesPrefs,
+  useGoalsPrefs,
+  useReadingPrefs,
+  useSyncStatus,
+} from "./usePreferences";
+// SyncStatus type is now available from syncEngine
+export type { SyncStatus } from "../lib/syncEngine";
 export { useAdjacentVerses } from "./useAdjacentVerses";
 export { useSwipeNavigation } from "./useSwipeNavigation";
 export { useSearch } from "./useSearch";
 export { useTaxonomy, preloadTaxonomy } from "./useTaxonomy";
-export { useLearningGoal } from "./useLearningGoal";
+// useLearningGoal removed - use useGoalsPrefs() from usePreferences instead
 export { useFocusTrap } from "./useFocusTrap";
 export { useOnlineStatus } from "./useOnlineStatus";
 export { useFeedback } from "./useFeedback";

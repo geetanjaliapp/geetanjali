@@ -16,13 +16,7 @@ import {
   HeartIcon,
   SpinnerIcon,
 } from "../components/icons";
-import {
-  useSyncedGoal,
-  useSyncedFavorites,
-  useSyncedReading,
-  useSEO,
-  useResendVerification,
-} from "../hooks";
+import { usePreferences, useSEO, useResendVerification } from "../hooks";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme, type Theme } from "../contexts/ThemeContext";
 import { FONT_FAMILY_OPTIONS, FONT_FAMILIES } from "../config/fonts";
@@ -107,9 +101,12 @@ export default function Settings() {
 
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
-  const { selectedGoals } = useSyncedGoal();
-  const { favoritesCount } = useSyncedFavorites();
-  const { position } = useSyncedReading();
+  const {
+    goals: { selectedGoals },
+    favoritesCount,
+    reading: { position, settings: readingSettings },
+    setFontSize,
+  } = usePreferences();
 
   // Newsletter form state
   const emailInputRef = useRef<HTMLInputElement>(null);
@@ -133,8 +130,7 @@ export default function Settings() {
   // Theme from context
   const { theme, setTheme, fontFamily, setFontFamily } = useTheme();
 
-  // Reading preferences (font size via useSyncedReading, sections via localStorage)
-  const { settings: readingSettings, setFontSize } = useSyncedReading();
+  // Reading preferences (sections via localStorage, font size from usePreferences above)
   const [sectionPrefs, setSectionPrefs] =
     useState<SectionPrefs>(loadSectionPrefs);
 

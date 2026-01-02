@@ -32,7 +32,7 @@ import { getThemeById, builtInThemes } from "../config/themes";
 import { THEME_FONTS, DEFAULT_FONT_FAMILY } from "../config/fonts";
 import { STORAGE_KEYS, setStorageItemRaw } from "../lib/storage";
 import { useAuth } from "./AuthContext";
-import { requestMerge, requestUpdate } from "../lib/preferenceSyncCoordinator";
+import { syncEngine } from "../lib/syncEngine";
 
 // Declare Umami types
 declare global {
@@ -160,12 +160,6 @@ function applyThemeFonts(themeId: string) {
   `;
 }
 
-// Get stored theme updated timestamp
-function getStoredThemeUpdatedAt(): string | null {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem(STORAGE_KEYS.themeUpdatedAt);
-}
-
 // Update theme timestamp
 function updateThemeTimestamp(): string {
   const now = new Date().toISOString();
@@ -173,15 +167,12 @@ function updateThemeTimestamp(): string {
   return now;
 }
 
-// Note: All timing/throttling is now handled by preferenceSyncCoordinator
-// to consolidate API calls across all preference types.
-
 interface ThemeProviderProps {
   children: ReactNode;
 }
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated } = useAuth();
 
   const [theme, setThemeState] = useState<Theme>(getStoredThemeMode);
   const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(() =>
@@ -193,131 +184,83 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   const [fontFamily, setFontFamilyState] =
     useState<FontFamily>(getStoredFontFamily);
 
-  // Track user ID to detect login/logout
-  const previousUserIdRef = useRef<string | null>(null);
-  // Track if we're currently syncing to prevent duplicate calls
-  const isSyncingRef = useRef(false);
-
   // Refs for current values (to avoid stale closures in callbacks)
   const themeRef = useRef(theme);
   const customThemeRef = useRef(customTheme);
   const fontFamilyRef = useRef(fontFamily);
-  themeRef.current = theme;
-  customThemeRef.current = customTheme;
-  fontFamilyRef.current = fontFamily;
+
+  // Keep refs in sync with state (must be in useEffect per React rules)
+  useEffect(() => {
+    themeRef.current = theme;
+    customThemeRef.current = customTheme;
+    fontFamilyRef.current = fontFamily;
+  }, [theme, customTheme, fontFamily]);
 
   /**
-   * Sync theme to server (via coordinator)
+   * Sync theme to server (via SyncEngine)
    *
-   * Uses preferenceSyncCoordinator for debouncing and batching
-   * with other preference types.
+   * Uses SyncEngine for debouncing and batching.
    */
   const syncToServer = useCallback(() => {
     if (!isAuthenticated) return;
 
-    // Send to coordinator for batching
-    requestUpdate({
-      theme: {
-        mode: themeRef.current,
-        theme_id: customThemeRef.current?.id ?? "default",
-        font_family: fontFamilyRef.current,
-      },
+    syncEngine.update("theme", {
+      mode: themeRef.current,
+      theme_id: customThemeRef.current?.id ?? "default",
+      font_family: fontFamilyRef.current,
     });
   }, [isAuthenticated]);
 
   /**
-   * Merge local theme with server (used on login)
-   *
-   * Uses preferenceSyncCoordinator to batch with other preference types,
-   * reducing multiple API calls to a single consolidated merge request.
-   */
-  const mergeWithServer = useCallback(async () => {
-    if (isSyncingRef.current) return;
-    isSyncingRef.current = true;
-
-    try {
-      const localUpdatedAt = getStoredThemeUpdatedAt();
-
-      // Request coordinated merge (batched with other preference types)
-      await requestMerge(
-        {
-          theme: {
-            mode: themeRef.current,
-            theme_id: customThemeRef.current?.id ?? "default",
-            font_family: fontFamilyRef.current,
-            updated_at: localUpdatedAt ?? undefined,
-          },
-        },
-        (result) => {
-          // Callback receives merged result from coordinator
-          if (result.theme) {
-            const serverMode = result.theme.mode as Theme;
-            const serverThemeId = result.theme.theme_id;
-            const serverFontFamily = result.theme.font_family as FontFamily;
-
-            // Only update if different from current
-            if (serverMode !== themeRef.current) {
-              setThemeState(serverMode);
-              setStorageItemRaw(STORAGE_KEYS.theme, serverMode);
-              const resolved = resolveTheme(serverMode);
-              setResolvedTheme(resolved);
-              applyThemeMode(resolved);
-            }
-
-            if (serverThemeId !== (customThemeRef.current?.id ?? "default")) {
-              if (serverThemeId === "default") {
-                setCustomThemeState(null);
-                localStorage.removeItem(STORAGE_KEYS.themeId);
-                saveThemeToStorage(null);
-              } else {
-                const serverTheme = getThemeById(serverThemeId);
-                if (serverTheme) {
-                  setCustomThemeState(serverTheme);
-                  setStorageItemRaw(STORAGE_KEYS.themeId, serverThemeId);
-                }
-              }
-              applyCustomTheme(
-                serverThemeId === "default"
-                  ? null
-                  : (getThemeById(serverThemeId) ?? null),
-              );
-              applyThemeFonts(serverThemeId);
-            }
-
-            if (serverFontFamily !== fontFamilyRef.current) {
-              setFontFamilyState(serverFontFamily);
-              setStorageItemRaw(STORAGE_KEYS.fontFamily, serverFontFamily);
-            }
-          }
-        },
-      );
-    } catch (error) {
-      console.error("[ThemeContext] Merge failed:", error);
-    } finally {
-      isSyncingRef.current = false;
-    }
-  }, []);
-
-  /**
-   * Handle login: merge local theme with server
+   * Listen for storage changes from other tabs or PreferencesContext merge.
+   * Updates React state when localStorage is updated externally.
    */
   useEffect(() => {
-    const currentUserId = user?.id ?? null;
-    const wasLoggedOut = previousUserIdRef.current === null;
-    const isNowLoggedIn = currentUserId !== null;
+    const handleStorageChange = (event: StorageEvent) => {
+      if (!event.key || event.storageArea !== localStorage) return;
 
-    // Detect login (was null, now has user ID)
-    if (wasLoggedOut && isNowLoggedIn) {
-      mergeWithServer();
-    }
+      // Theme mode changed
+      if (event.key === STORAGE_KEYS.theme && event.newValue) {
+        const newMode = event.newValue as Theme;
+        if (newMode !== themeRef.current) {
+          setThemeState(newMode);
+          const resolved = resolveTheme(newMode);
+          setResolvedTheme(resolved);
+          applyThemeMode(resolved);
+        }
+      }
 
-    // Detect logout
-    if (previousUserIdRef.current !== null && currentUserId === null) {
-      isSyncingRef.current = false;
-    }
+      // Theme ID changed
+      if (event.key === STORAGE_KEYS.themeId) {
+        const newThemeId = event.newValue || "default";
+        const currentThemeId = customThemeRef.current?.id ?? "default";
+        if (newThemeId !== currentThemeId) {
+          if (newThemeId === "default") {
+            setCustomThemeState(null);
+            applyCustomTheme(null);
+          } else {
+            const newTheme = getThemeById(newThemeId);
+            if (newTheme) {
+              setCustomThemeState(newTheme);
+              applyCustomTheme(newTheme);
+            }
+          }
+          applyThemeFonts(newThemeId);
+        }
+      }
 
-    previousUserIdRef.current = currentUserId;
-  }, [user?.id, mergeWithServer]);
+      // Font family changed
+      if (event.key === STORAGE_KEYS.fontFamily && event.newValue) {
+        const newFamily = event.newValue as FontFamily;
+        if (newFamily !== fontFamilyRef.current) {
+          setFontFamilyState(newFamily);
+        }
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
 
   // Set theme mode and persist
   const setTheme = useCallback(

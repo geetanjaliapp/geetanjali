@@ -42,7 +42,7 @@ import {
   AudioSpeedControl,
 } from "../components/audio";
 import { errorMessages } from "../lib/errorMessages";
-import { useSEO, useAdjacentVerses, useSyncedFavorites } from "../hooks";
+import { useSEO, useAdjacentVerses, useFavoritesPrefs } from "../hooks";
 import { STORAGE_KEYS, getStorageItem, setStorageItem } from "../lib/storage";
 
 type FontSize = "normal" | "large";
@@ -128,7 +128,7 @@ export default function VerseDetail() {
   };
 
   // Favorites (synced across devices for logged-in users)
-  const { isFavorite, toggleFavorite } = useSyncedFavorites();
+  const { isFavorite, toggleFavorite } = useFavoritesPrefs();
 
   // Audio player
   const {

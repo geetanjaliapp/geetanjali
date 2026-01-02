@@ -27,8 +27,7 @@ import { MiniPlayer, useAudioPlayer } from "../components/audio";
 import {
   useSEO,
   useSwipeNavigation,
-  useSyncedReading,
-  useSyncedFavorites,
+  usePreferences,
   useAutoAdvance,
 } from "../hooks";
 import {
@@ -66,18 +65,16 @@ interface ReadingState {
 export default function ReadingMode() {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Cross-device sync for reading position and settings
+  // Cross-device sync for reading position, settings, and favorites
   // Destructure stable callbacks to avoid infinite loops in useEffect dependencies
   const {
-    position: savedPosition,
-    settings,
-    savePosition,
+    reading: { position: savedPosition, settings },
+    saveReadingPosition: savePosition,
     setFontSize,
-    resetProgress: resetSyncedProgress,
-  } = useSyncedReading();
-
-  // Favorites sync
-  const { isFavorite, toggleFavorite } = useSyncedFavorites();
+    resetReadingProgress: resetSyncedProgress,
+    isFavorite,
+    toggleFavorite,
+  } = usePreferences();
 
   // Check URL params and saved position on mount
   const urlChapter = searchParams.get("c");
@@ -130,7 +127,7 @@ export default function ReadingMode() {
   );
 
   const [showChapterSelector, setShowChapterSelector] = useState(false);
-  // settings is now destructured from useSyncedReading above
+  // settings is now destructured from usePreferences above
   // Onboarding starts hidden, then shows after 3-second delay for first-time users
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showNewsletterToast, setShowNewsletterToast] = useState(false);

@@ -5,6 +5,7 @@ import { MemoryRouter, Routes, Route } from "react-router-dom";
 import ResetPassword from "./ResetPassword";
 import { AuthProvider } from "../contexts/AuthContext";
 import { ThemeProvider } from "../contexts/ThemeContext";
+import { PreferencesProvider } from "../contexts/PreferencesContext";
 import { authApi, tokenStorage } from "../api/auth";
 import type { ReactNode } from "react";
 
@@ -39,14 +40,17 @@ vi.mock("react-router-dom", async () => {
 });
 
 // ThemeProvider requires AuthProvider context for backend sync
+// PreferencesProvider requires AuthProvider for sync functionality
 const renderWithToken = (token: string) => {
   const Wrapper = ({ children }: { children: ReactNode }) => (
     <MemoryRouter initialEntries={[`/reset-password?token=${token}`]}>
       <AuthProvider>
         <ThemeProvider>
-          <Routes>
-            <Route path="/reset-password" element={children} />
-          </Routes>
+          <PreferencesProvider>
+            <Routes>
+              <Route path="/reset-password" element={children} />
+            </Routes>
+          </PreferencesProvider>
         </ThemeProvider>
       </AuthProvider>
     </MemoryRouter>
@@ -59,9 +63,11 @@ const renderWithoutToken = () => {
     <MemoryRouter initialEntries={["/reset-password"]}>
       <AuthProvider>
         <ThemeProvider>
-          <Routes>
-            <Route path="/reset-password" element={children} />
-          </Routes>
+          <PreferencesProvider>
+            <Routes>
+              <Route path="/reset-password" element={children} />
+            </Routes>
+          </PreferencesProvider>
         </ThemeProvider>
       </AuthProvider>
     </MemoryRouter>

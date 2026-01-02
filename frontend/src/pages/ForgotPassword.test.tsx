@@ -5,6 +5,7 @@ import { BrowserRouter } from "react-router-dom";
 import ForgotPassword from "./ForgotPassword";
 import { AuthProvider } from "../contexts/AuthContext";
 import { ThemeProvider } from "../contexts/ThemeContext";
+import { PreferencesProvider } from "../contexts/PreferencesContext";
 import { authApi, tokenStorage } from "../api/auth";
 import type { ReactNode } from "react";
 
@@ -29,10 +30,13 @@ vi.mock("../api/auth", () => ({
 }));
 
 // ThemeProvider requires AuthProvider context for backend sync
+// PreferencesProvider requires AuthProvider for sync functionality
 const wrapper = ({ children }: { children: ReactNode }) => (
   <BrowserRouter>
     <AuthProvider>
-      <ThemeProvider>{children}</ThemeProvider>
+      <ThemeProvider>
+        <PreferencesProvider>{children}</PreferencesProvider>
+      </ThemeProvider>
     </AuthProvider>
   </BrowserRouter>
 );

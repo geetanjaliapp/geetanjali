@@ -36,7 +36,7 @@ import {
   CheckIcon,
   AlertCircleIcon,
 } from "../components/icons";
-import { useSwipeNavigation, useSyncedReading, useAutoAdvance } from "../hooks";
+import { useSwipeNavigation, useReadingPrefs, useAutoAdvance } from "../hooks";
 import { MiniPlayer, useAudioPlayer } from "../components/audio";
 
 /** Dhyanam page state */
@@ -261,7 +261,7 @@ export default function DhyanamPage() {
   const audioPlayer = useAudioPlayer();
 
   // Get saved reading position
-  const { position: savedPosition } = useSyncedReading();
+  const { position: savedPosition } = useReadingPrefs();
 
   // Current verse - memoized to prevent effect re-runs on every render
   const currentVerse = useMemo(

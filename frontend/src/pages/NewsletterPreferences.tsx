@@ -9,7 +9,7 @@ import {
 import { GoalSelector } from "../components/GoalSelector";
 import { TimeSelector, type SendTime } from "../components/TimeSelector";
 import { api } from "../lib/api";
-import { useSyncedGoal } from "../hooks";
+import { useGoalsPrefs } from "../hooks";
 
 type PageState = "loading" | "loaded" | "saving" | "saved" | "error";
 
@@ -23,7 +23,7 @@ interface Preferences {
 
 export default function NewsletterPreferences() {
   const { token } = useParams<{ token: string }>();
-  const { setGoals } = useSyncedGoal();
+  const { setGoals, selectedIds: selectedGoalIds } = useGoalsPrefs();
 
   // Validate token upfront - if invalid, initialize with error state
   const initialError = useMemo<{ state: PageState; error: string }>(() => {
@@ -75,8 +75,7 @@ export default function NewsletterPreferences() {
     loadPreferences();
   }, [token, initialError.state, setGoals]);
 
-  // Get current goal selection from hook
-  const { selectedGoalIds } = useSyncedGoal();
+  // selectedGoalIds is now destructured at the top from useGoalsPrefs()
 
   const handleSave = async () => {
     if (!token) return;

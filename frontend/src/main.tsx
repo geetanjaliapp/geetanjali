@@ -4,7 +4,7 @@ import "./index.css";
 import App from "./App.tsx";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import { LearningGoalProvider } from "./contexts/LearningGoalContext";
+import { PreferencesProvider } from "./contexts/PreferencesContext";
 import { AudioPlayerProvider } from "./components/audio";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import {
@@ -14,7 +14,6 @@ import {
   registerServiceWorker,
 } from "./lib/monitoring";
 import { checkAppVersion, startPeriodicVersionCheck } from "./lib/versionCheck";
-import { initFlushHandlers } from "./lib/preferenceSyncCoordinator";
 
 // Initialize monitoring and PWA features (production-only, silent if unconfigured)
 initSentry();
@@ -27,19 +26,16 @@ registerServiceWorker();
 checkAppVersion();
 startPeriodicVersionCheck();
 
-// Initialize preference sync flush handlers (visibility change, page unload)
-initFlushHandlers();
-
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ErrorBoundary>
       <AuthProvider>
         <ThemeProvider>
-          <LearningGoalProvider>
+          <PreferencesProvider>
             <AudioPlayerProvider>
               <App />
             </AudioPlayerProvider>
-          </LearningGoalProvider>
+          </PreferencesProvider>
         </ThemeProvider>
       </AuthProvider>
     </ErrorBoundary>

@@ -18,7 +18,7 @@ import { versesApi } from "../lib/api";
 import { formatSanskritLines, isSpeakerIntro } from "../lib/sanskritFormatter";
 import { getTranslatorPriority } from "../constants/translators";
 import { HeartIcon } from "./icons";
-import { useSyncedFavorites } from "../hooks";
+import { useFavoritesPrefs } from "../hooks";
 import { SpeakButton } from "./SpeakButton";
 import {
   setStorageItem,
@@ -220,7 +220,7 @@ export function VerseFocus({
   const [internalShowTranslation, setInternalShowTranslation] = useState(false);
 
   // Favorites (synced across devices for logged-in users)
-  const { isFavorite, toggleFavorite } = useSyncedFavorites();
+  const { isFavorite, toggleFavorite } = useFavoritesPrefs();
 
   const showTranslation = isControlled
     ? controlledShowTranslation
