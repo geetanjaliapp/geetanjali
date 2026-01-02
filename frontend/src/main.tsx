@@ -4,6 +4,7 @@ import "./index.css";
 import App from "./App.tsx";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { PreferencesProvider } from "./contexts/PreferencesContext";
 import { LearningGoalProvider } from "./contexts/LearningGoalContext";
 import { AudioPlayerProvider } from "./components/audio";
 import { ErrorBoundary } from "./components/ErrorBoundary";
@@ -35,11 +36,13 @@ createRoot(document.getElementById("root")!).render(
     <ErrorBoundary>
       <AuthProvider>
         <ThemeProvider>
-          <LearningGoalProvider>
-            <AudioPlayerProvider>
-              <App />
-            </AudioPlayerProvider>
-          </LearningGoalProvider>
+          <PreferencesProvider>
+            <LearningGoalProvider>
+              <AudioPlayerProvider>
+                <App />
+              </AudioPlayerProvider>
+            </LearningGoalProvider>
+          </PreferencesProvider>
         </ThemeProvider>
       </AuthProvider>
     </ErrorBoundary>

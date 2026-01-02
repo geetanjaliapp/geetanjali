@@ -18,6 +18,13 @@ export { useSyncedFavorites } from "./useSyncedFavorites";
 export { useSyncedReading } from "./useSyncedReading";
 export { useSyncedGoal } from "./useSyncedGoal";
 export type { SyncStatus } from "./useSyncedFavorites";
+export {
+  usePreferences,
+  useFavoritesPrefs,
+  useGoalsPrefs,
+  useReadingPrefs,
+  useSyncStatus,
+} from "./usePreferences";
 export { useAdjacentVerses } from "./useAdjacentVerses";
 export { useSwipeNavigation } from "./useSwipeNavigation";
 export { useSearch } from "./useSearch";

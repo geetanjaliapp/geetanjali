@@ -19,6 +19,11 @@ vi.mock("../lib/api", () => ({
   versesApi: {
     getRandom: vi.fn(),
   },
+  preferencesApi: {
+    get: vi.fn().mockResolvedValue({}),
+    update: vi.fn().mockResolvedValue({}),
+    merge: vi.fn().mockResolvedValue({}),
+  },
 }));
 
 // Mock the experiment module to always return 'control' for deterministic tests
