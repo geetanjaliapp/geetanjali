@@ -4,6 +4,16 @@
  * Consolidates all localStorage read/write operations for user preferences.
  * Provides type-safe access and centralized timestamp tracking.
  *
+ * ## Schema Migration
+ *
+ * Handles backward compatibility with legacy storage formats:
+ * - Favorites: array format → object with items[] and updatedAt
+ * - Goals: array format → object with goalIds[] and selectedAt
+ * - Also handles snake_case keys from server (goal_ids, selected_at)
+ *
+ * All reads gracefully handle both old and new formats.
+ * All writes use the new format with timestamps for sync.
+ *
  * Part of v1.17.3 preference sync improvements.
  */
 
@@ -210,6 +220,14 @@ export const preferencesStorage = {
 
   /**
    * Get all local preferences for merge request.
+   *
+   * Collects all preference types with their `updated_at` timestamps.
+   * These timestamps are used by the server for conflict resolution:
+   * - Server compares local vs stored timestamps
+   * - Newer timestamp wins for each preference type
+   * - Merged result is returned to client
+   *
+   * @returns Local preferences with timestamps for server-side merge
    */
   getAllForMerge(): LocalPreferences {
     const favorites = this.getFavorites();

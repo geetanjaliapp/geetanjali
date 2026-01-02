@@ -8,6 +8,25 @@
  * - Retry with exponential backoff
  * - Offline handling with auto-reconnect
  *
+ * ## Conflict Resolution Strategy
+ *
+ * Conflict resolution is handled **server-side** using timestamp-based
+ * last-write-wins semantics:
+ *
+ * 1. **On login (merge)**: Client sends local preferences with `updated_at`
+ *    timestamps. Server compares with stored timestamps and returns the
+ *    newer value for each preference type.
+ *
+ * 2. **On update**: Client sends current values. Server overwrites stored
+ *    values (no conflict possible - single source of truth per user).
+ *
+ * 3. **Multi-device**: Each device merges on login. The device with the
+ *    most recent `updated_at` wins for each preference type.
+ *
+ * This approach is simple and predictable. For preferences (favorites,
+ * goals, reading position), last-write-wins is appropriate since these
+ * represent user intent at a point in time.
+ *
  * Part of v1.17.3 preference sync improvements.
  */
 
@@ -176,7 +195,14 @@ export class SyncEngine {
 
   /**
    * Merge local preferences with server (called on login).
-   * Returns merged preferences or null if throttled/failed.
+   *
+   * Sends local preferences with `updated_at` timestamps to the server.
+   * Server compares timestamps and returns the winning value for each
+   * preference type (last-write-wins). Client then applies the merged
+   * result to both state and localStorage.
+   *
+   * @param local - Local preferences with timestamps from getAllForMerge()
+   * @returns Merged preferences from server, or null if throttled/failed
    */
   async merge(local: LocalPreferences): Promise<UserPreferences | null> {
     const now = Date.now();
