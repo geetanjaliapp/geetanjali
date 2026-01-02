@@ -188,9 +188,13 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   const themeRef = useRef(theme);
   const customThemeRef = useRef(customTheme);
   const fontFamilyRef = useRef(fontFamily);
-  themeRef.current = theme;
-  customThemeRef.current = customTheme;
-  fontFamilyRef.current = fontFamily;
+
+  // Keep refs in sync with state (must be in useEffect per React rules)
+  useEffect(() => {
+    themeRef.current = theme;
+    customThemeRef.current = customTheme;
+    fontFamilyRef.current = fontFamily;
+  }, [theme, customTheme, fontFamily]);
 
   /**
    * Sync theme to server (via SyncEngine)
