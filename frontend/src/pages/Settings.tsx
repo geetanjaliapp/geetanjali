@@ -5,6 +5,7 @@ import {
   markNewsletterSubscribed,
   ConfirmModal,
   ThemeSelector,
+  SyncStatusIndicator,
 } from "../components";
 import { Footer } from "../components/Footer";
 import { GoalSelector } from "../components/GoalSelector";
@@ -395,9 +396,12 @@ export default function Settings() {
       <main className="flex-1 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 animate-fadeIn">
         {/* Page Header */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold font-heading text-[var(--text-primary)] mb-1">
-            Settings
-          </h1>
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl font-bold font-heading text-[var(--text-primary)] mb-1">
+              Settings
+            </h1>
+            <SyncStatusIndicator />
+          </div>
           <p className="text-sm text-[var(--text-tertiary)]">
             Manage your account and preferences
           </p>

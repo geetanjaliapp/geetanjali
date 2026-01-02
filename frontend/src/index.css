@@ -206,6 +206,20 @@ body {
   animation: dot-pulse 1.4s ease-in-out infinite;
 }
 
+/* Fade out animation for sync status indicator */
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.animate-fadeOut {
+  animation: fade-out 0.5s ease-out 1s forwards;
+}
+
 /* Hide scrollbar but allow scrolling */
 .scrollbar-hide {
   -ms-overflow-style: none;
