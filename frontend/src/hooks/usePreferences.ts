@@ -4,13 +4,24 @@
  * Provides access to the unified PreferencesContext with convenience
  * slice hooks for specific use cases.
  *
+ * Slice hooks (useFavoritesPrefs, useGoalsPrefs, useReadingPrefs, useSyncStatus)
+ * are optimized to only re-render when their specific slice changes.
+ *
  * Part of v1.17.3 preference sync improvements.
  */
 
-import { usePreferencesContext } from "../contexts/PreferencesContext";
+import {
+  usePreferencesContext,
+  useFavoritesSlice,
+  useGoalsSlice,
+  useReadingSlice,
+  useSyncSlice,
+} from "../contexts/PreferencesContext";
 
 /**
  * Main hook for accessing all user preferences.
+ * Note: This hook re-renders on any preference change.
+ * For optimized re-renders, use the slice hooks instead.
  *
  * @example
  * ```tsx
@@ -22,7 +33,8 @@ export function usePreferences() {
 }
 
 /**
- * Convenience hook for favorites functionality.
+ * Optimized hook for favorites functionality.
+ * Only re-renders when favorites change, not when goals or reading changes.
  *
  * @example
  * ```tsx
@@ -30,27 +42,12 @@ export function usePreferences() {
  * ```
  */
 export function useFavoritesPrefs() {
-  const {
-    favorites,
-    favoritesCount,
-    isFavorite,
-    toggleFavorite,
-    addFavorite,
-    removeFavorite,
-  } = usePreferencesContext();
-
-  return {
-    favorites,
-    favoritesCount,
-    isFavorite,
-    toggleFavorite,
-    addFavorite,
-    removeFavorite,
-  };
+  return useFavoritesSlice();
 }
 
 /**
- * Convenience hook for goals functionality.
+ * Optimized hook for goals functionality.
+ * Only re-renders when goals change, not when favorites or reading changes.
  *
  * @example
  * ```tsx
@@ -58,29 +55,23 @@ export function useFavoritesPrefs() {
  * ```
  */
 export function useGoalsPrefs() {
-  const {
-    goals,
-    availableGoals,
-    toggleGoal,
-    setGoals,
-    clearGoals,
-    isGoalSelected,
-  } = usePreferencesContext();
+  const slice = useGoalsSlice();
 
   return {
-    selectedIds: goals.selectedIds,
-    selectedGoals: goals.selectedGoals,
-    goalPrinciples: goals.goalPrinciples,
-    goals: availableGoals,
-    toggleGoal,
-    setGoals,
-    clearGoals,
-    isGoalSelected,
+    selectedIds: slice.goals.selectedIds,
+    selectedGoals: slice.goals.selectedGoals,
+    goalPrinciples: slice.goals.goalPrinciples,
+    goals: slice.availableGoals,
+    toggleGoal: slice.toggleGoal,
+    setGoals: slice.setGoals,
+    clearGoals: slice.clearGoals,
+    isGoalSelected: slice.isGoalSelected,
   };
 }
 
 /**
- * Convenience hook for reading preferences.
+ * Optimized hook for reading preferences.
+ * Only re-renders when reading state changes, not when favorites or goals changes.
  *
  * @example
  * ```tsx
@@ -88,24 +79,20 @@ export function useGoalsPrefs() {
  * ```
  */
 export function useReadingPrefs() {
-  const {
-    reading,
-    saveReadingPosition,
-    setFontSize,
-    resetReadingProgress,
-  } = usePreferencesContext();
+  const slice = useReadingSlice();
 
   return {
-    position: reading.position,
-    settings: reading.settings,
-    saveReadingPosition,
-    setFontSize,
-    resetReadingProgress,
+    position: slice.reading.position,
+    settings: slice.reading.settings,
+    saveReadingPosition: slice.saveReadingPosition,
+    setFontSize: slice.setFontSize,
+    resetReadingProgress: slice.resetReadingProgress,
   };
 }
 
 /**
- * Convenience hook for sync status.
+ * Optimized hook for sync status.
+ * Only re-renders when sync state changes.
  *
  * @example
  * ```tsx
@@ -113,13 +100,13 @@ export function useReadingPrefs() {
  * ```
  */
 export function useSyncStatus() {
-  const { sync, resync } = usePreferencesContext();
+  const slice = useSyncSlice();
 
   return {
-    status: sync.status,
-    lastSynced: sync.lastSynced,
-    pendingCount: sync.pendingCount,
-    error: sync.error,
-    resync,
+    status: slice.sync.status,
+    lastSynced: slice.sync.lastSynced,
+    pendingCount: slice.sync.pendingCount,
+    error: slice.sync.error,
+    resync: slice.resync,
   };
 }

@@ -86,6 +86,45 @@ interface PreferencesContextValue {
 const PreferencesContext = createContext<PreferencesContextValue | undefined>(undefined);
 
 // ============================================================================
+// SLICE CONTEXTS (for optimized re-renders)
+// ============================================================================
+
+interface FavoritesSlice {
+  favorites: Set<string>;
+  favoritesCount: number;
+  isFavorite: (verseId: string) => boolean;
+  toggleFavorite: (verseId: string) => boolean;
+  addFavorite: (verseId: string) => boolean;
+  removeFavorite: (verseId: string) => void;
+}
+
+interface GoalsSlice {
+  goals: GoalsState;
+  availableGoals: Goal[];
+  toggleGoal: (goalId: string) => void;
+  setGoals: (goalIds: string[]) => void;
+  clearGoals: () => void;
+  isGoalSelected: (goalId: string) => boolean;
+}
+
+interface ReadingSlice {
+  reading: ReadingState;
+  saveReadingPosition: (chapter: number, verse: number) => void;
+  setFontSize: (size: FontSize) => void;
+  resetReadingProgress: () => void;
+}
+
+interface SyncSlice {
+  sync: SyncState;
+  resync: () => Promise<void>;
+}
+
+const FavoritesSliceContext = createContext<FavoritesSlice | undefined>(undefined);
+const GoalsSliceContext = createContext<GoalsSlice | undefined>(undefined);
+const ReadingSliceContext = createContext<ReadingSlice | undefined>(undefined);
+const SyncSliceContext = createContext<SyncSlice | undefined>(undefined);
+
+// ============================================================================
 // PROVIDER
 // ============================================================================
 
@@ -154,6 +193,65 @@ export function PreferencesProvider({ children }: PreferencesProviderProps) {
     return () => {
       cleanupFlush();
       cleanupOnline();
+    };
+  }, []);
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // MULTI-TAB SYNC (storage events from other tabs)
+  // ══════════════════════════════════════════════════════════════════════════
+
+  useEffect(() => {
+    const handleStorageChange = (event: StorageEvent) => {
+      // Only handle changes from other tabs (event.storageArea === localStorage)
+      // event.key is null when localStorage.clear() is called
+      if (!event.key || event.storageArea !== localStorage) return;
+
+      // Handle favorites changes
+      if (event.key === STORAGE_KEYS.favorites && event.newValue) {
+        try {
+          const parsed = JSON.parse(event.newValue);
+          const items = Array.isArray(parsed) ? parsed : parsed.items || [];
+          setFavorites(new Set(items));
+        } catch {
+          // Ignore parse errors
+        }
+      }
+
+      // Handle goals changes
+      if (event.key === STORAGE_KEYS.learningGoals && event.newValue) {
+        try {
+          const parsed = JSON.parse(event.newValue);
+          const ids = Array.isArray(parsed) ? parsed : parsed.goalIds || [];
+          setGoalIds(ids);
+        } catch {
+          // Ignore parse errors
+        }
+      }
+
+      // Handle reading position changes
+      if (event.key === STORAGE_KEYS.readingPosition && event.newValue) {
+        try {
+          const pos = JSON.parse(event.newValue) as ReadingPosition;
+          setReadingPosition(pos);
+        } catch {
+          // Ignore parse errors
+        }
+      }
+
+      // Handle reading settings changes
+      if (event.key === STORAGE_KEYS.readingSettings && event.newValue) {
+        try {
+          const settings = JSON.parse(event.newValue) as ReadingSettings;
+          setReadingSettings(settings);
+        } catch {
+          // Ignore parse errors
+        }
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
     };
   }, []);
 
@@ -432,20 +530,23 @@ export function PreferencesProvider({ children }: PreferencesProviderProps) {
   }, [isAuthenticated, mergeWithServer]);
 
   // ══════════════════════════════════════════════════════════════════════════
-  // CONTEXT VALUE
+  // SLICE VALUES (for optimized re-renders)
   // ══════════════════════════════════════════════════════════════════════════
 
-  const value = useMemo<PreferencesContextValue>(
+  const favoritesSlice = useMemo<FavoritesSlice>(
     () => ({
-      // Favorites
       favorites,
       favoritesCount: favorites.size,
       isFavorite,
       toggleFavorite,
       addFavorite,
       removeFavorite,
+    }),
+    [favorites, isFavorite, toggleFavorite, addFavorite, removeFavorite]
+  );
 
-      // Goals
+  const goalsSlice = useMemo<GoalsSlice>(
+    () => ({
       goals: {
         selectedIds: goalIds,
         selectedGoals,
@@ -456,8 +557,12 @@ export function PreferencesProvider({ children }: PreferencesProviderProps) {
       setGoals: setGoalsAction,
       clearGoals,
       isGoalSelected,
+    }),
+    [goalIds, selectedGoals, goalPrinciples, taxonomyGoals, toggleGoal, setGoalsAction, clearGoals, isGoalSelected]
+  );
 
-      // Reading
+  const readingSlice = useMemo<ReadingSlice>(
+    () => ({
       reading: {
         position: readingPosition,
         settings: readingSettings,
@@ -465,44 +570,49 @@ export function PreferencesProvider({ children }: PreferencesProviderProps) {
       saveReadingPosition,
       setFontSize: setFontSizeAction,
       resetReadingProgress,
+    }),
+    [readingPosition, readingSettings, saveReadingPosition, setFontSizeAction, resetReadingProgress]
+  );
 
-      // Sync
+  const syncSlice = useMemo<SyncSlice>(
+    () => ({
       sync: syncState,
       resync,
     }),
-    [
-      favorites,
-      isFavorite,
-      toggleFavorite,
-      addFavorite,
-      removeFavorite,
-      goalIds,
-      selectedGoals,
-      goalPrinciples,
-      taxonomyGoals,
-      toggleGoal,
-      setGoalsAction,
-      clearGoals,
-      isGoalSelected,
-      readingPosition,
-      readingSettings,
-      saveReadingPosition,
-      setFontSizeAction,
-      resetReadingProgress,
-      syncState,
-      resync,
-    ]
+    [syncState, resync]
+  );
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // CONTEXT VALUE (unified for usePreferences hook)
+  // ══════════════════════════════════════════════════════════════════════════
+
+  const value = useMemo<PreferencesContextValue>(
+    () => ({
+      ...favoritesSlice,
+      ...goalsSlice,
+      ...readingSlice,
+      ...syncSlice,
+    }),
+    [favoritesSlice, goalsSlice, readingSlice, syncSlice]
   );
 
   return (
     <PreferencesContext.Provider value={value}>
-      {children}
+      <FavoritesSliceContext.Provider value={favoritesSlice}>
+        <GoalsSliceContext.Provider value={goalsSlice}>
+          <ReadingSliceContext.Provider value={readingSlice}>
+            <SyncSliceContext.Provider value={syncSlice}>
+              {children}
+            </SyncSliceContext.Provider>
+          </ReadingSliceContext.Provider>
+        </GoalsSliceContext.Provider>
+      </FavoritesSliceContext.Provider>
     </PreferencesContext.Provider>
   );
 }
 
 // ============================================================================
-// HOOK
+// HOOKS
 // ============================================================================
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -510,6 +620,54 @@ export function usePreferencesContext(): PreferencesContextValue {
   const context = useContext(PreferencesContext);
   if (!context) {
     throw new Error("usePreferencesContext must be used within PreferencesProvider");
+  }
+  return context;
+}
+
+/**
+ * Optimized hook for favorites - only re-renders when favorites change.
+ */
+// eslint-disable-next-line react-refresh/only-export-components
+export function useFavoritesSlice(): FavoritesSlice {
+  const context = useContext(FavoritesSliceContext);
+  if (!context) {
+    throw new Error("useFavoritesSlice must be used within PreferencesProvider");
+  }
+  return context;
+}
+
+/**
+ * Optimized hook for goals - only re-renders when goals change.
+ */
+// eslint-disable-next-line react-refresh/only-export-components
+export function useGoalsSlice(): GoalsSlice {
+  const context = useContext(GoalsSliceContext);
+  if (!context) {
+    throw new Error("useGoalsSlice must be used within PreferencesProvider");
+  }
+  return context;
+}
+
+/**
+ * Optimized hook for reading - only re-renders when reading state changes.
+ */
+// eslint-disable-next-line react-refresh/only-export-components
+export function useReadingSlice(): ReadingSlice {
+  const context = useContext(ReadingSliceContext);
+  if (!context) {
+    throw new Error("useReadingSlice must be used within PreferencesProvider");
+  }
+  return context;
+}
+
+/**
+ * Optimized hook for sync status - only re-renders when sync state changes.
+ */
+// eslint-disable-next-line react-refresh/only-export-components
+export function useSyncSlice(): SyncSlice {
+  const context = useContext(SyncSliceContext);
+  if (!context) {
+    throw new Error("useSyncSlice must be used within PreferencesProvider");
   }
   return context;
 }

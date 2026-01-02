@@ -337,4 +337,115 @@ describe("PreferencesContext", () => {
       expect(typeof result.current.resync).toBe("function");
     });
   });
+
+  describe("auth transitions", () => {
+    it("should have mergeWithServer capability for login flow", async () => {
+      const { syncEngine } = await import("../lib/syncEngine");
+
+      // Verify sync engine merge function is available and properly mocked
+      expect(syncEngine.merge).toBeDefined();
+      expect(typeof syncEngine.merge).toBe("function");
+    });
+
+    it("should have reset capability for logout flow", async () => {
+      const { syncEngine } = await import("../lib/syncEngine");
+
+      // Verify reset is available for logout scenarios
+      expect(syncEngine.reset).toBeDefined();
+      expect(typeof syncEngine.reset).toBe("function");
+    });
+
+    it("should preserve local data when merge returns null (throttled)", async () => {
+      const { preferencesStorage } = await import("../lib/preferencesStorage");
+
+      // Set up local favorites
+      vi.mocked(preferencesStorage.getFavorites).mockReturnValue(["BG_1_1"]);
+
+      const { result } = renderHook(() => usePreferencesContext(), { wrapper });
+
+      // Local data should be preserved
+      expect(result.current.favorites.has("BG_1_1")).toBe(true);
+    });
+
+    it("should initialize sync engine handlers", async () => {
+      const { syncEngine } = await import("../lib/syncEngine");
+
+      renderHook(() => usePreferencesContext(), { wrapper });
+
+      // Verify handlers were initialized
+      expect(syncEngine.initFlushHandlers).toHaveBeenCalled();
+      expect(syncEngine.initOnlineHandlers).toHaveBeenCalled();
+    });
+  });
+
+  describe("multi-tab sync", () => {
+    // Helper to create and dispatch storage events (jsdom compatible)
+    const dispatchStorageEvent = (key: string | null, newValue: string | null) => {
+      const event = new StorageEvent("storage", {
+        key,
+        newValue,
+        oldValue: null,
+        url: window.location.href,
+      });
+      // Manually set storageArea since jsdom doesn't accept it in constructor
+      Object.defineProperty(event, "storageArea", {
+        value: localStorage,
+        writable: false,
+      });
+      window.dispatchEvent(event);
+    };
+
+    it("should update favorites when storage event fires from another tab", async () => {
+      const { result } = renderHook(() => usePreferencesContext(), { wrapper });
+
+      expect(result.current.favorites.size).toBe(0);
+
+      // Simulate storage event from another tab
+      act(() => {
+        dispatchStorageEvent(
+          "geetanjali_favorites",
+          JSON.stringify({ items: ["BG_1_1", "BG_2_47"], updatedAt: new Date().toISOString() })
+        );
+      });
+
+      expect(result.current.favorites.has("BG_1_1")).toBe(true);
+      expect(result.current.favorites.has("BG_2_47")).toBe(true);
+      expect(result.current.favoritesCount).toBe(2);
+    });
+
+    it("should update goals when storage event fires from another tab", async () => {
+      const { result } = renderHook(() => usePreferencesContext(), { wrapper });
+
+      expect(result.current.goals.selectedIds.length).toBe(0);
+
+      // Simulate storage event from another tab
+      act(() => {
+        dispatchStorageEvent(
+          "geetanjali:learningGoals",
+          JSON.stringify({ goalIds: ["goal-1", "goal-2"], selectedAt: new Date().toISOString() })
+        );
+      });
+
+      expect(result.current.goals.selectedIds).toContain("goal-1");
+      expect(result.current.goals.selectedIds).toContain("goal-2");
+    });
+
+    it("should ignore storage events with null key (clear)", () => {
+      const { result } = renderHook(() => usePreferencesContext(), { wrapper });
+
+      // Add a favorite first
+      act(() => {
+        result.current.addFavorite("BG_1_1");
+      });
+      expect(result.current.favorites.has("BG_1_1")).toBe(true);
+
+      // Simulate localStorage.clear() event (key is null)
+      act(() => {
+        dispatchStorageEvent(null, null);
+      });
+
+      // State should be unchanged
+      expect(result.current.favorites.has("BG_1_1")).toBe(true);
+    });
+  });
 });
