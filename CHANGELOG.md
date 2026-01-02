@@ -2,6 +2,34 @@
 
 All notable changes to Geetanjali are documented here.
 
+## [1.18.0] - 2026-01-02
+
+Quality & accessibility release focused on WCAG 2.1 AA compliance, sync status UI, test coverage visibility, and code cleanup.
+
+### Accessibility (WCAG 2.1 AA)
+- **Keyboard Navigation** - MobileDrawer, UserMenu, ChapterSelector now fully keyboard navigable with arrow keys, Escape, Enter/Space
+- **Focus Management** - useFocusTrap hook with focus restoration guard, proper focus indicators on all interactive elements
+- **Roving TabIndex** - ChapterSelector implements grid pattern with Home/End support
+- **ARIA Compliance** - role="status" for sync indicator, aria-labels on all icon buttons, aria-current for active states
+
+### Features
+- **SyncStatusIndicator** - Visual feedback for preference sync on Settings page (idle, syncing, synced, error, offline states)
+- **Tap-to-Retry** - Error state shows tap-to-retry with keyboard support (Enter/Space)
+
+### Technical
+- **Test Coverage** - Added @vitest/coverage-v8, pruned low-value tests (382 → 369), test run time reduced (33s → 22s)
+- **Code Quality** - Removed deprecated code (messagesApi.create, themeToProperties), documented all ESLint suppressions
+- **TypeScript** - 0 `any` types in production code
+- **Constants** - Exported SYNC_INDICATOR_DELAY_MS (500) and SYNC_SUCCESS_DURATION_MS (1500) for testability
+
+### Fixes
+- Focus restoration now guards against stale/removed DOM nodes (.isConnected check)
+- Focus indicators added to AudioPlayer retry button and PathsSection toggle
+
+### Security
+- npm audit: 0 vulnerabilities
+- No XSS vectors introduced (no dangerouslySetInnerHTML, eval, innerHTML)
+
 ## [1.17.3] - 2026-01-02
 
 Preference sync architecture overhaul with unified SyncEngine, multi-tab synchronization, and major code consolidation.

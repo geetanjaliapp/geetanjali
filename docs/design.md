@@ -375,12 +375,29 @@ Token comments document actual ratios. Dark mode tokens are tuned separately.
 - Adequate spacing between adjacent targets
 - Larger targets for frequently-used actions
 
+### Keyboard Navigation
+
+All interactive components must be fully keyboard accessible:
+
+| Pattern | Components | Keys |
+|---------|------------|------|
+| Focus trap | Modal, MobileDrawer | Tab cycles within, Escape closes |
+| Roving tabindex | ChapterSelector, UserMenu | Arrows navigate, Enter/Space activates |
+| Menu pattern | UserMenu dropdown | Up/Down arrows, Home/End, Escape |
+| Grid pattern | ChapterSelector | Arrow keys (6-col grid), Home/End |
+
+**Focus Management Requirements:**
+- Focus first focusable element when overlay opens
+- Restore focus to trigger element on close
+- Guard focus restoration for stale DOM nodes (`.isConnected` check)
+- Use `useFocusTrap` hook for modals and drawers
+
 ### Screen Readers
 
 - Semantic HTML (proper headings, landmarks, lists)
 - ARIA labels on all icon-only buttons
 - Logical reading order matches visual order
-- Live regions for dynamic content
+- Live regions for dynamic content (`role="status"` for sync indicator)
 
 ### Motion Sensitivity
 
