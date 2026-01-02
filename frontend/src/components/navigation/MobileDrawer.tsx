@@ -10,9 +10,7 @@ import {
 import { ThemeToggle } from "./ThemeToggle";
 import type { NavUser } from "./types";
 import { getInitials } from "./utils";
-import { useFocusTrap } from "../../hooks";
-import { useSyncedFavorites } from "../../hooks/useSyncedFavorites";
-import { useSyncedReading } from "../../hooks/useSyncedReading";
+import { useFocusTrap, usePreferences } from "../../hooks";
 import { HeartIcon } from "../icons";
 
 interface MobileDrawerProps {
@@ -72,8 +70,7 @@ export function MobileDrawer({
   const visibleItems = getVisibleNavItems(NAV_ITEMS, isAuthenticated);
 
   // Get favorites count and reading position for account section
-  const { favoritesCount } = useSyncedFavorites();
-  const { position } = useSyncedReading();
+  const { favoritesCount, reading: { position } } = usePreferences();
 
   // Trap focus within drawer when open (WCAG 2.1)
   useFocusTrap(drawerRef, isOpen);

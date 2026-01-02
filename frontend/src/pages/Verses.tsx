@@ -23,8 +23,7 @@ import {
 import { errorMessages } from "../lib/errorMessages";
 import {
   useSEO,
-  useSyncedFavorites,
-  useSyncedGoal,
+  usePreferences,
   useSearch,
   useTaxonomy,
 } from "../hooks";
@@ -320,17 +319,19 @@ export default function Verses() {
     canonical: "/verses",
   });
 
-  // Favorites hook for heart icon and filtering (synced across devices)
-  const { favorites, isFavorite, toggleFavorite, favoritesCount } =
-    useSyncedFavorites();
+  // Preferences hook for favorites and goals (synced across devices)
+  const {
+    favorites,
+    isFavorite,
+    toggleFavorite,
+    favoritesCount,
+    goals: { selectedGoals },
+  } = usePreferences();
 
   // Ref to access favorites without causing loadVerses callback recreation
   // This prevents re-render loops when favorites Set changes
   const favoritesRef = useRef(favorites);
   favoritesRef.current = favorites;
-
-  // Learning goals hook for "Recommended" filter
-  const { selectedGoals } = useSyncedGoal();
 
   // Taxonomy hook for principles (single source of truth from backend)
   const { principles, getPrincipleShortLabel } = useTaxonomy();

@@ -14,10 +14,6 @@ export { useCaseData } from "./useCaseData";
 export { useSEO } from "./useSEO";
 export { useShare, shareUrls } from "./useShare";
 export { useFavorites } from "./useFavorites";
-export { useSyncedFavorites } from "./useSyncedFavorites";
-export { useSyncedReading } from "./useSyncedReading";
-export { useSyncedGoal } from "./useSyncedGoal";
-export type { SyncStatus } from "./useSyncedFavorites";
 export {
   usePreferences,
   useFavoritesPrefs,
@@ -25,6 +21,8 @@ export {
   useReadingPrefs,
   useSyncStatus,
 } from "./usePreferences";
+// SyncStatus type is now available from syncEngine
+export type { SyncStatus } from "../lib/syncEngine";
 export { useAdjacentVerses } from "./useAdjacentVerses";
 export { useSwipeNavigation } from "./useSwipeNavigation";
 export { useSearch } from "./useSearch";

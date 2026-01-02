@@ -1,4 +1,4 @@
-import { useSyncedGoal } from "../hooks";
+import { useGoalsPrefs, useTaxonomy } from "../hooks";
 import { GoalIconsById, GoalIcons, CheckIcon } from "./icons";
 import type { Goal } from "../lib/api";
 
@@ -111,12 +111,15 @@ export function GoalSelector({
   const {
     goals,
     toggleGoal,
-    isSelected,
-    selectedGoalIds,
-    initialized,
+    isGoalSelected: isSelected,
+    selectedIds: selectedGoalIds,
     setGoals,
     clearGoals,
-  } = useSyncedGoal();
+  } = useGoalsPrefs();
+
+  // useTaxonomy loading state replaces initialized
+  const { loading: taxonomyLoading } = useTaxonomy();
+  const initialized = !taxonomyLoading;
 
   const handleToggle = (goalId: string) => {
     // Compute new selection BEFORE toggle to avoid stale closure
