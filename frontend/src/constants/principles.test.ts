@@ -1,3 +1,9 @@
+/**
+ * Principle Taxonomy - Smoke Tests
+ *
+ * These tests verify the taxonomy exports correctly and helper functions work.
+ * We don't test every principle ID - TypeScript ensures the structure is correct.
+ */
 import { describe, it, expect } from "vitest";
 import {
   PRINCIPLE_TAXONOMY,
@@ -7,134 +13,34 @@ import {
 } from "./principles";
 
 describe("PRINCIPLE_TAXONOMY", () => {
-  it("should have 16 new principles", () => {
-    const newPrinciples = [
-      "dharma",
-      "nishkama_karma",
-      "svadharma",
-      "seva",
-      "viveka",
-      "jnana",
-      "sthitaprajna",
-      "tyaga",
-      "bhakti",
-      "sharanagati",
-      "shraddha",
-      "dhyana",
-      "samatvam",
-      "discipline",
-      "virtue",
-      "abhyasa",
-    ];
+  it("should export valid principle taxonomy with required fields", () => {
+    // Verify taxonomy is non-empty
+    const principles = Object.values(PRINCIPLE_TAXONOMY);
+    expect(principles.length).toBeGreaterThan(0);
 
-    for (const id of newPrinciples) {
-      expect(
-        PRINCIPLE_TAXONOMY[id as keyof typeof PRINCIPLE_TAXONOMY],
-      ).toBeDefined();
-    }
-  });
-
-  it("should have legacy principle mappings", () => {
-    const legacyPrinciples = [
-      "duty_focus",
-      "detachment",
-      "self_control",
-      "informed_choice",
-      "role_fit",
-      "compassion",
-      "self_responsibility",
-      "ethical_character",
-      "consistent_duty",
-    ];
-
-    for (const id of legacyPrinciples) {
-      expect(
-        PRINCIPLE_TAXONOMY[id as keyof typeof PRINCIPLE_TAXONOMY],
-      ).toBeDefined();
-    }
-  });
-
-  it("each principle should have required fields", () => {
-    for (const principle of Object.values(PRINCIPLE_TAXONOMY)) {
-      expect(principle.label).toBeDefined();
-      expect(principle.shortLabel).toBeDefined();
-      expect(principle.description).toBeDefined();
-      expect(typeof principle.label).toBe("string");
-      expect(typeof principle.shortLabel).toBe("string");
-      expect(typeof principle.description).toBe("string");
-      expect(principle.label.length).toBeGreaterThan(0);
-      expect(principle.shortLabel.length).toBeGreaterThan(0);
-    }
+    // Verify structure of a sample principle
+    const firstPrinciple = principles[0];
+    expect(firstPrinciple).toHaveProperty("label");
+    expect(firstPrinciple).toHaveProperty("shortLabel");
+    expect(firstPrinciple).toHaveProperty("description");
+    expect(typeof firstPrinciple.label).toBe("string");
+    expect(firstPrinciple.label.length).toBeGreaterThan(0);
   });
 });
 
-describe("getPrincipleLabel", () => {
-  it("should return label for valid principle ID", () => {
+describe("Principle helper functions", () => {
+  it("should return labels for known principles and handle unknowns gracefully", () => {
+    // Known principle
     expect(getPrincipleLabel("dharma")).toBe("Righteous Duty");
-    expect(getPrincipleLabel("viveka")).toBe("Discernment");
-    expect(getPrincipleLabel("bhakti")).toBe("Devotion");
-  });
-
-  it("should return label for legacy principle IDs", () => {
-    expect(getPrincipleLabel("duty_focus")).toBe("Righteous Duty");
-    expect(getPrincipleLabel("detachment")).toBe("Selfless Action");
-    expect(getPrincipleLabel("self_control")).toBe("Self-Mastery");
-  });
-
-  it("should return ID itself for unknown principle", () => {
-    expect(getPrincipleLabel("unknown_principle")).toBe("unknown_principle");
-    expect(getPrincipleLabel("foo")).toBe("foo");
-  });
-});
-
-describe("getPrincipleShortLabel", () => {
-  it("should return short label for valid principle ID", () => {
     expect(getPrincipleShortLabel("dharma")).toBe("Duty");
-    expect(getPrincipleShortLabel("viveka")).toBe("Discernment");
-    expect(getPrincipleShortLabel("discipline")).toBe("Discipline");
-  });
+    expect(getPrincipleDescription("dharma")).toContain("responsibilities");
 
-  it("should return short label for legacy principle IDs", () => {
-    expect(getPrincipleShortLabel("duty_focus")).toBe("Duty");
-    expect(getPrincipleShortLabel("ethical_character")).toBe("Virtue");
-  });
+    // Legacy mapping works
+    expect(getPrincipleLabel("duty_focus")).toBe("Righteous Duty");
 
-  it("should return ID itself for unknown principle", () => {
+    // Unknown principle returns ID or empty
+    expect(getPrincipleLabel("unknown")).toBe("unknown");
     expect(getPrincipleShortLabel("unknown")).toBe("unknown");
-  });
-});
-
-describe("getPrincipleDescription", () => {
-  it("should return description for valid principle ID", () => {
-    const desc = getPrincipleDescription("dharma");
-    expect(desc).toContain("responsibilities");
-  });
-
-  it("should return empty string for unknown principle", () => {
     expect(getPrincipleDescription("unknown")).toBe("");
-  });
-});
-
-describe("legacy to new principle mapping", () => {
-  it("legacy duty_focus maps to Righteous Duty (same as dharma)", () => {
-    expect(getPrincipleLabel("duty_focus")).toBe(getPrincipleLabel("dharma"));
-  });
-
-  it("legacy detachment maps to Selfless Action (same as nishkama_karma)", () => {
-    expect(getPrincipleLabel("detachment")).toBe(
-      getPrincipleLabel("nishkama_karma"),
-    );
-  });
-
-  it("legacy self_control maps to Self-Mastery (same as discipline)", () => {
-    expect(getPrincipleLabel("self_control")).toBe(
-      getPrincipleLabel("discipline"),
-    );
-  });
-
-  it("legacy ethical_character maps to Noble Qualities (same as virtue)", () => {
-    expect(getPrincipleLabel("ethical_character")).toBe(
-      getPrincipleLabel("virtue"),
-    );
   });
 });

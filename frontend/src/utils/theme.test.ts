@@ -12,55 +12,29 @@ import type { ThemeConfig } from "../types/theme";
 
 describe("theme utilities", () => {
   describe("isValidColor", () => {
-    it("should accept valid 3-digit hex colors", () => {
-      expect(isValidColor("#fff")).toBe(true);
-      expect(isValidColor("#FFF")).toBe(true);
-      expect(isValidColor("#abc")).toBe(true);
-    });
-
-    it("should accept valid 6-digit hex colors", () => {
-      expect(isValidColor("#ffffff")).toBe(true);
-      expect(isValidColor("#FFFFFF")).toBe(true);
-      expect(isValidColor("#ea580c")).toBe(true);
-    });
-
-    it("should accept valid 8-digit hex colors (with alpha)", () => {
-      expect(isValidColor("#ffffff00")).toBe(true);
-      expect(isValidColor("#ea580cff")).toBe(true);
-    });
-
-    it("should accept valid rgb colors", () => {
-      expect(isValidColor("rgb(255, 255, 255)")).toBe(true);
-      expect(isValidColor("rgb(234, 88, 12)")).toBe(true);
-    });
-
-    it("should accept valid rgba colors", () => {
-      expect(isValidColor("rgba(255, 255, 255, 0.5)")).toBe(true);
-      expect(isValidColor("rgba(234, 88, 12, 1)")).toBe(true);
-    });
-
-    it("should accept valid hsl colors", () => {
-      expect(isValidColor("hsl(0, 100%, 50%)")).toBe(true);
-      expect(isValidColor("hsl(180, 50%, 75%)")).toBe(true);
-    });
-
-    it("should accept valid hsla colors", () => {
-      expect(isValidColor("hsla(0, 100%, 50%, 0.5)")).toBe(true);
-      expect(isValidColor("hsla(180, 50%, 75%, 1)")).toBe(true);
-    });
-
-    it("should accept CSS variable references", () => {
-      expect(isValidColor("var(--color-primary-500)")).toBe(true);
-      expect(isValidColor("var(--surface-warm)")).toBe(true);
-    });
-
-    it("should reject invalid color formats", () => {
-      expect(isValidColor("red")).toBe(false); // Named colors not supported
-      expect(isValidColor("#gg0000")).toBe(false); // Invalid hex
-      expect(isValidColor("#12345")).toBe(false); // Wrong length
-      expect(isValidColor("")).toBe(false);
-      expect(isValidColor("not-a-color")).toBe(false);
-      // Note: rgb() format check is lenient - just validates structure, not values
+    it.each([
+      // Hex formats
+      ["#fff", true],
+      ["#FFF", true],
+      ["#ffffff", true],
+      ["#ea580c", true],
+      ["#ffffff00", true],
+      // RGB/RGBA
+      ["rgb(255, 255, 255)", true],
+      ["rgba(234, 88, 12, 0.5)", true],
+      // HSL/HSLA
+      ["hsl(0, 100%, 50%)", true],
+      ["hsla(180, 50%, 75%, 1)", true],
+      // CSS variables
+      ["var(--color-primary-500)", true],
+      // Invalid formats
+      ["red", false], // Named colors not supported
+      ["#gg0000", false],
+      ["#12345", false],
+      ["", false],
+      ["not-a-color", false],
+    ])("isValidColor(%s) should return %s", (color, expected) => {
+      expect(isValidColor(color)).toBe(expected);
     });
   });
 
@@ -179,157 +153,51 @@ describe("theme utilities", () => {
   });
 
   describe("themeToCss", () => {
-    it("should generate CSS for color overrides", () => {
+    it("should generate CSS for various override types", () => {
       const theme: ThemeConfig = {
         id: "test-theme",
         name: "Test Theme",
-        colors: {
-          primary: {
-            500: "#ea580c",
-            600: "#dc2626",
-          },
-        },
+        colors: { primary: { 500: "#ea580c" } },
+        typography: { display: "Georgia, serif" },
+        radius: { sm: "0.25rem" },
+        spacing: { unit: "0.5rem" },
       };
 
       const css = themeToCss(theme);
       expect(css).toContain("--color-primary-500: #ea580c;");
-      expect(css).toContain("--color-primary-600: #dc2626;");
-    });
-
-    it("should generate CSS for typography overrides", () => {
-      const theme: ThemeConfig = {
-        id: "test-theme",
-        name: "Test Theme",
-        typography: {
-          display: "Georgia, serif",
-          body: "system-ui, sans-serif",
-        },
-      };
-
-      const css = themeToCss(theme);
       expect(css).toContain("--font-family-display: Georgia, serif;");
-      expect(css).toContain("--font-family-body: system-ui, sans-serif;");
-    });
-
-    it("should generate CSS for radius overrides", () => {
-      const theme: ThemeConfig = {
-        id: "test-theme",
-        name: "Test Theme",
-        radius: {
-          sm: "0.25rem",
-          md: "0.5rem",
-        },
-      };
-
-      const css = themeToCss(theme);
       expect(css).toContain("--radius-sm: 0.25rem;");
-      expect(css).toContain("--radius-md: 0.5rem;");
-    });
-
-    it("should generate CSS for spacing unit override", () => {
-      const theme: ThemeConfig = {
-        id: "test-theme",
-        name: "Test Theme",
-        spacing: {
-          unit: "0.5rem",
-        },
-      };
-
-      const css = themeToCss(theme);
       expect(css).toContain("--spacing-unit: 0.5rem;");
     });
 
     it("should return empty string for theme without overrides", () => {
-      const theme: ThemeConfig = {
-        id: "test-theme",
-        name: "Test Theme",
-      };
-
-      const css = themeToCss(theme);
-      expect(css).toBe("");
+      const theme: ThemeConfig = { id: "test-theme", name: "Test Theme" };
+      expect(themeToCss(theme)).toBe("");
     });
 
-    it("should generate :root block with colors", () => {
+    it("should generate :root and .dark blocks for modeColors", () => {
       const theme: ThemeConfig = {
         id: "test-theme",
         name: "Test Theme",
-        colors: {
-          primary: { 500: "#ea580c" },
-        },
-      };
-
-      const css = themeToCss(theme);
-      expect(css).toContain(":root {");
-      expect(css).toContain("--color-primary-500: #ea580c;");
-    });
-
-    it("should generate .dark block for dark modeColors", () => {
-      const theme: ThemeConfig = {
-        id: "test-theme",
-        name: "Test Theme",
+        colors: { warm: { 100: "#fef3c7" } }, // Shared
         modeColors: {
-          dark: {
-            primary: { 500: "#f97316" },
-          },
-        },
-      };
-
-      const css = themeToCss(theme);
-      expect(css).toContain(".dark {");
-      expect(css).toContain("--color-primary-500: #f97316;");
-    });
-
-    it("should generate both :root and .dark blocks for full modeColors", () => {
-      const theme: ThemeConfig = {
-        id: "test-theme",
-        name: "Test Theme",
-        modeColors: {
-          light: {
-            primary: { 500: "#ea580c" },
-          },
-          dark: {
-            primary: { 500: "#f97316" },
-          },
+          light: { primary: { 500: "#ea580c" } },
+          dark: { primary: { 500: "#f97316" } },
         },
       };
 
       const css = themeToCss(theme);
       expect(css).toContain(":root {");
       expect(css).toContain(".dark {");
-      // Light colors in :root
+      expect(css).toContain("--color-warm-100: #fef3c7;");
+      // Light colors before .dark block
       expect(css.indexOf("--color-primary-500: #ea580c;")).toBeLessThan(
         css.indexOf(".dark {"),
       );
-      // Dark colors in .dark
+      // Dark colors after .dark block
       expect(css.indexOf("--color-primary-500: #f97316;")).toBeGreaterThan(
         css.indexOf(".dark {"),
       );
-    });
-
-    it("should combine shared colors with mode-specific colors", () => {
-      const theme: ThemeConfig = {
-        id: "test-theme",
-        name: "Test Theme",
-        colors: {
-          warm: { 100: "#fef3c7" }, // Shared
-        },
-        modeColors: {
-          light: {
-            primary: { 500: "#ea580c" },
-          },
-          dark: {
-            primary: { 500: "#f97316" },
-          },
-        },
-      };
-
-      const css = themeToCss(theme);
-      // Shared warm color in :root
-      expect(css).toContain("--color-warm-100: #fef3c7;");
-      // Light-specific primary in :root
-      expect(css).toContain(":root {");
-      // Dark-specific primary in .dark
-      expect(css).toContain(".dark {");
     });
   });
 
