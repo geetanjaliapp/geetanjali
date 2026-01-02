@@ -6,15 +6,19 @@ All notable changes to Geetanjali are documented here.
 
 Preference sync architecture overhaul with unified SyncEngine, multi-tab synchronization, and major code consolidation.
 
+### Fixes
+- **defaultVersesTab** - Settings "Default verses tab" preference now correctly applied when navigating to /verses (previously URL sync logic was overriding stored preference)
+
 ### Technical
 - **SyncEngine** - Unified preference synchronization with tiered debouncing (reading: 15s, favorites/goals/theme: 5s), exponential retry backoff, and offline handling
 - **PreferencesContext** - Single source of truth for favorites, goals, and reading preferences with slice contexts for optimized re-renders
+- **ThemeContext** - Migrated to use SyncEngine for cross-device theme sync
 - **Multi-Tab Sync** - Storage event listeners propagate preference changes across browser tabs in real-time
 - **Schema Migration** - Backward-compatible localStorage format migration (array → object with timestamps)
 - **Conflict Resolution** - Server-side last-write-wins with `updated_at` timestamps documented in code
 
 ### Code Cleanup
-- Deleted 1,277 lines of duplicate/dead code:
+- Deleted ~1,277 lines of duplicate/dead code:
   - `preferenceSyncCoordinator.ts` (417 lines) - replaced by SyncEngine
   - `useFavorites.ts` + test (416 lines) - replaced by usePreferences hooks
   - `LearningGoalContext.tsx` (205 lines) - duplicate of PreferencesContext
