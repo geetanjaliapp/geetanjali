@@ -14,6 +14,12 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useSyncStatus } from "../hooks";
 
+/** Delay before showing "syncing" indicator (avoids flicker for fast syncs) */
+export const SYNC_INDICATOR_DELAY_MS = 500;
+
+/** Duration to show "synced" success indicator before fading */
+export const SYNC_SUCCESS_DURATION_MS = 1500;
+
 interface SyncStatusIndicatorProps {
   /** Size in pixels (default: 8) */
   size?: number;
@@ -43,7 +49,7 @@ export function SyncStatusIndicator({
     if (status === "syncing") {
       syncingTimerRef.current = setTimeout(() => {
         setShowSyncing(true);
-      }, 500);
+      }, SYNC_INDICATOR_DELAY_MS);
 
       return () => {
         if (syncingTimerRef.current) {
@@ -71,7 +77,7 @@ export function SyncStatusIndicator({
 
       syncedTimerRef.current = setTimeout(() => {
         setShowSynced(false);
-      }, 1500);
+      }, SYNC_SUCCESS_DURATION_MS);
 
       prevStatusRef.current = status;
 

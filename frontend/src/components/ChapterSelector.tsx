@@ -37,7 +37,9 @@ export function ChapterSelector({
 }: ChapterSelectorProps) {
   const gridRef = useRef<HTMLDivElement>(null);
   const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
-  const COLS = 6; // Grid columns
+  // Grid columns: 6 columns × 3 rows = 18 chapters (fixed for Bhagavad Gita)
+  // This is intentionally not responsive - the Gita always has 18 chapters
+  const COLS = 6;
 
   // Focus first item when selector opens (WCAG 2.1)
   useEffect(() => {

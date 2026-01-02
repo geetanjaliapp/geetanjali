@@ -64,7 +64,11 @@ export function useFocusTrap(
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
       // Restore focus to previously focused element (WCAG 2.1)
-      previouslyFocusedRef.current?.focus();
+      // Guard: only restore if element is still in DOM and visible
+      const prev = previouslyFocusedRef.current;
+      if (prev?.isConnected && !prev.closest("[inert]")) {
+        prev.focus();
+      }
     };
   }, [isActive, ref]);
 }
