@@ -12,7 +12,7 @@
  * Used by: ReadingMode
  */
 
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import { CHAPTERS } from "../constants/chapters";
 
 interface ChapterSelectorProps {
@@ -35,19 +35,69 @@ export function ChapterSelector({
   isOpen,
   onDhyanam,
 }: ChapterSelectorProps) {
-  // Close on Escape key
+  const gridRef = useRef<HTMLDivElement>(null);
+  const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const COLS = 6; // Grid columns
+
+  // Focus first item when selector opens (WCAG 2.1)
   useEffect(() => {
-    if (!isOpen) return;
+    if (isOpen) {
+      requestAnimationFrame(() => {
+        // Focus current chapter button, or first button
+        const currentIndex = currentChapter - 1;
+        const targetButton = buttonRefs.current[currentIndex] ?? buttonRefs.current[0];
+        targetButton?.focus();
+      });
+    }
+  }, [isOpen, currentChapter]);
 
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        onClose();
+  // Handle keyboard navigation (WCAG 2.1 grid pattern)
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent, index: number) => {
+      const totalChapters = Object.keys(CHAPTERS).length;
+      let nextIndex: number | null = null;
+
+      switch (e.key) {
+        case "Escape":
+          e.preventDefault();
+          onClose();
+          return;
+        case "ArrowRight":
+          e.preventDefault();
+          nextIndex = index < totalChapters - 1 ? index + 1 : 0;
+          break;
+        case "ArrowLeft":
+          e.preventDefault();
+          nextIndex = index > 0 ? index - 1 : totalChapters - 1;
+          break;
+        case "ArrowDown":
+          e.preventDefault();
+          nextIndex = index + COLS < totalChapters ? index + COLS : index % COLS;
+          break;
+        case "ArrowUp":
+          e.preventDefault();
+          nextIndex = index - COLS >= 0 ? index - COLS : totalChapters - COLS + (index % COLS);
+          // Clamp to valid range
+          if (nextIndex >= totalChapters) nextIndex = totalChapters - 1;
+          break;
+        case "Home":
+          e.preventDefault();
+          nextIndex = 0;
+          break;
+        case "End":
+          e.preventDefault();
+          nextIndex = totalChapters - 1;
+          break;
+        default:
+          return;
       }
-    };
 
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, onClose]);
+      if (nextIndex !== null) {
+        buttonRefs.current[nextIndex]?.focus();
+      }
+    },
+    [onClose],
+  );
 
   // Handle chapter selection
   const handleSelect = useCallback(
@@ -69,6 +119,7 @@ export function ChapterSelector({
   if (!isOpen) return null;
 
   const chapters = Object.keys(CHAPTERS).map(Number);
+  const currentIndex = chapters.indexOf(currentChapter);
 
   return (
     <>
@@ -106,14 +157,25 @@ export function ChapterSelector({
         )}
 
         {/* Compact chapter grid - 6 columns with improved touch targets */}
-        <div className="grid grid-cols-6 gap-2">
-          {chapters.map((chapter) => {
+        <div
+          ref={gridRef}
+          className="grid grid-cols-6 gap-2"
+          role="grid"
+          aria-label="Chapters"
+        >
+          {chapters.map((chapter, index) => {
             const isCurrentChapter = chapter === currentChapter;
+            const isTabTarget = index === currentIndex || (currentIndex === -1 && index === 0);
 
             return (
               <button
                 key={chapter}
+                ref={(el) => {
+                  buttonRefs.current[index] = el;
+                }}
                 onClick={() => handleSelect(chapter)}
+                onKeyDown={(e) => handleKeyDown(e, index)}
+                tabIndex={isTabTarget ? 0 : -1}
                 className={`
                   flex items-center justify-center
                   w-12 h-12 rounded-[var(--radius-button)] text-sm font-medium
