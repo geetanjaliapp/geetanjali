@@ -31,6 +31,22 @@ import type {
 import { preferencesApi } from "./api";
 
 // ============================================================================
+// DEBUG LOGGING
+// ============================================================================
+
+const DEBUG = import.meta.env.DEV;
+
+function log(message: string, data?: unknown): void {
+  if (DEBUG) {
+    if (data !== undefined) {
+      console.log(`[PreferenceSync] ${message}`, data);
+    } else {
+      console.log(`[PreferenceSync] ${message}`);
+    }
+  }
+}
+
+// ============================================================================
 // MERGE COORDINATION (login)
 // ============================================================================
 
@@ -78,6 +94,8 @@ export async function requestMerge(
   data: Partial<PendingMergeData>,
   onResult?: MergeResultCallback,
 ): Promise<UserPreferences | null> {
+  log("requestMerge called", { types: Object.keys(data) });
+
   // Always accumulate data first (so it's queued even if this call is throttled)
   if (data.favorites) pendingData.favorites = data.favorites;
   if (data.learning_goals) pendingData.learning_goals = data.learning_goals;
@@ -134,7 +152,9 @@ export async function requestMerge(
 
       try {
         // Single API call with all preference types
+        log("Merge executing", { types: Object.keys(dataToMerge) });
         const merged = await preferencesApi.merge(dataToMerge);
+        log("Merge completed successfully");
 
         // Notify all registered callbacks
         callbacks.forEach((cb) => cb(merged));
@@ -142,6 +162,7 @@ export async function requestMerge(
         // Resolve ALL pending promises (not just the last caller)
         resolvers.forEach((r) => r(merged));
       } catch (error) {
+        log("Merge failed", error);
         console.error("[PreferenceSyncCoordinator] Merge failed:", error);
         // Resolve all with null on error
         resolvers.forEach((r) => r(null));
@@ -200,8 +221,8 @@ export function resetCoordinator(): void {
 // UPDATE COORDINATION (ongoing changes)
 // ============================================================================
 
-// Debounce window for batching updates (30s - conservative, visibility change is primary)
-const UPDATE_DEBOUNCE_MS = 30000;
+// Debounce window for batching updates (5s - responsive to user actions)
+const UPDATE_DEBOUNCE_MS = 5000;
 
 // Minimum interval between update calls (prevents rapid-fire during batch window)
 const UPDATE_THROTTLE_MS = 5000;
@@ -228,6 +249,8 @@ const pendingUpdateResolvers: Set<UpdateResolver> = new Set();
  * @returns Promise that resolves when update completes (or is scheduled)
  */
 export async function requestUpdate(data: PreferencesUpdate): Promise<void> {
+  log("requestUpdate called", { types: Object.keys(data) });
+
   // Accumulate data from this source
   if (data.favorites) pendingUpdateData.favorites = data.favorites;
   if (data.learning_goals)
@@ -274,8 +297,11 @@ export async function requestUpdate(data: PreferencesUpdate): Promise<void> {
       pendingUpdateResolvers.clear();
 
       try {
+        log("Update executing", { types: Object.keys(dataToUpdate) });
         await preferencesApi.update(dataToUpdate);
+        log("Update completed successfully");
       } catch (error) {
+        log("Update failed", error);
         console.error("[PreferenceSyncCoordinator] Update failed:", error);
       } finally {
         isUpdating = false;
@@ -295,6 +321,8 @@ export async function requestUpdate(data: PreferencesUpdate): Promise<void> {
  * Skips debounce and sends immediately. Used when user is leaving the page.
  */
 export function flushUpdates(): void {
+  log("flushUpdates called");
+
   if (updateTimeoutId) {
     clearTimeout(updateTimeoutId);
     updateTimeoutId = null;
@@ -306,6 +334,7 @@ export function flushUpdates(): void {
 
   // Skip if no data or already updating
   if (Object.keys(pendingUpdateData).length === 0 || isUpdating) {
+    log("flushUpdates skipped (no data or already updating)");
     return;
   }
 
@@ -313,10 +342,16 @@ export function flushUpdates(): void {
   const dataToUpdate = { ...pendingUpdateData };
   pendingUpdateData = {};
 
+  log("flushUpdates executing", { types: Object.keys(dataToUpdate) });
+
   // Fire and forget - we're leaving the page
   preferencesApi
     .update(dataToUpdate)
+    .then(() => {
+      log("flushUpdates completed successfully");
+    })
     .catch((error) => {
+      log("flushUpdates failed", error);
       console.error("[PreferenceSyncCoordinator] Flush update failed:", error);
     })
     .finally(() => {

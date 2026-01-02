@@ -109,7 +109,7 @@ export default function Settings() {
   const navigate = useNavigate();
   const { selectedGoals } = useSyncedGoal();
   const { favoritesCount } = useSyncedFavorites();
-  const { position } = useSyncedReading();
+  const { position, settings: readingSettings, setFontSize } = useSyncedReading();
 
   // Newsletter form state
   const emailInputRef = useRef<HTMLInputElement>(null);
@@ -133,8 +133,7 @@ export default function Settings() {
   // Theme from context
   const { theme, setTheme, fontFamily, setFontFamily } = useTheme();
 
-  // Reading preferences (font size via useSyncedReading, sections via localStorage)
-  const { settings: readingSettings, setFontSize } = useSyncedReading();
+  // Reading preferences (sections via localStorage, font size from useSyncedReading above)
   const [sectionPrefs, setSectionPrefs] =
     useState<SectionPrefs>(loadSectionPrefs);
 
