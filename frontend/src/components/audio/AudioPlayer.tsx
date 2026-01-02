@@ -290,7 +290,10 @@ export function AudioPlayer({
       {isThisPlaying && state === "error" && (
         <div className="text-sm text-[var(--status-error)] text-center">
           {error}
-          <button onClick={retry} className="ml-2 underline hover:no-underline">
+          <button
+            onClick={retry}
+            className="ml-2 underline hover:no-underline rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-1"
+          >
             Retry
           </button>
         </div>

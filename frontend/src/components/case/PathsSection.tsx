@@ -55,7 +55,10 @@ export function PathsSection({
         </svg>
       </div>
 
-      <button onClick={onToggle} className="w-full text-left">
+      <button
+        onClick={onToggle}
+        className="w-full text-left rounded-[var(--radius-card)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
+      >
         <div className="flex items-center justify-between bg-[var(--surface-elevated)] rounded-[var(--radius-card)] p-3 sm:p-4 shadow-[var(--shadow-button)] border border-[var(--border-warm)] hover:shadow-[var(--shadow-card)] transition-[var(--transition-all)]">
           <div>
             <div className="text-xs font-semibold text-[var(--badge-warm-text)] uppercase tracking-wide">
