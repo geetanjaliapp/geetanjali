@@ -404,8 +404,8 @@ class TestValidationIntegration:
         """Test that validate_output handles invalid sources gracefully."""
         from services.rag import RAGPipeline
 
-        with patch("services.rag.get_vector_store"):
-            with patch("services.rag.get_llm_service"):
+        with patch("services.rag.pipeline.get_vector_store"):
+            with patch("services.rag.pipeline.get_llm_service"):
                 pipeline = RAGPipeline()
 
                 output = {
@@ -464,8 +464,8 @@ class TestValidationIntegration:
         """Test that validate_output fixes invalid options."""
         from services.rag import RAGPipeline
 
-        with patch("services.rag.get_vector_store"):
-            with patch("services.rag.get_llm_service"):
+        with patch("services.rag.pipeline.get_vector_store"):
+            with patch("services.rag.pipeline.get_llm_service"):
                 pipeline = RAGPipeline()
 
                 output = {
@@ -495,7 +495,7 @@ class TestValidationIntegration:
 
     def test_markdown_json_extraction_preserves_structure(self):
         """Test that markdown-wrapped JSON extraction preserves data structure."""
-        from services.rag import extract_json_from_text
+        from utils.json_parsing import extract_json_from_text
 
         response_data = {
             "executive_summary": "Test",
