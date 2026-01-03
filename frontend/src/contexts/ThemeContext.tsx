@@ -23,6 +23,7 @@ import {
 } from "react";
 
 import type { ThemeConfig, FontFamily } from "../types/theme";
+import type { Theme } from "../types";
 import {
   applyTheme as applyCustomTheme,
   loadThemeFromStorage,
@@ -43,8 +44,8 @@ declare global {
   }
 }
 
-// Theme mode options
-export type Theme = "light" | "dark" | "system";
+// Re-export Theme from types for backward compatibility
+export type { Theme };
 export type ResolvedTheme = "light" | "dark";
 
 // Context type

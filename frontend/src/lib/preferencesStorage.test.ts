@@ -8,7 +8,7 @@
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
-import { preferencesStorage } from "./preferencesStorage";
+import { preferencesStorage, normalizeFontSize } from "./preferencesStorage";
 import { STORAGE_KEYS } from "./storage";
 
 describe("preferencesStorage", () => {
@@ -136,7 +136,7 @@ describe("preferencesStorage", () => {
     it("should read reading settings with default", () => {
       const result = preferencesStorage.getReadingSettings();
 
-      expect(result.fontSize).toBe("medium");
+      expect(result.fontSize).toBe("regular");
     });
 
     it("should read stored reading settings", () => {
@@ -148,6 +148,28 @@ describe("preferencesStorage", () => {
       const result = preferencesStorage.getReadingSettings();
 
       expect(result.fontSize).toBe("large");
+    });
+
+    it("should migrate 'medium' fontSize to 'regular'", () => {
+      localStorage.setItem(
+        STORAGE_KEYS.readingSettings,
+        JSON.stringify({ fontSize: "medium" })
+      );
+
+      const result = preferencesStorage.getReadingSettings();
+
+      expect(result.fontSize).toBe("regular");
+    });
+
+    it("should migrate 'normal' fontSize to 'regular'", () => {
+      localStorage.setItem(
+        STORAGE_KEYS.readingSettings,
+        JSON.stringify({ fontSize: "normal" })
+      );
+
+      const result = preferencesStorage.getReadingSettings();
+
+      expect(result.fontSize).toBe("regular");
     });
   });
 
@@ -213,5 +235,32 @@ describe("preferencesStorage", () => {
       expect(result.reading?.chapter).toBeUndefined();
       expect(result.theme?.mode).toBe("system");
     });
+  });
+});
+
+describe("normalizeFontSize", () => {
+  it("should pass through valid font sizes", () => {
+    expect(normalizeFontSize("small")).toBe("small");
+    expect(normalizeFontSize("regular")).toBe("regular");
+    expect(normalizeFontSize("large")).toBe("large");
+  });
+
+  it("should migrate 'medium' to 'regular'", () => {
+    expect(normalizeFontSize("medium")).toBe("regular");
+  });
+
+  it("should migrate 'normal' to 'regular'", () => {
+    expect(normalizeFontSize("normal")).toBe("regular");
+  });
+
+  it("should default to 'regular' for null/undefined", () => {
+    expect(normalizeFontSize(null)).toBe("regular");
+    expect(normalizeFontSize(undefined)).toBe("regular");
+  });
+
+  it("should default to 'regular' for invalid values", () => {
+    expect(normalizeFontSize("invalid")).toBe("regular");
+    expect(normalizeFontSize(123)).toBe("regular");
+    expect(normalizeFontSize({})).toBe("regular");
   });
 });

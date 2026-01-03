@@ -57,7 +57,7 @@ vi.mock("../lib/preferencesStorage", () => ({
     setGoals: vi.fn(),
     getReadingPosition: vi.fn(() => null),
     setReadingPosition: vi.fn(),
-    getReadingSettings: vi.fn(() => ({ fontSize: "medium" })),
+    getReadingSettings: vi.fn(() => ({ fontSize: "regular" })),
     setReadingSettings: vi.fn(),
     getAllForMerge: vi.fn(() => ({})),
   },
@@ -125,7 +125,7 @@ describe("PreferencesContext", () => {
 
       // Reading
       expect(result.current.reading.position).toBeNull();
-      expect(result.current.reading.settings.fontSize).toBe("medium");
+      expect(result.current.reading.settings.fontSize).toBe("regular");
 
       // Sync
       expect(result.current.sync.status).toBe("idle");
@@ -317,7 +317,7 @@ describe("PreferencesContext", () => {
       });
 
       expect(result.current.reading.position).toBeNull();
-      expect(result.current.reading.settings.fontSize).toBe("medium");
+      expect(result.current.reading.settings.fontSize).toBe("regular");
     });
   });
 

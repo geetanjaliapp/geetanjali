@@ -17,12 +17,34 @@
  * Part of v1.17.3 preference sync improvements.
  */
 
-import type { LocalPreferences, UserPreferences } from "../types";
+import type { LocalPreferences, UserPreferences, FontSize, Theme } from "../types";
 import { STORAGE_KEYS, getStorageItem, setStorageItem } from "./storage";
 
 // ============================================================================
 // TYPES
 // ============================================================================
+
+// Re-export FontSize from types for consumers of this module
+export type { FontSize };
+
+/**
+ * Normalize font size values from localStorage.
+ * Handles migration from old values ("medium", "normal") to new values ("regular").
+ *
+ * @param value - The stored value (may be old format)
+ * @returns A valid FontSize value
+ */
+export function normalizeFontSize(value: unknown): FontSize {
+  if (value === "small" || value === "regular" || value === "large") {
+    return value;
+  }
+  // Migrate old values to "regular"
+  if (value === "medium" || value === "normal") {
+    return "regular";
+  }
+  // Default fallback
+  return "regular";
+}
 
 export interface ReadingPosition {
   chapter: number;
@@ -31,13 +53,11 @@ export interface ReadingPosition {
 }
 
 export interface ReadingSettings {
-  fontSize: "small" | "medium" | "large";
+  fontSize: FontSize;
 }
 
-// FontSize is now in types/index.ts - import for local use and re-export
-import type { FontSize } from "../types";
-export type { FontSize };
-export type Theme = "light" | "dark" | "system";
+// Re-export Theme from types for backward compatibility
+export type { Theme };
 export type FontFamily = "serif" | "sans" | "mixed";
 
 interface GoalsData {
@@ -152,9 +172,10 @@ export const preferencesStorage = {
   },
 
   getReadingSettings(): ReadingSettings {
-    return getStorageItem<ReadingSettings>(STORAGE_KEYS.readingSettings, {
-      fontSize: "medium",
-    });
+    const stored = getStorageItem<{ fontSize?: unknown }>(STORAGE_KEYS.readingSettings, {});
+    return {
+      fontSize: normalizeFontSize(stored.fontSize),
+    };
   },
 
   setReadingSettings(settings: ReadingSettings): void {

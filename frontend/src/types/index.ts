@@ -1,7 +1,10 @@
 // Common UI Types
 
 /** Font size options for reading mode */
-export type FontSize = "small" | "medium" | "large";
+export type FontSize = "small" | "regular" | "large";
+
+/** Theme mode options (light/dark/system) */
+export type Theme = "light" | "dark" | "system";
 
 // API Response Types based on project-description.md
 

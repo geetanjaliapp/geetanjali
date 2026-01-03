@@ -653,7 +653,7 @@ export default function DhyanamPage() {
 
               <DhyanamVerseFocus
                 verse={currentVerse}
-                fontSize="medium"
+                fontSize="regular"
                 showTranslation={showTranslation}
                 onToggleTranslation={() => setShowTranslation((prev) => !prev)}
               />

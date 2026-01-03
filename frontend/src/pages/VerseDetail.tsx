@@ -13,7 +13,7 @@ import {
   getPrincipleLabel,
 } from "../constants/principles";
 import { getTranslatorPriority } from "../constants/translators";
-import type { Verse, Translation } from "../types";
+import type { Verse, Translation, FontSize } from "../types";
 import {
   Navbar,
   ContentNotFound,
@@ -43,14 +43,15 @@ import {
   StudyModePlayer,
 } from "../components/audio";
 import { errorMessages } from "../lib/errorMessages";
+import { truncateForSEO } from "../lib/truncate";
+import { normalizeFontSize } from "../lib/preferencesStorage";
 import { useSEO, useAdjacentVerses, useFavoritesPrefs, type StudySection } from "../hooks";
 import { STORAGE_KEYS, getStorageItem, setStorageItem } from "../lib/storage";
 
-type FontSize = "normal" | "large";
-
 /** Line height scales with font size for readability (synced with VerseFocus) */
 const LINE_HEIGHT_CLASSES: Record<FontSize, string> = {
-  normal: "leading-relaxed", // 1.625 - matches VerseFocus medium
+  small: "leading-snug", // 1.375 - compact
+  regular: "leading-relaxed", // 1.625 - matches VerseFocus regular
   large: "leading-loose", // 2.0 - matches VerseFocus large
 };
 
@@ -97,20 +98,20 @@ export default function VerseDetail() {
   const [showNewsletterNudge, setShowNewsletterNudge] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [fontSize, setFontSize] = useState<FontSize>(() =>
-    getStorageItem<FontSize>(STORAGE_KEYS.verseDetailFontSize, "normal"),
+    normalizeFontSize(getStorageItem<unknown>(STORAGE_KEYS.verseDetailFontSize, "regular")),
   );
 
   // Toggle font size and persist preference
   const toggleFontSize = () => {
-    const newSize = fontSize === "normal" ? "large" : "normal";
+    const newSize = fontSize === "regular" ? "large" : "regular";
     setFontSize(newSize);
     setStorageItem(STORAGE_KEYS.verseDetailFontSize, newSize);
   };
 
   // Reset font size to default
   const resetFontSize = () => {
-    setFontSize("normal");
-    setStorageItem(STORAGE_KEYS.verseDetailFontSize, "normal");
+    setFontSize("regular");
+    setStorageItem(STORAGE_KEYS.verseDetailFontSize, "regular");
   };
 
   // Section visibility preferences
@@ -255,7 +256,7 @@ export default function VerseDetail() {
   useSEO({
     title: verse ? `Bhagavad Geeta ${verse.chapter}.${verse.verse}` : "Verse",
     description: verse?.paraphrase_en
-      ? `${verse.paraphrase_en.slice(0, 150)}...`
+      ? truncateForSEO(verse.paraphrase_en)
       : "Explore this verse from the Bhagavad Geeta with multiple translations and leadership insights.",
     canonical: canonicalUppercase ? `/verses/${canonicalUppercase}` : "/verses",
     ogType: "article",
@@ -467,7 +468,7 @@ export default function VerseDetail() {
             fontSize={fontSize}
             onToggleFontSize={toggleFontSize}
             onResetFontSize={resetFontSize}
-            isDefaultFontSize={fontSize === "normal"}
+            isDefaultFontSize={fontSize === "regular"}
           />
 
           {/* Main Spotlight Section */}

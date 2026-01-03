@@ -34,14 +34,14 @@ const DEFAULT_SECTION_PREFS: SectionPrefs = {
 // Font size classes - dramatic steps for noticeable difference
 const FONT_SIZE_CLASSES: Record<FontSize, string> = {
   small: "text-base sm:text-lg lg:text-xl",
-  medium: "text-lg sm:text-xl lg:text-2xl",
+  regular: "text-lg sm:text-xl lg:text-2xl",
   large: "text-xl sm:text-2xl lg:text-3xl",
 };
 
 /** Line height scales with font size for readability */
 const LINE_HEIGHT_CLASSES: Record<FontSize, string> = {
   small: "leading-normal",
-  medium: "leading-relaxed",
+  regular: "leading-relaxed",
   large: "leading-loose",
 };
 
@@ -135,7 +135,7 @@ interface DhyanamVerseFocusProps {
 
 export function DhyanamVerseFocus({
   verse,
-  fontSize = "medium",
+  fontSize = "regular",
   showTranslation: controlledShowTranslation,
   onToggleTranslation,
 }: DhyanamVerseFocusProps) {

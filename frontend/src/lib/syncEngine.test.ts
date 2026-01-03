@@ -12,19 +12,19 @@ import { SyncEngine, type SyncConfig, type SyncState } from "./syncEngine";
 const createMockApi = () => ({
   get: vi.fn().mockResolvedValue({
     favorites: { items: [], updated_at: "" },
-    reading: { chapter: null, verse: null, font_size: "medium", section_prefs: {}, updated_at: null },
+    reading: { chapter: null, verse: null, font_size: "regular", section_prefs: {}, updated_at: null },
     learning_goals: { goal_ids: [], updated_at: null },
     theme: { mode: "system", theme_id: "default", font_family: "mixed", updated_at: null },
   }),
   merge: vi.fn().mockResolvedValue({
     favorites: { items: [], updated_at: "" },
-    reading: { chapter: null, verse: null, font_size: "medium", section_prefs: {}, updated_at: null },
+    reading: { chapter: null, verse: null, font_size: "regular", section_prefs: {}, updated_at: null },
     learning_goals: { goal_ids: [], updated_at: null },
     theme: { mode: "system", theme_id: "default", font_family: "mixed", updated_at: null },
   }),
   update: vi.fn().mockResolvedValue({
     favorites: { items: [], updated_at: "" },
-    reading: { chapter: null, verse: null, font_size: "medium", section_prefs: {}, updated_at: null },
+    reading: { chapter: null, verse: null, font_size: "regular", section_prefs: {}, updated_at: null },
     learning_goals: { goal_ids: [], updated_at: null },
     theme: { mode: "system", theme_id: "default", font_family: "mixed", updated_at: null },
   }),

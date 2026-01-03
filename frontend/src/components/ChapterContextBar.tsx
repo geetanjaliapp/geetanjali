@@ -14,8 +14,7 @@
 import { useNavigate } from "react-router-dom";
 import { getChapterInfo, getVerseProgress } from "../constants/chapters";
 import { ProgressBar } from "./ProgressBar";
-
-type FontSize = "normal" | "large";
+import type { FontSize } from "../types";
 
 interface ChapterContextBarProps {
   chapter: number;

@@ -21,7 +21,7 @@ import { SpeakButton } from "./SpeakButton";
 // Font size classes matching VerseFocus - dramatic steps for noticeable difference
 const FONT_SIZE_CLASSES: Record<FontSize, string> = {
   small: "text-base sm:text-lg lg:text-xl",
-  medium: "text-xl sm:text-2xl lg:text-3xl",
+  regular: "text-xl sm:text-2xl lg:text-3xl",
   large: "text-3xl sm:text-4xl lg:text-5xl",
 };
 
@@ -48,7 +48,7 @@ interface ChapterIntroProps {
 type IntroCardProps = BookIntroProps | ChapterIntroProps;
 
 export function IntroCard(props: IntroCardProps) {
-  const { type, fontSize = "medium" } = props;
+  const { type, fontSize = "regular" } = props;
   // Start with details expanded for better UX
   // Note: When content changes, ReadingMode provides a new `key` prop which
   // causes React to remount the component, resetting state to initial value

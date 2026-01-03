@@ -191,26 +191,26 @@ function sortTranslations(translations: Translation[]): Translation[] {
 // Font size classes mapping - dramatic steps for noticeable difference
 const FONT_SIZE_CLASSES: Record<FontSize, string> = {
   small: "text-base sm:text-lg lg:text-xl",
-  medium: "text-xl sm:text-2xl lg:text-3xl",
+  regular: "text-xl sm:text-2xl lg:text-3xl",
   large: "text-3xl sm:text-4xl lg:text-5xl",
 };
 
 /** Line height scales with font size for readability */
 const LINE_HEIGHT_CLASSES: Record<FontSize, string> = {
   small: "leading-normal", // 1.5
-  medium: "leading-relaxed", // 1.625
+  regular: "leading-relaxed", // 1.625
   large: "leading-loose", // 2.0
 };
 
 const SPEAKER_FONT_SIZE_CLASSES: Record<FontSize, string> = {
   small: "text-xs sm:text-sm",
-  medium: "text-sm sm:text-base",
+  regular: "text-sm sm:text-base",
   large: "text-base sm:text-lg",
 };
 
 export function VerseFocus({
   verse,
-  fontSize = "medium",
+  fontSize = "regular",
   showTranslation: controlledShowTranslation,
   onToggleTranslation,
   hideFavoriteButton = false,

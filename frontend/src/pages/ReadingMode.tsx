@@ -13,7 +13,7 @@
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { versesApi, readingApi } from "../lib/api";
-import type { Verse, BookMetadata, ChapterMetadata } from "../types";
+import type { Verse, BookMetadata, ChapterMetadata, FontSize } from "../types";
 import {
   Navbar,
   VerseFocus,
@@ -61,9 +61,6 @@ const TOAST_RATE_LIMIT = 7 * 24 * 60 * 60 * 1000;
 // -2 = book cover, -1 = chapter intro, >= 0 = verse index
 const PAGE_BOOK_COVER = -2;
 const PAGE_CHAPTER_INTRO = -1;
-
-/** Font size options */
-type FontSize = "small" | "medium" | "large";
 
 /**
  * Reading mode state
@@ -281,9 +278,9 @@ export default function ReadingMode() {
     setShowNewsletterToast(false);
   }, []);
 
-  // Cycle font size: small → medium → large → small
+  // Cycle font size: small → regular → large → small
   const cycleFontSize = useCallback(() => {
-    const sizes: FontSize[] = ["small", "medium", "large"];
+    const sizes: FontSize[] = ["small", "regular", "large"];
     const currentIndex = sizes.indexOf(settings.fontSize);
     const nextIndex = (currentIndex + 1) % sizes.length;
     setFontSize(sizes[nextIndex]);
