@@ -149,17 +149,3 @@ export function useFadeOut({
  * }
  */
 
-/**
- * Hook for auto-dismissing elements with fade
- *
- * Automatically starts the fade after mount.
- */
-export function useAutoFadeOut(options: UseFadeOutOptions = {}): UseFadeOutReturn {
-  const fadeOut = useFadeOut(options);
-
-  useEffect(() => {
-    fadeOut.startFade();
-  }, [fadeOut.startFade]); // eslint-disable-line react-hooks/exhaustive-deps -- Only run on mount
-
-  return fadeOut;
-}
