@@ -3,7 +3,6 @@
 import logging
 from typing import Any
 
-from config import settings
 from utils.validation import validate_canonical_id
 
 logger = logging.getLogger(__name__)

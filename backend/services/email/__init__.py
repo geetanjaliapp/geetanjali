@@ -10,6 +10,9 @@ Usage:
     success = send_alert_email("subject", "message")
 """
 
+# Re-export settings for test mocking compatibility
+from config import settings
+
 # Exceptions
 from .exceptions import (
     EmailCircuitOpenError,
@@ -19,18 +22,19 @@ from .exceptions import (
     EmailServiceUnavailable,
 )
 
-# Resilience (circuit breaker, retry decorator)
+# Resilience (circuit breaker, retry decorator, private module-level state)
 from .resilience import (
     EmailCircuitBreaker,
+    _email_circuit_breaker,
     get_circuit_breaker,
     with_email_retry,
 )
 
-# Private module-level state (for admin health endpoints)
-from .resilience import _email_circuit_breaker
-
-# Send functions
+# Send functions and private items (re-exported for test mocking compatibility)
 from .service import (
+    _get_resend,
+    _get_resend_or_raise,
+    _resend_client,
     send_account_deleted_email,
     send_account_verification_email,
     send_alert_email,
@@ -41,12 +45,6 @@ from .service import (
     send_password_changed_email,
     send_password_reset_email,
 )
-
-# Private items (re-exported for test mocking compatibility)
-from .service import _get_resend, _get_resend_or_raise, _resend_client
-
-# Re-export settings for test mocking compatibility
-from config import settings
 
 __all__ = [
     # Exceptions
@@ -59,6 +57,7 @@ __all__ = [
     "EmailCircuitBreaker",
     "get_circuit_breaker",
     "with_email_retry",
+    "_email_circuit_breaker",
     # Send functions
     "send_alert_email",
     "send_contact_email",
@@ -69,4 +68,9 @@ __all__ = [
     "send_account_verification_email",
     "send_password_changed_email",
     "send_account_deleted_email",
+    # Private re-exports for test mocking compatibility
+    "_get_resend",
+    "_get_resend_or_raise",
+    "_resend_client",
+    "settings",
 ]
