@@ -10,6 +10,7 @@ import {
 } from "../components";
 import { SpeakButton } from "../components/SpeakButton";
 import { groupMessagesIntoExchanges } from "../lib/messageGrouping";
+import { truncateText, truncateForSEO } from "../lib/truncate";
 import { useSEO } from "../hooks";
 
 /**
@@ -27,10 +28,10 @@ export default function PublicCaseView() {
   // Dynamic SEO based on case data
   useSEO({
     title: caseData?.title
-      ? `${caseData.title.slice(0, 50)}`
+      ? truncateText(caseData.title, 50, "")
       : "Shared Consultation",
     description: caseData?.description
-      ? `${caseData.description.slice(0, 150)}...`
+      ? truncateForSEO(caseData.description)
       : "View this shared ethical consultation with guidance from the Bhagavad Geeta.",
     canonical: slug ? `/c/${slug}` : "/",
     ogType: "article",

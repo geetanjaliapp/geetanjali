@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { trackEvent } from "../lib/experiment";
+import { truncateText } from "../lib/truncate";
 
 interface ExampleQuestionsProps {
   onSelect: (question: string) => void;
@@ -61,7 +62,7 @@ export function ExampleQuestions({ onSelect }: ExampleQuestionsProps) {
           >
             {/* Show more on desktop, truncate only on mobile */}
             <span className="sm:hidden">
-              {question.length > 40 ? question.slice(0, 37) + "..." : question}
+              {truncateText(question, 40)}
             </span>
             <span className="hidden sm:inline">{question}</span>
           </button>

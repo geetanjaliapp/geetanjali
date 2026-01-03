@@ -7,6 +7,7 @@ import {
   type ImageFormat,
 } from "./ImageCardGenerator";
 import { getCurrentThemeName } from "../../lib/canvasThemeColors";
+import { truncateForDisplay } from "../../lib/truncate";
 import { useFocusTrap } from "../../hooks";
 
 /**
@@ -236,9 +237,7 @@ export function ShareModal({
 
   // Shorter quote for compact display
   const shortQuote = verse.paraphrase_en
-    ? verse.paraphrase_en.length > 80
-      ? verse.paraphrase_en.slice(0, 80) + "..."
-      : verse.paraphrase_en
+    ? truncateForDisplay(verse.paraphrase_en)
     : "";
 
   return (
