@@ -40,7 +40,7 @@ jobs:
         run: npm audit --json > npm-audit-report.json || true
 
       - name: Upload npm audit report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: npm-audit-report
           path: frontend/npm-audit-report.json
@@ -115,7 +115,7 @@ jobs:
         run: bandit -r . -x ./tests,./alembic -f json -o bandit-report.json || true
 
       - name: Upload Bandit report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: bandit-report
           path: backend/bandit-report.json
