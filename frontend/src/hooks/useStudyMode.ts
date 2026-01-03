@@ -108,8 +108,9 @@ function getSectionText(
     }
     case "hindi": {
       // Match VerseDetail logic: filter Hindi translations (includes Swami Tejomayananda)
+      // Note: API uses both "hi" and "hindi" for language field
       const hindiTranslations = translations?.filter(
-        (t) => t.language === "hindi" || t.translator === "Swami Tejomayananda"
+        (t) => t.language === "hi" || t.language === "hindi" || t.translator === "Swami Tejomayananda"
       ) || [];
       const primaryHindi = hindiTranslations[0];
       return primaryHindi?.text || null;

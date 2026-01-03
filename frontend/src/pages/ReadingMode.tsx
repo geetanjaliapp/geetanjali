@@ -23,7 +23,7 @@ import {
   Toast,
 } from "../components";
 import { HeartIcon, PlayIcon } from "../components/icons";
-import { MiniPlayer, useAudioPlayer } from "../components/audio";
+import { MiniPlayer, useAudioPlayer, StudyModePlayer } from "../components/audio";
 import {
   useSEO,
   useSwipeNavigation,
@@ -873,6 +873,10 @@ export default function ReadingMode() {
                 >
                   <PlayIcon className="w-5 h-5" />
                 </button>
+              )}
+              {/* Study Mode button - sequential playback (fetches translations internally) */}
+              {currentVerse && (
+                <StudyModePlayer verse={currentVerse} />
               )}
               {/* Favorite button - thumb-friendly position in header */}
               {currentVerse && (
