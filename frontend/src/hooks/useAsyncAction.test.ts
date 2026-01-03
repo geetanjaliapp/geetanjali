@@ -4,14 +4,38 @@ import { useAsyncAction } from "./useAsyncAction";
 
 describe("useAsyncAction", () => {
   describe("initial state", () => {
-    it("should start with loading false", () => {
+    it("should start with loading false by default", () => {
       const { result } = renderHook(() => useAsyncAction());
       expect(result.current.loading).toBe(false);
+    });
+
+    it("should start with loading true when initialLoading is set", () => {
+      const { result } = renderHook(() =>
+        useAsyncAction({ initialLoading: true }),
+      );
+      expect(result.current.loading).toBe(true);
     });
 
     it("should start with empty error", () => {
       const { result } = renderHook(() => useAsyncAction());
       expect(result.current.error).toBe("");
+    });
+
+    it("should accept options object", () => {
+      const { result } = renderHook(() =>
+        useAsyncAction({
+          defaultErrorMessage: "Custom default",
+          initialLoading: true,
+        }),
+      );
+      expect(result.current.loading).toBe(true);
+    });
+
+    it("should accept legacy string argument for backwards compatibility", () => {
+      const { result } = renderHook(() =>
+        useAsyncAction("Legacy error message"),
+      );
+      expect(result.current.loading).toBe(false);
     });
   });
 
@@ -79,7 +103,7 @@ describe("useAsyncAction", () => {
       expect(result.current.error).toBe("Custom: test error");
     });
 
-    it("should use default error message from constructor", async () => {
+    it("should use default error message from string argument", async () => {
       const { result } = renderHook(() =>
         useAsyncAction("Something went wrong"),
       );
@@ -91,6 +115,20 @@ describe("useAsyncAction", () => {
       });
 
       expect(result.current.error).toBe("Something went wrong");
+    });
+
+    it("should use default error message from options object", async () => {
+      const { result } = renderHook(() =>
+        useAsyncAction({ defaultErrorMessage: "Options error" }),
+      );
+
+      await act(async () => {
+        await result.current.execute(async () => {
+          throw new Error("test error");
+        });
+      });
+
+      expect(result.current.error).toBe("Options error");
     });
 
     it("should clear error before new execution", async () => {
