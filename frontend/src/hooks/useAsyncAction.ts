@@ -9,7 +9,8 @@
  *
  * @example
  * ```tsx
- * const { loading, error, clearError, execute } = useAsyncAction();
+ * // Action-triggered (form submit, button click)
+ * const { loading, error, execute } = useAsyncAction();
  *
  * const handleSubmit = async () => {
  *   const success = await execute(async () => {
@@ -18,10 +19,24 @@
  *   });
  *   if (success) navigate('/success');
  * };
+ *
+ * // Fetch-on-mount pattern
+ * const { loading, error, execute } = useAsyncAction({ initialLoading: true });
+ *
+ * useEffect(() => {
+ *   execute(() => api.fetchData()).then(setData);
+ * }, [execute]);
  * ```
  */
 
 import { useState, useCallback } from "react";
+
+export interface UseAsyncActionOptions {
+  /** Default error message when no custom handler is provided */
+  defaultErrorMessage?: string;
+  /** Start with loading=true (for fetch-on-mount patterns) */
+  initialLoading?: boolean;
+}
 
 export interface UseAsyncActionResult<T = void> {
   /** Whether an async operation is in progress */
@@ -45,13 +60,22 @@ export interface UseAsyncActionResult<T = void> {
 /**
  * Hook for managing async operation state (loading, error).
  *
- * @param defaultErrorMessage - Default error message when no custom handler is provided
+ * @param options - Configuration options or default error message string
  * @returns Object with loading, error, clearError, setError, and execute
  */
 export function useAsyncAction<T = void>(
-  defaultErrorMessage = "An error occurred",
+  options: UseAsyncActionOptions | string = {},
 ): UseAsyncActionResult<T> {
-  const [loading, setLoading] = useState(false);
+  // Support legacy string argument for backwards compatibility
+  const opts: UseAsyncActionOptions =
+    typeof options === "string" ? { defaultErrorMessage: options } : options;
+
+  const {
+    defaultErrorMessage = "An error occurred",
+    initialLoading = false,
+  } = opts;
+
+  const [loading, setLoading] = useState(initialLoading);
   const [error, setError] = useState("");
 
   const clearError = useCallback(() => setError(""), []);

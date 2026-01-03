@@ -3,7 +3,7 @@ import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { authApi } from "../api/auth";
 import { Navbar } from "../components";
 import { getErrorMessage } from "../lib/errorMessages";
-import { useSEO } from "../hooks";
+import { useSEO, useAsyncAction } from "../hooks";
 
 export default function ResetPassword() {
   useSEO({
@@ -19,9 +19,8 @@ export default function ResetPassword() {
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const { loading, error, setError, execute } = useAsyncAction<boolean>();
 
   // Redirect if no token provided
   useEffect(() => {
@@ -32,7 +31,6 @@ export default function ResetPassword() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
 
     // Validate passwords match
     if (password !== confirmPassword) {
@@ -56,16 +54,14 @@ export default function ResetPassword() {
       return;
     }
 
-    setLoading(true);
-
-    try {
-      await authApi.resetPassword(token!, password);
-      setSuccess(true);
-    } catch (err) {
-      setError(getErrorMessage(err, "general"));
-    } finally {
-      setLoading(false);
-    }
+    const result = await execute(
+      async () => {
+        await authApi.resetPassword(token!, password);
+        return true;
+      },
+      (err) => getErrorMessage(err, "general"),
+    );
+    if (result) setSuccess(true);
   };
 
   if (!token) {

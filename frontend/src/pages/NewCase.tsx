@@ -7,7 +7,7 @@ import { ExampleQuestions } from "../components/ExampleQuestions";
 import { InspirationVerse } from "../components/InspirationVerse";
 import { errorMessages } from "../lib/errorMessages";
 import { validateContent } from "../lib/contentFilter";
-import { useSEO } from "../hooks";
+import { useSEO, useAsyncAction } from "../hooks";
 import { trackEvent } from "../lib/experiment";
 import { setStorageItem, STORAGE_KEYS } from "../lib/storage";
 const DRAFT_DEBOUNCE_MS = 1000; // Save after 1s of inactivity
@@ -97,13 +97,15 @@ export default function NewCase() {
     (location.state as LocationState)?.prefill ||
     "";
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { loading, error, execute } = useAsyncAction<string>();
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [draftRestored, setDraftRestored] = useState(false);
 
   // Load draft on mount (only if no prefill)
   const draft = !prefill ? loadDraft() : null;
+  const hasDraft = !!(draft && (draft.question || draft.context));
+
+  // Initialize based on draft existence (avoids setState in effect)
+  const [draftRestored, setDraftRestored] = useState(hasDraft);
 
   const [formData, setFormData] = useState({
     question: prefill || draft?.question || "",
@@ -118,15 +120,13 @@ export default function NewCase() {
     new Set(draft?.stakeholders || ["self"]),
   );
 
-  // Show draft restored message
+  // Auto-hide draft restored message after 3 seconds
   useEffect(() => {
-    if (draft && (draft.question || draft.context)) {
-      setDraftRestored(true);
-      // Auto-hide after 3 seconds
+    if (draftRestored) {
       const timer = setTimeout(() => setDraftRestored(false), 3000);
       return () => clearTimeout(timer);
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- runs once on mount to check for restored draft
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- runs once on mount
 
   // Debounced draft saving
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -206,10 +206,7 @@ export default function NewCase() {
       return;
     }
 
-    setLoading(true);
-    setError(null);
-
-    try {
+    const caseId = await execute(async () => {
       let description = formData.question.trim();
       if (formData.context.trim()) {
         description += "\n\n" + formData.context.trim();
@@ -254,11 +251,11 @@ export default function NewCase() {
       // Clear draft on successful submission
       clearDraft();
 
-      navigate(`/cases/${createdCase.id}`);
-    } catch (err) {
-      setError(errorMessages.caseCreate(err));
-    } finally {
-      setLoading(false);
+      return createdCase.id;
+    }, errorMessages.caseCreate);
+
+    if (caseId) {
+      navigate(`/cases/${caseId}`);
     }
   };
 

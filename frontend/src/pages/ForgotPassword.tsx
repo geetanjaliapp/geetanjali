@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { authApi } from "../api/auth";
 import { Navbar } from "../components";
 import { getErrorMessage } from "../lib/errorMessages";
-import { useSEO } from "../hooks";
+import { useSEO, useAsyncAction } from "../hooks";
 
 export default function ForgotPassword() {
   useSEO({
@@ -14,23 +14,19 @@ export default function ForgotPassword() {
   });
 
   const [email, setEmail] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const { loading, error, execute } = useAsyncAction<boolean>();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setLoading(true);
-
-    try {
-      await authApi.forgotPassword(email);
-      setSubmitted(true);
-    } catch (err) {
-      setError(getErrorMessage(err, "general"));
-    } finally {
-      setLoading(false);
-    }
+    const success = await execute(
+      async () => {
+        await authApi.forgotPassword(email);
+        return true;
+      },
+      (err) => getErrorMessage(err, "general"),
+    );
+    if (success) setSubmitted(true);
   };
 
   if (submitted) {

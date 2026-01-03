@@ -59,6 +59,9 @@ export {
 export type { AudioCacheStatus } from "./useAudioCache";
 export { useFadeOut } from "./useFadeOut";
 export { useAsyncAction } from "./useAsyncAction";
-export type { UseAsyncActionResult } from "./useAsyncAction";
+export type {
+  UseAsyncActionOptions,
+  UseAsyncActionResult,
+} from "./useAsyncAction";
 // Re-export audio types for convenience
 export type { AudioState, PlaybackSpeed } from "../components/audio";

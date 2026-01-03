@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { Navbar } from "../components";
 import { errorMessages } from "../lib/errorMessages";
-import { useSEO } from "../hooks";
+import { useSEO, useAsyncAction } from "../hooks";
 
 export default function Login() {
   useSEO({
@@ -17,22 +17,18 @@ export default function Login() {
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const { loading, error, execute } = useAsyncAction<boolean>();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setLoading(true);
-
-    try {
-      await login({ email, password });
-      navigate("/");
-    } catch (err) {
-      setError(errorMessages.login(err));
-    } finally {
-      setLoading(false);
-    }
+    const success = await execute(
+      async () => {
+        await login({ email, password });
+        return true;
+      },
+      errorMessages.login,
+    );
+    if (success) navigate("/");
   };
 
   return (
