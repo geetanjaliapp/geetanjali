@@ -16,6 +16,7 @@
 import { useState, useCallback, useEffect, useRef, useLayoutEffect } from "react";
 import { useAudioPlayer } from "../components/audio";
 import { useTTSContext } from "../contexts/TTSContext";
+import { prepareHindiTTS, prepareEnglishTTS } from "../lib/ttsPreprocess";
 import type { Verse, Translation } from "../types";
 
 // ============================================================================
@@ -41,8 +42,8 @@ const SECTION_ORDER: StudySection[] = [
   "insight",
 ];
 
-/** Gap duration between sections (ms) */
-const SECTION_GAP_MS = 1500;
+/** Gap duration between sections (ms) - kept short since audio loading adds natural pause */
+const SECTION_GAP_MS = 500;
 
 export interface StudyModeState {
   status: StudyModeStatus;
@@ -80,6 +81,7 @@ export const SECTION_LABELS: Record<StudySection, string> = {
 
 /**
  * Get text content for a section (used for TTS)
+ * Uses same primary translation logic as VerseDetail for consistency
  */
 function getSectionText(
   section: StudySection,
@@ -90,16 +92,25 @@ function getSectionText(
     case "sanskrit":
       return null; // Sanskrit uses pre-recorded audio, not TTS
     case "english": {
-      const englishTranslation = translations?.find(
-        (t) => t.language === "en" || t.language === "english"
-      );
-      return englishTranslation?.text || verse.translation_en || null;
+      // Match VerseDetail logic: filter English translations, prefer Swami Gambirananda
+      const englishTranslations = translations?.filter(
+        (t) =>
+          t.language === "en" ||
+          t.language === "english" ||
+          (t.language && !t.language.includes("hindi"))
+      ) || [];
+      const primaryEnglish =
+        englishTranslations.find((t) => t.translator === "Swami Gambirananda") ||
+        englishTranslations[0];
+      return primaryEnglish?.text || verse.translation_en || null;
     }
     case "hindi": {
-      const hindiTranslation = translations?.find(
-        (t) => t.language === "hi" || t.language === "hindi"
-      );
-      return hindiTranslation?.text || null;
+      // Match VerseDetail logic: filter Hindi translations (includes Swami Tejomayananda)
+      const hindiTranslations = translations?.filter(
+        (t) => t.language === "hindi" || t.translator === "Swami Tejomayananda"
+      ) || [];
+      const primaryHindi = hindiTranslations[0];
+      return primaryHindi?.text || null;
     }
     case "insight":
       return verse.paraphrase_en || null;
@@ -198,13 +209,20 @@ export function useStudyMode(config: StudyModeConfig): StudyModeControls {
           audioPlayer.play(currentVerse.canonical_id, currentVerse.audio_url);
         }
       } else {
-        const text = getSectionText(section, currentVerse, currentTranslations);
-        if (text) {
+        const rawText = getSectionText(section, currentVerse, currentTranslations);
+        if (rawText) {
+          // Apply TTS preprocessing for consistency with SpeakButton usage
           const lang = section === "hindi" ? "hi" : "en";
-          tts.speak(text, { lang }).catch((error) => {
-            console.error(`[StudyMode] TTS error for ${section}:`, error);
-            // Error handling is done via effects watching TTS state
-          });
+          const processedText = lang === "hi"
+            ? prepareHindiTTS(rawText, currentVerse.chapter, currentVerse.verse)
+            : prepareEnglishTTS(rawText, currentVerse.chapter, currentVerse.verse);
+
+          if (processedText) {
+            tts.speak(processedText, { lang }).catch((error) => {
+              console.error(`[StudyMode] TTS error for ${section}:`, error);
+              // Error handling is done via effects watching TTS state
+            });
+          }
         }
       }
     },
