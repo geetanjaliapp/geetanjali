@@ -29,6 +29,7 @@ import {
   useSwipeNavigation,
   usePreferences,
   useAutoAdvance,
+  useCrossChapterPreload,
 } from "../hooks";
 import {
   getChapterName,
@@ -288,6 +289,14 @@ export default function ReadingMode() {
       // User stays on last verse and can navigate to next chapter when ready
       autoAdvance.stop();
     },
+  });
+
+  // Cross-chapter audio preloading (Phase 1.19.0)
+  // Preloads first verse of next chapter when near end of current chapter
+  useCrossChapterPreload({
+    chapter: state.chapter,
+    verse: currentVerse?.verse ?? 1,
+    enabled: autoAdvance.mode === "audio",
   });
 
   // Handle single-play from header play button

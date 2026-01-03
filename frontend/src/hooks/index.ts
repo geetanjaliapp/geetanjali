@@ -46,5 +46,10 @@ export type {
   StudyModeConfig,
   StudyModeControls,
 } from "./useStudyMode";
+export {
+  useCrossChapterPreload,
+  PRELOAD_THRESHOLD_VERSES,
+} from "./useCrossChapterPreload";
+export type { CrossChapterPreloadConfig } from "./useCrossChapterPreload";
 // Re-export audio types for convenience
 export type { AudioState, PlaybackSpeed } from "../components/audio";
