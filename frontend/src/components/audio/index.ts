@@ -14,7 +14,14 @@ export {
 } from "./AudioPlayerContext";
 export { AudioProgress } from "./AudioProgress";
 export { AudioSpeedControl } from "./AudioSpeedControl";
-export { MiniPlayer } from "./MiniPlayer";
+export {
+  MiniPlayer,
+  MiniPlayerPlayButton,
+  MiniPlayerSinglePlay,
+  MiniPlayerAutoAdvance,
+  MiniPlayerModeSelector,
+  MiniPlayerStandard,
+} from "./MiniPlayer";
 export { FloatingAudioBar } from "./FloatingAudioBar";
 export { StudyModePlayer } from "./StudyModePlayer";
 export {
