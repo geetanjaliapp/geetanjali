@@ -163,9 +163,26 @@ export function useAudioCacheStatus(): {
     refresh();
   }, [refresh]);
 
-  // Load status on mount
+  // Load status on mount and when SW becomes ready
   useEffect(() => {
     refresh(); // eslint-disable-line react-hooks/set-state-in-effect -- Intentional: load initial data on mount
+
+    // Listen for SW activation (handles first visit before SW claims page)
+    if (typeof navigator !== "undefined" && "serviceWorker" in navigator) {
+      const handleControllerChange = () => {
+        refresh();
+      };
+      navigator.serviceWorker.addEventListener(
+        "controllerchange",
+        handleControllerChange
+      );
+      return () => {
+        navigator.serviceWorker.removeEventListener(
+          "controllerchange",
+          handleControllerChange
+        );
+      };
+    }
   }, [refresh]);
 
   return { status, isLoading, refresh, clearCache };
