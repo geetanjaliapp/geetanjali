@@ -11,9 +11,11 @@ export {
 export {
   BrowseVerseGrid,
   SearchVerseGrid,
-  getColumnCount,
-  getStrategyLabel,
-  toVerseMatch,
   type BrowseVerseGridProps,
   type SearchVerseGridProps,
 } from "./VersesGrid";
+export {
+  getColumnCount,
+  getStrategyLabel,
+  toVerseMatch,
+} from "./versesGridUtils";
