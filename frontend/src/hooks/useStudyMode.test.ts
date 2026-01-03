@@ -24,6 +24,20 @@ vi.mock("../contexts/TTSContext", () => ({
   })),
 }));
 
+// Mock API to prevent loading axios/auth interceptors
+vi.mock("../lib/api", () => ({
+  versesApi: { getTranslations: vi.fn().mockResolvedValue([]) },
+}));
+
+vi.mock("../lib/ttsPreprocess", () => ({
+  prepareHindiTTS: vi.fn((text) => text || ""),
+  prepareEnglishTTS: vi.fn((text) => text || ""),
+}));
+
+// Stable empty array reference - inline [] creates new ref each render,
+// causing infinite effect loops in hooks with array dependencies
+const EMPTY_TRANSLATIONS: Translation[] = [];
+
 describe("useStudyMode", () => {
   const mockVerse: Verse = {
     id: "verse-1",
@@ -53,6 +67,14 @@ describe("useStudyMode", () => {
     },
   ];
 
+  const emptyVerse: Verse = {
+    id: "verse-2",
+    canonical_id: "BG_1_1",
+    chapter: 1,
+    verse: 1,
+    created_at: "2024-01-01T00:00:00Z",
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -80,17 +102,8 @@ describe("useStudyMode", () => {
   });
 
   it("should not allow start if no sections available", () => {
-    const emptyVerse: Verse = {
-      id: "verse-2",
-      canonical_id: "BG_1_1",
-      chapter: 1,
-      verse: 1,
-      created_at: "2024-01-01T00:00:00Z",
-      // No audio, no translations, no paraphrase
-    };
-
     const { result } = renderHook(() =>
-      useStudyMode({ verse: emptyVerse, translations: [] })
+      useStudyMode({ verse: emptyVerse, translations: EMPTY_TRANSLATIONS })
     );
 
     expect(result.current.canStart).toBe(false);
