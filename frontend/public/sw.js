@@ -240,8 +240,6 @@ async function cacheAudioFile(cache, url, response) {
 
   // Track metadata
   addAudioCacheMetadata(url, size);
-
-  console.log(`[SW] Cached audio: ${url} (${(size / 1024).toFixed(1)}KB)`);
 }
 
 /**
@@ -262,7 +260,6 @@ async function enforceAudioCacheQuota(cache, incomingSize) {
     if (oldest) {
       await cache.delete(oldest.url);
       totalSize -= oldest.size;
-      console.log(`[SW] Evicted audio: ${oldest.url} (LRU)`);
     }
   }
 
