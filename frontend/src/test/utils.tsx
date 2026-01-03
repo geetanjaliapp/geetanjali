@@ -13,11 +13,11 @@ interface WrapperProps {
 const AllProviders = ({ children }: WrapperProps) => {
   return (
     <BrowserRouter>
-      <ThemeProvider>
-        <AuthProvider>
+      <AuthProvider>
+        <ThemeProvider>
           <PreferencesProvider>{children}</PreferencesProvider>
-        </AuthProvider>
-      </ThemeProvider>
+        </ThemeProvider>
+      </AuthProvider>
     </BrowserRouter>
   );
 };
