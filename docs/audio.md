@@ -75,9 +75,44 @@ Sequential playback with two auto-advance modes:
 
 The next verse audio preloads at 80% progress to eliminate gaps.
 
+### Study Mode
+
+Sequential playback of a verse's sections in one flow:
+
+```
+Sanskrit Audio → English Translation → Hindi Translation → Insight
+```
+
+- **Trigger**: Study Mode icon on Verse Detail page
+- **Behavior**: Plays each section with brief pauses between
+- **UI**: Progress dots show current section, popover displays section name
+- **Accessibility**: Screen readers announce section transitions via aria-live
+
+Useful for immersive learning without manual navigation.
+
 ### Media Controls
 
 Lock screen and notification controls work via the Media Session API. Pause, resume, and see verse info without unlocking your device.
+
+---
+
+## Offline Audio
+
+Audio files cache automatically for offline playback.
+
+**How it works:**
+- First play caches the MP3 via Service Worker
+- Subsequent plays serve from cache instantly
+- Cloud icon in MiniPlayer indicates cached status
+
+**Cache limits:**
+- 100MB quota with LRU eviction
+- Manage in Settings → Audio Cache (see file count, clear cache)
+
+**Technical:**
+- Service Worker intercepts `/audio/` requests
+- Supports Range requests for seeking within cached files
+- Falls back to network on cache miss
 
 ---
 
@@ -142,9 +177,12 @@ frontend/src/
 │   ├── AudioPlayerContext.tsx  # Global audio state
 │   ├── AudioPlayer.tsx         # Reusable player UI
 │   ├── MiniPlayer.tsx          # Compact player for reading mode
+│   ├── StudyModePlayer.tsx     # Study mode UI and controls
 │   └── FloatingAudioBar.tsx    # Fixed bottom bar during scroll
 ├── hooks/
-│   └── useAutoAdvance.ts       # Listen/Read mode logic
+│   ├── useAutoAdvance.ts       # Listen/Read mode logic
+│   ├── useStudyMode.ts         # Study mode state machine
+│   └── useAudioCache.ts        # Cache status and management
 └── lib/
     └── audioPreload.ts         # Background preloading
 ```
