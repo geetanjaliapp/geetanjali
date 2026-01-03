@@ -1,4 +1,3 @@
-/// <reference types="vitest" />
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import compression from 'vite-plugin-compression'
@@ -105,33 +104,5 @@ export default defineConfig({
       },
     },
   },
-  test: {
-    globals: true,
-    environment: 'happy-dom',
-    setupFiles: ['./src/test/setup.ts'],
-    include: ['src/**/*.{test,spec}.{ts,tsx}'],
-    testTimeout: 15000,
-    // Use forks pool - each test file in separate process
-    pool: 'forks',
-    poolOptions: {
-      forks: {
-        singleFork: false,  // Allow multiple forks for better memory recycling
-        maxForks: 1,        // But only one at a time
-        minForks: 0,
-      },
-    },
-    clearMocks: true,
-    restoreMocks: true,
-    coverage: {
-      provider: 'v8',
-      reporter: ['text', 'html', 'lcov'],
-      exclude: [
-        'node_modules/',
-        'src/test/',
-        '**/*.d.ts',
-        'src/main.tsx',
-        'src/vite-env.d.ts',
-      ],
-    },
-  },
+  // Vitest config is in vitest.config.ts
 })

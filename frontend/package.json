@@ -9,10 +9,9 @@
     "typecheck": "tsc -b --noEmit",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "NODE_OPTIONS='--max-old-space-size=4096' vitest",
-    "test:run": "NODE_OPTIONS='--max-old-space-size=4096' vitest run",
-    "test:unit": "NODE_OPTIONS='--max-old-space-size=2048' vitest run src/lib/*.test.ts src/api/*.test.ts src/constants/*.test.ts src/hooks/useFeedback.test.ts",
-    "test:coverage": "NODE_OPTIONS='--max-old-space-size=4096' vitest run --coverage"
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@sentry/react": "^10.32.1",
