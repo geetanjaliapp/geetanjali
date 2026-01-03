@@ -423,6 +423,16 @@ export function VerseFocus({
           )}
         </button>
 
+        {/* Explore link - above fold, symmetric with VerseDetail's "Read in context" */}
+        <div className="text-center mt-2">
+          <Link
+            to={`/verses/${verse.canonical_id}`}
+            className="inline-block text-xs text-[var(--text-accent-muted)] hover:text-[var(--text-accent)] transition-[var(--transition-color)]"
+          >
+            Explore this verse →
+          </Link>
+        </div>
+
         {/* Favorite button - outside the translation toggle button to avoid nesting */}
         {!hideFavoriteButton && (
           <div className="flex justify-center mt-4 mb-2">
@@ -599,17 +609,6 @@ export function VerseFocus({
                     No translations available
                   </div>
                 )}
-
-              {/* Link to verse detail page - clean view, user returns via browser back */}
-              <div className="text-center pt-2">
-                <Link
-                  to={`/verses/${verse.canonical_id}`}
-                  className="inline-flex items-center gap-1.5 text-sm text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] transition-[var(--transition-color)]"
-                >
-                  Explore this verse
-                  <span aria-hidden="true">→</span>
-                </Link>
-              </div>
             </div>
           )}
         </div>
