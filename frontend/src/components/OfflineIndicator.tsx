@@ -1,11 +1,14 @@
 import { useOnlineStatus } from "../hooks/useOnlineStatus";
+import { useSyncStatus } from "../hooks";
 
 /**
  * Displays a subtle banner when the user is offline.
  * Auto-hides when connectivity is restored.
+ * Shows count of unsaved changes when there are pending sync items.
  */
 export function OfflineIndicator() {
   const isOnline = useOnlineStatus();
+  const { pendingCount } = useSyncStatus();
 
   if (isOnline) return null;
 
@@ -30,7 +33,12 @@ export function OfflineIndicator() {
             d="M18.364 5.636a9 9 0 010 12.728m-2.829-2.829a5 5 0 000-7.07m-2.828 2.828a1 1 0 000 1.414m8.485-8.485l-14.142 14.142"
           />
         </svg>
-        You're offline — some features may be unavailable
+        You're offline
+        {pendingCount > 0 && (
+          <span className="text-xs opacity-80">
+            ({pendingCount} unsaved {pendingCount === 1 ? "change" : "changes"})
+          </span>
+        )}
       </span>
     </div>
   );

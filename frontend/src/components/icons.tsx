@@ -366,6 +366,28 @@ export function BookOpenIcon({ className = "w-6 h-6" }: IconProps) {
   );
 }
 
+/** Study mode icon: open book with play badge overlay */
+export function StudyModeIcon({ className = "w-6 h-6" }: IconProps) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      viewBox="0 0 24 24"
+    >
+      {/* Open book - same as BookOpenIcon */}
+      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+      {/* Play badge - bottom right */}
+      <circle cx="19" cy="17" r="4" fill="currentColor" stroke="none" />
+      <polygon points="17.5,15.5 17.5,18.5 20.5,17" fill="var(--surface-page, white)" stroke="none" />
+    </svg>
+  );
+}
+
 export function MailIcon({ className = "w-6 h-6" }: IconProps) {
   return (
     <svg
@@ -629,6 +651,41 @@ export function StopIcon({ className = "w-5 h-5" }: IconProps) {
   return (
     <svg className={className} fill="currentColor" viewBox="0 0 24 24">
       <rect x="6" y="6" width="12" height="12" rx="1" />
+    </svg>
+  );
+}
+
+export function SkipForwardIcon({ className = "w-5 h-5" }: IconProps) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      viewBox="0 0 24 24"
+    >
+      <polygon points="5 4 15 12 5 20 5 4" fill="currentColor" stroke="none" />
+      <line x1="19" y1="5" x2="19" y2="19" />
+    </svg>
+  );
+}
+
+export function CloudDownloadIcon({ className = "w-4 h-4" }: IconProps) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      viewBox="0 0 24 24"
+    >
+      <path d="M12 13v8" />
+      <path d="m8 17 4 4 4-4" />
+      <path d="M20 16.2A4.5 4.5 0 0 0 17.5 8h-1.8A7 7 0 1 0 4 14.9" />
     </svg>
   );
 }

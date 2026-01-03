@@ -1,6 +1,10 @@
 import "@testing-library/jest-dom";
-import { afterEach, beforeAll, vi } from "vitest";
+import { afterEach, beforeAll, vi, expect } from "vitest";
 import { cleanup } from "@testing-library/react";
+import * as axeMatchers from "vitest-axe/matchers";
+
+// Extend Vitest matchers with axe accessibility matchers
+expect.extend(axeMatchers);
 
 // Mock matchMedia immediately (before any component loads)
 Object.defineProperty(window, "matchMedia", {

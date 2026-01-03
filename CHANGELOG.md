@@ -2,6 +2,42 @@
 
 All notable changes to Geetanjali are documented here.
 
+## [1.19.0] - 2026-01-03
+
+Audio experience and offline capabilities release with Study Mode, cross-chapter preloading, and PWA audio caching.
+
+### Features
+- **Study Mode** - Sequential section playback (Sanskrit → Translation → Commentary) with auto-expand and screen reader announcements
+- **Cross-Chapter Preloading** - Preloads first verse of next chapter when within 2 verses of chapter end for seamless transitions
+- **Continuous Playback** - Auto-advance continues across chapter boundaries in Reading Mode
+- **Offline Audio Cache** - Service Worker caches played audio files (100MB quota) with Range request support for seeking
+- **Cache Indicator** - MiniPlayer shows cloud icon when audio is cached for offline playback
+- **Cache Management** - Settings page shows cache stats (file count, size) with clear cache option
+
+### Accessibility
+- **Study Mode Announcements** - Screen readers announce section transitions via aria-live regions
+- **Auto-Expand Sections** - Sections auto-expand when played for visual clarity
+- **Accessibility Tests** - vitest-axe integration for 6 critical components (Modal, ChapterSelector, UserMenu, MobileDrawer, ShareModal, SyncStatusIndicator)
+- **QA Checklist** - Manual accessibility testing checklist added to docs
+
+### Technical
+- **Audio Range Requests** - Cached audio supports 206 Partial Content for seeking within cached files
+- **LRU Eviction** - Least-recently-used eviction keeps cache within 100MB quota
+- **useAudioCache Hook** - React hooks for checking cache status and managing audio cache
+- **MiniPlayer Refactor** - Split into 5 sub-components (PlayButton, SinglePlay, AutoAdvance, ModeSelector, Standard) for testability
+- **useFadeOut Hook** - Reusable fade-out animation hook respecting prefers-reduced-motion
+- **Test Coverage** - CI now uploads coverage reports as artifacts
+- **Vitest Config** - Separated into vitest.config.ts for proper type checking
+
+### Fixes
+- **Vitest Memory Leak** - Downgraded to vitest 3.1.4 and switched to happy-dom to resolve OOM issues (vitest-dev/vitest#8293)
+- **useStudyMode Refactor** - Eliminated circular dependency, improved code organization
+- **Async Test Timing** - Fixed flaky useCrossChapterPreload test with waitFor
+
+### Dependencies
+- vitest 3.2.4 → 3.1.4 (memory leak fix)
+- Added happy-dom (lighter DOM implementation)
+
 ## [1.18.0] - 2026-01-02
 
 Quality & accessibility release focused on WCAG 2.1 AA compliance, sync status UI, test coverage visibility, and code cleanup.

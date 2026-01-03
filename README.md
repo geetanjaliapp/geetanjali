@@ -38,6 +38,7 @@ Free. Open source. Private by default.
 - **Verse Browser** - Explore 701 verses across 18 chapters with translations
 - **Reading Mode** - Distraction-free sequential reading, Sanskrit-first
 - **Audio Recitations** - AI-generated Sanskrit verse audio with speed control and loop mode
+- **Study Mode** - Sequential playback: Sanskrit → English → Hindi → Insight
 - **Listen/Read Modes** - Auto-advance through verses with audio or timed text
 - **Search** - Find verses by reference, Sanskrit, keywords, or meaning
 - **Favorites** - Save verses for quick access

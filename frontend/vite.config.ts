@@ -1,4 +1,3 @@
-/// <reference types="vitest" />
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import compression from 'vite-plugin-compression'
@@ -105,22 +104,5 @@ export default defineConfig({
       },
     },
   },
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    setupFiles: ['./src/test/setup.ts'],
-    include: ['src/**/*.{test,spec}.{ts,tsx}'],
-    testTimeout: 15000,
-    coverage: {
-      provider: 'v8',
-      reporter: ['text', 'html', 'lcov'],
-      exclude: [
-        'node_modules/',
-        'src/test/',
-        '**/*.d.ts',
-        'src/main.tsx',
-        'src/vite-env.d.ts',
-      ],
-    },
-  },
+  // Vitest config is in vitest.config.ts
 })

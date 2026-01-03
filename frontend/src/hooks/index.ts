@@ -38,5 +38,25 @@ export type {
   UseAutoAdvanceConfig,
   UseAutoAdvanceReturn,
 } from "./useAutoAdvance";
+export { useStudyMode, SECTION_LABELS } from "./useStudyMode";
+export type {
+  StudySection,
+  StudyModeStatus,
+  StudyModeState,
+  StudyModeConfig,
+  StudyModeControls,
+} from "./useStudyMode";
+export {
+  useCrossChapterPreload,
+  PRELOAD_THRESHOLD_VERSES,
+} from "./useCrossChapterPreload";
+export type { CrossChapterPreloadConfig } from "./useCrossChapterPreload";
+export {
+  useAudioCached,
+  useAudioCacheStatus,
+  formatBytes,
+} from "./useAudioCache";
+export type { AudioCacheStatus } from "./useAudioCache";
+export { useFadeOut } from "./useFadeOut";
 // Re-export audio types for convenience
 export type { AudioState, PlaybackSpeed } from "../components/audio";

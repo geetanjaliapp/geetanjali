@@ -108,6 +108,8 @@ Single verse deep-dive with full context.
 - Consulting Principles: clickable tags → filtered grid
 - Primary translations: Hindi and English (side-by-side on desktop)
 - "More Translations" toggle for additional versions
+- Audio playback with speed control and loop mode
+- Study Mode: sequential playback of Sanskrit → English → Hindi → Insight
 - Floating nav arrows (desktop) or sticky bottom nav (mobile)
 - Keyboard navigation (← → arrows)
 - Adjacent verse prefetching
@@ -243,6 +245,8 @@ PUT /api/v1/preferences               # Update preferences (sync favorites, read
 
 **Performance:**
 - Chapter prefetching at 80%/20% progress thresholds
+- Cross-chapter preloading: first verse of next chapter preloads when near chapter end
+- Continuous playback: auto-advance continues seamlessly across chapter boundaries
 - Translation lazy loading (fetched on reveal in Reading Mode)
 - Verse cache in React state with prefetch map
 - Skeleton loading states matching final layout

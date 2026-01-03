@@ -3,18 +3,21 @@ import { render, type RenderOptions } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "../contexts/AuthContext";
 import { ThemeProvider } from "../contexts/ThemeContext";
+import { PreferencesProvider } from "../contexts/PreferencesContext";
 
 interface WrapperProps {
   children: ReactNode;
 }
 
-// Wrapper with all providers
+// Wrapper with all providers (mirrors main.tsx provider hierarchy)
 const AllProviders = ({ children }: WrapperProps) => {
   return (
     <BrowserRouter>
-      <ThemeProvider>
-        <AuthProvider>{children}</AuthProvider>
-      </ThemeProvider>
+      <AuthProvider>
+        <ThemeProvider>
+          <PreferencesProvider>{children}</PreferencesProvider>
+        </ThemeProvider>
+      </AuthProvider>
     </BrowserRouter>
   );
 };

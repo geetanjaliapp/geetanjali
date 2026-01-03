@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   useParams,
   useNavigate,
@@ -40,9 +40,10 @@ import {
   useAudioPlayer,
   AudioProgress,
   AudioSpeedControl,
+  StudyModePlayer,
 } from "../components/audio";
 import { errorMessages } from "../lib/errorMessages";
-import { useSEO, useAdjacentVerses, useFavoritesPrefs } from "../hooks";
+import { useSEO, useAdjacentVerses, useFavoritesPrefs, type StudySection } from "../hooks";
 import { STORAGE_KEYS, getStorageItem, setStorageItem } from "../lib/storage";
 
 type FontSize = "normal" | "large";
@@ -126,6 +127,30 @@ export default function VerseDetail() {
     setSectionPrefs(newPrefs);
     setStorageItem(STORAGE_KEYS.verseDetailSectionPrefs, newPrefs);
   };
+
+  // Expand corresponding UI section when Study Mode plays a section
+  const handleStudySectionChange = useCallback(
+    (section: StudySection | null) => {
+      if (!section) return;
+
+      // Map study sections to UI sections
+      const sectionMap: Partial<Record<StudySection, keyof SectionPrefs>> = {
+        english: "translations",
+        hindi: "translations",
+        insight: "insight",
+        // sanskrit: no UI section to expand (always visible)
+      };
+
+      const uiSection = sectionMap[section];
+      if (uiSection && !sectionPrefs[uiSection]) {
+        // Expand the section if not already expanded
+        const newPrefs = { ...sectionPrefs, [uiSection]: true };
+        setSectionPrefs(newPrefs);
+        setStorageItem(STORAGE_KEYS.verseDetailSectionPrefs, newPrefs);
+      }
+    },
+    [sectionPrefs]
+  );
 
   // Favorites (synced across devices for logged-in users)
   const { isFavorite, toggleFavorite } = useFavoritesPrefs();
@@ -447,9 +472,11 @@ export default function VerseDetail() {
 
           {/* Main Spotlight Section */}
           <div className="relative animate-fade-in bg-linear-to-br from-[var(--gradient-warm-from)] via-[var(--gradient-warm-via)] to-[var(--gradient-warm-to)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] lg:rounded-[var(--radius-modal)] shadow-[var(--shadow-card-elevated)] sm:shadow-[var(--shadow-modal)] p-4 sm:p-8 lg:p-12 mb-4 sm:mb-6 lg:mb-8 border border-[var(--border-warm-subtle)]">
-            {/* Audio play button - top right corner */}
-            {verse.audio_url && (
-              <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 flex flex-col items-end gap-1">
+            {/* Audio controls - top right corner */}
+            <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 flex flex-col items-end gap-1">
+              <div className="flex items-center gap-1">
+                {/* Play button (Sanskrit audio) */}
+                {verse.audio_url && (
                 <button
                   onClick={() => {
                     if (isThisVerseActive && audioState === "error") {
@@ -496,14 +523,24 @@ export default function VerseDetail() {
                     <PlayIcon className="w-5 h-5 sm:w-6 sm:h-6" />
                   )}
                 </button>
-                {/* Error message */}
-                {isThisVerseActive && audioState === "error" && audioError && (
-                  <span className="text-xs text-[var(--status-error-text)] bg-[var(--surface-elevated)] px-2 py-1 rounded-[var(--radius-badge)] shadow-sm max-w-32 text-right">
-                    {audioError}
-                  </span>
+                )}
+
+                {/* Study Mode button */}
+                {(verse.audio_url || verse.paraphrase_en || translations.length > 0) && (
+                  <StudyModePlayer
+                    verse={verse}
+                    translations={translations}
+                    onSectionChange={handleStudySectionChange}
+                  />
                 )}
               </div>
-            )}
+              {/* Error message */}
+              {isThisVerseActive && audioState === "error" && audioError && (
+                <span className="text-xs text-[var(--status-error-text)] bg-[var(--surface-elevated)] px-2 py-1 rounded-[var(--radius-badge)] shadow-sm max-w-32 text-right">
+                  {audioError}
+                </span>
+              )}
+            </div>
 
             {/* Sanskrit Spotlight */}
             {verse.sanskrit_devanagari && (
@@ -635,6 +672,7 @@ export default function VerseDetail() {
                     </Link>
                   )}
                 </div>
+
               </div>
             )}
 
@@ -673,20 +711,33 @@ export default function VerseDetail() {
             {/* Leadership Insight - Collapsible */}
             {verse.paraphrase_en && (
               <div className="bg-[var(--surface-elevated-translucent-subtle)] backdrop-blur-xs rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] p-4 sm:p-6 lg:p-8 border border-[var(--border-warm-subtle)] mb-4 sm:mb-6 lg:mb-8">
-                <button
-                  onClick={() => toggleSection("insight")}
-                  className="w-full flex items-center justify-between text-left group"
-                  aria-expanded={sectionPrefs.insight}
-                >
-                  <span className="text-xs font-semibold text-[var(--badge-insight-text)] uppercase tracking-widest">
-                    Leadership Insight
-                  </span>
-                  <ChevronDownIcon
-                    className={`w-4 h-4 text-[var(--text-muted)] group-hover:text-[var(--text-secondary)] transition-all duration-200 ${
-                      sectionPrefs.insight ? "rotate-180" : ""
-                    }`}
+                <div className="flex items-center justify-between">
+                  <button
+                    onClick={() => toggleSection("insight")}
+                    className="flex-1 flex items-center justify-between text-left group"
+                    aria-expanded={sectionPrefs.insight}
+                  >
+                    <span className="text-xs font-semibold text-[var(--badge-insight-text)] uppercase tracking-widest">
+                      Leadership Insight
+                    </span>
+                    <ChevronDownIcon
+                      className={`w-4 h-4 text-[var(--text-muted)] group-hover:text-[var(--text-secondary)] transition-all duration-200 ${
+                        sectionPrefs.insight ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+                  <SpeakButton
+                    text={prepareEnglishTTS(
+                      verse.paraphrase_en,
+                      verse.chapter,
+                      verse.verse,
+                    )}
+                    lang="en"
+                    size="sm"
+                    className="ml-2"
+                    aria-label="Listen to leadership insight"
                   />
-                </button>
+                </div>
                 <div
                   className={`transition-all duration-200 overflow-hidden ${
                     sectionPrefs.insight
@@ -767,9 +818,15 @@ export default function VerseDetail() {
                     {/* Hindi Translation */}
                     {primaryHindi && (
                       <div>
-                        <div className="flex items-center justify-between mb-2 sm:mb-4">
-                          <span className="text-xs font-semibold text-[var(--text-accent-muted)] uppercase tracking-widest">
-                            हिंदी अनुवाद
+                        <p className="text-xs font-semibold text-[var(--text-accent-muted)] uppercase tracking-widest mb-2 sm:mb-3">
+                          हिंदी अनुवाद
+                        </p>
+                        <p className="text-base sm:text-lg text-[var(--text-primary)] leading-relaxed italic">
+                          "{primaryHindi.text}"
+                        </p>
+                        <div className="flex items-center justify-between mt-2 sm:mt-3">
+                          <span className="text-sm text-[var(--text-tertiary)]">
+                            {primaryHindi.translator ? `— ${primaryHindi.translator}` : ""}
                           </span>
                           <SpeakButton
                             text={prepareHindiTTS(
@@ -782,23 +839,21 @@ export default function VerseDetail() {
                             aria-label="हिंदी अनुवाद सुनें"
                           />
                         </div>
-                        <p className="text-base sm:text-lg text-[var(--text-primary)] leading-relaxed italic">
-                          "{primaryHindi.text}"
-                        </p>
-                        {primaryHindi.translator && (
-                          <p className="text-sm text-[var(--text-tertiary)] mt-2 sm:mt-4">
-                            — {primaryHindi.translator}
-                          </p>
-                        )}
                       </div>
                     )}
 
                     {/* English Translation */}
                     {primaryEnglish && (
                       <div>
-                        <div className="flex items-center justify-between mb-2 sm:mb-4">
-                          <span className="text-xs font-semibold text-[var(--text-accent-muted)] uppercase tracking-widest">
-                            English Translation
+                        <p className="text-xs font-semibold text-[var(--text-accent-muted)] uppercase tracking-widest mb-2 sm:mb-3">
+                          English Translation
+                        </p>
+                        <p className="text-base sm:text-lg text-[var(--text-primary)] leading-relaxed italic">
+                          "{primaryEnglish.text}"
+                        </p>
+                        <div className="flex items-center justify-between mt-2 sm:mt-3">
+                          <span className="text-sm text-[var(--text-tertiary)]">
+                            {primaryEnglish.translator ? `— ${primaryEnglish.translator}` : ""}
                           </span>
                           <SpeakButton
                             text={prepareEnglishTTS(
@@ -811,14 +866,6 @@ export default function VerseDetail() {
                             aria-label="Listen to English translation"
                           />
                         </div>
-                        <p className="text-base sm:text-lg text-[var(--text-primary)] leading-relaxed italic">
-                          "{primaryEnglish.text}"
-                        </p>
-                        {primaryEnglish.translator && (
-                          <p className="text-sm text-[var(--text-tertiary)] mt-2 sm:mt-4">
-                            — {primaryEnglish.translator}
-                          </p>
-                        )}
                       </div>
                     )}
                   </div>

@@ -23,12 +23,13 @@ import {
   Toast,
 } from "../components";
 import { HeartIcon, PlayIcon } from "../components/icons";
-import { MiniPlayer, useAudioPlayer } from "../components/audio";
+import { MiniPlayer, useAudioPlayer, StudyModePlayer } from "../components/audio";
 import {
   useSEO,
   useSwipeNavigation,
   usePreferences,
   useAutoAdvance,
+  useCrossChapterPreload,
 } from "../hooks";
 import {
   getChapterName,
@@ -37,7 +38,17 @@ import {
   TOTAL_CHAPTERS,
 } from "../constants/chapters";
 import { errorMessages } from "../lib/errorMessages";
-import { setStorageItemRaw, STORAGE_KEYS, SESSION_KEYS } from "../lib/storage";
+import {
+  setStorageItemRaw,
+  STORAGE_KEYS,
+  SESSION_KEYS,
+  getStorageItem,
+  setStorageItem,
+} from "../lib/storage";
+
+// Storage key for continuous playback preference
+const CONTINUOUS_PLAYBACK_KEY = "geetanjali_continuous_playback";
+
 // Show toast after reading this many verses
 const TOAST_THRESHOLD = 5;
 // Rate limit: once per week (7 days in ms)
@@ -133,6 +144,28 @@ export default function ReadingMode() {
   const [showNewsletterToast, setShowNewsletterToast] = useState(false);
   // Single-play mode (triggered by header play button, not auto-advance)
   const [isSinglePlayMode, setIsSinglePlayMode] = useState(false);
+
+  // Continuous playback: auto-advance to next chapter when current chapter ends
+  const [continuousPlayback, setContinuousPlayback] = useState(() =>
+    getStorageItem<boolean>(CONTINUOUS_PLAYBACK_KEY, false)
+  );
+
+  // Ref for continuous playback (avoids stale closures in callbacks)
+  const continuousPlaybackRef = useRef(continuousPlayback);
+  continuousPlaybackRef.current = continuousPlayback;
+
+  // Toggle continuous playback and persist
+  const toggleContinuousPlayback = useCallback(() => {
+    setContinuousPlayback((prev) => {
+      const newValue = !prev;
+      setStorageItem(CONTINUOUS_PLAYBACK_KEY, newValue);
+      // Track analytics
+      if (window.umami) {
+        window.umami.track("continuous_playback_toggle", { enabled: newValue });
+      }
+      return newValue;
+    });
+  }, []);
 
   // Audio player for single-play mode (header play button)
   const audioPlayer = useAudioPlayer();
@@ -284,10 +317,32 @@ export default function ReadingMode() {
       setState((prev) => ({ ...prev, pageIndex: nextIndex }));
     },
     onComplete: () => {
-      // End of chapter reached - stop auto-advance
-      // User stays on last verse and can navigate to next chapter when ready
-      autoAdvance.stop();
+      // End of chapter reached
+      // Check if continuous playback is enabled and there's a next chapter
+      if (continuousPlaybackRef.current && state.chapter < TOTAL_CHAPTERS) {
+        // Navigate to next chapter (goToChapter is defined later, accessed via ref)
+        setTimeout(() => {
+          if (goToChapterRef.current) {
+            goToChapterRef.current(state.chapter + 1, false);
+            // Auto-start audio mode after chapter loads
+            setTimeout(() => {
+              autoAdvance.startAudioMode();
+            }, 1000); // Wait for chapter to load
+          }
+        }, 500);
+      } else {
+        // Stop auto-advance - user stays on last verse
+        autoAdvance.stop();
+      }
     },
+  });
+
+  // Cross-chapter audio preloading (Phase 1.19.0)
+  // Preloads first verse of next chapter when near end of current chapter
+  useCrossChapterPreload({
+    chapter: state.chapter,
+    verse: currentVerse?.verse ?? 1,
+    enabled: autoAdvance.mode === "audio",
   });
 
   // Handle single-play from header play button
@@ -819,6 +874,10 @@ export default function ReadingMode() {
                   <PlayIcon className="w-5 h-5" />
                 </button>
               )}
+              {/* Study Mode button - sequential playback (fetches translations internally) */}
+              {currentVerse && (
+                <StudyModePlayer verse={currentVerse} />
+              )}
               {/* Favorite button - thumb-friendly position in header */}
               {currentVerse && (
                 <button
@@ -1037,6 +1096,9 @@ export default function ReadingMode() {
           onPauseAutoAdvance={autoAdvance.pause}
           onResumeAutoAdvance={autoAdvance.resume}
           onStopAutoAdvance={autoAdvance.stop}
+          // Continuous playback props (Phase 1.19.0)
+          continuousPlayback={continuousPlayback}
+          onToggleContinuousPlayback={toggleContinuousPlayback}
         />
       )}
 
