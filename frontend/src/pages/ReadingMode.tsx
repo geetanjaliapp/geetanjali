@@ -23,12 +23,15 @@ import {
   Toast,
 } from "../components";
 import { HeartIcon, PlayIcon } from "../components/icons";
-import { MiniPlayer, useAudioPlayer, StudyModePlayer } from "../components/audio";
+// Direct imports to avoid Rollup circular chunk dependencies
+import { MiniPlayer } from "../components/audio/MiniPlayer/index";
+import { useAudioPlayer } from "../components/audio/AudioPlayerContext";
+import { StudyModePlayer } from "../components/audio/StudyModePlayer";
+import { useAutoAdvance } from "../hooks/useAutoAdvance";
 import {
   useSEO,
   useSwipeNavigation,
   usePreferences,
-  useAutoAdvance,
   useCrossChapterPreload,
 } from "../hooks";
 import {

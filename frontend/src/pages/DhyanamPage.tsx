@@ -36,8 +36,11 @@ import {
   CheckIcon,
   AlertCircleIcon,
 } from "../components/icons";
-import { useSwipeNavigation, useReadingPrefs, useAutoAdvance } from "../hooks";
-import { MiniPlayer, useAudioPlayer } from "../components/audio";
+import { useSwipeNavigation, useReadingPrefs } from "../hooks";
+// Direct imports to avoid Rollup circular chunk dependencies
+import { useAutoAdvance } from "../hooks/useAutoAdvance";
+import { MiniPlayer } from "../components/audio/MiniPlayer/index";
+import { useAudioPlayer } from "../components/audio/AudioPlayerContext";
 
 /** Dhyanam page state */
 type DhyanamState = "loading" | "viewing" | "completed" | "error";
