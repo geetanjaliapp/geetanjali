@@ -17,7 +17,13 @@ import {
   HeartIcon,
   SpinnerIcon,
 } from "../components/icons";
-import { usePreferences, useSEO, useResendVerification } from "../hooks";
+import {
+  usePreferences,
+  useSEO,
+  useResendVerification,
+  useAudioCacheStatus,
+  formatBytes,
+} from "../hooks";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme, type Theme } from "../contexts/ThemeContext";
 import { FONT_FAMILY_OPTIONS, FONT_FAMILIES } from "../config/fonts";
@@ -155,6 +161,14 @@ export default function Settings() {
     isResending: isResendingVerification,
     message: verificationMessage,
   } = useResendVerification();
+
+  // Offline audio cache
+  const {
+    status: audioCacheStatus,
+    isLoading: isLoadingAudioCache,
+    clearCache: clearAudioCache,
+  } = useAudioCacheStatus();
+  const [isClearingAudioCache, setIsClearingAudioCache] = useState(false);
 
   // Danger zone
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -323,6 +337,17 @@ export default function Settings() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  };
+
+  const handleClearAudioCache = async () => {
+    setIsClearingAudioCache(true);
+    try {
+      await clearAudioCache();
+    } catch (error) {
+      console.error("Failed to clear audio cache:", error);
+    } finally {
+      setIsClearingAudioCache(false);
+    }
   };
 
   const handleDeleteLocalData = async () => {
@@ -1258,6 +1283,50 @@ export default function Settings() {
           >
             Export my data
           </button>
+
+          {/* Offline Audio Cache */}
+          <div className="mt-4 pt-4 border-t border-[var(--border-default)]">
+            <div className="flex items-center justify-between mb-2">
+              <div>
+                <h3 className="text-sm font-medium text-[var(--text-secondary)]">
+                  Offline Audio
+                </h3>
+                <p className="text-xs text-[var(--text-muted)] mt-0.5">
+                  Audio files are cached for offline playback
+                </p>
+              </div>
+            </div>
+
+            {isLoadingAudioCache ? (
+              <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
+                <SpinnerIcon className="w-3 h-3 animate-spin" />
+                Checking cache...
+              </div>
+            ) : audioCacheStatus ? (
+              <div className="flex items-center justify-between">
+                <div className="text-xs text-[var(--text-muted)]">
+                  {audioCacheStatus.count}{" "}
+                  {audioCacheStatus.count === 1 ? "file" : "files"} cached
+                  <span className="mx-1.5">·</span>
+                  {formatBytes(audioCacheStatus.totalSize)} /{" "}
+                  {formatBytes(audioCacheStatus.maxSize)}
+                </div>
+                {audioCacheStatus.count > 0 && (
+                  <button
+                    onClick={handleClearAudioCache}
+                    disabled={isClearingAudioCache}
+                    className="px-2 py-1 text-xs font-medium text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] bg-[var(--surface-muted)] hover:bg-[var(--interactive-secondary-hover-bg)] rounded-[var(--radius-button)] transition-[var(--transition-color)] disabled:opacity-50"
+                  >
+                    {isClearingAudioCache ? "Clearing..." : "Clear cache"}
+                  </button>
+                )}
+              </div>
+            ) : (
+              <p className="text-xs text-[var(--text-muted)]">
+                Cache not available (requires service worker)
+              </p>
+            )}
+          </div>
         </section>
 
         {/* Danger Zone */}

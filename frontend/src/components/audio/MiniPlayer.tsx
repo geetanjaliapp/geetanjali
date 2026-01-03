@@ -26,7 +26,9 @@ import {
   AlertCircleIcon,
   CheckIcon,
   SkipForwardIcon,
+  CloudDownloadIcon,
 } from "../icons";
+import { useAudioCached } from "../../hooks";
 import type { AutoAdvanceMode } from "../../hooks/useAutoAdvance";
 
 /** Live region announcement for screen readers */
@@ -125,6 +127,9 @@ export function MiniPlayer(
   const isIdle = !isThisPlaying || state === "idle";
   const prevVerseIdRef = useRef(verseId);
   const hasCalledOnEndedRef = useRef(false);
+
+  // Check if audio is cached for offline playback
+  const { isCached: isAudioCached } = useAudioCached(audioUrl);
 
   // Auto-advance mode detection
   const hasAutoAdvance = isAutoAdvanceProps(props);
@@ -680,6 +685,17 @@ export function MiniPlayer(
                 </span>
               </button>
             )}
+
+          {/* Cached indicator - shows when audio is available offline */}
+          {!isIdle && isAudioCached && (
+            <span
+              className="text-[var(--status-success-text)] opacity-70"
+              title="Available offline"
+              aria-label="Audio cached for offline playback"
+            >
+              <CloudDownloadIcon className="w-4 h-4" />
+            </span>
+          )}
         </div>
       </div>
 
