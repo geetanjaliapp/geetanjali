@@ -111,6 +111,7 @@ For operators and contributors:
 - **[Security](security.md)** — Container hardening, secrets management, incident response
 - **[Observability](observability.md)** — Prometheus metrics, Grafana dashboards, alerting
 - **[Troubleshooting](troubleshooting.md)** — Common issues and quick fixes
+- **[Accessibility QA](accessibility-qa.md)** — Manual testing checklist for screen readers and keyboard
 
 ---
 
