@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getErrorMessage, errorMessages } from "./errorMessages";
+import { getErrorMessage, errorMessages, isAxiosError, getApiErrorDetail } from "./errorMessages";
 import { AxiosError } from "axios";
 
 // Helper to create mock Axios errors
@@ -291,4 +291,72 @@ describe("technical message detection", () => {
       expect(getErrorMessage(new Error(message))).toBe(message);
     },
   );
+});
+
+describe("isAxiosError", () => {
+  it("should return true for Axios errors", () => {
+    const error = createAxiosError(400);
+    expect(isAxiosError(error)).toBe(true);
+  });
+
+  it("should return false for regular Error", () => {
+    expect(isAxiosError(new Error("test"))).toBe(false);
+  });
+
+  it("should return false for null", () => {
+    expect(isAxiosError(null)).toBe(false);
+  });
+
+  it("should return false for undefined", () => {
+    expect(isAxiosError(undefined)).toBe(false);
+  });
+
+  it("should return false for string", () => {
+    expect(isAxiosError("error")).toBe(false);
+  });
+
+  it("should return false for object without isAxiosError", () => {
+    expect(isAxiosError({ message: "error" })).toBe(false);
+  });
+
+  it("should return false for object with isAxiosError=false", () => {
+    expect(isAxiosError({ isAxiosError: false })).toBe(false);
+  });
+});
+
+describe("getApiErrorDetail", () => {
+  it("should return detail from Axios error", () => {
+    const error = createAxiosError(400, { detail: "Email already registered" });
+    expect(getApiErrorDetail(error, "Fallback")).toBe("Email already registered");
+  });
+
+  it("should return fallback for non-Axios error", () => {
+    expect(getApiErrorDetail(new Error("test"), "Fallback")).toBe("Fallback");
+  });
+
+  it("should return fallback for null", () => {
+    expect(getApiErrorDetail(null, "Fallback")).toBe("Fallback");
+  });
+
+  it("should return fallback when no detail present", () => {
+    const error = createAxiosError(500);
+    expect(getApiErrorDetail(error, "Fallback")).toBe("Fallback");
+  });
+
+  it("should return fallback for empty detail string", () => {
+    const error = createAxiosError(400, { detail: "" });
+    expect(getApiErrorDetail(error, "Fallback")).toBe("Fallback");
+  });
+
+  it("should extract first validation error message", () => {
+    const error = createAxiosError(422, {
+      detail: [{ msg: "Field is required" }, { msg: "Other error" }],
+    });
+    expect(getApiErrorDetail(error, "Fallback")).toBe("Field is required");
+  });
+
+  it("should return fallback for empty validation array", () => {
+    const error = createAxiosError(422, { detail: [] });
+    expect(getApiErrorDetail(error, "Fallback")).toBe("Fallback");
+  });
 });

@@ -8,6 +8,7 @@ import {
 } from "../components/icons";
 import { markNewsletterSubscribed } from "../components";
 import { api } from "../lib/api";
+import { getApiErrorDetail } from "../lib/errorMessages";
 
 type VerifyState =
   | "confirm"
@@ -50,14 +51,7 @@ export default function NewsletterVerify() {
       }
     } catch (err: unknown) {
       setState("error");
-      if (err && typeof err === "object" && "response" in err) {
-        const axiosErr = err as { response?: { data?: { detail?: string } } };
-        setErrorMessage(
-          axiosErr.response?.data?.detail || "Failed to verify subscription",
-        );
-      } else {
-        setErrorMessage("Failed to verify subscription");
-      }
+      setErrorMessage(getApiErrorDetail(err, "Failed to verify subscription"));
     }
   }, [token]);
 

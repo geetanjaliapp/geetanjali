@@ -172,9 +172,19 @@ function getStatusMessage(status: number, context: ErrorContext): string {
 }
 
 /**
- * Type guard for Axios errors
+ * Type guard for Axios errors.
+ * Exported for use in catch blocks that need type-safe error handling.
+ *
+ * @example
+ * try {
+ *   await api.someCall();
+ * } catch (err) {
+ *   if (isAxiosError(err)) {
+ *     console.log(err.response?.status); // Type-safe access
+ *   }
+ * }
  */
-function isAxiosError(
+export function isAxiosError(
   error: unknown,
 ): error is AxiosError<{ detail?: string | Array<{ msg: string }> }> {
   return (
@@ -183,6 +193,41 @@ function isAxiosError(
     "isAxiosError" in error &&
     (error as AxiosError).isAxiosError === true
   );
+}
+
+/**
+ * Extract error detail from an API error, with fallback.
+ * Simplifies the common pattern of extracting backend error messages.
+ *
+ * @param error - The caught error (unknown type)
+ * @param fallback - Message to return if no detail is available
+ * @returns The backend detail message or the fallback
+ *
+ * @example
+ * try {
+ *   await api.subscribe(email);
+ * } catch (err) {
+ *   setError(getApiErrorDetail(err, "Failed to subscribe"));
+ * }
+ */
+export function getApiErrorDetail(error: unknown, fallback: string): string {
+  if (!isAxiosError(error)) {
+    return fallback;
+  }
+
+  const detail = error.response?.data?.detail;
+
+  // String detail message
+  if (typeof detail === "string" && detail.length > 0) {
+    return detail;
+  }
+
+  // Validation errors (array of { msg: string })
+  if (Array.isArray(detail) && detail.length > 0 && detail[0]?.msg) {
+    return detail[0].msg;
+  }
+
+  return fallback;
 }
 
 /**

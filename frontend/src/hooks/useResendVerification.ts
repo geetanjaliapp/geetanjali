@@ -7,6 +7,7 @@
 
 import { useState, useCallback } from "react";
 import { api } from "../lib/api";
+import { isAxiosError } from "../lib/errorMessages";
 import { useAuth } from "../contexts/AuthContext";
 
 interface VerificationMessage {
@@ -60,11 +61,12 @@ export function useResendVerification(): UseResendVerificationResult {
         });
         onSuccess?.();
       } catch (err: unknown) {
-        if (err && typeof err === "object" && "response" in err) {
-          const axiosErr = err as { response?: { data?: { detail?: string } } };
+        if (isAxiosError(err)) {
+          const detail = err.response?.data?.detail;
+          const detailStr = typeof detail === "string" ? detail : "";
 
           // If already verified, refresh user state and show success
-          if (axiosErr.response?.data?.detail?.includes("already verified")) {
+          if (detailStr.includes("already verified")) {
             setMessage({
               type: "success",
               text: "Your email is already verified!",
@@ -82,9 +84,7 @@ export function useResendVerification(): UseResendVerificationResult {
 
           setMessage({
             type: "error",
-            text:
-              axiosErr.response?.data?.detail ||
-              "Failed to send email. Try again later.",
+            text: detailStr || "Failed to send email. Try again later.",
           });
         } else {
           setMessage({

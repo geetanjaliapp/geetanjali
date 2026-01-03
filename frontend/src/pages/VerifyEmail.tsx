@@ -7,6 +7,7 @@ import {
   MailIcon,
 } from "../components/icons";
 import { api } from "../lib/api";
+import { getApiErrorDetail } from "../lib/errorMessages";
 import { useAuth } from "../contexts/AuthContext";
 
 type VerifyState =
@@ -51,14 +52,7 @@ export default function VerifyEmail() {
       }
     } catch (err: unknown) {
       setState("error");
-      if (err && typeof err === "object" && "response" in err) {
-        const axiosErr = err as { response?: { data?: { detail?: string } } };
-        setErrorMessage(
-          axiosErr.response?.data?.detail || "Failed to verify email",
-        );
-      } else {
-        setErrorMessage("Failed to verify email");
-      }
+      setErrorMessage(getApiErrorDetail(err, "Failed to verify email"));
     }
   }, [token, refreshUser]);
 

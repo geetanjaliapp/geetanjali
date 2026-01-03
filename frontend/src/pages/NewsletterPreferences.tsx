@@ -9,6 +9,7 @@ import {
 import { GoalSelector } from "../components/GoalSelector";
 import { TimeSelector, type SendTime } from "../components/TimeSelector";
 import { api } from "../lib/api";
+import { getApiErrorDetail } from "../lib/errorMessages";
 import { useGoalsPrefs } from "../hooks";
 
 type PageState = "loading" | "loaded" | "saving" | "saved" | "error";
@@ -61,14 +62,7 @@ export default function NewsletterPreferences() {
         setPageState("loaded");
       } catch (err: unknown) {
         setPageState("error");
-        if (err && typeof err === "object" && "response" in err) {
-          const axiosErr = err as { response?: { data?: { detail?: string } } };
-          setErrorMessage(
-            axiosErr.response?.data?.detail || "Failed to load preferences",
-          );
-        } else {
-          setErrorMessage("Failed to load preferences");
-        }
+        setErrorMessage(getApiErrorDetail(err, "Failed to load preferences"));
       }
     };
 
@@ -92,14 +86,7 @@ export default function NewsletterPreferences() {
       setPageState("saved");
     } catch (err: unknown) {
       setPageState("loaded");
-      if (err && typeof err === "object" && "response" in err) {
-        const axiosErr = err as { response?: { data?: { detail?: string } } };
-        setErrorMessage(
-          axiosErr.response?.data?.detail || "Failed to save preferences",
-        );
-      } else {
-        setErrorMessage("Failed to save preferences");
-      }
+      setErrorMessage(getApiErrorDetail(err, "Failed to save preferences"));
     }
   };
 

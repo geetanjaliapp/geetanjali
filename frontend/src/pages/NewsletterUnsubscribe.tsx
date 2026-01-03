@@ -7,6 +7,7 @@ import {
   MailIcon,
 } from "../components/icons";
 import { api } from "../lib/api";
+import { getApiErrorDetail } from "../lib/errorMessages";
 
 type UnsubscribeState =
   | "confirm"
@@ -47,14 +48,7 @@ export default function NewsletterUnsubscribe() {
       }
     } catch (err: unknown) {
       setState("error");
-      if (err && typeof err === "object" && "response" in err) {
-        const axiosErr = err as { response?: { data?: { detail?: string } } };
-        setErrorMessage(
-          axiosErr.response?.data?.detail || "Failed to unsubscribe",
-        );
-      } else {
-        setErrorMessage("Failed to unsubscribe");
-      }
+      setErrorMessage(getApiErrorDetail(err, "Failed to unsubscribe"));
     }
   }, [token]);
 

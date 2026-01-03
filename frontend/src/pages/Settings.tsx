@@ -36,9 +36,11 @@ import {
   getStorageItem,
   setStorageItem,
 } from "../lib/storage";
+import { getApiErrorDetail } from "../lib/errorMessages";
+
+import type { FontSize } from "../types";
 
 type SubscriptionStatus = "idle" | "pending" | "subscribed";
-type FontSize = "small" | "medium" | "large";
 type DefaultVersesTab =
   | "default"
   | "featured"
@@ -269,15 +271,7 @@ export default function Settings() {
         setStatus("pending");
       }
     } catch (err: unknown) {
-      if (err && typeof err === "object" && "response" in err) {
-        const axiosErr = err as { response?: { data?: { detail?: string } } };
-        setError(
-          axiosErr.response?.data?.detail ||
-            "Something went wrong. Please try again.",
-        );
-      } else {
-        setError("Something went wrong. Please try again.");
-      }
+      setError(getApiErrorDetail(err, "Something went wrong. Please try again."));
     } finally {
       setIsSubmitting(false);
     }
@@ -301,14 +295,7 @@ export default function Settings() {
       // Clear success message after 3 seconds
       setTimeout(() => setUpdateSuccess(false), 3000);
     } catch (err: unknown) {
-      if (err && typeof err === "object" && "response" in err) {
-        const axiosErr = err as { response?: { data?: { detail?: string } } };
-        setUpdateError(
-          axiosErr.response?.data?.detail || "Failed to update preferences.",
-        );
-      } else {
-        setUpdateError("Failed to update preferences.");
-      }
+      setUpdateError(getApiErrorDetail(err, "Failed to update preferences."));
     } finally {
       setIsUpdatingPrefs(false);
     }
