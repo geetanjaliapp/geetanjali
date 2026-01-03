@@ -1,6 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { renderHook } from "@testing-library/react";
+import { renderHook, waitFor } from "@testing-library/react";
 import { useCrossChapterPreload, PRELOAD_THRESHOLD_VERSES } from "./useCrossChapterPreload";
+
+// Mock audioPreload - must be defined before vi.mock
+const mockPreloadAudio = vi.fn();
+vi.mock("../lib/audioPreload", () => ({
+  preloadAudio: (url: string) => mockPreloadAudio(url),
+}));
 
 // Mock versesApi
 vi.mock("../lib/api", () => ({
@@ -14,12 +20,6 @@ vi.mock("../lib/api", () => ({
       created_at: "2024-01-01T00:00:00Z",
     }),
   },
-}));
-
-// Mock audioPreload
-const mockPreloadAudio = vi.fn();
-vi.mock("../lib/audioPreload", () => ({
-  preloadAudio: (...args: unknown[]) => mockPreloadAudio(...args),
 }));
 
 // Mock chapters constants
@@ -80,11 +80,12 @@ describe("useCrossChapterPreload", () => {
       })
     );
 
-    // Wait for async operations
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    expect(mockPreloadAudio).toHaveBeenCalledWith(
-      "https://example.com/BG_3_1.mp3"
-    );
+    // Wait for async preload to complete
+    await waitFor(() => {
+      expect(mockPreloadAudio).toHaveBeenCalledWith(
+        "https://example.com/BG_3_1.mp3"
+      );
+    });
   });
 
   it("should not preload if already on last chapter", async () => {
