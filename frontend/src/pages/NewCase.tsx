@@ -99,10 +99,13 @@ export default function NewCase() {
 
   const { loading, error, execute } = useAsyncAction<string>();
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [draftRestored, setDraftRestored] = useState(false);
 
   // Load draft on mount (only if no prefill)
   const draft = !prefill ? loadDraft() : null;
+  const hasDraft = !!(draft && (draft.question || draft.context));
+
+  // Initialize based on draft existence (avoids setState in effect)
+  const [draftRestored, setDraftRestored] = useState(hasDraft);
 
   const [formData, setFormData] = useState({
     question: prefill || draft?.question || "",
@@ -117,15 +120,13 @@ export default function NewCase() {
     new Set(draft?.stakeholders || ["self"]),
   );
 
-  // Show draft restored message
+  // Auto-hide draft restored message after 3 seconds
   useEffect(() => {
-    if (draft && (draft.question || draft.context)) {
-      setDraftRestored(true);
-      // Auto-hide after 3 seconds
+    if (draftRestored) {
       const timer = setTimeout(() => setDraftRestored(false), 3000);
       return () => clearTimeout(timer);
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- runs once on mount to check for restored draft
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- runs once on mount
 
   // Debounced draft saving
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
