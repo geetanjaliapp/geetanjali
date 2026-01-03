@@ -24,7 +24,10 @@ Audio experience and offline capabilities release with Study Mode, cross-chapter
 - **Audio Range Requests** - Cached audio supports 206 Partial Content for seeking within cached files
 - **LRU Eviction** - Least-recently-used eviction keeps cache within 100MB quota
 - **useAudioCache Hook** - React hooks for checking cache status and managing audio cache
+- **MiniPlayer Refactor** - Split into 5 sub-components (PlayButton, SinglePlay, AutoAdvance, ModeSelector, Standard) for testability
+- **useFadeOut Hook** - Reusable fade-out animation hook respecting prefers-reduced-motion
 - **Test Coverage** - CI now uploads coverage reports as artifacts
+- **Vitest Config** - Separated into vitest.config.ts for proper type checking
 
 ### Fixes
 - **Vitest Memory Leak** - Downgraded to vitest 3.1.4 and switched to happy-dom to resolve OOM issues (vitest-dev/vitest#8293)
