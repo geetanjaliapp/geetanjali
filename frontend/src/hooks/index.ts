@@ -57,5 +57,6 @@ export {
   formatBytes,
 } from "./useAudioCache";
 export type { AudioCacheStatus } from "./useAudioCache";
+export { useFadeOut, useAutoFadeOut } from "./useFadeOut";
 // Re-export audio types for convenience
 export type { AudioState, PlaybackSpeed } from "../components/audio";
