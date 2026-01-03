@@ -1,21 +1,25 @@
 /**
- * StudyModePlayer - Visual UI for Study Mode
+ * StudyModePlayer - Compact icon-button UI for Study Mode
  *
- * Displays:
- * - Toggle button to start/stop study mode
- * - Section progress indicator showing current section
- * - Play/Pause controls during playback
+ * Designed to sit next to the verse play button:
+ * - Idle: Book icon button (matches play button style)
+ * - Active: Pulsing icon + popover showing progress
+ * - Completed: Green tick, auto-fades back to idle
  *
- * Used by: VerseDetail page
+ * Used by: VerseDetail page (top-right corner)
  */
 
 import { useEffect, useRef, useState } from "react";
-import { BookOpenIcon, StopIcon, PlayIcon, PauseIcon } from "../icons";
+import {
+  StudyModeIcon,
+  PlayIcon,
+  CheckIcon,
+  CloseIcon,
+} from "../icons";
 import {
   useStudyMode,
   SECTION_LABELS,
   type StudySection,
-  type StudyModeStatus,
 } from "../../hooks/useStudyMode";
 import type { Verse, Translation } from "../../types";
 
@@ -28,71 +32,6 @@ interface StudyModePlayerProps {
   onComplete?: () => void;
   /** Callback when current section changes (for parent to expand corresponding UI section) */
   onSectionChange?: (section: StudySection | null) => void;
-}
-
-/** Section indicator dot */
-function SectionDot({
-  section,
-  isActive,
-  isCompleted,
-  status,
-}: {
-  section: StudySection;
-  isActive: boolean;
-  isCompleted: boolean;
-  status: StudyModeStatus;
-}) {
-  const isPaused = status === "paused" && isActive;
-  const isGap = status === "gap" && isActive;
-
-  return (
-    <div
-      className={`flex items-center gap-2 py-1.5 transition-colors duration-200 ${
-        isActive
-          ? "text-[var(--interactive-primary)] font-medium"
-          : isCompleted
-            ? "text-[var(--text-secondary)]"
-            : "text-[var(--text-muted)]"
-      }`}
-    >
-      {/* Dot indicator */}
-      <span
-        className={`w-2.5 h-2.5 rounded-full transition-all duration-200 ${
-          isActive && !isPaused && !isGap
-            ? "bg-[var(--interactive-primary)] animate-pulse"
-            : isActive && isGap
-              ? "bg-[var(--interactive-primary)] opacity-50"
-              : isActive && isPaused
-                ? "bg-[var(--status-warning-text)]"
-                : isCompleted
-                  ? "bg-[var(--text-secondary)]"
-                  : "bg-[var(--border-default)]"
-        }`}
-        aria-hidden="true"
-      />
-
-      {/* Section label */}
-      <span className="text-sm">{SECTION_LABELS[section]}</span>
-
-      {/* Status indicator */}
-      {isActive && !isPaused && !isGap && (
-        <span className="text-xs text-[var(--text-muted)]">[playing]</span>
-      )}
-      {isPaused && (
-        <span className="text-xs text-[var(--status-warning-text)]">
-          [paused]
-        </span>
-      )}
-      {isGap && (
-        <span className="text-xs text-[var(--text-muted)] animate-pulse">
-          ...
-        </span>
-      )}
-      {isCompleted && !isActive && (
-        <span className="text-xs text-[var(--text-muted)]">✓</span>
-      )}
-    </div>
-  );
 }
 
 export function StudyModePlayer({
@@ -111,15 +50,15 @@ export function StudyModePlayer({
   const [announcement, setAnnouncement] = useState("");
   const prevSectionRef = useRef<StudySection | null>(null);
 
+  // Show completion tick briefly then fade
+  const [showCompleteTick, setShowCompleteTick] = useState(false);
+
   // Notify parent and announce when section changes
   useEffect(() => {
     if (state.currentSection !== prevSectionRef.current) {
       prevSectionRef.current = state.currentSection;
-
-      // Notify parent to expand corresponding UI section
       onSectionChange?.(state.currentSection);
 
-      // Announce for screen readers (setState is intentional for a11y sync)
       if (state.currentSection) {
         setAnnouncement(`Now playing: ${SECTION_LABELS[state.currentSection]}`); // eslint-disable-line react-hooks/set-state-in-effect
       } else if (state.status === "completed") {
@@ -128,137 +67,132 @@ export function StudyModePlayer({
     }
   }, [state.currentSection, state.status, onSectionChange]);
 
+  // Handle completion: show tick briefly then fade
+  useEffect(() => {
+    if (state.status === "completed") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: trigger completion animation on status change
+      setShowCompleteTick(true);
+      const timer = setTimeout(() => {
+        setShowCompleteTick(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [state.status]);
+
   const isActive =
     state.status === "playing" ||
     state.status === "paused" ||
     state.status === "gap";
   const isPaused = state.status === "paused";
-  const isCompleted = state.status === "completed";
 
   // Don't render if no sections available
-  if (!canStart && !isActive && !isCompleted) {
+  if (!canStart && !isActive && state.status !== "completed") {
     return null;
   }
 
+  // Idle or completion-faded state: show study button
+  if (!isActive && !showCompleteTick) {
+    return (
+      <>
+        <button
+          onClick={start}
+          disabled={!canStart}
+          className="p-3 sm:p-2 rounded-full transition-all
+            text-[var(--text-muted)] hover:text-[var(--interactive-primary)] hover:bg-[var(--surface-muted)]
+            focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]
+            disabled:opacity-50 disabled:cursor-not-allowed"
+          aria-label="Start study mode - plays Sanskrit, English, Hindi, and Insight"
+          title="Study Mode"
+        >
+          <StudyModeIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+        </button>
+        {/* Aria-live region */}
+        <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+          {announcement}
+        </div>
+      </>
+    );
+  }
+
+  // Completion tick state
+  if (showCompleteTick) {
+    return (
+      <div className="p-3 sm:p-2 text-[var(--status-success-text)] animate-fade-in">
+        <CheckIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+      </div>
+    );
+  }
+
+  // Active state: show controls with popover
   return (
-    <div className="space-y-3">
-      {/* Control buttons */}
-      <div className="flex items-center gap-2">
-        {!isActive && !isCompleted && (
+    <div className="relative">
+      {/* Main control button (pause/resume) */}
+      <button
+        onClick={isPaused ? resume : pause}
+        className={`p-3 sm:p-2 rounded-full transition-all
+          focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]
+          ${isPaused
+            ? "text-[var(--status-warning-text)] bg-[var(--status-warning-text)]/10"
+            : "text-[var(--interactive-primary)] bg-[var(--interactive-primary)]/10 animate-pulse"
+          }`}
+        aria-label={isPaused ? "Resume study mode" : "Pause study mode"}
+      >
+        {isPaused ? (
+          <PlayIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+        ) : (
+          <StudyModeIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+        )}
+      </button>
+
+      {/* Progress popover - appears below */}
+      <div className="absolute top-full right-0 mt-1 z-20 animate-fade-in">
+        <div className="bg-[var(--surface-elevated)] rounded-[var(--radius-button)] shadow-[var(--shadow-dropdown)] border border-[var(--border-subtle)] px-2.5 py-1.5 flex items-center gap-2 whitespace-nowrap">
+          {/* Progress dots */}
+          <div className="flex items-center gap-1">
+            {state.availableSections.map((section, idx) => {
+              const isCurrentSection = section === state.currentSection;
+              const isCompletedSection = state.currentIndex > idx;
+              const isGap = state.status === "gap" && isCurrentSection;
+
+              return (
+                <span
+                  key={section}
+                  className={`w-1.5 h-1.5 rounded-full transition-all duration-200 ${
+                    isCurrentSection && !isPaused && !isGap
+                      ? "bg-[var(--interactive-primary)] scale-125"
+                      : isCurrentSection && isGap
+                        ? "bg-[var(--interactive-primary)] opacity-50"
+                        : isCurrentSection && isPaused
+                          ? "bg-[var(--status-warning-text)]"
+                          : isCompletedSection
+                            ? "bg-[var(--text-tertiary)]"
+                            : "bg-[var(--border-default)]"
+                  }`}
+                  aria-hidden="true"
+                />
+              );
+            })}
+          </div>
+
+          {/* Current section label */}
+          <span className="text-xs text-[var(--text-secondary)]">
+            {state.currentSection ? SECTION_LABELS[state.currentSection] : "..."}
+          </span>
+
+          {/* Stop button */}
           <button
-            onClick={start}
-            disabled={!canStart}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-[var(--radius-button)]
-              bg-[var(--surface-warm)] text-[var(--text-primary)]
-              hover:bg-[var(--interactive-contextual-hover)]
-              focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]
-              disabled:opacity-50 disabled:cursor-not-allowed
-              transition-colors"
-            aria-label="Start study mode"
+            onClick={stop}
+            className="p-1 rounded-full text-[var(--text-muted)] hover:text-[var(--status-error-text)] hover:bg-[var(--status-error-bg)] transition-colors
+              focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+            aria-label="Stop study mode"
           >
-            <BookOpenIcon className="w-5 h-5" />
-            <span className="font-medium">Study Mode</span>
+            <CloseIcon className="w-3 h-3" />
           </button>
-        )}
-
-        {isActive && (
-          <>
-            {/* Pause/Resume button */}
-            <button
-              onClick={isPaused ? resume : pause}
-              className="inline-flex items-center justify-center w-10 h-10 rounded-[var(--radius-button)]
-                bg-[var(--surface-warm)] text-[var(--text-primary)]
-                hover:bg-[var(--interactive-contextual-hover)]
-                focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]
-                transition-colors"
-              aria-label={isPaused ? "Resume study mode" : "Pause study mode"}
-            >
-              {isPaused ? (
-                <PlayIcon className="w-5 h-5" />
-              ) : (
-                <PauseIcon className="w-5 h-5" />
-              )}
-            </button>
-
-            {/* Stop button */}
-            <button
-              onClick={stop}
-              className="inline-flex items-center justify-center w-10 h-10 rounded-[var(--radius-button)]
-                bg-[var(--surface-warm)] text-[var(--text-primary)]
-                hover:bg-[var(--status-error-bg)] hover:text-[var(--status-error-text)]
-                focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]
-                transition-colors"
-              aria-label="Stop study mode"
-            >
-              <StopIcon className="w-5 h-5" />
-            </button>
-
-            {/* Active label */}
-            <span className="text-sm text-[var(--text-muted)] ml-2">
-              Study Mode
-            </span>
-          </>
-        )}
-
-        {isCompleted && (
-          <button
-            onClick={start}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-[var(--radius-button)]
-              bg-[var(--surface-warm)] text-[var(--text-primary)]
-              hover:bg-[var(--interactive-contextual-hover)]
-              focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]
-              transition-colors"
-            aria-label="Restart study mode"
-          >
-            <BookOpenIcon className="w-5 h-5" />
-            <span className="font-medium">Study Again</span>
-          </button>
-        )}
+        </div>
       </div>
 
-      {/* Section progress indicator */}
-      {(isActive || isCompleted) && (
-        <div
-          className="flex flex-col gap-0.5 p-3 rounded-[var(--radius-card)] bg-[var(--surface-card)] border border-[var(--border-warm-subtle)]"
-          role="region"
-          aria-label="Study mode progress"
-        >
-          {state.availableSections.map((section, idx) => {
-            const isCurrentSection = section === state.currentSection;
-            const isCompletedSection =
-              state.currentIndex > idx ||
-              (isCompleted && state.currentIndex === -1);
-
-            return (
-              <SectionDot
-                key={section}
-                section={section}
-                isActive={isCurrentSection}
-                isCompleted={isCompletedSection}
-                status={state.status}
-              />
-            );
-          })}
-        </div>
-      )}
-
-      {/* Completion message */}
-      {isCompleted && (
-        <div
-          className="text-sm text-[var(--text-secondary)] text-center py-2"
-          role="status"
-        >
-          Study complete
-        </div>
-      )}
-
-      {/* Aria-live region for screen reader announcements */}
-      <div
-        role="status"
-        aria-live="polite"
-        aria-atomic="true"
-        className="sr-only"
-      >
+      {/* Aria-live region */}
+      <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
         {announcement}
       </div>
     </div>

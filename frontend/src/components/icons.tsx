@@ -366,6 +366,28 @@ export function BookOpenIcon({ className = "w-6 h-6" }: IconProps) {
   );
 }
 
+/** Study mode icon: open book with play badge overlay */
+export function StudyModeIcon({ className = "w-6 h-6" }: IconProps) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      viewBox="0 0 24 24"
+    >
+      {/* Open book - same as BookOpenIcon */}
+      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+      {/* Play badge - bottom right */}
+      <circle cx="19" cy="17" r="4" fill="currentColor" stroke="none" />
+      <polygon points="17.5,15.5 17.5,18.5 20.5,17" fill="var(--surface-page, white)" stroke="none" />
+    </svg>
+  );
+}
+
 export function MailIcon({ className = "w-6 h-6" }: IconProps) {
   return (
     <svg
