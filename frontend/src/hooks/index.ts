@@ -51,5 +51,11 @@ export {
   PRELOAD_THRESHOLD_VERSES,
 } from "./useCrossChapterPreload";
 export type { CrossChapterPreloadConfig } from "./useCrossChapterPreload";
+export {
+  useAudioCached,
+  useAudioCacheStatus,
+  formatBytes,
+} from "./useAudioCache";
+export type { AudioCacheStatus } from "./useAudioCache";
 // Re-export audio types for convenience
 export type { AudioState, PlaybackSpeed } from "../components/audio";
