@@ -661,8 +661,8 @@ class TestNewsletterEmails:
         mock_resend = MagicMock()
         mock_resend.Emails.send.return_value = {"id": "email-123"}
 
-        with patch("services.email._get_resend", return_value=mock_resend):
-            with patch("services.email.settings") as mock_settings:
+        with patch("services.email.service._get_resend", return_value=mock_resend):
+            with patch("services.email.service.settings") as mock_settings:
                 mock_settings.CONTACT_EMAIL_FROM = "noreply@geetanjali.app"
 
                 from services.email import send_newsletter_verification_email
@@ -681,7 +681,7 @@ class TestNewsletterEmails:
 
     def test_send_verification_email_no_service(self):
         """Test verification email returns False when service unavailable."""
-        with patch("services.email._get_resend", return_value=None):
+        with patch("services.email.service._get_resend", return_value=None):
             from services.email import send_newsletter_verification_email
 
             result = send_newsletter_verification_email(
@@ -697,8 +697,8 @@ class TestNewsletterEmails:
         mock_resend = MagicMock()
         mock_resend.Emails.send.return_value = {"id": "welcome-123"}
 
-        with patch("services.email._get_resend", return_value=mock_resend):
-            with patch("services.email.settings") as mock_settings:
+        with patch("services.email.service._get_resend", return_value=mock_resend):
+            with patch("services.email.service.settings") as mock_settings:
                 mock_settings.CONTACT_EMAIL_FROM = "noreply@geetanjali.app"
 
                 from services.email import send_newsletter_welcome_email
@@ -718,8 +718,8 @@ class TestNewsletterEmails:
         mock_resend = MagicMock()
         mock_resend.Emails.send.return_value = {"id": "welcome-456"}
 
-        with patch("services.email._get_resend", return_value=mock_resend):
-            with patch("services.email.settings") as mock_settings:
+        with patch("services.email.service._get_resend", return_value=mock_resend):
+            with patch("services.email.service.settings") as mock_settings:
                 mock_settings.CONTACT_EMAIL_FROM = "noreply@geetanjali.app"
 
                 from services.email import send_newsletter_welcome_email

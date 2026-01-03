@@ -13,20 +13,20 @@ class TestEmailService:
 
     def test_get_resend_without_api_key(self):
         """Test _get_resend returns None when API key not configured."""
-        with patch("services.email.settings") as mock_settings:
+        with patch("services.email.service.settings") as mock_settings:
             mock_settings.RESEND_API_KEY = None
 
             # Reset global client
-            import services.email
+            import services.email.service as email_service
 
-            services.email._resend_client = None
+            email_service._resend_client = None
 
-            result = services.email._get_resend()
+            result = email_service._get_resend()
             assert result is None
 
     def test_send_contact_email_no_service(self):
         """Test contact email returns False when service unavailable."""
-        with patch("services.email._get_resend", return_value=None):
+        with patch("services.email.service._get_resend", return_value=None):
             from services.email import send_contact_email
 
             result = send_contact_email(
@@ -43,8 +43,8 @@ class TestEmailService:
         """Test contact email returns False when email config incomplete."""
         mock_resend = MagicMock()
 
-        with patch("services.email._get_resend", return_value=mock_resend):
-            with patch("services.email.settings") as mock_settings:
+        with patch("services.email.service._get_resend", return_value=mock_resend):
+            with patch("services.email.service.settings") as mock_settings:
                 mock_settings.CONTACT_EMAIL_TO = None
                 mock_settings.CONTACT_EMAIL_FROM = None
 
@@ -65,8 +65,8 @@ class TestEmailService:
         mock_resend = MagicMock()
         mock_resend.Emails.send.return_value = {"id": "test-email-id"}
 
-        with patch("services.email._get_resend", return_value=mock_resend):
-            with patch("services.email.settings") as mock_settings:
+        with patch("services.email.service._get_resend", return_value=mock_resend):
+            with patch("services.email.service.settings") as mock_settings:
                 mock_settings.CONTACT_EMAIL_TO = "admin@example.com"
                 mock_settings.CONTACT_EMAIL_FROM = "noreply@example.com"
 
@@ -85,7 +85,7 @@ class TestEmailService:
 
     def test_send_password_reset_email_no_service(self):
         """Test password reset email returns False when service unavailable."""
-        with patch("services.email._get_resend", return_value=None):
+        with patch("services.email.service._get_resend", return_value=None):
             from services.email import send_password_reset_email
 
             result = send_password_reset_email(
@@ -100,8 +100,8 @@ class TestEmailService:
         mock_resend = MagicMock()
         mock_resend.Emails.send.return_value = {"id": "reset-email-id"}
 
-        with patch("services.email._get_resend", return_value=mock_resend):
-            with patch("services.email.settings") as mock_settings:
+        with patch("services.email.service._get_resend", return_value=mock_resend):
+            with patch("services.email.service.settings") as mock_settings:
                 mock_settings.CONTACT_EMAIL_FROM = "noreply@example.com"
 
                 from services.email import send_password_reset_email
@@ -119,8 +119,8 @@ class TestEmailService:
         mock_resend = MagicMock()
         mock_resend.Emails.send.return_value = {"id": "alert-email-id"}
 
-        with patch("services.email._get_resend", return_value=mock_resend):
-            with patch("services.email.settings") as mock_settings:
+        with patch("services.email.service._get_resend", return_value=mock_resend):
+            with patch("services.email.service.settings") as mock_settings:
                 mock_settings.CONTACT_EMAIL_TO = "admin@example.com"
                 mock_settings.CONTACT_EMAIL_FROM = "alerts@example.com"
 
@@ -139,8 +139,8 @@ class TestEmailService:
         mock_resend = MagicMock()
         mock_resend.Emails.send.side_effect = Exception("API Error")
 
-        with patch("services.email._get_resend", return_value=mock_resend):
-            with patch("services.email.settings") as mock_settings:
+        with patch("services.email.service._get_resend", return_value=mock_resend):
+            with patch("services.email.service.settings") as mock_settings:
                 mock_settings.CONTACT_EMAIL_TO = "admin@example.com"
                 mock_settings.CONTACT_EMAIL_FROM = "noreply@example.com"
 
@@ -185,47 +185,47 @@ class TestEmailExceptions:
 
     def test_get_resend_or_raise_configuration_error(self):
         """Test _get_resend_or_raise raises EmailConfigurationError when not configured."""
-        import services.email
+        import services.email.service as email_service
         from services.email import EmailConfigurationError
 
         # Save original state
-        original_client = services.email._resend_client
-        original_error = services.email._resend_init_error
+        original_client = email_service._resend_client
+        original_error = email_service._resend_init_error
 
         # Reset global state to simulate unconfigured
-        services.email._resend_client = None
-        services.email._resend_init_error = "RESEND_API_KEY not configured"
+        email_service._resend_client = None
+        email_service._resend_init_error = "RESEND_API_KEY not configured"
 
         try:
             with pytest.raises(EmailConfigurationError) as exc_info:
-                services.email._get_resend_or_raise()
+                email_service._get_resend_or_raise()
             assert "not configured" in str(exc_info.value)
         finally:
             # Restore original state
-            services.email._resend_client = original_client
-            services.email._resend_init_error = original_error
+            email_service._resend_client = original_client
+            email_service._resend_init_error = original_error
 
     def test_get_resend_or_raise_unavailable_error(self):
         """Test _get_resend_or_raise raises EmailServiceUnavailable when library missing."""
-        import services.email
+        import services.email.service as email_service
         from services.email import EmailServiceUnavailable
 
         # Save original state
-        original_client = services.email._resend_client
-        original_error = services.email._resend_init_error
+        original_client = email_service._resend_client
+        original_error = email_service._resend_init_error
 
         # Reset global state to simulate library not installed
-        services.email._resend_client = None
-        services.email._resend_init_error = "Resend library not installed"
+        email_service._resend_client = None
+        email_service._resend_init_error = "Resend library not installed"
 
         try:
             with pytest.raises(EmailServiceUnavailable) as exc_info:
-                services.email._get_resend_or_raise()
+                email_service._get_resend_or_raise()
             assert "not installed" in str(exc_info.value)
         finally:
             # Restore original state
-            services.email._resend_client = original_client
-            services.email._resend_init_error = original_error
+            email_service._resend_client = original_client
+            email_service._resend_init_error = original_error
 
 
 class TestDigestEmailFailures:
@@ -296,8 +296,8 @@ class TestDigestEmailFailures:
         mock_resend = MagicMock()
         mock_resend.Emails.send.side_effect = Exception("Rate limited")
 
-        with patch("services.email._get_resend_or_raise", return_value=mock_resend):
-            with patch("services.email.settings") as mock_settings:
+        with patch("services.email.service._get_resend_or_raise", return_value=mock_resend):
+            with patch("services.email.service.settings") as mock_settings:
                 mock_settings.CONTACT_EMAIL_FROM = "noreply@example.com"
 
                 from services.email import send_newsletter_digest_email
@@ -329,8 +329,8 @@ class TestDigestEmailFailures:
         mock_resend = MagicMock()
         mock_resend.Emails.send.return_value = {"id": "digest-email-id"}
 
-        with patch("services.email._get_resend_or_raise", return_value=mock_resend):
-            with patch("services.email.settings") as mock_settings:
+        with patch("services.email.service._get_resend_or_raise", return_value=mock_resend):
+            with patch("services.email.service.settings") as mock_settings:
                 mock_settings.CONTACT_EMAIL_FROM = "noreply@example.com"
 
                 from services.email import send_newsletter_digest_email
@@ -364,7 +364,7 @@ class TestAccountVerificationEmail:
 
     def test_send_account_verification_email_no_service(self):
         """Test verification email returns False when service unavailable."""
-        with patch("services.email._get_resend", return_value=None):
+        with patch("services.email.service._get_resend", return_value=None):
             from services.email import send_account_verification_email
 
             result = send_account_verification_email(
@@ -380,8 +380,8 @@ class TestAccountVerificationEmail:
         mock_resend = MagicMock()
         mock_resend.Emails.send.return_value = {"id": "verify-email-id"}
 
-        with patch("services.email._get_resend", return_value=mock_resend):
-            with patch("services.email.settings") as mock_settings:
+        with patch("services.email.service._get_resend", return_value=mock_resend):
+            with patch("services.email.service.settings") as mock_settings:
                 mock_settings.CONTACT_EMAIL_FROM = "noreply@example.com"
 
                 from services.email import send_account_verification_email
@@ -400,8 +400,8 @@ class TestAccountVerificationEmail:
         mock_resend = MagicMock()
         mock_resend.Emails.send.side_effect = Exception("API Error")
 
-        with patch("services.email._get_resend", return_value=mock_resend):
-            with patch("services.email.settings") as mock_settings:
+        with patch("services.email.service._get_resend", return_value=mock_resend):
+            with patch("services.email.service.settings") as mock_settings:
                 mock_settings.CONTACT_EMAIL_FROM = "noreply@example.com"
 
                 from services.email import send_account_verification_email
@@ -420,7 +420,7 @@ class TestPasswordChangedEmail:
 
     def test_send_password_changed_email_no_service(self):
         """Test password changed email returns False when service unavailable."""
-        with patch("services.email._get_resend", return_value=None):
+        with patch("services.email.service._get_resend", return_value=None):
             from services.email import send_password_changed_email
 
             result = send_password_changed_email(
@@ -435,8 +435,8 @@ class TestPasswordChangedEmail:
         mock_resend = MagicMock()
         mock_resend.Emails.send.return_value = {"id": "password-changed-id"}
 
-        with patch("services.email._get_resend", return_value=mock_resend):
-            with patch("services.email.settings") as mock_settings:
+        with patch("services.email.service._get_resend", return_value=mock_resend):
+            with patch("services.email.service.settings") as mock_settings:
                 mock_settings.CONTACT_EMAIL_FROM = "noreply@example.com"
 
                 from services.email import send_password_changed_email
@@ -454,8 +454,8 @@ class TestPasswordChangedEmail:
         mock_resend = MagicMock()
         mock_resend.Emails.send.side_effect = Exception("API Error")
 
-        with patch("services.email._get_resend", return_value=mock_resend):
-            with patch("services.email.settings") as mock_settings:
+        with patch("services.email.service._get_resend", return_value=mock_resend):
+            with patch("services.email.service.settings") as mock_settings:
                 mock_settings.CONTACT_EMAIL_FROM = "noreply@example.com"
 
                 from services.email import send_password_changed_email
@@ -473,7 +473,7 @@ class TestAccountDeletedEmail:
 
     def test_send_account_deleted_email_no_service(self):
         """Test account deleted email returns False when service unavailable."""
-        with patch("services.email._get_resend", return_value=None):
+        with patch("services.email.service._get_resend", return_value=None):
             from services.email import send_account_deleted_email
 
             result = send_account_deleted_email(
@@ -488,8 +488,8 @@ class TestAccountDeletedEmail:
         mock_resend = MagicMock()
         mock_resend.Emails.send.return_value = {"id": "account-deleted-id"}
 
-        with patch("services.email._get_resend", return_value=mock_resend):
-            with patch("services.email.settings") as mock_settings:
+        with patch("services.email.service._get_resend", return_value=mock_resend):
+            with patch("services.email.service.settings") as mock_settings:
                 mock_settings.CONTACT_EMAIL_FROM = "noreply@example.com"
 
                 from services.email import send_account_deleted_email
@@ -507,8 +507,8 @@ class TestAccountDeletedEmail:
         mock_resend = MagicMock()
         mock_resend.Emails.send.side_effect = Exception("API Error")
 
-        with patch("services.email._get_resend", return_value=mock_resend):
-            with patch("services.email.settings") as mock_settings:
+        with patch("services.email.service._get_resend", return_value=mock_resend):
+            with patch("services.email.service.settings") as mock_settings:
                 mock_settings.CONTACT_EMAIL_FROM = "noreply@example.com"
 
                 from services.email import send_account_deleted_email
