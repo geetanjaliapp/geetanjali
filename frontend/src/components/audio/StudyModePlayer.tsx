@@ -119,9 +119,9 @@ export function StudyModePlayer({
       // Notify parent to expand corresponding UI section
       onSectionChange?.(state.currentSection);
 
-      // Announce for screen readers
+      // Announce for screen readers (setState is intentional for a11y sync)
       if (state.currentSection) {
-        setAnnouncement(`Now playing: ${SECTION_LABELS[state.currentSection]}`);
+        setAnnouncement(`Now playing: ${SECTION_LABELS[state.currentSection]}`); // eslint-disable-line react-hooks/set-state-in-effect
       } else if (state.status === "completed") {
         setAnnouncement("Study mode complete");
       }

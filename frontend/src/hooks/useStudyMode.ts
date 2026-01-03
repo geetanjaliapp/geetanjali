@@ -13,60 +13,73 @@
  * - Visual progress tracking
  */
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef, useLayoutEffect } from "react";
 import { useAudioPlayer } from "../components/audio";
 import { useTTSContext } from "../contexts/TTSContext";
 import type { Verse, Translation } from "../types";
+
+// ============================================================================
+// Types
+// ============================================================================
 
 /** Section types in playback order */
 export type StudySection = "sanskrit" | "english" | "hindi" | "insight";
 
 /** Study mode states */
-export type StudyModeStatus = "idle" | "playing" | "paused" | "gap" | "completed";
+export type StudyModeStatus =
+  | "idle"
+  | "playing"
+  | "paused"
+  | "gap"
+  | "completed";
 
 /** Section order for playback */
-const SECTION_ORDER: StudySection[] = ["sanskrit", "english", "hindi", "insight"];
+const SECTION_ORDER: StudySection[] = [
+  "sanskrit",
+  "english",
+  "hindi",
+  "insight",
+];
 
 /** Gap duration between sections (ms) */
 const SECTION_GAP_MS = 1500;
 
 export interface StudyModeState {
-  /** Current status */
   status: StudyModeStatus;
-  /** Currently playing/paused section */
   currentSection: StudySection | null;
-  /** Sections available for this verse */
   availableSections: StudySection[];
-  /** Index of current section in availableSections */
   currentIndex: number;
 }
 
 export interface StudyModeConfig {
-  /** Verse to study */
   verse: Verse;
-  /** Translations fetched from API (for Hindi/English) */
   translations?: Translation[];
-  /** Callback when study mode completes */
   onComplete?: () => void;
 }
 
 export interface StudyModeControls {
-  /** Current state */
   state: StudyModeState;
-  /** Start study mode */
   start: () => void;
-  /** Stop study mode */
   stop: () => void;
-  /** Pause current section */
   pause: () => void;
-  /** Resume paused section */
   resume: () => void;
-  /** Whether study mode can be started (has at least one section) */
   canStart: boolean;
 }
 
+/** Human-readable section labels */
+export const SECTION_LABELS: Record<StudySection, string> = {
+  sanskrit: "Sanskrit",
+  english: "English",
+  hindi: "Hindi",
+  insight: "Insight",
+};
+
+// ============================================================================
+// Helper Functions
+// ============================================================================
+
 /**
- * Get text content for a section
+ * Get text content for a section (used for TTS)
  */
 function getSectionText(
   section: StudySection,
@@ -75,7 +88,7 @@ function getSectionText(
 ): string | null {
   switch (section) {
     case "sanskrit":
-      return null; // Sanskrit uses audio, not TTS
+      return null; // Sanskrit uses pre-recorded audio, not TTS
     case "english": {
       const englishTranslation = translations?.find(
         (t) => t.language === "en" || t.language === "english"
@@ -103,32 +116,31 @@ function getAvailableSections(
   translations?: Translation[]
 ): StudySection[] {
   return SECTION_ORDER.filter((section) => {
-    switch (section) {
-      case "sanskrit":
-        return !!verse.audio_url;
-      case "english":
-        return !!getSectionText("english", verse, translations);
-      case "hindi":
-        return !!getSectionText("hindi", verse, translations);
-      case "insight":
-        return !!getSectionText("insight", verse, translations);
-      default:
-        return false;
+    if (section === "sanskrit") {
+      return !!verse.audio_url;
     }
+    return !!getSectionText(section, verse, translations);
   });
 }
+
+// ============================================================================
+// Hook Implementation
+// ============================================================================
 
 export function useStudyMode(config: StudyModeConfig): StudyModeControls {
   const { verse, translations, onComplete } = config;
 
-  // External dependencies
+  // External audio dependencies
   const audioPlayer = useAudioPlayer();
   const tts = useTTSContext();
 
-  // Compute available sections
+  // Compute available sections for this verse
   const availableSections = getAvailableSections(verse, translations);
 
+  // -------------------------------------------------------------------------
   // State
+  // -------------------------------------------------------------------------
+
   const [state, setState] = useState<StudyModeState>({
     status: "idle",
     currentSection: null,
@@ -136,35 +148,42 @@ export function useStudyMode(config: StudyModeConfig): StudyModeControls {
     currentIndex: -1,
   });
 
-  // Refs for cleanup and tracking
+  // -------------------------------------------------------------------------
+  // Refs for tracking and cleanup
+  // -------------------------------------------------------------------------
+
   const gapTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isActiveRef = useRef(false);
   const isPausedRef = useRef(false);
 
-  // Update available sections when verse/translations change
-  useEffect(() => {
-    const newSections = getAvailableSections(verse, translations);
-    setState((prev) => ({
-      ...prev,
-      availableSections: newSections,
-    }));
-  }, [verse.canonical_id, translations]);
+  // Stable refs for config and sections to avoid stale closures in callbacks
+  const configRef = useRef({ verse, translations, onComplete });
+  const sectionsRef = useRef(availableSections);
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (gapTimeoutRef.current) {
-        clearTimeout(gapTimeoutRef.current);
-      }
-    };
-  }, []);
+  // Sync refs after render (useLayoutEffect ensures callbacks see fresh values)
+  useLayoutEffect(() => {
+    configRef.current = { verse, translations, onComplete };
+    sectionsRef.current = availableSections;
+  });
+
+  // -------------------------------------------------------------------------
+  // Core Playback Logic
+  // -------------------------------------------------------------------------
 
   /**
-   * Play a specific section
+   * Play a specific section by index
+   * Uses refs to avoid circular dependencies
    */
-  const playSection = useCallback(
-    async (section: StudySection, index: number) => {
+  const playSectionByIndex = useCallback(
+    (index: number) => {
       if (!isActiveRef.current) return;
+
+      const sections = sectionsRef.current;
+      if (index < 0 || index >= sections.length) return;
+
+      const section = sections[index];
+      const { verse: currentVerse, translations: currentTranslations } =
+        configRef.current;
 
       setState((prev) => ({
         ...prev,
@@ -173,99 +192,113 @@ export function useStudyMode(config: StudyModeConfig): StudyModeControls {
         currentIndex: index,
       }));
 
-      try {
-        if (section === "sanskrit") {
-          // Play pre-recorded Sanskrit audio
-          if (verse.audio_url) {
-            audioPlayer.play(verse.canonical_id, verse.audio_url);
-          }
-        } else {
-          // Use TTS for other sections
-          const text = getSectionText(section, verse, translations);
-          if (text) {
-            const lang = section === "hindi" ? "hi" : "en";
-            await tts.speak(text, { lang });
-          }
+      // Start playback based on section type
+      if (section === "sanskrit") {
+        if (currentVerse.audio_url) {
+          audioPlayer.play(currentVerse.canonical_id, currentVerse.audio_url);
         }
-      } catch (error) {
-        console.error(`[StudyMode] Error playing ${section}:`, error);
-        // Continue to next section on error
-        advanceToNextSection(index);
+      } else {
+        const text = getSectionText(section, currentVerse, currentTranslations);
+        if (text) {
+          const lang = section === "hindi" ? "hi" : "en";
+          tts.speak(text, { lang }).catch((error) => {
+            console.error(`[StudyMode] TTS error for ${section}:`, error);
+            // Error handling is done via effects watching TTS state
+          });
+        }
       }
     },
-    [verse, translations, audioPlayer, tts]
+    [audioPlayer, tts]
   );
 
   /**
-   * Advance to the next section (or complete)
+   * Advance to the next section after current one completes
    */
-  const advanceToNextSection = useCallback(
-    (currentIndex: number) => {
-      if (!isActiveRef.current) return;
+  const advanceToNextSection = useCallback(() => {
+    if (!isActiveRef.current) return;
 
-      const nextIndex = currentIndex + 1;
+    setState((prev) => {
+      const nextIndex = prev.currentIndex + 1;
+      const sections = sectionsRef.current;
 
-      if (nextIndex >= state.availableSections.length) {
+      if (nextIndex >= sections.length) {
         // Study mode complete
         isActiveRef.current = false;
-        setState((prev) => ({
+        configRef.current.onComplete?.();
+        return {
           ...prev,
-          status: "completed",
+          status: "completed" as const,
           currentSection: null,
           currentIndex: -1,
-        }));
-        onComplete?.();
-        return;
+        };
       }
 
-      // Show gap state
-      setState((prev) => ({
+      // Enter gap state before next section
+      return {
         ...prev,
-        status: "gap",
-      }));
+        status: "gap" as const,
+      };
+    });
+  }, []);
 
-      // Wait for gap, then play next section
-      gapTimeoutRef.current = setTimeout(() => {
-        if (isActiveRef.current && !isPausedRef.current) {
-          const nextSection = state.availableSections[nextIndex];
-          playSection(nextSection, nextIndex);
-        }
-      }, SECTION_GAP_MS);
-    },
-    [state.availableSections, playSection, onComplete]
-  );
+  // -------------------------------------------------------------------------
+  // Gap Timer: Play next section after gap
+  // -------------------------------------------------------------------------
 
-  // Listen for Sanskrit audio completion
   useEffect(() => {
-    if (
-      state.status === "playing" &&
-      state.currentSection === "sanskrit" &&
-      audioPlayer.state === "completed"
-    ) {
-      advanceToNextSection(state.currentIndex);
+    if (state.status !== "gap") return;
+
+    const nextIndex = state.currentIndex + 1;
+    const sections = sectionsRef.current;
+
+    if (nextIndex >= sections.length) return;
+
+    gapTimeoutRef.current = setTimeout(() => {
+      if (isActiveRef.current && !isPausedRef.current) {
+        playSectionByIndex(nextIndex);
+      }
+    }, SECTION_GAP_MS);
+
+    return () => {
+      if (gapTimeoutRef.current) {
+        clearTimeout(gapTimeoutRef.current);
+      }
+    };
+  }, [state.status, state.currentIndex, playSectionByIndex]);
+
+  // -------------------------------------------------------------------------
+  // Audio Completion Detection
+  // -------------------------------------------------------------------------
+
+  // Sanskrit audio completion (via AudioPlayer)
+  useEffect(() => {
+    const isSanskritPlaying =
+      state.status === "playing" && state.currentSection === "sanskrit";
+
+    if (isSanskritPlaying && audioPlayer.state === "completed") {
+      advanceToNextSection();
     }
   }, [
     audioPlayer.state,
     state.status,
     state.currentSection,
-    state.currentIndex,
     advanceToNextSection,
   ]);
 
-  // Listen for TTS completion (for non-Sanskrit sections)
+  // TTS completion (for English, Hindi, Insight)
   useEffect(() => {
-    if (
+    const isTTSSection =
       state.status === "playing" &&
-      state.currentSection !== "sanskrit" &&
       state.currentSection !== null &&
-      tts.currentText === null &&
-      tts.loadingText === null
-    ) {
-      // TTS finished, advance to next section
+      state.currentSection !== "sanskrit";
+
+    const isTTSIdle = tts.currentText === null && tts.loadingText === null;
+
+    if (isTTSSection && isTTSIdle) {
       // Small delay to ensure TTS truly completed
       const timer = setTimeout(() => {
         if (isActiveRef.current && state.status === "playing") {
-          advanceToNextSection(state.currentIndex);
+          advanceToNextSection();
         }
       }, 100);
       return () => clearTimeout(timer);
@@ -275,15 +308,40 @@ export function useStudyMode(config: StudyModeConfig): StudyModeControls {
     tts.loadingText,
     state.status,
     state.currentSection,
-    state.currentIndex,
     advanceToNextSection,
   ]);
 
-  /**
-   * Start study mode
-   */
+  // -------------------------------------------------------------------------
+  // Update available sections when verse changes
+  // -------------------------------------------------------------------------
+
+  useEffect(() => {
+    const newSections = getAvailableSections(verse, translations);
+    setState((prev) => ({
+      ...prev,
+      availableSections: newSections,
+    }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Only recompute when verse ID changes, not on every verse object reference
+  }, [verse.canonical_id, translations]);
+
+  // -------------------------------------------------------------------------
+  // Cleanup on unmount
+  // -------------------------------------------------------------------------
+
+  useEffect(() => {
+    return () => {
+      if (gapTimeoutRef.current) {
+        clearTimeout(gapTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // -------------------------------------------------------------------------
+  // Public Controls
+  // -------------------------------------------------------------------------
+
   const start = useCallback(() => {
-    if (availableSections.length === 0) return;
+    if (sectionsRef.current.length === 0) return;
 
     // Stop any existing audio
     audioPlayer.stop();
@@ -294,25 +352,22 @@ export function useStudyMode(config: StudyModeConfig): StudyModeControls {
       clearTimeout(gapTimeoutRef.current);
     }
 
+    // Activate study mode
     isActiveRef.current = true;
     isPausedRef.current = false;
 
     // Start with first section
-    const firstSection = availableSections[0];
-    playSection(firstSection, 0);
+    playSectionByIndex(0);
 
-    // Track analytics
+    // Analytics
     if (window.umami) {
       window.umami.track("study_mode_start", {
-        verse: verse.canonical_id,
-        sections: availableSections.length,
+        verse: configRef.current.verse.canonical_id,
+        sections: sectionsRef.current.length,
       });
     }
-  }, [availableSections, verse.canonical_id, audioPlayer, tts, playSection]);
+  }, [audioPlayer, tts, playSectionByIndex]);
 
-  /**
-   * Stop study mode
-   */
   const stop = useCallback(() => {
     isActiveRef.current = false;
     isPausedRef.current = false;
@@ -327,18 +382,17 @@ export function useStudyMode(config: StudyModeConfig): StudyModeControls {
     setState({
       status: "idle",
       currentSection: null,
-      availableSections,
+      availableSections: sectionsRef.current,
       currentIndex: -1,
     });
 
     if (window.umami) {
-      window.umami.track("study_mode_stop", { verse: verse.canonical_id });
+      window.umami.track("study_mode_stop", {
+        verse: configRef.current.verse.canonical_id,
+      });
     }
-  }, [availableSections, verse.canonical_id, audioPlayer, tts]);
+  }, [audioPlayer, tts]);
 
-  /**
-   * Pause study mode
-   */
   const pause = useCallback(() => {
     if (state.status !== "playing") return;
 
@@ -347,7 +401,7 @@ export function useStudyMode(config: StudyModeConfig): StudyModeControls {
     if (state.currentSection === "sanskrit") {
       audioPlayer.pause();
     } else {
-      tts.stop(); // TTS doesn't support pause, must stop and restart
+      tts.stop(); // TTS doesn't support pause, must stop
     }
 
     setState((prev) => ({
@@ -356,9 +410,6 @@ export function useStudyMode(config: StudyModeConfig): StudyModeControls {
     }));
   }, [state.status, state.currentSection, audioPlayer, tts]);
 
-  /**
-   * Resume study mode
-   */
   const resume = useCallback(() => {
     if (state.status !== "paused" || state.currentSection === null) return;
 
@@ -371,15 +422,25 @@ export function useStudyMode(config: StudyModeConfig): StudyModeControls {
         status: "playing",
       }));
     } else {
-      // For TTS, need to restart the section
-      playSection(state.currentSection, state.currentIndex);
+      // TTS must restart the section
+      playSectionByIndex(state.currentIndex);
     }
-  }, [state.status, state.currentSection, state.currentIndex, audioPlayer, playSection]);
+  }, [
+    state.status,
+    state.currentSection,
+    state.currentIndex,
+    audioPlayer,
+    playSectionByIndex,
+  ]);
+
+  // -------------------------------------------------------------------------
+  // Return
+  // -------------------------------------------------------------------------
 
   return {
     state: {
       ...state,
-      availableSections, // Always return current available sections
+      availableSections, // Always return fresh available sections
     },
     start,
     stop,
@@ -388,11 +449,3 @@ export function useStudyMode(config: StudyModeConfig): StudyModeControls {
     canStart: availableSections.length > 0,
   };
 }
-
-/** Human-readable section labels */
-export const SECTION_LABELS: Record<StudySection, string> = {
-  sanskrit: "Sanskrit",
-  english: "English",
-  hindi: "Hindi",
-  insight: "Insight",
-};
