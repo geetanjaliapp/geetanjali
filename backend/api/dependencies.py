@@ -9,9 +9,6 @@ from slowapi import Limiter
 from slowapi.util import get_remote_address
 from sqlalchemy.orm import Session
 
-from config import settings
-
-logger = logging.getLogger(__name__)
 from api.errors import (
     ERR_AUTH_REQUIRED,
     ERR_CASE_ACCESS_DENIED,
@@ -20,17 +17,20 @@ from api.errors import (
     ERR_OUTPUT_NOT_FOUND,
     validation_error,
 )
-from services.content_filter import ContentPolicyError, validate_submission_content
 from api.middleware.auth import (
     get_optional_user,
     get_session_id,
     user_can_access_resource,
 )
+from config import settings
 from db.connection import get_db
 from db.repositories.case_repository import CaseRepository
 from models.case import Case, CaseStatus
 from models.output import Output
 from models.user import User
+from services.content_filter import ContentPolicyError, validate_submission_content
+
+logger = logging.getLogger(__name__)
 
 # Public exports
 __all__ = [
