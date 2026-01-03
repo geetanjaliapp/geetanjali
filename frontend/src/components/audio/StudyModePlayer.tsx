@@ -9,6 +9,7 @@
  * Used by: VerseDetail page
  */
 
+import { useEffect, useRef, useState } from "react";
 import { BookOpenIcon, StopIcon, PlayIcon, PauseIcon } from "../icons";
 import {
   useStudyMode,
@@ -25,6 +26,8 @@ interface StudyModePlayerProps {
   translations?: Translation[];
   /** Callback when study mode completes */
   onComplete?: () => void;
+  /** Callback when current section changes (for parent to expand corresponding UI section) */
+  onSectionChange?: (section: StudySection | null) => void;
 }
 
 /** Section indicator dot */
@@ -96,12 +99,34 @@ export function StudyModePlayer({
   verse,
   translations,
   onComplete,
+  onSectionChange,
 }: StudyModePlayerProps) {
   const { state, start, stop, pause, resume, canStart } = useStudyMode({
     verse,
     translations,
     onComplete,
   });
+
+  // Aria-live announcement for section changes
+  const [announcement, setAnnouncement] = useState("");
+  const prevSectionRef = useRef<StudySection | null>(null);
+
+  // Notify parent and announce when section changes
+  useEffect(() => {
+    if (state.currentSection !== prevSectionRef.current) {
+      prevSectionRef.current = state.currentSection;
+
+      // Notify parent to expand corresponding UI section
+      onSectionChange?.(state.currentSection);
+
+      // Announce for screen readers
+      if (state.currentSection) {
+        setAnnouncement(`Now playing: ${SECTION_LABELS[state.currentSection]}`);
+      } else if (state.status === "completed") {
+        setAnnouncement("Study mode complete");
+      }
+    }
+  }, [state.currentSection, state.status, onSectionChange]);
 
   const isActive =
     state.status === "playing" ||
@@ -222,11 +247,20 @@ export function StudyModePlayer({
         <div
           className="text-sm text-[var(--text-secondary)] text-center py-2"
           role="status"
-          aria-live="polite"
         >
           Study complete
         </div>
       )}
+
+      {/* Aria-live region for screen reader announcements */}
+      <div
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className="sr-only"
+      >
+        {announcement}
+      </div>
     </div>
   );
 }

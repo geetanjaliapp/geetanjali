@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   useParams,
   useNavigate,
@@ -43,7 +43,7 @@ import {
   StudyModePlayer,
 } from "../components/audio";
 import { errorMessages } from "../lib/errorMessages";
-import { useSEO, useAdjacentVerses, useFavoritesPrefs } from "../hooks";
+import { useSEO, useAdjacentVerses, useFavoritesPrefs, type StudySection } from "../hooks";
 import { STORAGE_KEYS, getStorageItem, setStorageItem } from "../lib/storage";
 
 type FontSize = "normal" | "large";
@@ -127,6 +127,30 @@ export default function VerseDetail() {
     setSectionPrefs(newPrefs);
     setStorageItem(STORAGE_KEYS.verseDetailSectionPrefs, newPrefs);
   };
+
+  // Expand corresponding UI section when Study Mode plays a section
+  const handleStudySectionChange = useCallback(
+    (section: StudySection | null) => {
+      if (!section) return;
+
+      // Map study sections to UI sections
+      const sectionMap: Partial<Record<StudySection, keyof SectionPrefs>> = {
+        english: "translations",
+        hindi: "translations",
+        insight: "insight",
+        // sanskrit: no UI section to expand (always visible)
+      };
+
+      const uiSection = sectionMap[section];
+      if (uiSection && !sectionPrefs[uiSection]) {
+        // Expand the section if not already expanded
+        const newPrefs = { ...sectionPrefs, [uiSection]: true };
+        setSectionPrefs(newPrefs);
+        setStorageItem(STORAGE_KEYS.verseDetailSectionPrefs, newPrefs);
+      }
+    },
+    [sectionPrefs]
+  );
 
   // Favorites (synced across devices for logged-in users)
   const { isFavorite, toggleFavorite } = useFavoritesPrefs();
@@ -645,6 +669,7 @@ export default function VerseDetail() {
                     <StudyModePlayer
                       verse={verse}
                       translations={translations}
+                      onSectionChange={handleStudySectionChange}
                     />
                   </div>
                 )}
