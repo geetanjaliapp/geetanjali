@@ -1,18 +1,17 @@
 """Tests for API error response builders."""
 
-import pytest
 from fastapi import status
 
 from api.errors import (
-    not_found,
-    validation_error,
+    ERR_AUTH_REQUIRED,
     bad_request,
-    unauthorized,
-    forbidden,
     conflict,
+    forbidden,
+    not_found,
     rate_limited,
     server_error,
-    ERR_AUTH_REQUIRED,
+    unauthorized,
+    validation_error,
 )
 
 

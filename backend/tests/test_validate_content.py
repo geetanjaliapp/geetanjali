@@ -1,8 +1,9 @@
 """Tests for validate_content helper function."""
 
-import pytest
-from fastapi import status, HTTPException
 from unittest.mock import patch
+
+import pytest
+from fastapi import HTTPException, status
 
 from api.dependencies import validate_content
 
