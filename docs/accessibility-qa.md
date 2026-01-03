@@ -1,10 +1,16 @@
-# Accessibility QA Checklist
+---
+layout: default
+title: Accessibility QA
+description: Manual testing procedures for accessibility validation alongside automated tests.
+---
 
-This document provides manual testing procedures for accessibility validation. Use alongside automated axe-core tests in CI.
+# Accessibility QA
+
+Manual testing procedures for screen readers, keyboard navigation, and WCAG compliance. Use alongside automated axe-core tests in CI.
 
 ---
 
-## Quick Reference
+## Overview
 
 | Test | Tool | Frequency | Automated |
 |------|------|-----------|-----------|
@@ -15,9 +21,9 @@ This document provides manual testing procedures for accessibility validation. U
 
 ---
 
-## Automated Testing (CI)
+## Automated Testing
 
-Our CI runs `vitest-axe` tests on critical components:
+CI runs `vitest-axe` tests on critical components:
 
 - Modal
 - MobileDrawer
@@ -27,69 +33,80 @@ Our CI runs `vitest-axe` tests on critical components:
 - SyncStatusIndicator
 
 **Run locally:**
+
 ```bash
-npm run test:run -- "a11y"
+npm test -- --run "a11y"
 ```
 
-**Known Limitations:**
+**Known limitations:**
+
 - ChapterSelector uses `role="grid"` with button children (keyboard nav works, semantic structure deferred)
 
 ---
 
-## VoiceOver Testing (macOS)
+## VoiceOver (macOS)
 
 ### Setup
 
-1. **Enable VoiceOver**: ⌘ + F5
-2. **VoiceOver keys (VO)**: Ctrl + Option
-3. **Navigate**: VO + Arrow keys
-4. **Activate**: VO + Space
-5. **Web rotor**: VO + U
-
-### Critical Paths Checklist
-
-#### Navigation
-- [ ] Tab through navbar links - each announced with name
-- [ ] Mobile menu button announces "Menu" or similar
-- [ ] Menu items announce link text
-
-#### Modals & Drawers
-- [ ] **Open modal**: Focus moves INTO modal
-- [ ] **Tab in modal**: Focus stays trapped in modal
-- [ ] **Escape**: Modal closes
-- [ ] **After close**: Focus returns to trigger element
-- [ ] Modal announced as "dialog"
-
-#### Chapter Selector (Reading Mode)
-- [ ] Opens as dialog
-- [ ] Current chapter announced with "current"
-- [ ] Arrow keys navigate grid
-- [ ] Enter selects chapter
-
-#### Audio Player
-- [ ] Play/pause button state announced
-- [ ] Volume slider accessible
-- [ ] Progress can be adjusted
-
-#### Sync Status
-- [ ] Status changes announced (via `role="status"`)
-- [ ] "Syncing", "Synced", "Offline" states clear
-
----
-
-## NVDA Testing (Windows)
-
-### Setup
-
-1. **Download**: https://nvaccess.org
-2. **Enable**: Ctrl + Alt + N
-3. **Browse mode**: NVDA + Space (toggles)
-4. **Navigate**: Tab, arrows
-5. **Element list**: NVDA + F7
+| Action | Keys |
+|--------|------|
+| Enable VoiceOver | ⌘ + F5 |
+| VoiceOver modifier (VO) | Ctrl + Option |
+| Navigate | VO + Arrow keys |
+| Activate | VO + Space |
+| Web rotor | VO + U |
 
 ### Checklist
 
-Same as VoiceOver checklist above. Key differences:
+**Navigation**
+
+- Tab through navbar links — each announced with name
+- Mobile menu button announces "Menu" or similar
+- Menu items announce link text
+
+**Modals & Drawers**
+
+- Open modal: focus moves INTO modal
+- Tab in modal: focus stays trapped
+- Escape: modal closes
+- After close: focus returns to trigger element
+- Modal announced as "dialog"
+
+**Chapter Selector**
+
+- Opens as dialog
+- Current chapter announced with "current"
+- Arrow keys navigate grid
+- Enter selects chapter
+
+**Audio Player**
+
+- Play/pause button state announced
+- Progress slider accessible
+- Speed control announced
+
+**Sync Status**
+
+- Status changes announced via `role="status"`
+- States clear: "Syncing", "Synced", "Offline"
+
+---
+
+## NVDA (Windows)
+
+### Setup
+
+| Action | Keys |
+|--------|------|
+| Download | [nvaccess.org](https://nvaccess.org) |
+| Enable | Ctrl + Alt + N |
+| Toggle browse/focus mode | NVDA + Space |
+| Navigate | Tab, arrows |
+| Element list | NVDA + F7 |
+
+### Checklist
+
+Same as VoiceOver above. Key differences:
 
 - NVDA uses "browse mode" vs "focus mode"
 - Toggle with NVDA + Space when forms don't respond
@@ -99,17 +116,16 @@ Same as VoiceOver checklist above. Key differences:
 
 ## Keyboard-Only Testing
 
-### Requirements
+Test without mouse — Tab, Enter, Space, Arrow keys, Escape only.
 
-Test without mouse - Tab, Enter, Space, Arrow keys, Escape only.
+### Global Requirements
 
-#### Global
-- [ ] All interactive elements reachable via Tab
-- [ ] Tab order matches visual order (top-to-bottom, left-to-right)
-- [ ] Focus indicator visible on all elements
-- [ ] No keyboard traps (except intentional modal traps)
+- All interactive elements reachable via Tab
+- Tab order matches visual order (top-to-bottom, left-to-right)
+- Focus indicator visible on all elements
+- No keyboard traps (except intentional modal traps)
 
-#### Specific Components
+### Component Shortcuts
 
 | Component | Keys | Expected |
 |-----------|------|----------|
@@ -122,21 +138,22 @@ Test without mouse - Tab, Enter, Space, Arrow keys, Escape only.
 | Dropdown menus | Arrow Down/Up | Navigate items |
 | Dropdown menus | Escape | Close menu |
 
-#### Focus Indicators
+### Focus Indicators
 
-Check these components have visible focus rings:
-- [ ] Buttons (primary, secondary, ghost)
-- [ ] Links
-- [ ] Form inputs
-- [ ] Chapter buttons
-- [ ] Audio controls
-- [ ] Modal close button
+Verify visible focus rings on:
+
+- Buttons (primary, secondary, ghost)
+- Links
+- Form inputs
+- Chapter buttons
+- Audio controls
+- Modal close button
 
 ---
 
-## Testing by User Journey
+## User Journey Tests
 
-### 1. First Visit (Guest)
+### Guest Visit
 
 1. Land on home page
 2. Tab to "Seek Guidance" CTA
@@ -146,7 +163,7 @@ Check these components have visible focus rings:
 6. Play audio
 7. Share verse
 
-### 2. Reading Mode
+### Reading Mode
 
 1. Open reading mode
 2. Navigate between verses (prev/next)
@@ -155,7 +172,7 @@ Check these components have visible focus rings:
 5. Use audio controls
 6. Open Dhyanam
 
-### 3. Account Flow
+### Account Flow
 
 1. Open user menu
 2. Navigate menu items
@@ -165,7 +182,7 @@ Check these components have visible focus rings:
 
 ---
 
-## Common Issues & Fixes
+## Common Issues
 
 | Issue | Check | Fix |
 |-------|-------|-----|
@@ -179,12 +196,12 @@ Check these components have visible focus rings:
 
 ## Release Checklist
 
-Before each release, verify:
+Before each release:
 
-- [ ] All axe-core CI tests pass
-- [ ] VoiceOver tested on at least one critical path
-- [ ] Keyboard-only navigation works for main flows
-- [ ] No new WCAG 2.1 AA violations
+- All axe-core CI tests pass
+- VoiceOver tested on at least one critical path
+- Keyboard-only navigation works for main flows
+- No new WCAG 2.1 AA violations
 
 ---
 
