@@ -1125,5 +1125,5 @@ def validate_submission_content(title: str, description: str) -> None:
     combined_text = f"{title} {description}"
     result = check_blocklist(combined_text)
 
-    if result.is_violation:
-        raise ContentPolicyError(result.violation_type)  # type: ignore[arg-type]
+    if result.is_violation and result.violation_type is not None:
+        raise ContentPolicyError(result.violation_type)

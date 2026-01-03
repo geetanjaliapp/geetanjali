@@ -68,7 +68,7 @@ async def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    return user  # type: ignore[no-any-return]
+    return user
 
 
 async def get_optional_user(

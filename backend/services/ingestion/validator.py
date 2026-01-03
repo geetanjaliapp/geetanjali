@@ -270,7 +270,7 @@ class Validator:
         Returns:
             Verse object or None
         """
-        return self.db.query(Verse).filter_by(canonical_id=canonical_id).first()  # type: ignore[return-value]
+        return self.db.query(Verse).filter_by(canonical_id=canonical_id).first()
 
     def get_statistics(self) -> dict:
         """

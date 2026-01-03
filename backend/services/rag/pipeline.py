@@ -323,7 +323,7 @@ class RAGPipeline:
                 "model": model,
             }
             logger.info(f"Successfully parsed JSON response from {provider} ({model})")
-            return parsed_result, False  # type: ignore[return-value]
+            return parsed_result, False
 
         except ValueError as extraction_error:
             logger.error(f"JSON extraction failed: {extraction_error}")
@@ -340,7 +340,7 @@ class RAGPipeline:
                         response_text, retrieved_verses
                     )
                     logger.info("Post-processing fallback succeeded")
-                    return fallback_result, False  # type: ignore[return-value]
+                    return fallback_result, False
                 except Exception as pp_error:
                     logger.error(f"Post-processing fallback also failed: {pp_error}")
                     raise Exception(
