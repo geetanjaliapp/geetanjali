@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { Navbar } from "../components";
 import { errorMessages } from "../lib/errorMessages";
-import { useSEO } from "../hooks";
+import { useSEO, useAsyncAction } from "../hooks";
 
 export default function Signup() {
   useSEO({
@@ -19,12 +19,10 @@ export default function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const { loading, error, setError, execute } = useAsyncAction<boolean>();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
 
     if (password !== confirmPassword) {
       setError("Passwords do not match");
@@ -46,16 +44,14 @@ export default function Signup() {
       return;
     }
 
-    setLoading(true);
-
-    try {
-      await signup({ name, email, password });
-      navigate("/");
-    } catch (err) {
-      setError(errorMessages.signup(err));
-    } finally {
-      setLoading(false);
-    }
+    const success = await execute(
+      async () => {
+        await signup({ name, email, password });
+        return true;
+      },
+      errorMessages.signup,
+    );
+    if (success) navigate("/");
   };
 
   return (
