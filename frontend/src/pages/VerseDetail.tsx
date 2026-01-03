@@ -40,6 +40,7 @@ import {
   useAudioPlayer,
   AudioProgress,
   AudioSpeedControl,
+  StudyModePlayer,
 } from "../components/audio";
 import { errorMessages } from "../lib/errorMessages";
 import { useSEO, useAdjacentVerses, useFavoritesPrefs } from "../hooks";
@@ -635,6 +636,18 @@ export default function VerseDetail() {
                     </Link>
                   )}
                 </div>
+
+                {/* Study Mode - Sequential playback of all sections */}
+                {(verse.audio_url ||
+                  verse.paraphrase_en ||
+                  translations.length > 0) && (
+                  <div className="mt-4 flex justify-center">
+                    <StudyModePlayer
+                      verse={verse}
+                      translations={translations}
+                    />
+                  </div>
+                )}
               </div>
             )}
 

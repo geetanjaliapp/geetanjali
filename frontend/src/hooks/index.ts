@@ -38,5 +38,13 @@ export type {
   UseAutoAdvanceConfig,
   UseAutoAdvanceReturn,
 } from "./useAutoAdvance";
+export { useStudyMode, SECTION_LABELS } from "./useStudyMode";
+export type {
+  StudySection,
+  StudyModeStatus,
+  StudyModeState,
+  StudyModeConfig,
+  StudyModeControls,
+} from "./useStudyMode";
 // Re-export audio types for convenience
 export type { AudioState, PlaybackSpeed } from "../components/audio";

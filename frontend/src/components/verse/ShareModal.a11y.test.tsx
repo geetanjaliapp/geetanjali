@@ -11,16 +11,15 @@ vi.mock("./ImageCardGenerator", () => ({
 
 describe("ShareModal accessibility", () => {
   const mockVerse = {
-    id: 1,
+    id: "verse-1",
     chapter: 2,
     verse: 47,
-    canonical_id: "2.47",
-    sanskrit: "कर्मण्येवाधिकारस्ते मा फलेषु कदाचन",
-    word_meanings: "karmaṇi—work; eva—only",
-    transliteration: "karmaṇy evādhikāras te",
-    translations: {
-      english: "You have a right to perform your prescribed duties.",
-    },
+    canonical_id: "BG_2_47",
+    sanskrit_devanagari: "कर्मण्येवाधिकारस्ते मा फलेषु कदाचन",
+    sanskrit_iast: "karmaṇy evādhikāras te",
+    translation_en: "You have a right to perform your prescribed duties.",
+    paraphrase_en: "Focus on your work, not the fruits.",
+    created_at: "2024-01-01T00:00:00Z",
   };
 
   const defaultProps = {
@@ -57,6 +56,8 @@ describe("ShareModal accessibility", () => {
       <ShareModal
         {...defaultProps}
         hindiTranslation={{
+          id: "trans-1",
+          verse_id: "verse-1",
           language: "hindi",
           text: "कर्म में ही तुम्हारा अधिकार है",
         }}

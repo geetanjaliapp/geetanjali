@@ -44,7 +44,7 @@ describe("UserMenu accessibility", () => {
       <UserMenu
         {...defaultProps}
         isAuthenticated={true}
-        user={{ id: "1", email: "test@example.com", name: "Test User" }}
+        user={{ email: "test@example.com", name: "Test User" }}
       />
     );
 

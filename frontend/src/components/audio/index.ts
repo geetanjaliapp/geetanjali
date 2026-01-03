@@ -16,6 +16,7 @@ export { AudioProgress } from "./AudioProgress";
 export { AudioSpeedControl } from "./AudioSpeedControl";
 export { MiniPlayer } from "./MiniPlayer";
 export { FloatingAudioBar } from "./FloatingAudioBar";
+export { StudyModePlayer } from "./StudyModePlayer";
 export {
   formatTime,
   formatVerseId,
