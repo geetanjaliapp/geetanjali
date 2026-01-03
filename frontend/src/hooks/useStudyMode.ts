@@ -17,6 +17,7 @@ import { useState, useCallback, useEffect, useRef, useLayoutEffect } from "react
 import { useAudioPlayer } from "../components/audio";
 import { useTTSContext } from "../contexts/TTSContext";
 import { prepareHindiTTS, prepareEnglishTTS } from "../lib/ttsPreprocess";
+import { versesApi } from "../lib/api";
 import type { Verse, Translation } from "../types";
 
 // ============================================================================
@@ -60,11 +61,12 @@ export interface StudyModeConfig {
 
 export interface StudyModeControls {
   state: StudyModeState;
-  start: () => void;
+  start: () => Promise<void>;
   stop: () => void;
   pause: () => void;
   resume: () => void;
   canStart: boolean;
+  isLoadingTranslations: boolean;
 }
 
 /** Human-readable section labels */
@@ -138,12 +140,38 @@ function getAvailableSections(
 // Hook Implementation
 // ============================================================================
 
+// Module-level cache for translations (persists across component instances)
+// Uses LRU-style eviction to prevent unbounded growth
+const MAX_CACHE_SIZE = 50;
+const translationsCache = new Map<string, Translation[]>();
+
+function setCacheWithEviction(key: string, value: Translation[]) {
+  // Delete first to reset insertion order (Map maintains insertion order)
+  translationsCache.delete(key);
+  if (translationsCache.size >= MAX_CACHE_SIZE) {
+    const firstKey = translationsCache.keys().next().value;
+    if (firstKey) translationsCache.delete(firstKey);
+  }
+  translationsCache.set(key, value);
+}
+
 export function useStudyMode(config: StudyModeConfig): StudyModeControls {
-  const { verse, translations, onComplete } = config;
+  const { verse, translations: externalTranslations, onComplete } = config;
 
   // External audio dependencies
   const audioPlayer = useAudioPlayer();
   const tts = useTTSContext();
+
+  // -------------------------------------------------------------------------
+  // Internal Translation Fetching (when not provided externally)
+  // -------------------------------------------------------------------------
+
+  const [internalTranslations, setInternalTranslations] = useState<Translation[] | null>(null);
+  const [isLoadingTranslations, setIsLoadingTranslations] = useState(false);
+  const fetchAbortRef = useRef<AbortController | null>(null);
+
+  // Use external translations if provided, otherwise use internally fetched ones
+  const translations = externalTranslations ?? internalTranslations ?? undefined;
 
   // Compute available sections for this verse
   const availableSections = getAvailableSections(verse, translations);
@@ -351,15 +379,83 @@ export function useStudyMode(config: StudyModeConfig): StudyModeControls {
       if (gapTimeoutRef.current) {
         clearTimeout(gapTimeoutRef.current);
       }
+      // Cancel any pending translation fetch
+      if (fetchAbortRef.current) {
+        fetchAbortRef.current.abort();
+      }
     };
   }, []);
+
+  // Reset internal translations when verse changes
+  useEffect(() => {
+    setInternalTranslations(null);
+  }, [verse.canonical_id]);
+
+  // -------------------------------------------------------------------------
+  // Translation Fetching
+  // -------------------------------------------------------------------------
+
+  /**
+   * Fetch translations for the current verse (if not provided externally)
+   * Uses cache to avoid duplicate fetches
+   * @returns Fetched translations, or empty array on error
+   */
+  const fetchTranslations = useCallback(async (): Promise<Translation[]> => {
+    const verseId = verse.canonical_id;
+
+    // Check cache first (use get instead of has+get for atomic operation)
+    const cached = translationsCache.get(verseId);
+    if (cached) {
+      setInternalTranslations(cached);
+      return cached;
+    }
+
+    // Cancel any pending fetch
+    if (fetchAbortRef.current) {
+      fetchAbortRef.current.abort();
+    }
+    fetchAbortRef.current = new AbortController();
+
+    setIsLoadingTranslations(true);
+    try {
+      const data = await versesApi.getTranslations(verseId);
+      setCacheWithEviction(verseId, data);
+      setInternalTranslations(data);
+      return data;
+    } catch (error) {
+      if ((error as Error).name !== 'AbortError') {
+        console.error('[StudyMode] Failed to fetch translations:', error);
+      }
+      // Don't set internalTranslations on error - allows retry on next start()
+      return [];
+    } finally {
+      setIsLoadingTranslations(false);
+      fetchAbortRef.current = null;
+    }
+  }, [verse.canonical_id]);
 
   // -------------------------------------------------------------------------
   // Public Controls
   // -------------------------------------------------------------------------
 
-  const start = useCallback(() => {
-    if (sectionsRef.current.length === 0) return;
+  const start = useCallback(async () => {
+    const startVerseId = verse.canonical_id;
+
+    // If no external translations and none fetched yet, fetch first
+    if (!externalTranslations && !internalTranslations) {
+      const fetched = await fetchTranslations();
+
+      // Abort if verse changed during fetch
+      if (verse.canonical_id !== startVerseId) return;
+
+      // Recompute sections with fetched translations
+      const newSections = getAvailableSections(verse, fetched);
+      sectionsRef.current = newSections;
+      setState(prev => ({ ...prev, availableSections: newSections }));
+      if (newSections.length === 0) return;
+    } else if (sectionsRef.current.length === 0) {
+      return;
+    }
 
     // Stop any existing audio
     audioPlayer.stop();
@@ -384,7 +480,7 @@ export function useStudyMode(config: StudyModeConfig): StudyModeControls {
         sections: sectionsRef.current.length,
       });
     }
-  }, [audioPlayer, tts, playSectionByIndex]);
+  }, [audioPlayer, tts, playSectionByIndex, externalTranslations, internalTranslations, fetchTranslations, verse]);
 
   const stop = useCallback(() => {
     isActiveRef.current = false;
@@ -464,6 +560,7 @@ export function useStudyMode(config: StudyModeConfig): StudyModeControls {
     stop,
     pause,
     resume,
-    canStart: availableSections.length > 0,
+    canStart: availableSections.length > 0 || !externalTranslations, // Can start if sections exist OR if we can fetch translations
+    isLoadingTranslations,
   };
 }

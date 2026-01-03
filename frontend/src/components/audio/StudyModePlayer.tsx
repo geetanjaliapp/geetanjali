@@ -15,6 +15,7 @@ import {
   PlayIcon,
   CheckIcon,
   CloseIcon,
+  SpinnerIcon,
 } from "../icons";
 import {
   useStudyMode,
@@ -40,7 +41,7 @@ export function StudyModePlayer({
   onComplete,
   onSectionChange,
 }: StudyModePlayerProps) {
-  const { state, start, stop, pause, resume, canStart } = useStudyMode({
+  const { state, start, stop, pause, resume, canStart, isLoadingTranslations } = useStudyMode({
     verse,
     translations,
     onComplete,
@@ -85,9 +86,18 @@ export function StudyModePlayer({
     state.status === "gap";
   const isPaused = state.status === "paused";
 
-  // Don't render if no sections available
+  // Don't render if no sections available and no translations to fetch
   if (!canStart && !isActive && state.status !== "completed") {
     return null;
+  }
+
+  // Loading state: show spinner while fetching translations
+  if (isLoadingTranslations) {
+    return (
+      <div className="p-3 sm:p-2 text-[var(--text-muted)]">
+        <SpinnerIcon className="w-5 h-5 sm:w-6 sm:h-6 animate-spin" />
+      </div>
+    );
   }
 
   // Idle or completion-faded state: show study button
@@ -96,7 +106,7 @@ export function StudyModePlayer({
       <>
         <button
           onClick={start}
-          disabled={!canStart}
+          disabled={!canStart || isLoadingTranslations}
           className="p-3 sm:p-2 rounded-full transition-all
             text-[var(--text-muted)] hover:text-[var(--interactive-primary)] hover:bg-[var(--surface-muted)]
             focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]
