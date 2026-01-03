@@ -633,6 +633,23 @@ export function StopIcon({ className = "w-5 h-5" }: IconProps) {
   );
 }
 
+export function SkipForwardIcon({ className = "w-5 h-5" }: IconProps) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      viewBox="0 0 24 24"
+    >
+      <polygon points="5 4 15 12 5 20 5 4" fill="currentColor" stroke="none" />
+      <line x1="19" y1="5" x2="19" y2="19" />
+    </svg>
+  );
+}
+
 /**
  * Map goal ID directly to icon component (bypasses API icon field)
  */

@@ -25,6 +25,7 @@ import {
   RepeatIcon,
   AlertCircleIcon,
   CheckIcon,
+  SkipForwardIcon,
 } from "../icons";
 import type { AutoAdvanceMode } from "../../hooks/useAutoAdvance";
 
@@ -78,6 +79,10 @@ interface AutoAdvanceMiniPlayerProps extends MiniPlayerProps {
   singlePlayMode?: boolean;
   /** Callback to exit single-play mode */
   onExitSinglePlay?: () => void;
+  /** Continuous playback: auto-advance to next chapter (Phase 1.19.0) */
+  continuousPlayback?: boolean;
+  /** Callback to toggle continuous playback */
+  onToggleContinuousPlayback?: () => void;
 }
 
 /** Type guard to check if props include auto-advance features */
@@ -641,6 +646,40 @@ export function MiniPlayer(
               <span className="sr-only">{isLooping ? "(on)" : "(off)"}</span>
             </button>
           )}
+
+          {/* Continuous Playback Toggle - only show when in auto-advance mode */}
+          {isAutoAdvanceProps(props) &&
+            props.autoAdvanceMode === "audio" &&
+            props.onToggleContinuousPlayback && (
+              <button
+                onClick={props.onToggleContinuousPlayback}
+                aria-label={
+                  props.continuousPlayback
+                    ? "Disable continuous playback to next chapter"
+                    : "Enable continuous playback to next chapter"
+                }
+                aria-pressed={props.continuousPlayback}
+                title={
+                  props.continuousPlayback
+                    ? "Continuous: ON - Will auto-advance to next chapter"
+                    : "Continuous: OFF - Stops at chapter end"
+                }
+                className={`
+                  p-2.5 -m-1 sm:p-1.5 sm:m-0 rounded-[var(--radius-button)] transition-[var(--transition-button)]
+                  focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]
+                  ${
+                    props.continuousPlayback
+                      ? "text-[var(--interactive-primary)] bg-[var(--interactive-primary)]/10"
+                      : "text-[var(--text-reading-tertiary)] hover:text-[var(--text-reading-secondary)] hover:bg-[var(--interactive-reading-hover-bg)]"
+                  }
+                `}
+              >
+                <SkipForwardIcon className="w-4 h-4" />
+                <span className="sr-only">
+                  {props.continuousPlayback ? "(on)" : "(off)"}
+                </span>
+              </button>
+            )}
         </div>
       </div>
 
