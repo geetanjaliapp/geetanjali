@@ -34,7 +34,9 @@ export interface ReadingSettings {
   fontSize: "small" | "medium" | "large";
 }
 
-export type FontSize = "small" | "medium" | "large";
+// FontSize is now in types/index.ts - import for local use and re-export
+import type { FontSize } from "../types";
+export type { FontSize };
 export type Theme = "light" | "dark" | "system";
 export type FontFamily = "serif" | "sans" | "mixed";
 

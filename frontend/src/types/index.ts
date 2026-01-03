@@ -1,3 +1,8 @@
+// Common UI Types
+
+/** Font size options for reading mode */
+export type FontSize = "small" | "medium" | "large";
+
 // API Response Types based on project-description.md
 
 export type CaseStatus =

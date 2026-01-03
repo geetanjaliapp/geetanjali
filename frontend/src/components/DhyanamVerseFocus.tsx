@@ -13,10 +13,10 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { SpeakButton } from "./SpeakButton";
-import type { GeetaDhyanamVerse } from "../types";
+import type { GeetaDhyanamVerse, FontSize } from "../types";
 
-/** Font size options for Sanskrit text */
-export type FontSize = "small" | "medium" | "large";
+// Re-export for potential external usage
+export type { FontSize };
 
 /** Section identifiers for collapsible content */
 type SectionId = "iast" | "english" | "hindi";

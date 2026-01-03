@@ -26,10 +26,10 @@ import {
   STORAGE_KEYS,
 } from "../lib/storage";
 import { prepareHindiTTS, prepareEnglishTTS } from "../lib/ttsPreprocess";
-import type { Verse, Translation } from "../types";
+import type { Verse, Translation, FontSize } from "../types";
 
-/** Font size options for Sanskrit text */
-export type FontSize = "small" | "medium" | "large";
+// Re-export for backward compatibility (IntroCard imports from here)
+export type { FontSize };
 
 /** Section identifiers for collapsible content */
 type SectionId = "iast" | "insight" | "hindi" | "english";
