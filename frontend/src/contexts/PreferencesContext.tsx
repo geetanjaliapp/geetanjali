@@ -30,7 +30,7 @@ import {
 import { useAuth } from "./AuthContext";
 import { useTaxonomy } from "../hooks/useTaxonomy";
 import { syncEngine, type SyncState } from "../lib/syncEngine";
-import { preferencesStorage, type ReadingPosition, type FontSize } from "../lib/preferencesStorage";
+import { preferencesStorage, type ReadingPosition, type ReadingSettings, type FontSize } from "../lib/preferencesStorage";
 import { STORAGE_KEYS } from "../lib/storage";
 import type { Goal, Principle } from "../lib/api";
 
@@ -39,10 +39,6 @@ import type { Goal, Principle } from "../lib/api";
 // ============================================================================
 
 const MAX_FAVORITES = 100;
-
-interface ReadingSettings {
-  fontSize: FontSize;
-}
 
 interface GoalsState {
   selectedIds: string[];
@@ -508,13 +504,13 @@ export function PreferencesProvider({ children }: PreferencesProviderProps) {
     }
 
     setReadingPosition(null);
-    setReadingSettings({ fontSize: "medium" });
+    setReadingSettings({ fontSize: "regular" });
 
     if (isAuthenticated) {
       syncEngine.update("reading", {
         chapter: undefined,
         verse: undefined,
-        font_size: "medium",
+        font_size: "regular",
       });
     }
   }, [isAuthenticated]);
