@@ -2,6 +2,21 @@
 
 All notable changes to Geetanjali are documented here.
 
+## [1.19.2] - 2026-01-03
+
+Dependency upgrades.
+
+### Dependencies
+- **vitest**: 3.1.4 → 4.0.16 (major version upgrade, memory leak from 3.2.x resolved)
+- **fastapi**: 0.127.0 → 0.128.0
+- **@tanstack/react-virtual**: 3.13.13 → 3.13.14
+- **jsdom**: 27.3.0 → 27.4.0
+- **actions/setup-node**: 4 → 6
+- **actions/upload-artifact**: 4 → 6
+
+### Fixes
+- Add `node` to tsconfig types for vitest 4.x compatibility
+
 ## [1.19.1] - 2026-01-03
 
 Post-release fixes for v1.19.0.
