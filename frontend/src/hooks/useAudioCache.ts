@@ -27,9 +27,11 @@ export interface AudioCacheStatus {
 
 /**
  * Check if Service Worker is available and controlling the page
+ * Guards against SSR where navigator is undefined
  */
 function isServiceWorkerReady(): boolean {
   return (
+    typeof navigator !== "undefined" &&
     "serviceWorker" in navigator &&
     navigator.serviceWorker.controller !== null
   );
@@ -82,7 +84,7 @@ export function useAudioCached(audioUrl: string | null | undefined): {
   const [isChecking, setIsChecking] = useState(false);
 
   useEffect(() => {
-    if (!audioUrl) {
+    if (!audioUrl || typeof caches === "undefined") {
       setIsCached(false);
       return;
     }
