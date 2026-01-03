@@ -1,7 +1,7 @@
 """Tests for validate_content helper function."""
 
 import pytest
-from fastapi import status
+from fastapi import status, HTTPException
 from unittest.mock import patch
 
 from api.dependencies import validate_content
@@ -34,7 +34,7 @@ class TestValidateContent:
             error = ContentPolicyError(ViolationType.SPAM_GIBBERISH)
             mock_validate.side_effect = error
 
-            with pytest.raises(Exception) as exc_info:
+            with pytest.raises(HTTPException) as exc_info:
                 validate_content("title", "description")
 
             assert exc_info.value.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
@@ -51,7 +51,7 @@ class TestValidateContent:
                     ViolationType.PROFANITY_ABUSE
                 )
 
-                with pytest.raises(Exception):
+                with pytest.raises(HTTPException):
                     validate_content(
                         "title",
                         "description",
@@ -75,7 +75,7 @@ class TestValidateContent:
                     ViolationType.SPAM_GIBBERISH
                 )
 
-                with pytest.raises(Exception):
+                with pytest.raises(HTTPException):
                     validate_content("title", "description")
 
                 call_args = mock_logger.warning.call_args
