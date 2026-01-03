@@ -18,7 +18,9 @@ from api.errors import (
     ERR_CASE_NOT_FOUND,
     ERR_OUTPUT_ACCESS_DENIED,
     ERR_OUTPUT_NOT_FOUND,
+    validation_error,
 )
+from services.content_filter import ContentPolicyError, validate_submission_content
 from api.middleware.auth import (
     get_optional_user,
     get_session_id,
@@ -38,10 +40,48 @@ __all__ = [
     "get_case_with_auth",
     "get_output_with_access",
     "get_session_id",  # Re-exported from api.middleware.auth
+    "validate_content",
 ]
 
 # Shared rate limiter instance for all API modules
 limiter = Limiter(key_func=get_remote_address)
+
+
+def validate_content(
+    title: str,
+    description: str,
+    *,
+    context: str = "submission",
+    **log_extra: str | int,
+) -> None:
+    """
+    Validate content against content policy, raising HTTPException on violation.
+
+    This is a convenience wrapper around validate_submission_content that handles
+    the ContentPolicyError -> HTTPException conversion with consistent logging.
+
+    Args:
+        title: Title/subject text to validate
+        description: Description/body text to validate
+        context: Context label for logging (e.g., "submission", "follow-up", "contact")
+        **log_extra: Additional fields to include in log extra dict (e.g., case_id="...")
+
+    Raises:
+        HTTPException 422: If content violates content policy
+
+    Example:
+        validate_content(case_data.title, case_data.description)
+        validate_content("", message.content, context="follow-up", case_id=case.id)
+    """
+    try:
+        validate_submission_content(title, description)
+    except ContentPolicyError as e:
+        extra = {"violation_type": e.violation_type.value, **log_extra}
+        logger.warning(
+            f"Content policy violation in {context} (type={e.violation_type.value})",
+            extra=extra,
+        )
+        raise validation_error(e.message)
 
 
 def verify_admin_api_key(
