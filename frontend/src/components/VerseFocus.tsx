@@ -481,7 +481,7 @@ export function VerseFocus({
           ) : (
             // Translations display with collapsible sections
             <div className="space-y-3">
-              {/* IAST (Romanized Sanskrit) */}
+              {/* IAST (Romanized Sanskrit) - stays with Sanskrit content */}
               {verse.sanskrit_iast && (
                 <CollapsibleSection
                   id="iast"
@@ -496,23 +496,26 @@ export function VerseFocus({
                 </CollapsibleSection>
               )}
 
-              {/* Leadership Insight (Paraphrase) */}
-              {verse.paraphrase_en && (
+              {/* Order below matches Study Mode: English → Hindi → Insight */}
+
+              {/* English translation */}
+              {englishTranslation && (
                 <CollapsibleSection
-                  id="insight"
-                  label="Leadership Insight"
-                  isExpanded={sectionPrefs.insight}
+                  id="english"
+                  label="English"
+                  subtitle={englishTranslation.translator}
+                  isExpanded={sectionPrefs.english}
                   onToggle={toggleSection}
-                  bgClass="bg-linear-to-br from-[var(--gradient-warm-from)] to-[var(--gradient-warm-to)]"
+                  bgClass="bg-[var(--surface-warm-subtle)]"
                   speakText={prepareEnglishTTS(
-                    verse.paraphrase_en,
+                    englishTranslation.text,
                     verse.chapter,
                     verse.verse,
                   )}
                   speakLang="en"
                 >
                   <p className="text-base text-[var(--text-primary)] leading-relaxed">
-                    {verse.paraphrase_en}
+                    {englishTranslation.text}
                   </p>
                 </CollapsibleSection>
               )}
@@ -542,24 +545,23 @@ export function VerseFocus({
                 </CollapsibleSection>
               )}
 
-              {/* English translation */}
-              {englishTranslation && (
+              {/* Leadership Insight (Paraphrase) - culmination */}
+              {verse.paraphrase_en && (
                 <CollapsibleSection
-                  id="english"
-                  label="English"
-                  subtitle={englishTranslation.translator}
-                  isExpanded={sectionPrefs.english}
+                  id="insight"
+                  label="Leadership Insight"
+                  isExpanded={sectionPrefs.insight}
                   onToggle={toggleSection}
-                  bgClass="bg-[var(--surface-warm-subtle)]"
+                  bgClass="bg-linear-to-br from-[var(--gradient-warm-from)] to-[var(--gradient-warm-to)]"
                   speakText={prepareEnglishTTS(
-                    englishTranslation.text,
+                    verse.paraphrase_en,
                     verse.chapter,
                     verse.verse,
                   )}
                   speakLang="en"
                 >
                   <p className="text-base text-[var(--text-primary)] leading-relaxed">
-                    {englishTranslation.text}
+                    {verse.paraphrase_en}
                   </p>
                 </CollapsibleSection>
               )}
