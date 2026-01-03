@@ -2,6 +2,21 @@
 
 All notable changes to Geetanjali are documented here.
 
+## [1.19.1] - 2026-01-03
+
+Post-release fixes for v1.19.0.
+
+### Fixes
+- **Audio Cache Status** - Listen for SW `controllerchange` event to show cache status on first visit
+- **Rollup Circular Dependencies** - Use direct imports instead of barrel files to resolve chunk circular dependencies
+
+### Improvements
+- **Reading Mode Section Order** - Align VerseFocus sections with Study Mode (English → Hindi → Insight)
+- **Reading Mode Navigation** - Move "Explore this verse" link above fold (symmetric with VerseDetail)
+
+### Chores
+- Remove verbose SW audio cache console logs
+
 ## [1.19.0] - 2026-01-03
 
 Audio experience and offline capabilities release with Study Mode, cross-chapter preloading, and PWA audio caching.
