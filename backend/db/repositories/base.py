@@ -1,21 +1,19 @@
 """Base repository class."""
 
-from typing import Generic, Protocol, TypeVar
+from typing import Any, Generic, TypeVar
 
 from sqlalchemy.orm import Session
 
+from models.base import Base
 
-class HasID(Protocol):
-    """Protocol for models with an id attribute."""
-
-    id: str
-
-
-ModelType = TypeVar("ModelType", bound=HasID)
+# TypeVar bound to SQLAlchemy Base for proper model typing
+ModelType = TypeVar("ModelType", bound=Base)
 
 
 class BaseRepository(Generic[ModelType]):
     """Base repository for common database operations."""
+
+    model: type[ModelType]
 
     def __init__(self, model: type[ModelType], db: Session):
         """
@@ -38,7 +36,11 @@ class BaseRepository(Generic[ModelType]):
         Returns:
             Record or None if not found
         """
-        return self.db.query(self.model).filter(self.model.id == id).first()  # type: ignore[arg-type]
+        # Use getattr to access id column dynamically (works with any model)
+        id_column: Any = getattr(self.model, "id", None)
+        if id_column is None:
+            return None
+        return self.db.query(self.model).filter(id_column == id).first()
 
     def get_all(self, skip: int = 0, limit: int = 100) -> list[ModelType]:
         """

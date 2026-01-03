@@ -8,7 +8,7 @@ from db.repositories.base import BaseRepository
 from models.user import User
 
 
-class UserRepository(BaseRepository):
+class UserRepository(BaseRepository[User]):
     """Repository for user CRUD operations."""
 
     def __init__(self, db: Session):
@@ -60,7 +60,7 @@ class UserRepository(BaseRepository):
             "role": role,
             "email_verified": False,
         }
-        result: User = self.create(user_data)  # type: ignore[assignment]
+        result: User = self.create(user_data)
         return result
 
     def get_by_reset_token_id(self, token_id: str) -> User | None:

@@ -6,7 +6,7 @@ from db.repositories.base import BaseRepository
 from models import DhyanamVerse
 
 
-class DhyanamRepository(BaseRepository[DhyanamVerse]):  # type: ignore[type-var]
+class DhyanamRepository(BaseRepository[DhyanamVerse]):
     """Repository for Geeta Dhyanam verse operations."""
 
     def __init__(self, db: Session):
