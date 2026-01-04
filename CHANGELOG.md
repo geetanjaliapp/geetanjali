@@ -2,6 +2,31 @@
 
 All notable changes to Geetanjali are documented here.
 
+## [1.21.1] - 2026-01-04
+
+Bug fix release addressing audio playback reliability and preference sync issues.
+
+### Fixed
+
+- **Audio Playback Reliability** - Fixed "random audio stopping with network error" during playback
+  - Root cause: Preloading populated browser HTTP cache, but Service Worker checked its own cache (cache layer mismatch)
+  - Preloading now directly populates Service Worker audio cache
+  - Added request deduplication to prevent race conditions from concurrent fetches
+  - Cache operations now synchronous to ensure availability for duplicate requests
+- **Auto-Retry for Network Errors** - Audio player now retries network errors (code 2) automatically
+  - Up to 2 retries with exponential backoff (1s, 3s)
+  - Shows "Network error, retrying..." during retry attempts
+  - Prevents auto-advance mode from stopping on transient failures
+- **Preference Sync on Page Unload** - Fixed CSRF validation failure on preference sync
+  - `sendBeacon` cannot send custom headers; replaced with `fetch` + `keepalive`
+  - Properly includes Authorization and X-CSRF-Token headers
+
+### Technical
+
+- All 481 frontend tests passing
+- Fixed memory leak in audio preload (event listener cleanup on timeout)
+- Fixed analytics retry_count logging (was always 0)
+
 ## [1.21.0] - 2026-01-04
 
 Performance optimization release targeting Core Web Vitals, particularly LCP on verse detail pages.
