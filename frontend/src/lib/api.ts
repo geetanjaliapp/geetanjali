@@ -49,9 +49,10 @@ const processQueue = (error: Error | null, token: string | null = null) => {
 };
 
 /**
- * Read CSRF token from cookie
+ * Read CSRF token from cookie.
+ * Exported for use by syncEngine's fetch+keepalive fallback.
  */
-function getCsrfToken(): string | null {
+export function getCsrfToken(): string | null {
   const match = document.cookie.match(/(?:^|;\s*)csrf_token=([^;]*)/);
   return match ? decodeURIComponent(match[1]) : null;
 }

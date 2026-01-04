@@ -31,7 +31,9 @@
  */
 
 import type { LocalPreferences, UserPreferences, PreferencesUpdate } from "../types";
-import { preferencesApi } from "./api";
+import { preferencesApi, getCsrfToken } from "./api";
+import { tokenStorage } from "../api/auth";
+import { API_BASE_URL, API_V1_PREFIX } from "./config";
 
 // ============================================================================
 // TYPES
@@ -274,12 +276,38 @@ export class SyncEngine {
 
     const handleUnload = () => {
       log("page unload, flushing");
-      // Use sendBeacon for reliability on unload
-      if (this.queue.size > 0 && navigator.sendBeacon) {
+      // Use fetch with keepalive for reliability on unload
+      // (sendBeacon cannot send custom headers like X-CSRF-Token)
+      if (this.queue.size > 0) {
         const batch = this.captureQueue();
         const data = JSON.stringify(this.buildUpdatePayload(batch));
-        navigator.sendBeacon("/api/v1/users/me/preferences", data);
-        log("sendBeacon dispatched");
+        const url = `${API_BASE_URL}${API_V1_PREFIX}/users/me/preferences`;
+
+        // Build headers with auth and CSRF tokens
+        const headers: Record<string, string> = {
+          "Content-Type": "application/json",
+        };
+        const token = tokenStorage.getToken();
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+        const csrfToken = getCsrfToken();
+        if (csrfToken) {
+          headers["X-CSRF-Token"] = csrfToken;
+        }
+
+        // fetch with keepalive survives page unload like sendBeacon,
+        // but allows custom headers for proper authentication
+        fetch(url, {
+          method: "PUT",
+          keepalive: true,
+          credentials: "include",
+          headers,
+          body: data,
+        }).catch(() => {
+          // Silently ignore errors on unload - nothing we can do
+        });
+        log("keepalive fetch dispatched");
       }
     };
 
