@@ -379,11 +379,11 @@ export function VerseFocus({
       <div className="shrink-0 relative">
         {/* Absolute-positioned action buttons (top-right) - matches VerseDetail */}
         <div className="absolute top-0 right-0 z-10 flex items-center gap-1">
-          {/* Play button */}
+          {/* Play button - p-3 on mobile for 44px touch target (20px icon + 24px padding) */}
           {verse.audio_url && (
             <button
               onClick={handlePlayClick}
-              className={`p-2 rounded-full transition-[var(--transition-all)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${
+              className={`p-3 sm:p-2 rounded-full transition-[var(--transition-all)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${
                 isPlaying
                   ? "text-[var(--interactive-primary)] bg-[var(--interactive-primary)]/10"
                   : "text-[var(--text-muted)] hover:text-[var(--interactive-primary)] hover:bg-[var(--surface-muted)]"
@@ -438,13 +438,13 @@ export function VerseFocus({
 
           {/* Verse reference with Heart + Share flanking - matches VerseDetail */}
           <div className="flex items-center justify-center gap-2 sm:gap-4 mb-2">
-            {/* Favorite button */}
+            {/* Favorite button - p-3 on mobile for 44px touch target */}
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 toggleFavorite(verse.canonical_id);
               }}
-              className={`p-2 rounded-[var(--radius-avatar)] transition-[var(--transition-all)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${
+              className={`p-3 sm:p-2 rounded-[var(--radius-avatar)] transition-[var(--transition-all)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${
                 isFavorite(verse.canonical_id)
                   ? "text-[var(--icon-favorite)]"
                   : "text-[var(--text-muted)] hover:text-[var(--icon-favorite)] hover:scale-110"
@@ -466,13 +466,13 @@ export function VerseFocus({
               ॥ {verse.chapter}.{verse.verse} ॥
             </span>
 
-            {/* Share button */}
+            {/* Share button - p-3 on mobile for 44px touch target */}
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 setShowShareModal(true);
               }}
-              className="p-2 rounded-[var(--radius-avatar)] transition-[var(--transition-all)] text-[var(--text-muted)] hover:text-[var(--text-accent)] hover:scale-110 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+              className="p-3 sm:p-2 rounded-[var(--radius-avatar)] transition-[var(--transition-all)] text-[var(--text-muted)] hover:text-[var(--text-accent)] hover:scale-110 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
               aria-label="Share verse"
             >
               <ShareIcon className="w-5 h-5" />
