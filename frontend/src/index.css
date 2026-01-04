@@ -1,4 +1,10 @@
 @import 'tailwindcss';
+
+/* Self-hosted fonts (v1.21.0 - Performance optimization) */
+/* Critical fonts loaded initially, theme fonts lazy-loaded on switch */
+@import './styles/fonts/devanagari.css';  /* Always: Sanskrit verse rendering */
+@import './styles/fonts/geetanjali.css';  /* Default theme: Spectral + Source Sans 3 */
+
 @import './styles/tokens/primitives.css';
 @import './styles/tokens/semantic.css';
 @import './styles/tokens/derived.css';

@@ -32,6 +32,7 @@ import {
 import { getThemeById, builtInThemes } from "../config/themes";
 import { THEME_FONTS, DEFAULT_FONT_FAMILY } from "../config/fonts";
 import { STORAGE_KEYS, setStorageItemRaw } from "../lib/storage";
+import { loadThemeFonts } from "../lib/fontLoader";
 import { useAuth } from "./AuthContext";
 import { syncEngine } from "../lib/syncEngine";
 
@@ -60,10 +61,10 @@ interface ThemeContextType {
   cycleTheme: () => void;
   /** Active custom theme (null = default) */
   customTheme: ThemeConfig | null;
-  /** Set custom theme by config */
-  setCustomTheme: (theme: ThemeConfig | null) => void;
-  /** Set custom theme by ID (built-in themes) */
-  setCustomThemeById: (id: string) => void;
+  /** Set custom theme by config (loads fonts before applying) */
+  setCustomTheme: (theme: ThemeConfig | null) => Promise<void>;
+  /** Set custom theme by ID (built-in themes, loads fonts before applying) */
+  setCustomThemeById: (id: string) => Promise<void>;
   /** Available built-in themes */
   availableThemes: ThemeConfig[];
   /** Current font family preference */
@@ -236,17 +237,20 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
         const newThemeId = event.newValue || "default";
         const currentThemeId = customThemeRef.current?.id ?? "default";
         if (newThemeId !== currentThemeId) {
-          if (newThemeId === "default") {
-            setCustomThemeState(null);
-            applyCustomTheme(null);
-          } else {
-            const newTheme = getThemeById(newThemeId);
-            if (newTheme) {
-              setCustomThemeState(newTheme);
-              applyCustomTheme(newTheme);
+          // Load fonts for cross-tab theme sync (fire-and-forget for storage events)
+          loadThemeFonts(newThemeId).then(() => {
+            if (newThemeId === "default") {
+              setCustomThemeState(null);
+              applyCustomTheme(null);
+            } else {
+              const newTheme = getThemeById(newThemeId);
+              if (newTheme) {
+                setCustomThemeState(newTheme);
+                applyCustomTheme(newTheme);
+              }
             }
-          }
-          applyThemeFonts(newThemeId);
+            applyThemeFonts(newThemeId);
+          });
         }
       }
 
@@ -297,9 +301,12 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
 
   // Set custom theme by config
   const setCustomTheme = useCallback(
-    (newTheme: ThemeConfig | null) => {
+    async (newTheme: ThemeConfig | null) => {
       const previousThemeId = customThemeRef.current?.id ?? "default";
       const newThemeId = newTheme?.id ?? "default";
+
+      // Load theme fonts before applying (prevents FOUT on theme switch)
+      await loadThemeFonts(newThemeId);
 
       setCustomThemeState(newTheme);
       applyCustomTheme(newTheme);
@@ -338,13 +345,13 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
 
   // Set custom theme by ID (built-in themes)
   const setCustomThemeById = useCallback(
-    (id: string) => {
+    async (id: string) => {
       if (id === "default") {
-        setCustomTheme(null);
+        await setCustomTheme(null);
       } else {
         const theme = getThemeById(id);
         if (theme) {
-          setCustomTheme(theme);
+          await setCustomTheme(theme);
         }
       }
     },
@@ -401,10 +408,15 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   }, [resolvedTheme]);
 
   // Apply custom theme and theme fonts on mount
+  // Also load theme fonts if a non-default theme is persisted
   useEffect(() => {
-    applyCustomTheme(customTheme);
     const themeId = customTheme?.id ?? "default";
-    applyThemeFonts(themeId);
+
+    // Load fonts first (for non-default themes), then apply
+    loadThemeFonts(themeId).then(() => {
+      applyCustomTheme(customTheme);
+      applyThemeFonts(themeId);
+    });
   }, [customTheme]);
 
   // Memoize context value to prevent unnecessary re-renders of consumers
