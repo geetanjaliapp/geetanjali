@@ -832,7 +832,7 @@ export default function ReadingMode() {
   ]);
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-[var(--gradient-page-from)] to-[var(--gradient-page-to)] flex flex-col">
+    <div className="min-h-screen reading-container flex flex-col">
       <Navbar />
 
       {/* Chapter Header */}

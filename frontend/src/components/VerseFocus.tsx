@@ -382,9 +382,10 @@ export function VerseFocus({
           </div>
 
           {/* Sanskrit verse - hero display with formatSanskritLines */}
+          {/* v1.22.0: Added reading-sanskrit class for enhanced dark mode glow */}
           <div
             lang="sa"
-            className={`${FONT_SIZE_CLASSES[fontSize]} ${LINE_HEIGHT_CLASSES[fontSize]} font-sanskrit text-[var(--text-sanskrit)] tracking-wide mb-3 sm:mb-4`}
+            className={`reading-sanskrit ${FONT_SIZE_CLASSES[fontSize]} ${LINE_HEIGHT_CLASSES[fontSize]} tracking-wide mb-3 sm:mb-4`}
           >
             {sanskritLines.map((line, idx) => (
               <p
@@ -392,7 +393,7 @@ export function VerseFocus({
                 className={
                   isSpeakerIntro(line)
                     ? `${SPEAKER_FONT_SIZE_CLASSES[fontSize]} text-[var(--text-muted)] mb-2 sm:mb-3 italic`
-                    : "mb-1 sm:mb-2"
+                    : "reading-pada"
                 }
               >
                 {line}
@@ -400,9 +401,10 @@ export function VerseFocus({
             ))}
           </div>
 
-          {/* Verse reference - centered */}
+          {/* Verse reference - ornament styling */}
+          {/* v1.22.0: Enhanced with verse-ornament class for manuscript feel */}
           <div className="text-center mb-2">
-            <span className="text-[var(--text-tertiary)] text-base sm:text-lg font-serif">
+            <span className="verse-ornament">
               ॥ {verse.chapter}.{verse.verse} ॥
             </span>
           </div>
@@ -466,7 +468,13 @@ export function VerseFocus({
             : "max-h-0 opacity-0 mt-0"
         }`}
       >
-        <div className="border-t border-[var(--border-warm-subtle)] pt-6">
+        {/* v1.22.0: Reading separator with traditional danda marks */}
+        <div className="reading-separator" aria-hidden="true">
+          <span className="reading-separator-line" />
+          <span className="reading-separator-symbol">॥</span>
+          <span className="reading-separator-line" />
+        </div>
+        <div className="pt-2">
           {loadingTranslations ? (
             // Loading state
             <div className="text-center py-4">
