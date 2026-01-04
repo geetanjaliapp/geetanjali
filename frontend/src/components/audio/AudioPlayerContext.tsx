@@ -37,6 +37,10 @@ import { formatVerseId } from "./audioUtils";
 const STORAGE_KEY_SPEED = "geetanjali_audio_speed";
 const STORAGE_KEY_LOOP = "geetanjali_audio_loop";
 
+// Retry configuration for network errors
+const MAX_AUTO_RETRIES = 2;
+const RETRY_DELAYS = [1000, 3000]; // 1s, 3s backoff
+
 // Playback speed options
 export const PLAYBACK_SPEEDS = [0.75, 1, 1.25] as const;
 export type PlaybackSpeed = (typeof PLAYBACK_SPEEDS)[number];
@@ -150,6 +154,9 @@ export function AudioPlayerProvider({ children }: AudioPlayerProviderProps) {
   const completionTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null,
   );
+  // Auto-retry state
+  const retryCountRef = useRef(0);
+  const retryTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Update media session metadata
   const updateMediaSession = useCallback((verseId: string | null) => {
@@ -240,10 +247,35 @@ export function AudioPlayerProvider({ children }: AudioPlayerProviderProps) {
     };
 
     const handleError = () => {
-      setState("error");
       const errorCode = audio.error?.code || 0;
       const message = AUDIO_ERROR_MESSAGES[errorCode] || "Failed to load audio";
+
+      // Auto-retry for network errors (code 2) with backoff
+      if (errorCode === 2 && retryCountRef.current < MAX_AUTO_RETRIES) {
+        const delay = RETRY_DELAYS[retryCountRef.current] || 3000;
+        retryCountRef.current++;
+
+        // Show retry state with message
+        setState("loading");
+        setError(`Network error, retrying... (${retryCountRef.current}/${MAX_AUTO_RETRIES})`);
+
+        retryTimeoutRef.current = setTimeout(() => {
+          retryTimeoutRef.current = null;
+          if (currentSrcRef.current && currentVerseIdRef.current) {
+            // Re-attempt loading
+            audio.src = currentSrcRef.current;
+            audio.load();
+          }
+        }, delay);
+
+        return; // Don't set error state yet, we're retrying
+      }
+
+      // Max retries exceeded or non-network error
+      const finalRetryCount = retryCountRef.current;
+      setState("error");
       setError(message);
+      retryCountRef.current = 0; // Reset for next play attempt
 
       // Track error event
       if (window.umami && currentVerseIdRef.current) {
@@ -251,6 +283,7 @@ export function AudioPlayerProvider({ children }: AudioPlayerProviderProps) {
           verse_id: currentVerseIdRef.current,
           error_code: errorCode,
           error_message: message,
+          retry_count: finalRetryCount,
         });
       }
     };
@@ -296,6 +329,11 @@ export function AudioPlayerProvider({ children }: AudioPlayerProviderProps) {
         clearTimeout(completionTimeoutRef.current);
         completionTimeoutRef.current = null;
       }
+      // Clear retry timeout
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current);
+        retryTimeoutRef.current = null;
+      }
     };
   }, []);
 
@@ -310,6 +348,13 @@ export function AudioPlayerProvider({ children }: AudioPlayerProviderProps) {
         clearTimeout(completionTimeoutRef.current);
         completionTimeoutRef.current = null;
       }
+
+      // Clear any pending retry and reset count for fresh play
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current);
+        retryTimeoutRef.current = null;
+      }
+      retryCountRef.current = 0;
 
       // Dispatch event to stop TTS (TTSContext listens for this)
       window.dispatchEvent(new CustomEvent("audioRecitationStart"));
@@ -384,6 +429,12 @@ export function AudioPlayerProvider({ children }: AudioPlayerProviderProps) {
       clearTimeout(completionTimeoutRef.current);
       completionTimeoutRef.current = null;
     }
+    // Clear retry timeout if active
+    if (retryTimeoutRef.current) {
+      clearTimeout(retryTimeoutRef.current);
+      retryTimeoutRef.current = null;
+    }
+    retryCountRef.current = 0;
     if (audioRef.current) {
       audioRef.current.pause();
       // Clear source to cancel any pending events (prevents ghost playback)
