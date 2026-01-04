@@ -10,7 +10,7 @@
  * Route: /read
  */
 
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { versesApi, readingApi } from "../lib/api";
 import type { Verse, BookMetadata, ChapterMetadata, FontSize } from "../types";
@@ -827,6 +827,30 @@ export default function ReadingMode() {
                 <div className="text-sm text-[var(--text-reading-primary)]/80 ml-1">
                   {currentVerse.verse}/{getChapterVerseCount(state.chapter)}
                 </div>
+              )}
+              {/* View verse details - rightmost icon */}
+              {currentVerse && (
+                <Link
+                  to={`/verses/${currentVerse.canonical_id}`}
+                  className="flex items-center justify-center min-w-[44px] min-h-[44px] p-2 text-[var(--text-reading-muted)] hover:text-[var(--text-reading-primary)] hover:bg-[var(--interactive-reading-hover-bg)] active:bg-[var(--interactive-reading-active-bg)] rounded-[var(--radius-button)] transition-[var(--transition-color)]"
+                  aria-label="View verse details"
+                  title="View verse details"
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                    />
+                  </svg>
+                </Link>
               )}
             </div>
           </div>

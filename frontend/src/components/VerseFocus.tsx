@@ -13,7 +13,6 @@
  */
 
 import { useState, useCallback, useEffect } from "react";
-import { Link } from "react-router-dom";
 import { versesApi } from "../lib/api";
 import { formatSanskritLines, isSpeakerIntro } from "../lib/sanskritFormatter";
 import { getTranslatorPriority } from "../constants/translators";
@@ -489,15 +488,6 @@ export function VerseFocus({
           </div>
         </button>
 
-        {/* Explore link - above fold, symmetric with VerseDetail's "Read in context" */}
-        <div className="text-center mt-2">
-          <Link
-            to={`/verses/${verse.canonical_id}`}
-            className="inline-block text-xs text-[var(--text-accent-muted)] hover:text-[var(--text-accent)] transition-[var(--transition-color)]"
-          >
-            Explore this verse →
-          </Link>
-        </div>
       </div>
 
       {/* Translation panel - expands downward only */}
