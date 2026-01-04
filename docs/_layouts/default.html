@@ -139,19 +139,19 @@
             htmlLabels: true
           },
           themeVariables: isDarkMode() ? {
-            primaryColor: '#4b5563',
-            primaryTextColor: '#f3f4f6',
-            primaryBorderColor: '#6b7280',
-            lineColor: '#9ca3af',
-            secondaryColor: '#374151',
-            tertiaryColor: '#1f2937',
-            background: '#1f2937',
-            mainBkg: '#374151',
-            nodeBorder: '#6b7280',
-            clusterBkg: '#374151',
-            clusterBorder: '#4b5563',
-            titleColor: '#f3f4f6',
-            edgeLabelBackground: '#374151'
+            primaryColor: '#4A4540',
+            primaryTextColor: '#E8E4E0',
+            primaryBorderColor: '#5D5550',
+            lineColor: '#8A8580',
+            secondaryColor: '#252220',
+            tertiaryColor: '#1A1614',
+            background: '#1A1614',
+            mainBkg: '#252220',
+            nodeBorder: '#5D5550',
+            clusterBkg: '#252220',
+            clusterBorder: '#4A4540',
+            titleColor: '#E8E4E0',
+            edgeLabelBackground: '#252220'
           } : {}
         });
       }
@@ -197,45 +197,45 @@
     <style>
       /*
        * Geetanjali Docs - Design System
-       * Aligned with main app (v1.11.0)
+       * Aligned with main app (v1.22.0 Sacred Saffron)
        *
        * Typography: Spectral (headings), Source Sans 3 (body)
-       * Colors: orange-600 (primary), amber-* (warm surfaces), gray-* (text)
+       * Colors: Sacred Saffron (primary), Turmeric Gold (warm surfaces)
        */
 
       /* ============================================
-         CSS Variables - Match main app palette
+         CSS Variables - Sacred Saffron Palette
          ============================================ */
       :root {
-        /* Gray scale */
-        --gray-50: #f9fafb;
-        --gray-100: #f3f4f6;
-        --gray-200: #e5e7eb;
-        --gray-300: #d1d5db;
-        --gray-400: #9ca3af;
-        --gray-500: #6b7280;
-        --gray-600: #4b5563;
-        --gray-700: #374151;
-        --gray-800: #1f2937;
-        --gray-900: #111827;
+        /* Neutral scale (warm-tinted) */
+        --gray-50: #FAFAF9;
+        --gray-100: #F5F5F4;
+        --gray-200: #E7E5E4;
+        --gray-300: #D6D3D1;
+        --gray-400: #A8A29E;
+        --gray-500: #78716C;
+        --gray-600: #57534E;
+        --gray-700: #44403C;
+        --gray-800: #292524;
+        --gray-900: #1C1917;
 
-        /* Amber - warm surfaces */
-        --amber-50: #fffbeb;
-        --amber-100: #fef3c7;
-        --amber-200: #fde68a;
-        --amber-400: #fbbf24;
-        --amber-600: #d97706;
-        --amber-700: #b45309;
-        --amber-800: #92400e;
-        --amber-900: #78350f;
+        /* Turmeric Gold - warm surfaces */
+        --amber-50: #FFFDF5;
+        --amber-100: #FFF8E1;
+        --amber-200: #FFECB3;
+        --amber-400: #E6B830;
+        --amber-600: #B08914;
+        --amber-700: #8B6914;
+        --amber-800: #5D4710;
+        --amber-900: #3D2E0A;
 
-        /* Orange - primary interactive */
-        --orange-50: #fff7ed;
-        --orange-100: #ffedd5;
-        --orange-500: #f97316;
-        --orange-600: #ea580c;
-        --orange-700: #c2410c;
-        --orange-800: #9a3412;
+        /* Sacred Saffron - primary interactive */
+        --orange-50: #FEF5F0;
+        --orange-100: #FDEBE0;
+        --orange-500: #C65D1A;
+        --orange-600: #A94E12;
+        --orange-700: #8B3E0E;
+        --orange-800: #6D2F0A;
 
         /* Semantic colors */
         --bg-primary: var(--gray-50);
@@ -246,8 +246,8 @@
         --text-muted: var(--gray-500);
         --border-default: var(--gray-200);
         --border-accent: var(--amber-200);
-        --code-bg: var(--gray-900);
-        --code-text: var(--gray-100);
+        --code-bg: #1A1614;
+        --code-text: #E8E4E0;
         --inline-code-bg: var(--amber-100);
         --inline-code-text: var(--amber-900);
         --blockquote-bg: var(--orange-50);
@@ -258,49 +258,49 @@
         --ascii-bg: var(--amber-50);
       }
 
-      /* Dark mode variables */
+      /* Dark mode variables - Warm Charcoal */
       :root.dark {
-        --bg-primary: #111827;
-        --bg-surface: #1f2937;
-        --bg-surface-elevated: #374151;
-        --text-primary: #f3f4f6;
-        --text-secondary: #d1d5db;
-        --text-muted: #9ca3af;
-        --border-default: #374151;
-        --border-accent: #4b5563;
-        --code-bg: #0f172a;
-        --code-text: #e5e7eb;
-        --inline-code-bg: rgba(251, 191, 36, 0.2);
-        --inline-code-text: #fbbf24;
-        --blockquote-bg: rgba(234, 88, 12, 0.1);
-        --table-header-bg: rgba(251, 191, 36, 0.1);
-        --table-row-alt: #1f2937;
-        --table-row-hover: rgba(251, 191, 36, 0.1);
-        --mermaid-bg: #1f2937;
-        --ascii-bg: #1f2937;
+        --bg-primary: #111310;
+        --bg-surface: #1A1614;
+        --bg-surface-elevated: #252220;
+        --text-primary: #E8E4E0;
+        --text-secondary: #C8C4C0;
+        --text-muted: #8A8580;
+        --border-default: #3D3835;
+        --border-accent: #4A4540;
+        --code-bg: #0F0D0C;
+        --code-text: #E8E4E0;
+        --inline-code-bg: rgba(230, 184, 48, 0.2);
+        --inline-code-text: #E6B830;
+        --blockquote-bg: rgba(169, 78, 18, 0.15);
+        --table-header-bg: rgba(230, 184, 48, 0.1);
+        --table-row-alt: #1A1614;
+        --table-row-hover: rgba(230, 184, 48, 0.1);
+        --mermaid-bg: #1A1614;
+        --ascii-bg: #1A1614;
       }
 
       /* System preference fallback (when theme is 'system') */
       @media (prefers-color-scheme: dark) {
         :root:not(.light):not(.dark) {
-          --bg-primary: #111827;
-          --bg-surface: #1f2937;
-          --bg-surface-elevated: #374151;
-          --text-primary: #f3f4f6;
-          --text-secondary: #d1d5db;
-          --text-muted: #9ca3af;
-          --border-default: #374151;
-          --border-accent: #4b5563;
-          --code-bg: #0f172a;
-          --code-text: #e5e7eb;
-          --inline-code-bg: rgba(251, 191, 36, 0.2);
-          --inline-code-text: #fbbf24;
-          --blockquote-bg: rgba(234, 88, 12, 0.1);
-          --table-header-bg: rgba(251, 191, 36, 0.1);
-          --table-row-alt: #1f2937;
-          --table-row-hover: rgba(251, 191, 36, 0.1);
-          --mermaid-bg: #1f2937;
-          --ascii-bg: #1f2937;
+          --bg-primary: #111310;
+          --bg-surface: #1A1614;
+          --bg-surface-elevated: #252220;
+          --text-primary: #E8E4E0;
+          --text-secondary: #C8C4C0;
+          --text-muted: #8A8580;
+          --border-default: #3D3835;
+          --border-accent: #4A4540;
+          --code-bg: #0F0D0C;
+          --code-text: #E8E4E0;
+          --inline-code-bg: rgba(230, 184, 48, 0.2);
+          --inline-code-text: #E6B830;
+          --blockquote-bg: rgba(169, 78, 18, 0.15);
+          --table-header-bg: rgba(230, 184, 48, 0.1);
+          --table-row-alt: #1A1614;
+          --table-row-hover: rgba(230, 184, 48, 0.1);
+          --mermaid-bg: #1A1614;
+          --ascii-bg: #1A1614;
         }
       }
 
