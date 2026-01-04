@@ -83,27 +83,27 @@ const THEME_COLORS: Record<
   Omit<ThemeColors, "background">
 > = {
   warm: {
-    om: "#F59E0B", // amber-500
-    sanskrit: "#78350F", // amber-900
-    verseRef: "#B45309", // amber-700
-    english: "#1F2937", // gray-800
-    hindi: "#92400E", // amber-800
+    om: "#D4A017", // Turmeric Gold warm-500
+    sanskrit: "#4A1F06", // Sacred Saffron primary-900
+    verseRef: "#8B3E0E", // Sacred Saffron primary-700
+    english: "#1A1614", // Warm charcoal
+    hindi: "#6D2F0A", // Sacred Saffron primary-800
     branding: "#9CA3AF", // gray-400
-    divider: "#D97706", // amber-600
+    divider: "#A94E12", // Sacred Saffron primary-600
   },
   dark: {
-    om: "#FBBF24", // amber-400
-    sanskrit: "#FCD34D", // amber-300
-    verseRef: "#F59E0B", // amber-500
-    english: "#F3F4F6", // gray-100
-    hindi: "#FBBF24", // amber-400
+    om: "#E6B830", // Turmeric Gold warm-400
+    sanskrit: "#FFD54F", // Turmeric Gold warm-300
+    verseRef: "#D4A017", // Turmeric Gold warm-500
+    english: "#E8E4E0", // Warm off-white
+    hindi: "#E6B830", // Turmeric Gold warm-400
     branding: "#6B7280", // gray-500
-    divider: "#4B5563", // gray-600
+    divider: "#5D4710", // Turmeric Gold warm-800
   },
   minimal: {
-    om: "#EA580C", // orange-600
-    sanskrit: "#1F2937", // gray-800
-    verseRef: "#EA580C", // orange-600
+    om: "#C65D1A", // Sacred Saffron primary-500
+    sanskrit: "#1A1614", // Warm charcoal
+    verseRef: "#C65D1A", // Sacred Saffron primary-500
     english: "#374151", // gray-700
     hindi: "#4B5563", // gray-600
     branding: "#9CA3AF", // gray-400
@@ -166,14 +166,14 @@ function createBackground(
 
   if (theme === "warm") {
     const gradient = ctx.createLinearGradient(0, 0, width, height);
-    gradient.addColorStop(0, "#FEF3C7");
-    gradient.addColorStop(0.5, "#FFEDD5");
-    gradient.addColorStop(1, "#FED7AA");
+    gradient.addColorStop(0, "#FFFDF5"); // Turmeric Gold warm-50
+    gradient.addColorStop(0.5, "#FFF8E1"); // Turmeric Gold warm-100
+    gradient.addColorStop(1, "#FFECB3"); // Turmeric Gold warm-200
     return gradient;
   } else if (theme === "dark") {
     const gradient = ctx.createLinearGradient(0, 0, width, height);
-    gradient.addColorStop(0, "#1F2937");
-    gradient.addColorStop(1, "#111827");
+    gradient.addColorStop(0, "#1A1614"); // Warm charcoal
+    gradient.addColorStop(1, "#0F0D0C"); // Deep charcoal
     return gradient;
   } else {
     return "#FFFFFF";

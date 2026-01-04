@@ -16,7 +16,7 @@ This document defines the design principles and patterns that guide Geetanjali's
 
 | Intent | Style | Token | Example |
 |--------|-------|-------|---------|
-| Major action, navigation | Primary (orange) | `--interactive-primary` | "Get Started", "Submit" |
+| Major action, navigation | Primary (saffron) | `--interactive-primary` | "Get Started", "Submit" |
 | In-content action | Contextual (amber) | `--interactive-contextual` | "Begin Reading", "Apply Filter" |
 | Secondary option | Outline | `--interactive-secondary-*` | "Cancel", "Back" |
 | Subtle action | Ghost | `--interactive-ghost-*` | "Learn more", "Skip" |
@@ -110,6 +110,18 @@ Our palette centers on amber and orange—the colors of lamp flame, aged parchme
 - **Continuity**: Manuscripts preserved for millennia
 - **Invitation**: Welcoming warmth, not clinical distance
 - **Focus**: Warm surfaces reduce eye strain during extended reading
+
+#### Sacred Saffron (Default Theme)
+
+The default "Geetanjali" theme uses Sacred Saffron (केसरी) — not generic orange, but a palette rooted in Indian spiritual tradition:
+
+- **केसर (Saffron)** — The color of renunciation and sacred offerings (#C65D1A)
+- **हल्दी (Turmeric Gold)** — The gold of auspiciousness and purification (#D4A017)
+- **Temple warmth** — Warm charcoal backgrounds evoke aged manuscript and lamp flame
+
+These colors evoke 5,000 years of tradition, not a tech product launch. The palette was designed to make Geetanjali instantly recognizable — "That's Geetanjali" — while honoring the sacred texts it serves.
+
+**Dark Mode**: Rather than cold grays, dark mode uses warm charcoal (#1A1614) with golden Sanskrit text that feels like reading by lamplight (दिया).
 
 **Color roles** (not specific values—those live in tokens):
 

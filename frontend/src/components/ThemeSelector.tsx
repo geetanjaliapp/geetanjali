@@ -17,11 +17,11 @@
 import { useTheme } from "../contexts/ThemeContext";
 import type { ThemeConfig } from "../types/theme";
 
-/** Geetanjali (default) theme colors (matches primitives.css) */
+/** Geetanjali (default) theme colors (matches primitives.css Sacred Saffron v1.22.0) */
 const DEFAULT_COLORS = {
-  primary: "#ea580c", // orange-600
-  warm: "#fef3c7", // amber-100
-  accent: "#f59e0b", // amber-500
+  primary: "#A94E12", // Sacred Saffron primary-600
+  warm: "#FFF8E1", // Turmeric Gold warm-100
+  accent: "#D4A017", // Turmeric Gold warm-500
 };
 
 /**

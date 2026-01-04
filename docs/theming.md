@@ -27,9 +27,11 @@ themes.ts       →  Theme configs (injected as CSS at runtime)
 Raw design values with no semantic meaning. Never used directly in components.
 
 ```css
-/* Color scales */
---color-orange-600: #ea580c;
---color-amber-50: #fffbeb;
+/* Sacred Saffron color scales (v1.22.0) */
+--color-primary-500: #C65D1A;  /* Sacred Saffron */
+--color-primary-600: #A94E12;
+--color-warm-50: #FFFDF5;      /* Turmeric Gold */
+--color-warm-500: #D4A017;
 
 /* Spacing scale */
 --spacing-4: 1rem;
@@ -158,11 +160,63 @@ className="text-sm sm:text-base gap-2 sm:gap-4"
 /* Badges and chips */
 --badge-warm-bg: var(--color-warm-100);
 --chip-selected-bg: var(--color-warm-200);  /* More prominent than badge */
-
-/* Reading mode */
---surface-reading: var(--color-reading-50);
---text-reading-primary: var(--color-neutral-800);
 ```
+
+### Reading Mode Tokens
+
+Reading mode uses specialized tokens for an immersive, manuscript-inspired experience.
+
+**Surface Gradient Tokens** (v1.22.0):
+
+```css
+/* Light mode - Parchment warmth */
+--reading-surface-base: #FDF8F3;
+--reading-surface-mid: #FAF4EC;
+--reading-surface-end: #F7EFE5;
+--reading-surface-highlight: #FFF8E8;
+
+/* Dark mode - Warm charcoal (diya-lit) */
+.dark {
+  --reading-surface-base: #1A1614;
+  --reading-surface-mid: #151210;
+  --reading-surface-end: #0F0D0C;
+  --reading-surface-highlight: #252220;
+}
+```
+
+**CSS Classes** (applied at component level):
+
+| Class | Purpose |
+|-------|---------|
+| `.reading-container` | Parchment gradient background with vignette overlay |
+| `.reading-sanskrit` | Enhanced Sanskrit text with dark mode golden glow |
+| `.reading-pada` | Verse quarter-line separation |
+| `.verse-ornament` | Decorative verse number badge |
+| `.reading-separator` | Traditional danda (॥) separator between sections |
+
+**Example Usage**:
+
+```tsx
+<div className="reading-container">
+  <div className="reading-sanskrit">
+    {sanskritLines.map(line => (
+      <p className="reading-pada">{line}</p>
+    ))}
+  </div>
+  <span className="verse-ornament">॥ 2.47 ॥</span>
+  <div className="reading-separator">
+    <span className="reading-separator-line" />
+    <span className="reading-separator-symbol">॥</span>
+    <span className="reading-separator-line" />
+  </div>
+</div>
+```
+
+**Design Principles**:
+- Light mode feels like reading aged parchment
+- Dark mode feels like reading by lamplight (दिया)
+- Sanskrit text is the visual hero with generous line-height (2.2×)
+- Minimal chrome — the verse is the experience
 
 ## Logo Theming
 
@@ -190,12 +244,13 @@ import { LogoIcon } from "../components/icons";
 Logo CSS variables (can be overridden per theme):
 
 ```css
---logo-bg-start: #ea580c;     /* Background gradient start */
---logo-bg-end: #f97316;       /* Background gradient end */
---logo-petal-outer: #FFF8E7;  /* Outer lotus petals */
---logo-petal-inner: #FFEDD5;  /* Inner lotus petals */
---logo-sun-glow: #FCD34D;     /* Sun outer glow */
---logo-sun-core: #991B1B;     /* Sun center core */
+/* v1.22.0: Defaults use Sacred Saffron / Turmeric Gold */
+--logo-bg-start: var(--interactive-primary);  /* Sacred Saffron gradient */
+--logo-bg-end: var(--color-primary-500);
+--logo-petal-outer: var(--color-warm-100);    /* Turmeric Gold petals */
+--logo-petal-inner: var(--color-warm-200);
+--logo-sun-glow: var(--color-warm-300);
+--logo-sun-core: #991B1B;                     /* Deep red center */
 ```
 
 ## Available Themes
@@ -264,14 +319,28 @@ The `modeColors.dark.contrast` object allows semantic-level overrides when color
 | `public/logo.svg` | Transparent logo (static) |
 | `src/components/icons.tsx` | LogoIcon (themeable) |
 
+## Browser Support
+
+The theming system uses modern CSS features:
+
+| Feature | Minimum Version |
+|---------|-----------------|
+| CSS Custom Properties | All modern browsers (not IE11) |
+| `color-mix()` function | Chrome 111+, Safari 16.2+, Firefox 113+ |
+| CSS `oklch()` colors | Chrome 111+, Safari 15.4+, Firefox 113+ |
+
+For older browser support, consider polyfills or fallback values. The application gracefully degrades on unsupported browsers but may lose theme customization features.
+
 ## Migration Status
 
-As of v1.16.0:
+As of v1.22.0:
 
-- ✅ **Colors**: 100% tokenized
+- ✅ **Colors**: 100% tokenized (Sacred Saffron palette)
 - ✅ **Border Radius**: 100% tokenized (0 hardcoded)
 - ✅ **Shadows**: 100% tokenized (0 hardcoded)
 - ✅ **Motion**: Transitions tokenized
+- ✅ **Reading Mode**: Specialized tokens and CSS classes
+- ✅ **Theme Consistency**: All 4 themes with 950 shades
 - ⚪ **Typography**: Tokens defined, using Tailwind responsive syntax
 - ⚪ **Spacing**: Tokens defined, using Tailwind responsive syntax
 - ⚪ **Layout**: Tokens defined, structural constants

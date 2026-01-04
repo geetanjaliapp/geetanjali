@@ -2,6 +2,51 @@
 
 All notable changes to Geetanjali are documented here.
 
+## [1.22.0] - 2026-01-04
+
+Theme identity release introducing Sacred Saffron as the default palette and refining the immersive reading experience.
+
+### Visual Changes
+
+The default "Geetanjali" theme has been updated from generic Tailwind Orange to culturally-rooted Sacred Saffron (केसरी):
+
+| Token | Previous | New |
+|-------|----------|-----|
+| Primary 500 | #f97316 (Tailwind Orange) | #C65D1A (Sacred Saffron) |
+| Primary 600 | #ea580c | #A94E12 |
+| Warm 500 | #f59e0b (Tailwind Amber) | #D4A017 (Turmeric Gold) |
+| Dark BG | #1f2937 (Cool Gray) | #1A1614 (Warm Charcoal) |
+
+All users on the default theme will see this change automatically. Other themes (Sutra, Serenity, Forest) retain their existing colors but now include 950 shades for deeper dark mode support.
+
+### Reading Mode Enhancements
+
+- **Parchment Gradient Backgrounds** - Light mode surfaces use warm cream-to-ivory gradients
+- **Diya-Lit Dark Mode** - Dark mode uses warm charcoal with golden Sanskrit text glow
+- **Traditional Separators** - Verse sections divided by ornamental danda (॥) marks
+- **Verse Ornament Badges** - Verse references styled as decorative badges
+- **Enhanced Typography** - Sanskrit text with 2.2× line-height and pada separation
+
+### Theme System
+
+- Added 950 shades to all theme color scales (24 new token values)
+- Updated `ColorScale` TypeScript type to include 950 property
+- Zero hardcoded Tailwind color classes in components
+- Zero `dark:` color prefixes for colors
+- Updated ImageCardGenerator share images to Sacred Saffron palette
+
+### Documentation
+
+- Added Sacred Saffron philosophy to design.md
+- Added Reading Mode token documentation to theming.md
+- Added browser support requirements to theming.md
+- Updated logo theming documentation
+
+### Technical
+
+- All 481 frontend tests passing
+- Theme switching performance: <100ms target maintained
+
 ## [1.21.1] - 2026-01-04
 
 Bug fix release addressing audio playback reliability and preference sync issues.
