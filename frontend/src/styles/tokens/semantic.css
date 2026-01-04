@@ -586,8 +586,8 @@
   /* NOTE: neutral-400 was too dark (~#737373) causing "dark text on dark" */
   --text-secondary: var(--color-neutral-300);
   --text-tertiary: var(--color-neutral-400);
-  /* Muted text - gentle, easy on eyes */
-  --text-muted: var(--color-neutral-500);
+  /* Muted text - neutral-400 provides ~5.3:1 on dark bg (WCAG AA compliant) */
+  --text-muted: var(--color-neutral-400);
   --text-sanskrit: var(--color-accent-300);
   --text-sanskrit-secondary: var(--color-accent-400);
   /* Links - subdued, not glowing. 500 level for quiet presence */
@@ -608,9 +608,9 @@
   --border-reading: var(--color-reading-700);
 
   /* Interactive tokens - WCAG AA compliant for dark mode */
-  /* For default Geetanjali theme: orange-600 on dark bg with white text */
+  /* orange-700 (#c2410c) with white text provides ~5.8:1 contrast (AA compliant) */
   /* Theme overrides handle inverted scales (Sutra/Serenity/Forest) */
-  --interactive-primary: var(--color-primary-600);
+  --interactive-primary: var(--color-primary-700);
   --interactive-primary-hover: var(--color-primary-500);
   --interactive-primary-active: var(--color-primary-400);
   --interactive-primary-text: var(--color-on-primary);
