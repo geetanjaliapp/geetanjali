@@ -1,0 +1,23 @@
+{
+  "ci": {
+    "budget": {
+      "performance": 80,
+      "accessibility": 90,
+      "best-practices": 85,
+      "seo": 85
+    }
+  },
+  "scanner": {
+    "samples": 3,
+    "throttle": true,
+    "device": "mobile"
+  },
+  "urls": [
+    "/",
+    "/verses",
+    "/verses/BG_2_47",
+    "/read",
+    "/settings",
+    "/about"
+  ]
+}

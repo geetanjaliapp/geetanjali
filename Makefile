@@ -210,6 +210,22 @@ secrets-add: ## Add/update a key-value in .env.enc (usage: make secrets-add KEY=
 	echo "$(KEY) saved to .env.enc"
 
 # =============================================================================
+# Performance Analysis
+# =============================================================================
+
+perf: ## Run Lighthouse audit on production (opens dashboard)
+	npx unlighthouse --site https://geetanjaliapp.com
+
+perf-local: ## Run Lighthouse audit on local dev
+	npx unlighthouse --site http://localhost
+
+perf-ci: ## Run Lighthouse audit (CI mode, no dashboard)
+	npx unlighthouse-ci --site https://geetanjaliapp.com --budget ./lighthouse-budget.json
+
+perf-report: ## Generate performance report to .unlighthouse/
+	npx unlighthouse --site https://geetanjaliapp.com --output-path .unlighthouse --no-open
+
+# =============================================================================
 # Quick Start
 # =============================================================================
 
