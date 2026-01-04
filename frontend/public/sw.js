@@ -22,6 +22,9 @@ const VERSE_CACHE = `geetanjali-verses-${CACHE_VERSION}`;
 const AUDIO_CACHE = 'geetanjali-audio-v1';
 const MAX_AUDIO_CACHE_SIZE = 100 * 1024 * 1024; // 100MB
 
+// In-flight audio requests for deduplication (prevents duplicate network fetches)
+const inFlightAudioRequests = new Map();
+
 // Static assets to cache on install (app shell only - JS bundles cached on demand)
 const STATIC_ASSETS = [
   '/',
@@ -125,6 +128,7 @@ self.addEventListener('fetch', (event) => {
  * 1. Check if full audio is in cache
  * 2. If cached, serve with Range support (for seeking)
  * 3. If not cached, fetch full file, cache it, serve response
+ * 4. Deduplicate concurrent requests for same URL
  */
 async function handleAudioRequest(request, url) {
   const cache = await caches.open(AUDIO_CACHE);
@@ -145,8 +149,27 @@ async function handleAudioRequest(request, url) {
     return cachedResponse.clone();
   }
 
+  // Check if there's already an in-flight request for this URL
+  if (inFlightAudioRequests.has(cacheKey)) {
+    // Wait for the in-flight request to complete, then serve from cache
+    try {
+      await inFlightAudioRequests.get(cacheKey);
+      const freshCached = await cache.match(cacheKey);
+      if (freshCached) {
+        updateAudioAccessTime(cacheKey);
+        const rangeHeader = request.headers.get('range');
+        if (rangeHeader) {
+          return createRangeResponse(freshCached, rangeHeader);
+        }
+        return freshCached.clone();
+      }
+    } catch {
+      // In-flight request failed, fall through to make our own request
+    }
+  }
+
   // Not cached - fetch full file (without Range header to get complete file)
-  try {
+  const fetchPromise = (async () => {
     const fetchRequest = new Request(cacheKey, {
       method: 'GET',
       headers: {}, // No Range header - we want the full file
@@ -160,13 +183,23 @@ async function handleAudioRequest(request, url) {
       // Clone before caching
       const responseToCache = networkResponse.clone();
 
-      // Cache in background (don't block response)
-      cacheAudioFile(cache, cacheKey, responseToCache).catch((err) => {
+      // Cache synchronously to ensure it's available for duplicate requests
+      try {
+        await cacheAudioFile(cache, cacheKey, responseToCache);
+      } catch (err) {
         console.warn('[SW] Failed to cache audio:', err);
-      });
+      }
     }
 
     return networkResponse;
+  })();
+
+  // Track this request for deduplication
+  inFlightAudioRequests.set(cacheKey, fetchPromise);
+
+  try {
+    const response = await fetchPromise;
+    return response;
   } catch (error) {
     console.error('[SW] Audio fetch failed:', error);
     // Return network error
@@ -174,6 +207,9 @@ async function handleAudioRequest(request, url) {
       status: 503,
       statusText: 'Service Unavailable'
     });
+  } finally {
+    // Clean up in-flight tracking
+    inFlightAudioRequests.delete(cacheKey);
   }
 }
 
@@ -473,6 +509,90 @@ self.addEventListener('message', (event) => {
           console.error('[SW] Failed to clear caches:', error);
           if (event.source) {
             event.source.postMessage({ type: 'CACHES_CLEAR_FAILED', error: error.message });
+          }
+        }
+      })()
+    );
+  }
+
+  // Audio preload message (from audioPreload.ts)
+  if (event.data?.type === 'PRELOAD_AUDIO') {
+    const audioUrl = event.data.url;
+    event.waitUntil(
+      (async () => {
+        try {
+          const cache = await caches.open(AUDIO_CACHE);
+          const url = new URL(audioUrl);
+          const cacheKey = url.origin + url.pathname;
+
+          // Check if already cached
+          const existing = await cache.match(cacheKey);
+          if (existing) {
+            updateAudioAccessTime(cacheKey);
+            if (event.source) {
+              event.source.postMessage({
+                type: 'AUDIO_PRELOADED',
+                url: audioUrl,
+                success: true,
+                fromCache: true,
+              });
+            }
+            return;
+          }
+
+          // Check if already being fetched
+          if (inFlightAudioRequests.has(cacheKey)) {
+            await inFlightAudioRequests.get(cacheKey);
+            if (event.source) {
+              event.source.postMessage({
+                type: 'AUDIO_PRELOADED',
+                url: audioUrl,
+                success: true,
+                fromCache: false,
+              });
+            }
+            return;
+          }
+
+          // Fetch and cache
+          const fetchPromise = (async () => {
+            const response = await fetch(cacheKey, {
+              method: 'GET',
+              mode: 'cors',
+              credentials: 'omit',
+            });
+
+            if (response.ok && response.status === 200) {
+              await cacheAudioFile(cache, cacheKey, response.clone());
+            }
+
+            return response;
+          })();
+
+          inFlightAudioRequests.set(cacheKey, fetchPromise);
+
+          try {
+            await fetchPromise;
+            if (event.source) {
+              event.source.postMessage({
+                type: 'AUDIO_PRELOADED',
+                url: audioUrl,
+                success: true,
+                fromCache: false,
+              });
+            }
+          } finally {
+            inFlightAudioRequests.delete(cacheKey);
+          }
+        } catch (error) {
+          console.warn('[SW] Audio preload failed:', error);
+          if (event.source) {
+            event.source.postMessage({
+              type: 'AUDIO_PRELOADED',
+              url: audioUrl,
+              success: false,
+              error: error instanceof Error ? error.message : String(error),
+            });
           }
         }
       })()

@@ -1,15 +1,15 @@
 /**
  * Audio Preloading Utility
  *
- * Uses fetch() to preload audio files into the browser's HTTP cache.
- * When AudioPlayerContext later creates an Audio element with the same URL,
- * it hits the cache instead of making a new network request.
+ * Preloads audio files directly into the Service Worker's audio cache.
+ * This ensures Audio element requests (intercepted by SW) hit the cache.
  *
  * Features:
- * - Browser-native HTTP caching
+ * - Direct SW cache population (not browser HTTP cache)
  * - Deduplication (won't preload same URL twice)
  * - Connection-aware (skips on slow connections)
  * - Concurrent request limiting
+ * - Graceful fallback if SW unavailable
  */
 
 // Track URLs that have been preloaded or are in progress
@@ -50,10 +50,10 @@ function shouldSkipPreload(): boolean {
 }
 
 /**
- * Preload a single audio file using fetch
+ * Preload a single audio file into Service Worker cache
  *
- * Fetches the audio file to populate the browser's HTTP cache.
- * The response body is discarded but the cache entry remains.
+ * Messages the SW to fetch and cache the audio file, ensuring
+ * subsequent Audio element requests hit the cache.
  *
  * @param url - Audio URL to preload
  */
@@ -75,31 +75,56 @@ export function preloadAudio(url: string): void {
 
   preloadingUrls.add(url);
 
-  fetch(url, {
-    method: "GET",
-    // Use cache to ensure response is cached
-    cache: "default",
-    // Don't need credentials for audio files
-    credentials: "omit",
-  })
-    .then((response) => {
-      if (response.ok) {
-        preloadedUrls.add(url);
-      }
-      // Consume and discard the body to complete the request
-      // This ensures the response is fully cached
-      return response.blob();
-    })
-    .then(() => {
-      preloadingUrls.delete(url);
-    })
-    .catch(() => {
-      preloadingUrls.delete(url);
-      // Track errors for debugging
-      if (window.umami) {
-        window.umami.track("audio_preload_error", { url });
-      }
+  // Try to use Service Worker cache for consistency with audio playback
+  if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
+    // Message SW to preload audio into its cache
+    navigator.serviceWorker.controller.postMessage({
+      type: "PRELOAD_AUDIO",
+      url,
     });
+
+    // Handler for SW response
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data?.type === "AUDIO_PRELOADED" && event.data.url === url) {
+        clearTimeout(timeoutId);
+        navigator.serviceWorker.removeEventListener("message", handleMessage);
+        preloadingUrls.delete(url);
+        if (event.data.success) {
+          preloadedUrls.add(url);
+        }
+      }
+    };
+
+    // Timeout to prevent memory leak if SW never responds
+    const timeoutId = setTimeout(() => {
+      navigator.serviceWorker.removeEventListener("message", handleMessage);
+      preloadingUrls.delete(url);
+    }, 30000); // 30s timeout for large files
+
+    navigator.serviceWorker.addEventListener("message", handleMessage);
+  } else {
+    // Fallback: use fetch to at least warm browser cache
+    fetch(url, {
+      method: "GET",
+      cache: "default",
+      credentials: "omit",
+    })
+      .then((response) => {
+        if (response.ok) {
+          preloadedUrls.add(url);
+        }
+        return response.blob();
+      })
+      .then(() => {
+        preloadingUrls.delete(url);
+      })
+      .catch(() => {
+        preloadingUrls.delete(url);
+        if (window.umami) {
+          window.umami.track("audio_preload_error", { url });
+        }
+      });
+  }
 }
 
 /**
