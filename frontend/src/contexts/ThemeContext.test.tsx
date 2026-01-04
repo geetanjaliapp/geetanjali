@@ -194,21 +194,21 @@ describe("ThemeContext", () => {
       },
     };
 
-    it("should set custom theme", () => {
+    it("should set custom theme", async () => {
       const { result } = renderHook(() => useTheme(), { wrapper });
 
-      act(() => {
-        result.current.setCustomTheme(testTheme);
+      await act(async () => {
+        await result.current.setCustomTheme(testTheme);
       });
 
       expect(result.current.customTheme).toEqual(testTheme);
     });
 
-    it("should apply custom theme CSS", () => {
+    it("should apply custom theme CSS", async () => {
       const { result } = renderHook(() => useTheme(), { wrapper });
 
-      act(() => {
-        result.current.setCustomTheme(testTheme);
+      await act(async () => {
+        await result.current.setCustomTheme(testTheme);
       });
 
       const styleEl = document.getElementById("custom-theme-overrides");
@@ -216,23 +216,23 @@ describe("ThemeContext", () => {
       expect(styleEl?.textContent).toContain("--color-primary-500: #ff0000;");
     });
 
-    it("should clear custom theme when set to null", () => {
+    it("should clear custom theme when set to null", async () => {
       const { result } = renderHook(() => useTheme(), { wrapper });
 
-      act(() => {
-        result.current.setCustomTheme(testTheme);
+      await act(async () => {
+        await result.current.setCustomTheme(testTheme);
       });
       expect(result.current.customTheme).not.toBeNull();
 
-      act(() => {
-        result.current.setCustomTheme(null);
+      await act(async () => {
+        await result.current.setCustomTheme(null);
       });
 
       expect(result.current.customTheme).toBeNull();
       expect(document.getElementById("custom-theme-overrides")).toBeNull();
     });
 
-    it("should set theme by ID from built-in themes", () => {
+    it("should set theme by ID from built-in themes", async () => {
       const { result } = renderHook(() => useTheme(), { wrapper });
 
       // Get a built-in theme ID (not default)
@@ -241,32 +241,32 @@ describe("ThemeContext", () => {
       );
 
       if (builtInTheme) {
-        act(() => {
-          result.current.setCustomThemeById(builtInTheme.id);
+        await act(async () => {
+          await result.current.setCustomThemeById(builtInTheme.id);
         });
 
         expect(result.current.customTheme?.id).toBe(builtInTheme.id);
       }
     });
 
-    it("should clear theme when setting to default ID", () => {
+    it("should clear theme when setting to default ID", async () => {
       const { result } = renderHook(() => useTheme(), { wrapper });
 
       // First set a custom theme
-      act(() => {
-        result.current.setCustomTheme(testTheme);
+      await act(async () => {
+        await result.current.setCustomTheme(testTheme);
       });
       expect(result.current.customTheme).not.toBeNull();
 
       // Then set to default
-      act(() => {
-        result.current.setCustomThemeById("default");
+      await act(async () => {
+        await result.current.setCustomThemeById("default");
       });
 
       expect(result.current.customTheme).toBeNull();
     });
 
-    it("should persist theme ID to localStorage", () => {
+    it("should persist theme ID to localStorage", async () => {
       const { result } = renderHook(() => useTheme(), { wrapper });
 
       const builtInTheme = result.current.availableThemes.find(
@@ -274,8 +274,8 @@ describe("ThemeContext", () => {
       );
 
       if (builtInTheme) {
-        act(() => {
-          result.current.setCustomThemeById(builtInTheme.id);
+        await act(async () => {
+          await result.current.setCustomThemeById(builtInTheme.id);
         });
 
         expect(localStorage.getItem("geetanjali:theme-id")).toBe(
