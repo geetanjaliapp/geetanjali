@@ -2,6 +2,7 @@ import { memo, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { formatSanskritLines, isSpeakerIntro } from "../lib/sanskritFormatter";
 import { getPrincipleShortLabel } from "../constants/principles";
+import { prefetchVerse } from "../lib/versePrefetch";
 import {
   StarIcon,
   HeartIcon,
@@ -227,6 +228,8 @@ export const VerseCard = memo(function VerseCard({
             to={linkTo}
             className="absolute inset-0 z-0 rounded-[var(--radius-card)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
             aria-label={`View verse ${formatVerseRef(verse)}`}
+            onMouseEnter={() => prefetchVerse(verse.canonical_id)}
+            onFocus={() => prefetchVerse(verse.canonical_id)}
           />
         )}
 
@@ -454,6 +457,8 @@ export const VerseCard = memo(function VerseCard({
             <Link
               to={`/verses/${verse.canonical_id}`}
               className="inline-block transition-[var(--transition-color)] text-[var(--text-accent-muted)] hover:text-[var(--text-accent)] text-xs sm:text-sm font-medium"
+              onMouseEnter={() => prefetchVerse(verse.canonical_id)}
+              onFocus={() => prefetchVerse(verse.canonical_id)}
             >
               ॥ {formatVerseRef(verse)} ॥
             </Link>
