@@ -461,8 +461,8 @@ export function VerseFocus({
               />
             </button>
 
-            {/* Verse reference ornament */}
-            <span className="verse-ornament">
+            {/* Verse reference - matches VerseDetail styling */}
+            <span className="text-[var(--text-accent-muted)] text-base sm:text-lg font-serif">
               ॥ {verse.chapter}.{verse.verse} ॥
             </span>
 
@@ -499,13 +499,7 @@ export function VerseFocus({
             : "max-h-0 opacity-0 mt-0"
         }`}
       >
-        {/* v1.22.0: Reading separator with traditional danda marks */}
-        <div className="reading-separator" aria-hidden="true">
-          <span className="reading-separator-line" />
-          <span className="reading-separator-symbol">॥</span>
-          <span className="reading-separator-line" />
-        </div>
-        <div className="pt-2">
+        <div>
           {loadingTranslations ? (
             // Loading state
             <div className="text-center py-4">
