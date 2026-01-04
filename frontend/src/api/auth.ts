@@ -46,6 +46,11 @@ function getTokenExpirySeconds(token: string): number {
   }
 }
 
+// Session flag key - tracks whether user has explicitly logged out
+// We use inverted logic: flag="0" means "known logged out", absence means "might have session"
+// This ensures existing logged-in users aren't broken by this change
+const LOGGED_OUT_KEY = "geetanjali_logged_out";
+
 export const tokenStorage = {
   getToken: (): string | null => accessToken,
 
@@ -55,6 +60,12 @@ export const tokenStorage = {
       const expiresInSeconds = getTokenExpirySeconds(token);
       // Set expiry 30 seconds earlier for safety margin
       tokenExpiresAt = Date.now() + (expiresInSeconds - 30) * 1000;
+      // Clear logged-out flag on login (user now has a session)
+      try {
+        localStorage.removeItem(LOGGED_OUT_KEY);
+      } catch {
+        // localStorage may be unavailable in some contexts
+      }
     } else {
       tokenExpiresAt = null;
     }
@@ -63,6 +74,50 @@ export const tokenStorage = {
   clearToken: (): void => {
     accessToken = null;
     tokenExpiresAt = null;
+    // Mark as explicitly logged out - prevents 401 spam on page reload
+    try {
+      localStorage.setItem(LOGGED_OUT_KEY, "1");
+    } catch {
+      // localStorage may be unavailable
+    }
+  },
+
+  /**
+   * Clear in-memory token without marking as logged out
+   * Used for transient errors (network issues) where user might still have valid session
+   */
+  clearTokenMemoryOnly: (): void => {
+    accessToken = null;
+    tokenExpiresAt = null;
+    // Don't set logged_out flag - allow retry on next page load
+  },
+
+  /**
+   * Check if this browser might have an active session
+   * Returns true unless user has explicitly logged out or refresh returned null
+   * This avoids 401 console errors for known anonymous users while
+   * preserving existing sessions for users who logged in before this change
+   */
+  hasSession: (): boolean => {
+    try {
+      // Only skip refresh if we KNOW user logged out or has no session
+      // Absence of flag = might have session (safe default for existing users)
+      return localStorage.getItem(LOGGED_OUT_KEY) !== "1";
+    } catch {
+      return true; // Assume session exists to avoid breaking logins
+    }
+  },
+
+  /**
+   * Mark this browser as having no active session
+   * Called when refresh returns null (anonymous user) to prevent future 401s
+   */
+  markNoSession: (): void => {
+    try {
+      localStorage.setItem(LOGGED_OUT_KEY, "1");
+    } catch {
+      // localStorage may be unavailable
+    }
   },
 
   /**

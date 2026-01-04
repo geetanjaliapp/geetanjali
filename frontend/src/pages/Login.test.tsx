@@ -25,6 +25,9 @@ vi.mock("../api/auth", () => ({
     clearToken: vi.fn(),
     needsRefresh: vi.fn(),
     isExpired: vi.fn(),
+    hasSession: vi.fn(),
+    markNoSession: vi.fn(),
+    clearTokenMemoryOnly: vi.fn(),
   },
 }));
 

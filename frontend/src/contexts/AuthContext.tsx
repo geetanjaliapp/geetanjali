@@ -59,17 +59,24 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       // No in-memory token (or it was invalid), try to refresh from httpOnly cookie
       // This handles page refresh where in-memory token is lost but cookie persists
-      try {
-        const refreshResult = await authApi.refresh();
-        // refresh() returns null for anonymous users (no refresh token)
-        // This is normal and expected - user stays anonymous
-        if (refreshResult) {
-          const currentUser = await authApi.getCurrentUser();
-          setUser(currentUser);
+      // Only attempt refresh if user might have a session (avoids 401 console error for known anonymous)
+      if (tokenStorage.hasSession()) {
+        try {
+          const refreshResult = await authApi.refresh();
+          // refresh() returns null for anonymous users (no refresh token)
+          // This is normal and expected - user stays anonymous
+          if (refreshResult) {
+            const currentUser = await authApi.getCurrentUser();
+            setUser(currentUser);
+          } else {
+            // No refresh token = anonymous user, mark to skip future refresh attempts
+            tokenStorage.markNoSession();
+          }
+        } catch {
+          // Transient errors (network, 500, etc.) - clear in-memory token but allow retry
+          // Don't mark as logged out since user might have valid session
+          tokenStorage.clearTokenMemoryOnly();
         }
-      } catch {
-        // Real errors (network, 500, etc.) - clear token and stay anonymous
-        tokenStorage.clearToken();
       }
       setLoading(false);
     };

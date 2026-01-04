@@ -20,6 +20,9 @@ vi.mock("../api/auth", () => ({
     clearToken: vi.fn(),
     needsRefresh: vi.fn(),
     isExpired: vi.fn(),
+    hasSession: vi.fn(),
+    markNoSession: vi.fn(),
+    clearTokenMemoryOnly: vi.fn(),
   },
 }));
 
@@ -86,6 +89,7 @@ describe("AuthContext", () => {
 
     it("should try refresh when getCurrentUser fails with in-memory token", async () => {
       vi.mocked(tokenStorage.getToken).mockReturnValue("invalid-token");
+      vi.mocked(tokenStorage.hasSession).mockReturnValue(true); // User has logged in before
       vi.mocked(authApi.getCurrentUser).mockRejectedValueOnce(
         new Error("Unauthorized"),
       );
@@ -107,6 +111,7 @@ describe("AuthContext", () => {
     it("should restore session from refresh token cookie on page reload", async () => {
       // Simulates page reload: no in-memory token but valid refresh token cookie
       vi.mocked(tokenStorage.getToken).mockReturnValue(null);
+      vi.mocked(tokenStorage.hasSession).mockReturnValue(true); // User has logged in before
       vi.mocked(authApi.refresh).mockResolvedValue({
         access_token: "new-token",
         token_type: "bearer",
@@ -127,8 +132,9 @@ describe("AuthContext", () => {
 
     it("should remain logged out when no token and refresh fails", async () => {
       vi.mocked(tokenStorage.getToken).mockReturnValue(null);
+      vi.mocked(tokenStorage.hasSession).mockReturnValue(true); // User has logged in before
       vi.mocked(authApi.refresh).mockRejectedValue(
-        new Error("No refresh token"),
+        new Error("Network error"),
       );
 
       const { result } = renderHook(() => useAuth(), { wrapper });
@@ -139,7 +145,8 @@ describe("AuthContext", () => {
 
       expect(result.current.user).toBeNull();
       expect(result.current.isAuthenticated).toBe(false);
-      expect(tokenStorage.clearToken).toHaveBeenCalled();
+      // Transient errors use clearTokenMemoryOnly (allows retry on next page load)
+      expect(tokenStorage.clearTokenMemoryOnly).toHaveBeenCalled();
     });
   });
 
