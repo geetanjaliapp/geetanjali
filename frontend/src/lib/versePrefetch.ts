@@ -15,13 +15,53 @@
 import { API_V1_PREFIX } from "./config";
 
 /**
+ * Network Information API types (not yet in standard TypeScript lib).
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/NetworkInformation
+ */
+interface NetworkInformation {
+  saveData?: boolean;
+  effectiveType?: "slow-2g" | "2g" | "3g" | "4g";
+}
+
+interface NavigatorWithConnection extends Navigator {
+  connection?: NetworkInformation;
+}
+
+/**
  * Tracks which verses have been prefetched to avoid duplicate requests.
  * Uses a Set for O(1) lookup.
  */
 const prefetchedVerses = new Set<string>();
 
 /**
+ * Check if we should skip prefetching based on network conditions.
+ * Respects user's data-saving preferences and slow connections.
+ */
+function shouldSkipPrefetch(): boolean {
+  // Skip on server-side
+  if (typeof navigator === "undefined") {
+    return true;
+  }
+
+  // Check Network Information API (if available)
+  const connection = (navigator as NavigatorWithConnection).connection;
+  if (connection) {
+    // Skip if user has enabled data saver
+    if (connection.saveData) {
+      return true;
+    }
+    // Skip on slow connections (2G or slower)
+    if (connection.effectiveType === "slow-2g" || connection.effectiveType === "2g") {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
  * Prefetch verse data and translations for faster navigation.
+ * Respects user's network preferences (save-data, slow connections).
  *
  * @param canonicalId - Verse identifier (e.g., "BG_2_47")
  *
@@ -35,6 +75,11 @@ const prefetchedVerses = new Set<string>();
  * ```
  */
 export function prefetchVerse(canonicalId: string): void {
+  // Skip on slow networks or when save-data is enabled
+  if (shouldSkipPrefetch()) {
+    return;
+  }
+
   // Skip if already prefetched
   if (prefetchedVerses.has(canonicalId)) {
     return;
