@@ -2,6 +2,28 @@
 
 All notable changes to Geetanjali are documented here.
 
+## [1.20.0] - 2026-01-04
+
+Code hygiene release focusing on maintainability, test organization, and module architecture.
+
+### Backend Refactoring
+- **admin.py Split** - Split 1200+ LOC admin module into focused packages: `health/`, `ingestion/`, `sync/`
+- **email.py Split** - Restructured into package with `exceptions.py`, `resilience.py`, `service.py`, `templates.py`
+- **rag.py Split** - Extracted into package with `pipeline.py` and `validation.py`
+- **Test Organization** - Split large test files into focused modules: `newsletter/`, `email/`, `rag/`
+- **Type Safety** - Fixed proper casts and TypeVar bounds across backend
+- **Dependency Patterns** - Standardized session/auth dependency patterns
+- **Nesting Reduction** - Reduced deep nesting in persister and metrics collector
+
+### Frontend Improvements
+- **VersesGrid Extraction** - Extracted VersesGrid components from Verses.tsx (279 LOC reduction)
+- **Page Tests** - Added smoke tests for Settings, Verses, VerseDetail pages (12 new tests)
+- **Test Infrastructure** - Enhanced test wrapper with AudioPlayerProvider
+
+### Test Coverage
+- 470 frontend tests passing
+- All backend tests passing with ruff lint clean
+
 ## [1.19.2] - 2026-01-03
 
 Dependency upgrades.
