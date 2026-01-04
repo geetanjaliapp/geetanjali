@@ -344,3 +344,63 @@ As of v1.22.0:
 - ⚪ **Typography**: Tokens defined, using Tailwind responsive syntax
 - ⚪ **Spacing**: Tokens defined, using Tailwind responsive syntax
 - ⚪ **Layout**: Tokens defined, structural constants
+
+## Theming Outliers
+
+Some components can't use CSS variables directly due to technical constraints. Here's how to handle them:
+
+### Canvas/Image Generation
+
+Components that render to Canvas API (like `ImageCardGenerator.ts`) can't use CSS variables because Canvas requires hex color strings.
+
+**Solution**: Use `canvasThemeColors.ts` to bridge CSS variables to hex values:
+
+```typescript
+import { getCanvasThemeColors } from "../lib/canvasThemeColors";
+
+// Get current theme colors as hex
+const colors = getCanvasThemeColors();
+ctx.fillStyle = colors.sanskrit;  // Returns hex like "#4A1F06"
+```
+
+The bridge function reads computed CSS variable values and converts them to hex. It includes Sacred Saffron fallbacks for edge cases.
+
+### Color Preview Swatches
+
+Components that display theme colors as previews (like `ThemeSelector.tsx`) need inline styles:
+
+```typescript
+// Read from theme config, not CSS variables
+const colors = getThemePreviewColors(theme);
+<div style={{ backgroundColor: colors.primary }} />
+```
+
+### Animation Colors
+
+Custom animations in `index.css` use RGB color values for `rgb()` syntax compatibility:
+
+```css
+/* Sacred Saffron / Turmeric Gold animation colors */
+--color-amber-400: 230 184 48;    /* #E6B830 - shimmer */
+--color-orange-400: 224 123 60;   /* #E07B3C - glow */
+```
+
+### Status Indicators
+
+Status components use semantic tokens that work across all themes:
+
+```css
+/* Use these for success/warning/error states */
+--status-success-bg, --status-success-text, --status-success-border
+--status-warning-bg, --status-warning-text, --status-warning-border
+--status-error-bg, --status-error-text, --status-error-border
+```
+
+### Guidelines for New Outliers
+
+When adding components with theming constraints:
+
+1. **Prefer CSS variables** wherever technically possible
+2. **Document the constraint** in the component file
+3. **Use Sacred Saffron values** for any hardcoded fallbacks
+4. **Add to this section** if it's a new pattern
