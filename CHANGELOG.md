@@ -2,6 +2,29 @@
 
 All notable changes to Geetanjali are documented here.
 
+## [1.21.0] - 2026-01-04
+
+Performance optimization release targeting Core Web Vitals, particularly LCP on verse detail pages.
+
+### Performance
+
+- **Self-Hosted Fonts** - Eliminated render-blocking Google Fonts CSS (was 3,124ms blocking)
+  - Fonts loaded from `/public/fonts/` with proper preload hints
+  - Theme fonts lazy-loaded on demand via `fontLoader.ts`
+  - Font payload optimized for Devanagari + default theme
+- **JavaScript Chunking** - Optimized bundle splitting for better caching
+  - axios and web-vitals extracted to separate cacheable chunks
+  - Main bundle reduced by ~35KB (395KB → 360KB)
+- **Verse Data Prefetch** - Prefetch verse data on hover/focus for faster navigation
+  - Uses browser-native `<link rel="prefetch">` for optimal caching
+  - Respects save-data and slow network conditions (2G)
+- **Lighthouse Budget** - Added `lighthouse-budget.json` with performance targets
+
+### Technical
+
+- All 481 frontend tests passing
+- Web Vitals RUM integration via Umami (LCP, CLS, INP, FCP, TTFB)
+
 ## [1.20.0] - 2026-01-04
 
 Code hygiene release focusing on maintainability, test organization, and module architecture.
