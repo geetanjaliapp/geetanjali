@@ -57,8 +57,9 @@ describe("SyncStatusIndicator accessibility", () => {
 
     render(<SyncStatusIndicator />);
 
-    const status = screen.getByRole("status");
-    expect(status).toHaveAttribute("aria-label", "Offline");
+    // Get specifically the Offline status (providers may add other status elements)
+    const status = screen.getByRole("status", { name: "Offline" });
+    expect(status).toBeInTheDocument();
   });
 
   it("error state should be keyboard accessible", () => {

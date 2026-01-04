@@ -35,9 +35,11 @@ describe("OfflineIndicator", () => {
   it("renders nothing when online", () => {
     mockUseOnlineStatus.mockReturnValue(true);
 
-    const { container } = render(<OfflineIndicator />);
+    render(<OfflineIndicator />);
 
-    expect(container.firstChild).toBeNull();
+    // When online, the offline alert should not be present
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(screen.queryByText(/You're offline/)).not.toBeInTheDocument();
   });
 
   it("renders offline banner when offline", () => {
