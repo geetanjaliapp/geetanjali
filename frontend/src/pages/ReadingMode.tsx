@@ -22,11 +22,9 @@ import {
   IntroCard,
   Toast,
 } from "../components";
-import { HeartIcon, PlayIcon } from "../components/icons";
 // Direct imports to avoid Rollup circular chunk dependencies
 import { MiniPlayer } from "../components/audio/MiniPlayer/index";
 import { useAudioPlayer } from "../components/audio/AudioPlayerContext";
-import { StudyModePlayer } from "../components/audio/StudyModePlayer";
 import { useAutoAdvance } from "../hooks/useAutoAdvance";
 import {
   useSEO,
@@ -76,15 +74,13 @@ interface ReadingState {
 export default function ReadingMode() {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Cross-device sync for reading position, settings, and favorites
+  // Cross-device sync for reading position and settings
   // Destructure stable callbacks to avoid infinite loops in useEffect dependencies
   const {
     reading: { position: savedPosition, settings },
     saveReadingPosition: savePosition,
     setFontSize,
     resetReadingProgress: resetSyncedProgress,
-    isFavorite,
-    toggleFavorite,
   } = usePreferences();
 
   // Check URL params and saved position on mount
@@ -142,8 +138,6 @@ export default function ReadingMode() {
   // Onboarding starts hidden, then shows after 3-second delay for first-time users
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showNewsletterToast, setShowNewsletterToast] = useState(false);
-  // Single-play mode (triggered by header play button, not auto-advance)
-  const [isSinglePlayMode, setIsSinglePlayMode] = useState(false);
 
   // Continuous playback: auto-advance to next chapter when current chapter ends
   const [continuousPlayback, setContinuousPlayback] = useState(() =>
@@ -167,11 +161,8 @@ export default function ReadingMode() {
     });
   }, []);
 
-  // Audio player for single-play mode (header play button)
+  // Audio player for keyboard pause/resume control
   const audioPlayer = useAudioPlayer();
-
-  // Ref for header play button (focus management on single-play exit)
-  const headerPlayButtonRef = useRef<HTMLButtonElement>(null);
 
   // Show onboarding after 3-second delay to let users see the UI first
   useEffect(() => {
@@ -344,69 +335,6 @@ export default function ReadingMode() {
     verse: currentVerse?.verse ?? 1,
     enabled: autoAdvance.mode === "audio",
   });
-
-  // Handle single-play from header play button
-  const handleSinglePlay = useCallback(() => {
-    if (!currentVerse?.audio_url) return;
-
-    // Stop any auto-advance mode first
-    if (autoAdvance.isActive) {
-      autoAdvance.stop();
-    }
-
-    // Start single-play mode
-    setIsSinglePlayMode(true);
-    audioPlayer.play(currentVerse.canonical_id, currentVerse.audio_url);
-  }, [currentVerse, autoAdvance, audioPlayer]);
-
-  // Auto-dismiss delay for single-play mode (matches AudioPlayerContext completed state duration)
-  const SINGLE_PLAY_DISMISS_DELAY_MS = 1500;
-
-  // Track previous verse ID to detect changes
-  const prevVerseIdRef = useRef<string | null>(null);
-
-  // Auto-dismiss single-play mode after completion
-  useEffect(() => {
-    if (!isSinglePlayMode) return;
-
-    const isCompleted =
-      audioPlayer.currentlyPlaying === currentVerse?.canonical_id &&
-      audioPlayer.state === "completed";
-
-    if (isCompleted) {
-      const timer = setTimeout(() => {
-        setIsSinglePlayMode(false);
-      }, SINGLE_PLAY_DISMISS_DELAY_MS);
-      return () => clearTimeout(timer);
-    }
-  }, [
-    isSinglePlayMode,
-    audioPlayer.currentlyPlaying,
-    audioPlayer.state,
-    currentVerse?.canonical_id,
-  ]);
-
-  // Exit single-play mode when verse changes
-  useEffect(() => {
-    const currentId = currentVerse?.canonical_id || null;
-    const prevId = prevVerseIdRef.current;
-
-    // Only trigger cleanup if verse actually changed while in single-play mode
-    if (prevId !== null && currentId !== prevId && isSinglePlayMode) {
-      setIsSinglePlayMode(false);
-      audioPlayer.stop();
-    }
-
-    prevVerseIdRef.current = currentId;
-  }, [currentVerse?.canonical_id, isSinglePlayMode, audioPlayer]);
-
-  // Exit single-play mode when entering auto-advance
-  useEffect(() => {
-    if (autoAdvance.isActive && isSinglePlayMode) {
-      setIsSinglePlayMode(false);
-      audioPlayer.stop(); // Stop audio when switching to auto-advance
-    }
-  }, [autoAdvance.isActive, isSinglePlayMode, audioPlayer]);
 
   // Determine what type of page we're showing
   const isBookCover = state.pageIndex === PAGE_BOOK_COVER;
@@ -789,7 +717,7 @@ export default function ReadingMode() {
         event.preventDefault();
         nextPage();
       } else if (event.key === " " || event.key === "Spacebar") {
-        // Space: Pause/resume auto-advance or single-play when active
+        // Space: Pause/resume auto-advance or audio playback
         if (autoAdvance.isActive) {
           event.preventDefault();
           if (autoAdvance.isPaused) {
@@ -797,23 +725,28 @@ export default function ReadingMode() {
           } else {
             autoAdvance.pause();
           }
-        } else if (isSinglePlayMode) {
-          // Single-play mode: pause/resume audio
+        } else if (
+          audioPlayer.state === "playing" ||
+          audioPlayer.state === "paused"
+        ) {
+          // Audio playing from verse button click - pause/resume
           event.preventDefault();
           if (audioPlayer.state === "playing") {
             audioPlayer.pause();
-          } else if (audioPlayer.state === "paused") {
+          } else {
             audioPlayer.resume();
           }
         }
       } else if (event.key === "Escape") {
-        // Escape: Stop auto-advance or single-play
+        // Escape: Stop auto-advance or audio playback
         if (autoAdvance.isActive) {
           event.preventDefault();
           autoAdvance.stop();
-        } else if (isSinglePlayMode) {
+        } else if (
+          audioPlayer.state === "playing" ||
+          audioPlayer.state === "paused"
+        ) {
           event.preventDefault();
-          setIsSinglePlayMode(false);
           audioPlayer.stop();
         }
       }
@@ -821,15 +754,7 @@ export default function ReadingMode() {
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [
-    canGoPrev,
-    canGoNext,
-    prevPage,
-    nextPage,
-    autoAdvance,
-    isSinglePlayMode,
-    audioPlayer,
-  ]);
+  }, [canGoPrev, canGoNext, prevPage, nextPage, autoAdvance, audioPlayer]);
 
   return (
     <div className="min-h-screen reading-container flex flex-col">
@@ -1015,24 +940,17 @@ export default function ReadingMode() {
         )}
       </main>
 
-      {/* Audio MiniPlayer - shown when current verse has audio or single-play is active */}
-      {(currentVerse?.audio_url || isSinglePlayMode) && (
+      {/* Audio MiniPlayer - shown when current verse has audio */}
+      {currentVerse?.audio_url && (
         <MiniPlayer
-          verseId={currentVerse?.canonical_id || ""}
-          audioUrl={currentVerse?.audio_url || ""}
+          verseId={currentVerse.canonical_id}
+          audioUrl={currentVerse.audio_url}
           autoPlay={false}
-          // Single-play mode (Phase 3.7b)
-          singlePlayMode={isSinglePlayMode}
-          onExitSinglePlay={() => {
-            setIsSinglePlayMode(false);
-            // Return focus to header play button for accessibility
-            setTimeout(() => headerPlayButtonRef.current?.focus(), 100);
-          }}
           // Auto-advance props (Phase 3.7)
           autoAdvanceMode={autoAdvance.mode}
           isAutoAdvancePaused={autoAdvance.isPaused}
           textModeProgress={autoAdvance.textModeProgress}
-          durationMs={currentVerse?.duration_ms}
+          durationMs={currentVerse.duration_ms}
           versePosition={versePosition}
           onStartAudioMode={autoAdvance.startAudioMode}
           onStartTextMode={autoAdvance.startTextMode}

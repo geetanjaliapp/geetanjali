@@ -658,7 +658,7 @@ export function VerseFocus({
         isOpen={showShareModal}
         onClose={() => setShowShareModal(false)}
         verse={verse}
-        translations={translations}
+        hindiTranslation={hindiTranslation}
       />
     </div>
   );
