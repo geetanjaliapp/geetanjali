@@ -390,7 +390,8 @@ def _get_chromadb_collection_count(base_url: str) -> int | None:
         count_response = httpx.get(count_url, timeout=5.0)
 
         if count_response.status_code == 200:
-            return count_response.json()
+            count = count_response.json()
+            return int(count) if isinstance(count, (int, float)) else None
         return None
 
     except Exception as e:

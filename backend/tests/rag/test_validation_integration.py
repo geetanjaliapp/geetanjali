@@ -1,13 +1,13 @@
 """Integration tests for validation across RAG pipeline."""
 
 import json
-
-import pytest
 from unittest.mock import patch
 
-pytestmark = pytest.mark.unit
+import pytest
 
 from utils.json_parsing import extract_json_from_text
+
+pytestmark = pytest.mark.unit
 
 
 class TestValidationIntegration:

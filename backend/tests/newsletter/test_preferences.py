@@ -11,16 +11,6 @@ from models import Subscriber
 pytestmark = pytest.mark.integration
 
 
-@pytest.fixture(autouse=True)
-def reset_rate_limiter():
-    """Reset rate limiter storage before each test."""
-    from api.dependencies import limiter
-
-    if hasattr(limiter, "_storage") and limiter._storage:
-        limiter._storage.reset()
-    yield
-
-
 class TestPreferences:
     """Tests for GET/PATCH /api/v1/newsletter/preferences/{token}."""
 
