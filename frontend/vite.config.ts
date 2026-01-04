@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import compression from 'vite-plugin-compression'
+import { visualizer } from 'rollup-plugin-visualizer'
 import path from 'path'
 import fs from 'fs'
 import type { Plugin } from 'vite'
@@ -63,7 +64,15 @@ export default defineConfig({
     }),
     // Generate version.json for cache invalidation on deploy
     versionPlugin(),
-  ],
+    // Bundle analysis (generates stats.html)
+    // Only enable when ANALYZE=true to avoid slowing down regular builds
+    process.env.ANALYZE === 'true' && visualizer({
+      filename: 'dist/stats.html',
+      open: false,
+      gzipSize: true,
+      brotliSize: true,
+    }),
+  ].filter(Boolean),
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -82,6 +91,10 @@ export default defineConfig({
           'router': ['react-router-dom'],
           // Virtualization library (used on Verses page)
           'virtual': ['@tanstack/react-virtual'],
+          // HTTP client (used across app)
+          'axios': ['axios'],
+          // Performance monitoring (loaded async anyway)
+          'web-vitals': ['web-vitals'],
         },
       },
     },
