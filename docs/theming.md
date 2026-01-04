@@ -192,66 +192,13 @@ Reading mode uses specialized tokens for an immersive, manuscript-inspired exper
 | `.reading-sanskrit` | Enhanced Sanskrit text with dark mode golden glow |
 | `.reading-pada` | Verse quarter-line separation |
 | `.verse-ornament` | Decorative verse number badge |
-| `.reading-separator` | Traditional danda (॥) separator between sections |
+| `.reading-separator` | Traditional danda (॥) separator |
 
-**Example Usage**:
-
-```tsx
-<div className="reading-container">
-  <div className="reading-sanskrit">
-    {sanskritLines.map((line, idx) => (
-      <p key={idx} className="reading-pada">{line}</p>
-    ))}
-  </div>
-  <span className="verse-ornament">॥ 2.47 ॥</span>
-  <div className="reading-separator">
-    <span className="reading-separator-line" />
-    <span className="reading-separator-symbol">॥</span>
-    <span className="reading-separator-line" />
-  </div>
-</div>
-```
-
-**Design Principles**:
-- Light mode feels like reading aged parchment
-- Dark mode feels like reading by lamplight (दिया)
-- Sanskrit text is the visual hero with generous line-height (2.2×)
-- Minimal chrome — the verse is the experience
+Light mode feels like reading aged parchment; dark mode feels like reading by lamplight (दिया). Sanskrit text is the visual hero.
 
 ## Logo Theming
 
-The logo features a saffron gradient background circle that provides contrast against warm surface colors. The lotus petals and sun elements sit on top of this background.
-
-The logo supports two usage modes:
-
-### 1. Static SVG
-
-```html
-<img src="/logo.svg" alt="Geetanjali" />
-```
-
-The static SVG uses a fixed Sacred Saffron gradient background with cream petals. For full theme support, use the React component instead.
-
-### 2. Themeable React Component
-
-```tsx
-import { LogoIcon } from "../components/icons";
-
-// Uses CSS variables for full theme control
-<LogoIcon size={64} themed={true} />
-```
-
-Logo CSS variables (can be overridden per theme):
-
-```css
-/* v1.22.0: Defaults use Sacred Saffron / Turmeric Gold */
---logo-bg-start: var(--interactive-primary);  /* Sacred Saffron gradient */
---logo-bg-end: var(--color-primary-500);
---logo-petal-outer: var(--color-warm-100);    /* Turmeric Gold petals */
---logo-petal-inner: var(--color-warm-200);
---logo-sun-glow: var(--color-warm-300);
---logo-sun-core: #991B1B;                     /* Deep red center */
-```
+Use `<img src="/logo.svg">` for static usage or `<LogoIcon themed={true} />` for theme-aware rendering. The logo uses `--logo-bg-start`, `--logo-petal-outer`, `--logo-sun-glow` tokens which themes can override.
 
 ## Available Themes
 
@@ -321,29 +268,12 @@ The `modeColors.dark.contrast` object allows semantic-level overrides when color
 
 ## Browser Support
 
-The theming system uses modern CSS features:
+Requires modern browsers (not IE11). Uses `color-mix()` and CSS custom properties. Gracefully degrades on older browsers.
 
-| Feature | Minimum Version |
-|---------|-----------------|
-| CSS Custom Properties | All modern browsers (not IE11) |
-| `color-mix()` function | Chrome 111+, Safari 16.2+, Firefox 113+ |
-| CSS `oklch()` colors | Chrome 111+, Safari 15.4+, Firefox 113+ |
+## Migration Status (v1.22.0)
 
-For older browser support, consider polyfills or fallback values. The application gracefully degrades on unsupported browsers but may lose theme customization features.
-
-## Migration Status
-
-As of v1.22.0:
-
-- ✅ **Colors**: 100% tokenized (Sacred Saffron palette)
-- ✅ **Border Radius**: 100% tokenized (0 hardcoded)
-- ✅ **Shadows**: 100% tokenized (0 hardcoded)
-- ✅ **Motion**: Transitions tokenized
-- ✅ **Reading Mode**: Specialized tokens and CSS classes
-- ✅ **Theme Consistency**: All 4 themes with 950 shades
-- ⚪ **Typography**: Tokens defined, using Tailwind responsive syntax
-- ⚪ **Spacing**: Tokens defined, using Tailwind responsive syntax
-- ⚪ **Layout**: Tokens defined, structural constants
+✅ Fully tokenized: Colors (337), Border Radius (13), Shadows (25), Motion (15), Reading Mode
+⚪ Using Tailwind: Typography, Spacing, Layout (intentional—responsive syntax preferred)
 
 ## Theming Outliers
 
@@ -387,20 +317,6 @@ Custom animations in `index.css` use RGB color values for `rgb()` syntax compati
 
 ### Status Indicators
 
-Status components use semantic tokens that work across all themes:
+Use semantic tokens: `--status-success-*`, `--status-warning-*`, `--status-error-*` (each has `-bg`, `-text`, `-border` variants).
 
-```css
-/* Use these for success/warning/error states */
---status-success-bg, --status-success-text, --status-success-border
---status-warning-bg, --status-warning-text, --status-warning-border
---status-error-bg, --status-error-text, --status-error-border
-```
-
-### Guidelines for New Outliers
-
-When adding components with theming constraints:
-
-1. **Prefer CSS variables** wherever technically possible
-2. **Document the constraint** in the component file
-3. **Use Sacred Saffron values** for any hardcoded fallbacks
-4. **Add to this section** if it's a new pattern
+**New outliers**: Prefer CSS variables → document constraint → use Sacred Saffron fallbacks → add to this section.
