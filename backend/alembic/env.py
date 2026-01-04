@@ -53,6 +53,8 @@ def run_migrations_offline() -> None:
 
 def run_migrations_online() -> None:
     """Run migrations in 'online' mode."""
+    # Note: type: ignore comments are required due to Alembic's incomplete type stubs
+    # See: https://github.com/sqlalchemy/alembic/issues/1093
     configuration = config.get_section(config.config_ini_section)  # type: ignore[arg-type]
     if configuration is None:
         configuration = {}

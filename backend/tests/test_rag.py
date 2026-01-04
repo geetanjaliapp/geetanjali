@@ -138,8 +138,8 @@ class TestRAGPipelineUnit:
         """Test that vector store results are formatted correctly."""
         from services.rag import RAGPipeline
 
-        with patch("services.rag.get_vector_store", return_value=mock_vector_store):
-            with patch("services.rag.get_llm_service", return_value=MockLLMService()):
+        with patch("services.rag.pipeline.get_vector_store", return_value=mock_vector_store):
+            with patch("services.rag.pipeline.get_llm_service", return_value=MockLLMService()):
                 pipeline = RAGPipeline()
                 verses = pipeline.retrieve_verses("test query", top_k=3)
 
@@ -153,8 +153,8 @@ class TestRAGPipelineUnit:
         """Test distance to relevance conversion."""
         from services.rag import RAGPipeline
 
-        with patch("services.rag.get_vector_store", return_value=mock_vector_store):
-            with patch("services.rag.get_llm_service", return_value=MockLLMService()):
+        with patch("services.rag.pipeline.get_vector_store", return_value=mock_vector_store):
+            with patch("services.rag.pipeline.get_llm_service", return_value=MockLLMService()):
                 pipeline = RAGPipeline()
                 verses = pipeline.retrieve_verses("test query")
 
@@ -166,8 +166,8 @@ class TestRAGPipelineUnit:
         """Test context construction from case data and verses."""
         from services.rag import RAGPipeline
 
-        with patch("services.rag.get_vector_store", return_value=mock_vector_store):
-            with patch("services.rag.get_llm_service", return_value=mock_llm_service):
+        with patch("services.rag.pipeline.get_vector_store", return_value=mock_vector_store):
+            with patch("services.rag.pipeline.get_llm_service", return_value=mock_llm_service):
                 pipeline = RAGPipeline()
                 verses = pipeline.retrieve_verses("test query")
                 prompt = pipeline.construct_context(SAMPLE_CASE, verses)
@@ -180,8 +180,8 @@ class TestRAGPipelineUnit:
         """Test LLM response parsing."""
         from services.rag import RAGPipeline
 
-        with patch("services.rag.get_vector_store", return_value=mock_vector_store):
-            with patch("services.rag.get_llm_service", return_value=mock_llm_service):
+        with patch("services.rag.pipeline.get_vector_store", return_value=mock_vector_store):
+            with patch("services.rag.pipeline.get_llm_service", return_value=mock_llm_service):
                 pipeline = RAGPipeline()
                 result, is_policy_violation = pipeline.generate_brief("test prompt")
 
@@ -202,8 +202,8 @@ class TestRAGPipelineUnit:
                     "provider": "mock",
                 }
 
-        with patch("services.rag.get_vector_store", return_value=mock_vector_store):
-            with patch("services.rag.get_llm_service", return_value=MarkdownLLM()):
+        with patch("services.rag.pipeline.get_vector_store", return_value=mock_vector_store):
+            with patch("services.rag.pipeline.get_llm_service", return_value=MarkdownLLM()):
                 pipeline = RAGPipeline()
                 result, is_policy_violation = pipeline.generate_brief("test prompt")
 
@@ -217,8 +217,8 @@ class TestRAGPipelineUnit:
         """Test scholar flag is set for low confidence outputs."""
         from services.rag import RAGPipeline
 
-        with patch("services.rag.get_vector_store", return_value=mock_vector_store):
-            with patch("services.rag.get_llm_service", return_value=mock_llm_service):
+        with patch("services.rag.pipeline.get_vector_store", return_value=mock_vector_store):
+            with patch("services.rag.pipeline.get_llm_service", return_value=mock_llm_service):
                 pipeline = RAGPipeline()
 
                 # Test high confidence - no scholar flag
@@ -235,8 +235,8 @@ class TestRAGPipelineUnit:
         """Test missing fields get defaults."""
         from services.rag import RAGPipeline
 
-        with patch("services.rag.get_vector_store", return_value=mock_vector_store):
-            with patch("services.rag.get_llm_service", return_value=mock_llm_service):
+        with patch("services.rag.pipeline.get_vector_store", return_value=mock_vector_store):
+            with patch("services.rag.pipeline.get_llm_service", return_value=mock_llm_service):
                 pipeline = RAGPipeline()
 
                 incomplete_output = {"executive_summary": "Test"}
@@ -255,9 +255,9 @@ class TestRAGPipelineIntegration:
         """Test complete pipeline execution."""
         from services.rag import RAGPipeline
 
-        with patch("services.rag.get_vector_store", return_value=mock_vector_store):
-            with patch("services.rag.get_llm_service", return_value=mock_llm_service):
-                with patch("services.rag.SessionLocal") as mock_session:
+        with patch("services.rag.pipeline.get_vector_store", return_value=mock_vector_store):
+            with patch("services.rag.pipeline.get_llm_service", return_value=mock_llm_service):
+                with patch("services.rag.pipeline.SessionLocal") as mock_session:
                     # Mock database session for enrichment
                     mock_session.return_value.__enter__ = Mock(return_value=MagicMock())
                     mock_session.return_value.__exit__ = Mock(return_value=None)
@@ -290,12 +290,12 @@ class TestRAGPipelineIntegration:
                 raise Exception("Vector store unavailable")
 
         # Bypass cache to ensure failure scenario is actually tested
-        with patch("services.rag.cache.get", return_value=None):
+        with patch("services.rag.pipeline.cache.get", return_value=None):
             with patch(
-                "services.rag.get_vector_store", return_value=FailingVectorStore()
+                "services.rag.pipeline.get_vector_store", return_value=FailingVectorStore()
             ):
                 with patch(
-                    "services.rag.get_llm_service", return_value=mock_llm_service
+                    "services.rag.pipeline.get_llm_service", return_value=mock_llm_service
                 ):
                     pipeline = RAGPipeline()
                     result, is_policy_violation = pipeline.run(SAMPLE_CASE)
@@ -316,10 +316,10 @@ class TestRAGPipelineIntegration:
                 raise Exception("LLM unavailable")
 
         # Bypass cache to ensure failure scenario is actually tested
-        with patch("services.rag.cache.get", return_value=None):
-            with patch("services.rag.get_vector_store", return_value=mock_vector_store):
-                with patch("services.rag.get_llm_service", return_value=FailingLLM()):
-                    with patch("services.rag.SessionLocal") as mock_session:
+        with patch("services.rag.pipeline.cache.get", return_value=None):
+            with patch("services.rag.pipeline.get_vector_store", return_value=mock_vector_store):
+                with patch("services.rag.pipeline.get_llm_service", return_value=FailingLLM()):
+                    with patch("services.rag.pipeline.SessionLocal") as mock_session:
                         mock_session.return_value.close = Mock()
 
                         pipeline = RAGPipeline()
@@ -340,12 +340,12 @@ class TestRAGPipelineIntegration:
                 return {"ids": [], "documents": [], "distances": [], "metadatas": []}
 
         # Bypass cache to ensure empty verses scenario is actually tested
-        with patch("services.rag.cache.get", return_value=None):
+        with patch("services.rag.pipeline.cache.get", return_value=None):
             with patch(
-                "services.rag.get_vector_store", return_value=EmptyVectorStore()
+                "services.rag.pipeline.get_vector_store", return_value=EmptyVectorStore()
             ):
                 with patch(
-                    "services.rag.get_llm_service", return_value=mock_llm_service
+                    "services.rag.pipeline.get_llm_service", return_value=mock_llm_service
                 ):
                     pipeline = RAGPipeline()
                     result, is_policy_violation = pipeline.run(SAMPLE_CASE)
@@ -375,10 +375,10 @@ class TestLLMRefusalDetection:
                 }
 
         # Bypass cache to ensure refusal scenario is actually tested
-        with patch("services.rag.cache.get", return_value=None):
-            with patch("services.rag.get_vector_store", return_value=mock_vector_store):
-                with patch("services.rag.get_llm_service", return_value=RefusingLLM()):
-                    with patch("services.rag.SessionLocal") as mock_session:
+        with patch("services.rag.pipeline.cache.get", return_value=None):
+            with patch("services.rag.pipeline.get_vector_store", return_value=mock_vector_store):
+                with patch("services.rag.pipeline.get_llm_service", return_value=RefusingLLM()):
+                    with patch("services.rag.pipeline.SessionLocal") as mock_session:
                         mock_session.return_value.close = Mock()
                         pipeline = RAGPipeline()
                         result, is_policy_violation = pipeline.run(SAMPLE_CASE)
@@ -395,9 +395,9 @@ class TestLLMRefusalDetection:
         """Test that normal responses are not flagged as refusals."""
         from services.rag import RAGPipeline
 
-        with patch("services.rag.get_vector_store", return_value=mock_vector_store):
-            with patch("services.rag.get_llm_service", return_value=mock_llm_service):
-                with patch("services.rag.SessionLocal") as mock_session:
+        with patch("services.rag.pipeline.get_vector_store", return_value=mock_vector_store):
+            with patch("services.rag.pipeline.get_llm_service", return_value=mock_llm_service):
+                with patch("services.rag.pipeline.SessionLocal") as mock_session:
                     mock_session.return_value.__enter__ = Mock(return_value=MagicMock())
                     mock_session.return_value.__exit__ = Mock(return_value=None)
                     mock_session.return_value.close = Mock()

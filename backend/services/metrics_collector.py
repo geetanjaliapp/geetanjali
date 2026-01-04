@@ -13,8 +13,10 @@ from sqlalchemy import func, text
 from config import settings
 from db.connection import SessionLocal
 from models.case import Case
+from models.feedback import Feedback
 from models.message import Message
 from models.output import Output
+from models.subscriber import Subscriber
 from models.user import User
 from models.verse import Verse
 from services.cache import cache, daily_views_counter_key, get_redis_client
@@ -168,10 +170,6 @@ def _collect_engagement_metrics() -> None:
     """Collect newsletter and engagement metrics from the database."""
     db = SessionLocal()
     try:
-        # Import models here to avoid circular imports
-        from models.feedback import Feedback
-        from models.subscriber import Subscriber
-
         yesterday = datetime.utcnow() - timedelta(hours=24)
 
         # Newsletter subscribers total (verified only)
@@ -369,51 +367,58 @@ def _collect_ollama_metrics() -> None:
         ollama_models_loaded.set(0)
 
 
-def _collect_chromadb_metrics() -> None:
-    """Collect ChromaDB/Vector store infrastructure metrics."""
+def _get_chromadb_collection_count(base_url: str) -> int | None:
+    """Get the count of documents in the gita_verses collection."""
     try:
-        # Build ChromaDB URL from settings
-        chroma_host = settings.CHROMA_HOST or "localhost"
-        chroma_port = settings.CHROMA_PORT or 8000
+        collections_url = f"{base_url}/api/v2/tenants/default_tenant/databases/default_database/collections"
+        collections_response = httpx.get(collections_url, timeout=5.0)
 
-        # Check ChromaDB heartbeat (using v2 API)
-        response = httpx.get(
-            f"http://{chroma_host}:{chroma_port}/api/v2/heartbeat", timeout=5.0
+        if collections_response.status_code != 200:
+            return None
+
+        collections = collections_response.json()
+        target_collection = next(
+            (c for c in collections if c.get("name") == settings.CHROMA_COLLECTION_NAME),
+            None,
         )
 
-        if response.status_code == 200:
-            chromadb_up.set(1)
+        if not target_collection:
+            return None
 
-            # Get collection count (using v2 API)
-            try:
-                collections_response = httpx.get(
-                    f"http://{chroma_host}:{chroma_port}/api/v2/tenants/default_tenant/databases/default_database/collections",
-                    timeout=5.0,
-                )
-                if collections_response.status_code == 200:
-                    collections = collections_response.json()
-                    # Find gita_verses collection and get its count
-                    for coll in collections:
-                        if coll.get("name") == settings.CHROMA_COLLECTION_NAME:
-                            # Get collection count via API
-                            coll_id = coll.get("id")
-                            base = f"http://{chroma_host}:{chroma_port}"
-                            path = f"/api/v2/tenants/default_tenant/databases/default_database/collections/{coll_id}/count"
-                            count_response = httpx.get(
-                                f"{base}{path}",
-                                timeout=5.0,
-                            )
-                            if count_response.status_code == 200:
-                                chromadb_collection_count.set(count_response.json())
-                            break
-            except Exception as count_err:
-                logger.debug(f"Could not get ChromaDB collection count: {count_err}")
+        coll_id = target_collection.get("id")
+        count_url = f"{base_url}/api/v2/tenants/default_tenant/databases/default_database/collections/{coll_id}/count"
+        count_response = httpx.get(count_url, timeout=5.0)
 
-            logger.debug("ChromaDB metrics: up=1")
-        else:
+        if count_response.status_code == 200:
+            count = count_response.json()
+            return int(count) if isinstance(count, (int, float)) else None
+        return None
+
+    except Exception as e:
+        logger.debug(f"Could not get ChromaDB collection count: {e}")
+        return None
+
+
+def _collect_chromadb_metrics() -> None:
+    """Collect ChromaDB/Vector store infrastructure metrics."""
+    chroma_host = settings.CHROMA_HOST or "localhost"
+    chroma_port = settings.CHROMA_PORT or 8000
+    base_url = f"http://{chroma_host}:{chroma_port}"
+
+    try:
+        response = httpx.get(f"{base_url}/api/v2/heartbeat", timeout=5.0)
+
+        if response.status_code != 200:
             chromadb_up.set(0)
             chromadb_collection_count.set(0)
             logger.warning(f"ChromaDB returned status {response.status_code}")
+            return
+
+        chromadb_up.set(1)
+        count = _get_chromadb_collection_count(base_url)
+        if count is not None:
+            chromadb_collection_count.set(count)
+        logger.debug("ChromaDB metrics: up=1")
 
     except Exception as e:
         logger.error(f"Failed to collect ChromaDB metrics: {e}")

@@ -10,7 +10,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from api.dependencies import limiter
-from api.middleware.auth import get_optional_user
+from api.middleware.auth import get_current_user, get_optional_user
 from api.taxonomy import get_goals
 from config import settings
 from db.connection import get_db
@@ -441,7 +441,7 @@ class StatusWithPrefsResponse(BaseModel):
 
 @router.get("/status", response_model=StatusWithPrefsResponse)
 async def get_subscription_status(
-    current_user: User = Depends(get_optional_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     """
@@ -451,8 +451,6 @@ async def get_subscription_status(
     along with current preferences if subscribed.
     Used to sync localStorage and show update form in Settings.
     """
-    if not current_user:
-        raise HTTPException(status_code=401, detail="Authentication required")
 
     subscriber = get_subscriber_by_email(db, current_user.email)
     is_subscribed = subscriber is not None and subscriber.is_active
@@ -477,7 +475,7 @@ async def get_subscription_status(
 async def update_my_preferences(
     request: Request,
     data: PreferencesRequest,
-    current_user: User = Depends(get_optional_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     """
@@ -486,8 +484,6 @@ async def update_my_preferences(
     Allows updating name, goals, and send time without needing a token.
     Only works for the user's own email subscription.
     """
-    if not current_user:
-        raise HTTPException(status_code=401, detail="Authentication required")
 
     subscriber = get_subscriber_by_email(db, current_user.email)
 

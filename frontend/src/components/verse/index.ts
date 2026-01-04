@@ -8,3 +8,14 @@ export {
   type ImageFormat,
   type ImageCardOptions,
 } from "./ImageCardGenerator";
+export {
+  BrowseVerseGrid,
+  SearchVerseGrid,
+  type BrowseVerseGridProps,
+  type SearchVerseGridProps,
+} from "./VersesGrid";
+export {
+  getColumnCount,
+  getStrategyLabel,
+  toVerseMatch,
+} from "./versesGridUtils";

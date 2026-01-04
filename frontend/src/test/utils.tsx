@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "../contexts/AuthContext";
 import { ThemeProvider } from "../contexts/ThemeContext";
 import { PreferencesProvider } from "../contexts/PreferencesContext";
+import { AudioPlayerProvider } from "../components/audio";
 
 interface WrapperProps {
   children: ReactNode;
@@ -15,7 +16,9 @@ const AllProviders = ({ children }: WrapperProps) => {
     <BrowserRouter>
       <AuthProvider>
         <ThemeProvider>
-          <PreferencesProvider>{children}</PreferencesProvider>
+          <PreferencesProvider>
+            <AudioPlayerProvider>{children}</AudioPlayerProvider>
+          </PreferencesProvider>
         </ThemeProvider>
       </AuthProvider>
     </BrowserRouter>

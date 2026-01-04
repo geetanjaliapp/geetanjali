@@ -4,6 +4,7 @@ import asyncio
 import uuid
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from typing import cast
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
@@ -13,6 +14,7 @@ from fastapi.staticfiles import StaticFiles
 from prometheus_fastapi_instrumentator import Instrumentator
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
+from starlette.types import ExceptionHandler
 
 from config import settings
 from services.metrics_collector import collect_metrics
@@ -282,10 +284,10 @@ async def add_correlation_id(request: Request, call_next):
     return response
 
 
-app.add_exception_handler(HTTPException, http_exception_handler)  # type: ignore[arg-type]
-app.add_exception_handler(GeetanjaliException, geetanjali_exception_handler)  # type: ignore[arg-type]
-app.add_exception_handler(RequestValidationError, validation_exception_handler)  # type: ignore[arg-type]
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore[arg-type]
+app.add_exception_handler(HTTPException, cast(ExceptionHandler, http_exception_handler))
+app.add_exception_handler(GeetanjaliException, cast(ExceptionHandler, geetanjali_exception_handler))
+app.add_exception_handler(RequestValidationError, cast(ExceptionHandler, validation_exception_handler))
+app.add_exception_handler(RateLimitExceeded, cast(ExceptionHandler, _rate_limit_exceeded_handler))
 app.add_exception_handler(Exception, general_exception_handler)
 
 app.include_router(health.router, tags=["Health"])

@@ -9,7 +9,7 @@ from models.refresh_token import RefreshToken
 from utils.jwt import hash_token
 
 
-class RefreshTokenRepository(BaseRepository):
+class RefreshTokenRepository(BaseRepository[RefreshToken]):
     """Repository for refresh token CRUD operations."""
 
     def __init__(self, db: Session):
@@ -32,7 +32,7 @@ class RefreshTokenRepository(BaseRepository):
             "expires_at": RefreshToken.default_expiry(),
             "revoked": False,
         }
-        result: RefreshToken = self.create(token_data)  # type: ignore[assignment]
+        result: RefreshToken = self.create(token_data)
         return result
 
     def get_by_token(self, token: str) -> RefreshToken | None:

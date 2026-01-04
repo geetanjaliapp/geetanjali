@@ -8,7 +8,7 @@ from db.repositories.base import BaseRepository
 from models.message import Message, MessageRole
 
 
-class MessageRepository(BaseRepository):
+class MessageRepository(BaseRepository[Message]):
     """Repository for Message CRUD operations."""
 
     def __init__(self, db: Session):
@@ -48,7 +48,7 @@ class MessageRepository(BaseRepository):
             "content": content,
             "created_at": datetime.utcnow(),
         }
-        result: Message = self.create(message_data)  # type: ignore[assignment]
+        result: Message = self.create(message_data)
         return result
 
     def create_assistant_message(
@@ -75,7 +75,7 @@ class MessageRepository(BaseRepository):
             "output_id": output_id,
             "created_at": datetime.utcnow(),
         }
-        result: Message = self.create(message_data)  # type: ignore[assignment]
+        result: Message = self.create(message_data)
         return result
 
     def get_last_user_message(self, case_id: str) -> Message | None:
