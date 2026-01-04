@@ -13,8 +13,10 @@ from sqlalchemy import func, text
 from config import settings
 from db.connection import SessionLocal
 from models.case import Case
+from models.feedback import Feedback
 from models.message import Message
 from models.output import Output
+from models.subscriber import Subscriber
 from models.user import User
 from models.verse import Verse
 from services.cache import cache, daily_views_counter_key, get_redis_client
@@ -168,10 +170,6 @@ def _collect_engagement_metrics() -> None:
     """Collect newsletter and engagement metrics from the database."""
     db = SessionLocal()
     try:
-        # Import models here to avoid circular imports
-        from models.feedback import Feedback
-        from models.subscriber import Subscriber
-
         yesterday = datetime.utcnow() - timedelta(hours=24)
 
         # Newsletter subscribers total (verified only)

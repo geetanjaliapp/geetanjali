@@ -4,7 +4,7 @@ from sqlalchemy import Integer
 from sqlalchemy.orm import Session
 
 from db.repositories.base import BaseRepository
-from models.case import Case
+from models.case import Case, CaseStatus
 
 
 class CaseRepository(BaseRepository[Case]):
@@ -44,8 +44,6 @@ class CaseRepository(BaseRepository[Case]):
 
     def _apply_status_filter(self, query, status_filter: str | None):
         """Apply status filter to query."""
-        from models.case import CaseStatus
-
         if status_filter == "completed":
             # Completed includes: completed, policy_violation, or no status (legacy)
             query = query.filter(
@@ -80,8 +78,6 @@ class CaseRepository(BaseRepository[Case]):
             Dict with counts: {all, completed, in_progress, shared}
         """
         from sqlalchemy import func
-
-        from models.case import CaseStatus
 
         base_filter = (Case.user_id == user_id) & (Case.is_deleted == False)  # noqa: E712
 
@@ -178,8 +174,6 @@ class CaseRepository(BaseRepository[Case]):
             Dict with counts: {all, completed, in_progress, shared}
         """
         from sqlalchemy import func
-
-        from models.case import CaseStatus
 
         base_filter = (
             (Case.session_id == session_id)
@@ -355,8 +349,6 @@ class CaseRepository(BaseRepository[Case]):
             Number of cases marked as failed
         """
         from datetime import datetime, timedelta
-
-        from models.case import CaseStatus
 
         cutoff = datetime.utcnow() - timedelta(minutes=timeout_minutes)
 
