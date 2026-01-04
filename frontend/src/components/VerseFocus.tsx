@@ -264,13 +264,22 @@ export function VerseFocus({
     setTranslationError(null);
   }, [verse.canonical_id, isControlled]);
 
-  // Get primary translations (first Hindi and first English)
-  const hindiTranslation = translations.find(
-    (t) => t.language === "hi" || t.language === "hindi",
+  // Get primary translations - match VerseDetail priority:
+  // Hindi: Swami Tejomayananda preferred
+  // English: Swami Gambirananda preferred
+  const hindiTranslations = translations.filter(
+    (t) => t.language === "hi" || t.language === "hindi" || t.translator === "Swami Tejomayananda",
   );
-  const englishTranslation = translations.find(
+  const hindiTranslation =
+    hindiTranslations.find((t) => t.translator === "Swami Tejomayananda") ||
+    hindiTranslations[0];
+
+  const englishTranslations = translations.filter(
     (t) => t.language === "en" || t.language === "english",
   );
+  const englishTranslation =
+    englishTranslations.find((t) => t.translator === "Swami Gambirananda") ||
+    englishTranslations[0];
 
   // Fetch translations lazily when user first reveals
   const loadTranslations = useCallback(async () => {
