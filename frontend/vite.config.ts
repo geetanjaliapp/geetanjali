@@ -91,9 +91,9 @@ export default defineConfig({
           'router': ['react-router-dom'],
           // Virtualization library (used on Verses page)
           'virtual': ['@tanstack/react-virtual'],
-          // HTTP client (used across app)
+          // HTTP client (used across app, stable)
           'axios': ['axios'],
-          // Performance monitoring (loaded async anyway)
+          // Performance monitoring (dynamically imported in monitoring.ts)
           'web-vitals': ['web-vitals'],
         },
       },

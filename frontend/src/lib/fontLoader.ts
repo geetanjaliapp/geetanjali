@@ -76,10 +76,8 @@ export async function loadThemeFonts(themeId: string): Promise<void> {
     try {
       await loader();
       loadedThemes.add(normalizedId);
-    } catch (error) {
-      // Re-throw to let caller handle it (e.g., use fallback fonts)
-      throw error;
     } finally {
+      // Clean up in-flight tracking regardless of success/failure
       loadingPromises.delete(normalizedId);
     }
   })();
