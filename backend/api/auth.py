@@ -112,7 +112,7 @@ async def signup(
     signup_data: SignupRequest,
     response: Response,
     db: Session = Depends(get_db),
-    session_id: str = Depends(get_session_id),
+    session_id: str | None = Depends(get_session_id),
 ):
     """
     Create a new user account.
@@ -223,7 +223,7 @@ async def login(
     login_data: LoginRequest,
     response: Response,
     db: Session = Depends(get_db),
-    session_id: str = Depends(get_session_id),
+    session_id: str | None = Depends(get_session_id),
 ):
     """
     Authenticate user and return access token.
