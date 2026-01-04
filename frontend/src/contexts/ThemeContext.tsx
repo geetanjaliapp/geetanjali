@@ -238,19 +238,34 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
         const currentThemeId = customThemeRef.current?.id ?? "default";
         if (newThemeId !== currentThemeId) {
           // Load fonts for cross-tab theme sync (fire-and-forget for storage events)
-          loadThemeFonts(newThemeId).then(() => {
-            if (newThemeId === "default") {
-              setCustomThemeState(null);
-              applyCustomTheme(null);
-            } else {
-              const newTheme = getThemeById(newThemeId);
-              if (newTheme) {
-                setCustomThemeState(newTheme);
-                applyCustomTheme(newTheme);
+          loadThemeFonts(newThemeId)
+            .then(() => {
+              if (newThemeId === "default") {
+                setCustomThemeState(null);
+                applyCustomTheme(null);
+              } else {
+                const newTheme = getThemeById(newThemeId);
+                if (newTheme) {
+                  setCustomThemeState(newTheme);
+                  applyCustomTheme(newTheme);
+                }
               }
-            }
-            applyThemeFonts(newThemeId);
-          });
+              applyThemeFonts(newThemeId);
+            })
+            .catch(() => {
+              // Font loading failed, still apply theme (fonts will use fallback)
+              if (newThemeId === "default") {
+                setCustomThemeState(null);
+                applyCustomTheme(null);
+              } else {
+                const newTheme = getThemeById(newThemeId);
+                if (newTheme) {
+                  setCustomThemeState(newTheme);
+                  applyCustomTheme(newTheme);
+                }
+              }
+              applyThemeFonts(newThemeId);
+            });
         }
       }
 
@@ -413,10 +428,15 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     const themeId = customTheme?.id ?? "default";
 
     // Load fonts first (for non-default themes), then apply
-    loadThemeFonts(themeId).then(() => {
-      applyCustomTheme(customTheme);
-      applyThemeFonts(themeId);
-    });
+    // If font loading fails, still apply theme (fonts will use fallback)
+    loadThemeFonts(themeId)
+      .catch(() => {
+        // Silently continue - fonts will use system fallback
+      })
+      .finally(() => {
+        applyCustomTheme(customTheme);
+        applyThemeFonts(themeId);
+      });
   }, [customTheme]);
 
   // Memoize context value to prevent unnecessary re-renders of consumers

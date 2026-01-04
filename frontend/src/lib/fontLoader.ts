@@ -67,8 +67,7 @@ export async function loadThemeFonts(themeId: string): Promise<void> {
   // Get the loader for this theme
   const loader = themeFontModules[normalizedId];
   if (!loader) {
-    // Unknown theme - might be custom, nothing to load
-    console.warn(`[fontLoader] No font module for theme: ${normalizedId}`);
+    // Unknown theme (possibly custom) - nothing to load, not an error
     return;
   }
 
@@ -77,6 +76,9 @@ export async function loadThemeFonts(themeId: string): Promise<void> {
     try {
       await loader();
       loadedThemes.add(normalizedId);
+    } catch (error) {
+      // Re-throw to let caller handle it (e.g., use fallback fonts)
+      throw error;
     } finally {
       loadingPromises.delete(normalizedId);
     }
