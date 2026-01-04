@@ -54,7 +54,7 @@ export function MiniPlayerAutoAdvance({
 }: MiniPlayerAutoAdvanceProps) {
   return (
     <div
-      className="bg-[var(--surface-reading-header)] border-t border-[var(--border-reading)] px-4 py-2.5"
+      className="bg-[var(--surface-reading-header)] border-t border-[var(--border-reading-header)] px-4 py-2.5"
       role="region"
       aria-label="Auto-advance player"
     >

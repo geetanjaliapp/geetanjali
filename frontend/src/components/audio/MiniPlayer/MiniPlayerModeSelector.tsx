@@ -21,7 +21,7 @@ export function MiniPlayerModeSelector({
 }: MiniPlayerModeSelectorProps) {
   return (
     <div
-      className="bg-[var(--surface-reading-header)] border-t border-[var(--border-reading)] px-4 py-3"
+      className="bg-[var(--surface-reading-header)] border-t border-[var(--border-reading-header)] px-4 py-3"
       role="region"
       aria-label="Auto-advance mode selection"
     >

@@ -965,7 +965,7 @@ export default function ReadingMode() {
 
       {/* Bottom Navigation Bar - shrink-0 prevents flex shrinking */}
       <nav
-        className="shrink-0 bg-[var(--surface-reading-header)] backdrop-blur-xs border-t border-[var(--border-reading)] shadow-[var(--shadow-dropdown)]"
+        className="shrink-0 bg-[var(--surface-reading-header)] backdrop-blur-xs border-t border-[var(--border-reading-header)]"
         aria-label="Verse navigation"
       >
         <div className="max-w-4xl mx-auto px-4 py-2">

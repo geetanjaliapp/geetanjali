@@ -60,7 +60,7 @@ export function MiniPlayerSinglePlay({
     <div
       ref={containerRef}
       tabIndex={-1}
-      className="bg-[var(--surface-reading-header)] border-t border-[var(--border-reading)] px-4 py-2 focus:outline-none"
+      className="bg-[var(--surface-reading-header)] border-t border-[var(--border-reading-header)] px-4 py-2 focus:outline-none"
       role="region"
       aria-label="Single verse player. Press Space to pause, Escape to close."
       aria-live="polite"
