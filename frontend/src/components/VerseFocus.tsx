@@ -17,14 +17,19 @@ import { Link } from "react-router-dom";
 import { versesApi } from "../lib/api";
 import { formatSanskritLines, isSpeakerIntro } from "../lib/sanskritFormatter";
 import { getTranslatorPriority } from "../constants/translators";
-import { HeartIcon } from "./icons";
+import {
+  HeartIcon,
+  ShareIcon,
+  PlayIcon,
+  PauseIcon,
+  SpinnerIcon,
+} from "./icons";
 import { useFavoritesPrefs } from "../hooks";
 import { SpeakButton } from "./SpeakButton";
-import {
-  setStorageItem,
-  setStorageItemRaw,
-  STORAGE_KEYS,
-} from "../lib/storage";
+import { ShareModal } from "./verse/ShareModal";
+import { StudyModePlayer } from "./audio/StudyModePlayer";
+import { useAudioPlayer } from "./audio/AudioPlayerContext";
+import { setStorageItem, STORAGE_KEYS } from "../lib/storage";
 import { prepareHindiTTS, prepareEnglishTTS } from "../lib/ttsPreprocess";
 import type { Verse, Translation, FontSize } from "../types";
 
@@ -173,8 +178,6 @@ interface VerseFocusProps {
   showTranslation?: boolean;
   /** Controlled mode: callback to toggle translation */
   onToggleTranslation?: () => void;
-  /** Hide the favorite button (when parent manages it) */
-  hideFavoriteButton?: boolean;
 }
 
 /**
@@ -213,11 +216,19 @@ export function VerseFocus({
   fontSize = "regular",
   showTranslation: controlledShowTranslation,
   onToggleTranslation,
-  hideFavoriteButton = false,
 }: VerseFocusProps) {
   // Support both controlled and uncontrolled modes
   const isControlled = controlledShowTranslation !== undefined;
   const [internalShowTranslation, setInternalShowTranslation] = useState(false);
+
+  // Share modal state
+  const [showShareModal, setShowShareModal] = useState(false);
+
+  // Audio player for verse playback
+  const audioPlayer = useAudioPlayer();
+  const isThisVersePlaying = audioPlayer.currentlyPlaying === verse.canonical_id;
+  const isPlaying = isThisVersePlaying && audioPlayer.state === "playing";
+  const isLoading = isThisVersePlaying && audioPlayer.state === "loading";
 
   // Favorites (synced across devices for logged-in users)
   const { isFavorite, toggleFavorite } = useFavoritesPrefs();
@@ -233,15 +244,6 @@ export function VerseFocus({
   // Section expansion preferences (persisted across verses and chapters)
   const [sectionPrefs, setSectionPrefs] =
     useState<SectionPrefs>(loadSectionPrefs);
-
-  // Track if user has ever toggled translation (persisted to stop pulse animation)
-  const [hintSeen, setHintSeen] = useState(() => {
-    try {
-      return localStorage.getItem(STORAGE_KEYS.translationHintSeen) === "true";
-    } catch {
-      return false;
-    }
-  });
 
   // Toggle a section's expanded state and persist
   const toggleSection = useCallback((id: SectionId) => {
@@ -311,12 +313,6 @@ export function VerseFocus({
   const handleToggle = useCallback(() => {
     const newState = !showTranslation;
 
-    // Mark hint as seen (stops pulse animation)
-    if (!hintSeen) {
-      setHintSeen(true);
-      setStorageItemRaw(STORAGE_KEYS.translationHintSeen, "true");
-    }
-
     // Use controlled callback if available, otherwise update internal state
     if (onToggleTranslation) {
       onToggleTranslation();
@@ -328,13 +324,7 @@ export function VerseFocus({
     if (newState && translations.length === 0) {
       loadTranslations();
     }
-  }, [
-    showTranslation,
-    hintSeen,
-    translations.length,
-    loadTranslations,
-    onToggleTranslation,
-  ]);
+  }, [showTranslation, translations.length, loadTranslations, onToggleTranslation]);
 
   // Space key to toggle translation (desktop)
   useEffect(() => {
@@ -366,10 +356,55 @@ export function VerseFocus({
     { mode: "detail" },
   );
 
+  // Handle play button click
+  const handlePlayClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation(); // Don't trigger translation toggle
+      if (!verse.audio_url) return;
+
+      if (isPlaying) {
+        audioPlayer.pause();
+      } else if (isThisVersePlaying && audioPlayer.state === "paused") {
+        audioPlayer.resume();
+      } else {
+        audioPlayer.play(verse.canonical_id, verse.audio_url);
+      }
+    },
+    [verse, isPlaying, isThisVersePlaying, audioPlayer],
+  );
+
   return (
     <div className="w-full max-w-2xl mx-auto flex flex-col">
       {/* Fixed Sanskrit area - stays in place */}
-      <div className="shrink-0">
+      <div className="shrink-0 relative">
+        {/* Absolute-positioned action buttons (top-right) - matches VerseDetail */}
+        <div className="absolute top-0 right-0 z-10 flex items-center gap-1">
+          {/* Play button */}
+          {verse.audio_url && (
+            <button
+              onClick={handlePlayClick}
+              className={`p-2 rounded-full transition-[var(--transition-all)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${
+                isPlaying
+                  ? "text-[var(--interactive-primary)] bg-[var(--interactive-primary)]/10"
+                  : "text-[var(--text-muted)] hover:text-[var(--interactive-primary)] hover:bg-[var(--surface-muted)]"
+              }`}
+              aria-label={isPlaying ? "Pause recitation" : "Play recitation"}
+            >
+              {isLoading ? (
+                <SpinnerIcon className="w-5 h-5" />
+              ) : isPlaying ? (
+                <PauseIcon className="w-5 h-5" />
+              ) : (
+                <PlayIcon className="w-5 h-5" />
+              )}
+            </button>
+          )}
+          {/* Study Mode button */}
+          <div onClick={(e) => e.stopPropagation()}>
+            <StudyModePlayer verse={verse} translations={translations} />
+          </div>
+        </div>
+
         <button
           onClick={handleToggle}
           className="w-full text-center focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-4 focus-visible:ring-offset-[var(--focus-ring-offset)] rounded-[var(--radius-card)] transition-[var(--transition-transform)] active:scale-[0.99]"
@@ -401,46 +436,15 @@ export function VerseFocus({
             ))}
           </div>
 
-          {/* Verse reference - ornament styling */}
-          {/* v1.22.0: Enhanced with verse-ornament class for manuscript feel */}
-          <div className="text-center mb-2">
-            <span className="verse-ornament">
-              ॥ {verse.chapter}.{verse.verse} ॥
-            </span>
-          </div>
-
-          {/* Hints (only show when translation is hidden) */}
-          {!showTranslation && (
-            <div className="space-y-2">
-              <div
-                className={`text-sm text-[var(--text-accent-muted)] italic ${!hintSeen ? "animate-pulse" : ""}`}
-              >
-                Tap for translation
-              </div>
-              {/* Swipe hint - mobile only */}
-              <div className="sm:hidden text-xs text-[var(--text-accent-muted)]">
-                ← swipe →
-              </div>
-            </div>
-          )}
-        </button>
-
-        {/* Explore link - above fold, symmetric with VerseDetail's "Read in context" */}
-        <div className="text-center mt-2">
-          <Link
-            to={`/verses/${verse.canonical_id}`}
-            className="inline-block text-xs text-[var(--text-accent-muted)] hover:text-[var(--text-accent)] transition-[var(--transition-color)]"
-          >
-            Explore this verse →
-          </Link>
-        </div>
-
-        {/* Favorite button - outside the translation toggle button to avoid nesting */}
-        {!hideFavoriteButton && (
-          <div className="flex justify-center mt-4 mb-2">
+          {/* Verse reference with Heart + Share flanking - matches VerseDetail */}
+          <div className="flex items-center justify-center gap-2 sm:gap-4 mb-2">
+            {/* Favorite button */}
             <button
-              onClick={() => toggleFavorite(verse.canonical_id)}
-              className={`p-3 sm:p-1.5 rounded-[var(--radius-avatar)] transition-[var(--transition-all)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleFavorite(verse.canonical_id);
+              }}
+              className={`p-2 rounded-[var(--radius-avatar)] transition-[var(--transition-all)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${
                 isFavorite(verse.canonical_id)
                   ? "text-[var(--icon-favorite)]"
                   : "text-[var(--text-muted)] hover:text-[var(--icon-favorite)] hover:scale-110"
@@ -452,12 +456,39 @@ export function VerseFocus({
               }
             >
               <HeartIcon
-                className="w-5 h-5 sm:w-4 sm:h-4"
+                className="w-5 h-5"
                 filled={isFavorite(verse.canonical_id)}
               />
             </button>
+
+            {/* Verse reference ornament */}
+            <span className="verse-ornament">
+              ॥ {verse.chapter}.{verse.verse} ॥
+            </span>
+
+            {/* Share button */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowShareModal(true);
+              }}
+              className="p-2 rounded-[var(--radius-avatar)] transition-[var(--transition-all)] text-[var(--text-muted)] hover:text-[var(--text-accent)] hover:scale-110 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+              aria-label="Share verse"
+            >
+              <ShareIcon className="w-5 h-5" />
+            </button>
           </div>
-        )}
+        </button>
+
+        {/* Explore link - above fold, symmetric with VerseDetail's "Read in context" */}
+        <div className="text-center mt-2">
+          <Link
+            to={`/verses/${verse.canonical_id}`}
+            className="inline-block text-xs text-[var(--text-accent-muted)] hover:text-[var(--text-accent)] transition-[var(--transition-color)]"
+          >
+            Explore this verse →
+          </Link>
+        </div>
       </div>
 
       {/* Translation panel - expands downward only */}
@@ -621,6 +652,14 @@ export function VerseFocus({
           )}
         </div>
       </div>
+
+      {/* Share Modal */}
+      <ShareModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        verse={verse}
+        translations={translations}
+      />
     </div>
   );
 }

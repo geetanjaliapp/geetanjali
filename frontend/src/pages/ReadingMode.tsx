@@ -848,62 +848,6 @@ export default function ReadingMode() {
               </span>
             </div>
             <div className="flex items-center gap-1 sm:gap-2">
-              {/* Play button - single verse playback */}
-              {currentVerse && (
-                <button
-                  ref={headerPlayButtonRef}
-                  onClick={handleSinglePlay}
-                  disabled={!currentVerse.audio_url}
-                  aria-disabled={!currentVerse.audio_url}
-                  className={`flex items-center justify-center min-w-[44px] min-h-[44px] p-2 rounded-[var(--radius-button)] transition-[var(--transition-all)] ${
-                    currentVerse.audio_url
-                      ? "text-[var(--text-reading-muted)] hover:text-[var(--text-reading-primary)] hover:bg-[var(--interactive-reading-hover-bg)]"
-                      : "text-[var(--interactive-reading-disabled)] cursor-not-allowed"
-                  }`}
-                  aria-label={
-                    currentVerse.audio_url
-                      ? "Play recitation"
-                      : "No audio available"
-                  }
-                  title={
-                    currentVerse.audio_url
-                      ? "Play recitation"
-                      : "No audio available"
-                  }
-                >
-                  <PlayIcon className="w-5 h-5" />
-                </button>
-              )}
-              {/* Study Mode button - sequential playback (fetches translations internally) */}
-              {currentVerse && (
-                <StudyModePlayer verse={currentVerse} />
-              )}
-              {/* Favorite button - thumb-friendly position in header */}
-              {currentVerse && (
-                <button
-                  onClick={() => toggleFavorite(currentVerse.canonical_id)}
-                  className={`flex items-center justify-center min-w-[44px] min-h-[44px] p-2 rounded-[var(--radius-button)] transition-[var(--transition-all)] ${
-                    isFavorite(currentVerse.canonical_id)
-                      ? "text-[var(--icon-favorite)]"
-                      : "text-[var(--text-reading-muted)] hover:text-[var(--icon-favorite)]"
-                  }`}
-                  aria-label={
-                    isFavorite(currentVerse.canonical_id)
-                      ? "Remove from favorites"
-                      : "Add to favorites"
-                  }
-                  title={
-                    isFavorite(currentVerse.canonical_id)
-                      ? "Remove from favorites"
-                      : "Add to favorites"
-                  }
-                >
-                  <HeartIcon
-                    className="w-5 h-5"
-                    filled={isFavorite(currentVerse.canonical_id)}
-                  />
-                </button>
-              )}
               {/* Font size toggle - Aa + filled circles */}
               <button
                 onClick={cycleFontSize}
@@ -953,7 +897,7 @@ export default function ReadingMode() {
                   →
                 </kbd>
               </div>
-              {/* Verse counter */}
+              {/* Verse counter - shows progress within chapter */}
               {currentVerse && (
                 <div className="text-sm text-[var(--text-reading-primary)]/80 ml-1">
                   {currentVerse.verse}/{getChapterVerseCount(state.chapter)}
@@ -1060,7 +1004,6 @@ export default function ReadingMode() {
               fontSize={settings.fontSize}
               showTranslation={showTranslation}
               onToggleTranslation={toggleTranslation}
-              hideFavoriteButton
             />
           </div>
         ) : (
