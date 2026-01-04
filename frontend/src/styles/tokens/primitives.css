@@ -18,38 +18,45 @@
 
 :root {
   /* ============================================
-     PRIMARY SCALE (Orange by default)
+     PRIMARY SCALE - Sacred Saffron (केसरी)
      Usage: Buttons, links, CTAs, primary actions
+     v1.22.0: Replaced generic Tailwind orange with
+     culturally-rooted Sacred Saffron palette
      ============================================ */
-  --color-primary-50: var(--color-orange-50);
-  --color-primary-100: var(--color-orange-100);
-  --color-primary-200: var(--color-orange-200);
-  --color-primary-300: var(--color-orange-300);
-  --color-primary-400: var(--color-orange-400);
-  --color-primary-500: var(--color-orange-500);
-  --color-primary-600: var(--color-orange-600);
-  --color-primary-700: var(--color-orange-700);
-  --color-primary-800: var(--color-orange-800);
-  --color-primary-900: var(--color-orange-900);
+  --color-primary-50: #FEF5F0;
+  --color-primary-100: #FDEBE0;
+  --color-primary-200: #F9D4BC;
+  --color-primary-300: #F4A460;
+  --color-primary-400: #E07B3C;
+  --color-primary-500: #C65D1A;   /* Sacred Saffron */
+  --color-primary-600: #A94E12;
+  --color-primary-700: #8B3E0E;
+  --color-primary-800: #6D2F0A;
+  --color-primary-900: #4A1F06;
+  --color-primary-950: #2D1304;
 
   /* ============================================
-     WARM SCALE (Amber by default)
+     WARM SCALE - Turmeric Gold (हल्दी)
      Usage: Cards, warm surfaces, highlights
+     v1.22.0: Rich gold tones evoking auspiciousness
+     and purification rituals
      ============================================ */
-  --color-warm-50: var(--color-amber-50);
-  --color-warm-100: var(--color-amber-100);
-  --color-warm-200: var(--color-amber-200);
-  --color-warm-300: var(--color-amber-300);
-  --color-warm-400: var(--color-amber-400);
-  --color-warm-500: var(--color-amber-500);
-  --color-warm-600: var(--color-amber-600);
-  --color-warm-700: var(--color-amber-700);
-  --color-warm-800: var(--color-amber-800);
-  --color-warm-900: var(--color-amber-900);
+  --color-warm-50: #FFFDF5;
+  --color-warm-100: #FFF8E1;
+  --color-warm-200: #FFECB3;
+  --color-warm-300: #FFD54F;
+  --color-warm-400: #E6B830;
+  --color-warm-500: #D4A017;   /* Turmeric Gold */
+  --color-warm-600: #B08914;
+  --color-warm-700: #8B6914;
+  --color-warm-800: #5D4710;
+  --color-warm-900: #3D2E0A;
+  --color-warm-950: #1F1705;
 
   /* ============================================
      NEUTRAL SCALE (Gray by default)
      Usage: Text, borders, backgrounds, UI chrome
+     v1.22.0: Added 950 shade for deeper darks
      ============================================ */
   --color-neutral-50: var(--color-gray-50);
   --color-neutral-100: var(--color-gray-100);
@@ -61,41 +68,46 @@
   --color-neutral-700: var(--color-gray-700);
   --color-neutral-800: var(--color-gray-800);
   --color-neutral-900: var(--color-gray-900);
+  --color-neutral-950: var(--color-gray-950);
 
   /* ============================================
-     ACCENT SCALE (Amber by default)
+     ACCENT SCALE - Turmeric Gold (matches warm)
      Usage: Sanskrit text, decorative elements, sacred highlights
-     Note: Intentionally same as warm by default, but can be customized independently
+     v1.22.0: Mirrors warm scale; can be customized independently
      ============================================ */
-  --color-accent-50: var(--color-amber-50);
-  --color-accent-100: var(--color-amber-100);
-  --color-accent-200: var(--color-amber-200);
-  --color-accent-300: var(--color-amber-300);
-  --color-accent-400: var(--color-amber-400);
-  --color-accent-500: var(--color-amber-500);
-  --color-accent-600: var(--color-amber-600);
-  --color-accent-700: var(--color-amber-700);
-  --color-accent-800: var(--color-amber-800);
-  --color-accent-900: var(--color-amber-900);
+  --color-accent-50: #FFFDF5;
+  --color-accent-100: #FFF8E1;
+  --color-accent-200: #FFECB3;
+  --color-accent-300: #FFD54F;
+  --color-accent-400: #E6B830;
+  --color-accent-500: #D4A017;
+  --color-accent-600: #B08914;
+  --color-accent-700: #8B6914;
+  --color-accent-800: #5D4710;
+  --color-accent-900: #3D2E0A;
+  --color-accent-950: #1F1705;
 
   /* ============================================
-     READING SCALE (Stone by default)
+     READING SCALE - Warm Parchment
      Usage: Reading mode backgrounds, focused reading surfaces
+     v1.22.0: Warm cream tones like aged manuscripts
      ============================================ */
-  --color-reading-50: var(--color-stone-50);
-  --color-reading-100: var(--color-stone-100);
-  --color-reading-200: var(--color-stone-200);
-  --color-reading-300: var(--color-stone-300);
-  --color-reading-400: var(--color-stone-400);
-  --color-reading-500: var(--color-stone-500);
-  --color-reading-600: var(--color-stone-600);
-  --color-reading-700: var(--color-stone-700);
-  --color-reading-800: var(--color-stone-800);
-  --color-reading-900: var(--color-stone-900);
+  --color-reading-50: #FDF8F3;
+  --color-reading-100: #FAF4EC;
+  --color-reading-200: #F7EFE5;
+  --color-reading-300: #EDE4D8;
+  --color-reading-400: #DDD2C3;
+  --color-reading-500: #C4B8A8;
+  --color-reading-600: #A99D8D;
+  --color-reading-700: #8A7F70;
+  --color-reading-800: #6B6256;
+  --color-reading-900: #4D463D;
+  --color-reading-950: #2A2521;
 
   /* ============================================
      STATUS: ERROR SCALE (Red by default)
      Usage: Error states, validation failures, destructive actions
+     v1.22.0: Added 950 shade
      ============================================ */
   --color-error-50: var(--color-red-50);
   --color-error-100: var(--color-red-100);
@@ -107,10 +119,12 @@
   --color-error-700: var(--color-red-700);
   --color-error-800: var(--color-red-800);
   --color-error-900: var(--color-red-900);
+  --color-error-950: var(--color-red-950);
 
   /* ============================================
      STATUS: SUCCESS SCALE (Green by default)
      Usage: Success states, confirmations, positive feedback
+     v1.22.0: Added 950 shade
      ============================================ */
   --color-success-50: var(--color-green-50);
   --color-success-100: var(--color-green-100);
@@ -122,10 +136,12 @@
   --color-success-700: var(--color-green-700);
   --color-success-800: var(--color-green-800);
   --color-success-900: var(--color-green-900);
+  --color-success-950: var(--color-green-950);
 
   /* ============================================
      STATUS: WARNING SCALE (Yellow by default)
      Usage: Warning states, caution indicators
+     v1.22.0: Added 950 shade
      ============================================ */
   --color-warning-50: var(--color-yellow-50);
   --color-warning-100: var(--color-yellow-100);
@@ -137,6 +153,7 @@
   --color-warning-700: var(--color-yellow-700);
   --color-warning-800: var(--color-yellow-800);
   --color-warning-900: var(--color-yellow-900);
+  --color-warning-950: var(--color-yellow-950);
 
   /* ============================================
      CONTRAST COLORS (Theme-aware)

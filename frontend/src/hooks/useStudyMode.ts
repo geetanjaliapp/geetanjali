@@ -107,12 +107,14 @@ function getSectionText(
       return primaryEnglish?.text || verse.translation_en || null;
     }
     case "hindi": {
-      // Match VerseDetail logic: filter Hindi translations (includes Swami Tejomayananda)
+      // Match VerseDetail logic: filter Hindi translations, prefer Swami Tejomayananda
       // Note: API uses both "hi" and "hindi" for language field
       const hindiTranslations = translations?.filter(
         (t) => t.language === "hi" || t.language === "hindi" || t.translator === "Swami Tejomayananda"
       ) || [];
-      const primaryHindi = hindiTranslations[0];
+      const primaryHindi =
+        hindiTranslations.find((t) => t.translator === "Swami Tejomayananda") ||
+        hindiTranslations[0];
       return primaryHindi?.text || null;
     }
     case "insight":

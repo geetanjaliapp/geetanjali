@@ -16,7 +16,7 @@ This document defines the design principles and patterns that guide Geetanjali's
 
 | Intent | Style | Token | Example |
 |--------|-------|-------|---------|
-| Major action, navigation | Primary (orange) | `--interactive-primary` | "Get Started", "Submit" |
+| Major action, navigation | Primary (saffron) | `--interactive-primary` | "Get Started", "Submit" |
 | In-content action | Contextual (amber) | `--interactive-contextual` | "Begin Reading", "Apply Filter" |
 | Secondary option | Outline | `--interactive-secondary-*` | "Cancel", "Back" |
 | Subtle action | Ghost | `--interactive-ghost-*` | "Learn more", "Skip" |
@@ -111,6 +111,18 @@ Our palette centers on amber and orange—the colors of lamp flame, aged parchme
 - **Invitation**: Welcoming warmth, not clinical distance
 - **Focus**: Warm surfaces reduce eye strain during extended reading
 
+#### Sacred Saffron (Default Theme)
+
+The default "Geetanjali" theme uses Sacred Saffron (केसरी) — not generic orange, but a palette rooted in Indian spiritual tradition:
+
+- **केसर (Saffron)** — The color of renunciation and sacred offerings (#C65D1A)
+- **हल्दी (Turmeric Gold)** — The gold of auspiciousness and purification (#D4A017)
+- **Temple warmth** — Warm charcoal backgrounds evoke aged manuscript and lamp flame
+
+These colors evoke 5,000 years of tradition, not a tech product launch. The palette was designed to make Geetanjali instantly recognizable — "That's Geetanjali" — while honoring the sacred texts it serves.
+
+**Dark Mode**: Rather than cold grays, dark mode uses warm charcoal (#1A1614) with golden Sanskrit text that feels like reading by lamplight (दिया).
+
 **Color roles** (not specific values—those live in tokens):
 
 | Role | Meaning | Examples |
@@ -160,46 +172,6 @@ Motion should be nearly invisible—a gentle acknowledgment, not a performance.
 
 ## Component Patterns
 
-### Buttons: Navigational vs Action
-
-**Critical distinction**: Primary CTA colors (orange) are reserved for page-level actions that drive decisions. In-content actions use softer amber tones.
-
-#### Primary (Orange)
-Page-level actions: "Get Started", "Submit", "Login"
-
-```
-Token: --interactive-primary
-Visual: High contrast, draws the eye
-Rule: ONE primary button per viewport
-```
-
-#### Contextual (Amber)
-In-content actions: "Begin Reading", "Apply Filter", "Toggle"
-
-```
-Token: --interactive-contextual
-Visual: Softer, blends with content
-Rule: Use within content areas, not heroes
-```
-
-#### Secondary (Outline)
-Dismissive or alternative: "Cancel", "Maybe Later"
-
-```
-Token: --interactive-secondary-*
-Visual: Border only, minimal fill
-Rule: Pairs with primary as the "other option"
-```
-
-#### Ghost (Text)
-Subtle inline actions: "Learn more", "See details"
-
-```
-Token: --interactive-ghost-*
-Visual: Text-only, hover reveals intent
-Rule: For tertiary actions that shouldn't compete
-```
-
 ### Cards
 
 Cards are containers for content, not content themselves.
@@ -247,14 +219,6 @@ Speed: 1.5s per cycle
 Colors: Warm tints (amber-based), not gray
 ```
 
-### Navigation
-
-| Context | Pattern |
-|---------|---------|
-| Mobile | Hamburger menu with slide-out drawer |
-| Desktop | Inline links in header |
-| Reading mode | Minimal: back button, chapter selector only |
-
 ---
 
 ## Layout Patterns
@@ -280,28 +244,7 @@ Mobile (base)     Tablet (sm:)      Desktop (lg:)
 
 **Pattern**: `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4`
 
-### Page Templates
-
-#### Standard Page
-```
-┌──────────────────────────────────────────┐
-│  [Navbar]                                │
-├──────────────────────────────────────────┤
-│                                          │
-│    [Page Title]                          │
-│    [Subtitle]                            │
-│                                          │
-│    ┌────────────────────────────────┐    │
-│    │  [Content Area]                │    │
-│    │  max-w-6xl mx-auto px-4        │    │
-│    └────────────────────────────────┘    │
-│                                          │
-├──────────────────────────────────────────┤
-│  [Footer]                                │
-└──────────────────────────────────────────┘
-```
-
-#### Reading Mode
+### Reading Mode Layout
 ```
 ┌──────────────────────────────────────────┐
 │  [Minimal Header]                        │
@@ -408,115 +351,17 @@ All interactive components must be fully keyboard accessible:
 
 ---
 
-## Theme Compatibility
-
-### The Parity Principle
-
-Every component must work correctly across:
-- 4 built-in themes (Geetanjali, Sutra, Serenity, Forest)
-- 2 modes each (light and dark)
-- = **8 combinations to test**
-
-### Token-First Development
-
-Components use semantic tokens exclusively. No hardcoded colors.
-
-```tsx
-// ✅ Correct
-className="bg-[var(--surface-warm)] text-[var(--text-primary)]"
-
-// ❌ Wrong - hardcoded values
-className="bg-amber-50 text-gray-900"
-
-// ❌ Wrong - dark: prefixes bypass token system
-className="bg-amber-50 dark:bg-gray-800"
-```
-
-### The No-Prefix Rule
-
-**Never use `dark:` prefixes for colors.**
-
-The token system handles dark mode automatically. When `.dark` class is on `<html>`, all CSS variables resolve to their dark values. Adding `dark:` prefixes:
-1. Duplicates logic (dark handling in CSS *and* component)
-2. Breaks theme overrides (themes can't control component-level classes)
-3. Creates maintenance burden (two places to update)
-
-**For implementation details**: See [Theming Documentation](./theming.md)
-
----
-
 ## Creating New Components
 
-### Pre-Development Questions
-
-Before writing code, answer:
-
-1. **What content does this serve?**
-   Scripture > translation > metadata > UI. Know your place in the hierarchy.
-
-2. **Is this an action or navigation?**
-   Actions use contextual (amber) styling. Navigation uses primary (orange).
-
-3. **What's the ONE most important thing?**
-   If you can't identify it, the component is too complex.
-
-4. **Does it need to work on mobile?**
-   Always yes. Start there.
+Before writing code, know your place in the content hierarchy (Scripture > translation > metadata > UI) and start mobile-first. Actions use amber; navigation uses saffron.
 
 ### Implementation Checklist
-
-Before marking complete:
 
 - [ ] Uses semantic tokens (`--surface-*`, `--text-*`, `--border-*`)
 - [ ] No `dark:` prefixes for colors
 - [ ] Focus states use `--focus-ring` tokens
 - [ ] Touch targets are 44×44px minimum on mobile
 - [ ] Text contrast meets WCAG AA (4.5:1)
-- [ ] Tested in all 8 theme/mode combinations
+- [ ] Tested in all 8 theme/mode combinations (4 themes × 2 modes)
 - [ ] Skeleton loader matches final layout
-- [ ] Transitions use token-based motion values
-- [ ] Works without JavaScript (progressive enhancement)
-
-### Review Criteria
-
-A component is ready when:
-
-1. It looks intentional in every theme (not just "works")
-2. Keyboard navigation is logical
-3. Screen reader announces it sensibly
-4. It follows the content hierarchy
-5. It doesn't compete with scripture for attention
-
----
-
-## Implementation Notes
-
-### Font Loading
-
-Google Fonts with `font-display: swap` to prevent FOIT:
-
-```html
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="...Spectral|Source+Sans+3|Noto+Serif+Devanagari" rel="stylesheet">
-```
-
-### Tailwind Configuration
-
-Font utilities reference CSS variables for theme flexibility:
-
-```js
-fontFamily: {
-  heading: ['var(--font-family-display)', 'Georgia', 'serif'],
-  body: ['var(--font-family-body)', 'system-ui', 'sans-serif'],
-  sanskrit: ['var(--font-family-sanskrit)', 'serif'],
-}
-```
-
-### File Locations
-
-| File | Purpose |
-|------|---------|
-| `src/styles/tokens/*.css` | Token definitions |
-| `src/config/themes.ts` | Theme configurations |
-| `src/contexts/ThemeContext.tsx` | Theme state management |
-| `docs/theming.md` | Token architecture reference |
+- [ ] Doesn't compete with scripture for attention

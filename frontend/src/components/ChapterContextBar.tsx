@@ -11,7 +11,7 @@
  * Used by: VerseDetail, Reading Mode
  */
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { getChapterInfo, getVerseProgress } from "../constants/chapters";
 import { ProgressBar } from "./ProgressBar";
 import type { FontSize } from "../types";
@@ -27,6 +27,8 @@ interface ChapterContextBarProps {
   onResetFontSize?: () => void;
   /** Whether font size is at default (hides reset button) */
   isDefaultFontSize?: boolean;
+  /** Optional link to reading mode for switch-view icon */
+  readingModeLink?: string;
 }
 
 export function ChapterContextBar({
@@ -36,6 +38,7 @@ export function ChapterContextBar({
   onToggleFontSize,
   onResetFontSize,
   isDefaultFontSize = true,
+  readingModeLink,
 }: ChapterContextBarProps) {
   const navigate = useNavigate();
   const chapterInfo = getChapterInfo(chapter);
@@ -144,6 +147,31 @@ export function ChapterContextBar({
                 </button>
               )}
             </div>
+          )}
+
+          {/* Reading mode link - rightmost icon */}
+          {readingModeLink && (
+            <Link
+              to={readingModeLink}
+              className={`flex items-center justify-center p-1.5 rounded-[var(--radius-nav)] text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] hover:bg-[var(--surface-warm)] transition-[var(--transition-color)] ${showFontControls ? "ml-2 pl-2 border-l border-[var(--border-warm)]" : ""}`}
+              aria-label="Read in context"
+              title="Read in context"
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                />
+              </svg>
+            </Link>
           )}
         </div>
       </div>

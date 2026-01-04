@@ -105,25 +105,29 @@ export function isDarkMode(): boolean {
  * Get canvas-compatible colors from the current CSS theme.
  * This reads the active theme's CSS variables and converts them to hex values
  * that can be used with the Canvas API.
+ *
+ * Fallback values use Sacred Saffron / Turmeric Gold palette (v1.22.0)
  */
 export function getCanvasThemeColors(): CanvasThemeColors {
   const dark = isDarkMode();
 
   // Get gradient colors for background
+  // Fallbacks: Turmeric Gold (light) / Warm Charcoal (dark)
   const gradientFrom = resolveToken(
     "--gradient-warm-from",
-    dark ? "#1F2937" : "#FEF3C7",
+    dark ? "#1A1614" : "#FFFDF5",
   );
   const gradientTo = resolveToken(
     "--gradient-warm-to",
-    dark ? "#111827" : "#FED7AA",
+    dark ? "#0F0D0C" : "#FFECB3",
   );
 
   // For Om, we need the base color without transparency
   // The decorative-om token has transparency, so we use the warm color directly
+  // Fallbacks: Turmeric Gold warm-500 (light) / warm-400 (dark)
   const omColor = resolveToken(
     "--color-warm-500",
-    dark ? "#FBBF24" : "#F59E0B",
+    dark ? "#E6B830" : "#D4A017",
   );
 
   return {
@@ -135,13 +139,14 @@ export function getCanvasThemeColors(): CanvasThemeColors {
       },
     },
     om: omColor,
-    sanskrit: resolveToken("--text-sanskrit", dark ? "#FCD34D" : "#78350F"),
-    verseRef: resolveToken("--text-accent", dark ? "#F59E0B" : "#B45309"),
-    english: resolveToken("--text-primary", dark ? "#F3F4F6" : "#1F2937"),
-    hindi: resolveToken("--text-secondary", dark ? "#D1D5DB" : "#4B5563"),
-    branding: resolveToken("--text-muted", dark ? "#6B7280" : "#9CA3AF"),
-    divider: resolveToken("--divider-warm", dark ? "#4B5563" : "#D97706"),
-    border: resolveToken("--border-default", dark ? "#374151" : "#E5E7EB"),
+    // Fallbacks use Sacred Saffron / Turmeric Gold palette
+    sanskrit: resolveToken("--text-sanskrit", dark ? "#FFD54F" : "#4A1F06"),
+    verseRef: resolveToken("--text-accent", dark ? "#D4A017" : "#8B3E0E"),
+    english: resolveToken("--text-primary", dark ? "#E8E4E0" : "#1A1614"),
+    hindi: resolveToken("--text-secondary", dark ? "#C8C4C0" : "#57534E"),
+    branding: resolveToken("--text-muted", dark ? "#8A8580" : "#78716C"),
+    divider: resolveToken("--divider-warm", dark ? "#4A4540" : "#B08914"),
+    border: resolveToken("--border-default", dark ? "#3D3835" : "#E7E5E4"),
   };
 }
 

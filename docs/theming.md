@@ -27,9 +27,11 @@ themes.ts       →  Theme configs (injected as CSS at runtime)
 Raw design values with no semantic meaning. Never used directly in components.
 
 ```css
-/* Color scales */
---color-orange-600: #ea580c;
---color-amber-50: #fffbeb;
+/* Sacred Saffron color scales (v1.22.0) */
+--color-primary-500: #C65D1A;  /* Sacred Saffron */
+--color-primary-600: #A94E12;
+--color-warm-50: #FFFDF5;      /* Turmeric Gold */
+--color-warm-500: #D4A017;
 
 /* Spacing scale */
 --spacing-4: 1rem;
@@ -158,45 +160,45 @@ className="text-sm sm:text-base gap-2 sm:gap-4"
 /* Badges and chips */
 --badge-warm-bg: var(--color-warm-100);
 --chip-selected-bg: var(--color-warm-200);  /* More prominent than badge */
-
-/* Reading mode */
---surface-reading: var(--color-reading-50);
---text-reading-primary: var(--color-neutral-800);
 ```
+
+### Reading Mode Tokens
+
+Reading mode uses specialized tokens for an immersive, manuscript-inspired experience.
+
+**Surface Gradient Tokens** (v1.22.0):
+
+```css
+/* Light mode - Parchment warmth */
+--reading-surface-base: #FDF8F3;
+--reading-surface-mid: #FAF4EC;
+--reading-surface-end: #F7EFE5;
+--reading-surface-highlight: #FFF8E8;
+
+/* Dark mode - Warm charcoal (diya-lit) */
+.dark {
+  --reading-surface-base: #1A1614;
+  --reading-surface-mid: #151210;
+  --reading-surface-end: #0F0D0C;
+  --reading-surface-highlight: #252220;
+}
+```
+
+**CSS Classes** (applied at component level):
+
+| Class | Purpose |
+|-------|---------|
+| `.reading-container` | Parchment gradient background with vignette overlay |
+| `.reading-sanskrit` | Enhanced Sanskrit text with dark mode golden glow |
+| `.reading-pada` | Verse quarter-line separation |
+| `.verse-ornament` | Decorative verse number badge |
+| `.reading-separator` | Traditional danda (॥) separator |
+
+Light mode feels like reading aged parchment; dark mode feels like reading by lamplight (दिया). Sanskrit text is the visual hero.
 
 ## Logo Theming
 
-The logo features an orange gradient background circle that provides contrast against warm surface colors (amber-50, cream). The lotus petals and sun elements sit on top of this background.
-
-The logo supports two usage modes:
-
-### 1. Static SVG
-
-```html
-<img src="/logo.svg" alt="Geetanjali" />
-```
-
-The static SVG uses fixed orange gradient background (#ea580c → #f97316) with cream petals.
-
-### 2. Themeable React Component
-
-```tsx
-import { LogoIcon } from "../components/icons";
-
-// Uses CSS variables for full theme control
-<LogoIcon size={64} themed={true} />
-```
-
-Logo CSS variables (can be overridden per theme):
-
-```css
---logo-bg-start: #ea580c;     /* Background gradient start */
---logo-bg-end: #f97316;       /* Background gradient end */
---logo-petal-outer: #FFF8E7;  /* Outer lotus petals */
---logo-petal-inner: #FFEDD5;  /* Inner lotus petals */
---logo-sun-glow: #FCD34D;     /* Sun outer glow */
---logo-sun-core: #991B1B;     /* Sun center core */
-```
+Use `<img src="/logo.svg">` for static usage or `<LogoIcon themed={true} />` for theme-aware rendering. The logo uses `--logo-bg-start`, `--logo-petal-outer`, `--logo-sun-glow` tokens which themes can override.
 
 ## Available Themes
 
@@ -264,14 +266,57 @@ The `modeColors.dark.contrast` object allows semantic-level overrides when color
 | `public/logo.svg` | Transparent logo (static) |
 | `src/components/icons.tsx` | LogoIcon (themeable) |
 
-## Migration Status
+## Browser Support
 
-As of v1.16.0:
+Requires modern browsers (not IE11). Uses `color-mix()` and CSS custom properties. Gracefully degrades on older browsers.
 
-- ✅ **Colors**: 100% tokenized
-- ✅ **Border Radius**: 100% tokenized (0 hardcoded)
-- ✅ **Shadows**: 100% tokenized (0 hardcoded)
-- ✅ **Motion**: Transitions tokenized
-- ⚪ **Typography**: Tokens defined, using Tailwind responsive syntax
-- ⚪ **Spacing**: Tokens defined, using Tailwind responsive syntax
-- ⚪ **Layout**: Tokens defined, structural constants
+## Migration Status (v1.22.0)
+
+✅ Fully tokenized: Colors (337), Border Radius (13), Shadows (25), Motion (15), Reading Mode
+⚪ Using Tailwind: Typography, Spacing, Layout (intentional—responsive syntax preferred)
+
+## Theming Outliers
+
+Some components can't use CSS variables directly due to technical constraints. Here's how to handle them:
+
+### Canvas/Image Generation
+
+Components that render to Canvas API (like `ImageCardGenerator.ts`) can't use CSS variables because Canvas requires hex color strings.
+
+**Solution**: Use `canvasThemeColors.ts` to bridge CSS variables to hex values:
+
+```typescript
+import { getCanvasThemeColors } from "../lib/canvasThemeColors";
+
+// Get current theme colors as hex
+const colors = getCanvasThemeColors();
+ctx.fillStyle = colors.sanskrit;  // Returns hex like "#4A1F06"
+```
+
+The bridge function reads computed CSS variable values and converts them to hex. It includes Sacred Saffron fallbacks for edge cases.
+
+### Color Preview Swatches
+
+Components that display theme colors as previews (like `ThemeSelector.tsx`) need inline styles:
+
+```typescript
+// Read from theme config, not CSS variables
+const colors = getThemePreviewColors(theme);
+<div style={{ backgroundColor: colors.primary }} />
+```
+
+### Animation Colors
+
+Custom animations in `index.css` use RGB color values for `rgb()` syntax compatibility:
+
+```css
+/* Sacred Saffron / Turmeric Gold animation colors */
+--color-amber-400: 230 184 48;    /* #E6B830 - shimmer */
+--color-orange-400: 224 123 60;   /* #E07B3C - glow */
+```
+
+### Status Indicators
+
+Use semantic tokens: `--status-success-*`, `--status-warning-*`, `--status-error-*` (each has `-bg`, `-text`, `-border` variants).
+
+**New outliers**: Prefer CSS variables → document constraint → use Sacred Saffron fallbacks → add to this section.

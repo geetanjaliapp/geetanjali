@@ -469,6 +469,7 @@ export default function VerseDetail() {
             onToggleFontSize={toggleFontSize}
             onResetFontSize={resetFontSize}
             isDefaultFontSize={fontSize === "regular"}
+            readingModeLink={`/read?c=${verse.chapter}&v=${verse.verse}`}
           />
 
           {/* Main Spotlight Section */}
@@ -611,69 +612,58 @@ export default function VerseDetail() {
                   </button>
                 </div>
 
-                {/* Reading Mode link OR Audio controls (same space, no page shift) */}
-                <div className="mt-3">
-                  {showAudioControls && verse.audio_url ? (
-                    /* Single-row audio controls */
-                    <div className="flex items-center justify-center gap-2 sm:gap-3">
-                      {/* Progress bar */}
-                      <div className="flex-1 max-w-[200px]">
-                        <AudioProgress
-                          progress={progress}
-                          currentTime={currentTime}
-                          duration={duration}
-                          disabled={false}
-                          onSeek={seek}
-                          showTime
-                          compact
-                        />
-                      </div>
-
-                      {/* Speed control */}
-                      <AudioSpeedControl
-                        speed={playbackSpeed}
-                        onSpeedChange={setPlaybackSpeed}
+                {/* Audio controls - shown when audio is playing */}
+                {showAudioControls && verse.audio_url && (
+                  <div className="mt-3 flex items-center justify-center gap-2 sm:gap-3">
+                    {/* Progress bar */}
+                    <div className="flex-1 max-w-[200px]">
+                      <AudioProgress
+                        progress={progress}
+                        currentTime={currentTime}
+                        duration={duration}
+                        disabled={false}
+                        onSeek={seek}
+                        showTime
                         compact
                       />
-
-                      {/* Loop toggle */}
-                      <button
-                        onClick={toggleLoop}
-                        aria-label={isLooping ? "Disable loop" : "Enable loop"}
-                        aria-pressed={isLooping}
-                        className={`
-                          p-2.5 -m-1.5 sm:p-1 sm:m-0 rounded-[var(--radius-badge)] transition-[var(--transition-button)]
-                          focus:outline-hidden focus-visible:ring-2
-                          focus-visible:ring-[var(--focus-ring)]
-                          ${
-                            isLooping
-                              ? "text-[var(--interactive-primary)] bg-[var(--interactive-primary)]/10"
-                              : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
-                          }
-                        `}
-                      >
-                        <RepeatIcon className="w-4 h-4" />
-                      </button>
-
-                      {/* Dismiss button */}
-                      <button
-                        onClick={stop}
-                        aria-label="Stop audio"
-                        className="p-2.5 -m-1.5 sm:p-1 sm:m-0 rounded-[var(--radius-badge)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-muted)] transition-[var(--transition-button)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
-                      >
-                        <CloseIcon className="w-4 h-4" />
-                      </button>
                     </div>
-                  ) : (
-                    <Link
-                      to={`/read?c=${verse.chapter}&v=${verse.verse}`}
-                      className="inline-block text-xs text-[var(--text-accent-muted)] hover:text-[var(--text-accent)] transition-[var(--transition-color)]"
-                    >
-                      Read in context →
-                    </Link>
-                  )}
-                </div>
 
+                    {/* Speed control */}
+                    <AudioSpeedControl
+                      speed={playbackSpeed}
+                      onSpeedChange={setPlaybackSpeed}
+                      compact
+                    />
+
+                    {/* Loop toggle */}
+                    <button
+                      onClick={toggleLoop}
+                      aria-label={isLooping ? "Disable loop" : "Enable loop"}
+                      aria-pressed={isLooping}
+                      className={`
+                        p-2.5 -m-1.5 sm:p-1 sm:m-0 rounded-[var(--radius-badge)] transition-[var(--transition-button)]
+                        focus:outline-hidden focus-visible:ring-2
+                        focus-visible:ring-[var(--focus-ring)]
+                        ${
+                          isLooping
+                            ? "text-[var(--interactive-primary)] bg-[var(--interactive-primary)]/10"
+                            : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
+                        }
+                      `}
+                    >
+                      <RepeatIcon className="w-4 h-4" />
+                    </button>
+
+                    {/* Dismiss button */}
+                    <button
+                      onClick={stop}
+                      aria-label="Stop audio"
+                      className="p-2.5 -m-1.5 sm:p-1 sm:m-0 rounded-[var(--radius-badge)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-muted)] transition-[var(--transition-button)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                    >
+                      <CloseIcon className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
               </div>
             )}
 

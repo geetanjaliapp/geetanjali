@@ -67,6 +67,18 @@
   --surface-reading-header: color-mix(in srgb, var(--color-reading-50) 95%, transparent);
   --surface-reading-header-solid: var(--color-reading-50);
 
+  /* Reading mode gradient stops (v1.22.0)
+     Use these for component-level gradients:
+     background: linear-gradient(180deg,
+       var(--reading-surface-base) 0%,
+       var(--reading-surface-mid) 50%,
+       var(--reading-surface-end) 100%);
+  */
+  --reading-surface-base: var(--color-reading-50);
+  --reading-surface-mid: var(--color-reading-100);
+  --reading-surface-end: var(--color-reading-200);
+  --reading-surface-highlight: #FFF8E8;
+
   /* Reading mode text */
   --text-reading-primary: var(--color-warm-700);
   --text-reading-secondary: var(--color-warm-600);
@@ -245,9 +257,10 @@
   /* Logo colors - themeable via LogoIcon component */
   --logo-bg-start: var(--interactive-primary);
   --logo-bg-end: var(--color-primary-500);
-  --logo-petal-outer: #FFF8E7;
-  --logo-petal-inner: #FFEDD5;
-  --logo-sun-glow: #FCD34D;
+  /* v1.22.0: Logo petals updated to match Turmeric Gold palette */
+  --logo-petal-outer: var(--color-warm-100);  /* #FFF8E1 */
+  --logo-petal-inner: var(--color-warm-200);  /* #FFECB3 */
+  --logo-sun-glow: var(--color-warm-300);     /* #FFD54F */
   --logo-sun-core: #991B1B;
   --logo-sun-highlight: #FEF3C7;
   --logo-sun-edge: #DC2626;
@@ -528,6 +541,23 @@
    DARK MODE OVERRIDES
    ============================================ */
 .dark {
+  /* ============================================
+     WARM CHARCOAL NEUTRALS (v1.22.0)
+     Override neutral scale for warmer dark mode
+     Creates "diya-lit room" feel vs cold gray
+     ============================================ */
+  --color-neutral-50: #F5F3F2;
+  --color-neutral-100: #E8E4E0;
+  --color-neutral-200: #D4CEC8;
+  --color-neutral-300: #B5ADA4;
+  --color-neutral-400: #948A7E;
+  --color-neutral-500: #756B60;
+  --color-neutral-600: #5A524A;
+  --color-neutral-700: #3D3835;
+  --color-neutral-800: #252220;
+  --color-neutral-900: #1A1614;
+  --color-neutral-950: #0D0C0B;
+
   /* Surface tokens - IMPROVED hierarchy with clear visual layers */
   --surface-base: var(--color-neutral-900);
   /* Page background - alias for surface-base, used in layout components */
@@ -559,6 +589,13 @@
   --surface-reading-elevated: var(--color-neutral-800);
   --surface-reading-header: color-mix(in srgb, var(--color-neutral-900) 95%, transparent);
   --surface-reading-header-solid: var(--color-neutral-900);
+
+  /* Reading mode gradient stops (dark - v1.22.0)
+     Warm charcoal gradient for "diya-lit" feel */
+  --reading-surface-base: var(--color-neutral-900);
+  --reading-surface-mid: var(--color-neutral-950);
+  --reading-surface-end: #0A0908;
+  --reading-surface-highlight: var(--color-neutral-800);
 
   /* Reading mode text (dark) - quiet library feel, neutral with subtle warmth */
   --text-reading-primary: var(--color-reading-200);
@@ -771,4 +808,135 @@
   /* Border hover tokens for dark mode */
   --border-default-hover: var(--color-neutral-500);
   --border-warm-hover: color-mix(in srgb, var(--color-warm-400) 70%, var(--color-neutral-500));
+}
+
+/* ============================================
+   READING MODE ENHANCEMENT CLASSES (v1.22.0)
+   Component-level styles for immersive reading
+   ============================================ */
+
+/**
+ * Reading Container - Parchment gradient background
+ * Creates the "manuscript feel" for reading mode
+ */
+.reading-container {
+  background: linear-gradient(180deg,
+    var(--reading-surface-base) 0%,
+    var(--reading-surface-mid) 50%,
+    var(--reading-surface-end) 100%
+  );
+  position: relative;
+  min-height: 100%;
+}
+
+/* Subtle vignette overlay for depth */
+.reading-container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 0%, rgba(139, 105, 20, 0.015) 100%);
+  pointer-events: none;
+}
+
+/* Dark mode: Warm charcoal gradient with diya glow */
+.dark .reading-container {
+  background: linear-gradient(180deg,
+    var(--reading-surface-base) 0%,
+    var(--reading-surface-mid) 50%,
+    var(--reading-surface-end) 100%
+  );
+}
+
+/* Diya glow from top - subtle warm radiance */
+.dark .reading-container::before {
+  background: radial-gradient(ellipse at center top, rgba(198, 93, 26, 0.03) 0%, transparent 70%);
+}
+
+/**
+ * Verse Ornament - Decorative verse number badge
+ * Styled to evoke manuscript margins and illuminated texts
+ */
+.verse-ornament {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.375rem 1.25rem;
+  font-family: var(--font-family-display);
+  font-size: 0.875rem;
+  letter-spacing: 0.1em;
+  border-radius: 2rem;
+  background: linear-gradient(135deg, var(--color-warm-50) 0%, var(--color-warm-100) 100%);
+  color: var(--color-warm-800);
+  border: 1px solid var(--color-warm-200);
+  box-shadow: 0 2px 8px rgba(139, 105, 20, 0.08);
+}
+
+.dark .verse-ornament {
+  background: linear-gradient(135deg, var(--color-neutral-800) 0%, var(--color-neutral-700) 100%);
+  color: var(--color-warm-300);
+  border-color: var(--color-neutral-600);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/**
+ * Reading Separator - Traditional danda marks with gradient lines
+ * ॥ between content sections
+ */
+.reading-separator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin: 1.5rem 0;
+  padding: 0.5rem 0;
+}
+
+.reading-separator-line {
+  height: 1px;
+  width: 3rem;
+  background: linear-gradient(90deg, transparent, var(--color-warm-300), transparent);
+}
+
+.reading-separator-symbol {
+  font-size: 0.9rem;
+  color: var(--color-warm-500);
+  font-family: var(--font-family-sanskrit);
+}
+
+.dark .reading-separator-line {
+  background: linear-gradient(90deg, transparent, var(--color-neutral-600), transparent);
+}
+
+.dark .reading-separator-symbol {
+  color: var(--color-warm-400);
+}
+
+/**
+ * Reading Sanskrit - Enhanced Sanskrit text for reading mode
+ * Golden glow in dark mode (diya-lit effect)
+ */
+.reading-sanskrit {
+  font-family: var(--font-family-sanskrit);
+  text-align: center;
+  color: var(--text-sanskrit);
+  line-height: 2.2;
+}
+
+/* Golden glow effect in dark mode */
+.dark .reading-sanskrit {
+  color: var(--color-warm-400);
+  text-shadow: 0 0 40px rgba(230, 184, 48, 0.08);
+}
+
+/**
+ * Pada (quarter-verse) separation for Sanskrit
+ * Each line/pada on its own line for contemplative reading
+ */
+.reading-pada {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.reading-pada:last-child {
+  margin-bottom: 0;
 }

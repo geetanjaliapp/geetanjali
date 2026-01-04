@@ -63,9 +63,9 @@
     Roboto,
     sans-serif;
 
-  /* Animation colors - mapped to Tailwind palette */
-  --color-amber-400: 251 191 36;    /* #fbbf24 - warm shimmer */
-  --color-orange-400: 251 146 60;   /* #fb923c - processing glow */
+  /* Animation colors - Sacred Saffron / Turmeric Gold (v1.22.0) */
+  --color-amber-400: 230 184 48;    /* #E6B830 - Turmeric Gold warm-400 shimmer */
+  --color-orange-400: 224 123 60;   /* #E07B3C - Sacred Saffron primary-400 glow */
 }
 
 html {

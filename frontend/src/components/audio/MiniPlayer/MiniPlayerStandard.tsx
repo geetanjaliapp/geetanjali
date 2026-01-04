@@ -82,7 +82,7 @@ export function MiniPlayerStandard({
 }: MiniPlayerStandardProps) {
   return (
     <div
-      className="bg-[var(--surface-reading-header)] border-t border-[var(--border-reading)] px-4 py-2"
+      className="bg-[var(--surface-reading-header)] backdrop-blur-xs border-t border-[var(--border-reading-header)] px-4 py-2"
       role="region"
       aria-label="Audio player"
     >
