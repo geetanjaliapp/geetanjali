@@ -14,6 +14,7 @@
  */
 
 import { Link } from "react-router-dom";
+import { prefetchVerse } from "../lib/versePrefetch";
 import type { Verse } from "../types";
 
 interface StickyBottomNavProps {
@@ -60,6 +61,8 @@ export function StickyBottomNav({
                        focus:outline-hidden focus-visible:ring-2 focus-visible:ring-inset
                        focus-visible:ring-[var(--border-focus)]"
             aria-label={`Previous verse: ${formatVerseRef(prevVerse)}`}
+            onMouseEnter={() => prefetchVerse(prevVerse.canonical_id)}
+            onFocus={() => prefetchVerse(prevVerse.canonical_id)}
           >
             <span
               aria-hidden="true"
@@ -96,6 +99,8 @@ export function StickyBottomNav({
                        focus:outline-hidden focus-visible:ring-2 focus-visible:ring-inset
                        focus-visible:ring-[var(--border-focus)]"
             aria-label={`Next verse: ${formatVerseRef(nextVerse)}`}
+            onMouseEnter={() => prefetchVerse(nextVerse.canonical_id)}
+            onFocus={() => prefetchVerse(nextVerse.canonical_id)}
           >
             <span className="text-[var(--badge-warm-text)] font-medium">
               {formatVerseRef(nextVerse)}

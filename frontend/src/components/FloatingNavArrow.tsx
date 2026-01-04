@@ -15,6 +15,7 @@
  */
 
 import { Link } from "react-router-dom";
+import { prefetchVerse } from "../lib/versePrefetch";
 import type { Verse } from "../types";
 
 interface FloatingNavArrowProps {
@@ -60,6 +61,8 @@ export function FloatingNavArrow({
                   focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)]
                   focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]`}
       aria-label={`${isPrev ? "Previous" : "Next"} verse: ${formatVerseRef(verse)}`}
+      onMouseEnter={() => prefetchVerse(verse.canonical_id)}
+      onFocus={() => prefetchVerse(verse.canonical_id)}
     >
       <div
         className={`flex items-center gap-1.5 text-[var(--badge-warm-text)] font-medium text-sm lg:text-base

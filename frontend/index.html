@@ -7,15 +7,14 @@
     <link rel="preconnect" href="https://geetanjaliapp.com" />
     <link rel="dns-prefetch" href="https://geetanjaliapp.com" />
 
-    <!-- Google Fonts: Theme-specific fonts + Sanskrit support -->
-    <!-- Geetanjali: Spectral + Source Sans 3 -->
-    <!-- Sutra: Literata + Inter -->
-    <!-- Serenity: Cormorant Garamond + Crimson Pro -->
-    <!-- Forest: Nunito + Work Sans -->
-    <!-- All themes: Noto Serif Devanagari (Sanskrit) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Crimson+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=Literata:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Noto+Serif+Devanagari:wght@400;500;600&family=Nunito:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Work+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+    <!-- Self-hosted fonts (v1.21.0 - Performance optimization) -->
+    <!-- Critical fonts preloaded for LCP optimization -->
+    <!-- Devanagari: Always loaded (Sanskrit verse rendering) -->
+    <!-- Default theme (Geetanjali): Spectral + Source Sans 3 -->
+    <!-- Other theme fonts lazy-loaded on theme change -->
+    <link rel="preload" href="/fonts/devanagari/noto-serif-devanagari-devanagari-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/geetanjali/spectral-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/geetanjali/source-sans-3-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
 
     <!-- Favicons -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
