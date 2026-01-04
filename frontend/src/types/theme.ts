@@ -11,8 +11,9 @@
  */
 
 /**
- * Color scale with 10 shades (50-900)
+ * Color scale with 11 shades (50-950)
  * Maps to --color-{name}-{shade} tokens
+ * v1.22.0: Added 950 shade for deeper dark mode backgrounds
  */
 export interface ColorScale {
   50?: string;
@@ -25,6 +26,7 @@ export interface ColorScale {
   700?: string;
   800?: string;
   900?: string;
+  950?: string;
 }
 
 /**

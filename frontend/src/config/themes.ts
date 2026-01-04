@@ -91,6 +91,7 @@ export const sutraTheme: ThemeConfig = {
         700: "#334155",
         800: "#1e293b",
         900: "#0f172a",
+        950: "#030712", // v1.22.0: Added deepest slate
       },
       // Warm surfaces with subtle cream tint for card differentiation
       // Slight warm undertone distinguishes cards from pure neutral page
@@ -105,6 +106,7 @@ export const sutraTheme: ThemeConfig = {
         700: "#40403d",
         800: "#262624",
         900: "#171716",
+        950: "#0c0c0b", // v1.22.0: Added deepest warm
       },
       // Pure neutrals
       neutral: {
@@ -118,6 +120,7 @@ export const sutraTheme: ThemeConfig = {
         700: "#262626",
         800: "#171717",
         900: "#0a0a0a",
+        950: "#050505", // v1.22.0: Added deepest neutral
       },
       // Slate accents
       accent: {
@@ -131,6 +134,7 @@ export const sutraTheme: ThemeConfig = {
         700: "#334155",
         800: "#1e293b",
         900: "#0f172a",
+        950: "#030712", // v1.22.0: Added deepest accent
       },
     },
     dark: {
@@ -148,6 +152,7 @@ export const sutraTheme: ThemeConfig = {
         700: "#1e293b",
         800: "#0f172a",
         900: "#0a0a0a", // Darkest for surface-base
+        950: "#030712", // v1.22.0: Added deepest primary
       },
       warm: {
         // Warm scale for dark mode - 900 must be dark for color-mix surfaces
@@ -161,6 +166,7 @@ export const sutraTheme: ThemeConfig = {
         700: "#d4d4d4",
         800: "#e5e5e5",
         900: "#0a0a0a", // DARK - critical for surface-warm mixing
+        950: "#050505", // v1.22.0: Added deepest warm
       },
       neutral: {
         // Proper dark mode scale: 100 light for text, 900 dark for surfaces
@@ -174,6 +180,7 @@ export const sutraTheme: ThemeConfig = {
         700: "#303030", // Lighter card surface
         800: "#1f1f1f", // Card/elevated
         900: "#0a0a0a", // Darkest - matches 50 for semantic compatibility
+        950: "#050505", // v1.22.0: Added deepest neutral
       },
       accent: {
         50: "#0f172a",
@@ -186,6 +193,7 @@ export const sutraTheme: ThemeConfig = {
         700: "#1e293b",
         800: "#0f172a",
         900: "#0a0a0a", // Dark for surfaces
+        950: "#030712", // v1.22.0: Added deepest accent
       },
       // WCAG AA compliant: dark buttons with white text
       contrast: {
@@ -280,6 +288,7 @@ export const serenityTheme: ThemeConfig = {
         700: "#7e22ce",
         800: "#6b21a8",
         900: "#581c87",
+        950: "#3b0764", // v1.22.0: Added deepest violet
       },
       // Soft lavender warmth
       warm: {
@@ -293,6 +302,7 @@ export const serenityTheme: ThemeConfig = {
         700: "#a21caf",
         800: "#86198f",
         900: "#701a75",
+        950: "#4a044e", // v1.22.0: Added deepest fuchsia
       },
       // Stone neutrals with warm undertone
       neutral: {
@@ -306,6 +316,7 @@ export const serenityTheme: ThemeConfig = {
         700: "#292524",
         800: "#1c1917",
         900: "#0c0a09",
+        950: "#080706", // v1.22.0: Added deepest stone
       },
       // Rose accents
       accent: {
@@ -319,6 +330,7 @@ export const serenityTheme: ThemeConfig = {
         700: "#be123c",
         800: "#9f1239",
         900: "#881337",
+        950: "#4c0519", // v1.22.0: Added deepest rose
       },
     },
     dark: {
@@ -335,6 +347,7 @@ export const serenityTheme: ThemeConfig = {
         700: "#5a3d7f",
         800: "#2d2438", // Soft purple-gray
         900: "#1a1625", // Darkest - matches 50
+        950: "#0f0a13", // v1.22.0: Added deepest purple-tint
       },
       warm: {
         // Muted lavender warmth - NOT neon fuchsia
@@ -348,6 +361,7 @@ export const serenityTheme: ThemeConfig = {
         700: "#e0cce8",
         800: "#f0e5f5",
         900: "#1a1520", // DARK - critical for surface-warm mixing
+        950: "#0f0a10", // v1.22.0: Added deepest purple-brown
       },
       neutral: {
         // Stone-based neutrals with warm undertone
@@ -361,6 +375,7 @@ export const serenityTheme: ThemeConfig = {
         700: "#353230", // Card surface
         800: "#292524", // Elevated surface
         900: "#1c1917", // Darkest - matches 50
+        950: "#0a0908", // v1.22.0: Added deepest stone
       },
       accent: {
         // Rose accents - shifted away from error-red overlap
@@ -374,6 +389,7 @@ export const serenityTheme: ThemeConfig = {
         700: "#8a3048",
         800: "#6c2038",
         900: "#2a1520", // Dark for surfaces
+        950: "#150810", // v1.22.0: Added deepest rose-tint
       },
       // WCAG AA compliant: dark buttons with white text
       contrast: {
@@ -467,6 +483,7 @@ export const forestTheme: ThemeConfig = {
         700: "#047857",
         800: "#065f46",
         900: "#064e3b",
+        950: "#022c22", // v1.22.0: Added deepest emerald
       },
       // Sage warmth
       warm: {
@@ -480,6 +497,7 @@ export const forestTheme: ThemeConfig = {
         700: "#15803d",
         800: "#166534",
         900: "#14532d",
+        950: "#052e16", // v1.22.0: Added deepest green
       },
       // Cool gray neutrals
       neutral: {
@@ -493,6 +511,7 @@ export const forestTheme: ThemeConfig = {
         700: "#1f2937",
         800: "#111827",
         900: "#030712",
+        950: "#010409", // v1.22.0: Added deepest gray
       },
       // Teal accents
       accent: {
@@ -506,6 +525,7 @@ export const forestTheme: ThemeConfig = {
         700: "#0f766e",
         800: "#115e59",
         900: "#134e4a",
+        950: "#042f2e", // v1.22.0: Added deepest teal
       },
     },
     dark: {
@@ -522,6 +542,7 @@ export const forestTheme: ThemeConfig = {
         700: "#065f46",
         800: "#064e3b",
         900: "#0c1810", // Darkest - matches 50
+        950: "#060c08", // v1.22.0: Added deepest forest
       },
       warm: {
         // Moss/sage warmth - earthy, not lime-neon
@@ -535,6 +556,7 @@ export const forestTheme: ThemeConfig = {
         700: "#bae4c5",
         800: "#dcf5e3",
         900: "#0a150e", // DARK - critical for surface-warm mixing
+        950: "#050a07", // v1.22.0: Added deepest moss
       },
       neutral: {
         // Cool gray with subtle green undertone
@@ -548,6 +570,7 @@ export const forestTheme: ThemeConfig = {
         700: "#283530", // Card surface with green tint
         800: "#1a2420", // Elevated surface
         900: "#0f1410", // Darkest - matches 50
+        950: "#080a09", // v1.22.0: Added deepest forest night
       },
       accent: {
         // Teal accents - slightly softened
@@ -561,6 +584,7 @@ export const forestTheme: ThemeConfig = {
         700: "#0f766e",
         800: "#115e59",
         900: "#0c1815", // Dark for surfaces
+        950: "#06100d", // v1.22.0: Added deepest teal night
       },
       // WCAG AA compliant: dark buttons with white text
       contrast: {
