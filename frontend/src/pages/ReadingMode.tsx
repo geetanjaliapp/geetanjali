@@ -757,11 +757,11 @@ export default function ReadingMode() {
   }, [canGoPrev, canGoNext, prevPage, nextPage, autoAdvance, audioPlayer]);
 
   return (
-    <div className="min-h-screen reading-container flex flex-col">
+    <div className="h-screen reading-container flex flex-col overflow-hidden">
       <Navbar />
 
-      {/* Chapter Header */}
-      <header className="sticky top-14 sm:top-16 z-10 bg-[var(--surface-reading-header)] backdrop-blur-xs border-b border-[var(--border-reading-header)]">
+      {/* Chapter Header - shrink-0 prevents flex shrinking */}
+      <header className="shrink-0 z-10 bg-[var(--surface-reading-header)] backdrop-blur-xs border-b border-[var(--border-reading-header)]">
         <div className="max-w-4xl mx-auto px-4 py-2">
           {/* Chapter info */}
           <div className="flex items-center justify-between mb-1">
@@ -841,7 +841,7 @@ export default function ReadingMode() {
       </header>
 
       {/* Main Content Area - swipeable on mobile */}
-      {/* Note: justify-start (not center) to prevent layout shift when translation expands */}
+      {/* flex-1 expands to fill space; justify-start prevents shift when translation expands */}
       <main
         ref={swipeRef}
         className="flex-1 flex flex-col items-center justify-start px-4 pt-8 sm:pt-12 pb-8 touch-pan-y overflow-y-auto"
@@ -963,9 +963,9 @@ export default function ReadingMode() {
         />
       )}
 
-      {/* Bottom Navigation Bar */}
+      {/* Bottom Navigation Bar - shrink-0 prevents flex shrinking */}
       <nav
-        className="sticky bottom-0 bg-[var(--surface-reading-header)] backdrop-blur-xs border-t border-[var(--border-reading)] shadow-[var(--shadow-dropdown)]"
+        className="shrink-0 bg-[var(--surface-reading-header)] backdrop-blur-xs border-t border-[var(--border-reading)] shadow-[var(--shadow-dropdown)]"
         aria-label="Verse navigation"
       >
         <div className="max-w-4xl mx-auto px-4 py-2">
