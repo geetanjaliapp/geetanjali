@@ -199,8 +199,8 @@ Reading mode uses specialized tokens for an immersive, manuscript-inspired exper
 ```tsx
 <div className="reading-container">
   <div className="reading-sanskrit">
-    {sanskritLines.map(line => (
-      <p className="reading-pada">{line}</p>
+    {sanskritLines.map((line, idx) => (
+      <p key={idx} className="reading-pada">{line}</p>
     ))}
   </div>
   <span className="verse-ornament">॥ 2.47 ॥</span>
@@ -220,7 +220,7 @@ Reading mode uses specialized tokens for an immersive, manuscript-inspired exper
 
 ## Logo Theming
 
-The logo features an orange gradient background circle that provides contrast against warm surface colors (amber-50, cream). The lotus petals and sun elements sit on top of this background.
+The logo features a saffron gradient background circle that provides contrast against warm surface colors. The lotus petals and sun elements sit on top of this background.
 
 The logo supports two usage modes:
 
@@ -230,7 +230,7 @@ The logo supports two usage modes:
 <img src="/logo.svg" alt="Geetanjali" />
 ```
 
-The static SVG uses fixed orange gradient background (#ea580c → #f97316) with cream petals.
+The static SVG uses a fixed Sacred Saffron gradient background with cream petals. For full theme support, use the React component instead.
 
 ### 2. Themeable React Component
 
