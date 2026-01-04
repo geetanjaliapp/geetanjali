@@ -1,5 +1,5 @@
 /**
- * Verse Prefetch Utility (v1.21.0)
+ * Verse Prefetch Utility
  *
  * Prefetches verse data on hover/focus to improve LCP on verse detail pages.
  * Uses browser-native link prefetching for optimal caching behavior.
@@ -8,6 +8,8 @@
  * - On hover/focus of verse card, prefetch verse data and translations
  * - Browser handles caching and deduplication
  * - No impact if user doesn't navigate (prefetch is low priority)
+ *
+ * @since v1.21.0
  */
 
 import { API_V1_PREFIX } from "./config";
@@ -54,16 +56,13 @@ export function prefetchVerse(canonicalId: string): void {
 /**
  * Creates a <link rel="prefetch"> element for browser-native prefetching.
  * The browser will fetch this resource at low priority and cache it.
+ *
+ * Note: Deduplication is handled by the Set in prefetchVerse(), so we don't
+ * need to check for existing links here.
  */
 function createPrefetchLink(href: string): void {
   // Skip on server-side (SSR safety)
   if (typeof document === "undefined") {
-    return;
-  }
-
-  // Check if link already exists (defensive)
-  const existingLink = document.querySelector(`link[rel="prefetch"][href="${href}"]`);
-  if (existingLink) {
     return;
   }
 
