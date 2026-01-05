@@ -17,9 +17,8 @@ const authClient = axios.create({
   },
   withCredentials: true, // Enable cookies for refresh token
   timeout: 10000, // 10 second timeout - prevents PWA hanging on flaky networks
-  // Treat 401 as a valid response (not an error) to suppress console logging
-  // This is expected for anonymous users who don't have a refresh token
-  validateStatus: (status) => status !== 401 || true, // Accept all status codes
+  // Use default validateStatus (2xx = success, others throw)
+  // 401 handling for refresh endpoint is done in the refresh() method
 });
 
 // Add session ID to auth requests for anonymous case migration
@@ -175,17 +174,20 @@ export const authApi = {
    * This allows the caller to distinguish between "no refresh token" and other errors
    */
   refresh: async (): Promise<RefreshResponse | null> => {
-    const response = await authClient.post<RefreshResponse>("/refresh");
-
-    // If 401 (Unauthorized), no valid refresh token exists - treat as expected for anonymous users
-    // Return null to indicate no refresh token, let caller handle as non-error case
-    if (response.status === 401) {
-      return null;
+    try {
+      const response = await authClient.post<RefreshResponse>("/refresh");
+      // Update access token in memory
+      tokenStorage.setToken(response.data.access_token);
+      return response.data;
+    } catch (err) {
+      // 401 (Unauthorized) means no valid refresh token - expected for anonymous users
+      // Return null to indicate no session, let caller handle as non-error case
+      if (axios.isAxiosError(err) && err.response?.status === 401) {
+        return null;
+      }
+      // Re-throw other errors (network issues, server errors, etc.)
+      throw err;
     }
-
-    // Update access token in memory
-    tokenStorage.setToken(response.data.access_token);
-    return response.data;
   },
 
   /**
