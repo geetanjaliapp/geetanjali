@@ -56,9 +56,9 @@ export default {
       typography: {
         DEFAULT: {
           css: {
-            // Bold text - uses accent color for warmth
+            // Bold text - uses prose variable for dark mode support
             'strong': {
-              color: 'var(--color-accent-800, rgb(146 64 14))',
+              color: 'var(--tw-prose-bold)',
               fontWeight: 'var(--font-weight-semibold, 600)',
             },
             // Italic text - uses display font for verse quotes

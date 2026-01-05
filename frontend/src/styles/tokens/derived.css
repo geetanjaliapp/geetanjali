@@ -159,6 +159,15 @@
 }
 
 /* ============================================
+   PROSE LIGHT MODE
+   Custom typography colors for Sacred Saffron theme
+   ============================================ */
+.prose {
+  --tw-prose-bold: var(--color-accent-800);
+  --tw-prose-links: var(--color-primary-700);
+}
+
+/* ============================================
    PROSE DARK MODE
    Auto-invert typography plugin in dark mode
    Removes need for dark:prose-invert in components
@@ -167,7 +176,7 @@
   --tw-prose-body: var(--color-neutral-300);
   --tw-prose-headings: var(--color-neutral-100);
   --tw-prose-lead: var(--color-neutral-400);
-  --tw-prose-links: var(--color-primary-300);
+  --tw-prose-links: var(--color-primary-400);
   --tw-prose-bold: var(--color-neutral-100);
   --tw-prose-counters: var(--color-neutral-400);
   --tw-prose-bullets: var(--color-neutral-600);
