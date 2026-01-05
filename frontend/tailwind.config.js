@@ -71,10 +71,14 @@ export default {
               marginTop: '0.75em',
               marginBottom: '0.75em',
             },
-            // Remove default link styling (handled by app)
+            // Link styling - uses semantic token for theme-aware colors
             'a': {
-              color: 'inherit',
+              color: 'var(--text-link)',
               textDecoration: 'none',
+              '&:hover': {
+                color: 'var(--text-link-hover)',
+                textDecoration: 'underline',
+              },
             },
           },
         },
