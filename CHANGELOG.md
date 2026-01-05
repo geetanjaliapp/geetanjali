@@ -2,6 +2,40 @@
 
 All notable changes to Geetanjali are documented here.
 
+## [1.22.1] - 2026-01-05
+
+Bug fixes and UX refinements for navigation, theme readability, and authentication flows.
+
+### Fixed
+
+- **Auth Error Display** - Login/signup errors now properly shown instead of silently redirecting to homepage
+  - Removed misconfigured `validateStatus` that treated all HTTP errors as success
+- **Dark Mode Readability** - Bold text (Sanskrit terms) now readable in dark mode
+  - Prose bold uses theme-aware `--tw-prose-bold` instead of hardcoded accent color
+- **Textarea Visibility** - Follow-up input now clearly distinguished from background
+  - Uses semantic `--input-bg` and `--input-border` tokens
+- **Link Colors** - Prose links use semantic colors with proper light/dark contrast
+
+### Improved
+
+- **Navigation Menu** - Streamlined account dropdown and mobile drawer
+  - About link moved to main navbar for visibility
+  - Menu items reordered by frequency: Guidance → Favorites → Reading → Settings
+  - Reading label uses standard verse citation: "Resume BG 3.12"
+  - Compact guest auth: single CTA button + "or Sign in →" link
+- **CaseView UX** - Enhanced consultation display
+  - Relative timestamps on exchanges ("2h ago", "3d ago")
+  - Visual hierarchy with alternating backgrounds for follow-ups
+  - Jump to summary link for quick navigation
+  - Larger touch targets (44px) for mobile feedback buttons
+  - Auto-hide signup prompt after 30 seconds
+- **Debug Cleanup** - Removed console.log from syncEngine
+
+### Technical
+
+- New `formatRelativeTime` utility in `lib/dateUtils.ts`
+- All 481 frontend tests passing
+
 ## [1.22.0] - 2026-01-04
 
 Theme identity release introducing Sacred Saffron as the default palette and refining the immersive reading experience.
