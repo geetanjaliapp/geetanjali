@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { casesApi } from "../lib/api";
 import type { Case, Message, Output } from "../types";
@@ -10,6 +10,7 @@ import {
 } from "../components";
 import { SpeakButton } from "../components/SpeakButton";
 import { groupMessagesIntoExchanges } from "../lib/messageGrouping";
+import { formatRelativeTime } from "../lib/dateUtils";
 import { truncateText, truncateForSEO } from "../lib/truncate";
 import { useSEO } from "../hooks";
 
@@ -112,6 +113,21 @@ export default function PublicCaseView() {
 
   const firstOutput = outputs.length > 0 ? outputs[outputs.length - 1] : null;
 
+  // Ref for scrolling to summary
+  const summaryRef = useRef<HTMLDivElement>(null);
+
+  const scrollToSummary = useCallback(() => {
+    summaryRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
+
+  // Check if summary section will be shown (for jump link visibility)
+  const hasSummary = firstOutput && (
+    firstOutput.result_json.options?.length > 0 ||
+    (typeof firstOutput.result_json.recommended_action === "object" &&
+      (firstOutput.result_json.recommended_action.steps?.length ?? 0) > 0) ||
+    firstOutput.result_json.reflection_prompts?.length > 0
+  );
+
   if (loading) {
     return (
       <div className="min-h-screen bg-linear-to-br from-[var(--gradient-page-from)] to-[var(--gradient-page-to)] flex flex-col overflow-x-hidden">
@@ -178,12 +194,16 @@ export default function PublicCaseView() {
             {/* Exchanges */}
             {exchanges.map((exchange, exchangeIdx) => {
               const isFirst = exchangeIdx === 0;
+              const isEven = exchangeIdx % 2 === 0;
               const isSourcesExpanded = exchange.output
                 ? expandedSources.has(exchange.output.id)
                 : false;
 
               return (
-                <div key={exchange.user.id}>
+                <div
+                  key={exchange.user.id}
+                  className={`${!isFirst ? `py-4 -mx-3 px-3 sm:-mx-4 sm:px-4 rounded-[var(--radius-card)] ${isEven ? "bg-[var(--surface-muted-translucent-subtle)]" : ""}` : ""}`}
+                >
                   {/* Question */}
                   <div className="relative pl-8 sm:pl-10 pb-3 sm:pb-4">
                     <div
@@ -213,14 +233,25 @@ export default function PublicCaseView() {
                         </span>
                       )}
                     </div>
-                    <div
-                      className={`text-xs font-semibold uppercase tracking-wide mb-1.5 sm:mb-2 ${
-                        isFirst
-                          ? "text-[var(--text-accent)]"
-                          : "text-[var(--status-info-text)]"
-                      }`}
-                    >
-                      {isFirst ? "Question" : "Follow-up"}
+                    <div className="flex items-center justify-between mb-1.5 sm:mb-2">
+                      <span
+                        className={`text-xs font-semibold uppercase tracking-wide ${
+                          isFirst
+                            ? "text-[var(--text-accent)]"
+                            : "text-[var(--status-info-text)]"
+                        }`}
+                      >
+                        {isFirst ? "Question" : "Follow-up"}
+                      </span>
+                      {exchange.user.created_at && (
+                        <time
+                          dateTime={exchange.user.created_at}
+                          className="text-[10px] text-[var(--text-muted)]"
+                          title={new Date(exchange.user.created_at).toLocaleString()}
+                        >
+                          {formatRelativeTime(exchange.user.created_at)}
+                        </time>
+                      )}
                     </div>
                     <div
                       className={`rounded-[var(--radius-card)] p-3 sm:p-4 ${
@@ -309,10 +340,10 @@ export default function PublicCaseView() {
                                   exchange.output &&
                                   toggleSources(exchange.output.id)
                                 }
-                                className="text-xs font-medium text-[var(--interactive-ghost-text)] hover:text-[var(--text-primary)] flex items-center gap-1"
+                                className="min-h-[44px] px-3 py-2 -ml-3 text-sm font-medium text-[var(--interactive-ghost-text)] hover:text-[var(--text-link-hover)] hover:bg-[var(--surface-muted)] flex items-center gap-2 rounded-[var(--radius-button)] transition-[var(--transition-color)]"
                               >
                                 <svg
-                                  className={`w-3 h-3 transition-transform ${isSourcesExpanded ? "rotate-90" : ""}`}
+                                  className={`w-4 h-4 transition-transform ${isSourcesExpanded ? "rotate-90" : ""}`}
                                   fill="none"
                                   stroke="currentColor"
                                   viewBox="0 0 24 24"
@@ -387,15 +418,28 @@ export default function PublicCaseView() {
 
                         {/* Interpretive tradition disclosure - subtle, first exchange only */}
                         {isFirst && (
-                          <p className="mt-4 pt-3 border-t border-[var(--border-default)] text-[10px] sm:text-xs text-[var(--text-muted)] italic">
-                            Guidance reflects practical Vedantic principles.{" "}
-                            <Link
-                              to="/about#our-approach"
-                              className="underline hover:text-[var(--text-secondary)]"
-                            >
-                              Learn about our approach
-                            </Link>
-                          </p>
+                          <div className="mt-4 pt-3 border-t border-[var(--border-default)] flex items-center justify-between gap-4">
+                            <p className="text-[10px] sm:text-xs text-[var(--text-muted)] italic">
+                              Guidance reflects practical Vedantic principles.{" "}
+                              <Link
+                                to="/about#our-approach"
+                                className="underline hover:text-[var(--text-secondary)]"
+                              >
+                                Learn about our approach
+                              </Link>
+                            </p>
+                            {hasSummary && (
+                              <button
+                                onClick={scrollToSummary}
+                                className="flex items-center gap-1 text-[10px] sm:text-xs text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] font-medium whitespace-nowrap transition-[var(--transition-color)]"
+                              >
+                                <span>Summary</span>
+                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                              </button>
+                            )}
+                          </div>
                         )}
                       </div>
                     </div>
@@ -412,7 +456,10 @@ export default function PublicCaseView() {
                 (firstOutput.result_json.recommended_action.steps?.length ??
                   0) > 0) ||
               firstOutput.result_json.reflection_prompts?.length > 0) && (
-              <div className="mt-8 pt-6 border-t border-[var(--border-warm-subtle)]">
+              <div
+                ref={summaryRef}
+                className="mt-8 pt-6 border-t border-[var(--border-warm-subtle)]"
+              >
                 {/* Section Header */}
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-8 h-8 rounded-[var(--radius-avatar)] bg-[var(--badge-warm-bg)] flex items-center justify-center">

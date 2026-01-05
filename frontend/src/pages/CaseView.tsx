@@ -14,6 +14,7 @@ import { SpeakButton } from "../components/SpeakButton";
 import { errorMessages } from "../lib/errorMessages";
 import { validateContent } from "../lib/contentFilter";
 import { groupMessagesIntoExchanges } from "../lib/messageGrouping";
+import { formatRelativeTime } from "../lib/dateUtils";
 import { useSEO, useFeedback } from "../hooks";
 import {
   CaseHeader,
@@ -42,8 +43,14 @@ export default function CaseView() {
   const [showSignupPrompt, setShowSignupPrompt] = useState(false);
   const { isAuthenticated } = useAuth();
 
-  // Ref for scrolling to follow-up input
+  // Refs for scrolling
   const followUpInputRef = useRef<HTMLDivElement>(null);
+  const summaryRef = useRef<HTMLDivElement>(null);
+
+  // Scroll to summary section
+  const scrollToSummary = useCallback(() => {
+    summaryRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
 
   // Dynamic SEO - private consultations shouldn't be indexed
   useSEO({
@@ -185,6 +192,13 @@ export default function CaseView() {
       return () => clearTimeout(timer);
     }
   }, [wasProcessing, isCompleted, outputs.length]);
+
+  // Auto-hide signup prompt after 30 seconds
+  useEffect(() => {
+    if (!showSignupPrompt) return;
+    const timer = setTimeout(() => setShowSignupPrompt(false), 30000);
+    return () => clearTimeout(timer);
+  }, [showSignupPrompt]);
 
   // Polling for processing status
   // LLM operations take 1-3 minutes. Fixed 5s interval balances:
@@ -543,6 +557,14 @@ ${messages
   // Get first output for paths/steps/reflections
   const firstOutput = outputs.length > 0 ? outputs[outputs.length - 1] : null;
 
+  // Check if summary section will be shown (for jump link visibility)
+  const hasSummary = firstOutput && (
+    firstOutput.result_json.options?.length > 0 ||
+    (typeof firstOutput.result_json.recommended_action === "object" &&
+      (firstOutput.result_json.recommended_action.steps?.length ?? 0) > 0) ||
+    firstOutput.result_json.reflection_prompts?.length > 0
+  );
+
   if (loading) {
     return (
       <div className="min-h-screen bg-linear-to-br from-[var(--gradient-page-from)] to-[var(--gradient-page-to)] flex flex-col">
@@ -650,6 +672,7 @@ ${messages
               {/* Exchanges */}
               {exchanges.map((exchange, exchangeIdx) => {
                 const isFirst = exchangeIdx === 0;
+                const isEven = exchangeIdx % 2 === 0;
                 const isSourcesExpanded = exchange.output
                   ? expandedSources.has(exchange.output.id)
                   : false;
@@ -658,7 +681,10 @@ ${messages
                   : null;
 
                 return (
-                  <div key={exchange.user.id}>
+                  <div
+                    key={exchange.user.id}
+                    className={`${!isFirst ? `py-4 -mx-3 px-3 sm:-mx-4 sm:px-4 rounded-[var(--radius-card)] ${isEven ? "bg-[var(--surface-muted-translucent-subtle)]" : ""}` : ""}`}
+                  >
                     {/* Question */}
                     <div className="relative pl-8 sm:pl-10 pb-3 sm:pb-4">
                       <div
@@ -688,14 +714,25 @@ ${messages
                           </span>
                         )}
                       </div>
-                      <div
-                        className={`text-xs font-semibold uppercase tracking-wide mb-2 ${
-                          isFirst
-                            ? "text-[var(--text-accent)]"
-                            : "text-[var(--status-info-text)]"
-                        }`}
-                      >
-                        {isFirst ? "Your Question" : "Follow-up"}
+                      <div className="flex items-center justify-between mb-2">
+                        <span
+                          className={`text-xs font-semibold uppercase tracking-wide ${
+                            isFirst
+                              ? "text-[var(--text-accent)]"
+                              : "text-[var(--status-info-text)]"
+                          }`}
+                        >
+                          {isFirst ? "Your Question" : "Follow-up"}
+                        </span>
+                        {exchange.user.created_at && (
+                          <time
+                            dateTime={exchange.user.created_at}
+                            className="text-[10px] text-[var(--text-muted)]"
+                            title={new Date(exchange.user.created_at).toLocaleString()}
+                          >
+                            {formatRelativeTime(exchange.user.created_at)}
+                          </time>
+                        )}
                       </div>
                       <div
                         className={`rounded-[var(--radius-card)] p-3 sm:p-4 ${
@@ -901,10 +938,10 @@ ${messages
                                     exchange.output &&
                                     toggleSources(exchange.output.id)
                                   }
-                                  className="text-xs font-medium text-[var(--interactive-ghost-text)] hover:text-[var(--text-link-hover)] flex items-center gap-1 rounded-[var(--radius-skeleton)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
+                                  className="min-h-[44px] px-3 py-2 -ml-3 text-sm font-medium text-[var(--interactive-ghost-text)] hover:text-[var(--text-link-hover)] hover:bg-[var(--surface-muted)] flex items-center gap-2 rounded-[var(--radius-button)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] transition-[var(--transition-color)]"
                                 >
                                   <svg
-                                    className={`w-3 h-3 transition-transform ${isSourcesExpanded ? "rotate-90" : ""}`}
+                                    className={`w-4 h-4 transition-transform ${isSourcesExpanded ? "rotate-90" : ""}`}
                                     fill="none"
                                     stroke="currentColor"
                                     viewBox="0 0 24 24"
@@ -975,15 +1012,28 @@ ${messages
 
                           {/* Interpretive tradition disclosure - subtle, first exchange only */}
                           {isFirst && (
-                            <p className="mt-4 pt-3 border-t border-[var(--border-default)] text-[10px] sm:text-xs text-[var(--text-muted)] italic">
-                              Guidance reflects practical Vedantic principles.{" "}
-                              <Link
-                                to="/about#our-approach"
-                                className="underline hover:text-[var(--text-secondary)]"
-                              >
-                                Learn about our approach
-                              </Link>
-                            </p>
+                            <div className="mt-4 pt-3 border-t border-[var(--border-default)] flex items-center justify-between gap-4">
+                              <p className="text-[10px] sm:text-xs text-[var(--text-muted)] italic">
+                                Guidance reflects practical Vedantic principles.{" "}
+                                <Link
+                                  to="/about#our-approach"
+                                  className="underline hover:text-[var(--text-secondary)]"
+                                >
+                                  Learn about our approach
+                                </Link>
+                              </p>
+                              {hasSummary && (
+                                <button
+                                  onClick={scrollToSummary}
+                                  className="flex items-center gap-1 text-[10px] sm:text-xs text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] font-medium whitespace-nowrap transition-[var(--transition-color)]"
+                                >
+                                  <span>Summary</span>
+                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                  </svg>
+                                </button>
+                              )}
+                            </div>
                           )}
                         </div>
                       </div>
@@ -1051,7 +1101,10 @@ ${messages
                 (firstOutput.result_json.recommended_action.steps?.length ??
                   0) > 0) ||
               firstOutput.result_json.reflection_prompts?.length > 0) && (
-              <div className="mt-8 pt-6 border-t border-[var(--border-warm-subtle)]">
+              <div
+                ref={summaryRef}
+                className="mt-8 pt-6 border-t border-[var(--border-warm-subtle)]"
+              >
                 {/* Section Header */}
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-8 h-8 rounded-[var(--radius-avatar)] bg-[var(--badge-warm-bg)] flex items-center justify-center">
