@@ -22,7 +22,7 @@ export function FollowUpInput({
 
   return (
     <div
-      className={`mt-4 bg-[var(--surface-elevated)] rounded-[var(--radius-card)] shadow-[var(--shadow-card)] p-3 sm:p-4 transition-[var(--transition-opacity)] ${disabled ? "opacity-75" : ""}`}
+      className={`mt-4 bg-[var(--surface-field)] rounded-[var(--radius-card)] border-2 border-dashed border-[var(--border-warm)] p-3 sm:p-4 transition-[var(--transition-opacity)] ${disabled ? "opacity-60" : "hover:border-[var(--interactive-primary)] hover:border-solid"}`}
     >
       {/* Inline error message */}
       {error && (
@@ -32,26 +32,6 @@ export function FollowUpInput({
           className="mb-3 bg-[var(--status-error-bg)] border border-[var(--status-error-border)] text-[var(--status-error-text)] px-3 py-2 rounded-[var(--radius-button)] text-sm"
         >
           {error}
-        </div>
-      )}
-      {/* Processing indicator */}
-      {disabled && (
-        <div className="flex items-center gap-2 mb-3 text-[var(--text-accent)]">
-          <div className="flex space-x-1">
-            <span
-              className="w-1.5 h-1.5 bg-[var(--interactive-primary)] rounded-[var(--radius-progress)] animate-bounce"
-              style={{ animationDelay: "0ms" }}
-            />
-            <span
-              className="w-1.5 h-1.5 bg-[var(--interactive-primary)] rounded-[var(--radius-progress)] animate-bounce"
-              style={{ animationDelay: "150ms" }}
-            />
-            <span
-              className="w-1.5 h-1.5 bg-[var(--interactive-primary)] rounded-[var(--radius-progress)] animate-bounce"
-              style={{ animationDelay: "300ms" }}
-            />
-          </div>
-          <span className="text-sm font-medium">Thinking...</span>
         </div>
       )}
 
@@ -79,10 +59,10 @@ export function FollowUpInput({
             rows={2}
             aria-invalid={error ? true : undefined}
             aria-describedby={error ? "followup-error" : undefined}
-            className={`flex-1 px-3 sm:px-4 py-2.5 sm:py-3 border rounded-[var(--radius-card)] text-sm focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent transition-[var(--transition-color)] resize-none bg-[var(--surface-elevated)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] ${
+            className={`flex-1 px-3 sm:px-4 py-2.5 sm:py-3 border rounded-[var(--radius-button)] text-sm focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent transition-[var(--transition-color)] resize-none text-[var(--text-primary)] placeholder-[var(--input-text-placeholder)] ${
               disabled
-                ? "border-[var(--border-warm)] bg-[var(--surface-warm-subtle)]"
-                : "border-[var(--border-default)]"
+                ? "border-[var(--border-warm)] bg-[var(--input-bg-disabled)] text-[var(--input-text-disabled)]"
+                : "bg-[var(--input-bg)] border-[var(--input-border)] hover:border-[var(--input-border-hover)]"
             }`}
             disabled={isDisabled}
           />

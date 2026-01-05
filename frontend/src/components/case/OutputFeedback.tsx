@@ -65,14 +65,14 @@ export const OutputFeedback = memo(
               aria-label={
                 feedback === "up" ? "Feedback: helpful" : "Mark as helpful"
               }
-              className={`w-7 h-7 rounded-[var(--radius-avatar)] flex items-center justify-center transition-[var(--transition-color)] ${
+              className={`w-10 h-10 sm:w-8 sm:h-8 rounded-[var(--radius-avatar)] flex items-center justify-center transition-[var(--transition-color)] ${
                 feedback === "up" && !isExpanded
                   ? "bg-[var(--status-success-text)] text-[var(--text-inverted)]"
                   : "bg-[var(--surface-muted)] text-[var(--text-muted)] hover:bg-[var(--status-success-bg)] hover:text-[var(--status-success-text)]"
               }`}
             >
               <svg
-                className="w-3.5 h-3.5"
+                className="w-4 h-4"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -93,14 +93,14 @@ export const OutputFeedback = memo(
                   ? "Feedback: needs improvement"
                   : "Mark as needs improvement"
               }
-              className={`w-7 h-7 rounded-[var(--radius-avatar)] flex items-center justify-center transition-[var(--transition-color)] ${
+              className={`w-10 h-10 sm:w-8 sm:h-8 rounded-[var(--radius-avatar)] flex items-center justify-center transition-[var(--transition-color)] ${
                 feedback === "down" || isExpanded
                   ? "bg-[var(--status-error-text)] text-[var(--text-inverted)]"
                   : "bg-[var(--surface-muted)] text-[var(--text-muted)] hover:bg-[var(--status-error-bg)] hover:text-[var(--status-error-text)]"
               }`}
             >
               <svg
-                className="w-3.5 h-3.5"
+                className="w-4 h-4"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -145,7 +145,7 @@ export const OutputFeedback = memo(
               value={feedbackText[output.id] || ""}
               onChange={(e) => onFeedbackTextChange(output.id, e.target.value)}
               placeholder="Tell us what wasn't helpful..."
-              className="w-full px-3 py-2 text-sm bg-[var(--surface-elevated)] text-[var(--text-primary)] border border-[var(--border-default)] rounded-[var(--radius-button)] focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent resize-none placeholder:text-[var(--text-muted)]"
+              className="w-full px-3 py-2 text-sm bg-[var(--input-bg)] text-[var(--input-text)] border border-[var(--input-border)] hover:border-[var(--input-border-hover)] rounded-[var(--radius-button)] focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent resize-none placeholder:text-[var(--input-text-placeholder)]"
               rows={2}
               maxLength={1000}
             />
