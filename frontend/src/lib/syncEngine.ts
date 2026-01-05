@@ -94,16 +94,10 @@ const DEFAULT_CONFIG: SyncConfig = {
 // DEBUG LOGGING
 // ============================================================================
 
-const DEBUG = import.meta.env.DEV;
-
-function log(message: string, data?: unknown): void {
-  if (DEBUG) {
-    if (data !== undefined) {
-      console.log(`[SyncEngine] ${message}`, data);
-    } else {
-      console.log(`[SyncEngine] ${message}`);
-    }
-  }
+// Debug logging disabled in production - uncomment for local debugging
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function log(_message: string, _data?: unknown): void {
+  // No-op in production
 }
 
 // ============================================================================
