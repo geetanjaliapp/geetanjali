@@ -101,18 +101,24 @@ Lock screen and notification controls work via the Media Session API. Pause, res
 Audio files cache automatically for offline playback.
 
 **How it works:**
-- First play caches the MP3 via Service Worker
-- Subsequent plays serve from cache instantly
+- Audio plays immediately via nginx (no blocking)
+- Full file cached in background for subsequent plays
 - Cloud icon in MiniPlayer indicates cached status
 
 **Cache limits:**
 - 100MB quota with LRU eviction
 - Manage in Settings → Audio Cache (see file count, clear cache)
 
+**Reliability features** (v1.22.2):
+- Play-first strategy: immediate playback, background caching
+- 20-second load timeout with clear error message
+- Cache integrity validation (size, content-type, completeness)
+- Automatic recovery from corrupted cache entries
+
 **Technical:**
 - Service Worker intercepts `/audio/` requests
 - Supports Range requests for seeking within cached files
-- Falls back to network on cache miss
+- Falls back to network on cache miss or invalid cache
 
 ---
 

@@ -41,6 +41,9 @@ const STORAGE_KEY_LOOP = "geetanjali_audio_loop";
 const MAX_AUTO_RETRIES = 2;
 const RETRY_DELAYS = [1000, 3000]; // 1s, 3s backoff
 
+// Load timeout - prevents infinite loading on slow/stuck connections
+const LOAD_TIMEOUT_MS = 20000; // 20 seconds
+
 // Playback speed options
 export const PLAYBACK_SPEEDS = [0.75, 1, 1.25] as const;
 export type PlaybackSpeed = (typeof PLAYBACK_SPEEDS)[number];
@@ -157,6 +160,8 @@ export function AudioPlayerProvider({ children }: AudioPlayerProviderProps) {
   // Auto-retry state
   const retryCountRef = useRef(0);
   const retryTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Load timeout ref - prevents infinite loading spinner
+  const loadTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Update media session metadata
   const updateMediaSession = useCallback((verseId: string | null) => {
@@ -195,6 +200,11 @@ export function AudioPlayerProvider({ children }: AudioPlayerProviderProps) {
     };
 
     const handleCanPlay = () => {
+      // Clear load timeout - audio loaded successfully
+      if (loadTimeoutRef.current) {
+        clearTimeout(loadTimeoutRef.current);
+        loadTimeoutRef.current = null;
+      }
       setState("playing");
       audio.play().catch(() => {
         setState("paused");
@@ -247,6 +257,12 @@ export function AudioPlayerProvider({ children }: AudioPlayerProviderProps) {
     };
 
     const handleError = () => {
+      // Clear load timeout on error
+      if (loadTimeoutRef.current) {
+        clearTimeout(loadTimeoutRef.current);
+        loadTimeoutRef.current = null;
+      }
+
       const errorCode = audio.error?.code || 0;
       const message = AUDIO_ERROR_MESSAGES[errorCode] || "Failed to load audio";
 
@@ -334,6 +350,11 @@ export function AudioPlayerProvider({ children }: AudioPlayerProviderProps) {
         clearTimeout(retryTimeoutRef.current);
         retryTimeoutRef.current = null;
       }
+      // Clear load timeout
+      if (loadTimeoutRef.current) {
+        clearTimeout(loadTimeoutRef.current);
+        loadTimeoutRef.current = null;
+      }
     };
   }, []);
 
@@ -355,6 +376,12 @@ export function AudioPlayerProvider({ children }: AudioPlayerProviderProps) {
         retryTimeoutRef.current = null;
       }
       retryCountRef.current = 0;
+
+      // Clear any existing load timeout
+      if (loadTimeoutRef.current) {
+        clearTimeout(loadTimeoutRef.current);
+        loadTimeoutRef.current = null;
+      }
 
       // Dispatch event to stop TTS (TTSContext listens for this)
       window.dispatchEvent(new CustomEvent("audioRecitationStart"));
@@ -398,6 +425,23 @@ export function AudioPlayerProvider({ children }: AudioPlayerProviderProps) {
 
       updateMediaSession(verseId);
       audio.load();
+
+      // Set load timeout - prevents infinite loading on slow/stuck connections
+      loadTimeoutRef.current = setTimeout(() => {
+        loadTimeoutRef.current = null;
+        // Only trigger timeout if still in loading state
+        if (audioRef.current && currentSrcRef.current === src) {
+          setState("error");
+          setError("Audio loading timed out - check your connection");
+          // Track timeout event
+          if (window.umami) {
+            window.umami.track("audio_timeout", {
+              verse_id: verseId,
+              timeout_ms: LOAD_TIMEOUT_MS,
+            });
+          }
+        }
+      }, LOAD_TIMEOUT_MS);
     },
     [currentlyPlaying, state, playbackSpeed, isLooping, updateMediaSession],
   );
@@ -433,6 +477,11 @@ export function AudioPlayerProvider({ children }: AudioPlayerProviderProps) {
     if (retryTimeoutRef.current) {
       clearTimeout(retryTimeoutRef.current);
       retryTimeoutRef.current = null;
+    }
+    // Clear load timeout if active
+    if (loadTimeoutRef.current) {
+      clearTimeout(loadTimeoutRef.current);
+      loadTimeoutRef.current = null;
     }
     retryCountRef.current = 0;
     if (audioRef.current) {

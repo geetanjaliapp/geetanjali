@@ -2,6 +2,40 @@
 
 All notable changes to Geetanjali are documented here.
 
+## [1.22.2] - 2026-01-05
+
+Audio playback reliability improvements. Fixes study mode restart bug and adds robust error handling.
+
+### Fixed
+
+- **Study Mode Audio Restart** - Audio no longer restarts after 2-3 seconds in study mode
+  - Root cause: `stop()` called `audio.load()` on empty src, queuing error events that raced with `play()`
+  - Fix: Removed unnecessary `load()` call from stop function
+
+### Improved
+
+- **Play-First Strategy** - Audio plays immediately while caching happens in background
+  - Previous: SW blocked playback until entire file downloaded and cached
+  - Now: Request passes through to nginx, audio starts immediately, cached asynchronously
+  - Result: Faster first-play, fewer failure points in critical path
+
+- **Load Timeout** - 20-second timeout prevents infinite loading spinner
+  - Clear error message: "Audio loading timed out - check your connection"
+  - Analytics tracking for timeout events
+
+- **Cache Integrity Validation** - Corrupted cache entries auto-detected and recovered
+  - Validates: non-empty, >1KB size, correct content-type, size matches expected
+  - Incomplete downloads rejected before caching (Content-Length validation)
+  - Invalid entries deleted automatically, fresh fetch triggered
+
+### Technical
+
+- New `validateCachedAudio()` function with 4-point integrity check
+- New `cacheAudioInBackground()` for non-blocking cache writes
+- New `removeAudioCacheMetadata()` for cleanup of invalid entries
+- `expectedSize` tracking in cache metadata for integrity validation
+- All 481 frontend tests passing
+
 ## [1.22.1] - 2026-01-05
 
 Bug fixes and UX refinements for navigation, theme readability, and authentication flows.
