@@ -627,9 +627,9 @@
   --text-muted: var(--color-neutral-400);
   --text-sanskrit: var(--color-accent-300);
   --text-sanskrit-secondary: var(--color-accent-400);
-  /* Links - subdued, not glowing. 500 level for quiet presence */
-  --text-link: var(--color-primary-500);
-  --text-link-hover: var(--color-primary-400);
+  /* Links - lighter for contrast on warm dark surfaces */
+  --text-link: var(--color-primary-400);
+  --text-link-hover: var(--color-primary-300);
   /* Accent text - muted warmth for quiet library feel */
   --text-accent: var(--color-warm-500);
   --text-accent-hover: var(--color-warm-400);
