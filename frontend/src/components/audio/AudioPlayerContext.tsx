@@ -437,9 +437,10 @@ export function AudioPlayerProvider({ children }: AudioPlayerProviderProps) {
     retryCountRef.current = 0;
     if (audioRef.current) {
       audioRef.current.pause();
-      // Clear source to cancel any pending events (prevents ghost playback)
+      // Clear source to cancel pending operations
+      // Note: Don't call load() here - it would queue error events for the empty src
+      // that could race with subsequent play() calls (causes study mode restart bug)
       audioRef.current.src = "";
-      audioRef.current.load(); // Reset the audio element
     }
     currentSrcRef.current = null;
     setState("idle");
