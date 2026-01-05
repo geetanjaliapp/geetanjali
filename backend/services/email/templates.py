@@ -67,7 +67,7 @@ def email_footer(links: list[tuple[str, str]]) -> str:
 
 def email_button(text: str, url: str) -> str:
     """
-    Generate orange CTA button.
+    Generate Sacred Saffron CTA button.
 
     Args:
         text: Button text
@@ -79,7 +79,7 @@ def email_button(text: str, url: str) -> str:
     return f"""
                 <div style="text-align: center; margin: 24px 0;">
                     <a href="{url}"
-                       style="display: inline-block; background: #ea580c; color: white; padding: 12px 28px; text-decoration: none; border-radius: 10px; font-weight: 500; font-size: 14px;">
+                       style="display: inline-block; background: #C65D1A; color: white; padding: 12px 28px; text-decoration: none; border-radius: 10px; font-weight: 500; font-size: 14px;">
                         {text}
                     </a>
                 </div>
@@ -98,7 +98,7 @@ def email_section(title: str, content: str, accent: bool = False) -> str:
     Returns:
         HTML string for section
     """
-    border_style = "border-left: 3px solid #f59e0b;" if accent else ""
+    border_style = "border-left: 3px solid #D4A017;" if accent else ""
     bg_style = (
         "background: #fefce8;" if accent else "background: rgba(254, 243, 199, 0.5);"
     )
@@ -202,6 +202,6 @@ def email_fallback_link(url: str) -> str:
     return f"""
                 <p style="color: #a8a29e; font-size: 12px; margin: 16px 0 0 0;">
                     If the button doesn't work, copy and paste this link:<br>
-                    <a href="{url}" style="color: #d97706; word-break: break-all;">{url}</a>
+                    <a href="{url}" style="color: #A94E12; word-break: break-all;">{url}</a>
                 </p>
     """

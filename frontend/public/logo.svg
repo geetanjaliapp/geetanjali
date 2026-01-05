@@ -1,14 +1,14 @@
 <svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-  <!-- Geetanjali Logo - Contrasting background for visibility -->
+  <!-- Geetanjali Logo - Sacred Saffron theme (v1.22.0) -->
   <defs>
     <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#ea580c;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#f97316;stop-opacity:1" />
+      <stop offset="0%" style="stop-color:#C65D1A;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#E07B3C;stop-opacity:1" />
     </linearGradient>
     <radialGradient id="sunGrad" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" style="stop-color:#FEF3C7;stop-opacity:1" />
-      <stop offset="40%" style="stop-color:#FCD34D;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#DC2626;stop-opacity:1" />
+      <stop offset="0%" style="stop-color:#FFF8E1;stop-opacity:1" />
+      <stop offset="40%" style="stop-color:#D4A017;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#A94E12;stop-opacity:1" />
     </radialGradient>
   </defs>
 
@@ -54,8 +54,8 @@
     <!-- Center radiant sun circle -->
     <circle cx="0" cy="0" r="55" fill="url(#sunGrad)"/>
 
-    <!-- Inner crimson circle for depth -->
-    <circle cx="0" cy="0" r="25" fill="#991B1B"/>
+    <!-- Inner deep saffron circle for depth -->
+    <circle cx="0" cy="0" r="25" fill="#6D2F0A"/>
 
     <!-- Highlight sparkle -->
     <circle cx="-8" cy="-8" r="6" fill="#FEF3C7" opacity="0.8"/>

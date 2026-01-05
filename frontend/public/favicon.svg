@@ -1,14 +1,14 @@
 <svg width="32" height="32" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-  <!-- Simplified version for favicon -->
+  <!-- Simplified favicon - Sacred Saffron theme (v1.22.0) -->
   <defs>
     <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#FF6B35;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#F7931E;stop-opacity:1" />
+      <stop offset="0%" style="stop-color:#C65D1A;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#D4A017;stop-opacity:1" />
     </linearGradient>
     <radialGradient id="sunGrad" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" style="stop-color:#FEF3C7;stop-opacity:1" />
-      <stop offset="40%" style="stop-color:#FCD34D;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#DC2626;stop-opacity:1" />
+      <stop offset="0%" style="stop-color:#FFF8E1;stop-opacity:1" />
+      <stop offset="40%" style="stop-color:#D4A017;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#A94E12;stop-opacity:1" />
     </radialGradient>
   </defs>
 
@@ -32,6 +32,6 @@
     <ellipse cx="0" cy="-50" rx="30" ry="70" fill="#FFEDD5" opacity="0.95" transform="rotate(300)"/>
 
     <circle cx="0" cy="0" r="55" fill="url(#sunGrad)"/>
-    <circle cx="0" cy="0" r="25" fill="#991B1B"/>
+    <circle cx="0" cy="0" r="25" fill="#6D2F0A"/>
   </g>
 </svg>

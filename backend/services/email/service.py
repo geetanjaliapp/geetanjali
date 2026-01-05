@@ -241,7 +241,7 @@ def send_contact_email(
             </tr>
             <tr>
                 <td style="padding: 8px 0; color: #78716c; vertical-align: top;">Email:</td>
-                <td style="padding: 8px 0;"><a href="mailto:{safe_email}" style="color: #d97706;">{safe_email}</a></td>
+                <td style="padding: 8px 0;"><a href="mailto:{safe_email}" style="color: #A94E12;">{safe_email}</a></td>
             </tr>
             <tr>
                 <td style="padding: 8px 0; color: #78716c; vertical-align: top;">Type:</td>

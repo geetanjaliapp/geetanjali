@@ -1,0 +1,85 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <!-- OG Image - Sacred Saffron theme (v1.22.0) -->
+  <defs>
+    <!-- Background gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFFDF5" />
+      <stop offset="100%" style="stop-color:#FFF8E1" />
+    </linearGradient>
+
+    <!-- Logo gradients -->
+    <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#C65D1A" />
+      <stop offset="100%" style="stop-color:#E07B3C" />
+    </linearGradient>
+    <radialGradient id="sunGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#FFF8E1" />
+      <stop offset="40%" style="stop-color:#D4A017" />
+      <stop offset="100%" style="stop-color:#A94E12" />
+    </radialGradient>
+
+    <!-- Decorative dot pattern -->
+    <pattern id="dots" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+      <circle cx="20" cy="20" r="2" fill="#D4A017" opacity="0.15"/>
+    </pattern>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bgGrad)"/>
+
+  <!-- Dot pattern overlay -->
+  <rect width="1200" height="630" fill="url(#dots)"/>
+
+  <!-- Logo - centered, positioned higher -->
+  <g transform="translate(600, 140)">
+    <!-- Background circle -->
+    <circle cx="0" cy="0" r="60" fill="url(#logoGrad)"/>
+
+    <!-- Lotus petals (scaled down) -->
+    <g transform="scale(0.25)">
+      <!-- Outer petals -->
+      <ellipse cx="0" cy="-80" rx="40" ry="100" fill="#FFF8E7" opacity="0.95" transform="rotate(0)"/>
+      <ellipse cx="0" cy="-80" rx="40" ry="100" fill="#FFF8E7" opacity="0.95" transform="rotate(45)"/>
+      <ellipse cx="0" cy="-80" rx="40" ry="100" fill="#FFF8E7" opacity="0.95" transform="rotate(90)"/>
+      <ellipse cx="0" cy="-80" rx="40" ry="100" fill="#FFF8E7" opacity="0.95" transform="rotate(135)"/>
+      <ellipse cx="0" cy="-80" rx="40" ry="100" fill="#FFF8E7" opacity="0.95" transform="rotate(180)"/>
+      <ellipse cx="0" cy="-80" rx="40" ry="100" fill="#FFF8E7" opacity="0.95" transform="rotate(225)"/>
+      <ellipse cx="0" cy="-80" rx="40" ry="100" fill="#FFF8E7" opacity="0.95" transform="rotate(270)"/>
+      <ellipse cx="0" cy="-80" rx="40" ry="100" fill="#FFF8E7" opacity="0.95" transform="rotate(315)"/>
+
+      <!-- Inner petals -->
+      <ellipse cx="0" cy="-50" rx="30" ry="70" fill="#FFEDD5" opacity="0.98"/>
+      <ellipse cx="0" cy="-50" rx="30" ry="70" fill="#FFEDD5" opacity="0.98" transform="rotate(60)"/>
+      <ellipse cx="0" cy="-50" rx="30" ry="70" fill="#FFEDD5" opacity="0.98" transform="rotate(120)"/>
+      <ellipse cx="0" cy="-50" rx="30" ry="70" fill="#FFEDD5" opacity="0.98" transform="rotate(180)"/>
+      <ellipse cx="0" cy="-50" rx="30" ry="70" fill="#FFEDD5" opacity="0.98" transform="rotate(240)"/>
+      <ellipse cx="0" cy="-50" rx="30" ry="70" fill="#FFEDD5" opacity="0.98" transform="rotate(300)"/>
+
+      <!-- Center sun -->
+      <circle cx="0" cy="0" r="55" fill="url(#sunGrad)"/>
+      <circle cx="0" cy="0" r="25" fill="#6D2F0A"/>
+      <circle cx="-8" cy="-8" r="6" fill="#FEF3C7" opacity="0.8"/>
+    </g>
+  </g>
+
+  <!-- Brand name -->
+  <text x="600" y="260" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="56" font-weight="500" fill="#1A1614" letter-spacing="1">
+    Geetanjali
+  </text>
+
+  <!-- Tagline -->
+  <text x="600" y="340" text-anchor="middle" font-family="'Source Sans 3', system-ui, sans-serif" font-size="28" fill="#57534e">
+    Ethical Guidance from the Bhagavad Gita
+  </text>
+
+  <!-- Subtitle -->
+  <text x="600" y="390" text-anchor="middle" font-family="'Source Sans 3', system-ui, sans-serif" font-size="20" fill="#78716c">
+    Timeless wisdom for life's difficult decisions
+  </text>
+
+  <!-- Decorative line -->
+  <rect x="100" y="540" width="180" height="4" rx="2" fill="#C65D1A" opacity="0.6"/>
+
+  <!-- Bottom accent bar -->
+  <rect x="0" y="618" width="1200" height="12" fill="#C65D1A"/>
+</svg>
