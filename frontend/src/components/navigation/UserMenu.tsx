@@ -156,8 +156,8 @@ export function UserMenu({
   // Reading link - dynamic based on position
   const hasReadingPosition = position?.chapter && position?.verse;
   const readingLabel = hasReadingPosition
-    ? `Continue Ch.${position.chapter} v.${position.verse}`
-    : "Start Reading";
+    ? `Resume BG ${position.chapter}.${position.verse}`
+    : "Start reading";
   const readingPath = hasReadingPosition
     ? `/read?c=${position.chapter}&v=${position.verse}`
     : "/read";
@@ -250,8 +250,19 @@ export function UserMenu({
             )}
           </div>
 
-          {/* Navigation items */}
+          {/* Navigation items - ordered by frequency */}
           <div className="py-1">
+            {/* My Guidance - most frequent */}
+            <Link
+              role="menuitem"
+              to="/consultations"
+              onClick={handleLinkClick}
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--text-secondary)] hover:bg-[var(--menu-item-hover-bg)] transition-[var(--transition-color)] focus:outline-hidden focus-visible:bg-[var(--menu-item-hover-bg)]"
+            >
+              <NavIcon path={NAV_ICONS.cases} />
+              <span>My Guidance</span>
+            </Link>
+
             {/* My Favorites */}
             <Link
               role="menuitem"
@@ -271,7 +282,7 @@ export function UserMenu({
               )}
             </Link>
 
-            {/* Reading position */}
+            {/* Reading position - personalized */}
             <Link
               role="menuitem"
               to={readingPath}
@@ -281,20 +292,9 @@ export function UserMenu({
               <NavIcon path={NAV_ICONS.read} />
               <span>{readingLabel}</span>
             </Link>
-
-            {/* My Guidance */}
-            <Link
-              role="menuitem"
-              to="/consultations"
-              onClick={handleLinkClick}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--text-secondary)] hover:bg-[var(--menu-item-hover-bg)] transition-[var(--transition-color)] focus:outline-hidden focus-visible:bg-[var(--menu-item-hover-bg)]"
-            >
-              <NavIcon path={NAV_ICONS.cases} />
-              <span>My Guidance</span>
-            </Link>
           </div>
 
-          {/* Settings & About */}
+          {/* Settings */}
           <div className="py-1 border-t border-[var(--border-subtle)]">
             <Link
               role="menuitem"
@@ -304,16 +304,6 @@ export function UserMenu({
             >
               <NavIcon path={NAV_ICONS.settings} />
               <span>Settings</span>
-            </Link>
-
-            <Link
-              role="menuitem"
-              to="/about"
-              onClick={handleLinkClick}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--text-secondary)] hover:bg-[var(--menu-item-hover-bg)] transition-[var(--transition-color)] focus:outline-hidden focus-visible:bg-[var(--menu-item-hover-bg)]"
-            >
-              <NavIcon path={NAV_ICONS.about} />
-              <span>About</span>
             </Link>
           </div>
 
@@ -336,22 +326,18 @@ export function UserMenu({
                   </span>
                 </Link>
 
-                {/* Divider */}
-                <div className="flex items-center gap-3 py-1">
-                  <div className="flex-1 border-t border-[var(--border-default)]" />
+                {/* Secondary - Sign in link */}
+                <div className="flex items-center justify-center gap-1.5 py-1">
                   <span className="text-xs text-[var(--text-muted)]">or</span>
-                  <div className="flex-1 border-t border-[var(--border-default)]" />
+                  <Link
+                    role="menuitem"
+                    to="/login"
+                    onClick={handleLinkClick}
+                    className="text-sm font-medium text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] hover:underline transition-[var(--transition-color)] focus:outline-hidden focus-visible:underline"
+                  >
+                    Sign in →
+                  </Link>
                 </div>
-
-                {/* Secondary - Sign in button */}
-                <Link
-                  role="menuitem"
-                  to="/login"
-                  onClick={handleLinkClick}
-                  className="flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-[var(--interactive-secondary-text)] bg-[var(--interactive-secondary-bg)] hover:bg-[var(--interactive-secondary-hover-bg)] border border-[var(--interactive-secondary-border)] rounded-[var(--radius-button)] transition-[var(--transition-color)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
-                >
-                  Sign in
-                </Link>
               </div>
             ) : (
               <button

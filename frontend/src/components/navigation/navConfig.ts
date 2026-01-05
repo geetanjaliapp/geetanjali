@@ -68,9 +68,7 @@ export const PRIMARY_CTA: PrimaryCTA = {
  * 1. Home - anchor
  * 2. Verses - entry point for discovery (browse + search unified)
  * 3. Read - deep sequential reading (after finding content)
- *
- * Note: History, Settings, About moved to account dropdown (v1.12.0 Phase 4c)
- * This reduces navbar cognitive load and groups personal items together.
+ * 4. About - trust-building, mission/purpose (v1.23 - moved back to navbar for visibility)
  */
 export const NAV_ITEMS: NavItem[] = [
   {
@@ -94,23 +92,37 @@ export const NAV_ITEMS: NavItem[] = [
     icon: "read",
     activePrefixes: ["/read"],
   },
+  {
+    to: "/about",
+    label: "About",
+    mobileLabel: "About",
+    icon: "about",
+    activePrefixes: ["/about"],
+  },
 ];
 
 /**
- * Account dropdown items (personal + informational)
+ * Account dropdown items (personal content)
  * These items appear in the account dropdown for both guests and authenticated users.
  * They are also shown in the mobile drawer's account section.
+ *
+ * Order: Most frequent actions first
+ * - My Guidance: consultations history (most accessed)
+ * - My Favorites: saved verses
+ * - Resume reading: personalized continuation point
+ * - Settings: preferences
+ *
+ * Note: About moved to main navbar for increased visibility (v1.23)
  */
 export const ACCOUNT_MENU_ITEMS = [
+  { to: "/consultations", label: "My Guidance", icon: "cases" as const },
   {
     to: "/verses?favorites=true",
     label: "My Favorites",
     icon: "heart" as const,
   },
-  { to: "/read", label: "Start Reading", icon: "read" as const },
-  { to: "/consultations", label: "My Guidance", icon: "cases" as const },
+  { to: "/read", label: "Resume reading", icon: "read" as const },
   { to: "/settings", label: "Settings", icon: "settings" as const },
-  { to: "/about", label: "About Geetanjali", icon: "about" as const },
 ];
 
 /**

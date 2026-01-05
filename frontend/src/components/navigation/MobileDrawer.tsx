@@ -100,8 +100,8 @@ export function MobileDrawer({
   // Reading link - dynamic based on position
   const hasReadingPosition = position?.chapter && position?.verse;
   const readingLabel = hasReadingPosition
-    ? `Continue Ch.${position.chapter}`
-    : "Start Reading";
+    ? `Resume BG ${position.chapter}.${position.verse}`
+    : "Start reading";
   const readingPath = hasReadingPosition
     ? `/read?c=${position.chapter}&v=${position.verse}`
     : "/read";
@@ -226,8 +226,18 @@ export function MobileDrawer({
               </div>
             </div>
 
-            {/* Personal navigation items */}
+            {/* Personal navigation items - ordered by frequency */}
             <div className="py-2 px-3 space-y-0.5">
+              {/* My Guidance - most frequent */}
+              <Link
+                to="/consultations"
+                onClick={onClose}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius-nav)] text-sm text-[var(--text-secondary)] hover:bg-[var(--surface-warm-hover)] transition-[var(--transition-color)]"
+              >
+                <NavIcon path={NAV_ICONS.cases} className="w-4 h-4" />
+                <span>My Guidance</span>
+              </Link>
+
               {/* My Favorites */}
               <Link
                 to="/verses?favorites=true"
@@ -248,7 +258,7 @@ export function MobileDrawer({
                 )}
               </Link>
 
-              {/* Reading position */}
+              {/* Reading position - personalized */}
               <Link
                 to={readingPath}
                 onClick={onClose}
@@ -256,16 +266,6 @@ export function MobileDrawer({
               >
                 <NavIcon path={NAV_ICONS.read} className="w-4 h-4" />
                 <span>{readingLabel}</span>
-              </Link>
-
-              {/* My Guidance */}
-              <Link
-                to="/consultations"
-                onClick={onClose}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius-nav)] text-sm text-[var(--text-secondary)] hover:bg-[var(--surface-warm-hover)] transition-[var(--transition-color)]"
-              >
-                <NavIcon path={NAV_ICONS.cases} className="w-4 h-4" />
-                <span>My Guidance</span>
               </Link>
 
               {/* Settings */}
@@ -277,16 +277,6 @@ export function MobileDrawer({
                 <NavIcon path={NAV_ICONS.settings} className="w-4 h-4" />
                 <span>Settings</span>
               </Link>
-
-              {/* About */}
-              <Link
-                to="/about"
-                onClick={onClose}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius-nav)] text-sm text-[var(--text-secondary)] hover:bg-[var(--surface-warm-hover)] transition-[var(--transition-color)]"
-              >
-                <NavIcon path={NAV_ICONS.about} className="w-4 h-4" />
-                <span>About</span>
-              </Link>
             </div>
 
             {/* Auth action */}
@@ -297,27 +287,27 @@ export function MobileDrawer({
                   <Link
                     to="/signup"
                     onClick={onClose}
-                    className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-[var(--surface-warm)] hover:bg-[var(--surface-warm-hover)] border border-[var(--border-warm)] text-[var(--badge-warm-text)] font-medium rounded-[var(--radius-button)] transition-[var(--transition-color)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                    className="flex flex-col items-center gap-0.5 w-full px-4 py-2.5 bg-[var(--surface-warm)] hover:bg-[var(--surface-warm-hover)] border border-[var(--border-warm)] rounded-[var(--radius-button)] transition-[var(--transition-color)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                   >
-                    <span>✨</span>
-                    <span>Create account — Sync across devices</span>
+                    <span className="text-sm font-medium text-[var(--badge-warm-text)]">
+                      ✨ Create account
+                    </span>
+                    <span className="text-xs text-[var(--text-accent)]">
+                      Sync across devices
+                    </span>
                   </Link>
 
-                  {/* Divider */}
-                  <div className="flex items-center gap-3 py-1">
-                    <div className="flex-1 border-t border-[var(--border-warm)]" />
+                  {/* Secondary - Sign in link */}
+                  <div className="flex items-center justify-center gap-1.5 py-1">
                     <span className="text-xs text-[var(--text-muted)]">or</span>
-                    <div className="flex-1 border-t border-[var(--border-warm)]" />
+                    <Link
+                      to="/login"
+                      onClick={onClose}
+                      className="text-sm font-medium text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] hover:underline transition-[var(--transition-color)] focus:outline-hidden focus-visible:underline"
+                    >
+                      Sign in →
+                    </Link>
                   </div>
-
-                  {/* Sign in button */}
-                  <Link
-                    to="/login"
-                    onClick={onClose}
-                    className="flex items-center justify-center w-full px-4 py-2.5 text-sm font-medium text-[var(--interactive-secondary-text)] bg-[var(--interactive-secondary-bg)] hover:bg-[var(--interactive-secondary-hover-bg)] border border-[var(--interactive-secondary-border)] rounded-[var(--radius-button)] transition-[var(--transition-color)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
-                  >
-                    Sign in
-                  </Link>
                 </div>
               ) : (
                 <button
