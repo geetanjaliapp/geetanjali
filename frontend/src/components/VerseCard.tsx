@@ -1,6 +1,7 @@
 import { memo, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { formatSanskritLines, isSpeakerIntro } from "../lib/sanskritFormatter";
+import { formatChapterVerse } from "../lib/verseLinker";
 import { getPrincipleShortLabel } from "../constants/principles";
 import { prefetchVerse } from "../lib/versePrefetch";
 import {
@@ -92,8 +93,9 @@ export interface VerseCardProps {
   match?: VerseMatch;
 }
 
+/** Format verse reference for ornamental display: ॥ 2.47 ॥ */
 function formatVerseRef(verse: Verse): string {
-  return `${verse.chapter}.${verse.verse}`;
+  return formatChapterVerse(verse.chapter, verse.verse);
 }
 
 /**

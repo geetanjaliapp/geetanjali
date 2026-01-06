@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 import { versesApi } from "../lib/api";
 import { formatSanskritLines, isSpeakerIntro } from "../lib/sanskritFormatter";
+import { formatChapterVerse } from "../lib/verseLinker";
 import { prepareHindiTTS, prepareEnglishTTS } from "../lib/ttsPreprocess";
 import {
   getPrincipleShortLabel,
@@ -599,7 +600,7 @@ export default function VerseDetail() {
 
                   {/* Verse reference */}
                   <span className="text-[var(--text-accent-muted)] text-base sm:text-lg font-serif">
-                    ॥ {verse.chapter}.{verse.verse} ॥
+                    ॥ {formatChapterVerse(verse.chapter, verse.verse)} ॥
                   </span>
 
                   {/* Share button - opens unified share modal */}

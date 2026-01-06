@@ -15,6 +15,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { versesApi } from "../lib/api";
 import { formatSanskritLines, isSpeakerIntro } from "../lib/sanskritFormatter";
+import { formatChapterVerse } from "../lib/verseLinker";
 import { getTranslatorPriority } from "../constants/translators";
 import {
   HeartIcon,
@@ -471,7 +472,7 @@ export function VerseFocus({
 
             {/* Verse reference - matches VerseDetail styling */}
             <span className="text-[var(--text-accent-muted)] text-base sm:text-lg font-serif">
-              ॥ {verse.chapter}.{verse.verse} ॥
+              ॥ {formatChapterVerse(verse.chapter, verse.verse)} ॥
             </span>
 
             {/* Share button - p-3 on mobile for 44px touch target */}

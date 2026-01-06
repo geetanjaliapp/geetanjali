@@ -11,6 +11,7 @@ import {
 import { SpeakButton } from "../components/SpeakButton";
 import { groupMessagesIntoExchanges } from "../lib/messageGrouping";
 import { formatRelativeTime } from "../lib/dateUtils";
+import { formatVerseRef } from "../lib/verseLinker";
 import { truncateText, truncateForSEO } from "../lib/truncate";
 import { useSEO } from "../hooks";
 
@@ -375,10 +376,7 @@ export default function PublicCaseView() {
                                             to={`/verses/${source.canonical_id}`}
                                             className="font-mono text-[var(--interactive-ghost-text)] font-semibold text-xs sm:text-sm hover:underline"
                                           >
-                                            {source.canonical_id.replace(
-                                              /_/g,
-                                              " ",
-                                            )}
+                                            {formatVerseRef(source.canonical_id)}
                                           </Link>
                                         </div>
                                         <p className="mt-1 sm:mt-1.5 text-[var(--text-primary)] italic text-xs sm:text-sm">

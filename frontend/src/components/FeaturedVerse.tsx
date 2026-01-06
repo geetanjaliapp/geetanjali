@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import { Link } from "react-router-dom";
 import { formatSanskritLines } from "../lib/sanskritFormatter";
+import { formatChapterVerse } from "../lib/verseLinker";
 import { prefetchVerse } from "../lib/versePrefetch";
 import { useAudioPlayer } from "./audio";
 import {
@@ -73,8 +74,8 @@ export function FeaturedVerse({
     ],
   );
 
-  // Format verse reference for aria-labels
-  const verseRef = verse ? `${verse.chapter}.${verse.verse}` : "";
+  // Format verse reference for aria-labels and ornamental display
+  const verseRef = verse ? formatChapterVerse(verse.chapter, verse.verse) : "";
 
   if (loading) {
     return (

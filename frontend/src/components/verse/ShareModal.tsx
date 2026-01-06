@@ -7,6 +7,7 @@ import {
   type ImageFormat,
 } from "./ImageCardGenerator";
 import { getCurrentThemeName } from "../../lib/canvasThemeColors";
+import { formatChapterVerse } from "../../lib/verseLinker";
 import { truncateForDisplay } from "../../lib/truncate";
 import { useFocusTrap } from "../../hooks";
 
@@ -292,7 +293,7 @@ export function ShareModal({
               "{shortQuote}"
             </p>
             <p className="text-[var(--badge-warm-text)] text-xs mt-1 font-medium">
-              ॥ {verse.chapter}.{verse.verse} ॥
+              ॥ {formatChapterVerse(verse.chapter, verse.verse)} ॥
             </p>
           </div>
           <button

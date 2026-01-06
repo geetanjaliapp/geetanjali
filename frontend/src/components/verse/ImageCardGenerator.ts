@@ -4,7 +4,7 @@
  * Visual parity with FeaturedVerse component:
  * - ॐ (Om) symbol at top
  * - Sanskrit text with proper formatting
- * - ॥ chapter.verse ॥ reference
+ * - Ornamental verse reference: ॥ 2.47 ॥
  * - English paraphrase
  * - Hindi translation (for formats with space)
  * - Geetanjali branding
@@ -14,6 +14,7 @@
  */
 
 import { formatSanskritLines } from "../../lib/sanskritFormatter";
+import { formatChapterVerse } from "../../lib/verseLinker";
 import { getCanvasThemeColors } from "../../lib/canvasThemeColors";
 
 // Types
@@ -379,7 +380,7 @@ export async function generateVerseImage(
   ctx.globalAlpha = 0.7;
   drawCenteredText(
     ctx,
-    `॥ ${options.chapter}.${options.verse} ॥`,
+    `॥ ${formatChapterVerse(options.chapter, options.verse)} ॥`,
     currentY + verseRefSize * 1.1,
     width,
   );

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { formatSanskritLines, isSpeakerIntro } from "../lib/sanskritFormatter";
+import { formatChapterVerse } from "../lib/verseLinker";
 import { Navbar } from "../components";
 import { LogoIcon } from "../components/icons";
 import { useSEO } from "../hooks";
@@ -111,7 +112,7 @@ export default function NotFound() {
                 )}
               </div>
               <div className="text-[var(--text-accent)]/70 text-xs sm:text-sm font-serif">
-                ॥ {verse.chapter}.{verse.verse} ॥
+                ॥ {formatChapterVerse(verse.chapter, verse.verse)} ॥
               </div>
             </div>
 

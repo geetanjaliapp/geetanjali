@@ -15,6 +15,7 @@ import { errorMessages } from "../lib/errorMessages";
 import { validateContent } from "../lib/contentFilter";
 import { groupMessagesIntoExchanges } from "../lib/messageGrouping";
 import { formatRelativeTime } from "../lib/dateUtils";
+import { formatVerseRef } from "../lib/verseLinker";
 import { useSEO, useFeedback } from "../hooks";
 import {
   CaseHeader,
@@ -974,10 +975,7 @@ ${messages
                                               to={`/verses/${source.canonical_id}`}
                                               className="font-mono text-[var(--interactive-ghost-text)] font-semibold text-sm hover:underline"
                                             >
-                                              {source.canonical_id.replace(
-                                                /_/g,
-                                                " ",
-                                              )}
+                                              {formatVerseRef(source.canonical_id)}
                                             </Link>
                                           </div>
                                           <p className="mt-1.5 text-[var(--text-secondary)] italic text-sm">

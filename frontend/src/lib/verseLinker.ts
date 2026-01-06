@@ -4,6 +4,11 @@
  * Parses BG_X_Y patterns in text and provides utilities for
  * verse reference detection and formatting.
  *
+ * Standardized formats:
+ * - Canonical (URLs):    BG_2_47
+ * - Prose (text):        BG 2.47
+ * - Ornamental (cards):  2.47 (used within ॥ ॥ markers)
+ *
  * Used by GuidanceMarkdown to create clickable verse references.
  */
 
@@ -32,7 +37,8 @@ export interface VerseRef {
  *
  * Supported formats:
  * - BG_2_47 (canonical)
- * - BG 2.47
+ * - BG 2.47 (prose)
+ * - BG 2 47 (space-separated, from LLM)
  * - BG 2_47
  * - BG2.47
  * - (BG_2_47) with parentheses
@@ -40,7 +46,7 @@ export interface VerseRef {
  *
  * Captures: full match, chapter number, verse number
  */
-const VERSE_REF_PATTERN = /\(?BG[_\s]?(\d{1,2})[._](\d{1,2})\)?/g;
+const VERSE_REF_PATTERN = /\(?BG[_\s]?(\d{1,2})[._\s](\d{1,3})\)?/g;
 
 /**
  * Extract all verse references from text
@@ -116,4 +122,47 @@ export function parseCanonicalId(
 export function hasVerseRefs(text: string): boolean {
   VERSE_REF_PATTERN.lastIndex = 0;
   return VERSE_REF_PATTERN.test(text);
+}
+
+/**
+ * Format verse reference for ornamental display
+ * Converts BG_2_47 to "2.47" (without BG prefix)
+ * Used within ॥ ॥ markers on verse cards
+ *
+ * @param canonicalId - Canonical ID like "BG_2_47"
+ * @returns Formatted display string like "2.47"
+ */
+export function formatVerseDisplay(canonicalId: string): string {
+  const match = canonicalId.match(/BG_(\d+)_(\d+)/);
+  if (!match) return canonicalId;
+  return `${match[1]}.${match[2]}`;
+}
+
+/**
+ * Format verse from chapter and verse numbers for ornamental display
+ * Converts (2, 47) to "2.47"
+ *
+ * @param chapter - Chapter number
+ * @param verse - Verse number
+ * @returns Formatted display string like "2.47"
+ */
+export function formatChapterVerse(chapter: number, verse: number): string {
+  return `${chapter}.${verse}`;
+}
+
+/**
+ * Normalize verse references in text to canonical format
+ * Converts various formats (BG 2 47, BG 2.47, etc.) to BG_2_47
+ * Useful for post-processing LLM output
+ *
+ * @param text - Text containing verse references
+ * @returns Text with normalized verse references
+ */
+export function normalizeVerseRefs(text: string): string {
+  VERSE_REF_PATTERN.lastIndex = 0;
+  return text.replace(VERSE_REF_PATTERN, (match, chapter, verse) => {
+    const hasParens = match.startsWith("(");
+    const canonical = `BG_${chapter}_${verse}`;
+    return hasParens ? `(${canonical})` : canonical;
+  });
 }
