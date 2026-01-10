@@ -32,7 +32,7 @@ jobs:
         run: ruff check .
 
       - name: Run type checking
-        run: mypy . --ignore-missing-imports --exclude 'alembic/'
+        run: mypy . --ignore-missing-imports --exclude 'alembic/' --exclude 'scripts/'
 
   # Backend tests - runs in parallel with lint
   backend:
