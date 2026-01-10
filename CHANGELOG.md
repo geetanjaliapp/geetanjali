@@ -2,6 +2,23 @@
 
 All notable changes to Geetanjali are documented here.
 
+## [1.22.4] - 2026-01-10
+
+Fixes audio playback reliability in Service Worker.
+
+### Fixed
+
+- **Audio Network Error** - Audio no longer fails with "network error" during playback
+  - Root cause: `createRangeResponse()` returned without `await`, so errors bypassed try-catch
+  - When cache read failed, unhandled rejection caused `respondWith()` to fail → `MEDIA_ERR_NETWORK`
+  - Fix: Properly await async cache operations, catch errors, delete corrupt entries, fall back to network
+
+### Technical
+
+- Added error handling around `createRangeResponse()` and `cached.clone()`
+- Corrupt cache entries now auto-deleted on read failure
+- Network fallback when cache read fails (self-healing)
+
 ## [1.22.3] - 2026-01-10
 
 Simplifies audio caching to eliminate intermittent "network error" on first play.
