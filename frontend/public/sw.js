@@ -76,10 +76,10 @@ self.addEventListener('fetch', (event) => {
   // Skip chrome-extension and other non-http(s) requests
   if (!url.protocol.startsWith('http')) return;
 
-  // Audio files - bypass SW entirely (diagnostic: v1.22.3-debug)
-  // Let browser handle audio directly to test if SW is causing issues
+  // Audio files - special handling with Range request support
   if (isAudioFile(url.pathname)) {
-    return; // Don't intercept - let browser fetch directly
+    event.respondWith(handleAudioRequest(request, url));
+    return;
   }
 
   // Skip video files (not cached)
@@ -141,20 +141,36 @@ async function handleAudioRequest(request, url) {
     const cached = await cache.match(cacheKey);
 
     if (cached) {
-      // Serve immediately - no validation
+      // Serve from cache - properly await async operations
       updateAudioAccessTime(cacheKey);
       const rangeHeader = request.headers.get('range');
+
       if (rangeHeader) {
-        return createRangeResponse(cached, rangeHeader);
+        try {
+          // Await to catch any errors in createRangeResponse
+          return await createRangeResponse(cached, rangeHeader);
+        } catch (rangeError) {
+          // Range response failed (corrupt cache?) - delete and fall through to network
+          console.warn('[SW] Range response failed, clearing cache:', cacheKey, rangeError);
+          await cache.delete(cacheKey);
+          // Fall through to network fetch below
+        }
+      } else {
+        try {
+          return cached.clone();
+        } catch (cloneError) {
+          console.warn('[SW] Cache clone failed, clearing:', cacheKey, cloneError);
+          await cache.delete(cacheKey);
+          // Fall through to network fetch below
+        }
       }
-      return cached.clone();
     }
   } catch (cacheError) {
     // Cache check failed, fall through to network
     console.warn('[SW] Cache check failed:', cacheError);
   }
 
-  // NOT CACHED: Fetch from network
+  // NOT CACHED or cache read failed: Fetch from network
   try {
     const networkResponse = await fetch(request);
 
