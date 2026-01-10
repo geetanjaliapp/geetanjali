@@ -2,20 +2,41 @@
  * MiniPlayerActive - Unified active player for all modes
  *
  * Consolidates Listen, Read, Study, and Single-play into one component.
- * Quiet library aesthetics: understated, consistent height, subtle transitions.
+ * Study mode uses expanded SectionTrack layout (Proposal C).
  *
- * Layout (consistent across all modes):
- * ┌─────────────────────────────────────────────────────────────────┐
- * │  [Status]  │  [Progress]  [Indicators]  │  [Position/Time]     │
- * ├─────────────────────────────────────────────────────────────────┤
- * │  [▶][■][>>]    │    [Center]            │   🔄 🎵 Mode        │
- * └─────────────────────────────────────────────────────────────────┘
+ * Study Mode Layout:
+ * ┌────────────────────────────────────────────────────────────────┐
+ * │  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  │
+ * │  Sanskrit ● ── English ○ ── Hindi ○ ── Insight ○              │
+ * ├────────────────────────────────────────────────────────────────┤
+ * │  [▶] [■]           Verse 12 of 72                       [>>]  │
+ * └────────────────────────────────────────────────────────────────┘
+ *
+ * Other Modes Layout (Listen/Read/Single):
+ * ┌────────────────────────────────────────────────────────────────┐
+ * │  [Status]  │  [Progress]  [Time]  │  [Position]               │
+ * ├────────────────────────────────────────────────────────────────┤
+ * │  [▶][■]        [Speed]                    🔄 Mode             │
+ * └────────────────────────────────────────────────────────────────┘
  */
 
-import { PlayIcon, PauseIcon, SpinnerIcon } from "../../icons";
+import { PlayIcon, PauseIcon, SpinnerIcon, StopIcon, CloseIcon } from "../../icons";
 import { AudioSpeedControl } from "../AudioSpeedControl";
 import { formatTime } from "../audioUtils";
 import type { PlaybackSpeed } from "../AudioPlayerContext";
+
+// ============================================================================
+// Local Icons (not in shared icons.tsx)
+// ============================================================================
+
+/** Double chevron skip icon */
+function SkipIcon({ className = "w-5 h-5" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+    </svg>
+  );
+}
 
 // ============================================================================
 // Types
@@ -116,23 +137,121 @@ function ModeIcon({ type }: { type: "speaker" | "book" | "graduation" | "play" }
   }
 }
 
-/** Section dots for study mode */
-function SectionDots({ sections }: { sections: StudySectionInfo[] }) {
+/** Control button styles */
+const CONTROL_BUTTON_PRIMARY = "min-w-[44px] min-h-[44px] w-11 h-11 rounded-full bg-[var(--text-accent)] text-[var(--surface-primary)] hover:opacity-90 transition-opacity duration-150 flex items-center justify-center disabled:opacity-50";
+const CONTROL_BUTTON_SECONDARY = "min-w-[44px] min-h-[44px] w-11 h-11 rounded-md text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)] transition-colors duration-150 flex items-center justify-center";
+
+/** Play/Pause control button */
+function PlayPauseButton({
+  isPaused,
+  isLoading,
+  onClick,
+}: {
+  isPaused: boolean;
+  isLoading: boolean;
+  onClick: () => void;
+}) {
   return (
-    <div className="flex items-center gap-1" role="group" aria-label="Section progress">
-      {sections.map((section) => (
+    <button
+      onClick={onClick}
+      disabled={isLoading}
+      className={CONTROL_BUTTON_PRIMARY}
+      aria-label={isLoading ? "Loading" : isPaused ? "Resume" : "Pause"}
+    >
+      {isLoading ? (
+        <SpinnerIcon className="w-5 h-5" />
+      ) : isPaused ? (
+        <PlayIcon className="w-5 h-5" />
+      ) : (
+        <PauseIcon className="w-5 h-5" />
+      )}
+    </button>
+  );
+}
+
+/** Section track for study mode - horizontal pipeline with labels */
+function SectionTrack({
+  sections,
+  progress,
+}: {
+  sections: StudySectionInfo[];
+  progress: number;
+}) {
+  const currentIndex = sections.findIndex(s => s.status === "current");
+
+  // Calculate overall progress once (memoized within render)
+  const completedSections = sections.filter(s => s.status === "completed").length;
+  const sectionWidth = sections.length > 0 ? 100 / sections.length : 0;
+  const overallProgress = currentIndex === -1
+    ? 0
+    : (completedSections * sectionWidth) + (progress / 100) * sectionWidth;
+
+  const getStatusStyles = (status: StudySectionInfo["status"]) => {
+    switch (status) {
+      case "completed":
+        return "bg-[var(--text-accent)]";
+      case "current":
+        return "bg-[var(--text-accent)] ring-2 ring-[var(--text-accent)]/30 scale-110";
+      case "upcoming":
+        return "border-2 border-[var(--border-subtle)] bg-transparent";
+      case "skipped":
+        return "bg-[var(--border-subtle)] opacity-40";
+    }
+  };
+
+  return (
+    <div className="space-y-2" role="group" aria-label="Section progress">
+      {/* Progress bar - full width */}
+      <div
+        className="h-1 bg-[var(--surface-secondary)] rounded-full overflow-hidden"
+        role="progressbar"
+        aria-valuenow={Math.round(overallProgress)}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label="Overall progress"
+      >
         <div
-          key={section.id}
-          className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
-            section.status === "completed" ? "bg-[var(--text-accent)]" :
-            section.status === "current" ? "bg-[var(--text-accent)] ring-2 ring-[var(--text-accent)]/30 scale-125" :
-            section.status === "upcoming" ? "bg-[var(--border-subtle)]" :
-            "bg-[var(--border-subtle)] opacity-40"
-          }`}
-          title={section.label}
-          aria-label={`${section.label}: ${section.status}`}
+          className="h-full bg-[var(--text-accent)] transition-all duration-300 ease-out"
+          style={{ width: `${Math.min(100, Math.max(0, overallProgress))}%` }}
         />
-      ))}
+      </div>
+
+      {/* Section indicators with labels */}
+      <div className="flex items-center justify-center gap-2 text-xs">
+        {sections.map((section, idx) => (
+          <div key={section.id} className="flex items-center gap-1.5">
+            {/* Connector line between sections */}
+            {idx > 0 && (
+              <span
+                className={`w-4 h-px transition-colors duration-200 ${
+                  sections[idx - 1].status === "completed"
+                    ? "bg-[var(--text-accent)]"
+                    : "bg-[var(--border-subtle)]"
+                }`}
+                aria-hidden="true"
+              />
+            )}
+            {/* Section dot */}
+            <div
+              className={`w-2 h-2 rounded-full transition-all duration-200 ${getStatusStyles(section.status)}`}
+              aria-hidden="true"
+            />
+            {/* Section label */}
+            <span
+              className={`transition-colors duration-200 ${
+                section.status === "current"
+                  ? "font-semibold text-[var(--text-primary)]"
+                  : section.status === "completed"
+                  ? "text-[var(--text-secondary)]"
+                  : "text-[var(--text-tertiary)]"
+              }`}
+              aria-label={`${section.label}: ${section.status}`}
+            >
+              {section.label}
+            </span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -161,13 +280,56 @@ export function MiniPlayerActive({
   onClose,
 }: MiniPlayerActiveProps) {
   const config = MODE_CONFIG[mode];
-  const showTime = mode !== "study" && currentTime !== undefined && totalDuration !== undefined;
-  const showSections = mode === "study" && sections && sections.length > 0;
+  const isStudyMode = mode === "study";
+  const showTime = !isStudyMode && currentTime !== undefined && totalDuration !== undefined;
+  const showSections = isStudyMode && sections && sections.length > 0;
   const showSpeed = (mode === "listen" || mode === "single") && onSpeedChange && playbackSpeed;
-  const showSkip = mode === "study" && onSkip;
+  const showSkip = isStudyMode && onSkip;
   const showClose = mode === "single" && onClose;
   const showVersePosition = mode !== "single" && versePosition;
 
+  // Study mode uses distinct 3-row layout
+  if (isStudyMode && showSections) {
+    return (
+      <div
+        className="bg-[var(--surface-primary)]/95 backdrop-blur-sm border-t border-[var(--border-subtle)] px-4 py-3"
+        role="region"
+        aria-label="Study mode player"
+      >
+        <div className="max-w-4xl mx-auto space-y-3">
+          {/* Row 1 & 2: Section Track (progress bar + labeled sections) */}
+          <SectionTrack sections={sections} progress={progress} />
+
+          {/* Row 3: Controls | Verse position | Skip */}
+          <div className="flex items-center justify-between">
+            {/* Left: Control buttons */}
+            <div className="flex items-center gap-1">
+              <PlayPauseButton isPaused={isPaused} isLoading={isLoading} onClick={onPlayPause} />
+              <button onClick={onStop} className={CONTROL_BUTTON_SECONDARY} aria-label="Stop">
+                <StopIcon className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Center: Verse position (prominent) */}
+            {versePosition && (
+              <span className="text-sm font-medium text-[var(--text-primary)]">
+                Verse {versePosition.current} of {versePosition.total}
+              </span>
+            )}
+
+            {/* Right: Skip button */}
+            {showSkip && (
+              <button onClick={onSkip} className={CONTROL_BUTTON_SECONDARY} aria-label={skipLabel}>
+                <SkipIcon className="w-5 h-5" />
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Standard layout for Listen, Read, Single modes
   return (
     <div
       className="bg-[var(--surface-primary)]/95 backdrop-blur-sm border-t border-[var(--border-subtle)] px-4 py-2"
@@ -212,16 +374,15 @@ export function MiniPlayerActive({
               />
             </div>
 
-            {/* Time or Section dots */}
+            {/* End time */}
             {showTime && (
               <span className="text-[10px] text-[var(--text-tertiary)] font-mono w-8">
                 {formatTime(totalDuration)}
               </span>
             )}
-            {showSections && <SectionDots sections={sections} />}
           </div>
 
-          {/* Verse position or time for single mode */}
+          {/* Verse position */}
           {showVersePosition && (
             <span className="text-xs text-[var(--text-tertiary)] font-mono w-10 text-right">
               {versePosition.current}/{versePosition.total}
@@ -231,58 +392,15 @@ export function MiniPlayerActive({
 
         {/* Bottom row: Controls | Center | Mode indicator */}
         <div className="flex items-center justify-between">
-          {/* Left: Control buttons - min 44px touch targets per design.md */}
+          {/* Left: Control buttons - min 44px touch targets */}
           <div className="flex items-center gap-1">
-            {/* Play/Pause */}
-            <button
-              onClick={onPlayPause}
-              disabled={isLoading}
-              className="min-w-[44px] min-h-[44px] w-11 h-11 rounded-full bg-[var(--text-accent)] text-[var(--surface-primary)] hover:opacity-90 transition-opacity duration-150 flex items-center justify-center disabled:opacity-50"
-              aria-label={isLoading ? "Loading" : isPaused ? "Resume" : "Pause"}
-            >
-              {isLoading ? (
-                <SpinnerIcon className="w-5 h-5" />
-              ) : isPaused ? (
-                <PlayIcon className="w-5 h-5" />
-              ) : (
-                <PauseIcon className="w-5 h-5" />
-              )}
+            <PlayPauseButton isPaused={isPaused} isLoading={isLoading} onClick={onPlayPause} />
+            <button onClick={onStop} className={CONTROL_BUTTON_SECONDARY} aria-label="Stop">
+              <StopIcon className="w-5 h-5" />
             </button>
-
-            {/* Stop */}
-            <button
-              onClick={onStop}
-              className="min-w-[44px] min-h-[44px] w-11 h-11 rounded-md text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)] transition-colors duration-150 flex items-center justify-center"
-              aria-label="Stop"
-            >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <rect x="6" y="6" width="12" height="12" rx="1" />
-              </svg>
-            </button>
-
-            {/* Skip (study mode) */}
-            {showSkip && (
-              <button
-                onClick={onSkip}
-                className="min-w-[44px] min-h-[44px] w-11 h-11 rounded-md text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)] transition-colors duration-150 flex items-center justify-center"
-                aria-label={skipLabel}
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-                </svg>
-              </button>
-            )}
-
-            {/* Close (single-play mode) */}
             {showClose && (
-              <button
-                onClick={onClose}
-                className="min-w-[44px] min-h-[44px] w-11 h-11 rounded-md text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)] transition-colors duration-150 flex items-center justify-center"
-                aria-label="Close"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+              <button onClick={onClose} className={CONTROL_BUTTON_SECONDARY} aria-label="Close">
+                <CloseIcon className="w-5 h-5" />
               </button>
             )}
           </div>
