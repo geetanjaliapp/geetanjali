@@ -76,10 +76,10 @@ self.addEventListener('fetch', (event) => {
   // Skip chrome-extension and other non-http(s) requests
   if (!url.protocol.startsWith('http')) return;
 
-  // Audio files - special handling with Range request support
+  // Audio files - bypass SW entirely (diagnostic: v1.22.3-debug)
+  // Let browser handle audio directly to test if SW is causing issues
   if (isAudioFile(url.pathname)) {
-    event.respondWith(handleAudioRequest(request, url));
-    return;
+    return; // Don't intercept - let browser fetch directly
   }
 
   // Skip video files (not cached)
