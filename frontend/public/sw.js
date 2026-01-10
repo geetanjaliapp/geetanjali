@@ -118,62 +118,53 @@ self.addEventListener('fetch', (event) => {
 });
 
 // ============================================================================
-// Audio Caching - Play-First, Cache-After Strategy (v1.22.2)
+// Audio Caching - Cache-First, No Validation (v1.22.3)
 // ============================================================================
 
 /**
- * Handle audio requests with play-first, cache-after strategy
+ * Handle audio requests with simple cache-first strategy
  *
- * Strategy (optimized for reliability):
- * 1. Check if audio is in cache (with validation)
- * 2. If cached and valid, serve from cache with Range support
- * 3. If not cached, pass request through to network (nginx handles Range)
- * 4. Trigger background caching of full file (non-blocking)
+ * Strategy (optimized for speed + reliability):
+ * 1. Quick cache check - serve immediately if exists (NO validation)
+ * 2. If not cached, fetch from network
+ * 3. Cache successful responses in background (non-blocking)
  *
- * This approach prioritizes immediate playback over caching, reducing
- * failure points in the critical playback path.
+ * No validation overhead - if cached audio is corrupt, the browser's
+ * audio element will error and user can retry (triggers network fetch).
  */
 async function handleAudioRequest(request, url) {
-  const cache = await caches.open(AUDIO_CACHE);
   const cacheKey = url.origin + url.pathname; // Normalize URL (ignore query params)
 
-  // Check cache for full audio file
-  const cachedResponse = await cache.match(cacheKey);
+  // CACHE FIRST: Quick check, no validation
+  try {
+    const cache = await caches.open(AUDIO_CACHE);
+    const cached = await cache.match(cacheKey);
 
-  if (cachedResponse) {
-    // Validate cached response (check for corruption)
-    const isValid = await validateCachedAudio(cachedResponse, cache, cacheKey);
-    if (isValid) {
-      // Update access time for LRU
+    if (cached) {
+      // Serve immediately - no validation
       updateAudioAccessTime(cacheKey);
-
-      // Handle Range request from cached blob
       const rangeHeader = request.headers.get('range');
       if (rangeHeader) {
-        return createRangeResponse(cachedResponse, rangeHeader);
+        return createRangeResponse(cached, rangeHeader);
       }
-      return cachedResponse.clone();
+      return cached.clone();
     }
-    // Invalid cache entry was deleted by validateCachedAudio, fall through to network
+  } catch (cacheError) {
+    // Cache check failed, fall through to network
+    console.warn('[SW] Cache check failed:', cacheError);
   }
 
-  // Not cached - pass through to network for immediate playback
-  // Browser/nginx will handle Range requests natively
+  // NOT CACHED: Fetch from network
   try {
     const networkResponse = await fetch(request);
 
-    // If successful, trigger background caching (non-blocking)
+    // If successful, cache in background (non-blocking)
     if (networkResponse.ok) {
-      // Clone headers we need before returning
-      const contentLength = networkResponse.headers.get('content-length');
-
-      // Only cache if this was a full response (200) or we got the full file
-      // Don't cache partial responses (206) - we'll cache full file in background
       if (networkResponse.status === 200) {
-        // Cache immediately since we have the full file
+        // Full response - cache it
         cacheAudioInBackground(cacheKey, networkResponse.clone());
-      } else if (networkResponse.status === 206 && contentLength) {
-        // Partial response - trigger background fetch of full file
+      } else if (networkResponse.status === 206) {
+        // Partial response (Range request) - trigger background full-file cache
         cacheFullFileInBackground(cacheKey);
       }
     }
@@ -181,74 +172,11 @@ async function handleAudioRequest(request, url) {
     return networkResponse;
   } catch (error) {
     console.error('[SW] Audio fetch failed:', error);
-    // Return clear error for offline state
     return new Response('Audio unavailable - check your connection', {
       status: 503,
       statusText: 'Service Unavailable',
       headers: { 'Content-Type': 'text/plain' }
     });
-  }
-}
-
-/**
- * Validate cached audio response
- * Returns true if valid, false if corrupt/incomplete (and deletes invalid entry)
- *
- * Validates:
- * 1. Non-empty content
- * 2. Reasonable size (>1KB)
- * 3. Correct content-type
- * 4. Size matches expected (catches incomplete downloads)
- */
-async function validateCachedAudio(response, cache, cacheKey) {
-  try {
-    const blob = await response.clone().blob();
-
-    // Check 1: Must have content
-    if (blob.size === 0) {
-      console.warn('[SW] Cached audio is empty, removing:', cacheKey);
-      await cache.delete(cacheKey);
-      removeAudioCacheMetadata(cacheKey);
-      return false;
-    }
-
-    // Check 2: Must be a reasonable size for audio (at least 1KB)
-    if (blob.size < 1024) {
-      console.warn('[SW] Cached audio too small, removing:', cacheKey);
-      await cache.delete(cacheKey);
-      removeAudioCacheMetadata(cacheKey);
-      return false;
-    }
-
-    // Check 3: Content-Type should be audio
-    const contentType = response.headers.get('content-type') || blob.type;
-    if (contentType && !contentType.includes('audio') && !contentType.includes('octet-stream')) {
-      console.warn('[SW] Cached response is not audio, removing:', cacheKey);
-      await cache.delete(cacheKey);
-      removeAudioCacheMetadata(cacheKey);
-      return false;
-    }
-
-    // Check 4: Size matches expected (catches incomplete downloads)
-    const metadata = getAudioCacheMetadata();
-    const entry = metadata.find(m => m.url === cacheKey);
-    if (entry && entry.expectedSize && blob.size !== entry.expectedSize) {
-      console.warn('[SW] Cached audio size mismatch, removing:', cacheKey,
-        `expected=${entry.expectedSize}, actual=${blob.size}`);
-      await cache.delete(cacheKey);
-      removeAudioCacheMetadata(cacheKey);
-      return false;
-    }
-
-    return true;
-  } catch (error) {
-    console.error('[SW] Cache validation failed:', error);
-    // On error, delete potentially corrupt entry
-    try {
-      await cache.delete(cacheKey);
-      removeAudioCacheMetadata(cacheKey);
-    } catch {}
-    return false;
   }
 }
 
@@ -342,10 +270,9 @@ async function createRangeResponse(cachedResponse, rangeHeader) {
 }
 
 /**
- * Cache audio file with quota management and integrity validation
+ * Cache audio file with quota management
  *
  * Validates download completed successfully before caching.
- * Stores expected size in metadata for future validation.
  */
 async function cacheAudioFile(cache, url, response) {
   // Get expected size from network response BEFORE consuming body
@@ -383,8 +310,8 @@ async function cacheAudioFile(cache, url, response) {
 
   await cache.put(url, responseToStore);
 
-  // Track metadata with expected size for future validation
-  addAudioCacheMetadata(url, actualSize, expectedSize || actualSize);
+  // Track metadata for LRU eviction
+  addAudioCacheMetadata(url, actualSize);
   return true;
 }
 
@@ -438,7 +365,7 @@ function saveAudioCacheMetadata(metadata) {
   audioMetadataCache = metadata;
 }
 
-function addAudioCacheMetadata(url, size, expectedSize) {
+function addAudioCacheMetadata(url, size) {
   const metadata = getAudioCacheMetadata();
 
   // Remove existing entry if present
@@ -450,7 +377,6 @@ function addAudioCacheMetadata(url, size, expectedSize) {
   metadata.push({
     url,
     size,
-    expectedSize: expectedSize || size, // Store expected size for validation
     cachedAt: Date.now(),
     lastAccessed: Date.now(),
   });
@@ -467,15 +393,6 @@ function updateAudioAccessTime(url) {
   }
 }
 
-function removeAudioCacheMetadata(url) {
-  const metadata = getAudioCacheMetadata();
-  const index = metadata.findIndex((m) => m.url === url);
-  if (index !== -1) {
-    metadata.splice(index, 1);
-    saveAudioCacheMetadata(metadata);
-  }
-}
-
 /**
  * Rebuild metadata from cache (called on message or SW restart)
  *
@@ -483,9 +400,6 @@ function removeAudioCacheMetadata(url) {
  * the SW terminates. On rebuild, all files get current timestamp which
  * effectively resets LRU ordering. This is acceptable as the cache is
  * bounded by size quota and eviction remains fair (oldest-by-rebuild order).
- *
- * For expectedSize: since the file was successfully cached, blob.size IS the
- * expected size (cacheAudioFile validates this before caching).
  */
 async function rebuildAudioMetadata() {
   try {
@@ -500,7 +414,6 @@ async function rebuildAudioMetadata() {
         metadata.push({
           url: request.url,
           size: blob.size,
-          expectedSize: blob.size, // If cached successfully, blob.size is correct
           cachedAt: Date.now(),
           lastAccessed: Date.now(),
         });
