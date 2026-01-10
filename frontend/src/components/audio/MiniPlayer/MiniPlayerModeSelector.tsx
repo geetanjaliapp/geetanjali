@@ -1,10 +1,11 @@
 /**
  * MiniPlayerModeSelector - Auto-advance mode selection UI
  *
- * Shows Listen, Study, and Read buttons for starting auto-advance modes.
- * Displayed when auto-advance is off and verse has audio available.
+ * Segmented control with Study as the primary (hero) action.
+ * Layout: [Listen] [▶ STUDY] [Read]   12/72
  *
- * Order: Listen (audio) → Study (guided) → Read (silent)
+ * Design: Study-first approach - Study is center, filled, larger.
+ * Listen/Read are secondary, outline style.
  */
 
 interface MiniPlayerModeSelectorProps {
@@ -20,36 +21,6 @@ interface MiniPlayerModeSelectorProps {
   isStudyModeLoading?: boolean;
 }
 
-/** Tooltip wrapper component */
-function Tooltip({
-  children,
-  text,
-}: {
-  children: React.ReactNode;
-  text: string;
-}) {
-  return (
-    <div className="relative group">
-      {children}
-      <div
-        className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5
-          bg-[var(--surface-elevated)] text-[var(--text-primary)] text-xs rounded-lg
-          opacity-0 group-hover:opacity-100 transition-opacity duration-200
-          pointer-events-none whitespace-nowrap shadow-lg border border-[var(--border-subtle)]
-          z-50"
-        role="tooltip"
-      >
-        {text}
-        {/* Tooltip arrow */}
-        <div
-          className="absolute top-full left-1/2 -translate-x-1/2 -mt-px
-            border-4 border-transparent border-t-[var(--surface-elevated)]"
-        />
-      </div>
-    </div>
-  );
-}
-
 export function MiniPlayerModeSelector({
   versePosition,
   onStartAudioMode,
@@ -57,6 +28,24 @@ export function MiniPlayerModeSelector({
   onStartStudyMode,
   isStudyModeLoading = false,
 }: MiniPlayerModeSelectorProps) {
+  // Common button styles
+  const secondaryButtonClass = `
+    min-h-[44px] px-4 py-2.5 rounded-lg
+    text-[var(--text-secondary)] bg-transparent
+    hover:bg-[var(--surface-tertiary)] hover:text-[var(--text-primary)]
+    transition-all duration-150
+    flex items-center gap-2 text-sm font-medium
+  `;
+
+  const primaryButtonClass = `
+    min-h-[44px] px-6 py-2.5 rounded-lg
+    bg-[var(--interactive-primary)] text-[var(--text-on-primary)]
+    hover:bg-[var(--interactive-primary-hover)]
+    transition-all duration-150
+    flex items-center gap-2 text-sm font-semibold
+    disabled:opacity-60 disabled:cursor-wait
+  `;
+
   return (
     <div
       className="bg-[var(--surface-reading-header)] backdrop-blur-xs border-t border-[var(--border-reading-header)] px-4 py-3"
@@ -64,18 +53,14 @@ export function MiniPlayerModeSelector({
       aria-label="Auto-advance mode selection"
     >
       <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-center gap-3">
-          {/* Auto Mode label */}
-          <span className="text-sm text-[var(--text-reading-tertiary)]">
-            Auto Mode
-          </span>
-
-          {/* Listen button - Primary action */}
-          <Tooltip text="Play audio for each verse">
+        <div className="flex items-center justify-between">
+          {/* Segmented control */}
+          <div className="flex items-center bg-[var(--surface-secondary)] rounded-xl p-1 gap-0.5">
+            {/* Listen button - Secondary */}
             <button
               onClick={onStartAudioMode}
-              className="min-h-[44px] px-4 py-2.5 rounded-[var(--radius-button)] bg-[var(--interactive-contextual)] text-[var(--interactive-contextual-text)] hover:bg-[var(--interactive-contextual-hover)] transition-[var(--transition-button)] flex items-center gap-2 text-sm font-medium"
-              aria-label={`Listen mode: plays audio for each verse starting from verse ${versePosition.current}, auto-advances through all ${versePosition.total} verses`}
+              className={secondaryButtonClass}
+              aria-label={`Listen mode: plays audio for each verse starting from verse ${versePosition.current}`}
             >
               <svg
                 className="w-4 h-4"
@@ -83,34 +68,28 @@ export function MiniPlayerModeSelector({
                 viewBox="0 0 24 24"
                 aria-hidden="true"
               >
-                <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+                <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z" />
               </svg>
               Listen
             </button>
-          </Tooltip>
 
-          {/* Study button - Guided narration with translations */}
-          {onStartStudyMode && (
-            <Tooltip text="Sanskrit + translations + insight">
+            {/* Study button - Primary (Hero) */}
+            {onStartStudyMode && (
               <button
                 onClick={onStartStudyMode}
                 disabled={isStudyModeLoading}
-                className={`min-h-[44px] px-4 py-2.5 rounded-[var(--radius-button)] border border-[var(--border-warm)] text-[var(--text-primary)] hover:bg-[var(--interactive-ghost-hover-bg)] hover:border-[var(--border-warm-hover)] transition-[var(--transition-button)] flex items-center gap-2 text-sm font-medium disabled:cursor-wait ${
-                  isStudyModeLoading ? "animate-pulse" : ""
-                }`}
-                aria-label={`Study mode: guided narration with Sanskrit audio, English and Hindi translations, and insights starting from verse ${versePosition.current}, auto-advances through all ${versePosition.total} verses`}
+                className={`${primaryButtonClass} ${isStudyModeLoading ? "animate-pulse" : ""}`}
+                aria-label={`Study mode: guided narration with Sanskrit, translations, and insights starting from verse ${versePosition.current}`}
                 aria-busy={isStudyModeLoading}
               >
                 {isStudyModeLoading ? (
                   <>
-                    {/* Shimmer loading state */}
-                    <div className="w-4 h-4 rounded-full bg-gradient-to-r from-[var(--border-warm)] via-[var(--text-tertiary)] to-[var(--border-warm)] bg-[length:200%_100%] animate-shimmer" />
-                    <span className="bg-gradient-to-r from-[var(--text-primary)] via-[var(--text-tertiary)] to-[var(--text-primary)] bg-[length:200%_100%] bg-clip-text text-transparent animate-shimmer">
-                      Loading...
-                    </span>
+                    <div className="w-4 h-4 rounded-full border-2 border-current border-t-transparent animate-spin" />
+                    <span>Loading...</span>
                   </>
                 ) : (
                   <>
+                    {/* Graduation cap icon - consistent with MiniPlayerActive */}
                     <svg
                       className="w-4 h-4"
                       fill="none"
@@ -118,39 +97,21 @@ export function MiniPlayerModeSelector({
                       viewBox="0 0 24 24"
                       aria-hidden="true"
                     >
-                      {/* Graduation cap / academic icon for study */}
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 14l9-5-9-5-9 5 9 5z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 14l9-5-9-5-9 5 9 5zm0 0v6"
-                      />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                        d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
                     </svg>
                     Study
                   </>
                 )}
               </button>
-            </Tooltip>
-          )}
+            )}
 
-          {/* Read button - Silent timed reading */}
-          <Tooltip text="Silent timed reading">
+            {/* Read button - Secondary */}
             <button
               onClick={onStartTextMode}
-              className="min-h-[44px] px-4 py-2.5 rounded-[var(--radius-button)] border border-[var(--border-warm)] text-[var(--text-primary)] hover:bg-[var(--interactive-ghost-hover-bg)] hover:border-[var(--border-warm-hover)] transition-[var(--transition-button)] flex items-center gap-2 text-sm font-medium"
-              aria-label={`Read mode: silent timed reading starting from verse ${versePosition.current}, auto-advances through all ${versePosition.total} verses`}
+              className={secondaryButtonClass}
+              aria-label={`Read mode: silent timed reading starting from verse ${versePosition.current}`}
             >
               <svg
                 className="w-4 h-4"
@@ -168,7 +129,12 @@ export function MiniPlayerModeSelector({
               </svg>
               Read
             </button>
-          </Tooltip>
+          </div>
+
+          {/* Verse position */}
+          <span className="text-sm font-mono text-[var(--text-tertiary)] tabular-nums">
+            {versePosition.current}/{versePosition.total}
+          </span>
         </div>
       </div>
     </div>
