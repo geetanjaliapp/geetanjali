@@ -10,8 +10,11 @@
 export {
   MiniPlayer,
   MiniPlayerPlayButton,
-  MiniPlayerSinglePlay,
-  MiniPlayerAutoAdvance,
+  MiniPlayerActive,
   MiniPlayerModeSelector,
   MiniPlayerStandard,
+  // Legacy (deprecated - use MiniPlayerActive)
+  MiniPlayerSinglePlay,
+  MiniPlayerAutoAdvance,
+  MiniPlayerStudyMode,
 } from "./MiniPlayer/index";

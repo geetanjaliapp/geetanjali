@@ -109,7 +109,7 @@ Single verse deep-dive with full context.
 - Primary translations: Hindi and English (side-by-side on desktop)
 - "More Translations" toggle for additional versions
 - Audio playback with speed control and loop mode
-- Study Mode: sequential playback of Sanskrit → English → Hindi → Insight
+- Study Mode: guided narration with auto-advance (see [Audio Recitations](audio.md#study-mode))
 - Floating nav arrows (desktop) or sticky bottom nav (mobile)
 - Keyboard navigation (← → arrows)
 - Adjacent verse prefetching

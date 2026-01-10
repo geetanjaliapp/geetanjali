@@ -414,9 +414,19 @@ export function VerseFocus({
           </div>
         </div>
 
-        <button
+        {/* Using div instead of button to avoid nested button issue (favorites/share are inside) */}
+        <div
+          role="button"
+          tabIndex={0}
           onClick={handleToggle}
-          className="w-full text-center focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-4 focus-visible:ring-offset-[var(--focus-ring-offset)] rounded-[var(--radius-card)] transition-[var(--transition-transform)] active:scale-[0.99]"
+          onKeyDown={(e) => {
+            // Only trigger on Enter/Space when not from nested interactive elements
+            if ((e.key === "Enter" || e.key === " ") && e.target === e.currentTarget) {
+              e.preventDefault();
+              handleToggle();
+            }
+          }}
+          className="w-full text-center cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-4 focus-visible:ring-offset-[var(--focus-ring-offset)] rounded-[var(--radius-card)] transition-[var(--transition-transform)] active:scale-[0.99]"
           aria-expanded={showTranslation}
           aria-label={showTranslation ? "Hide translation" : "Show translation"}
         >
@@ -487,7 +497,7 @@ export function VerseFocus({
               <ShareIcon className="w-5 h-5" />
             </button>
           </div>
-        </button>
+        </div>
 
       </div>
 

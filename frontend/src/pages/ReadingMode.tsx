@@ -26,6 +26,7 @@ import {
 import { MiniPlayer } from "../components/audio/MiniPlayer/index";
 import { useAudioPlayer } from "../components/audio/AudioPlayerContext";
 import { useAutoAdvance } from "../hooks/useAutoAdvance";
+import { useStudyAutoMode } from "../hooks/useStudyAutoMode";
 import {
   useSEO,
   useSwipeNavigation,
@@ -334,6 +335,28 @@ export default function ReadingMode() {
     chapter: state.chapter,
     verse: currentVerse?.verse ?? 1,
     enabled: autoAdvance.mode === "audio",
+  });
+
+  // Study Auto Mode hook (v1.25.0)
+  // Orchestrates Sanskrit audio + TTS translations + auto-advance
+  // With wrapping commentaries: chapter intro, verse announcements, chapter complete
+  const studyAutoMode = useStudyAutoMode({
+    verses: state.chapterVerses,
+    currentIndex: state.pageIndex >= 0 ? state.pageIndex : 0,
+    chapterMetadata, // For intro/outro narration
+    onNavigate: (nextIndex: number) => {
+      // Hide translation and advance to next verse
+      setShowTranslation(false);
+      setSlideDirection("from-right");
+      setState((prev) => ({ ...prev, pageIndex: nextIndex }));
+    },
+    onChapterEnd: () => {
+      // End of chapter reached - study mode stops automatically
+      // Could add chapter end UI here in the future
+    },
+    onStop: () => {
+      // Study mode stopped - no additional action needed
+    },
   });
 
   // Determine what type of page we're showing
@@ -717,8 +740,15 @@ export default function ReadingMode() {
         event.preventDefault();
         nextPage();
       } else if (event.key === " " || event.key === "Spacebar") {
-        // Space: Pause/resume auto-advance or audio playback
-        if (autoAdvance.isActive) {
+        // Space: Pause/resume study mode, auto-advance, or audio playback
+        if (studyAutoMode.isActive) {
+          event.preventDefault();
+          if (studyAutoMode.isPaused) {
+            studyAutoMode.resume();
+          } else {
+            studyAutoMode.pause();
+          }
+        } else if (autoAdvance.isActive) {
           event.preventDefault();
           if (autoAdvance.isPaused) {
             autoAdvance.resume();
@@ -738,8 +768,11 @@ export default function ReadingMode() {
           }
         }
       } else if (event.key === "Escape") {
-        // Escape: Stop auto-advance or audio playback
-        if (autoAdvance.isActive) {
+        // Escape: Stop study mode, auto-advance, or audio playback
+        if (studyAutoMode.isActive) {
+          event.preventDefault();
+          studyAutoMode.stop();
+        } else if (autoAdvance.isActive) {
           event.preventDefault();
           autoAdvance.stop();
         } else if (
@@ -749,12 +782,16 @@ export default function ReadingMode() {
           event.preventDefault();
           audioPlayer.stop();
         }
+      } else if (event.key === "ArrowDown" && studyAutoMode.isActive) {
+        // Down arrow: Skip to next verse in study mode
+        event.preventDefault();
+        studyAutoMode.skipVerse();
       }
     };
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [canGoPrev, canGoNext, prevPage, nextPage, autoAdvance, audioPlayer]);
+  }, [canGoPrev, canGoNext, prevPage, nextPage, autoAdvance, audioPlayer, studyAutoMode]);
 
   return (
     <div className="h-screen reading-container flex flex-col overflow-hidden">
@@ -984,6 +1021,18 @@ export default function ReadingMode() {
           // Continuous playback props (Phase 1.19.0)
           continuousPlayback={continuousPlayback}
           onToggleContinuousPlayback={toggleContinuousPlayback}
+          // Study mode props (v1.25.0) - with wrapping commentaries
+          studyModeStatus={studyAutoMode.state.status}
+          studyModePhase={studyAutoMode.state.phase}
+          studyModeSection={studyAutoMode.state.currentSection}
+          studyModeAvailableSections={studyAutoMode.state.availableSections}
+          isStudyModeLoading={studyAutoMode.isLoading}
+          onStartStudyMode={studyAutoMode.start}
+          onPauseStudyMode={studyAutoMode.pause}
+          onResumeStudyMode={studyAutoMode.resume}
+          onStopStudyMode={studyAutoMode.stop}
+          onSkipStudySection={studyAutoMode.skipSection}
+          onSkipStudyVerse={studyAutoMode.skipVerse}
         />
       )}
 

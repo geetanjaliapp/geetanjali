@@ -1,8 +1,9 @@
 /**
- * MiniPlayerAutoAdvance - Auto-advance mode active UI
+ * MiniPlayerAutoAdvance - Auto-advance mode active UI (Listen/Read)
  *
- * Shows progress bar, pause/play, stop, and mode indicator when
- * auto-advancing through verses in Listen or Read mode.
+ * Consistent layout with MiniPlayerStudyMode:
+ * - Top row: Current status | Progress bar | Verse position
+ * - Bottom row: Controls | Speed | Mode indicator with visible label
  */
 
 import { PlayIcon, PauseIcon, SpinnerIcon } from "../../icons";
@@ -52,30 +53,58 @@ export function MiniPlayerAutoAdvance({
   onStop,
   onSpeedChange,
 }: MiniPlayerAutoAdvanceProps) {
+  const modeLabel = mode === "audio" ? "Listen" : "Read";
+  const statusText = isLoading
+    ? "Loading..."
+    : isPaused
+    ? "Paused"
+    : mode === "audio"
+    ? "Playing audio"
+    : "Reading";
+
   return (
     <div
       className="bg-[var(--surface-reading-header)] backdrop-blur-xs border-t border-[var(--border-reading-header)] px-4 py-2.5"
       role="region"
-      aria-label="Auto-advance player"
+      aria-label={`${modeLabel} mode player`}
     >
       <div className="max-w-4xl mx-auto">
-        {/* Progress bar */}
+        {/* Top row: Status | Progress | Verse position */}
         <div className="mb-2">
           <div className="flex items-center gap-2 text-xs text-[var(--text-reading-tertiary)]">
-            <span className="w-10 text-right font-mono">
-              {formatTime(currentTime)}
+            {/* Current status - what's happening now */}
+            <span className="w-20 truncate text-right">
+              {isLoading ? (
+                <span className="text-[var(--interactive-primary)]">{statusText}</span>
+              ) : (
+                statusText
+              )}
             </span>
-            <div className="flex-1 h-1.5 bg-[var(--surface-secondary)] rounded-full overflow-hidden">
-              <div
-                className="h-full bg-[var(--interactive-primary)] transition-all duration-100"
-                style={{ width: `${progress}%` }}
-              />
+
+            {/* Progress bar with time */}
+            <div className="flex-1 flex items-center gap-2">
+              <span className="w-10 text-right font-mono text-[10px]">
+                {formatTime(currentTime)}
+              </span>
+              <div className="flex-1 h-1.5 bg-[var(--surface-secondary)] rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-[var(--interactive-primary)] transition-all duration-100"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+              <span className="w-10 font-mono text-[10px]">
+                {formatTime(totalDuration)}
+              </span>
             </div>
-            <span className="w-10 font-mono">{formatTime(totalDuration)}</span>
+
+            {/* Verse position */}
+            <span className="w-12 font-mono text-right">
+              {versePosition.current}/{versePosition.total}
+            </span>
           </div>
         </div>
 
-        {/* Controls row */}
+        {/* Bottom row: Controls | Speed | Mode indicator */}
         <div className="flex items-center justify-between gap-2">
           {/* Left: Pause/Play + Stop */}
           <div className="flex items-center gap-1">
@@ -116,7 +145,7 @@ export function MiniPlayerAutoAdvance({
             />
           )}
 
-          {/* Right: Loop icon + Mode indicator + verse position */}
+          {/* Right: Mode indicator with visible label */}
           <div className="flex items-center gap-2 text-sm text-[var(--text-reading-secondary)]">
             {/* Loop icon - indicates continuous auto-advance */}
             <svg
@@ -133,10 +162,9 @@ export function MiniPlayerAutoAdvance({
                 d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
               />
             </svg>
-            <span className="flex items-center gap-1">
-              <span className="sr-only">
-                {mode === "audio" ? "Listen mode" : "Read mode"},
-              </span>
+
+            {/* Mode icon + visible label */}
+            <span className="flex items-center gap-1.5">
               {mode === "audio" ? (
                 <svg
                   className="w-4 h-4"
@@ -162,10 +190,8 @@ export function MiniPlayerAutoAdvance({
                   />
                 </svg>
               )}
-              <span className="font-medium">
-                <span className="sr-only">verse </span>
-                {versePosition.current}/{versePosition.total}
-              </span>
+              {/* Visible mode label */}
+              <span className="font-medium">{modeLabel}</span>
             </span>
           </div>
         </div>

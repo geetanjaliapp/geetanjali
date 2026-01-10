@@ -46,6 +46,13 @@ export type {
   StudyModeConfig,
   StudyModeControls,
 } from "./useStudyMode";
+export { useStudyAutoMode } from "./useStudyAutoMode";
+export type {
+  StudyAutoModeStatus,
+  StudyAutoModeState,
+  StudyAutoModeConfig,
+  StudyAutoModeControls,
+} from "./useStudyAutoMode";
 export {
   useCrossChapterPreload,
   PRELOAD_THRESHOLD_VERSES,

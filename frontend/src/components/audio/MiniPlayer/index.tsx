@@ -1,50 +1,57 @@
 /**
- * MiniPlayer Component (v1.19.0)
+ * MiniPlayer Component (v1.25.0)
  *
  * Compact audio player for Reading Mode.
- * Shows in bottom bar when verse has audio available.
+ * Unified design with consistent height and quiet library aesthetics.
  *
- * ## Sub-components
- * - MiniPlayerPlayButton: Reusable play/pause button
- * - MiniPlayerSinglePlay: Single verse play mode UI
- * - MiniPlayerAutoAdvance: Auto-advance active mode UI
- * - MiniPlayerModeSelector: Listen/Read mode selection
- * - MiniPlayerStandard: Original single-verse UI
+ * Modes:
+ * - Idle: Mode selector (Listen/Study/Read buttons)
+ * - Listen: Audio auto-advance through chapter
+ * - Read: Timed silent reading auto-advance
+ * - Study: Guided narration (Sanskrit → English → Hindi → Insight)
+ * - Single: One-off verse playback from header
  *
- * Features:
- * - Play/pause with progress bar
- * - Playback speed control
- * - Loop toggle for memorization
- * - Auto-advance modes: Listen (audio) and Read (text timer)
- * - Continuous playback across chapters
- *
- * Uses design tokens for theming support.
+ * Uses MiniPlayerActive for all active states (consistent layout).
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAudioPlayer } from "../AudioPlayerContext";
 import { useAudioCached } from "../../../hooks";
 import type { AutoAdvanceMode } from "../../../hooks/useAutoAdvance";
+import { SECTION_LABELS, type StudySection } from "../../../hooks/useStudyMode";
+import type { StudyAutoModeStatus, StudyAutoModePhase } from "../../../hooks/useStudyAutoMode";
 
-// Sub-components
-import { MiniPlayerSinglePlay } from "./MiniPlayerSinglePlay";
-import { MiniPlayerAutoAdvance } from "./MiniPlayerAutoAdvance";
+// Components
+import { MiniPlayerActive, type StudySectionInfo } from "./MiniPlayerActive";
 import { MiniPlayerModeSelector } from "./MiniPlayerModeSelector";
 import { MiniPlayerStandard } from "./MiniPlayerStandard";
 
-// Re-export sub-components for external use
+// Re-exports
 export { MiniPlayerPlayButton } from "./MiniPlayerPlayButton";
-export { MiniPlayerSinglePlay } from "./MiniPlayerSinglePlay";
-export { MiniPlayerAutoAdvance } from "./MiniPlayerAutoAdvance";
+export { MiniPlayerActive } from "./MiniPlayerActive";
 export { MiniPlayerModeSelector } from "./MiniPlayerModeSelector";
 export { MiniPlayerStandard } from "./MiniPlayerStandard";
+// Legacy exports (deprecated - use MiniPlayerActive)
+export { MiniPlayerSinglePlay } from "./MiniPlayerSinglePlay";
+export { MiniPlayerAutoAdvance } from "./MiniPlayerAutoAdvance";
+export { MiniPlayerStudyMode } from "./MiniPlayerStudyMode";
+
+// ============================================================================
+// Constants
+// ============================================================================
+
+/** Section playback order for study mode */
+const STUDY_SECTION_ORDER: StudySection[] = ["sanskrit", "english", "hindi", "insight"];
+
+// ============================================================================
+// Hooks
+// ============================================================================
 
 /** Live region announcement for screen readers */
 function useLiveAnnouncement() {
   const [announcement, setAnnouncement] = useState("");
 
   const announce = useCallback((message: string) => {
-    // Clear first to ensure re-announcement of same message
     setAnnouncement("");
     setTimeout(() => setAnnouncement(message), 50);
   }, []);
@@ -52,59 +59,117 @@ function useLiveAnnouncement() {
   return { announcement, announce };
 }
 
+// ============================================================================
+// Types
+// ============================================================================
+
 interface MiniPlayerProps {
-  /** Verse canonical ID */
   verseId: string;
-  /** Audio URL */
   audioUrl: string;
-  /** Auto-play audio when verse changes */
   autoPlay?: boolean;
-  /** Called when audio ends */
   onEnded?: () => void;
 }
 
-/** Extended props for auto-advance mode */
 interface AutoAdvanceMiniPlayerProps extends MiniPlayerProps {
-  /** Current auto-advance mode */
   autoAdvanceMode: AutoAdvanceMode;
-  /** Whether auto-advance is paused */
   isAutoAdvancePaused: boolean;
-  /** Text mode progress (0-100) */
   textModeProgress: number;
-  /** Audio duration in ms (for text mode display) */
   durationMs: number | null | undefined;
-  /** Current verse position in chapter */
   versePosition: { current: number; total: number };
-  /** Callback to start audio mode */
   onStartAudioMode: () => void;
-  /** Callback to start text mode */
   onStartTextMode: () => void;
-  /** Callback to pause auto-advance */
   onPauseAutoAdvance: () => void;
-  /** Callback to resume auto-advance */
   onResumeAutoAdvance: () => void;
-  /** Callback to stop auto-advance */
   onStopAutoAdvance: () => void;
-  /** Single-play mode - triggered by header play button */
   singlePlayMode?: boolean;
-  /** Callback to exit single-play mode */
   onExitSinglePlay?: () => void;
-  /** Continuous playback: auto-advance to next chapter */
   continuousPlayback?: boolean;
-  /** Callback to toggle continuous playback */
   onToggleContinuousPlayback?: () => void;
+  // Study mode
+  studyModeStatus?: StudyAutoModeStatus;
+  studyModePhase?: StudyAutoModePhase;
+  studyModeSection?: StudySection | null;
+  studyModeAvailableSections?: StudySection[];
+  isStudyModeLoading?: boolean;
+  onStartStudyMode?: () => void;
+  onPauseStudyMode?: () => void;
+  onResumeStudyMode?: () => void;
+  onStopStudyMode?: () => void;
+  onSkipStudySection?: () => void;
+  onSkipStudyVerse?: () => void;
 }
 
-/** Type guard to check if props include auto-advance features */
 function isAutoAdvanceProps(
   props: MiniPlayerProps | AutoAdvanceMiniPlayerProps
 ): props is AutoAdvanceMiniPlayerProps {
   return "autoAdvanceMode" in props;
 }
 
-export function MiniPlayer(
-  props: MiniPlayerProps | AutoAdvanceMiniPlayerProps
-) {
+// ============================================================================
+// Helper Functions
+// ============================================================================
+
+/** Get status text for study mode based on phase */
+function getStudyStatusText(
+  phase: StudyAutoModePhase,
+  section: StudySection | null,
+  verseNum: number,
+  isLoading: boolean,
+  isPaused: boolean
+): string {
+  if (isLoading) return "Loading...";
+  if (isPaused) return "Paused";
+
+  switch (phase) {
+    case "chapter_intro": return "Chapter";
+    case "verse_intro": return `Verse ${verseNum}`;
+    case "chapter_complete": return "Complete";
+    case "advancing": return "Next...";
+    case "verse_content": return section ? SECTION_LABELS[section] : "Starting";
+    default: return "Starting";
+  }
+}
+
+/** Build section info for study mode dots */
+function buildSectionInfo(
+  currentSection: StudySection | null,
+  availableSections: StudySection[]
+): StudySectionInfo[] {
+  const currentIndex = currentSection ? STUDY_SECTION_ORDER.indexOf(currentSection) : -1;
+
+  return STUDY_SECTION_ORDER.map((section) => {
+    const sectionIndex = STUDY_SECTION_ORDER.indexOf(section);
+    const isAvailable = availableSections.includes(section);
+
+    let status: StudySectionInfo["status"];
+    if (!isAvailable) status = "skipped";
+    else if (sectionIndex < currentIndex) status = "completed";
+    else if (section === currentSection) status = "current";
+    else status = "upcoming";
+
+    return { id: section, label: SECTION_LABELS[section], status };
+  });
+}
+
+/** Calculate progress for study mode */
+function calculateStudyProgress(
+  currentSection: StudySection | null,
+  availableSections: StudySection[],
+  phase: StudyAutoModePhase
+): number {
+  if (phase === "chapter_complete") return 100;
+  if (!currentSection) return 0;
+
+  const currentIndex = STUDY_SECTION_ORDER.indexOf(currentSection);
+  const total = availableSections.length || STUDY_SECTION_ORDER.length;
+  return total > 0 ? (currentIndex / total) * 100 : 0;
+}
+
+// ============================================================================
+// Main Component
+// ============================================================================
+
+export function MiniPlayer(props: MiniPlayerProps | AutoAdvanceMiniPlayerProps) {
   const { verseId, audioUrl, autoPlay = false, onEnded } = props;
 
   const {
@@ -126,93 +191,65 @@ export function MiniPlayer(
   } = useAudioPlayer();
 
   const isThisPlaying = currentlyPlaying === verseId;
-  const isActive =
-    isThisPlaying &&
-    (state === "playing" ||
-      state === "paused" ||
-      state === "loading" ||
-      state === "completed");
+  const isActive = isThisPlaying && ["playing", "paused", "loading", "completed"].includes(state);
   const isIdle = !isThisPlaying || state === "idle";
   const prevVerseIdRef = useRef(verseId);
   const hasCalledOnEndedRef = useRef(false);
 
-  // Check if audio is cached for offline playback
   const { isCached: isAudioCached } = useAudioCached(audioUrl);
+  const { announcement, announce } = useLiveAnnouncement();
 
-  // Auto-advance mode detection
+  // Mode detection
   const hasAutoAdvance = isAutoAdvanceProps(props);
   const autoAdvanceMode = hasAutoAdvance ? props.autoAdvanceMode : "off";
   const isAutoAdvanceActive = autoAdvanceMode !== "off";
-  const isAutoAdvancePaused = hasAutoAdvance
-    ? props.isAutoAdvancePaused
-    : false;
+  const isAutoAdvancePaused = hasAutoAdvance ? props.isAutoAdvancePaused : false;
+  const singlePlayMode = hasAutoAdvance ? props.singlePlayMode || false : false;
 
-  // Single-play mode
-  const singlePlayMode = hasAutoAdvance
-    ? props.singlePlayMode || false
-    : false;
-  const onExitSinglePlay = hasAutoAdvance ? props.onExitSinglePlay : undefined;
+  // Study mode
+  const studyModeStatus = hasAutoAdvance ? props.studyModeStatus : undefined;
+  const isStudyModeActive = studyModeStatus && studyModeStatus !== "idle";
+  const isStudyModePaused = studyModeStatus === "paused";
 
-  // Live region for screen reader announcements
-  const { announcement, announce } = useLiveAnnouncement();
+  // Screen reader announcements
   const prevModeRef = useRef(autoAdvanceMode);
-
-  // Announce mode changes for screen readers
   useEffect(() => {
-    if (prevModeRef.current !== autoAdvanceMode) {
-      if (autoAdvanceMode === "audio" && hasAutoAdvance) {
-        announce(
-          `Listen mode started, verse ${props.versePosition.current} of ${props.versePosition.total}`
-        );
-      } else if (autoAdvanceMode === "text" && hasAutoAdvance) {
-        announce(
-          `Read mode started, verse ${props.versePosition.current} of ${props.versePosition.total}`
-        );
+    if (prevModeRef.current !== autoAdvanceMode && hasAutoAdvance) {
+      if (autoAdvanceMode === "audio") {
+        announce(`Listen mode, verse ${props.versePosition.current} of ${props.versePosition.total}`);
+      } else if (autoAdvanceMode === "text") {
+        announce(`Read mode, verse ${props.versePosition.current} of ${props.versePosition.total}`);
       } else if (autoAdvanceMode === "off" && prevModeRef.current !== "off") {
-        announce("Auto-advance stopped");
+        announce("Stopped");
       }
       prevModeRef.current = autoAdvanceMode;
     }
   }, [autoAdvanceMode, hasAutoAdvance, announce, props]);
 
-  // Handle play/pause for single verse mode (non-auto-advance)
+  // Play/pause handler
   const handlePlayPause = useCallback(() => {
     if (isThisPlaying) {
-      if (state === "playing") {
-        pause();
-      } else if (state === "paused") {
-        resume();
-      } else if (state === "error") {
-        retry();
-      }
+      if (state === "playing") pause();
+      else if (state === "paused") resume();
+      else if (state === "error") retry();
     } else {
       play(verseId, audioUrl);
     }
   }, [isThisPlaying, state, pause, resume, retry, play, verseId, audioUrl]);
 
-  // Auto-play when verse changes (non-auto-advance mode only)
+  // Auto-play on verse change
   useEffect(() => {
-    if (
-      !isAutoAdvanceActive &&
-      autoPlay &&
-      verseId !== prevVerseIdRef.current
-    ) {
+    if (!isAutoAdvanceActive && autoPlay && verseId !== prevVerseIdRef.current) {
       prevVerseIdRef.current = verseId;
-      const timer = setTimeout(() => {
-        play(verseId, audioUrl);
-      }, 300);
+      const timer = setTimeout(() => play(verseId, audioUrl), 300);
       return () => clearTimeout(timer);
     }
     prevVerseIdRef.current = verseId;
   }, [verseId, audioUrl, autoPlay, play, isAutoAdvanceActive]);
 
-  // Notify when audio ends
+  // Notify on audio end
   useEffect(() => {
-    if (
-      isThisPlaying &&
-      state === "completed" &&
-      !hasCalledOnEndedRef.current
-    ) {
+    if (isThisPlaying && state === "completed" && !hasCalledOnEndedRef.current) {
       hasCalledOnEndedRef.current = true;
       onEnded?.();
     } else if (state === "playing") {
@@ -220,84 +257,131 @@ export function MiniPlayer(
     }
   }, [isThisPlaying, state, onEnded]);
 
-  // Calculate display values for text mode
+  // Text mode display values
   const getTextModeDisplay = () => {
     if (!hasAutoAdvance || !props.durationMs) return { time: 0, total: 0 };
-    const textModeDuration = props.durationMs * 0.8; // 80% scaling
+    const textModeDuration = props.durationMs * 0.8;
     const time = Math.floor((props.textModeProgress / 100) * textModeDuration);
     return { time, total: textModeDuration };
   };
 
-  // Render single-play mode UI
-  if (singlePlayMode && isThisPlaying) {
-    return (
-      <MiniPlayerSinglePlay
-        state={state}
-        progress={progress}
-        currentTime={currentTime}
-        duration={duration}
-        error={error}
-        playbackSpeed={playbackSpeed}
-        onPlayPause={handlePlayPause}
-        onSeek={seek}
-        onSpeedChange={setPlaybackSpeed}
-        onClose={onExitSinglePlay}
-      />
-    );
-  }
-
-  // Render auto-advance mode UI
-  if (hasAutoAdvance && isAutoAdvanceActive) {
-    const textDisplay = getTextModeDisplay();
-    const displayProgress =
-      autoAdvanceMode === "text" ? props.textModeProgress : progress * 100;
-    const displayTime =
-      autoAdvanceMode === "text" ? textDisplay.time / 1000 : currentTime;
-    const displayDuration =
-      autoAdvanceMode === "text" ? textDisplay.total / 1000 : duration;
-    const isAudioLoading = autoAdvanceMode === "audio" && state === "loading";
-
+  // -------------------------------------------------------------------------
+  // Render: Single-play mode
+  // -------------------------------------------------------------------------
+  if (hasAutoAdvance && singlePlayMode && isThisPlaying) {
     return (
       <>
-        <MiniPlayerAutoAdvance
-          mode={autoAdvanceMode as Exclude<AutoAdvanceMode, "off">}
-          isPaused={isAutoAdvancePaused}
-          isLoading={isAudioLoading}
-          progress={displayProgress}
-          currentTime={displayTime}
-          totalDuration={displayDuration}
-          versePosition={props.versePosition}
-          playbackSpeed={playbackSpeed}
-          onResume={props.onResumeAutoAdvance}
-          onPause={props.onPauseAutoAdvance}
-          onStop={props.onStopAutoAdvance}
+        <MiniPlayerActive
+          mode="single"
+          statusText={state === "loading" ? "Loading..." : state === "paused" ? "Paused" : "Playing"}
+          statusHighlight={state === "loading"}
+          progress={progress * 100}
+          currentTime={currentTime}
+          totalDuration={duration}
+          isPaused={state === "paused"}
+          isLoading={state === "loading"}
+          onPlayPause={handlePlayPause}
+          onStop={() => props.onExitSinglePlay?.()}
+          onClose={props.onExitSinglePlay}
           onSpeedChange={setPlaybackSpeed}
+          playbackSpeed={playbackSpeed}
         />
-        {/* Live region for screen reader announcements */}
-        <div
-          role="status"
-          aria-live="polite"
-          aria-atomic="true"
-          className="sr-only"
-        >
-          {announcement}
-        </div>
+        <LiveRegion announcement={announcement} />
       </>
     );
   }
 
-  // Render auto-advance mode selection (idle state with Listen/Read buttons)
-  if (hasAutoAdvance && !isAutoAdvanceActive && !singlePlayMode) {
+  // -------------------------------------------------------------------------
+  // Render: Study mode
+  // -------------------------------------------------------------------------
+  if (hasAutoAdvance && isStudyModeActive) {
+    const phase = props.studyModePhase ?? "idle";
+    const section = props.studyModeSection ?? null;
+    const available = props.studyModeAvailableSections ?? [];
+    const isIntroPhase = ["chapter_intro", "verse_intro", "chapter_complete"].includes(phase);
+
+    return (
+      <>
+        <MiniPlayerActive
+          mode="study"
+          statusText={getStudyStatusText(
+            phase,
+            section,
+            props.versePosition.current,
+            props.isStudyModeLoading ?? false,
+            isStudyModePaused
+          )}
+          statusHighlight={isIntroPhase || props.isStudyModeLoading}
+          progress={calculateStudyProgress(section, available, phase)}
+          sections={buildSectionInfo(section, available)}
+          versePosition={props.versePosition}
+          isPaused={isStudyModePaused}
+          isLoading={props.isStudyModeLoading ?? false}
+          onPlayPause={isStudyModePaused ? (props.onResumeStudyMode ?? (() => {})) : (props.onPauseStudyMode ?? (() => {}))}
+          onStop={props.onStopStudyMode ?? (() => {})}
+          onSkip={isIntroPhase ? props.onSkipStudySection : props.onSkipStudyVerse}
+          skipLabel={isIntroPhase ? "Skip introduction" : "Skip to next verse"}
+        />
+        <LiveRegion announcement={announcement} />
+      </>
+    );
+  }
+
+  // -------------------------------------------------------------------------
+  // Render: Listen/Read mode
+  // -------------------------------------------------------------------------
+  if (hasAutoAdvance && isAutoAdvanceActive) {
+    const textDisplay = getTextModeDisplay();
+    const isAudio = autoAdvanceMode === "audio";
+    const displayProgress = isAudio ? progress * 100 : props.textModeProgress;
+    const displayTime = isAudio ? currentTime : textDisplay.time / 1000;
+    const displayDuration = isAudio ? duration : textDisplay.total / 1000;
+    const isAudioLoading = isAudio && state === "loading";
+
+    return (
+      <>
+        <MiniPlayerActive
+          mode={isAudio ? "listen" : "read"}
+          statusText={
+            isAudioLoading ? "Loading..." :
+            isAutoAdvancePaused ? "Paused" :
+            isAudio ? "Playing" : "Reading"
+          }
+          statusHighlight={isAudioLoading}
+          progress={displayProgress}
+          currentTime={displayTime}
+          totalDuration={displayDuration}
+          versePosition={props.versePosition}
+          isPaused={isAutoAdvancePaused}
+          isLoading={isAudioLoading}
+          onPlayPause={isAutoAdvancePaused ? props.onResumeAutoAdvance : props.onPauseAutoAdvance}
+          onStop={props.onStopAutoAdvance}
+          onSpeedChange={isAudio ? setPlaybackSpeed : undefined}
+          playbackSpeed={isAudio ? playbackSpeed : undefined}
+        />
+        <LiveRegion announcement={announcement} />
+      </>
+    );
+  }
+
+  // -------------------------------------------------------------------------
+  // Render: Mode selector (idle state)
+  // -------------------------------------------------------------------------
+  if (hasAutoAdvance && !isAutoAdvanceActive && !isStudyModeActive && !singlePlayMode) {
     return (
       <MiniPlayerModeSelector
         versePosition={props.versePosition}
         onStartAudioMode={props.onStartAudioMode}
         onStartTextMode={props.onStartTextMode}
+        onStartStudyMode={props.onStartStudyMode}
+        isStudyModeLoading={props.isStudyModeLoading}
       />
     );
   }
 
-  // Original single-verse mode UI (backwards compatible)
+  // -------------------------------------------------------------------------
+  // Render: Standard single-verse UI (legacy/fallback)
+  // -------------------------------------------------------------------------
   return (
     <>
       <MiniPlayerStandard
@@ -316,27 +400,22 @@ export function MiniPlayer(
         onSeek={seek}
         onSpeedChange={setPlaybackSpeed}
         onToggleLoop={toggleLoop}
-        continuousPlayback={
-          hasAutoAdvance ? props.continuousPlayback : undefined
-        }
-        onToggleContinuousPlayback={
-          hasAutoAdvance ? props.onToggleContinuousPlayback : undefined
-        }
+        continuousPlayback={hasAutoAdvance ? props.continuousPlayback : undefined}
+        onToggleContinuousPlayback={hasAutoAdvance ? props.onToggleContinuousPlayback : undefined}
         showContinuousPlayback={
-          hasAutoAdvance &&
-          props.autoAdvanceMode === "audio" &&
-          !!props.onToggleContinuousPlayback
+          hasAutoAdvance && props.autoAdvanceMode === "audio" && !!props.onToggleContinuousPlayback
         }
       />
-      {/* Live region for screen reader announcements */}
-      <div
-        role="status"
-        aria-live="polite"
-        aria-atomic="true"
-        className="sr-only"
-      >
-        {announcement}
-      </div>
+      <LiveRegion announcement={announcement} />
     </>
+  );
+}
+
+/** Screen reader live region */
+function LiveRegion({ announcement }: { announcement: string }) {
+  return (
+    <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+      {announcement}
+    </div>
   );
 }

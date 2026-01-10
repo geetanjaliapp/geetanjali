@@ -2,6 +2,41 @@
 
 All notable changes to Geetanjali are documented here.
 
+## [1.25.0] - 2026-01-10
+
+Study Auto Mode release with guided verse narration and auto-advance.
+
+### Features
+
+- **Study Auto Mode** - Guided narration through verses with auto-advance
+  - Chapter intro with summary narration (TTS)
+  - Verse announcement ("Verse 1 of 72")
+  - Sequential sections: Sanskrit audio → English TTS → Hindi TTS → Insight TTS
+  - Auto-advance to next verse after 2s pause
+  - Chapter completion prompt at chapter end
+- **MiniPlayer Mode Selector** - Three-mode picker: Listen, Read, Study
+- **Study Controls** - Pause/resume (tap/Space), skip section (→), skip verse (↓), stop (Escape)
+- **Study Settings** - Include Hindi, include commentary, play chapter intro toggles
+
+### Improved
+
+- **MiniPlayerActive** - Unified active player component consolidating Listen, Read, Study, and Single-play modes
+- **Touch Targets** - All player buttons now 44×44px minimum (WCAG 2.1 AA)
+- **Accessibility** - Progress bar with role="progressbar" and ARIA attributes, contextual skip button labels
+
+### Technical
+
+- `useStudyAutoMode` hook orchestrates study session (590 LOC)
+- Phase state machine: `chapter_intro` → `verse_intro` → `verse_content` → `advancing` → `chapter_complete`
+- Stale closure prevention via refs for timer callbacks
+- All 500 frontend tests passing
+
+### Documentation
+
+- Updated docs/audio.md with Study Auto Mode flow, controls, and architecture
+- Updated docs/discovery.md with Study Mode cross-reference
+- Updated README features section
+
 ## [1.22.4] - 2026-01-10
 
 Fixes audio playback reliability in Service Worker.
