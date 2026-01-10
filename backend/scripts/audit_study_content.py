@@ -25,8 +25,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from db import SessionLocal
-from models.verse import Verse, Commentary, Translation
-
+from models.verse import Commentary, Translation, Verse
 
 # Hero verses - most important verses from each chapter
 HERO_VERSES = [
@@ -221,7 +220,7 @@ def print_report(
 
         print(f"  Chapter {chapter:2d}{priority:<3} {ch['with_paraphrase']:3d}/{ch['total']:2d} ({ch_pct:5.1f}%)   [{status:<4}]   {missing_count} missing")
 
-    print(f"\n  * = Priority chapter for Study Mode")
+    print("\n  * = Priority chapter for Study Mode")
 
     # Priority chapters detail
     print(f"\n{'='*70}")
