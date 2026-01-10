@@ -77,18 +77,43 @@ The next verse audio preloads at 80% progress to eliminate gaps.
 
 ### Study Mode
 
-Sequential playback of a verse's sections in one flow:
+Guided narration through verses with auto-advance:
 
 ```
-Sanskrit Audio → English Translation → Hindi Translation → Insight
+Chapter Intro → Verse 1 → Verse 2 → ... → Chapter Complete
+                   ↓
+      Sanskrit → English → Hindi → Insight → Next
 ```
 
-- **Trigger**: Study Mode icon on Verse Detail page
-- **Behavior**: Plays each section with brief pauses between
-- **UI**: Progress dots show current section, popover displays section name
-- **Accessibility**: Screen readers announce section transitions via aria-live
+**Flow:**
+1. Chapter intro (summary narration via TTS)
+2. Verse announcement ("Verse 1 of 72")
+3. Sanskrit audio recitation
+4. English translation TTS
+5. Hindi translation TTS (if enabled)
+6. Insight/commentary TTS
+7. Auto-advance to next verse (2s pause)
+8. Chapter completion prompt at end
 
-Useful for immersive learning without manual navigation.
+**Trigger:** Study button in MiniPlayer
+
+**Controls:**
+
+| Action | Gesture | Keyboard |
+|--------|---------|----------|
+| Pause/Resume | Tap screen | Space |
+| Skip section | — | → |
+| Skip verse | — | ↓ |
+| Stop | Tap Stop | Escape |
+
+**Settings** (in Settings page):
+- Include Hindi translations
+- Include commentary insights
+- Play chapter introduction
+
+**UI:** Progress bar, section dots, verse position counter, status text.
+
+**Accessibility:** aria-live announcements, 44px touch targets, keyboard shortcuts.
 
 ### Media Controls
 
@@ -181,17 +206,26 @@ Files follow the canonical ID pattern: `BG_{chapter}_{verse}.mp3`
 ```
 frontend/src/
 ├── components/audio/
-│   ├── AudioPlayerContext.tsx  # Global audio state
-│   ├── AudioPlayer.tsx         # Reusable player UI
-│   ├── MiniPlayer.tsx          # Compact player for reading mode
-│   ├── StudyModePlayer.tsx     # Study mode UI and controls
-│   └── FloatingAudioBar.tsx    # Fixed bottom bar during scroll
+│   ├── AudioPlayerContext.tsx   # Global audio state
+│   ├── MiniPlayer/              # Reading mode player
+│   │   ├── MiniPlayerActive.tsx # Unified active player (all modes)
+│   │   └── MiniPlayerModeSelector.tsx # Listen/Read/Study mode picker
+│   └── FloatingAudioBar.tsx     # Fixed bottom bar during scroll
 ├── hooks/
-│   ├── useAutoAdvance.ts       # Listen/Read mode logic
-│   ├── useStudyMode.ts         # Study mode state machine
-│   └── useAudioCache.ts        # Cache status and management
+│   ├── useAutoAdvance.ts        # Listen/Read mode logic
+│   ├── useStudyMode.ts          # Section sequencing (single verse)
+│   ├── useStudyAutoMode.ts      # Study Auto Mode orchestration
+│   └── useAudioCache.ts         # Cache status and management
 └── lib/
-    └── audioPreload.ts         # Background preloading
+    └── audioPreload.ts          # Background preloading
+```
+
+**Study Auto Mode Hook Composition:**
+```
+useStudyAutoMode
+├── useStudyMode (section sequencing: sanskrit → english → hindi → insight)
+├── AudioPlayerContext (Sanskrit audio files)
+└── TTSContext (Edge TTS for translations/commentary)
 ```
 
 The audio context ensures only one audio plays at a time. When a new verse starts, any playing audio stops automatically.

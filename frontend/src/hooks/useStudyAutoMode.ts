@@ -245,6 +245,8 @@ export function useStudyAutoMode(config: StudyAutoModeConfig): StudyAutoModeCont
   // Phase Handlers
   // -------------------------------------------------------------------------
 
+  // Intentionally omit playVerseIntro from deps to avoid circular dependency.
+  // playVerseIntro is called synchronously in catch handlers where closure is current.
   const playChapterIntro = useCallback(() => {
     const metadata = chapterMetadataRef.current;
     if (!metadata) {
@@ -263,8 +265,11 @@ export function useStudyAutoMode(config: StudyAutoModeConfig): StudyAutoModeCont
       // Continue anyway
       playVerseIntro();
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tts]);
 
+  // Intentionally omit startVerseContent from deps to avoid circular dependency.
+  // startVerseContent is called synchronously in catch handler where closure is current.
   const playVerseIntro = useCallback(() => {
     const verse = currentVerse;
     if (!verse) return;
@@ -279,6 +284,7 @@ export function useStudyAutoMode(config: StudyAutoModeConfig): StudyAutoModeCont
       // Continue anyway
       startVerseContent();
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tts, currentVerse]);
 
   const startVerseContent = useCallback(() => {
