@@ -2,6 +2,34 @@
 
 All notable changes to Geetanjali are documented here.
 
+## [1.26.0] - 2026-01-10
+
+Auto-mode play bar redesign with Study-first UX.
+
+### Changed
+
+- **Mode Selector Redesign** - Segmented control with Study as hero button
+  - Study button is center, primary styling (filled), larger padding
+  - Listen/Read are secondary (outline style, transparent background)
+  - Verse position moved to right side for cleaner layout
+  - Removed tooltips (labels are self-explanatory)
+
+- **Study Mode Player Redesign** - Expanded section track with labels
+  - Full-width progress bar at top
+  - Horizontal section pipeline: Sanskrit ● ── English ○ ── Hindi ○ ── Insight ○
+  - Section dots with connector lines show completion status
+  - "Verse X of Y" centered prominently
+  - Simplified controls row (play/pause, stop, skip)
+
+### Technical
+
+- Extracted `PlayPauseButton` sub-component for reuse
+- Added shared button style constants (`CONTROL_BUTTON_PRIMARY`, `CONTROL_BUTTON_SECONDARY`)
+- Use shared icons from `icons.tsx` (StopIcon, CloseIcon) instead of inline SVGs
+- Added local `SkipIcon` component (double chevron)
+- Progress calculation optimized (calculate once per render)
+- Consistent graduation cap icon for Study across all components
+
 ## [1.25.0] - 2026-01-10
 
 Study Auto Mode release with guided verse narration and auto-advance.
