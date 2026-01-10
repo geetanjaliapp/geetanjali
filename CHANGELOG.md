@@ -2,6 +2,35 @@
 
 All notable changes to Geetanjali are documented here.
 
+## [1.22.3] - 2026-01-10
+
+Simplifies audio caching to eliminate intermittent "network error" on first play.
+
+### Fixed
+
+- **First-Play Network Error** - Audio no longer shows "network error, retrying..." on initial play
+  - Root cause: Cache validation (`validateCachedAudio`) was consuming response via `blob()` before serving, causing timeouts and race conditions
+  - Fix: Removed validation on read path; cache entries now served immediately
+
+### Changed
+
+- **Cache Strategy** - Simplified from "cache-first with validation" to "cache-first, no validation"
+  - Cache hit: serve immediately (no blob consumption, no size/type checks)
+  - Cache miss: fetch from network, cache in background
+  - Corrupt cache: browser audio element errors, user can retry
+  - Trade-off: Corrupt entries persist until LRU eviction (acceptable for reliability)
+
+### Removed
+
+- `validateCachedAudio()` - validation overhead caused the issue
+- `removeAudioCacheMetadata()` - only used by validation
+- `expectedSize` in cache metadata - only used by validation
+
+### Technical
+
+- Service Worker simplified: -115 lines, +28 lines
+- Download validation retained in `cacheAudioFile()` (validates before caching, not before serving)
+
 ## [1.22.2] - 2026-01-05
 
 Audio playback reliability improvements. Fixes study mode restart bug and adds robust error handling.

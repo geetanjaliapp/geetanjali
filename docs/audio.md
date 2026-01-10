@@ -109,16 +109,17 @@ Audio files cache automatically for offline playback.
 - 100MB quota with LRU eviction
 - Manage in Settings → Audio Cache (see file count, clear cache)
 
-**Reliability features** (v1.22.2):
-- Play-first strategy: immediate playback, background caching
+**Reliability features:**
+- Cache-first with no validation overhead for fast playback
 - 20-second load timeout with clear error message
-- Cache integrity validation (size, content-type, completeness)
-- Automatic recovery from corrupted cache entries
+- Download validation before caching (size, completeness)
+- Background caching: audio plays immediately, cached asynchronously
 
 **Technical:**
 - Service Worker intercepts `/audio/` requests
+- Cache hit: serves immediately without validation
+- Cache miss: fetches from network, caches in background
 - Supports Range requests for seeking within cached files
-- Falls back to network on cache miss or invalid cache
 
 ---
 
