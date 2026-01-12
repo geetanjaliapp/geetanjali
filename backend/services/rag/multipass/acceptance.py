@@ -159,7 +159,7 @@ def _check_dilemma_markers(text: str) -> tuple[bool, str | None]:
     # Decision-point indicators
     decision_patterns = [
         r"\b(should|ought|must|need to|have to)\b",
-        r"\b(decide|choose|choose|decision|choice)\b",
+        r"\b(decide|choose|decision|choice)\b",
         r"\b(whether|if i|what should)\b",
         r"\b(help me|advice|guidance|suggest)\b",
         r"\bwhat (do|would|should) (i|you|we)\b",

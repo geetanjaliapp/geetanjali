@@ -13,12 +13,15 @@ See: todos/ollama-consultations-refined.md for full specification.
 """
 
 import enum
+import json
 import logging
+import time
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
 from config import settings
+from utils.json_parsing import extract_json_from_text
 
 from .prompts import (
     build_critique_prompt,
@@ -81,8 +84,6 @@ async def run_draft_pass(
     Returns:
         PassResult with draft prose output
     """
-    import time
-
     start_time = time.time()
     started_at = datetime.utcnow()
 
@@ -175,8 +176,6 @@ async def run_critique_pass(
     Returns:
         PassResult with critique bullet points
     """
-    import time
-
     start_time = time.time()
     started_at = datetime.utcnow()
 
@@ -262,8 +261,6 @@ async def run_refine_pass(
     Returns:
         PassResult with refined prose
     """
-    import time
-
     start_time = time.time()
     started_at = datetime.utcnow()
 
@@ -361,11 +358,6 @@ async def run_structure_pass(
     Returns:
         PassResult with JSON output
     """
-    import json
-    import time
-
-    from utils.json_parsing import extract_json_from_text
-
     start_time = time.time()
     started_at = datetime.utcnow()
 

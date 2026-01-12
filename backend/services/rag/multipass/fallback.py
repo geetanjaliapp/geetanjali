@@ -30,7 +30,6 @@ def reconstruct_from_prose(
     draft_prose: str | None,
     verses: list[dict],
     case_title: str = "",
-    case_description: str = "",
 ) -> ReconstructionResult:
     """Attempt to reconstruct JSON structure from prose.
 
@@ -43,8 +42,7 @@ def reconstruct_from_prose(
         refined_prose: Output from Pass 3 (Refine)
         draft_prose: Output from Pass 1 (Draft) - fallback if refine unavailable
         verses: Retrieved verses with metadata
-        case_title: Original case title
-        case_description: Original case description
+        case_title: Original case title (fallback for title extraction)
 
     Returns:
         ReconstructionResult with reconstructed JSON or error details
