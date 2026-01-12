@@ -15,6 +15,15 @@ from services.rag.multipass.acceptance import (
     RejectionCategory,
     run_acceptance_pass,
 )
+from services.rag.multipass.fallback import (
+    ReconstructionResult,
+    reconstruct_from_prose,
+)
+from services.rag.multipass.orchestrator import (
+    MultiPassOrchestrator,
+    MultiPassResult,
+    run_multipass_consultation,
+)
 from services.rag.multipass.passes import (
     PassResult,
     PassStatus,
@@ -22,11 +31,6 @@ from services.rag.multipass.passes import (
     run_draft_pass,
     run_refine_pass,
     run_structure_pass,
-)
-from services.rag.multipass.orchestrator import (
-    MultiPassOrchestrator,
-    MultiPassResult,
-    run_multipass_consultation,
 )
 from services.rag.multipass.prompts import (
     build_critique_prompt,
@@ -45,6 +49,9 @@ __all__ = [
     "AcceptanceResult",
     "RejectionCategory",
     "run_acceptance_pass",
+    # Fallback reconstruction
+    "ReconstructionResult",
+    "reconstruct_from_prose",
     # Passes 1-4
     "PassResult",
     "PassStatus",

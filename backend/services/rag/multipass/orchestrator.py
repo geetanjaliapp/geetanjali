@@ -29,6 +29,7 @@ from services.llm import get_llm_service
 from services.rag.pipeline import RAGPipeline
 
 from .acceptance import AcceptanceResult, run_acceptance_pass
+from .fallback import reconstruct_from_prose
 from .passes import (
     PassResult,
     PassStatus,
@@ -345,8 +346,8 @@ class MultiPassOrchestrator:
     ) -> MultiPassResult:
         """Attempt fallback reconstruction when Pass 4 fails.
 
-        This will be fully implemented in Task 8. For now, returns a generic
-        fallback response.
+        Tries heuristic extraction from prose first, then falls back to
+        generic response if that also fails.
 
         Args:
             db: Database session
@@ -359,24 +360,34 @@ class MultiPassOrchestrator:
         Returns:
             MultiPassResult with fallback response
         """
-        # Use best available prose
-        prose = refine_result.output_text or draft_result.output_text or ""
+        # Attempt heuristic reconstruction from prose
+        reconstruction = reconstruct_from_prose(
+            refined_prose=refine_result.output_text,
+            draft_prose=draft_result.output_text,
+            verses=verses,
+        )
 
-        # For now, create a basic fallback structure
-        # Task 8 will implement full heuristic reconstruction
-        fallback_json = self._create_generic_fallback(verses)
+        if reconstruction.success and reconstruction.result_json:
+            fallback_json = reconstruction.result_json
+            fallback_reason = f"Heuristic reconstruction from {reconstruction.reconstruction_method}"
+            logger.info(f"Heuristic reconstruction succeeded for consultation {consultation_id}")
+        else:
+            # Fall back to generic response
+            fallback_json = self._create_generic_fallback(verses)
+            fallback_reason = "Structure pass failed, using generic fallback"
+            logger.warning(f"Heuristic reconstruction failed, using generic fallback for {consultation_id}")
 
         # Update consultation
         self.consultation.status = "completed"
         self.consultation.completed_at = datetime.utcnow()
         self.consultation.final_result_json = fallback_json
         self.consultation.fallback_used = True
-        self.consultation.fallback_reason = "Structure pass failed, using generic fallback"
+        self.consultation.fallback_reason = fallback_reason
         db.commit()
 
         duration_ms = int((time.time() - start_time) * 1000)
 
-        logger.warning(f"Using fallback reconstruction for consultation {consultation_id}")
+        prose_length = len(refine_result.output_text or draft_result.output_text or "")
 
         return MultiPassResult(
             success=True,
@@ -385,8 +396,12 @@ class MultiPassOrchestrator:
             passes_completed=3,
             total_duration_ms=duration_ms,
             fallback_used=True,
-            fallback_reason="Structure pass failed, using generic fallback",
-            metadata={"prose_length": len(prose)},
+            fallback_reason=fallback_reason,
+            metadata={
+                "prose_length": prose_length,
+                "reconstruction_method": reconstruction.reconstruction_method,
+                "reconstruction_confidence": reconstruction.confidence,
+            },
         )
 
     def _create_generic_fallback(self, verses: list[dict]) -> dict:
