@@ -85,6 +85,55 @@ class Settings(BaseSettings):
     OLLAMA_RETRY_MAX_WAIT: int = 10
     OLLAMA_MAX_TOKENS: int = 1024  # Balanced token limit
 
+    # ========================================
+    # Multi-Pass Ollama Consultation Settings
+    # ========================================
+    # 5-pass workflow: Acceptance → Draft → Critique → Refine → Structure
+    # See: todos/ollama-consultations-refined.md for full specification
+    #
+    # Feature flag (master switch for multi-pass workflow)
+    MULTIPASS_ENABLED: bool = True  # Enable multi-pass consultation pipeline
+    #
+    # Single-pass fallback if multi-pass fails completely
+    MULTIPASS_FALLBACK_TO_SINGLE_PASS: bool = True
+    #
+    # Pass temperatures (tuned per pass role)
+    # Pass 0 (Acceptance): Deterministic gate - should be consistent
+    MULTIPASS_TEMP_ACCEPTANCE: float = 0.1
+    # Pass 1 (Draft): Creative reasoning - warmer for diverse ideas
+    MULTIPASS_TEMP_DRAFT: float = 0.65
+    # Pass 2 (Critique): Analytical review - cooler for focused critique
+    MULTIPASS_TEMP_CRITIQUE: float = 0.2
+    # Pass 3 (Refine): Disciplined rewrite - balanced
+    MULTIPASS_TEMP_REFINE: float = 0.35
+    # Pass 4 (Structure): JSON formatting - deterministic
+    MULTIPASS_TEMP_STRUCTURE: float = 0.1
+    #
+    # Pass timeouts (seconds) - allow generous time for local inference
+    MULTIPASS_TIMEOUT_ACCEPTANCE: int = 15  # Quick validation
+    MULTIPASS_TIMEOUT_DRAFT: int = 90  # Generous for creative thinking
+    MULTIPASS_TIMEOUT_CRITIQUE: int = 45  # Moderate for review
+    MULTIPASS_TIMEOUT_REFINE: int = 90  # Generous for rewriting
+    MULTIPASS_TIMEOUT_STRUCTURE: int = 45  # Moderate for JSON generation
+    #
+    # Pass token limits
+    MULTIPASS_TOKENS_ACCEPTANCE: int = 500  # Short validation response
+    MULTIPASS_TOKENS_DRAFT: int = 2000  # Full reasoning prose
+    MULTIPASS_TOKENS_CRITIQUE: int = 800  # Structured bullet critique
+    MULTIPASS_TOKENS_REFINE: int = 2000  # Full refined prose
+    MULTIPASS_TOKENS_STRUCTURE: int = 3000  # Complete JSON output
+    #
+    # Retry budgets per pass (0 = no retries)
+    MULTIPASS_RETRIES_ACCEPTANCE: int = 0  # No retry - acceptance is final
+    MULTIPASS_RETRIES_DRAFT: int = 1
+    MULTIPASS_RETRIES_CRITIQUE: int = 1
+    MULTIPASS_RETRIES_REFINE: int = 1
+    MULTIPASS_RETRIES_STRUCTURE: int = 2  # Extra retry for JSON issues
+    #
+    # Scholar flag thresholds
+    MULTIPASS_CONFIDENCE_HIGH: float = 0.85  # No scholar flag
+    MULTIPASS_CONFIDENCE_LOW: float = 0.65  # Always flag below this
+
     # Health Check
     HEALTH_CHECK_TIMEOUT: int = 2  # Seconds to wait for service health checks
 
