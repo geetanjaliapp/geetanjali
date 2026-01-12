@@ -15,9 +15,38 @@ from services.rag.multipass.acceptance import (
     RejectionCategory,
     run_acceptance_pass,
 )
+from services.rag.multipass.passes import (
+    PassResult,
+    PassStatus,
+    run_critique_pass,
+    run_draft_pass,
+    run_refine_pass,
+    run_structure_pass,
+)
+from services.rag.multipass.prompts import (
+    build_critique_prompt,
+    build_draft_prompt,
+    build_refine_prompt,
+    build_structure_prompt,
+    format_verses_for_prompt,
+)
 
 __all__ = [
+    # Pass 0: Acceptance
     "AcceptanceResult",
     "RejectionCategory",
     "run_acceptance_pass",
+    # Passes 1-4
+    "PassResult",
+    "PassStatus",
+    "run_draft_pass",
+    "run_critique_pass",
+    "run_refine_pass",
+    "run_structure_pass",
+    # Prompt builders
+    "build_draft_prompt",
+    "build_critique_prompt",
+    "build_refine_prompt",
+    "build_structure_prompt",
+    "format_verses_for_prompt",
 ]
