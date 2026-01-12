@@ -23,6 +23,11 @@ from services.rag.multipass.passes import (
     run_refine_pass,
     run_structure_pass,
 )
+from services.rag.multipass.orchestrator import (
+    MultiPassOrchestrator,
+    MultiPassResult,
+    run_multipass_consultation,
+)
 from services.rag.multipass.prompts import (
     build_critique_prompt,
     build_draft_prompt,
@@ -32,6 +37,10 @@ from services.rag.multipass.prompts import (
 )
 
 __all__ = [
+    # Orchestrator
+    "MultiPassOrchestrator",
+    "MultiPassResult",
+    "run_multipass_consultation",
     # Pass 0: Acceptance
     "AcceptanceResult",
     "RejectionCategory",
