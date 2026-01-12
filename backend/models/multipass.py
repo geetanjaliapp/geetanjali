@@ -217,11 +217,3 @@ class MultiPassPassResponse(Base):
         )
 
 
-# Composite index for efficient queries
-from sqlalchemy import Index
-
-Index(
-    "idx_multipass_pass_consultation_number",
-    MultiPassPassResponse.consultation_id,
-    MultiPassPassResponse.pass_number,
-)

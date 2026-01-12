@@ -8,7 +8,6 @@ Tests cover:
 - Default values
 """
 
-import uuid
 from datetime import datetime
 
 import pytest

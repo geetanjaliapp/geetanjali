@@ -146,10 +146,22 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     """Drop multipass consultation tables."""
-    # Drop index first
-    op.drop_index(
-        "idx_multipass_pass_consultation_number", table_name="multipass_pass_responses"
-    )
-    # Drop tables (pass_responses first due to foreign key)
-    op.drop_table("multipass_pass_responses")
-    op.drop_table("multipass_consultations")
+    conn = op.get_bind()
+    inspector = inspect(conn)
+    tables = inspector.get_table_names()
+
+    # Drop pass_responses table first (due to foreign key)
+    if "multipass_pass_responses" in tables:
+        # Drop index if it exists
+        indexes = inspector.get_indexes("multipass_pass_responses")
+        index_names = [idx["name"] for idx in indexes]
+        if "idx_multipass_pass_consultation_number" in index_names:
+            op.drop_index(
+                "idx_multipass_pass_consultation_number",
+                table_name="multipass_pass_responses",
+            )
+        op.drop_table("multipass_pass_responses")
+
+    # Drop consultations table
+    if "multipass_consultations" in tables:
+        op.drop_table("multipass_consultations")
