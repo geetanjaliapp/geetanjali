@@ -27,6 +27,17 @@ from models.multipass import (
 )
 from services.llm import get_llm_service
 from services.rag.pipeline import RAGPipeline
+from utils.metrics_multipass import (
+    multipass_active_pipelines,
+    multipass_confidence_score,
+    multipass_fallback_total,
+    multipass_pass_timeout_total,
+    multipass_pipeline_duration_ms,
+    multipass_pipeline_passes_total,
+    multipass_pipeline_total,
+    multipass_rejection_total,
+    multipass_scholar_flag_total,
+)
 
 from .acceptance import AcceptanceResult, run_acceptance_pass
 from .fallback import reconstruct_from_prose
@@ -96,6 +107,7 @@ class MultiPassOrchestrator:
             MultiPassResult with final consultation output or error details
         """
         start_time = time.time()
+        multipass_active_pipelines.inc()
 
         db = SessionLocal()
         try:
@@ -127,6 +139,12 @@ class MultiPassOrchestrator:
                 self.consultation.status = "rejected"
                 self.consultation.completed_at = datetime.utcnow()
                 db.commit()
+
+                # Record rejection metric
+                multipass_rejection_total.labels(
+                    category=acceptance_result.category.value
+                ).inc()
+                multipass_pipeline_total.labels(status="rejected").inc()
 
                 duration_ms = int((time.time() - start_time) * 1000)
                 return MultiPassResult(
@@ -201,6 +219,14 @@ class MultiPassOrchestrator:
             duration_ms = int((time.time() - start_time) * 1000)
             logger.info(f"Multi-pass consultation completed in {duration_ms}ms")
 
+            # Record success metrics
+            multipass_pipeline_total.labels(status="success").inc()
+            if structure_result.output_json:
+                confidence = structure_result.output_json.get("confidence", 0.7)
+                multipass_confidence_score.observe(confidence)
+                if structure_result.output_json.get("scholar_flag", False):
+                    multipass_scholar_flag_total.labels(reason="low_confidence").inc()
+
             return MultiPassResult(
                 success=True,
                 result_json=structure_result.output_json,
@@ -221,6 +247,8 @@ class MultiPassOrchestrator:
                 self.consultation.completed_at = datetime.utcnow()
                 db.commit()
 
+            multipass_pipeline_total.labels(status="failed").inc()
+
             return MultiPassResult(
                 success=False,
                 consultation_id=str(self.consultation.id) if self.consultation else None,
@@ -229,6 +257,7 @@ class MultiPassOrchestrator:
             )
 
         finally:
+            multipass_active_pipelines.dec()
             db.close()
 
     async def _run_acceptance(
@@ -256,6 +285,18 @@ class MultiPassOrchestrator:
         )
 
         duration_ms = int((time.time() - start_time) * 1000)
+
+        # Record acceptance pass metrics
+        status = "success" if result.accepted else "rejected"
+        multipass_pipeline_passes_total.labels(
+            pass_number="0",
+            pass_name="acceptance",
+            status=status,
+        ).inc()
+        multipass_pipeline_duration_ms.labels(
+            pass_number="0",
+            pass_name="acceptance",
+        ).observe(duration_ms)
 
         # Store in audit trail
         pass_response = MultiPassPassResponse(
@@ -306,6 +347,24 @@ class MultiPassOrchestrator:
             )
 
         duration_ms = int((time.time() - start_time) * 1000)
+
+        # Record pass metrics
+        multipass_pipeline_passes_total.labels(
+            pass_number=str(pass_number),
+            pass_name=pass_name,
+            status=result.status.value,
+        ).inc()
+        multipass_pipeline_duration_ms.labels(
+            pass_number=str(pass_number),
+            pass_name=pass_name,
+        ).observe(duration_ms)
+
+        # Record timeout metric if applicable
+        if result.status == PassStatus.TIMEOUT:
+            multipass_pass_timeout_total.labels(
+                pass_number=str(pass_number),
+                pass_name=pass_name,
+            ).inc()
 
         # Map PassStatus to DBPassStatus
         status_map = {
@@ -371,11 +430,21 @@ class MultiPassOrchestrator:
             fallback_json = reconstruction.result_json
             fallback_reason = f"Heuristic reconstruction from {reconstruction.reconstruction_method}"
             logger.info(f"Heuristic reconstruction succeeded for consultation {consultation_id}")
+            multipass_fallback_total.labels(fallback_type="reconstruction").inc()
         else:
             # Fall back to generic response
             fallback_json = self._create_generic_fallback(verses)
             fallback_reason = "Structure pass failed, using generic fallback"
             logger.warning(f"Heuristic reconstruction failed, using generic fallback for {consultation_id}")
+            multipass_fallback_total.labels(fallback_type="generic_response").inc()
+
+        # Fallback always sets scholar_flag
+        multipass_scholar_flag_total.labels(reason="reconstruction").inc()
+        multipass_pipeline_total.labels(status="partial_success").inc()
+
+        # Record confidence score from fallback
+        confidence = fallback_json.get("confidence", 0.4)
+        multipass_confidence_score.observe(confidence)
 
         # Update consultation
         self.consultation.status = "completed"
