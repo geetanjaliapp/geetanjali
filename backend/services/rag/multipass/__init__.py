@@ -39,6 +39,11 @@ from services.rag.multipass.prompts import (
     build_structure_prompt,
     format_verses_for_prompt,
 )
+from services.rag.multipass.rejection_response import (
+    create_rejection_output,
+    generate_rejection_message,
+    get_fallback_message,
+)
 
 __all__ = [
     # Orchestrator
@@ -65,4 +70,8 @@ __all__ = [
     "build_refine_prompt",
     "build_structure_prompt",
     "format_verses_for_prompt",
+    # Rejection response
+    "generate_rejection_message",
+    "get_fallback_message",
+    "create_rejection_output",
 ]

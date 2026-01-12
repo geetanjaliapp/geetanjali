@@ -123,6 +123,11 @@ class Settings(BaseSettings):
     MULTIPASS_TOKENS_REFINE: int = 2000  # Full refined prose
     MULTIPASS_TOKENS_STRUCTURE: int = 3000  # Complete JSON output
     #
+    # Rejection message generation (only for ~3-5% rejected cases)
+    MULTIPASS_TEMP_REJECTION: float = 0.3  # Slightly creative for kind tone
+    MULTIPASS_TIMEOUT_REJECTION: int = 5  # Fast - just generating a message
+    MULTIPASS_TOKENS_REJECTION: int = 200  # Short message
+    #
     # Retry budgets per pass (0 = no retries)
     MULTIPASS_RETRIES_ACCEPTANCE: int = 0  # No retry - acceptance is final
     MULTIPASS_RETRIES_DRAFT: int = 1
