@@ -68,6 +68,7 @@ from models import (  # noqa: F401
 )
 from models.contact import ContactMessage  # noqa: F401
 from models.metadata import BookMetadata, ChapterMetadata  # noqa: F401
+from models.multipass import MultiPassConsultation, MultiPassPassResponse  # noqa: F401
 from models.user_preferences import UserPreferences  # noqa: F401
 
 # Use in-memory SQLite with StaticPool for single connection across threads
