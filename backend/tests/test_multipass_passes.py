@@ -349,14 +349,18 @@ class TestPassResult:
 # ============================================================================
 
 class MockLLM:
-    """Mock LLM service for testing."""
+    """Mock LLM service for testing.
+
+    Note: The real LLM service has a synchronous generate() method,
+    so this mock must also be synchronous.
+    """
 
     def __init__(self, response_text: str, raise_error: Exception | None = None):
         self.response_text = response_text
         self.raise_error = raise_error
         self.calls = []
 
-    async def generate(self, **kwargs):
+    def generate(self, **kwargs):
         self.calls.append(kwargs)
         if self.raise_error:
             raise self.raise_error

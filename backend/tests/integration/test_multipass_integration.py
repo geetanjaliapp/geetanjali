@@ -22,7 +22,9 @@ def ollama_available() -> bool:
     """Check if Ollama is running and accessible."""
     try:
         from config import settings
-        response = httpx.get(f"{settings.OLLAMA_HOST}/api/version", timeout=2.0)
+        # Use OLLAMA_BASE_URL from config (handles Docker network hostnames)
+        base_url = getattr(settings, "OLLAMA_BASE_URL", "http://localhost:11434")
+        response = httpx.get(f"{base_url}/api/version", timeout=5.0)
         return response.status_code == 200
     except Exception:
         return False
@@ -38,6 +40,8 @@ skip_if_no_ollama = pytest.mark.skipif(
 @skip_if_no_ollama
 class TestMultipassIntegration:
     """Integration tests for multi-pass pipeline with real LLM."""
+
+    pytestmark = pytest.mark.asyncio
 
     @pytest.fixture
     def valid_ethical_dilemma(self) -> str:
@@ -62,8 +66,15 @@ class TestMultipassIntegration:
 
     @pytest.fixture
     def non_dilemma_input(self) -> str:
-        """Input that should be rejected as non-dilemma."""
-        return "What is the capital of India?"
+        """Input that should be rejected as non-dilemma.
+
+        This is a factual question, not an ethical dilemma. It must be
+        at least 50 characters to pass the length check in Stage 1.
+        """
+        return (
+            "I would like to know what the capital city of India is, "
+            "and also learn about the major cities in the country."
+        )
 
     @pytest.fixture
     def harmful_input(self) -> str:
@@ -153,11 +164,14 @@ class TestMultipassIntegration:
             # Should be rejected as policy violation
             assert result.is_policy_violation, "Non-dilemma should be rejected"
             assert result.passes_completed == 0, "Should stop at Pass 0"
-            assert "not_dilemma" in (result.rejection_reason or "").lower() or \
-                   result.metadata.get("rejection_category") == "not_dilemma", \
-                   f"Should identify as not_dilemma, got: {result.rejection_reason}"
+            # May be rejected by Stage 1 heuristics (no_dilemma_markers) or Stage 2 LLM (not_dilemma)
+            rejection_category = result.metadata.get("rejection_category", "")
+            valid_categories = ["not_dilemma", "no_dilemma_markers"]
+            assert rejection_category in valid_categories, \
+                f"Should identify as not_dilemma or no_dilemma_markers, got: {rejection_category}"
 
             print(f"\nRejection reason: {result.rejection_reason}")
+            print(f"Rejection category: {rejection_category}")
 
         finally:
             db.query(Case).filter(Case.id == case.id).delete()
@@ -209,6 +223,8 @@ class TestMultipassIntegration:
 @skip_if_no_ollama
 class TestMultipassMetricsIntegration:
     """Test that metrics are recorded correctly during integration."""
+
+    pytestmark = pytest.mark.asyncio
 
     async def test_metrics_recorded_on_success(self):
         """Verify Prometheus metrics are recorded during pipeline execution."""
@@ -296,6 +312,7 @@ MANUAL_QA_CASES = [
 
 
 @skip_if_no_ollama
+@pytest.mark.asyncio
 @pytest.mark.parametrize("case", MANUAL_QA_CASES, ids=[c["name"] for c in MANUAL_QA_CASES])
 async def test_manual_qa_cases(case):
     """Run manual QA test cases for human review.

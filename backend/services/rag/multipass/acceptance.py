@@ -308,16 +308,19 @@ async def run_stage2_llm_assessment(
     user_prompt = STAGE2_USER_PROMPT_TEMPLATE.format(case_text=text[:2000])
 
     try:
-        response = await llm_service.generate(
+        response = llm_service.generate(
             prompt=user_prompt,
             system_prompt=STAGE2_SYSTEM_PROMPT,
             temperature=settings.MULTIPASS_TEMP_ACCEPTANCE,
             max_tokens=settings.MULTIPASS_TOKENS_ACCEPTANCE,
-            timeout=settings.MULTIPASS_TIMEOUT_ACCEPTANCE,
+            json_mode=True,  # Acceptance assessment produces JSON
         )
 
-        # Parse LLM response
-        response_text = response.get("text", "") if isinstance(response, dict) else str(response)
+        # Parse LLM response - LLM service returns {"response": ...}
+        if isinstance(response, dict):
+            response_text = response.get("response", "") or response.get("text", "") or ""
+        else:
+            response_text = str(response)
 
         # Try to extract JSON from response
         try:

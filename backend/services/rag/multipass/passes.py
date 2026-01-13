@@ -90,12 +90,12 @@ async def run_draft_pass(
     system_prompt, user_prompt = build_draft_prompt(title, description, verses)
 
     try:
-        response = await llm_service.generate(
+        response = llm_service.generate(
             prompt=user_prompt,
             system_prompt=system_prompt,
             temperature=settings.MULTIPASS_TEMP_DRAFT,
             max_tokens=settings.MULTIPASS_TOKENS_DRAFT,
-            timeout=settings.MULTIPASS_TIMEOUT_DRAFT,
+            json_mode=False,  # Draft produces prose, not JSON
         )
 
         # Extract text from response
@@ -182,12 +182,12 @@ async def run_critique_pass(
     system_prompt, user_prompt = build_critique_prompt(title, description, draft_text)
 
     try:
-        response = await llm_service.generate(
+        response = llm_service.generate(
             prompt=user_prompt,
             system_prompt=system_prompt,
             temperature=settings.MULTIPASS_TEMP_CRITIQUE,
             max_tokens=settings.MULTIPASS_TOKENS_CRITIQUE,
-            timeout=settings.MULTIPASS_TIMEOUT_CRITIQUE,
+            json_mode=False,  # Critique produces prose, not JSON
         )
 
         output_text = _extract_text(response)
@@ -269,12 +269,12 @@ async def run_refine_pass(
     )
 
     try:
-        response = await llm_service.generate(
+        response = llm_service.generate(
             prompt=user_prompt,
             system_prompt=system_prompt,
             temperature=settings.MULTIPASS_TEMP_REFINE,
             max_tokens=settings.MULTIPASS_TOKENS_REFINE,
-            timeout=settings.MULTIPASS_TIMEOUT_REFINE,
+            json_mode=False,  # Refine produces prose, not JSON
         )
 
         output_text = _extract_text(response)
@@ -369,12 +369,12 @@ async def run_structure_pass(
         temperature = 0.0  # Fully deterministic on retry
 
     try:
-        response = await llm_service.generate(
+        response = llm_service.generate(
             prompt=user_prompt,
             system_prompt=system_prompt,
             temperature=temperature,
             max_tokens=settings.MULTIPASS_TOKENS_STRUCTURE,
-            timeout=settings.MULTIPASS_TIMEOUT_STRUCTURE,
+            json_mode=True,  # Structure pass produces JSON
         )
 
         output_text = _extract_text(response)
@@ -468,9 +468,16 @@ def _extract_text(response: Any) -> str:
     """Extract text from LLM response.
 
     Handles both dict responses and string responses.
+    LLM service returns {"response": ...}, but also handles legacy formats.
     """
     if isinstance(response, dict):
-        return response.get("text", "") or response.get("content", "") or ""
+        # Try multiple keys: "response" (LLM service), "text" (tests), "content" (legacy)
+        return (
+            response.get("response", "")
+            or response.get("text", "")
+            or response.get("content", "")
+            or ""
+        )
     return str(response) if response else ""
 
 

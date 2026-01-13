@@ -261,7 +261,7 @@ class TestRunAcceptancePass:
         )
 
         class MockLLM:
-            async def generate(self, **kwargs):
+            def generate(self, **kwargs):
                 raise AssertionError("LLM should not be called")
 
         result = await run_acceptance_pass(text, llm_service=MockLLM(), skip_llm=True)
@@ -278,7 +278,7 @@ class TestStage2LLMAssessment:
         from services.rag.multipass.acceptance import run_stage2_llm_assessment
 
         class MockLLM:
-            async def generate(self, **kwargs):
+            def generate(self, **kwargs):
                 return {
                     "text": '{"accept": true, "category": "accepted", "reason": "Valid ethical dilemma"}'
                 }
@@ -293,7 +293,7 @@ class TestStage2LLMAssessment:
         from services.rag.multipass.acceptance import run_stage2_llm_assessment
 
         class MockLLM:
-            async def generate(self, **kwargs):
+            def generate(self, **kwargs):
                 return {
                     "text": '{"accept": false, "category": "not_dilemma", "reason": "This is a factual question"}'
                 }
@@ -309,7 +309,7 @@ class TestStage2LLMAssessment:
         from services.rag.multipass.acceptance import run_stage2_llm_assessment
 
         class MockLLM:
-            async def generate(self, **kwargs):
+            def generate(self, **kwargs):
                 return {
                     "text": '{"accept": false, "category": "unethical_core", "reason": "Request involves fraud"}'
                 }
@@ -324,7 +324,7 @@ class TestStage2LLMAssessment:
         from services.rag.multipass.acceptance import run_stage2_llm_assessment
 
         class MockLLM:
-            async def generate(self, **kwargs):
+            def generate(self, **kwargs):
                 return {"text": "This is not valid JSON at all!!!"}
 
         text = "Ethical dilemma about work"
@@ -337,7 +337,7 @@ class TestStage2LLMAssessment:
         from services.rag.multipass.acceptance import run_stage2_llm_assessment
 
         class MockLLM:
-            async def generate(self, **kwargs):
+            def generate(self, **kwargs):
                 raise RuntimeError("LLM service unavailable")
 
         text = "Ethical dilemma about work"
