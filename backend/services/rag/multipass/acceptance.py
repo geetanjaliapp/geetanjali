@@ -123,6 +123,34 @@ def _check_spam_patterns(text: str) -> tuple[bool, str | None]:
     return True, None
 
 
+def _is_likely_english(text: str) -> bool:
+    """Detect if text is likely English based on character distribution.
+
+    Uses a simple heuristic: English text is predominantly ASCII letters.
+    Non-English text (Hindi, Tamil, etc.) will have many non-ASCII characters.
+
+    Args:
+        text: Input text to analyze
+
+    Returns:
+        True if text appears to be English, False otherwise
+    """
+    if not text:
+        return True  # Empty text defaults to English handling
+
+    # Count ASCII letters vs non-ASCII characters
+    ascii_letters = sum(1 for c in text if c.isascii() and c.isalpha())
+    non_ascii_chars = sum(1 for c in text if not c.isascii())
+
+    total_alpha = ascii_letters + non_ascii_chars
+    if total_alpha == 0:
+        return True  # No alphabetic chars, default to English handling
+
+    # If more than 30% non-ASCII characters, likely non-English
+    non_ascii_ratio = non_ascii_chars / total_alpha
+    return non_ascii_ratio < 0.3
+
+
 def _check_dilemma_markers(text: str) -> tuple[bool, str | None]:
     """Check for indicators that this is an ethical dilemma.
 
@@ -131,12 +159,22 @@ def _check_dilemma_markers(text: str) -> tuple[bool, str | None]:
     - Value/tension indicators (words suggesting conflict)
     - Decision-point language (choice, should, whether, etc.)
 
+    Note: These patterns are English-specific. For non-English text, this check
+    is bypassed (returns pass) and the LLM Stage 2 assessment handles validation.
+    This fail-open approach ensures non-English dilemmas aren't incorrectly rejected.
+
     Args:
         text: Input text to validate
 
     Returns:
         Tuple of (passed, error_reason)
     """
+    # Bypass English-specific heuristics for non-English text
+    # Let LLM Stage 2 handle validation for non-English input
+    if not _is_likely_english(text):
+        logger.debug("Non-English text detected, bypassing English heuristics")
+        return True, None
+
     text_lower = text.lower()
 
     # Stakeholder indicators (people involved)
@@ -330,8 +368,11 @@ async def run_stage2_llm_assessment(
             try:
                 result = json.loads(response_text)
             except json.JSONDecodeError:
-                logger.warning(f"Failed to parse Stage 2 LLM response: {response_text[:200]}")
-                # Default to acceptance on parse failure (fail open)
+                # Fail-open: accept case when LLM response can't be parsed
+                logger.warning(
+                    f"[Fail-Open] Stage 2 LLM response parse failed, accepting case: "
+                    f"{response_text[:200]}"
+                )
                 return AcceptanceResult(
                     accepted=True,
                     category=RejectionCategory.ACCEPTED,
@@ -371,8 +412,8 @@ async def run_stage2_llm_assessment(
         )
 
     except Exception as e:
-        logger.error(f"Stage 2 LLM assessment failed: {e}")
-        # Fail open on LLM errors - let the case through
+        # Fail-open: accept case when LLM assessment fails (timeout, API error, etc.)
+        logger.warning(f"[Fail-Open] Stage 2 LLM assessment failed, accepting case: {e}")
         return AcceptanceResult(
             accepted=True,
             category=RejectionCategory.ACCEPTED,

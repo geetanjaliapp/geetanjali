@@ -8,13 +8,20 @@ Coordinates the 5-pass workflow:
 - Pass 4: Structure (JSON formatting)
 
 Each pass result is stored in postgres for audit trail and fallback reconstruction.
+
+Database Session Strategy:
+    Uses short-lived sessions per database operation to avoid holding connections
+    for the entire pipeline duration (2-5 minutes). Each database operation
+    (create consultation, store pass response, update status) opens and closes
+    its own session. This prevents connection pool exhaustion under load.
 """
 
 import logging
 import time
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Any
+from typing import Any, Generator
 
 from config import settings
 from db import SessionLocal
@@ -27,6 +34,7 @@ from models.multipass import (
 )
 from services.llm import get_llm_service
 from services.rag.pipeline import RAGPipeline
+from sqlalchemy.orm import Session
 from utils.metrics_multipass import (
     multipass_active_pipelines,
     multipass_confidence_score,
@@ -55,6 +63,22 @@ from .rejection_response import create_rejection_output
 logger = logging.getLogger(__name__)
 
 
+@contextmanager
+def get_db_session() -> Generator[Session, None, None]:
+    """Create a short-lived database session.
+
+    Usage:
+        with get_db_session() as db:
+            db.add(obj)
+            db.commit()
+    """
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
 @dataclass
 class MultiPassResult:
     """Result of multi-pass consultation pipeline."""
@@ -79,6 +103,9 @@ class MultiPassOrchestrator:
     2. Storing all pass responses in postgres audit trail
     3. Handling failures with fallback behavior
     4. Returning the final result
+
+    Database sessions are short-lived (per operation) to avoid connection pool
+    exhaustion during the 2-5 minute pipeline execution.
     """
 
     def __init__(self, case_id: str):
@@ -90,7 +117,90 @@ class MultiPassOrchestrator:
         self.case_id = case_id
         self.llm_service = get_llm_service()
         self.rag_pipeline = RAGPipeline()
-        self.consultation: MultiPassConsultation | None = None
+        self.consultation_id: str | None = None
+
+    def _create_consultation(self) -> str:
+        """Create initial consultation record with short-lived session.
+
+        Returns:
+            consultation_id as string
+        """
+        llm_provider = getattr(self.llm_service, 'primary_provider', None)
+        llm_provider_name = llm_provider.value if llm_provider else "unknown"
+        llm_model = getattr(self.llm_service, 'ollama_model', None) or "unknown"
+
+        with get_db_session() as db:
+            consultation = MultiPassConsultation(
+                case_id=self.case_id,
+                status="in_progress",
+                pipeline_mode="multi_pass",
+                llm_provider=llm_provider_name,
+                llm_model=llm_model,
+            )
+            db.add(consultation)
+            db.commit()
+            db.refresh(consultation)
+            return str(consultation.id)
+
+    def _update_consultation_status(
+        self,
+        status: str,
+        completed_at: datetime | None = None,
+    ) -> None:
+        """Update consultation status with short-lived session.
+
+        Args:
+            status: New status value
+            completed_at: Optional completion timestamp
+        """
+        if not self.consultation_id:
+            return
+
+        with get_db_session() as db:
+            consultation = db.query(MultiPassConsultation).filter(
+                MultiPassConsultation.id == self.consultation_id
+            ).first()
+            if consultation:
+                consultation.status = status
+                if completed_at:
+                    consultation.completed_at = completed_at
+                db.commit()
+
+    def _update_consultation_final(
+        self,
+        status: str,
+        final_result_json: dict[str, Any] | None = None,
+        total_duration_ms: int | None = None,
+        fallback_used: bool = False,
+        fallback_reason: str | None = None,
+    ) -> None:
+        """Update consultation with final results using short-lived session.
+
+        Args:
+            status: Final status
+            final_result_json: The consultation output JSON
+            total_duration_ms: Total pipeline duration
+            fallback_used: Whether fallback was used
+            fallback_reason: Reason for fallback if used
+        """
+        if not self.consultation_id:
+            return
+
+        with get_db_session() as db:
+            consultation = db.query(MultiPassConsultation).filter(
+                MultiPassConsultation.id == self.consultation_id
+            ).first()
+            if consultation:
+                consultation.status = status
+                consultation.completed_at = datetime.now(timezone.utc)
+                if final_result_json:
+                    consultation.final_result_json = final_result_json
+                if total_duration_ms:
+                    consultation.total_duration_ms = total_duration_ms
+                if fallback_used:
+                    consultation.fallback_used = fallback_used
+                    consultation.fallback_reason = fallback_reason
+                db.commit()
 
     async def run(
         self,
@@ -111,28 +221,10 @@ class MultiPassOrchestrator:
         start_time = time.time()
         multipass_active_pipelines.inc()
 
-        db = SessionLocal()
         try:
-            # Create consultation record
-            # Get LLM provider and model info for audit trail
-            llm_provider = getattr(self.llm_service, 'primary_provider', None)
-            llm_provider_name = llm_provider.value if llm_provider else "unknown"
-            llm_model = getattr(self.llm_service, 'ollama_model', None) or "unknown"
-
-            self.consultation = MultiPassConsultation(
-                case_id=self.case_id,
-                status="in_progress",
-                pipeline_mode="multi_pass",
-                llm_provider=llm_provider_name,
-                llm_model=llm_model,
-            )
-            db.add(self.consultation)
-            db.commit()
-            db.refresh(self.consultation)
-            assert self.consultation is not None  # Type narrowing for mypy
-
-            consultation_id = str(self.consultation.id)
-            logger.info(f"Starting multi-pass consultation {consultation_id} for case {self.case_id}")
+            # Create consultation record (short-lived session)
+            self.consultation_id = self._create_consultation()
+            logger.info(f"Starting multi-pass consultation {self.consultation_id} for case {self.case_id}")
 
             # Retrieve verses once (reused across all passes)
             verses = self.rag_pipeline.retrieve_verses(description)
@@ -140,15 +232,14 @@ class MultiPassOrchestrator:
             logger.info(f"Retrieved {len(verses)} verses for consultation")
 
             # Pass 0: Acceptance
-            acceptance_result = await self._run_acceptance(
-                db, description, skip_acceptance_llm
-            )
+            acceptance_result = await self._run_acceptance(description, skip_acceptance_llm)
 
             if not acceptance_result.accepted:
                 # Update consultation status
-                self.consultation.status = "rejected"
-                self.consultation.completed_at = datetime.now(timezone.utc)
-                db.commit()
+                self._update_consultation_status(
+                    status="rejected",
+                    completed_at=datetime.now(timezone.utc),
+                )
 
                 # Record rejection metric
                 multipass_rejection_total.labels(
@@ -169,79 +260,89 @@ class MultiPassOrchestrator:
                     result_json=rejection_output,
                     is_policy_violation=True,
                     rejection_reason=acceptance_result.reason,
-                    consultation_id=consultation_id,
+                    consultation_id=self.consultation_id,
                     passes_completed=0,
                     total_duration_ms=duration_ms,
                     metadata={"rejection_category": acceptance_result.category.value},
                 )
 
             # Pass 1: Draft
+            # Input: title + description (truncated for audit)
+            draft_input = f"Title: {title}\n\nDescription: {description}"
             draft_result = await self._run_pass(
-                db, 1, "draft",
-                lambda: run_draft_pass(title, description, verses, self.llm_service)
+                1, "draft",
+                lambda: run_draft_pass(title, description, verses, self.llm_service),
+                input_text=draft_input,
             )
 
             if draft_result.status != PassStatus.SUCCESS:
-                return self._create_failure_result(
-                    consultation_id, 1, draft_result, start_time
-                )
+                return self._create_failure_result(1, draft_result, start_time)
 
             # Type guard: draft_result.output_text is non-None after success
             draft_text = draft_result.output_text or ""
             if not draft_text:
-                return self._create_failure_result(
-                    consultation_id, 1, draft_result, start_time
-                )
+                return self._create_failure_result(1, draft_result, start_time)
 
             # Pass 2: Critique
+            # Input: draft text being critiqued
             critique_result = await self._run_pass(
-                db, 2, "critique",
-                lambda: run_critique_pass(title, description, draft_text, self.llm_service)
+                2, "critique",
+                lambda: run_critique_pass(title, description, draft_text, self.llm_service),
+                input_text=draft_text,
             )
 
             # Critique timeout/error is recoverable - use placeholder
             critique_text = critique_result.output_text or "No critique available."
 
             # Pass 3: Refine
+            # Input: draft + critique combined
+            refine_input = f"Draft:\n{draft_text}\n\nCritique:\n{critique_text}"
             refine_result = await self._run_pass(
-                db, 3, "refine",
-                lambda: run_refine_pass(title, description, draft_text, critique_text, self.llm_service)
+                3, "refine",
+                lambda: run_refine_pass(title, description, draft_text, critique_text, self.llm_service),
+                input_text=refine_input,
             )
 
             # Refine failure falls back to draft (already handled in run_refine_pass)
             refined_text: str = refine_result.output_text or draft_text
 
             # Pass 4: Structure
+            # Input: refined prose to structure into JSON
             structure_result = await self._run_pass(
-                db, 4, "structure",
-                lambda: run_structure_pass(refined_text, self.llm_service)
+                4, "structure",
+                lambda: run_structure_pass(refined_text, self.llm_service),
+                input_text=refined_text,
             )
 
             # Check if we need fallback reconstruction
             if structure_result.status != PassStatus.SUCCESS or not structure_result.output_json:
                 # Attempt retry if configured
+                # Note: Only MULTIPASS_RETRIES_STRUCTURE is used intentionally.
+                # Draft/Critique/Refine don't benefit from retries (same input = same output).
+                # Structure (JSON formatting) benefits because JSON parsing can be flaky.
                 if settings.MULTIPASS_RETRIES_STRUCTURE > 0:
                     logger.info("Retrying structure pass with lower temperature")
                     structure_result = await self._run_pass(
-                        db, 4, "structure_retry",
-                        lambda: run_structure_pass(refined_text, self.llm_service, retry_count=1)
+                        4, "structure_retry",
+                        lambda: run_structure_pass(refined_text, self.llm_service, retry_count=1),
+                        input_text=refined_text,
                     )
 
                 if structure_result.status != PassStatus.SUCCESS or not structure_result.output_json:
                     # Use fallback reconstruction (Task 8)
                     logger.warning("Structure pass failed, attempting fallback reconstruction")
                     return await self._fallback_reconstruction(
-                        db, consultation_id, verses, draft_result, refine_result, start_time
+                        verses, draft_result, refine_result, start_time
                     )
 
             # Success - update consultation
-            self.consultation.status = "completed"
-            self.consultation.completed_at = datetime.now(timezone.utc)
-            self.consultation.final_result_json = structure_result.output_json
-            self.consultation.total_duration_ms = int((time.time() - start_time) * 1000)
-            db.commit()
-
             duration_ms = int((time.time() - start_time) * 1000)
+            self._update_consultation_final(
+                status="completed",
+                final_result_json=structure_result.output_json,
+                total_duration_ms=duration_ms,
+            )
+
             logger.info(f"Multi-pass consultation completed in {duration_ms}ms")
 
             # Record success metrics
@@ -255,7 +356,7 @@ class MultiPassOrchestrator:
             return MultiPassResult(
                 success=True,
                 result_json=structure_result.output_json,
-                consultation_id=consultation_id,
+                consultation_id=self.consultation_id,
                 passes_completed=4,
                 total_duration_ms=duration_ms,
                 metadata={
@@ -267,34 +368,31 @@ class MultiPassOrchestrator:
 
         except Exception as e:
             logger.error(f"Multi-pass pipeline error: {e}", exc_info=True)
-            if self.consultation:
-                self.consultation.status = "failed"
-                self.consultation.completed_at = datetime.now(timezone.utc)
-                db.commit()
+            self._update_consultation_status(
+                status="failed",
+                completed_at=datetime.now(timezone.utc),
+            )
 
             multipass_pipeline_total.labels(status="failed").inc()
 
             return MultiPassResult(
                 success=False,
-                consultation_id=str(self.consultation.id) if self.consultation else None,
+                consultation_id=self.consultation_id,
                 total_duration_ms=int((time.time() - start_time) * 1000),
                 metadata={"error": str(e)},
             )
 
         finally:
             multipass_active_pipelines.dec()
-            db.close()
 
     async def _run_acceptance(
         self,
-        db,
         description: str,
         skip_llm: bool,
     ) -> AcceptanceResult:
         """Run Pass 0: Acceptance validation.
 
         Args:
-            db: Database session
             description: Case description to validate
             skip_llm: Skip LLM stage (heuristics only)
 
@@ -323,19 +421,19 @@ class MultiPassOrchestrator:
             pass_name="acceptance",
         ).observe(duration_ms)
 
-        # Store in audit trail
-        assert self.consultation is not None  # Type narrowing for mypy
-        pass_response = MultiPassPassResponse(
-            consultation_id=self.consultation.id,
-            pass_number=0,
-            pass_name="acceptance",
-            input_text=description[:2000],  # Truncate for storage
-            output_text=result.reason,
-            status=DBPassStatus.SUCCESS if result.accepted else DBPassStatus.ERROR,
-            duration_ms=duration_ms,
-        )
-        db.add(pass_response)
-        db.commit()
+        # Store in audit trail (short-lived session)
+        with get_db_session() as db:
+            pass_response = MultiPassPassResponse(
+                consultation_id=self.consultation_id,
+                pass_number=0,
+                pass_name="acceptance",
+                input_text=description[:500],  # Truncate for storage (500 chars)
+                output_text=result.reason,
+                status=DBPassStatus.SUCCESS if result.accepted else DBPassStatus.ERROR,
+                duration_ms=duration_ms,
+            )
+            db.add(pass_response)
+            db.commit()
 
         logger.info(f"Pass 0 (Acceptance): {'accepted' if result.accepted else 'rejected'} in {duration_ms}ms")
 
@@ -343,18 +441,18 @@ class MultiPassOrchestrator:
 
     async def _run_pass(
         self,
-        db: Any,
         pass_number: int,
         pass_name: str,
         pass_func: Any,
+        input_text: str | None = None,
     ) -> PassResult:
         """Run a single pass and store result in audit trail.
 
         Args:
-            db: Database session
             pass_number: Pass number (1-4)
             pass_name: Pass name for logging
             pass_func: Async function to execute
+            input_text: Input text to store in audit trail (truncated to 500 chars)
 
         Returns:
             PassResult from the pass execution
@@ -401,22 +499,22 @@ class MultiPassOrchestrator:
             PassStatus.SKIPPED: DBPassStatus.SKIPPED,
         }
 
-        # Store in audit trail
-        assert self.consultation is not None  # Type narrowing for mypy
-        pass_response = MultiPassPassResponse(
-            consultation_id=self.consultation.id,
-            pass_number=pass_number,
-            pass_name=pass_name,
-            input_text=None,  # Input varies by pass, handled separately if needed
-            output_text=result.output_text[:10000] if result.output_text else None,  # Truncate
-            error_message=result.error_message,
-            status=status_map.get(result.status, DBPassStatus.ERROR),
-            duration_ms=duration_ms,
-            tokens_used=result.tokens_used,
-            temperature=getattr(settings, f"MULTIPASS_TEMP_{pass_name.upper()}", None),
-        )
-        db.add(pass_response)
-        db.commit()
+        # Store in audit trail (short-lived session)
+        with get_db_session() as db:
+            pass_response = MultiPassPassResponse(
+                consultation_id=self.consultation_id,
+                pass_number=pass_number,
+                pass_name=pass_name,
+                input_text=input_text[:500] if input_text else None,  # Truncate to 500 chars
+                output_text=result.output_text[:10000] if result.output_text else None,  # Truncate
+                error_message=result.error_message,
+                status=status_map.get(result.status, DBPassStatus.ERROR),
+                duration_ms=duration_ms,
+                tokens_used=result.tokens_used,
+                temperature=getattr(settings, f"MULTIPASS_TEMP_{pass_name.upper()}", None),
+            )
+            db.add(pass_response)
+            db.commit()
 
         # Record token usage metric if available
         if result.tokens_used and result.tokens_used > 0:
@@ -431,8 +529,6 @@ class MultiPassOrchestrator:
 
     async def _fallback_reconstruction(
         self,
-        db,
-        consultation_id: str,
         verses: list[dict],
         draft_result: PassResult,
         refine_result: PassResult,
@@ -444,8 +540,6 @@ class MultiPassOrchestrator:
         generic response if that also fails.
 
         Args:
-            db: Database session
-            consultation_id: Consultation ID
             verses: Retrieved verses
             draft_result: Result from Pass 1
             refine_result: Result from Pass 3
@@ -464,13 +558,13 @@ class MultiPassOrchestrator:
         if reconstruction.success and reconstruction.result_json:
             fallback_json = reconstruction.result_json
             fallback_reason = f"Heuristic reconstruction from {reconstruction.reconstruction_method}"
-            logger.info(f"Heuristic reconstruction succeeded for consultation {consultation_id}")
+            logger.info(f"Heuristic reconstruction succeeded for consultation {self.consultation_id}")
             multipass_fallback_total.labels(fallback_type="reconstruction").inc()
         else:
             # Fall back to generic response
             fallback_json = self._create_generic_fallback(verses)
             fallback_reason = "Structure pass failed, using generic fallback"
-            logger.warning(f"Heuristic reconstruction failed, using generic fallback for {consultation_id}")
+            logger.warning(f"Heuristic reconstruction failed, using generic fallback for {self.consultation_id}")
             multipass_fallback_total.labels(fallback_type="generic_response").inc()
 
         # Fallback always sets scholar_flag
@@ -481,23 +575,22 @@ class MultiPassOrchestrator:
         confidence = fallback_json.get("confidence", 0.4)
         multipass_confidence_score.observe(confidence)
 
-        # Update consultation
-        assert self.consultation is not None  # Type narrowing for mypy
-        self.consultation.status = "completed"
-        self.consultation.completed_at = datetime.now(timezone.utc)
-        self.consultation.final_result_json = fallback_json
-        self.consultation.fallback_used = True
-        self.consultation.fallback_reason = fallback_reason
-        db.commit()
-
+        # Update consultation (short-lived session)
         duration_ms = int((time.time() - start_time) * 1000)
+        self._update_consultation_final(
+            status="completed",
+            final_result_json=fallback_json,
+            total_duration_ms=duration_ms,
+            fallback_used=True,
+            fallback_reason=fallback_reason,
+        )
 
         prose_length = len(refine_result.output_text or draft_result.output_text or "")
 
         return MultiPassResult(
             success=True,
             result_json=fallback_json,
-            consultation_id=consultation_id,
+            consultation_id=self.consultation_id,
             passes_completed=3,
             total_duration_ms=duration_ms,
             fallback_used=True,
@@ -585,7 +678,6 @@ class MultiPassOrchestrator:
 
     def _create_failure_result(
         self,
-        consultation_id: str,
         pass_number: int,
         pass_result: PassResult,
         start_time: float,
@@ -593,7 +685,6 @@ class MultiPassOrchestrator:
         """Create a failure result when a critical pass fails.
 
         Args:
-            consultation_id: Consultation ID
             pass_number: Failed pass number
             pass_result: Failed pass result
             start_time: Pipeline start time
@@ -603,9 +694,16 @@ class MultiPassOrchestrator:
         """
         duration_ms = int((time.time() - start_time) * 1000)
 
+        # Update consultation status
+        self._update_consultation_status(
+            status="failed",
+            completed_at=datetime.now(timezone.utc),
+        )
+        multipass_pipeline_total.labels(status="failed").inc()
+
         return MultiPassResult(
             success=False,
-            consultation_id=consultation_id,
+            consultation_id=self.consultation_id,
             passes_completed=pass_number - 1,
             total_duration_ms=duration_ms,
             metadata={

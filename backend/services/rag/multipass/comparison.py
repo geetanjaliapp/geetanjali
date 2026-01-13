@@ -92,6 +92,11 @@ def run_comparison_pipeline(
     singlepass_duration_ms = None
 
     # Run multi-pass pipeline
+    # Note: asyncio.run() is used intentionally here. This function is called from
+    # RQ (Redis Queue) background workers, which run in a synchronous context without
+    # an existing event loop. It is NOT called from FastAPI async handlers where
+    # asyncio.run() would cause a RuntimeError. The RQ worker spawns a fresh event
+    # loop for each job, making asyncio.run() the correct pattern.
     start_time: float | None = None
     try:
         start_time = time.time()

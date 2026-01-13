@@ -14,6 +14,7 @@ from services.rag.multipass.acceptance import (
     _check_dilemma_markers,
     _check_length,
     _check_spam_patterns,
+    _is_likely_english,
     run_acceptance_pass,
     run_stage1_heuristics,
 )
@@ -98,6 +99,59 @@ class TestSpamPatterns:
         text = "This is a normal ethical dilemma about work-life balance."
         passed, error = _check_spam_patterns(text)
         assert passed
+        assert error is None
+
+
+class TestLocaleDetection:
+    """Test English/non-English text detection."""
+
+    def test_english_text_detected(self):
+        """Detect English text correctly."""
+        text = "This is a clear English sentence about an ethical dilemma."
+        assert _is_likely_english(text) is True
+
+    def test_hindi_text_detected(self):
+        """Detect Hindi (Devanagari) text as non-English."""
+        text = "मैं एक नैतिक दुविधा में फंसा हुआ हूं और मुझे मदद चाहिए।"
+        assert _is_likely_english(text) is False
+
+    def test_tamil_text_detected(self):
+        """Detect Tamil text as non-English."""
+        text = "நான் ஒரு நெறிமுறை இக்கட்டான நிலையில் இருக்கிறேன்."
+        assert _is_likely_english(text) is False
+
+    def test_mixed_english_hindi(self):
+        """Mixed text with significant Hindi detected as non-English."""
+        text = "My family कहती है कि मुझे यह करना चाहिए but I'm not sure."
+        # This has significant non-ASCII, should be detected as non-English
+        assert _is_likely_english(text) is False
+
+    def test_empty_text_defaults_english(self):
+        """Empty text defaults to English handling."""
+        assert _is_likely_english("") is True
+
+    def test_numbers_only_defaults_english(self):
+        """Text with only numbers defaults to English handling."""
+        assert _is_likely_english("12345 67890") is True
+
+
+class TestLocaleAwareHeuristics:
+    """Test that dilemma markers bypass non-English text."""
+
+    def test_hindi_bypasses_english_heuristics(self):
+        """Hindi text bypasses English-specific heuristics (passes through)."""
+        # This Hindi text wouldn't match English patterns, but should pass
+        # so LLM Stage 2 can evaluate it
+        text = "मेरे परिवार में एक बड़ी समस्या है। मुझे निर्णय लेना है।" * 3
+        passed, error = _check_dilemma_markers(text)
+        assert passed is True
+        assert error is None
+
+    def test_tamil_bypasses_english_heuristics(self):
+        """Tamil text bypasses English-specific heuristics."""
+        text = "என் குடும்பத்தில் ஒரு பெரிய பிரச்சனை உள்ளது." * 3
+        passed, error = _check_dilemma_markers(text)
+        assert passed is True
         assert error is None
 
 
