@@ -241,7 +241,7 @@ class Settings(BaseSettings):
     RQ_RESULT_TTL: int = 86400  # 24 hours - cleanup successful job results
     RQ_FAILURE_TTL: int = 86400  # 24 hours - cleanup failed job results
     STALE_PROCESSING_TIMEOUT: int = (
-        300  # 5 minutes - auto-fail cases stuck in PROCESSING
+        600  # 10 minutes - auto-fail cases stuck in PROCESSING (multipass can take 5-7min)
     )
 
     # Frontend
