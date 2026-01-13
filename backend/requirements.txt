@@ -7,7 +7,7 @@ python-multipart==0.0.21
 
 # Database
 sqlalchemy==2.0.45
-alembic==1.17.2
+alembic==1.18.0
 psycopg2-binary==2.9.11  # PostgreSQL driver
 
 # Pydantic (included with FastAPI but pinned for clarity)
@@ -31,7 +31,7 @@ pytest-asyncio>=1.0.0  # pytest 9.x requires pytest-asyncio 1.x
 pytest-cov==7.0.0
 
 # Code Quality
-ruff==0.14.10  # Fast linter and formatter (replaces flake8+black)
+ruff==0.14.11  # Fast linter and formatter (replaces flake8+black)
 mypy==1.19.1
 types-requests==2.32.4.20250913  # Type stubs for requests
 types-PyYAML==6.0.12.20250915  # Type stubs for PyYAML
@@ -64,9 +64,9 @@ urllib3>=2.5.0  # CVE-2025-50181, CVE-2025-50182 fix
 resend>=2.5.0  # Transactional email service
 
 # Monitoring
-sentry-sdk[fastapi]==2.48.0  # Error tracking and performance monitoring
+sentry-sdk[fastapi]==2.49.0  # Error tracking and performance monitoring
 prometheus-fastapi-instrumentator==7.1.0  # FastAPI metrics instrumentation
-prometheus-client==0.23.1  # Prometheus client library
+prometheus-client==0.24.0  # Prometheus client library
 
 # Scheduling
 apscheduler==3.11.2  # Background task scheduler for metrics collection
