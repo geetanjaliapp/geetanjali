@@ -113,9 +113,11 @@ flowchart TD
 1. Embed user query using sentence-transformers
 2. Vector search against 701 verses in ChromaDB
 3. Retrieve top-k relevant verses with confidence scores
-4. Generate structured output via LLM (Ollama/Claude)
+4. **Multi-pass refinement** — Draft → Critique → Refine → Structure
 5. Parse and validate JSON response
 6. Store output linked to case
+
+The multi-pass approach ensures deeper reasoning: the system drafts freely, critiques its own work, refines based on feedback, then structures for presentation. See [Architecture](architecture.md#rag-pipeline) for details.
 
 ## Analysis Output
 

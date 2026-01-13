@@ -68,6 +68,20 @@ from utils.metrics_llm import (
     llm_tokens_total,
 )
 
+# Re-export multipass pipeline metrics
+from utils.metrics_multipass import (
+    multipass_active_pipelines,
+    multipass_confidence_score,
+    multipass_fallback_total,
+    multipass_pass_timeout_total,
+    multipass_pipeline_duration_ms,
+    multipass_pipeline_passes_total,
+    multipass_pipeline_total,
+    multipass_rejection_total,
+    multipass_scholar_flag_total,
+    multipass_tokens_total,
+)
+
 __all__ = [
     # Business
     "consultations_total",
@@ -117,4 +131,15 @@ __all__ = [
     "llm_tokens_total",
     "llm_fallback_total",
     "llm_circuit_breaker_state",
+    # Multipass Pipeline
+    "multipass_pipeline_passes_total",
+    "multipass_pipeline_duration_ms",
+    "multipass_confidence_score",
+    "multipass_scholar_flag_total",
+    "multipass_pass_timeout_total",
+    "multipass_fallback_total",
+    "multipass_pipeline_total",
+    "multipass_rejection_total",
+    "multipass_tokens_total",
+    "multipass_active_pipelines",
 ]

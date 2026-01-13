@@ -9,6 +9,14 @@ from models.featured_case import FeaturedCase
 from models.feedback import Feedback
 from models.message import Message, MessageRole
 from models.metadata import BookMetadata, ChapterMetadata
+from models.multipass import (
+    MultiPassComparison,
+    MultiPassConsultation,
+    MultiPassPassResponse,
+    MultiPassStatus,
+    PassName,
+    PassStatus,
+)
 from models.output import Output
 from models.refresh_token import RefreshToken
 from models.subscriber import SendTime, Subscriber
@@ -42,4 +50,10 @@ __all__ = [
     "UserPreferences",
     "VerseAudioMetadata",
     "SyncHash",
+    "MultiPassComparison",
+    "MultiPassConsultation",
+    "MultiPassPassResponse",
+    "MultiPassStatus",
+    "PassName",
+    "PassStatus",
 ]

@@ -79,11 +79,75 @@ class Settings(BaseSettings):
     OLLAMA_ENABLED: bool = True  # Set to False to disable Ollama dependency
     OLLAMA_BASE_URL: str = "http://localhost:11434"
     OLLAMA_MODEL: str = "qwen2.5:3b"
-    OLLAMA_TIMEOUT: int = 300  # 5 minutes for local inference
+    OLLAMA_TIMEOUT: int = 300  # 5 minutes per request (matches production)
     OLLAMA_MAX_RETRIES: int = 2
     OLLAMA_RETRY_MIN_WAIT: int = 1
     OLLAMA_RETRY_MAX_WAIT: int = 10
     OLLAMA_MAX_TOKENS: int = 1024  # Balanced token limit
+    OLLAMA_KEEP_ALIVE: str = "1h"  # How long model stays in memory (5m, 1h, 24h, -1=never)
+
+    # ========================================
+    # Multi-Pass Ollama Consultation Settings
+    # ========================================
+    # 5-pass workflow: Acceptance → Draft → Critique → Refine → Structure
+    # See: todos/ollama-consultations-refined.md for full specification
+    #
+    # Feature flag (master switch for multi-pass workflow)
+    MULTIPASS_ENABLED: bool = False  # Disabled by default; enable in .env
+    #
+    # Single-pass fallback if multi-pass fails completely
+    MULTIPASS_FALLBACK_TO_SINGLE_PASS: bool = True
+    #
+    # Pass temperatures (tuned per pass role)
+    # Pass 0 (Acceptance): Deterministic gate - should be consistent
+    MULTIPASS_TEMP_ACCEPTANCE: float = 0.1
+    # Pass 1 (Draft): Creative reasoning - warmer for diverse ideas
+    MULTIPASS_TEMP_DRAFT: float = 0.65
+    # Pass 2 (Critique): Analytical review - cooler for focused critique
+    MULTIPASS_TEMP_CRITIQUE: float = 0.2
+    # Pass 3 (Refine): Disciplined rewrite - balanced
+    MULTIPASS_TEMP_REFINE: float = 0.35
+    # Pass 4 (Structure): JSON formatting - deterministic
+    MULTIPASS_TEMP_STRUCTURE: float = 0.1
+    #
+    # Pass timeouts: Each pass uses OLLAMA_TIMEOUT (or ANTHROPIC_TIMEOUT).
+    # Total multipass duration = 5 passes × provider timeout.
+    # RQ_JOB_TIMEOUT must be >= total to avoid premature job termination.
+    # (Calculated automatically - see MULTIPASS_PASS_COUNT below)
+    MULTIPASS_PASS_COUNT: int = 5  # Acceptance + Draft + Critique + Refine + Structure
+    #
+    # Pass token limits (reduced for faster local inference)
+    # qwen2.5:3b generates ~9 tokens/sec, so lower limits = faster passes
+    MULTIPASS_TOKENS_ACCEPTANCE: int = 500  # Short validation response
+    MULTIPASS_TOKENS_DRAFT: int = 1000  # Concise reasoning prose
+    MULTIPASS_TOKENS_CRITIQUE: int = 600  # Focused bullet critique
+    MULTIPASS_TOKENS_REFINE: int = 1000  # Concise refined prose
+    MULTIPASS_TOKENS_STRUCTURE: int = 1200  # Compact JSON output
+    #
+    # Rejection message generation (only for ~3-5% rejected cases)
+    MULTIPASS_TEMP_REJECTION: float = 0.3  # Slightly creative for kind tone
+    MULTIPASS_TIMEOUT_REJECTION: int = 5  # Fast - just generating a message
+    MULTIPASS_TOKENS_REJECTION: int = 200  # Short message
+    #
+    # Retry budgets per pass (0 = no retries)
+    MULTIPASS_RETRIES_ACCEPTANCE: int = 0  # No retry - acceptance is final
+    MULTIPASS_RETRIES_DRAFT: int = 1
+    MULTIPASS_RETRIES_CRITIQUE: int = 1
+    MULTIPASS_RETRIES_REFINE: int = 1
+    MULTIPASS_RETRIES_STRUCTURE: int = 2  # Extra retry for JSON issues
+    #
+    # Scholar flag thresholds
+    MULTIPASS_CONFIDENCE_HIGH: float = 0.85  # No scholar flag
+    MULTIPASS_CONFIDENCE_LOW: float = 0.65  # Always flag below this
+    #
+    # Comparison mode settings (Phase 3: run both pipelines, collect data)
+    # When enabled, runs both single-pass and multi-pass for quality comparison
+    MULTIPASS_COMPARISON_MODE: bool = False  # Enable comparison data collection
+    # Which pipeline to use for user response during comparison
+    # Options: "multipass" (default) or "singlepass"
+    MULTIPASS_COMPARISON_PRIMARY: str = "multipass"
+    # Sample rate for comparison mode (1.0 = all requests, 0.1 = 10%)
+    MULTIPASS_COMPARISON_SAMPLE_RATE: float = 1.0
 
     # Health Check
     HEALTH_CHECK_TIMEOUT: int = 2  # Seconds to wait for service health checks
@@ -172,7 +236,7 @@ class Settings(BaseSettings):
     # RQ Task Queue (optional - falls back to FastAPI BackgroundTasks)
     RQ_ENABLED: bool = True  # Set False to use BackgroundTasks only
     RQ_QUEUE_NAME: str = "geetanjali"
-    RQ_JOB_TIMEOUT: int = 300  # 5 minutes max per job
+    RQ_JOB_TIMEOUT: int = 1800  # 30 minutes for multi-pass pipeline (generous)
     RQ_RETRY_DELAYS: str = "30,120"  # Retry after 30s, then 2min (comma-separated)
     RQ_RESULT_TTL: int = 86400  # 24 hours - cleanup successful job results
     RQ_FAILURE_TTL: int = 86400  # 24 hours - cleanup failed job results
@@ -242,7 +306,14 @@ class Settings(BaseSettings):
             return None
         return v
 
-    @field_validator("DEBUG", "USE_MOCK_LLM", mode="before")
+    @field_validator(
+        "DEBUG",
+        "USE_MOCK_LLM",
+        "MULTIPASS_ENABLED",
+        "MULTIPASS_FALLBACK_TO_SINGLE_PASS",
+        "MULTIPASS_COMPARISON_MODE",
+        mode="before",
+    )
     @classmethod
     def empty_string_to_false(cls, v) -> bool:
         """Convert empty strings to False for boolean fields."""
@@ -448,6 +519,42 @@ class Settings(BaseSettings):
             raise ProductionConfigError(error_msg)
 
         logger.info("Production configuration validated successfully.")
+        return self
+
+    @property
+    def MULTIPASS_MAX_DURATION(self) -> int:
+        """Calculate maximum expected duration for multi-pass pipeline.
+
+        Each pass uses the provider timeout (OLLAMA_TIMEOUT or ANTHROPIC_TIMEOUT).
+        Total = MULTIPASS_PASS_COUNT × provider_timeout.
+
+        Returns:
+            int: Maximum expected duration in seconds.
+        """
+        # Multipass is designed for Ollama; use its timeout as the base
+        provider_timeout = self.OLLAMA_TIMEOUT if self.OLLAMA_ENABLED else self.ANTHROPIC_TIMEOUT
+        return self.MULTIPASS_PASS_COUNT * provider_timeout
+
+    @model_validator(mode="after")
+    def validate_rq_timeout(self) -> "Settings":
+        """Warn if RQ_JOB_TIMEOUT is less than expected multipass duration.
+
+        This validation ensures the background job won't be killed before
+        the multi-pass pipeline can complete all passes.
+        """
+        if not self.MULTIPASS_ENABLED or not self.RQ_ENABLED:
+            return self
+
+        max_duration = self.MULTIPASS_MAX_DURATION
+        if self.RQ_JOB_TIMEOUT < max_duration:
+            logger.warning(
+                f"RQ_JOB_TIMEOUT ({self.RQ_JOB_TIMEOUT}s) is less than "
+                f"MULTIPASS_MAX_DURATION ({max_duration}s = {self.MULTIPASS_PASS_COUNT} passes × "
+                f"{self.OLLAMA_TIMEOUT}s OLLAMA_TIMEOUT). "
+                f"Multi-pass jobs may be terminated prematurely. "
+                f"Consider increasing RQ_JOB_TIMEOUT or reducing OLLAMA_TIMEOUT."
+            )
+
         return self
 
     class Config:

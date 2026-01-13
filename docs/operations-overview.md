@@ -21,14 +21,14 @@ Both modes process asynchronously, allowing the system to handle long-running LL
 
 ## Initial Consultation
 
-When a user submits an ethical dilemma, the system performs a full RAG (retrieval-augmented generation) analysis:
+When a user submits an ethical dilemma, the system performs a full RAG (retrieval-augmented generation) analysis using a multi-pass refinement workflow:
 
 ```
 User submits dilemma
         │
         ▼
 ┌──────────────────┐
-│ Content Filter   │
+│ Acceptance       │──▶ Not a dilemma? → Educational response
 │ (validation)     │
 └────────┬─────────┘
          │
@@ -40,8 +40,9 @@ User submits dilemma
          │
          ▼
 ┌──────────────────┐
-│ LLM Generation   │
-│ (structured)     │
+│ Multi-Pass LLM   │
+│ Draft → Critique │
+│ → Refine → JSON  │
 └────────┬─────────┘
          │
          ▼
@@ -53,6 +54,8 @@ User submits dilemma
 │ - Citations      │
 └──────────────────┘
 ```
+
+The multi-pass approach (Draft → Critique → Refine → Structure) ensures the system thinks deeply before responding, catching shallow reasoning and improving verse alignment before final output.
 
 **Output includes:**
 - Executive summary

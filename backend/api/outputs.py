@@ -1,5 +1,6 @@
 """Output management endpoints."""
 
+import asyncio
 import logging
 import uuid
 from datetime import datetime
@@ -34,7 +35,13 @@ from models.output import Output
 from models.user import User
 from services.cache import cache, public_case_messages_key, public_case_outputs_key
 from services.rag import get_rag_pipeline
+from services.rag.multipass import (
+    run_comparison_pipeline,
+    run_multipass_consultation,
+    should_run_comparison,
+)
 from services.tasks import enqueue_task
+from utils.metrics_multipass import multipass_fallback_total
 
 logger = logging.getLogger(__name__)
 
@@ -85,6 +92,75 @@ def _create_assistant_message(
     )
 
 
+def _run_consultation_pipeline(
+    case_id: str,
+    case_data: dict,
+) -> tuple[dict, bool]:
+    """Route to appropriate consultation pipeline based on config.
+
+    Args:
+        case_id: The case ID being analyzed
+        case_data: Case data containing title, description, etc.
+
+    Returns:
+        Tuple of (result_dict, is_policy_violation)
+    """
+    if settings.MULTIPASS_ENABLED:
+        # Use multi-pass consultation pipeline
+        logger.info(f"[Pipeline] Using multi-pass pipeline for case {case_id}")
+        try:
+            multipass_result = asyncio.run(
+                run_multipass_consultation(
+                    case_id=case_id,
+                    title=case_data.get("title", ""),
+                    description=case_data.get("description", ""),
+                )
+            )
+
+            if multipass_result.success and multipass_result.result_json:
+                return multipass_result.result_json, multipass_result.is_policy_violation
+
+            # Multi-pass failed - check if we should fallback
+            if settings.MULTIPASS_FALLBACK_TO_SINGLE_PASS:
+                logger.warning(
+                    f"[Pipeline] Multi-pass failed for case {case_id}, "
+                    f"reason: {multipass_result.fallback_reason or 'unknown'}, "
+                    "falling back to single-pass"
+                )
+                # Record fallback metric
+                multipass_fallback_total.labels(fallback_type="single_pass").inc()
+                # Fall through to single-pass below
+            else:
+                # Return whatever we got from multipass (may be partial result)
+                # If result_json is None/empty, return a minimal error structure
+                logger.error(
+                    f"[Pipeline] Multi-pass failed for case {case_id} with no fallback"
+                )
+                if multipass_result.result_json:
+                    return multipass_result.result_json, multipass_result.is_policy_violation
+                # Return minimal structure to prevent downstream errors
+                return {
+                    "executive_summary": "Analysis could not be completed. Please try again.",
+                    "confidence": 0.0,
+                    "scholar_flag": True,
+                }, False
+
+        except Exception as e:
+            logger.error(f"[Pipeline] Multi-pass error for case {case_id}: {e}")
+            if settings.MULTIPASS_FALLBACK_TO_SINGLE_PASS:
+                logger.warning("[Pipeline] Falling back to single-pass after error")
+                # Record fallback metric
+                multipass_fallback_total.labels(fallback_type="single_pass").inc()
+                # Fall through to single-pass below
+            else:
+                raise
+
+    # Use single-pass RAG pipeline (default or fallback)
+    logger.info(f"[Pipeline] Using single-pass pipeline for case {case_id}")
+    rag_pipeline = get_rag_pipeline()
+    return rag_pipeline.run(case_data)
+
+
 def run_analysis_background(
     case_id: str, case_data: dict, request_correlation_id: str = "background"
 ):
@@ -125,9 +201,27 @@ def run_analysis_background(
                     f"[Background] Cleaned up {deleted} orphaned assistant message(s) for case {case_id}"
                 )
 
-        # Run RAG pipeline
-        rag_pipeline = get_rag_pipeline()
-        result, is_policy_violation = rag_pipeline.run(case_data)
+        # Run RAG pipeline - route based on config
+        # Check if comparison mode is enabled (runs both pipelines, collects data)
+        if should_run_comparison():
+            logger.info(f"[Background] Comparison mode enabled for case {case_id}")
+            comparison_result = run_comparison_pipeline(
+                case_id=case_id,
+                case_data=case_data,
+                db=db,
+            )
+            result = comparison_result.primary_result
+            is_policy_violation = comparison_result.primary_is_policy_violation
+            logger.info(
+                f"[Background] Comparison complete for case {case_id}: "
+                f"mp_success={comparison_result.multipass_success}, "
+                f"sp_success={comparison_result.singlepass_success}"
+            )
+        else:
+            result, is_policy_violation = _run_consultation_pipeline(
+                case_id=case_id,
+                case_data=case_data,
+            )
 
         # Create output using helper
         output = _create_output_from_result(case_id, result, db)
