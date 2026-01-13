@@ -595,7 +595,7 @@ def _normalize_structure_output(output: dict) -> dict:
 
     # confidence (ensure valid float 0-1)
     confidence = normalized.get("confidence")
-    if confidence is None or not isinstance(confidence, (int, float)):
+    if confidence is None or not isinstance(confidence, int | float):
         normalized["confidence"] = 0.7
     else:
         # Clamp to valid range
@@ -712,7 +712,7 @@ def _normalize_structure_output(output: dict) -> dict:
     for src in sources:
         if isinstance(src, dict) and src.get("canonical_id"):
             # Ensure all fields present
-            if "relevance" not in src or not isinstance(src.get("relevance"), (int, float)):
+            if "relevance" not in src or not isinstance(src.get("relevance"), int | float):
                 src["relevance"] = 0.5
             else:
                 src["relevance"] = max(0.0, min(1.0, float(src["relevance"])))
