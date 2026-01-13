@@ -17,7 +17,7 @@ import json
 import logging
 import time
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
 from config import settings
@@ -85,7 +85,7 @@ async def run_draft_pass(
         PassResult with draft prose output
     """
     start_time = time.time()
-    started_at = datetime.utcnow()
+    started_at = datetime.now(UTC)
 
     system_prompt, user_prompt = build_draft_prompt(title, description, verses)
 
@@ -114,7 +114,7 @@ async def run_draft_pass(
                 error_message="Draft output too short (< 100 chars)",
                 duration_ms=duration_ms,
                 started_at=started_at,
-                completed_at=datetime.utcnow(),
+                completed_at=datetime.now(UTC),
             )
 
         logger.info(f"Pass 1 (Draft) completed: {len(output_text)} chars in {duration_ms}ms")
@@ -127,7 +127,7 @@ async def run_draft_pass(
             duration_ms=duration_ms,
             tokens_used=_extract_tokens(response),
             started_at=started_at,
-            completed_at=datetime.utcnow(),
+            completed_at=datetime.now(UTC),
         )
 
     except TimeoutError as e:
@@ -139,7 +139,7 @@ async def run_draft_pass(
             error_message=str(e),
             duration_ms=int((time.time() - start_time) * 1000),
             started_at=started_at,
-            completed_at=datetime.utcnow(),
+            completed_at=datetime.now(UTC),
         )
 
     except Exception as e:
@@ -151,7 +151,7 @@ async def run_draft_pass(
             error_message=str(e),
             duration_ms=int((time.time() - start_time) * 1000),
             started_at=started_at,
-            completed_at=datetime.utcnow(),
+            completed_at=datetime.now(UTC),
         )
 
 
@@ -178,7 +178,7 @@ async def run_critique_pass(
         PassResult with critique bullet points
     """
     start_time = time.time()
-    started_at = datetime.utcnow()
+    started_at = datetime.now(UTC)
 
     system_prompt, user_prompt = build_critique_prompt(title, description, draft_text)
 
@@ -209,7 +209,7 @@ async def run_critique_pass(
             duration_ms=duration_ms,
             tokens_used=_extract_tokens(response),
             started_at=started_at,
-            completed_at=datetime.utcnow(),
+            completed_at=datetime.now(UTC),
         )
 
     except TimeoutError as e:
@@ -223,7 +223,7 @@ async def run_critique_pass(
             error_message=str(e),
             duration_ms=int((time.time() - start_time) * 1000),
             started_at=started_at,
-            completed_at=datetime.utcnow(),
+            completed_at=datetime.now(UTC),
         )
 
     except Exception as e:
@@ -235,7 +235,7 @@ async def run_critique_pass(
             error_message=str(e),
             duration_ms=int((time.time() - start_time) * 1000),
             started_at=started_at,
-            completed_at=datetime.utcnow(),
+            completed_at=datetime.now(UTC),
         )
 
 
@@ -264,7 +264,7 @@ async def run_refine_pass(
         PassResult with refined prose
     """
     start_time = time.time()
-    started_at = datetime.utcnow()
+    started_at = datetime.now(UTC)
 
     system_prompt, user_prompt = build_refine_prompt(
         title, description, draft_text, critique_text
@@ -295,7 +295,7 @@ async def run_refine_pass(
                 error_message="Refine output too short, using draft",
                 duration_ms=duration_ms,
                 started_at=started_at,
-                completed_at=datetime.utcnow(),
+                completed_at=datetime.now(UTC),
                 metadata={"fallback_to_draft": True},
             )
 
@@ -309,7 +309,7 @@ async def run_refine_pass(
             duration_ms=duration_ms,
             tokens_used=_extract_tokens(response),
             started_at=started_at,
-            completed_at=datetime.utcnow(),
+            completed_at=datetime.now(UTC),
         )
 
     except TimeoutError as e:
@@ -322,7 +322,7 @@ async def run_refine_pass(
             error_message=str(e),
             duration_ms=int((time.time() - start_time) * 1000),
             started_at=started_at,
-            completed_at=datetime.utcnow(),
+            completed_at=datetime.now(UTC),
             metadata={"fallback_to_draft": True},
         )
 
@@ -336,7 +336,7 @@ async def run_refine_pass(
             error_message=str(e),
             duration_ms=int((time.time() - start_time) * 1000),
             started_at=started_at,
-            completed_at=datetime.utcnow(),
+            completed_at=datetime.now(UTC),
             metadata={"fallback_to_draft": True},
         )
 
@@ -362,7 +362,7 @@ async def run_structure_pass(
         PassResult with JSON output
     """
     start_time = time.time()
-    started_at = datetime.utcnow()
+    started_at = datetime.now(UTC)
 
     system_prompt, user_prompt = build_structure_prompt(refined_text)
 
@@ -401,7 +401,7 @@ async def run_structure_pass(
                     duration_ms=duration_ms,
                     retry_count=retry_count,
                     started_at=started_at,
-                    completed_at=datetime.utcnow(),
+                    completed_at=datetime.now(UTC),
                 )
 
         # Validate JSON structure
@@ -418,7 +418,7 @@ async def run_structure_pass(
                 duration_ms=duration_ms,
                 retry_count=retry_count,
                 started_at=started_at,
-                completed_at=datetime.utcnow(),
+                completed_at=datetime.now(UTC),
             )
 
         logger.info(f"Pass 4 (Structure) completed in {duration_ms}ms")
@@ -433,7 +433,7 @@ async def run_structure_pass(
             tokens_used=_extract_tokens(response),
             retry_count=retry_count,
             started_at=started_at,
-            completed_at=datetime.utcnow(),
+            completed_at=datetime.now(UTC),
         )
 
     except TimeoutError as e:
@@ -446,7 +446,7 @@ async def run_structure_pass(
             duration_ms=int((time.time() - start_time) * 1000),
             retry_count=retry_count,
             started_at=started_at,
-            completed_at=datetime.utcnow(),
+            completed_at=datetime.now(UTC),
         )
 
     except Exception as e:
@@ -459,7 +459,7 @@ async def run_structure_pass(
             duration_ms=int((time.time() - start_time) * 1000),
             retry_count=retry_count,
             started_at=started_at,
-            completed_at=datetime.utcnow(),
+            completed_at=datetime.now(UTC),
         )
 
 

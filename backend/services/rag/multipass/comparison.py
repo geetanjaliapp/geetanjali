@@ -11,7 +11,7 @@ import random
 import time
 import uuid
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
 from sqlalchemy.orm import Session
@@ -92,6 +92,7 @@ def run_comparison_pipeline(
     singlepass_duration_ms = None
 
     # Run multi-pass pipeline
+    start_time: float | None = None
     try:
         start_time = time.time()
         multipass_output = asyncio.run(
@@ -122,6 +123,7 @@ def run_comparison_pipeline(
         )
 
     # Run single-pass pipeline
+    start_time = None
     try:
         start_time = time.time()
         rag_pipeline = get_rag_pipeline()
@@ -269,7 +271,7 @@ def _store_comparison_record(
         confidence_diff=confidence_diff,
         duration_diff_ms=duration_diff,
         # Timestamps
-        created_at=datetime.utcnow(),
+        created_at=datetime.now(UTC),
     )
 
     db.add(comparison)

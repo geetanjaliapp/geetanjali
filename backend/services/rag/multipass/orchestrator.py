@@ -13,7 +13,7 @@ Each pass result is stored in postgres for audit trail and fallback reconstructi
 import logging
 import time
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
 from config import settings
@@ -139,7 +139,7 @@ class MultiPassOrchestrator:
             if not acceptance_result.accepted:
                 # Update consultation status
                 self.consultation.status = "rejected"
-                self.consultation.completed_at = datetime.utcnow()
+                self.consultation.completed_at = datetime.now(UTC)
                 db.commit()
 
                 # Record rejection metric
@@ -221,7 +221,7 @@ class MultiPassOrchestrator:
 
             # Success - update consultation
             self.consultation.status = "completed"
-            self.consultation.completed_at = datetime.utcnow()
+            self.consultation.completed_at = datetime.now(UTC)
             self.consultation.final_result_json = structure_result.output_json
             self.consultation.total_duration_ms = int((time.time() - start_time) * 1000)
             db.commit()
@@ -254,7 +254,7 @@ class MultiPassOrchestrator:
             logger.error(f"Multi-pass pipeline error: {e}", exc_info=True)
             if self.consultation:
                 self.consultation.status = "failed"
-                self.consultation.completed_at = datetime.utcnow()
+                self.consultation.completed_at = datetime.now(UTC)
                 db.commit()
 
             multipass_pipeline_total.labels(status="failed").inc()
@@ -465,7 +465,7 @@ class MultiPassOrchestrator:
 
         # Update consultation
         self.consultation.status = "completed"
-        self.consultation.completed_at = datetime.utcnow()
+        self.consultation.completed_at = datetime.now(UTC)
         self.consultation.final_result_json = fallback_json
         self.consultation.fallback_used = True
         self.consultation.fallback_reason = fallback_reason
