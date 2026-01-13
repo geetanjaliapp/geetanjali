@@ -98,6 +98,11 @@ def _run_consultation_pipeline(
 ) -> tuple[dict, bool]:
     """Route to appropriate consultation pipeline based on config.
 
+    Routing logic (provider-aware):
+    - Ollama + MULTIPASS_ENABLED: Use multi-pass (5-pass refinement compensates for smaller model)
+    - Anthropic: Always single-pass (already high quality, multipass would be wasteful)
+    - MULTIPASS_ENABLED=false: Always single-pass (feature disabled)
+
     Args:
         case_id: The case ID being analyzed
         case_data: Case data containing title, description, etc.
@@ -105,7 +110,10 @@ def _run_consultation_pipeline(
     Returns:
         Tuple of (result_dict, is_policy_violation)
     """
-    if settings.MULTIPASS_ENABLED:
+    # Provider-aware routing: multipass only for Ollama
+    use_multipass = settings.MULTIPASS_ENABLED and settings.LLM_PROVIDER == "ollama"
+
+    if use_multipass:
         # Use multi-pass consultation pipeline
         logger.info(f"[Pipeline] Using multi-pass pipeline for case {case_id}")
         try:

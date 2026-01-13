@@ -1,9 +1,14 @@
 """Tests for consultation pipeline routing logic.
 
 Tests cover:
-- Config-based routing between single-pass and multi-pass
+- Provider-aware routing between single-pass and multi-pass
 - Fallback behavior when multi-pass fails
 - Error handling during pipeline execution
+
+Routing rules:
+- Ollama + MULTIPASS_ENABLED=true: Uses multi-pass
+- Anthropic: Always single-pass (regardless of MULTIPASS_ENABLED)
+- MULTIPASS_ENABLED=false: Always single-pass
 """
 
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -24,6 +29,7 @@ class TestPipelineRouting:
         from api.outputs import _run_consultation_pipeline
 
         mock_settings.MULTIPASS_ENABLED = False
+        mock_settings.LLM_PROVIDER = "ollama"  # Even with Ollama, disabled = single-pass
         mock_pipeline = MagicMock()
         mock_pipeline.run.return_value = ({"result": "test"}, False)
         mock_get_pipeline.return_value = mock_pipeline
@@ -38,14 +44,37 @@ class TestPipelineRouting:
         mock_get_pipeline.assert_called_once()
         mock_pipeline.run.assert_called_once()
 
+    @patch("api.outputs.settings")
+    @patch("api.outputs.get_rag_pipeline")
+    def test_anthropic_always_uses_single_pass(self, mock_get_pipeline, mock_settings):
+        """Test that Anthropic always uses single-pass regardless of MULTIPASS_ENABLED."""
+        from api.outputs import _run_consultation_pipeline
+
+        mock_settings.MULTIPASS_ENABLED = True  # Enabled but Anthropic ignores it
+        mock_settings.LLM_PROVIDER = "anthropic"
+        mock_pipeline = MagicMock()
+        mock_pipeline.run.return_value = ({"result": "anthropic-single-pass"}, False)
+        mock_get_pipeline.return_value = mock_pipeline
+
+        result, is_violation = _run_consultation_pipeline(
+            case_id="test-case-id",
+            case_data={"title": "Test", "description": "Test desc"},
+        )
+
+        assert result == {"result": "anthropic-single-pass"}
+        assert is_violation is False
+        mock_get_pipeline.assert_called_once()
+        mock_pipeline.run.assert_called_once()
+
     @patch("api.outputs.asyncio.run")
     @patch("api.outputs.settings")
-    def test_uses_multipass_when_enabled(self, mock_settings, mock_asyncio_run):
-        """Test that multi-pass is used when MULTIPASS_ENABLED is True."""
+    def test_ollama_uses_multipass_when_enabled(self, mock_settings, mock_asyncio_run):
+        """Test that Ollama uses multi-pass when MULTIPASS_ENABLED is True."""
         from api.outputs import _run_consultation_pipeline
         from services.rag.multipass import MultiPassResult
 
         mock_settings.MULTIPASS_ENABLED = True
+        mock_settings.LLM_PROVIDER = "ollama"
         mock_settings.MULTIPASS_FALLBACK_TO_SINGLE_PASS = True
 
         # Mock successful multipass result
@@ -76,6 +105,7 @@ class TestPipelineRouting:
         from services.rag.multipass import MultiPassResult
 
         mock_settings.MULTIPASS_ENABLED = True
+        mock_settings.LLM_PROVIDER = "ollama"
         mock_settings.MULTIPASS_FALLBACK_TO_SINGLE_PASS = True
 
         # Mock failed multipass result
@@ -109,6 +139,7 @@ class TestPipelineRouting:
         from services.rag.multipass import MultiPassResult
 
         mock_settings.MULTIPASS_ENABLED = True
+        mock_settings.LLM_PROVIDER = "ollama"
         mock_settings.MULTIPASS_FALLBACK_TO_SINGLE_PASS = False
 
         # Mock failed multipass result
@@ -137,6 +168,7 @@ class TestPipelineRouting:
         from api.outputs import _run_consultation_pipeline
 
         mock_settings.MULTIPASS_ENABLED = True
+        mock_settings.LLM_PROVIDER = "ollama"
         mock_settings.MULTIPASS_FALLBACK_TO_SINGLE_PASS = True
 
         # Mock multipass raising exception
@@ -164,6 +196,7 @@ class TestPipelineRouting:
         from api.outputs import _run_consultation_pipeline
 
         mock_settings.MULTIPASS_ENABLED = True
+        mock_settings.LLM_PROVIDER = "ollama"
         mock_settings.MULTIPASS_FALLBACK_TO_SINGLE_PASS = False
 
         mock_asyncio_run.side_effect = Exception("LLM service unavailable")
@@ -182,6 +215,7 @@ class TestPipelineRouting:
         from services.rag.multipass import MultiPassResult
 
         mock_settings.MULTIPASS_ENABLED = True
+        mock_settings.LLM_PROVIDER = "ollama"
 
         mock_result = MultiPassResult(
             success=True,
