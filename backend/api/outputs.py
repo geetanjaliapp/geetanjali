@@ -37,6 +37,7 @@ from services.cache import cache, public_case_messages_key, public_case_outputs_
 from services.rag import get_rag_pipeline
 from services.rag.multipass import run_multipass_consultation
 from services.tasks import enqueue_task
+from utils.metrics_multipass import multipass_fallback_total
 
 logger = logging.getLogger(__name__)
 
@@ -122,18 +123,30 @@ def _run_consultation_pipeline(
                     f"reason: {multipass_result.fallback_reason or 'unknown'}, "
                     "falling back to single-pass"
                 )
+                # Record fallback metric
+                multipass_fallback_total.labels(fallback_type="single_pass").inc()
                 # Fall through to single-pass below
             else:
                 # Return whatever we got from multipass (may be partial result)
+                # If result_json is None/empty, return a minimal error structure
                 logger.error(
                     f"[Pipeline] Multi-pass failed for case {case_id} with no fallback"
                 )
-                return multipass_result.result_json or {}, multipass_result.is_policy_violation
+                if multipass_result.result_json:
+                    return multipass_result.result_json, multipass_result.is_policy_violation
+                # Return minimal structure to prevent downstream errors
+                return {
+                    "executive_summary": "Analysis could not be completed. Please try again.",
+                    "confidence": 0.0,
+                    "scholar_flag": True,
+                }, False
 
         except Exception as e:
             logger.error(f"[Pipeline] Multi-pass error for case {case_id}: {e}")
             if settings.MULTIPASS_FALLBACK_TO_SINGLE_PASS:
                 logger.warning("[Pipeline] Falling back to single-pass after error")
+                # Record fallback metric
+                multipass_fallback_total.labels(fallback_type="single_pass").inc()
                 # Fall through to single-pass below
             else:
                 raise

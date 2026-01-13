@@ -37,6 +37,7 @@ from utils.metrics_multipass import (
     multipass_pipeline_total,
     multipass_rejection_total,
     multipass_scholar_flag_total,
+    multipass_tokens_total,
 )
 
 from .acceptance import AcceptanceResult, run_acceptance_pass
@@ -389,6 +390,13 @@ class MultiPassOrchestrator:
         )
         db.add(pass_response)
         db.commit()
+
+        # Record token usage metric if available
+        if result.tokens_used and result.tokens_used > 0:
+            multipass_tokens_total.labels(
+                pass_number=str(pass_number),
+                pass_name=pass_name,
+            ).inc(result.tokens_used)
 
         logger.info(f"Pass {pass_number} ({pass_name}): {result.status.value} in {duration_ms}ms")
 

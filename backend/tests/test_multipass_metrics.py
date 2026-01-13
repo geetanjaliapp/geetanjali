@@ -100,6 +100,23 @@ class TestMetricLabels:
         labeled = multipass_fallback_total.labels(fallback_type="reconstruction")
         assert labeled is not None
 
+    def test_fallback_total_single_pass_type(self):
+        """Test that fallback counter supports single_pass type."""
+        from utils.metrics_multipass import multipass_fallback_total
+
+        labeled = multipass_fallback_total.labels(fallback_type="single_pass")
+        assert labeled is not None
+
+    def test_tokens_total_labels(self):
+        """Test that tokens counter has correct labels."""
+        from utils.metrics_multipass import multipass_tokens_total
+
+        labeled = multipass_tokens_total.labels(
+            pass_number="1",
+            pass_name="draft",
+        )
+        assert labeled is not None
+
     def test_scholar_flag_labels(self):
         """Test that scholar flag counter has reason label."""
         from utils.metrics_multipass import multipass_scholar_flag_total
@@ -132,6 +149,14 @@ class TestMetricRecording:
         # Should not raise
         multipass_active_pipelines.inc()
         multipass_active_pipelines.dec()
+
+    def test_can_increment_tokens_counter(self):
+        """Test that tokens counter can be incremented with token count."""
+        from utils.metrics_multipass import multipass_tokens_total
+
+        # Should not raise - typical usage: increment by token count
+        multipass_tokens_total.labels(pass_number="1", pass_name="draft").inc(500)
+        multipass_tokens_total.labels(pass_number="4", pass_name="structure").inc(1200)
 
 
 class TestHistogramBuckets:
