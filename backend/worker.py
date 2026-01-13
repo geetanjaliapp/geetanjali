@@ -91,9 +91,18 @@ def run_worker():
 
         queues = [Queue(settings.RQ_QUEUE_NAME, connection=redis_conn)]
 
-        worker = Worker(
-            queues, connection=redis_conn, name=f"geetanjali-worker-{settings.APP_ENV}"
-        )
+        worker_name = f"geetanjali-worker-{settings.APP_ENV}"
+
+        # Clean up stale worker registration with same name (happens after container restart)
+        # This prevents "active worker named X already exists" errors
+        stale_key = f"rq:worker:{worker_name}"
+        if redis_conn.exists(stale_key):
+            logger.info(f"Cleaning up stale worker registration: {worker_name}")
+            redis_conn.delete(stale_key)
+            # Also clean up worker's queues registration
+            redis_conn.srem("rq:workers", worker_name)
+
+        worker = Worker(queues, connection=redis_conn, name=worker_name)
 
         logger.info(f"Starting worker for queue: {settings.RQ_QUEUE_NAME}")
         logger.info(f"Job timeout: {settings.RQ_JOB_TIMEOUT}s")
