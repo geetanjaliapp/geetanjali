@@ -404,10 +404,15 @@ async def run_structure_pass(
                     completed_at=datetime.now(timezone.utc),
                 )
 
-        # Validate JSON structure
+        # IMPORTANT: Normalize BEFORE validation
+        # This adds missing fields that the LLM may omit, preventing validation failures
+        # for incomplete but recoverable outputs
+        output_json = _normalize_structure_output(output_json)
+
+        # Validate JSON structure (catches truly broken outputs after normalization)
         validation_errors = _validate_structure_output(output_json)
         if validation_errors:
-            logger.warning(f"Pass 4 validation errors: {validation_errors}")
+            logger.warning(f"Pass 4 validation errors after normalization: {validation_errors}")
             return PassResult(
                 pass_number=4,
                 pass_name="structure",
@@ -420,10 +425,6 @@ async def run_structure_pass(
                 started_at=started_at,
                 completed_at=datetime.now(timezone.utc),
             )
-
-        # Normalize output to ensure schema conformance
-        # This adds missing fields like sources in options that the LLM may omit
-        output_json = _normalize_structure_output(output_json)
 
         logger.info(f"Pass 4 (Structure) completed in {duration_ms}ms")
 
@@ -550,13 +551,22 @@ def _validate_structure_output(output: dict) -> list[str]:
 
 
 def _normalize_structure_output(output: dict) -> dict:
-    """Normalize Pass 4 JSON output to ensure schema conformance.
+    """Normalize Pass 4 JSON output to ensure full schema conformance.
 
-    Adds missing optional fields with sensible defaults to prevent
-    Pydantic validation errors downstream (e.g., OptionSchema.sources).
+    This function is called BEFORE validation to patch missing fields,
+    preventing validation failures for incomplete but recoverable outputs.
 
     The LLM sometimes omits fields that are required by the API schema.
-    This function patches the output to be schema-compliant.
+    This function patches the output to be fully schema-compliant.
+
+    Schema requirements (OutputResultSchema):
+    - executive_summary: str (required)
+    - options: list[OptionSchema] with title, description, pros, cons, sources
+    - recommended_action: {option: int, steps: list, sources: list}
+    - reflection_prompts: list[str]
+    - sources: list[{canonical_id, paraphrase, relevance}]
+    - confidence: float 0-1
+    - scholar_flag: bool
 
     Args:
         output: Raw JSON output from structure pass
@@ -566,49 +576,165 @@ def _normalize_structure_output(output: dict) -> dict:
     """
     normalized = output.copy()
 
-    # Ensure top-level fields exist
-    if "suggested_title" not in normalized:
+    # ========================================================================
+    # Top-level required fields
+    # ========================================================================
+
+    # suggested_title (used by UI, not in OutputResultSchema but expected)
+    if "suggested_title" not in normalized or not normalized["suggested_title"]:
         normalized["suggested_title"] = "Ethical Guidance"
 
+    # executive_summary (REQUIRED by schema)
+    if "executive_summary" not in normalized or not normalized["executive_summary"]:
+        normalized["executive_summary"] = (
+            "This situation involves complex ethical considerations. "
+            "The wisdom of the Bhagavad Geeta teaches us to act with "
+            "integrity while remaining detached from outcomes. Consider "
+            "the paths outlined below as you reflect on your dharma."
+        )
+
+    # confidence (ensure valid float 0-1)
+    confidence = normalized.get("confidence")
+    if confidence is None or not isinstance(confidence, (int, float)):
+        normalized["confidence"] = 0.7
+    else:
+        # Clamp to valid range
+        normalized["confidence"] = max(0.0, min(1.0, float(confidence)))
+
+    # scholar_flag (default based on confidence)
     if "scholar_flag" not in normalized:
-        # Default to False unless confidence is low
-        confidence = normalized.get("confidence", 0.7)
-        normalized["scholar_flag"] = confidence < 0.6
+        normalized["scholar_flag"] = normalized["confidence"] < 0.6
 
-    if "reflection_prompts" not in normalized:
-        normalized["reflection_prompts"] = []
+    # reflection_prompts (ensure list)
+    if "reflection_prompts" not in normalized or not isinstance(normalized.get("reflection_prompts"), list):
+        normalized["reflection_prompts"] = [
+            "What values are most important to you in this situation?",
+            "How will this decision affect those you care about?",
+        ]
 
-    # Normalize options - ensure each has required fields
+    # ========================================================================
+    # Options array - ensure 3 complete options exist
+    # ========================================================================
+
     options = normalized.get("options", [])
-    if isinstance(options, list):
-        for opt in options:
-            if isinstance(opt, dict):
-                # Ensure sources field exists (required by OptionSchema)
-                if "sources" not in opt:
-                    opt["sources"] = []
-                # Ensure pros/cons exist
-                if "pros" not in opt:
-                    opt["pros"] = []
-                if "cons" not in opt:
-                    opt["cons"] = []
+    if not isinstance(options, list):
+        options = []
 
-    # Normalize recommended_action
-    rec_action = normalized.get("recommended_action", {})
-    if isinstance(rec_action, dict):
-        if "sources" not in rec_action:
-            rec_action["sources"] = []
-        if "steps" not in rec_action:
-            rec_action["steps"] = []
-        normalized["recommended_action"] = rec_action
+    # Normalize existing options
+    for i, opt in enumerate(options):
+        if isinstance(opt, dict):
+            # title (required)
+            if "title" not in opt or not opt["title"]:
+                opt["title"] = f"Option {i + 1}"
+            # description (required)
+            if "description" not in opt or not opt["description"]:
+                opt["description"] = "Consider this approach carefully."
+            # pros (required list)
+            if "pros" not in opt or not isinstance(opt.get("pros"), list):
+                opt["pros"] = ["Aligns with ethical principles"]
+            # cons (required list)
+            if "cons" not in opt or not isinstance(opt.get("cons"), list):
+                opt["cons"] = ["Requires careful consideration"]
+            # sources (required list)
+            if "sources" not in opt or not isinstance(opt.get("sources"), list):
+                opt["sources"] = []
 
-    # Normalize sources array
-    sources = normalized.get("sources", [])
-    if isinstance(sources, list):
-        for i, src in enumerate(sources):
-            if isinstance(src, dict):
-                if "relevance" not in src:
-                    src["relevance"] = 0.5
-                if "paraphrase" not in src:
-                    src["paraphrase"] = ""
+    # Pad to 3 options if needed
+    default_options = [
+        {
+            "title": "Path of Dharma",
+            "description": "Focus on your duties and responsibilities in this situation.",
+            "pros": ["Honors commitments", "Provides clear direction"],
+            "cons": ["May require sacrifice"],
+            "sources": [],
+        },
+        {
+            "title": "Path of Compassion",
+            "description": "Consider the impact on all stakeholders with empathy.",
+            "pros": ["Builds relationships", "Reduces harm"],
+            "cons": ["May delay decisions"],
+            "sources": [],
+        },
+        {
+            "title": "Path of Wisdom",
+            "description": "Seek a balanced approach integrating multiple perspectives.",
+            "pros": ["Sustainable outcome", "Honors complexity"],
+            "cons": ["Requires patience"],
+            "sources": [],
+        },
+    ]
+
+    while len(options) < 3:
+        idx = len(options)
+        options.append(default_options[idx])
+
+    normalized["options"] = options[:3]  # Cap at 3
+
+    # ========================================================================
+    # recommended_action - ensure complete structure
+    # ========================================================================
+
+    rec_action = normalized.get("recommended_action")
+    if not isinstance(rec_action, dict):
+        rec_action = {}
+
+    # option (required int 1-3)
+    opt_num = rec_action.get("option")
+    if opt_num is None or not isinstance(opt_num, int) or opt_num < 1 or opt_num > 3:
+        rec_action["option"] = 1
+
+    # steps (required list)
+    if "steps" not in rec_action or not isinstance(rec_action.get("steps"), list):
+        rec_action["steps"] = [
+            "Reflect on your core values and dharma",
+            "Consider the impact on all stakeholders",
+            "Act with integrity and detachment from outcomes",
+        ]
+    elif len(rec_action["steps"]) == 0:
+        rec_action["steps"] = ["Take time to reflect before acting"]
+
+    # sources (required list)
+    if "sources" not in rec_action or not isinstance(rec_action.get("sources"), list):
+        rec_action["sources"] = []
+
+    normalized["recommended_action"] = rec_action
+
+    # ========================================================================
+    # sources array - ensure valid structure
+    # ========================================================================
+
+    sources = normalized.get("sources")
+    if not isinstance(sources, list):
+        sources = []
+
+    # Normalize each source
+    valid_sources = []
+    for src in sources:
+        if isinstance(src, dict) and src.get("canonical_id"):
+            # Ensure all fields present
+            if "relevance" not in src or not isinstance(src.get("relevance"), (int, float)):
+                src["relevance"] = 0.5
+            else:
+                src["relevance"] = max(0.0, min(1.0, float(src["relevance"])))
+            if "paraphrase" not in src:
+                src["paraphrase"] = ""
+            valid_sources.append(src)
+        elif isinstance(src, str):
+            # Legacy format: string canonical_id
+            valid_sources.append({
+                "canonical_id": src,
+                "paraphrase": "",
+                "relevance": 0.5,
+            })
+
+    # Ensure at least one source exists
+    if not valid_sources:
+        valid_sources.append({
+            "canonical_id": "BG_2_47",
+            "paraphrase": "Focus on action, not on the fruits of action",
+            "relevance": 0.5,
+        })
+
+    normalized["sources"] = valid_sources
 
     return normalized

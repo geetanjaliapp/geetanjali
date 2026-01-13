@@ -540,11 +540,30 @@ class TestRunStructurePass:
         assert result.status == PassStatus.ERROR
         assert "JSON parse error" in result.error_message
 
-    async def test_structure_validation_fails(self):
-        """JSON that fails validation triggers error."""
+    async def test_structure_normalization_recovers_incomplete_output(self):
+        """Incomplete JSON is recovered through normalization."""
+        # Previously this would fail validation, but now normalization
+        # fills in missing fields so it succeeds
+        incomplete_output = json.dumps({
+            "executive_summary": "Summary",
+            "options": [],  # Will be padded to 3 options
+            "confidence": 0.5,
+        })
+        mock_llm = MockLLM(response_text=incomplete_output)
+        result = await run_structure_pass("Refined prose", mock_llm)
+        # Now succeeds because normalization pads to 3 options
+        assert result.status == PassStatus.SUCCESS
+        assert len(result.output_json["options"]) == 3
+
+    async def test_structure_validation_fails_on_non_dict_option(self):
+        """JSON with non-dict options fails validation."""
+        # Normalization can't fix options that are completely wrong types
         invalid_output = json.dumps({
             "executive_summary": "Summary",
-            "options": [],  # Not enough options
+            "options": ["not a dict", "also not", "still not"],
+            "recommended_action": {"option": 1},
+            "reflection_prompts": [],
+            "sources": [],
             "confidence": 0.5,
         })
         mock_llm = MockLLM(response_text=invalid_output)
@@ -611,7 +630,7 @@ class TestNormalizeStructureOutput:
         assert normalized["options"][2]["sources"] == ["BG_2_47"]
 
     def test_adds_missing_pros_cons_to_options(self):
-        """Options without pros/cons get empty arrays."""
+        """Options without pros/cons get default arrays (not empty)."""
         output = {
             "options": [
                 {"title": "O1", "description": "D1"},
@@ -622,12 +641,13 @@ class TestNormalizeStructureOutput:
 
         normalized = _normalize_structure_output(output)
 
-        assert normalized["options"][0]["pros"] == []
-        assert normalized["options"][0]["cons"] == []
+        # Now adds meaningful defaults instead of empty arrays
+        assert len(normalized["options"][0]["pros"]) >= 1
+        assert len(normalized["options"][0]["cons"]) >= 1
         assert normalized["options"][0]["sources"] == []
 
     def test_adds_missing_recommended_action_fields(self):
-        """Recommended action gets missing sources and steps."""
+        """Recommended action gets missing sources and steps with defaults."""
         output = {
             "options": [],
             "recommended_action": {"option": 1},
@@ -636,8 +656,11 @@ class TestNormalizeStructureOutput:
 
         normalized = _normalize_structure_output(output)
 
+        # Sources remain empty (no default sources without context)
         assert normalized["recommended_action"]["sources"] == []
-        assert normalized["recommended_action"]["steps"] == []
+        # Steps get default guidance when empty
+        assert len(normalized["recommended_action"]["steps"]) >= 1
+        assert "reflect" in normalized["recommended_action"]["steps"][0].lower()
 
     def test_adds_scholar_flag_based_on_confidence(self):
         """Scholar flag defaults based on confidence level."""
@@ -727,3 +750,184 @@ class TestNormalizeStructureOutput:
 
         # Scholar flag should be set based on confidence
         assert "scholar_flag" in normalized
+
+    def test_adds_missing_executive_summary(self):
+        """Missing executive_summary gets default value."""
+        output = {"options": [], "confidence": 0.7}
+        normalized = _normalize_structure_output(output)
+        assert "executive_summary" in normalized
+        assert len(normalized["executive_summary"]) > 50
+
+    def test_pads_options_to_three(self):
+        """Options array is padded to have 3 options."""
+        # No options
+        no_options = _normalize_structure_output({"options": [], "confidence": 0.7})
+        assert len(no_options["options"]) == 3
+        assert no_options["options"][0]["title"] == "Path of Dharma"
+
+        # One option
+        one_option = _normalize_structure_output({
+            "options": [{"title": "My Option", "description": "My desc"}],
+            "confidence": 0.7,
+        })
+        assert len(one_option["options"]) == 3
+        assert one_option["options"][0]["title"] == "My Option"
+        assert one_option["options"][1]["title"] == "Path of Compassion"
+
+        # Two options
+        two_options = _normalize_structure_output({
+            "options": [
+                {"title": "Option A", "description": "Desc A"},
+                {"title": "Option B", "description": "Desc B"},
+            ],
+            "confidence": 0.7,
+        })
+        assert len(two_options["options"]) == 3
+        assert two_options["options"][2]["title"] == "Path of Wisdom"
+
+    def test_options_with_missing_title_description(self):
+        """Options missing title/description get defaults."""
+        output = {
+            "options": [
+                {},  # Empty option
+                {"title": "Only Title"},  # Missing description
+                {"description": "Only Description"},  # Missing title
+            ],
+            "confidence": 0.7,
+        }
+        normalized = _normalize_structure_output(output)
+
+        assert normalized["options"][0]["title"] == "Option 1"
+        assert "Consider this approach" in normalized["options"][0]["description"]
+        assert normalized["options"][1]["description"] == "Consider this approach carefully."
+        assert normalized["options"][2]["title"] == "Option 3"
+
+    def test_creates_missing_recommended_action(self):
+        """Missing recommended_action gets default structure."""
+        output = {"options": [], "confidence": 0.7}
+        normalized = _normalize_structure_output(output)
+
+        assert "recommended_action" in normalized
+        assert normalized["recommended_action"]["option"] == 1
+        assert len(normalized["recommended_action"]["steps"]) >= 1
+        assert isinstance(normalized["recommended_action"]["sources"], list)
+
+    def test_fixes_invalid_recommended_action_option(self):
+        """Invalid option number gets corrected to 1."""
+        # Option 0 (invalid)
+        zero_opt = _normalize_structure_output({
+            "options": [],
+            "recommended_action": {"option": 0},
+            "confidence": 0.7,
+        })
+        assert zero_opt["recommended_action"]["option"] == 1
+
+        # Option 5 (out of range)
+        high_opt = _normalize_structure_output({
+            "options": [],
+            "recommended_action": {"option": 5},
+            "confidence": 0.7,
+        })
+        assert high_opt["recommended_action"]["option"] == 1
+
+        # String option (wrong type)
+        str_opt = _normalize_structure_output({
+            "options": [],
+            "recommended_action": {"option": "first"},
+            "confidence": 0.7,
+        })
+        assert str_opt["recommended_action"]["option"] == 1
+
+    def test_clamps_confidence_to_valid_range(self):
+        """Confidence values are clamped to 0-1."""
+        # Too high
+        high = _normalize_structure_output({"options": [], "confidence": 1.5})
+        assert high["confidence"] == 1.0
+
+        # Too low / negative
+        low = _normalize_structure_output({"options": [], "confidence": -0.5})
+        assert low["confidence"] == 0.0
+
+        # Valid stays unchanged
+        valid = _normalize_structure_output({"options": [], "confidence": 0.75})
+        assert valid["confidence"] == 0.75
+
+    def test_handles_missing_confidence(self):
+        """Missing confidence gets default value."""
+        output = {"options": []}
+        normalized = _normalize_structure_output(output)
+        assert normalized["confidence"] == 0.7
+
+    def test_handles_legacy_string_sources(self):
+        """Sources as strings are converted to proper format."""
+        output = {
+            "options": [],
+            "sources": ["BG_2_47", "BG_3_35"],
+            "confidence": 0.7,
+        }
+        normalized = _normalize_structure_output(output)
+
+        assert len(normalized["sources"]) == 2
+        assert normalized["sources"][0]["canonical_id"] == "BG_2_47"
+        assert normalized["sources"][0]["paraphrase"] == ""
+        assert normalized["sources"][0]["relevance"] == 0.5
+
+    def test_adds_default_source_when_empty(self):
+        """Empty sources array gets default source."""
+        output = {"options": [], "sources": [], "confidence": 0.7}
+        normalized = _normalize_structure_output(output)
+
+        assert len(normalized["sources"]) == 1
+        assert normalized["sources"][0]["canonical_id"] == "BG_2_47"
+
+    def test_creates_sources_when_missing(self):
+        """Missing sources array is created with default."""
+        output = {"options": [], "confidence": 0.7}
+        normalized = _normalize_structure_output(output)
+
+        assert "sources" in normalized
+        assert len(normalized["sources"]) >= 1
+
+    def test_handles_empty_steps_array(self):
+        """Empty steps array in recommended_action gets default."""
+        output = {
+            "options": [],
+            "recommended_action": {"option": 1, "steps": []},
+            "confidence": 0.7,
+        }
+        normalized = _normalize_structure_output(output)
+
+        assert len(normalized["recommended_action"]["steps"]) >= 1
+        assert "reflect" in normalized["recommended_action"]["steps"][0].lower()
+
+    def test_handles_invalid_options_type(self):
+        """Non-list options gets converted to list and padded."""
+        output = {"options": "not a list", "confidence": 0.7}
+        normalized = _normalize_structure_output(output)
+
+        assert isinstance(normalized["options"], list)
+        assert len(normalized["options"]) == 3
+
+    def test_complete_minimal_output_normalization(self):
+        """Completely minimal output gets fully normalized."""
+        # Simulates worst case: LLM returns almost nothing
+        minimal = {"confidence": 0.5}
+        normalized = _normalize_structure_output(minimal)
+
+        # Should have all required fields
+        assert "suggested_title" in normalized
+        assert "executive_summary" in normalized
+        assert len(normalized["options"]) == 3
+        assert "recommended_action" in normalized
+        assert "reflection_prompts" in normalized
+        assert "sources" in normalized
+        assert "confidence" in normalized
+        assert "scholar_flag" in normalized
+
+        # Each option should be complete
+        for opt in normalized["options"]:
+            assert "title" in opt
+            assert "description" in opt
+            assert "pros" in opt
+            assert "cons" in opt
+            assert "sources" in opt
