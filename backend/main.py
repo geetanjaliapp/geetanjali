@@ -171,6 +171,13 @@ def _warm_daily_verse_cache() -> None:
         logger.warning(f"Failed to warm daily verse cache: {e}")
 
 
+def _warmup_llm_provider() -> None:
+    """Warm up LLM provider if Ollama is primary (pre-loads model into memory)."""
+    from services.warmup import warmup_llm_if_needed
+
+    warmup_llm_if_needed()
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """
@@ -190,6 +197,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # Run blocking I/O in thread pool to avoid blocking event loop
     loop.run_in_executor(None, _load_vector_store_sync)
     loop.run_in_executor(None, _warm_daily_verse_cache)
+    loop.run_in_executor(None, _warmup_llm_provider)
 
     # Start metrics scheduler (collects business metrics every 60s)
     start_metrics_scheduler(collect_metrics, interval_seconds=60)
