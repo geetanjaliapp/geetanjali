@@ -78,3 +78,40 @@ multipass_active_pipelines = Gauge(
     "geetanjali_multipass_active_pipelines",
     "Number of currently running multi-pass pipelines",
 )
+
+# ==============================================================================
+# Comparison Mode Metrics (Phase 3)
+# ==============================================================================
+# These metrics track the comparison mode where both pipelines run simultaneously
+# to collect quality data for informed decision making.
+
+comparison_mode_total = Counter(
+    "geetanjali_comparison_mode_total",
+    "Total comparison mode executions",
+    ["primary_pipeline", "multipass_success", "singlepass_success"],
+)
+
+comparison_confidence_diff = Histogram(
+    "geetanjali_comparison_confidence_diff",
+    "Confidence score difference (multipass - singlepass)",
+    buckets=[-0.5, -0.3, -0.2, -0.1, -0.05, 0, 0.05, 0.1, 0.2, 0.3, 0.5],
+)
+
+comparison_duration_diff_ms = Histogram(
+    "geetanjali_comparison_duration_diff_ms",
+    "Duration difference in milliseconds (multipass - singlepass)",
+    buckets=[-60000, -30000, -10000, -5000, 0, 5000, 10000, 30000, 60000, 120000],
+)
+
+comparison_pipeline_duration_ms = Histogram(
+    "geetanjali_comparison_pipeline_duration_ms",
+    "Individual pipeline duration during comparison mode",
+    ["pipeline"],  # pipeline: multipass, singlepass
+    buckets=[1000, 5000, 10000, 30000, 60000, 120000, 180000, 300000],
+)
+
+comparison_errors_total = Counter(
+    "geetanjali_comparison_errors_total",
+    "Errors during comparison mode execution",
+    ["pipeline", "error_type"],  # pipeline: multipass, singlepass; error_type: timeout, exception
+)

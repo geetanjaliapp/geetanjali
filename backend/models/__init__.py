@@ -13,6 +13,7 @@ from models.output import Output
 from models.refresh_token import RefreshToken
 from models.subscriber import SendTime, Subscriber
 from models.multipass import (
+    MultiPassComparison,
     MultiPassConsultation,
     MultiPassPassResponse,
     MultiPassStatus,
@@ -49,6 +50,7 @@ __all__ = [
     "UserPreferences",
     "VerseAudioMetadata",
     "SyncHash",
+    "MultiPassComparison",
     "MultiPassConsultation",
     "MultiPassPassResponse",
     "MultiPassStatus",

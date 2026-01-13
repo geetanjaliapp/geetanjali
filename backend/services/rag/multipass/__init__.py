@@ -44,6 +44,11 @@ from services.rag.multipass.rejection_response import (
     generate_rejection_message,
     get_fallback_message,
 )
+from services.rag.multipass.comparison import (
+    ComparisonResult,
+    run_comparison_pipeline,
+    should_run_comparison,
+)
 
 __all__ = [
     # Orchestrator
@@ -74,4 +79,8 @@ __all__ = [
     "generate_rejection_message",
     "get_fallback_message",
     "create_rejection_output",
+    # Comparison mode
+    "ComparisonResult",
+    "run_comparison_pipeline",
+    "should_run_comparison",
 ]

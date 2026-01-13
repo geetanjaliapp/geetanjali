@@ -35,7 +35,11 @@ from models.output import Output
 from models.user import User
 from services.cache import cache, public_case_messages_key, public_case_outputs_key
 from services.rag import get_rag_pipeline
-from services.rag.multipass import run_multipass_consultation
+from services.rag.multipass import (
+    run_comparison_pipeline,
+    run_multipass_consultation,
+    should_run_comparison,
+)
 from services.tasks import enqueue_task
 from utils.metrics_multipass import multipass_fallback_total
 
@@ -198,10 +202,26 @@ def run_analysis_background(
                 )
 
         # Run RAG pipeline - route based on config
-        result, is_policy_violation = _run_consultation_pipeline(
-            case_id=case_id,
-            case_data=case_data,
-        )
+        # Check if comparison mode is enabled (runs both pipelines, collects data)
+        if should_run_comparison():
+            logger.info(f"[Background] Comparison mode enabled for case {case_id}")
+            comparison_result = run_comparison_pipeline(
+                case_id=case_id,
+                case_data=case_data,
+                db=db,
+            )
+            result = comparison_result.primary_result
+            is_policy_violation = comparison_result.primary_is_policy_violation
+            logger.info(
+                f"[Background] Comparison complete for case {case_id}: "
+                f"mp_success={comparison_result.multipass_success}, "
+                f"sp_success={comparison_result.singlepass_success}"
+            )
+        else:
+            result, is_policy_violation = _run_consultation_pipeline(
+                case_id=case_id,
+                case_data=case_data,
+            )
 
         # Create output using helper
         output = _create_output_from_result(case_id, result, db)

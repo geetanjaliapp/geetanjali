@@ -217,3 +217,83 @@ class MultiPassPassResponse(Base):
         )
 
 
+class MultiPassComparison(Base):
+    """Comparison record for single-pass vs multi-pass pipeline evaluation.
+
+    Stores results from both pipelines when comparison mode is enabled,
+    allowing quality analysis to validate multi-pass before switching primary.
+
+    Phase 3 feature for collecting comparison data before Phase 4 switch decision.
+    """
+
+    __tablename__ = "multipass_comparisons"
+
+    # Identity
+    id: Mapped[str] = mapped_column(
+        String(36), primary_key=True, default=lambda: str(uuid.uuid4())
+    )
+    case_id: Mapped[str] = mapped_column(
+        String(36),
+        ForeignKey("cases.id", ondelete="CASCADE"),
+        index=True,
+        nullable=False,
+    )
+
+    # Which pipeline was used for user response
+    primary_pipeline: Mapped[str] = mapped_column(
+        String(20), nullable=False
+    )  # "multipass" or "singlepass"
+
+    # Multi-pass results
+    multipass_consultation_id: Mapped[str | None] = mapped_column(
+        String(36),
+        ForeignKey("multipass_consultations.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    multipass_success: Mapped[bool] = mapped_column(Boolean, default=False)
+    multipass_confidence: Mapped[float | None] = mapped_column(Float, nullable=True)
+    multipass_scholar_flag: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    multipass_duration_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    multipass_result_json: Mapped[Any | None] = mapped_column(JSON, nullable=True)
+    multipass_error: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    # Single-pass results
+    singlepass_success: Mapped[bool] = mapped_column(Boolean, default=False)
+    singlepass_confidence: Mapped[float | None] = mapped_column(Float, nullable=True)
+    singlepass_scholar_flag: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    singlepass_duration_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    singlepass_result_json: Mapped[Any | None] = mapped_column(JSON, nullable=True)
+    singlepass_error: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    # Quality comparison metrics (computed)
+    confidence_diff: Mapped[float | None] = mapped_column(
+        Float, nullable=True
+    )  # multipass - singlepass
+    duration_diff_ms: Mapped[int | None] = mapped_column(
+        Integer, nullable=True
+    )  # multipass - singlepass
+
+    # Manual review fields (for expert evaluation in Phase 3)
+    reviewed: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
+    reviewer_preference: Mapped[str | None] = mapped_column(
+        String(20), nullable=True
+    )  # "multipass" | "singlepass" | "equivalent"
+    reviewer_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    reviewed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+
+    # Timestamps
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, default=datetime.utcnow, index=True
+    )
+
+    # Relationships
+    case = relationship("Case", backref="multipass_comparisons")
+    multipass_consultation = relationship("MultiPassConsultation")
+
+    def __repr__(self) -> str:
+        return (
+            f"<MultiPassComparison(id={self.id}, case_id={self.case_id}, "
+            f"primary={self.primary_pipeline}, mp_conf={self.multipass_confidence}, "
+            f"sp_conf={self.singlepass_confidence})>"
+        )
+

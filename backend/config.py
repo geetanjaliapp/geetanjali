@@ -138,6 +138,15 @@ class Settings(BaseSettings):
     # Scholar flag thresholds
     MULTIPASS_CONFIDENCE_HIGH: float = 0.85  # No scholar flag
     MULTIPASS_CONFIDENCE_LOW: float = 0.65  # Always flag below this
+    #
+    # Comparison mode settings (Phase 3: run both pipelines, collect data)
+    # When enabled, runs both single-pass and multi-pass for quality comparison
+    MULTIPASS_COMPARISON_MODE: bool = False  # Enable comparison data collection
+    # Which pipeline to use for user response during comparison
+    # Options: "multipass" (default) or "singlepass"
+    MULTIPASS_COMPARISON_PRIMARY: str = "multipass"
+    # Sample rate for comparison mode (1.0 = all requests, 0.1 = 10%)
+    MULTIPASS_COMPARISON_SAMPLE_RATE: float = 1.0
 
     # Health Check
     HEALTH_CHECK_TIMEOUT: int = 2  # Seconds to wait for service health checks
