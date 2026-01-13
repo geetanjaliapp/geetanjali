@@ -79,11 +79,12 @@ class Settings(BaseSettings):
     OLLAMA_ENABLED: bool = True  # Set to False to disable Ollama dependency
     OLLAMA_BASE_URL: str = "http://localhost:11434"
     OLLAMA_MODEL: str = "qwen2.5:3b"
-    OLLAMA_TIMEOUT: int = 300  # 5 minutes for local inference
+    OLLAMA_TIMEOUT: int = 600  # 10 minutes per request (generous for local/prod)
     OLLAMA_MAX_RETRIES: int = 2
     OLLAMA_RETRY_MIN_WAIT: int = 1
     OLLAMA_RETRY_MAX_WAIT: int = 10
     OLLAMA_MAX_TOKENS: int = 1024  # Balanced token limit
+    OLLAMA_KEEP_ALIVE: str = "1h"  # How long model stays in memory (5m, 1h, 24h, -1=never)
 
     # ========================================
     # Multi-Pass Ollama Consultation Settings
@@ -109,19 +110,21 @@ class Settings(BaseSettings):
     # Pass 4 (Structure): JSON formatting - deterministic
     MULTIPASS_TEMP_STRUCTURE: float = 0.1
     #
-    # Pass timeouts (seconds) - allow generous time for local inference
-    MULTIPASS_TIMEOUT_ACCEPTANCE: int = 15  # Quick validation
-    MULTIPASS_TIMEOUT_DRAFT: int = 90  # Generous for creative thinking
-    MULTIPASS_TIMEOUT_CRITIQUE: int = 45  # Moderate for review
-    MULTIPASS_TIMEOUT_REFINE: int = 90  # Generous for rewriting
-    MULTIPASS_TIMEOUT_STRUCTURE: int = 45  # Moderate for JSON generation
+    # Pass timeouts (seconds) - generous for production Ollama
+    # Production inference is faster; these allow headroom for local dev too
+    MULTIPASS_TIMEOUT_ACCEPTANCE: int = 180  # Validation + LLM assessment
+    MULTIPASS_TIMEOUT_DRAFT: int = 300  # Creative reasoning (most tokens)
+    MULTIPASS_TIMEOUT_CRITIQUE: int = 180  # Analytical review
+    MULTIPASS_TIMEOUT_REFINE: int = 300  # Disciplined rewrite
+    MULTIPASS_TIMEOUT_STRUCTURE: int = 300  # JSON formatting (can be slow)
     #
-    # Pass token limits
+    # Pass token limits (reduced for faster local inference)
+    # qwen2.5:3b generates ~9 tokens/sec, so lower limits = faster passes
     MULTIPASS_TOKENS_ACCEPTANCE: int = 500  # Short validation response
-    MULTIPASS_TOKENS_DRAFT: int = 2000  # Full reasoning prose
-    MULTIPASS_TOKENS_CRITIQUE: int = 800  # Structured bullet critique
-    MULTIPASS_TOKENS_REFINE: int = 2000  # Full refined prose
-    MULTIPASS_TOKENS_STRUCTURE: int = 3000  # Complete JSON output
+    MULTIPASS_TOKENS_DRAFT: int = 1000  # Concise reasoning prose
+    MULTIPASS_TOKENS_CRITIQUE: int = 600  # Focused bullet critique
+    MULTIPASS_TOKENS_REFINE: int = 1000  # Concise refined prose
+    MULTIPASS_TOKENS_STRUCTURE: int = 1200  # Compact JSON output
     #
     # Rejection message generation (only for ~3-5% rejected cases)
     MULTIPASS_TEMP_REJECTION: float = 0.3  # Slightly creative for kind tone
@@ -235,7 +238,7 @@ class Settings(BaseSettings):
     # RQ Task Queue (optional - falls back to FastAPI BackgroundTasks)
     RQ_ENABLED: bool = True  # Set False to use BackgroundTasks only
     RQ_QUEUE_NAME: str = "geetanjali"
-    RQ_JOB_TIMEOUT: int = 300  # 5 minutes max per job
+    RQ_JOB_TIMEOUT: int = 1800  # 30 minutes for multi-pass pipeline (generous)
     RQ_RETRY_DELAYS: str = "30,120"  # Retry after 30s, then 2min (comma-separated)
     RQ_RESULT_TTL: int = 86400  # 24 hours - cleanup successful job results
     RQ_FAILURE_TTL: int = 86400  # 24 hours - cleanup failed job results
