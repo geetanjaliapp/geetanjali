@@ -96,6 +96,7 @@ async def run_draft_pass(
             temperature=settings.MULTIPASS_TEMP_DRAFT,
             max_tokens=settings.MULTIPASS_TOKENS_DRAFT,
             json_mode=False,  # Draft produces prose, not JSON
+            allow_fallback=False,  # No per-request fallback in multipass
         )
 
         # Extract text from response
@@ -188,6 +189,7 @@ async def run_critique_pass(
             temperature=settings.MULTIPASS_TEMP_CRITIQUE,
             max_tokens=settings.MULTIPASS_TOKENS_CRITIQUE,
             json_mode=False,  # Critique produces prose, not JSON
+            allow_fallback=False,  # No per-request fallback in multipass
         )
 
         output_text = _extract_text(response)
@@ -275,6 +277,7 @@ async def run_refine_pass(
             temperature=settings.MULTIPASS_TEMP_REFINE,
             max_tokens=settings.MULTIPASS_TOKENS_REFINE,
             json_mode=False,  # Refine produces prose, not JSON
+            allow_fallback=False,  # No per-request fallback in multipass
         )
 
         output_text = _extract_text(response)
@@ -375,6 +378,7 @@ async def run_structure_pass(
             temperature=temperature,
             max_tokens=settings.MULTIPASS_TOKENS_STRUCTURE,
             json_mode=True,  # Structure pass produces JSON
+            allow_fallback=False,  # No per-request fallback in multipass
         )
 
         output_text = _extract_text(response)
