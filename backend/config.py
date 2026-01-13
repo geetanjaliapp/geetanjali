@@ -79,7 +79,7 @@ class Settings(BaseSettings):
     OLLAMA_ENABLED: bool = True  # Set to False to disable Ollama dependency
     OLLAMA_BASE_URL: str = "http://localhost:11434"
     OLLAMA_MODEL: str = "qwen2.5:3b"
-    OLLAMA_TIMEOUT: int = 600  # 10 minutes per request (generous for local/prod)
+    OLLAMA_TIMEOUT: int = 300  # 5 minutes per request (matches production)
     OLLAMA_MAX_RETRIES: int = 2
     OLLAMA_RETRY_MIN_WAIT: int = 1
     OLLAMA_RETRY_MAX_WAIT: int = 10
@@ -93,7 +93,7 @@ class Settings(BaseSettings):
     # See: todos/ollama-consultations-refined.md for full specification
     #
     # Feature flag (master switch for multi-pass workflow)
-    MULTIPASS_ENABLED: bool = True  # Enable multi-pass consultation pipeline
+    MULTIPASS_ENABLED: bool = False  # Disabled by default; enable in .env
     #
     # Single-pass fallback if multi-pass fails completely
     MULTIPASS_FALLBACK_TO_SINGLE_PASS: bool = True
