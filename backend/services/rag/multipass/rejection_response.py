@@ -97,8 +97,9 @@ async def generate_rejection_message(
         )
 
         # Extract text from response
+        message: str
         if isinstance(response, dict):
-            message = response.get("text", "") or response.get("content", "")
+            message = str(response.get("text", "") or response.get("content", ""))
         else:
             message = str(response) if response else ""
 

@@ -15,6 +15,11 @@ from services.rag.multipass.acceptance import (
     RejectionCategory,
     run_acceptance_pass,
 )
+from services.rag.multipass.comparison import (
+    ComparisonResult,
+    run_comparison_pipeline,
+    should_run_comparison,
+)
 from services.rag.multipass.fallback import (
     ReconstructionResult,
     reconstruct_from_prose,
@@ -43,11 +48,6 @@ from services.rag.multipass.rejection_response import (
     create_rejection_output,
     generate_rejection_message,
     get_fallback_message,
-)
-from services.rag.multipass.comparison import (
-    ComparisonResult,
-    run_comparison_pipeline,
-    should_run_comparison,
 )
 
 __all__ = [

@@ -9,9 +9,6 @@ from models.featured_case import FeaturedCase
 from models.feedback import Feedback
 from models.message import Message, MessageRole
 from models.metadata import BookMetadata, ChapterMetadata
-from models.output import Output
-from models.refresh_token import RefreshToken
-from models.subscriber import SendTime, Subscriber
 from models.multipass import (
     MultiPassComparison,
     MultiPassConsultation,
@@ -20,6 +17,9 @@ from models.multipass import (
     PassName,
     PassStatus,
 )
+from models.output import Output
+from models.refresh_token import RefreshToken
+from models.subscriber import SendTime, Subscriber
 from models.sync_hash import SyncHash
 from models.user import User
 from models.user_preferences import UserPreferences

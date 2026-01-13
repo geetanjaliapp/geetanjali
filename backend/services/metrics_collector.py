@@ -391,7 +391,7 @@ def _get_chromadb_collection_count(base_url: str) -> int | None:
 
         if count_response.status_code == 200:
             count = count_response.json()
-            return int(count) if isinstance(count, (int, float)) else None
+            return int(count) if isinstance(count, int | float) else None
         return None
 
     except Exception as e:

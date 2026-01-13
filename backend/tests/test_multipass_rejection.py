@@ -6,8 +6,9 @@ Tests cover:
 - Rejection output structure
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 from services.rag.multipass.acceptance import AcceptanceResult, RejectionCategory
 from services.rag.multipass.rejection_response import (

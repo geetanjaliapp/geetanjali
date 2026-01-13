@@ -13,7 +13,7 @@ Each pass result is stored in postgres for audit trail and fallback reconstructi
 import logging
 import time
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from typing import Any
 
 from config import settings
@@ -42,7 +42,6 @@ from utils.metrics_multipass import (
 
 from .acceptance import AcceptanceResult, run_acceptance_pass
 from .fallback import reconstruct_from_prose
-from .rejection_response import create_rejection_output
 from .passes import (
     PassResult,
     PassStatus,
@@ -51,6 +50,7 @@ from .passes import (
     run_refine_pass,
     run_structure_pass,
 )
+from .rejection_response import create_rejection_output
 
 logger = logging.getLogger(__name__)
 
@@ -122,6 +122,7 @@ class MultiPassOrchestrator:
             db.add(self.consultation)
             db.commit()
             db.refresh(self.consultation)
+            assert self.consultation is not None  # Type narrowing for mypy
 
             consultation_id = str(self.consultation.id)
             logger.info(f"Starting multi-pass consultation {consultation_id} for case {self.case_id}")
@@ -139,7 +140,7 @@ class MultiPassOrchestrator:
             if not acceptance_result.accepted:
                 # Update consultation status
                 self.consultation.status = "rejected"
-                self.consultation.completed_at = datetime.now(UTC)
+                self.consultation.completed_at = datetime.now(timezone.utc)
                 db.commit()
 
                 # Record rejection metric
@@ -178,10 +179,17 @@ class MultiPassOrchestrator:
                     consultation_id, 1, draft_result, start_time
                 )
 
+            # Type guard: draft_result.output_text is non-None after success
+            draft_text = draft_result.output_text or ""
+            if not draft_text:
+                return self._create_failure_result(
+                    consultation_id, 1, draft_result, start_time
+                )
+
             # Pass 2: Critique
             critique_result = await self._run_pass(
                 db, 2, "critique",
-                lambda: run_critique_pass(title, description, draft_result.output_text, self.llm_service)
+                lambda: run_critique_pass(title, description, draft_text, self.llm_service)
             )
 
             # Critique timeout/error is recoverable - use placeholder
@@ -190,11 +198,11 @@ class MultiPassOrchestrator:
             # Pass 3: Refine
             refine_result = await self._run_pass(
                 db, 3, "refine",
-                lambda: run_refine_pass(title, description, draft_result.output_text, critique_text, self.llm_service)
+                lambda: run_refine_pass(title, description, draft_text, critique_text, self.llm_service)
             )
 
             # Refine failure falls back to draft (already handled in run_refine_pass)
-            refined_text = refine_result.output_text or draft_result.output_text
+            refined_text: str = refine_result.output_text or draft_text
 
             # Pass 4: Structure
             structure_result = await self._run_pass(
@@ -221,7 +229,7 @@ class MultiPassOrchestrator:
 
             # Success - update consultation
             self.consultation.status = "completed"
-            self.consultation.completed_at = datetime.now(UTC)
+            self.consultation.completed_at = datetime.now(timezone.utc)
             self.consultation.final_result_json = structure_result.output_json
             self.consultation.total_duration_ms = int((time.time() - start_time) * 1000)
             db.commit()
@@ -254,7 +262,7 @@ class MultiPassOrchestrator:
             logger.error(f"Multi-pass pipeline error: {e}", exc_info=True)
             if self.consultation:
                 self.consultation.status = "failed"
-                self.consultation.completed_at = datetime.now(UTC)
+                self.consultation.completed_at = datetime.now(timezone.utc)
                 db.commit()
 
             multipass_pipeline_total.labels(status="failed").inc()
@@ -309,6 +317,7 @@ class MultiPassOrchestrator:
         ).observe(duration_ms)
 
         # Store in audit trail
+        assert self.consultation is not None  # Type narrowing for mypy
         pass_response = MultiPassPassResponse(
             consultation_id=self.consultation.id,
             pass_number=0,
@@ -327,10 +336,10 @@ class MultiPassOrchestrator:
 
     async def _run_pass(
         self,
-        db,
+        db: Any,
         pass_number: int,
         pass_name: str,
-        pass_func,
+        pass_func: Any,
     ) -> PassResult:
         """Run a single pass and store result in audit trail.
 
@@ -344,6 +353,7 @@ class MultiPassOrchestrator:
             PassResult from the pass execution
         """
         start_time = time.time()
+        result: PassResult
 
         try:
             result = await pass_func()
@@ -385,6 +395,7 @@ class MultiPassOrchestrator:
         }
 
         # Store in audit trail
+        assert self.consultation is not None  # Type narrowing for mypy
         pass_response = MultiPassPassResponse(
             consultation_id=self.consultation.id,
             pass_number=pass_number,
@@ -464,8 +475,9 @@ class MultiPassOrchestrator:
         multipass_confidence_score.observe(confidence)
 
         # Update consultation
+        assert self.consultation is not None  # Type narrowing for mypy
         self.consultation.status = "completed"
-        self.consultation.completed_at = datetime.now(UTC)
+        self.consultation.completed_at = datetime.now(timezone.utc)
         self.consultation.final_result_json = fallback_json
         self.consultation.fallback_used = True
         self.consultation.fallback_reason = fallback_reason

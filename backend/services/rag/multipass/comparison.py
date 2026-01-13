@@ -11,7 +11,7 @@ import random
 import time
 import uuid
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from typing import Any
 
 from sqlalchemy.orm import Session
@@ -271,7 +271,7 @@ def _store_comparison_record(
         confidence_diff=confidence_diff,
         duration_diff_ms=duration_diff,
         # Timestamps
-        created_at=datetime.now(UTC),
+        created_at=datetime.now(timezone.utc),
     )
 
     db.add(comparison)

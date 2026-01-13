@@ -358,7 +358,7 @@ class MockLLM:
     def __init__(self, response_text: str, raise_error: Exception | None = None):
         self.response_text = response_text
         self.raise_error = raise_error
-        self.calls = []
+        self.calls: list[dict] = []
 
     def generate(self, **kwargs):
         self.calls.append(kwargs)

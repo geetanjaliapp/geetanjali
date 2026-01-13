@@ -6,8 +6,9 @@ Tests cover:
 - Error handling during pipeline execution
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 # Mark all tests as unit tests (no DB required)
 pytestmark = pytest.mark.unit

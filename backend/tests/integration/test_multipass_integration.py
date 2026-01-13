@@ -83,10 +83,11 @@ class TestMultipassIntegration:
 
     async def test_happy_path_full_pipeline(self, valid_ethical_dilemma):
         """Test full pipeline execution with valid dilemma."""
-        from services.rag.multipass import run_multipass_consultation
+        import uuid
+
         from db import SessionLocal
         from models.case import Case
-        import uuid
+        from services.rag.multipass import run_multipass_consultation
 
         # Create a test case in DB
         db = SessionLocal()
@@ -139,10 +140,11 @@ class TestMultipassIntegration:
 
     async def test_pass0_rejection_non_dilemma(self, non_dilemma_input):
         """Test that non-dilemma input is rejected at Pass 0."""
-        from services.rag.multipass import run_multipass_consultation
+        import uuid
+
         from db import SessionLocal
         from models.case import Case
-        import uuid
+        from services.rag.multipass import run_multipass_consultation
 
         db = SessionLocal()
         try:
@@ -180,10 +182,11 @@ class TestMultipassIntegration:
 
     async def test_latency_within_slo(self, valid_ethical_dilemma):
         """Test that pipeline completes within 5-minute SLO."""
-        from services.rag.multipass import run_multipass_consultation
+        import uuid
+
         from db import SessionLocal
         from models.case import Case
-        import uuid
+        from services.rag.multipass import run_multipass_consultation
 
         MAX_DURATION_SECONDS = 300  # 5 minutes
 
@@ -228,14 +231,15 @@ class TestMultipassMetricsIntegration:
 
     async def test_metrics_recorded_on_success(self):
         """Verify Prometheus metrics are recorded during pipeline execution."""
-        from services.rag.multipass import run_multipass_consultation
-        from utils.metrics_multipass import (
-            multipass_pipeline_total,
-            multipass_pipeline_passes_total,
-        )
+        import uuid
+
         from db import SessionLocal
         from models.case import Case
-        import uuid
+        from services.rag.multipass import run_multipass_consultation
+        from utils.metrics_multipass import (
+            multipass_pipeline_passes_total,
+            multipass_pipeline_total,
+        )
 
         # Get initial metric values (approximately - Prometheus counters only go up)
         # Note: In a real test, you'd use a test registry or reset metrics
@@ -320,10 +324,11 @@ async def test_manual_qa_cases(case):
     These tests print detailed output for human review of quality.
     Run with: pytest tests/integration/test_multipass_integration.py -s -k manual_qa
     """
-    from services.rag.multipass import run_multipass_consultation
+    import uuid
+
     from db import SessionLocal
     from models.case import Case
-    import uuid
+    from services.rag.multipass import run_multipass_consultation
 
     db = SessionLocal()
     try:
@@ -352,7 +357,7 @@ async def test_manual_qa_cases(case):
             print(f"Confidence: {json_result.get('confidence', 0):.2f}")
             print(f"Scholar Flag: {json_result.get('scholar_flag', False)}")
             print(f"\nSummary:\n{json_result.get('executive_summary', 'N/A')[:500]}...")
-            print(f"\nOptions:")
+            print("\nOptions:")
             for i, opt in enumerate(json_result.get("options", []), 1):
                 print(f"  {i}. {opt.get('title', 'N/A')}")
             print(f"\nDuration: {result.total_duration_ms}ms")
