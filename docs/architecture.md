@@ -75,14 +75,23 @@ User query and all verses are embedded using `sentence-transformers/all-MiniLM-L
 ### 2. Retrieval
 ChromaDB performs cosine similarity search, returning top-k relevant verses with scores.
 
-### 3. Generation
-Retrieved verses are passed as context to the LLM with a structured prompt requesting:
-- Executive summary
+### 3. Multi-Pass Generation
+The system uses a 5-pass refinement workflow to ensure thoughtful, well-grounded guidance:
+
+1. **Acceptance** — Validates the query is a genuine ethical dilemma (not factual questions or harmful requests)
+2. **Draft** — Generates initial reasoning without format constraints
+3. **Critique** — Reviews the draft for depth, gaps, and verse alignment
+4. **Refine** — Rewrites addressing critique, improving clarity and specificity
+5. **Structure** — Converts refined prose into structured JSON output
+
+Each pass is audited for quality analysis. If structuring fails, the system reconstructs output from earlier passes with appropriate confidence flagging.
+
+**Output includes:**
+- Executive summary with verse citations
 - 3 options with tradeoffs
-- Recommended action
-- Implementation steps
+- Recommended action with steps
 - Reflection prompts
-- Verse citations with confidence scores
+- Confidence score and scholar flag for low-confidence responses
 
 ## Resilience Patterns
 
