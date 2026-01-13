@@ -421,6 +421,10 @@ async def run_structure_pass(
                 completed_at=datetime.now(timezone.utc),
             )
 
+        # Normalize output to ensure schema conformance
+        # This adds missing fields like sources in options that the LLM may omit
+        output_json = _normalize_structure_output(output_json)
+
         logger.info(f"Pass 4 (Structure) completed in {duration_ms}ms")
 
         return PassResult(
@@ -543,3 +547,68 @@ def _validate_structure_output(output: dict) -> list[str]:
         errors.append("'recommended_action' missing 'option' field")
 
     return errors
+
+
+def _normalize_structure_output(output: dict) -> dict:
+    """Normalize Pass 4 JSON output to ensure schema conformance.
+
+    Adds missing optional fields with sensible defaults to prevent
+    Pydantic validation errors downstream (e.g., OptionSchema.sources).
+
+    The LLM sometimes omits fields that are required by the API schema.
+    This function patches the output to be schema-compliant.
+
+    Args:
+        output: Raw JSON output from structure pass
+
+    Returns:
+        Normalized output with all required fields
+    """
+    normalized = output.copy()
+
+    # Ensure top-level fields exist
+    if "suggested_title" not in normalized:
+        normalized["suggested_title"] = "Ethical Guidance"
+
+    if "scholar_flag" not in normalized:
+        # Default to False unless confidence is low
+        confidence = normalized.get("confidence", 0.7)
+        normalized["scholar_flag"] = confidence < 0.6
+
+    if "reflection_prompts" not in normalized:
+        normalized["reflection_prompts"] = []
+
+    # Normalize options - ensure each has required fields
+    options = normalized.get("options", [])
+    if isinstance(options, list):
+        for opt in options:
+            if isinstance(opt, dict):
+                # Ensure sources field exists (required by OptionSchema)
+                if "sources" not in opt:
+                    opt["sources"] = []
+                # Ensure pros/cons exist
+                if "pros" not in opt:
+                    opt["pros"] = []
+                if "cons" not in opt:
+                    opt["cons"] = []
+
+    # Normalize recommended_action
+    rec_action = normalized.get("recommended_action", {})
+    if isinstance(rec_action, dict):
+        if "sources" not in rec_action:
+            rec_action["sources"] = []
+        if "steps" not in rec_action:
+            rec_action["steps"] = []
+        normalized["recommended_action"] = rec_action
+
+    # Normalize sources array
+    sources = normalized.get("sources", [])
+    if isinstance(sources, list):
+        for i, src in enumerate(sources):
+            if isinstance(src, dict):
+                if "relevance" not in src:
+                    src["relevance"] = 0.5
+                if "paraphrase" not in src:
+                    src["paraphrase"] = ""
+
+    return normalized

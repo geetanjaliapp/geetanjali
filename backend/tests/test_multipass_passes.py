@@ -16,6 +16,7 @@ from services.rag.multipass.passes import (
     PassStatus,
     _extract_text,
     _extract_tokens,
+    _normalize_structure_output,
     _validate_structure_output,
     run_critique_pass,
     run_draft_pass,
@@ -575,3 +576,154 @@ class TestRunStructurePass:
         mock_llm = MockLLM(response_text=valid_json)
         result = await run_structure_pass("Refined prose", mock_llm, retry_count=2)
         assert result.retry_count == 2
+
+
+# ============================================================================
+# Test _normalize_structure_output
+# ============================================================================
+
+
+class TestNormalizeStructureOutput:
+    """Tests for output normalization to ensure schema conformance."""
+
+    def test_adds_missing_sources_to_options(self):
+        """Options without sources get empty sources array."""
+        output = {
+            "suggested_title": "Test",
+            "executive_summary": "Summary",
+            "options": [
+                {"title": "O1", "description": "D1", "pros": ["p1"], "cons": ["c1"]},
+                {"title": "O2", "description": "D2"},
+                {"title": "O3", "description": "D3", "sources": ["BG_2_47"]},
+            ],
+            "recommended_action": {"option": 1},
+            "reflection_prompts": ["Q1?"],
+            "sources": [],
+            "confidence": 0.7,
+        }
+
+        normalized = _normalize_structure_output(output)
+
+        # First two options should have empty sources added
+        assert normalized["options"][0]["sources"] == []
+        assert normalized["options"][1]["sources"] == []
+        # Third option already had sources - should be unchanged
+        assert normalized["options"][2]["sources"] == ["BG_2_47"]
+
+    def test_adds_missing_pros_cons_to_options(self):
+        """Options without pros/cons get empty arrays."""
+        output = {
+            "options": [
+                {"title": "O1", "description": "D1"},
+            ],
+            "recommended_action": {"option": 1},
+            "confidence": 0.7,
+        }
+
+        normalized = _normalize_structure_output(output)
+
+        assert normalized["options"][0]["pros"] == []
+        assert normalized["options"][0]["cons"] == []
+        assert normalized["options"][0]["sources"] == []
+
+    def test_adds_missing_recommended_action_fields(self):
+        """Recommended action gets missing sources and steps."""
+        output = {
+            "options": [],
+            "recommended_action": {"option": 1},
+            "confidence": 0.7,
+        }
+
+        normalized = _normalize_structure_output(output)
+
+        assert normalized["recommended_action"]["sources"] == []
+        assert normalized["recommended_action"]["steps"] == []
+
+    def test_adds_scholar_flag_based_on_confidence(self):
+        """Scholar flag defaults based on confidence level."""
+        # High confidence - no flag
+        high_conf = _normalize_structure_output({"confidence": 0.8, "options": []})
+        assert high_conf["scholar_flag"] is False
+
+        # Low confidence - flag set
+        low_conf = _normalize_structure_output({"confidence": 0.5, "options": []})
+        assert low_conf["scholar_flag"] is True
+
+    def test_preserves_existing_scholar_flag(self):
+        """Existing scholar_flag is not overwritten."""
+        output = {"confidence": 0.8, "scholar_flag": True, "options": []}
+        normalized = _normalize_structure_output(output)
+        assert normalized["scholar_flag"] is True
+
+    def test_adds_default_suggested_title(self):
+        """Missing suggested_title gets default value."""
+        output = {"options": [], "confidence": 0.7}
+        normalized = _normalize_structure_output(output)
+        assert normalized["suggested_title"] == "Ethical Guidance"
+
+    def test_normalizes_sources_array(self):
+        """Sources array entries get missing relevance and paraphrase."""
+        output = {
+            "options": [],
+            "sources": [
+                {"canonical_id": "BG_2_47"},
+                {"canonical_id": "BG_3_35", "relevance": 0.8},
+            ],
+            "confidence": 0.7,
+        }
+
+        normalized = _normalize_structure_output(output)
+
+        assert normalized["sources"][0]["relevance"] == 0.5
+        assert normalized["sources"][0]["paraphrase"] == ""
+        # Existing relevance preserved
+        assert normalized["sources"][1]["relevance"] == 0.8
+
+    def test_full_normalization_scenario(self):
+        """Full scenario: LLM output missing several fields gets normalized."""
+        # Simulates actual LLM output that caused the production bug
+        llm_output = {
+            "executive_summary": "This is a test summary.",
+            "options": [
+                {
+                    "title": "Courage and Duty",
+                    "description": "Follow your dharma.",
+                    "pros": ["Respect for duty"],
+                    "cons": ["Risk of losing respect"],
+                    # NOTE: sources is MISSING - this caused the bug
+                },
+                {
+                    "title": "Compassion",
+                    "description": "Show empathy.",
+                    "pros": ["Builds trust"],
+                    "cons": ["May seem weak"],
+                },
+                {
+                    "title": "Balance",
+                    "description": "Find middle ground.",
+                    "pros": ["Harmony"],
+                    "cons": ["Compromise"],
+                },
+            ],
+            "recommended_action": {
+                "option": 1,
+                # NOTE: sources and steps are MISSING
+            },
+            "reflection_prompts": ["What matters most?"],
+            "sources": [{"canonical_id": "BG_2_47"}],
+            "confidence": 0.75,
+        }
+
+        normalized = _normalize_structure_output(llm_output)
+
+        # All options should now have sources field
+        for opt in normalized["options"]:
+            assert "sources" in opt
+            assert isinstance(opt["sources"], list)
+
+        # Recommended action should have sources and steps
+        assert "sources" in normalized["recommended_action"]
+        assert "steps" in normalized["recommended_action"]
+
+        # Scholar flag should be set based on confidence
+        assert "scholar_flag" in normalized
