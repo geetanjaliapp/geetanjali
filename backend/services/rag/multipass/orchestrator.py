@@ -114,10 +114,17 @@ class MultiPassOrchestrator:
         db = SessionLocal()
         try:
             # Create consultation record
+            # Get LLM provider and model info for audit trail
+            llm_provider = getattr(self.llm_service, 'primary_provider', None)
+            llm_provider_name = llm_provider.value if llm_provider else "unknown"
+            llm_model = getattr(self.llm_service, 'ollama_model', None) or "unknown"
+
             self.consultation = MultiPassConsultation(
                 case_id=self.case_id,
                 status="in_progress",
                 pipeline_mode="multi_pass",
+                llm_provider=llm_provider_name,
+                llm_model=llm_model,
             )
             db.add(self.consultation)
             db.commit()
