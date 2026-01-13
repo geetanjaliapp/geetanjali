@@ -86,12 +86,14 @@ async def generate_rejection_message(
     )
 
     try:
-        response = await llm_service.generate(
+        # Note: LLMService.generate() is synchronous and doesn't accept timeout
+        # Timeout is configured at the provider level via OLLAMA_TIMEOUT setting
+        response = llm_service.generate(
             prompt=user_prompt,
             system_prompt=REJECTION_MESSAGE_SYSTEM_PROMPT,
             temperature=settings.MULTIPASS_TEMP_REJECTION,
             max_tokens=settings.MULTIPASS_TOKENS_REJECTION,
-            timeout=settings.MULTIPASS_TIMEOUT_REJECTION,
+            json_mode=False,  # We want plain text, not JSON
         )
 
         # Extract text from response

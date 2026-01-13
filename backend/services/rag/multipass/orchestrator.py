@@ -42,6 +42,7 @@ from utils.metrics_multipass import (
 
 from .acceptance import AcceptanceResult, run_acceptance_pass
 from .fallback import reconstruct_from_prose
+from .rejection_response import create_rejection_output
 from .passes import (
     PassResult,
     PassStatus,
@@ -147,9 +148,17 @@ class MultiPassOrchestrator:
                 ).inc()
                 multipass_pipeline_total.labels(status="rejected").inc()
 
+                # Generate rejection response (with LLM-generated message or fallback)
+                rejection_output = await create_rejection_output(
+                    case_description=description,
+                    acceptance_result=acceptance_result,
+                    llm_service=self.llm_service,
+                )
+
                 duration_ms = int((time.time() - start_time) * 1000)
                 return MultiPassResult(
-                    success=False,
+                    success=True,  # Success=True with policy violation, not a failure
+                    result_json=rejection_output,
                     is_policy_violation=True,
                     rejection_reason=acceptance_result.reason,
                     consultation_id=consultation_id,
