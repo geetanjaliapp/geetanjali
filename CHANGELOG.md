@@ -2,6 +2,48 @@
 
 All notable changes to Geetanjali are documented here.
 
+## [1.27.0] - 2026-01-13
+
+Multi-pass consultation pipeline for deeper, more thoughtful ethical guidance.
+
+### Features
+
+- **5-Pass Refinement Workflow** - Improves consultation quality through iterative reasoning
+  - Pass 0: Acceptance - Validates query is a genuine ethical dilemma (locale-aware heuristics)
+  - Pass 1: Draft - Generates initial reasoning without format constraints
+  - Pass 2: Critique - Reviews draft for depth, gaps, and verse alignment
+  - Pass 3: Refine - Rewrites addressing critique points
+  - Pass 4: Structure - Converts refined prose to structured JSON output
+
+- **Postgres Audit Trail** - Full pass-by-pass tracking for debugging and analysis
+  - `multipass_consultation` table: Pipeline execution metadata
+  - `multipass_pass_response` table: Input/output for each pass
+  - `multipass_comparison` table: A/B comparison data collection
+
+- **Fallback Reconstruction** - Graceful degradation when structuring fails
+  - Extracts structured output from Pass 3 refined prose
+  - Heuristic JSON extraction with confidence scoring
+  - Generic fallback response as last resort
+
+- **Comparison Mode** - A/B testing infrastructure for pipeline evaluation
+  - Runs both single-pass and multi-pass pipelines
+  - Stores comparison data for analysis
+  - Configurable sampling rate
+
+### Technical
+
+- New `backend/services/rag/multipass/` package (2,400+ LOC)
+- Prometheus metrics: `geetanjali_multipass_*` counters and histograms
+- 64 new tests covering orchestrator, passes, acceptance, fallback, and routing
+- Alembic migrations for audit tables
+- Config flags: `MULTIPASS_ENABLED`, `MULTIPASS_USE_FOR`, `MULTIPASS_COMPARISON_SAMPLE_RATE`
+
+### Documentation
+
+- Updated docs/architecture.md with 5-pass workflow description
+- Updated docs/consultation.md with multi-pass refinement note
+- Updated docs/operations-overview.md with acceptance gate flow
+
 ## [1.26.0] - 2026-01-10
 
 Auto-mode play bar redesign with Study-first UX.
