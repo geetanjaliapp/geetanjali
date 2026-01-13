@@ -810,21 +810,22 @@ ${messages
                         {isFailed && (
                           <>
                             <div className="absolute left-0 w-6 h-6 sm:w-7 sm:h-7 rounded-[var(--radius-avatar)] bg-[var(--status-error-bg)] border-2 border-[var(--status-error-border)] flex items-center justify-center">
-                              <span className="text-xs">⚠️</span>
+                              <span className="text-xs">⏳</span>
                             </div>
                             <div className="bg-[var(--status-error-bg)] border border-[var(--status-error-border)] rounded-[var(--radius-card)] px-4 py-3">
                               <p className="text-sm text-[var(--status-error-text)] mb-3">
                                 <span className="font-medium">
-                                  Unable to Complete
+                                  Taking Longer Than Expected
                                 </span>{" "}
-                                — We encountered an issue while preparing your
-                                guidance. Please try again.
+                                — Your consultation is still being prepared.
+                                Please check back in a few minutes, or try
+                                again.
                               </p>
                               <button
                                 onClick={handleRetry}
                                 className="px-4 py-2 bg-[var(--interactive-primary)] hover:bg-[var(--interactive-primary-hover)] text-[var(--interactive-primary-text)] text-sm font-medium rounded-[var(--radius-button)] transition-[var(--transition-color)]"
                               >
-                                Get Guidance
+                                Try Again
                               </button>
                             </div>
                           </>
