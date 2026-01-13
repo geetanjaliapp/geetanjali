@@ -64,7 +64,7 @@ class TestGenerateRejectionMessage:
     @pytest.mark.asyncio
     async def test_successful_llm_generation(self):
         """Test successful LLM message generation."""
-        mock_llm = AsyncMock()
+        mock_llm = MagicMock()  # LLM service generate() is synchronous
         mock_llm.generate.return_value = {
             "text": (
                 "Thank you for reaching out. Your question seems to be seeking "
@@ -88,7 +88,7 @@ class TestGenerateRejectionMessage:
     @pytest.mark.asyncio
     async def test_llm_timeout_uses_fallback(self):
         """Test that timeout falls back to static message."""
-        mock_llm = AsyncMock()
+        mock_llm = MagicMock()  # LLM service generate() is synchronous
         mock_llm.generate.side_effect = TimeoutError("Request timed out")
 
         message = await generate_rejection_message(
@@ -104,7 +104,7 @@ class TestGenerateRejectionMessage:
     @pytest.mark.asyncio
     async def test_llm_error_uses_fallback(self):
         """Test that LLM error falls back to static message."""
-        mock_llm = AsyncMock()
+        mock_llm = MagicMock()  # LLM service generate() is synchronous
         mock_llm.generate.side_effect = Exception("LLM service unavailable")
 
         message = await generate_rejection_message(
@@ -120,7 +120,7 @@ class TestGenerateRejectionMessage:
     @pytest.mark.asyncio
     async def test_short_llm_response_uses_fallback(self):
         """Test that too-short LLM response falls back."""
-        mock_llm = AsyncMock()
+        mock_llm = MagicMock()  # LLM service generate() is synchronous
         mock_llm.generate.return_value = {"text": "Too short"}
 
         message = await generate_rejection_message(
@@ -136,7 +136,7 @@ class TestGenerateRejectionMessage:
     @pytest.mark.asyncio
     async def test_truncates_long_description(self):
         """Test that long descriptions are truncated."""
-        mock_llm = AsyncMock()
+        mock_llm = MagicMock()  # LLM service generate() is synchronous
         mock_llm.generate.return_value = {"text": "A" * 100}  # Valid length
 
         long_description = "word " * 200  # ~1000 chars
@@ -215,7 +215,7 @@ class TestCreateRejectionOutput:
     @pytest.mark.asyncio
     async def test_uses_llm_for_message_when_provided(self):
         """Test that LLM is used when service is provided."""
-        mock_llm = AsyncMock()
+        mock_llm = MagicMock()  # LLM service generate() is synchronous
         mock_llm.generate.return_value = {
             "text": "Custom rejection message from LLM that is long enough to pass validation."
         }

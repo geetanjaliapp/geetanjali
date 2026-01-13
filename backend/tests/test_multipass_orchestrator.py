@@ -205,7 +205,7 @@ class TestMultiPassOrchestrator:
         mock_rag.enrich_verses_with_translations.return_value = []
         mock_rag_pipeline.return_value = mock_rag
 
-        with patch("services.rag.multipass.orchestrator.run_acceptance_pass") as mock_acceptance, \
+        with patch("services.rag.multipass.orchestrator.run_acceptance_pass", new_callable=AsyncMock) as mock_acceptance, \
              patch("services.rag.multipass.orchestrator.run_draft_pass") as mock_draft:
 
             mock_acceptance.return_value = AcceptanceResult(
@@ -218,8 +218,9 @@ class TestMultiPassOrchestrator:
             orchestrator = MultiPassOrchestrator("test-case-id")
             result = await orchestrator.run("Test", "What is 2+2?")
 
-            # Verify result
-            assert not result.success
+            # Verify result - rejection returns success=True with is_policy_violation=True
+            # (policy violation is not a failure, it's a successful rejection)
+            assert result.success
             assert result.is_policy_violation
             assert result.rejection_reason == "This is a factual question"
             assert result.passes_completed == 0
