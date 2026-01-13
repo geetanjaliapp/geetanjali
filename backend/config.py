@@ -110,13 +110,11 @@ class Settings(BaseSettings):
     # Pass 4 (Structure): JSON formatting - deterministic
     MULTIPASS_TEMP_STRUCTURE: float = 0.1
     #
-    # Pass timeouts (seconds) - generous for production Ollama
-    # Production inference is faster; these allow headroom for local dev too
-    MULTIPASS_TIMEOUT_ACCEPTANCE: int = 180  # Validation + LLM assessment
-    MULTIPASS_TIMEOUT_DRAFT: int = 300  # Creative reasoning (most tokens)
-    MULTIPASS_TIMEOUT_CRITIQUE: int = 180  # Analytical review
-    MULTIPASS_TIMEOUT_REFINE: int = 300  # Disciplined rewrite
-    MULTIPASS_TIMEOUT_STRUCTURE: int = 300  # JSON formatting (can be slow)
+    # Pass timeouts: Each pass uses OLLAMA_TIMEOUT (or ANTHROPIC_TIMEOUT).
+    # Total multipass duration = 5 passes × provider timeout.
+    # RQ_JOB_TIMEOUT must be >= total to avoid premature job termination.
+    # (Calculated automatically - see MULTIPASS_PASS_COUNT below)
+    MULTIPASS_PASS_COUNT: int = 5  # Acceptance + Draft + Critique + Refine + Structure
     #
     # Pass token limits (reduced for faster local inference)
     # qwen2.5:3b generates ~9 tokens/sec, so lower limits = faster passes
@@ -308,7 +306,14 @@ class Settings(BaseSettings):
             return None
         return v
 
-    @field_validator("DEBUG", "USE_MOCK_LLM", mode="before")
+    @field_validator(
+        "DEBUG",
+        "USE_MOCK_LLM",
+        "MULTIPASS_ENABLED",
+        "MULTIPASS_FALLBACK_TO_SINGLE_PASS",
+        "MULTIPASS_COMPARISON_MODE",
+        mode="before",
+    )
     @classmethod
     def empty_string_to_false(cls, v) -> bool:
         """Convert empty strings to False for boolean fields."""
@@ -514,6 +519,42 @@ class Settings(BaseSettings):
             raise ProductionConfigError(error_msg)
 
         logger.info("Production configuration validated successfully.")
+        return self
+
+    @property
+    def MULTIPASS_MAX_DURATION(self) -> int:
+        """Calculate maximum expected duration for multi-pass pipeline.
+
+        Each pass uses the provider timeout (OLLAMA_TIMEOUT or ANTHROPIC_TIMEOUT).
+        Total = MULTIPASS_PASS_COUNT × provider_timeout.
+
+        Returns:
+            int: Maximum expected duration in seconds.
+        """
+        # Multipass is designed for Ollama; use its timeout as the base
+        provider_timeout = self.OLLAMA_TIMEOUT if self.OLLAMA_ENABLED else self.ANTHROPIC_TIMEOUT
+        return self.MULTIPASS_PASS_COUNT * provider_timeout
+
+    @model_validator(mode="after")
+    def validate_rq_timeout(self) -> "Settings":
+        """Warn if RQ_JOB_TIMEOUT is less than expected multipass duration.
+
+        This validation ensures the background job won't be killed before
+        the multi-pass pipeline can complete all passes.
+        """
+        if not self.MULTIPASS_ENABLED or not self.RQ_ENABLED:
+            return self
+
+        max_duration = self.MULTIPASS_MAX_DURATION
+        if self.RQ_JOB_TIMEOUT < max_duration:
+            logger.warning(
+                f"RQ_JOB_TIMEOUT ({self.RQ_JOB_TIMEOUT}s) is less than "
+                f"MULTIPASS_MAX_DURATION ({max_duration}s = {self.MULTIPASS_PASS_COUNT} passes × "
+                f"{self.OLLAMA_TIMEOUT}s OLLAMA_TIMEOUT). "
+                f"Multi-pass jobs may be terminated prematurely. "
+                f"Consider increasing RQ_JOB_TIMEOUT or reducing OLLAMA_TIMEOUT."
+            )
+
         return self
 
     class Config:
