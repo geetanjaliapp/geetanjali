@@ -375,9 +375,10 @@ class LLMService:
         fallback_prompt: str | None = None,
         fallback_system: str | None = None,
         json_mode: bool = True,
+        allow_fallback: bool = True,
     ) -> dict[str, Any]:
         """
-        Generate text using primary LLM with fallback.
+        Generate text using primary LLM with optional fallback.
 
         Args:
             prompt: User prompt
@@ -387,6 +388,8 @@ class LLMService:
             fallback_prompt: Simplified prompt for fallback (optional)
             fallback_system: Simplified system prompt for fallback (optional)
             json_mode: If True, force JSON output for Ollama. Set False for prose/markdown.
+            allow_fallback: If True (default), attempt fallback on primary failure.
+                           Set False for multipass passes to prevent provider mixing.
 
         Returns:
             Generation result with response text and metadata
@@ -436,8 +439,9 @@ class LLMService:
                 f"Primary provider {self.primary_provider.value} failed: {e}"
             )
 
-        # Try fallback if primary failed and fallback is enabled
-        if primary_error and self.fallback_enabled:
+        # Try fallback if primary failed, fallback is enabled, and caller allows it
+        # Note: allow_fallback=False is used by multipass passes to prevent provider mixing
+        if primary_error and self.fallback_enabled and allow_fallback:
             # Determine fallback reason for metrics
             fallback_reason = "error"
             if isinstance(primary_error, CircuitBreakerOpen):
