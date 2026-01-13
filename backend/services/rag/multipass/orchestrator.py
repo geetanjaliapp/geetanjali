@@ -18,10 +18,13 @@ Database Session Strategy:
 
 import logging
 import time
+from collections.abc import Generator
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Any, Generator
+from typing import Any
+
+from sqlalchemy.orm import Session
 
 from config import settings
 from db import SessionLocal
@@ -34,7 +37,6 @@ from models.multipass import (
 )
 from services.llm import get_llm_service
 from services.rag.pipeline import RAGPipeline
-from sqlalchemy.orm import Session
 from utils.metrics_multipass import (
     multipass_active_pipelines,
     multipass_confidence_score,
