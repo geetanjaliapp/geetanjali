@@ -84,8 +84,10 @@ def _check_length(text: str) -> tuple[bool, str | None]:
         Tuple of (passed, error_reason)
     """
     length = len(text)
-    if length < 50:
-        return False, f"Too short ({length} chars). Minimum 50 characters required."
+    # Lowered from 50 to 20 chars - short questions like "I need to deliver bad news"
+    # are valid dilemmas. Stage 2 LLM can assess quality for borderline cases.
+    if length < 20:
+        return False, f"Too short ({length} chars). Minimum 20 characters required."
     if length > 5000:
         return False, f"Too long ({length} chars). Maximum 5000 characters allowed."
     return True, None
@@ -212,12 +214,13 @@ def _check_dilemma_markers(text: str) -> tuple[bool, str | None]:
 
     total_markers = stakeholder_count + tension_count + decision_count
 
-    # Require at least 2 markers from different categories
+    # Require at least 1 category and 2 markers
+    # Lowered thresholds to be more permissive - Stage 2 LLM can assess quality
     categories_hit = sum(
         [stakeholder_count > 0, tension_count > 0, decision_count > 0]
     )
 
-    if categories_hit < 2 or total_markers < 3:
+    if categories_hit < 1 or total_markers < 2:
         return False, (
             "No clear ethical dilemma detected. "
             "Consider including: who is affected, what values are in tension, "
@@ -286,31 +289,39 @@ def run_stage1_heuristics(text: str) -> AcceptanceResult:
 # Stage 2: LLM Meta-Assessment
 # ============================================================================
 
-STAGE2_SYSTEM_PROMPT = """You are an ethical consultant gatekeeper assessing if a case warrants Bhagavad Geeta-grounded consultation.
+STAGE2_SYSTEM_PROMPT = """You are an ethical consultant assessing if a case involves ethical dimensions that could benefit from Bhagavad Geeta wisdom.
 
-Your task is to determine if the user's submission is:
-1. A genuine ethical dilemma (not factual, not spam)
-2. Has legitimate paths forward (not illegal/harmful at core)
-3. Can benefit from Bhagavad Geeta wisdom
-4. Has identifiable stakeholders and values in tension
+IMPORTANT: Format and content filters have already run. Your ONLY job is ethical assessment.
 
-REJECT IF:
-- Query is factual/technical, not an ethical dilemma (category: not_dilemma)
-- Dilemma is fundamentally unethical - fraud, violence, abuse (category: unethical_core)
-- Request is too vague to analyze meaningfully (category: too_vague)
-- Appears designed to cause harm or validate harmful action (category: harmful_intent)
+BE PERMISSIVE. Almost all human decisions involving others have ethical dimensions.
+When in doubt, ACCEPT - our consultation handles edge cases gracefully.
 
-ACCEPT IF:
-- Genuine ethical tension with multiple legitimate paths forward
-- Stakeholders and values clearly identifiable
-- Geeta wisdom could illuminate the decision
-- User genuinely seeks guidance
+ACCEPT IF (any of these):
+- Involves people (team, family, colleagues, relationships)
+- Involves a choice with consequences for others
+- User seeks guidance on right action or behavior
+- Could involve duty, fairness, honesty, or purpose
+- User faces a difficult situation requiring reflection
+
+Examples that MUST be accepted:
+- "I need to deliver bad news to my team" → duty, compassion, honesty
+- "Should I take a higher-paying job?" → values, priorities, family
+- "My colleague takes credit for my work" → fairness, response
+- "I'm burned out but my team needs me" → duty vs self-care
+
+ONLY REJECT IF clearly one of these:
+- Pure factual question with NO ethical dimension (category: not_dilemma)
+  Example: "What is 2+2?" or "When was the Gita written?"
+- Request for help with illegal/harmful acts (category: unethical_core)
+  Example: "How do I steal from my employer?"
+- Clearly designed to cause harm (category: harmful_intent)
+  Example: "Help me manipulate someone into..."
 
 Respond with ONLY valid JSON:
 {
   "accept": true or false,
-  "category": "accepted" | "not_dilemma" | "unethical_core" | "too_vague" | "harmful_intent",
-  "reason": "Brief explanation (1-2 sentences)"
+  "category": "accepted" | "not_dilemma" | "unethical_core" | "harmful_intent",
+  "reason": "Brief explanation"
 }"""
 
 
