@@ -1,8 +1,9 @@
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { formatSanskritLines } from "../lib/sanskritFormatter";
 import { formatChapterVerse } from "../lib/verseLinker";
 import { prefetchVerse } from "../lib/versePrefetch";
+import { preloadAudio } from "../lib/audioPreload";
 import { useAudioPlayer } from "./audio";
 import {
   PlayIcon,
@@ -37,6 +38,13 @@ export function FeaturedVerse({
   // Check if this verse is currently playing
   const isThisPlaying = verse ? currentlyPlaying === verse.canonical_id : false;
   const hasAudio = Boolean(verse?.audio_url);
+
+  // Preload audio into SW cache when verse is displayed (prevents cold start on first play)
+  useEffect(() => {
+    if (verse?.audio_url) {
+      preloadAudio(verse.audio_url);
+    }
+  }, [verse?.audio_url]);
 
   // Handle audio play/pause
   const handleAudioClick = useCallback(

@@ -554,18 +554,33 @@ export function AudioPlayerProvider({ children }: AudioPlayerProviderProps) {
     [currentlyPlaying, state],
   );
 
-  // Retry after error
+  // Retry after error - fully reset audio element to clear partial state
   const retry = useCallback(() => {
     if (currentlyPlaying && currentSrcRef.current) {
-      // Reset state before retry
+      const audio = audioRef.current;
+      const savedSrc = currentSrcRef.current;
+      const savedVerseId = currentlyPlaying;
+
+      // Fully reset audio element to clear browser's partial buffer state
+      if (audio) {
+        audio.pause();
+        audio.removeAttribute("src");
+        audio.load(); // Clear internal buffers
+      }
+
+      // Reset state
       setState("idle");
       setError(null);
-      // Small delay to allow state reset
+      currentSrcRef.current = null;
+
+      // Small delay to ensure browser has cleared state, then replay
       setTimeout(() => {
-        if (currentSrcRef.current) {
-          play(currentlyPlaying, currentSrcRef.current);
-        }
-      }, 100);
+        // Add cache-bust param to force fresh request (bypasses browser's partial cache)
+        const freshSrc = savedSrc.includes("?")
+          ? `${savedSrc}&_t=${Date.now()}`
+          : `${savedSrc}?_t=${Date.now()}`;
+        play(savedVerseId, freshSrc);
+      }, 150);
     }
   }, [currentlyPlaying, play]);
 

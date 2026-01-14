@@ -118,22 +118,25 @@ self.addEventListener('fetch', (event) => {
 });
 
 // ============================================================================
-// Audio Caching - Cache-First, No Validation (v1.22.3)
+// Audio Caching - Cache-First with Range Request Reliability (v1.27.2)
 // ============================================================================
 
 /**
- * Handle audio requests with simple cache-first strategy
+ * Handle audio requests with cache-first strategy and Range request reliability
  *
- * Strategy (optimized for speed + reliability):
+ * Strategy:
  * 1. Quick cache check - serve immediately if exists (NO validation)
- * 2. If not cached, fetch from network
- * 3. Cache successful responses in background (non-blocking)
+ * 2. If not cached AND it's a Range request: fetch full file FIRST, cache, then serve range
+ *    (prevents race conditions where partial responses cause playback failures)
+ * 3. If not cached AND it's a full request: fetch, cache, return
  *
- * No validation overhead - if cached audio is corrupt, the browser's
- * audio element will error and user can retry (triggers network fetch).
+ * The key insight: browsers make Range requests during audio playback. If we return
+ * a 206 from network before caching, subsequent Range requests may fail if the
+ * network is flaky, causing "audio plays shorter on retry" issues.
  */
 async function handleAudioRequest(request, url) {
   const cacheKey = url.origin + url.pathname; // Normalize URL (ignore query params)
+  const rangeHeader = request.headers.get('range');
 
   // CACHE FIRST: Quick check, no validation
   try {
@@ -143,7 +146,6 @@ async function handleAudioRequest(request, url) {
     if (cached) {
       // Serve from cache - properly await async operations
       updateAudioAccessTime(cacheKey);
-      const rangeHeader = request.headers.get('range');
 
       if (rangeHeader) {
         try {
@@ -172,17 +174,18 @@ async function handleAudioRequest(request, url) {
 
   // NOT CACHED or cache read failed: Fetch from network
   try {
+    // For Range requests on uncached files: fetch FULL file first, cache, then serve range
+    // This prevents race conditions during playback where partial 206 responses
+    // cause subsequent Range requests to fail on flaky networks
+    if (rangeHeader) {
+      return await fetchCacheAndServeRange(cacheKey, rangeHeader);
+    }
+
+    // Full request (no Range header): fetch, cache in background, return
     const networkResponse = await fetch(request);
 
-    // If successful, cache in background (non-blocking)
-    if (networkResponse.ok) {
-      if (networkResponse.status === 200) {
-        // Full response - cache it
-        cacheAudioInBackground(cacheKey, networkResponse.clone());
-      } else if (networkResponse.status === 206) {
-        // Partial response (Range request) - trigger background full-file cache
-        cacheFullFileInBackground(cacheKey);
-      }
+    if (networkResponse.ok && networkResponse.status === 200) {
+      cacheAudioInBackground(cacheKey, networkResponse.clone());
     }
 
     return networkResponse;
@@ -193,6 +196,65 @@ async function handleAudioRequest(request, url) {
       statusText: 'Service Unavailable',
       headers: { 'Content-Type': 'text/plain' }
     });
+  }
+}
+
+/**
+ * Fetch full audio file, cache it, then serve the requested range
+ *
+ * This ensures the full file is cached before playback begins,
+ * preventing race conditions where subsequent Range requests fail.
+ */
+async function fetchCacheAndServeRange(cacheKey, rangeHeader) {
+  // Check if already being fetched by another request
+  if (inFlightAudioRequests.has(cacheKey)) {
+    // Wait for the in-flight request to complete
+    await inFlightAudioRequests.get(cacheKey);
+    // Now try to serve from cache
+    const cache = await caches.open(AUDIO_CACHE);
+    const cached = await cache.match(cacheKey);
+    if (cached) {
+      return await createRangeResponse(cached, rangeHeader);
+    }
+    // If still not cached, fall through to fetch
+  }
+
+  // Fetch the FULL file (no Range header) to ensure complete download
+  const fetchPromise = (async () => {
+    const response = await fetch(cacheKey, {
+      method: 'GET',
+      mode: 'cors',
+      credentials: 'omit',
+      // No Range header - we want the complete file
+    });
+
+    if (response.ok && response.status === 200) {
+      const cache = await caches.open(AUDIO_CACHE);
+      const cached = await cacheAudioFile(cache, cacheKey, response.clone());
+      if (cached) {
+        return response;
+      }
+    }
+    return response;
+  })();
+
+  inFlightAudioRequests.set(cacheKey, fetchPromise);
+
+  try {
+    const fullResponse = await fetchPromise;
+
+    // Now serve the requested range from the cached full file
+    const cache = await caches.open(AUDIO_CACHE);
+    const cached = await cache.match(cacheKey);
+
+    if (cached) {
+      return await createRangeResponse(cached, rangeHeader);
+    }
+
+    // Cache failed, return the full response (browser will handle it)
+    return fullResponse;
+  } finally {
+    inFlightAudioRequests.delete(cacheKey);
   }
 }
 
