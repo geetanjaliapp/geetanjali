@@ -8,6 +8,7 @@ Supported voices:
 - hi-IN-SwaraNeural (Hindi female) - for Hindi content
 """
 
+import asyncio
 import logging
 import re
 import time
@@ -119,6 +120,9 @@ VOICES = {
 DEFAULT_RATE = "-5%"  # Slightly slower for clarity
 DEFAULT_PITCH = "+0Hz"  # Natural pitch
 
+# Timeout for Edge TTS streaming (seconds)
+TTS_TIMEOUT_SECONDS = 30
+
 
 class TTSRequest(BaseModel):
     """Request body for TTS generation."""
@@ -191,19 +195,33 @@ async def generate_speech(request: Request, body: TTSRequest):
             pitch=body.pitch,
         )
 
-        # Collect all audio bytes for caching
+        # Collect all audio bytes for caching with timeout protection
         audio_chunks: list[bytes] = []
         first_chunk = True
 
-        async for chunk in communicate.stream():
-            if chunk["type"] == "audio":
-                if first_chunk:
-                    duration = time.time() - start_time
-                    tts_request_duration_seconds.labels(lang=body.lang).observe(
-                        duration
-                    )
-                    first_chunk = False
-                audio_chunks.append(chunk["data"])
+        async def stream_with_timeout():
+            nonlocal first_chunk
+            async for chunk in communicate.stream():
+                if chunk["type"] == "audio":
+                    if first_chunk:
+                        duration = time.time() - start_time
+                        tts_request_duration_seconds.labels(lang=body.lang).observe(
+                            duration
+                        )
+                        first_chunk = False
+                    audio_chunks.append(chunk["data"])
+
+        # Apply timeout to prevent hanging on Edge TTS failures
+        await asyncio.wait_for(stream_with_timeout(), timeout=TTS_TIMEOUT_SECONDS)
+
+        # Validate we got audio data
+        if not audio_chunks:
+            logger.warning("TTS returned no audio data")
+            tts_requests_total.labels(lang=body.lang, result="empty").inc()
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Text-to-speech service returned no audio",
+            )
 
         # Combine chunks and cache
         audio_bytes = b"".join(audio_chunks)
@@ -220,6 +238,18 @@ async def generate_speech(request: Request, body: TTSRequest):
                 "X-Cache": "MISS",
             },
         )
+
+    except asyncio.TimeoutError:
+        logger.error(f"TTS generation timed out after {TTS_TIMEOUT_SECONDS}s")
+        tts_requests_total.labels(lang=body.lang, result="timeout").inc()
+        raise HTTPException(
+            status_code=status.HTTP_504_GATEWAY_TIMEOUT,
+            detail="Text-to-speech service timed out",
+        )
+
+    except HTTPException:
+        # Re-raise HTTP exceptions (don't wrap them)
+        raise
 
     except Exception as e:
         logger.error(f"TTS generation failed: {e}")
