@@ -12,10 +12,10 @@ Usage:
     python -m backend.scripts.audit_study_content
 """
 
-import os
 import sys
 from collections import defaultdict
 from pathlib import Path
+from typing import Any
 
 # Add backend to path for imports
 backend_dir = Path(__file__).parent.parent
@@ -53,11 +53,13 @@ HERO_VERSES = [
 PRIORITY_CHAPTERS = [2, 3, 12, 18]
 
 
-def audit_paraphrases(db: Session) -> dict:
+def audit_paraphrases(db: Session) -> dict[int, dict[str, Any]]:
     """Audit paraphrase_en coverage by chapter."""
     verses = db.query(Verse).order_by(Verse.chapter, Verse.verse).all()
 
-    by_chapter = defaultdict(lambda: {"total": 0, "with_paraphrase": 0, "missing": []})
+    by_chapter: dict[int, dict[str, Any]] = defaultdict(
+        lambda: {"total": 0, "with_paraphrase": 0, "missing": []}
+    )
 
     for verse in verses:
         by_chapter[verse.chapter]["total"] += 1
@@ -69,7 +71,7 @@ def audit_paraphrases(db: Session) -> dict:
     return dict(by_chapter)
 
 
-def audit_translations(db: Session) -> dict:
+def audit_translations(db: Session) -> dict[str, dict[str, int]]:
     """Audit translation coverage."""
     # English translations in Verse model
     en_total = db.query(Verse).count()
@@ -94,7 +96,7 @@ def audit_translations(db: Session) -> dict:
     }
 
 
-def audit_audio(db: Session) -> dict:
+def audit_audio(db: Session) -> dict[str, Any]:
     """Audit audio file availability."""
     # Check audio_url field (assuming it's set when audio exists)
     # We'll also check the actual files
@@ -102,7 +104,7 @@ def audit_audio(db: Session) -> dict:
     verses = db.query(Verse).all()
 
     with_audio_field = 0
-    by_chapter = defaultdict(lambda: {"total": 0, "with_audio": 0})
+    by_chapter: dict[int, dict[str, int]] = defaultdict(lambda: {"total": 0, "with_audio": 0})
 
     for verse in verses:
         by_chapter[verse.chapter]["total"] += 1
@@ -119,11 +121,11 @@ def audit_audio(db: Session) -> dict:
     }
 
 
-def audit_commentaries(db: Session) -> dict:
+def audit_commentaries(db: Session) -> dict[str, dict[str, int]]:
     """Audit commentary coverage by school/type."""
     commentaries = db.query(Commentary).all()
 
-    by_school = defaultdict(lambda: {"count": 0, "verses": set()})
+    by_school: dict[str, dict[str, Any]] = defaultdict(lambda: {"count": 0, "verses": set()})
     for c in commentaries:
         school = c.school or "unknown"
         by_school[school]["count"] += 1
@@ -140,9 +142,9 @@ def audit_commentaries(db: Session) -> dict:
     return result
 
 
-def audit_hero_verses(db: Session) -> dict:
+def audit_hero_verses(db: Session) -> dict[str, dict[str, Any]]:
     """Audit content availability for hero verses."""
-    results = {}
+    results: dict[str, dict[str, Any]] = {}
 
     for canonical_id in HERO_VERSES:
         verse = db.query(Verse).filter(
@@ -170,12 +172,12 @@ def audit_hero_verses(db: Session) -> dict:
 
 
 def print_report(
-    paraphrases: dict,
-    translations: dict,
-    audio: dict,
-    commentaries: dict,
-    hero_verses: dict
-):
+    paraphrases: dict[int, dict[str, Any]],
+    translations: dict[str, dict[str, int]],
+    audio: dict[str, Any],
+    commentaries: dict[str, dict[str, int]],
+    hero_verses: dict[str, dict[str, Any]],
+) -> None:
     """Print formatted audit report."""
     print("\n" + "=" * 70)
     print("STUDY MODE CONTENT AUDIT")
