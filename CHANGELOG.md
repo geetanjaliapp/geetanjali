@@ -2,6 +2,34 @@
 
 All notable changes to Geetanjali are documented here.
 
+## [1.28.0] - 2026-01-14
+
+About page redesign and audio playback reliability improvements.
+
+### Features
+
+- **About Page Redesign** - Story-focused layout with mission, approach, and team sections
+  - Source code easter eggs for developer discovery
+  - Responsive grid layouts with improved mobile experience
+  - Semantic HTML structure with proper heading hierarchy
+
+### Fixes
+
+- **Audio Playback Reliability** - Resolved Range request race condition causing intermittent failures
+  - Service Worker now caches full audio file before serving Range requests
+  - Proactive audio preloading when featured verse is displayed
+  - Improved retry logic with full audio element reset and cache-bust URLs
+  - Prevents "audio plays shorter on retry" symptom on flaky networks
+
+- **Accessibility** - Resolved nested `<main>` elements and added footer navigation landmark
+
+- **Mobile Polish** - Fixed About page Explore section layout and attribution text wrapping
+
+### Technical
+
+- Service Worker upgraded to v1.27.2 with `fetchCacheAndServeRange()` function
+- Type annotations added to backend audit scripts for mypy compliance
+
 ## [1.27.0] - 2026-01-13
 
 Multi-pass consultation pipeline for deeper, more thoughtful ethical guidance.
