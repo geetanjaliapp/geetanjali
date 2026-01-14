@@ -13,7 +13,7 @@ export function Footer() {
         {/* Mobile: Stacked layout */}
         <div className="sm:hidden text-center space-y-3">
           {/* Links */}
-          <div className="flex justify-center gap-4 text-xs text-[var(--text-secondary)]">
+          <nav aria-label="Footer navigation" className="flex justify-center gap-4 text-xs text-[var(--text-secondary)]">
             <Link
               to="/"
               className="font-medium text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] transition-[var(--transition-color)]"
@@ -40,7 +40,7 @@ export function Footer() {
             >
               GitHub
             </a>
-          </div>
+          </nav>
           {/* Trust signals */}
           <div className="flex justify-center gap-3 text-xs text-[var(--text-muted)]">
             <span>701 Verses</span>
@@ -65,7 +65,7 @@ export function Footer() {
         {/* Desktop: Single line */}
         <div className="hidden sm:flex items-center justify-between text-xs text-[var(--text-tertiary)]">
           {/* Left: Links */}
-          <div className="flex items-center gap-4">
+          <nav aria-label="Footer navigation" className="flex items-center gap-4">
             <Link
               to="/"
               className="font-medium text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] transition-[var(--transition-color)]"
@@ -92,7 +92,7 @@ export function Footer() {
             >
               GitHub
             </a>
-          </div>
+          </nav>
 
           {/* Center: Trust signals */}
           <div className="flex items-center gap-2 text-[var(--text-muted)]">

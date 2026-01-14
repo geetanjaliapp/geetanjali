@@ -130,7 +130,7 @@ function App() {
         <SkipLink />
         <OfflineIndicator />
         <FloatingActionButton />
-        <main id="main-content">
+        <div id="main-content">
           <Suspense fallback={<PageLoader />}>
             <Routes>
               {/* Public routes - accessible to everyone */}
@@ -183,7 +183,7 @@ function App() {
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
-        </main>
+        </div>
       </TTSProvider>
     </Router>
   );
