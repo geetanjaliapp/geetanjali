@@ -1,10 +1,33 @@
-/**
- * About Page
- * - 701 + 9 verses (auspicious numbers)
- * - Semantic HTML structure
- * - Mobile-first responsive design
- * - Theme parity with design system
+/*
+ * ════════════════════════════════════════════════════════════════════════════
+ *
+ *                                    ॐ
+ *                                   ╱ ╲
+ *                                  ╱   ╲
+ *                                 ╱  ◈  ╲
+ *                                ╱ ─ ─ ─ ╲
+ *                                 गीतांजलि
+ *
+ *                         G E E T A N J A L I
+ *                    Ancient Wisdom, Modern Interface
+ *
+ * ════════════════════════════════════════════════════════════════════════════
+ *
+ *   To the curious soul reading this source:
+ *
+ *   तद्विद्धि प्रणिपातेन परिप्रश्नेन सेवया।
+ *   उपदेक्ष्यन्ति ते ज्ञानं ज्ञानिनस्तत्त्वदर्शिनः॥
+ *
+ *   "Seek knowledge through humble inquiry and service.
+ *    The wise who have seen the truth will teach you."
+ *
+ *                              — Bhagavad Geeta 4.34
+ *
+ *   You sought, you found. Welcome, fellow seeker.
+ *
+ * ════════════════════════════════════════════════════════════════════════════
  */
+
 import { useState, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { Navbar } from "../components";
@@ -12,16 +35,18 @@ import { Footer } from "../components/Footer";
 import {
   LogoIcon,
   BookOpenIcon,
-  VolumeIcon,
   CompassIcon,
-  CloudDownloadIcon,
-  SparklesIcon,
-  HeartIcon,
 } from "../components/icons";
 import { api } from "../lib/api";
 import { validateContent } from "../lib/contentFilter";
 import { errorMessages } from "../lib/errorMessages";
 import { useSEO } from "../hooks";
+
+/*
+ * ─── Types ───────────────────────────────────────────────────────────────────
+ * "नामरूपे व्याकरोत्" — Names and forms were distinguished.
+ * Types give shape to the formless, structure to intention.
+ */
 
 type ContactType =
   | "feedback"
@@ -38,16 +63,25 @@ interface ContactForm {
   message: string;
 }
 
+/*
+ * ─── Component ───────────────────────────────────────────────────────────────
+ * "योगः कर्मसु कौशलम्" — Yoga is skill in action. (BG 2.50)
+ * May this component serve its purpose with grace.
+ */
+
 export default function About() {
   const location = useLocation();
 
   useSEO({
     title: "About",
     description:
-      "Learn about Geetanjali - ancient wisdom from the Bhagavad Geeta for modern ethical decisions. Free, open source, and privacy-focused.",
+      "Learn about Geetanjali - ancient wisdom from the Bhagavad Geeta for modern ethical decisions. Open source, private, and free.",
     canonical: "/about",
   });
 
+  /*
+   * Scroll to hash on navigation — like a river finding its course
+   */
   useEffect(() => {
     if (location.hash) {
       const element = document.querySelector(location.hash);
@@ -59,6 +93,29 @@ export default function About() {
     }
   }, [location.hash]);
 
+  /*
+   * A greeting for those who look deeper — the curious souls with DevTools open
+   */
+  useEffect(() => {
+    console.log(
+      "%c🙏 नमस्ते, fellow seeker",
+      "font-size: 16px; font-weight: bold; color: #8B5A2B;"
+    );
+    console.log(
+      "%cYou looked at the source. We respect that.\n\n" +
+        "तद्विद्धि प्रणिपातेन परिप्रश्नेन सेवया\n" +
+        '"Seek knowledge through humble inquiry."\n' +
+        "— Bhagavad Geeta 4.34\n\n" +
+        "Contributions welcome: github.com/geetanjaliapp/geetanjali",
+      "font-size: 12px; color: #666; line-height: 1.6;"
+    );
+  }, []);
+
+  /*
+   * ─── State ─────────────────────────────────────────────────────────────────
+   * "परिणामे दुःखम्" — All states transform.
+   * We hold form data lightly, knowing it will change.
+   */
   const [formData, setFormData] = useState<ContactForm>({
     name: "",
     email: "",
@@ -72,6 +129,11 @@ export default function About() {
   >("idle");
   const [errorMessage, setErrorMessage] = useState("");
 
+  /*
+   * ─── Form Handler ──────────────────────────────────────────────────────────
+   * "कर्मण्येवाधिकारस्ते मा फलेषु कदाचन" — BG 2.47
+   * We act with care; the outcome is not ours to command.
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -109,254 +171,236 @@ export default function About() {
     }
   };
 
+  /*
+   * ─── Render ────────────────────────────────────────────────────────────────
+   * "सर्वभूतस्थमात्मानं सर्वभूतानि चात्मनि" — BG 6.29
+   * Seeing oneself in all beings, and all beings in oneself.
+   * This page exists to serve whoever arrives here.
+   */
   return (
-    <div className="min-h-screen bg-linear-to-br from-[var(--gradient-page-from)] to-[var(--gradient-page-to)] flex flex-col">
+    <div
+      className="min-h-screen bg-linear-to-br from-[var(--gradient-page-from)] to-[var(--gradient-page-to)] flex flex-col"
+      data-page="about"
+      data-wisdom="सत्यमेव जयते"
+    >
       <Navbar />
 
-      <main className="flex-1 w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
-        {/* Hero */}
-        <header className="text-center mb-8 sm:mb-12">
-          <LogoIcon className="h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4" />
-          <h1 className="text-2xl sm:text-3xl font-bold font-heading text-[var(--text-primary)] mb-2 sm:mb-3">
-            Geetanjali
+      {/* ════════════════════════════════════════════════════════════════════
+       *  Main Content
+       *  "एकं सद्विप्रा बहुधा वदन्ति" — Truth is one; the wise call it by many names.
+       * ════════════════════════════════════════════════════════════════════ */}
+      <main
+        className="flex-1 w-full max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12"
+        data-verse="The wise see knowledge and action as one. (BG 5.4)"
+      >
+        {/* ─── Hero ─────────────────────────────────────────────────────────
+         *  The stillness before the story begins.
+         */}
+        <header className="text-center mb-10 sm:mb-14">
+          <LogoIcon className="h-14 w-14 sm:h-16 sm:w-16 mx-auto mb-4" />
+          <h1 className="text-2xl sm:text-3xl font-bold font-heading text-[var(--text-primary)] mb-3">
+            About Geetanjali
           </h1>
-          <p className="text-base sm:text-lg text-[var(--text-secondary)] max-w-md mx-auto mb-2">
-            Ancient wisdom for modern decisions
+          <p className="text-base sm:text-lg text-[var(--text-secondary)] max-w-lg mx-auto leading-relaxed">
+            Ancient wisdom for life's difficult decisions
           </p>
-          <p className="text-sm italic text-[var(--text-muted)] max-w-sm mx-auto px-4">
-            "You have the right to work, but never to the fruit of work." — BG 2.47
-          </p>
-
-          <nav className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-6" aria-label="Primary actions">
-            <Link
-              to="/cases/new"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[var(--interactive-primary)] hover:bg-[var(--interactive-primary-hover)] text-[var(--interactive-primary-text)] font-semibold px-6 py-3 rounded-[var(--radius-button)] transition-[var(--transition-all)] shadow-[var(--shadow-card)]"
-            >
-              Start a Consultation
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            </Link>
-            <Link
-              to="/verses"
-              className="inline-flex items-center gap-1 text-[var(--text-link)] hover:text-[var(--text-link-hover)] font-medium transition-[var(--transition-color)]"
-            >
-              Explore All 701 Verses
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
-          </nav>
         </header>
 
-        {/* Stats */}
-        <section aria-labelledby="stats-heading" className="mb-10 sm:mb-12">
-          <h2 id="stats-heading" className="sr-only">Key Statistics</h2>
-          <ul className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4" role="list">
-            {[
-              { value: "701 + 9", label: "Verses + Dhyanam", icon: BookOpenIcon },
-              { value: "18", label: "Chapters", icon: CompassIcon },
-              { value: "AI", label: "Audio", icon: VolumeIcon },
-              { value: "Free", label: "Forever", icon: HeartIcon },
-            ].map((stat) => (
-              <li
-                key={stat.label}
-                className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] p-4 text-center shadow-[var(--shadow-card)]"
-              >
-                <stat.icon className="w-5 h-5 mx-auto mb-2 text-[var(--text-link)]" aria-hidden="true" />
-                <div className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">
-                  {stat.value}
-                </div>
-                <div className="text-xs text-[var(--text-muted)]">{stat.label}</div>
-              </li>
-            ))}
-          </ul>
-        </section>
+        {/* ─── The Story ────────────────────────────────────────────────────
+         *  "श्रवणं मननं निदिध्यासनम्"
+         *  Hearing, reflecting, contemplating — the path to understanding.
+         */}
+        <section
+          aria-labelledby="story-heading"
+          className="mb-10 sm:mb-14"
+          data-chapter="The Question"
+        >
+          <h2 id="story-heading" className="sr-only">What is Geetanjali</h2>
 
-        {/* How It Works */}
-        <section aria-labelledby="how-it-works-heading" className="mb-10 sm:mb-12">
-          <h2
-            id="how-it-works-heading"
-            className="text-xs sm:text-sm font-medium text-[var(--text-muted)] uppercase tracking-widest text-center mb-6 sm:mb-8"
+          {/* The verse that anchors everything */}
+          <blockquote
+            className="text-center mb-8 sm:mb-10"
+            cite="Bhagavad Geeta 2.47"
+            data-sanskrit="कर्मण्येवाधिकारस्ते मा फलेषु कदाचन"
           >
-            How It Works
-          </h2>
+            <p className="text-base sm:text-lg italic text-[var(--text-secondary)] max-w-xl mx-auto leading-relaxed">
+              "You have the right to work, but never to the fruit of work.
+              You should never engage in action for the sake of reward,
+              nor should you long for inaction."
+            </p>
+            <cite className="block mt-3 text-sm text-[var(--text-muted)] not-italic">
+              — Bhagavad Geeta 2.47
+            </cite>
+          </blockquote>
 
-          <div className="relative">
-            {/* Connection line - desktop only */}
-            <div
-              className="hidden sm:block absolute top-14 h-0.5 bg-[var(--border-accent)]"
-              style={{ left: '20%', right: '20%' }}
-              aria-hidden="true"
-            />
-
-            <ol className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-4">
-              {[
-                {
-                  emoji: "💭",
-                  num: 1,
-                  title: "Share Your Dilemma",
-                  desc: "Describe the decision you're facing—career, relationships, ethics, or growth.",
-                },
-                {
-                  emoji: "📖",
-                  num: 2,
-                  title: "Explore Perspectives",
-                  desc: "Receive thoughtful viewpoints grounded in verses from the Bhagavad Geeta.",
-                },
-                {
-                  emoji: "✨",
-                  num: 3,
-                  title: "Decide Thoughtfully",
-                  desc: "Act with clarity, aligned with your values and deeper understanding.",
-                },
-              ].map((step) => (
-                <li key={step.num} className="text-center relative">
-                  <div className="w-24 h-24 sm:w-28 sm:h-28 mx-auto mb-3 sm:mb-4 bg-[var(--surface-elevated)] rounded-full flex items-center justify-center shadow-[var(--shadow-card)] border border-[var(--border-subtle)] relative">
-                    <span className="text-3xl sm:text-4xl" aria-hidden="true">{step.emoji}</span>
-                    <span className="absolute -top-1 -right-1 w-7 h-7 sm:w-8 sm:h-8 bg-[var(--interactive-primary)] text-[var(--interactive-primary-text)] rounded-full flex items-center justify-center text-xs sm:text-sm font-bold shadow-[var(--shadow-card)]">
-                      {step.num}
-                    </span>
-                  </div>
-                  <h3 className="text-sm sm:text-base font-semibold text-[var(--text-primary)] mb-1">
-                    {step.title}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-[var(--text-tertiary)] max-w-[240px] mx-auto">
-                    {step.desc}
-                  </p>
-                </li>
-              ))}
-            </ol>
-          </div>
-
-          <div className="text-center mt-6 sm:mt-8">
-            <Link
-              to="/cases/new"
-              className="inline-flex items-center gap-2 text-[var(--text-link)] hover:text-[var(--text-link-hover)] font-semibold text-sm sm:text-base transition-[var(--transition-color)]"
-            >
-              Try it now — it's free
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            </Link>
+          <div className="prose prose-neutral dark:prose-invert max-w-none text-[var(--text-secondary)] space-y-4 sm:space-y-5 text-sm sm:text-base leading-relaxed">
+            <p>
+              Life presents moments when the right choice isn't obvious—when duty
+              conflicts with desire, when multiple paths seem equally valid, or when
+              the consequences of any decision feel uncertain.
+            </p>
+            <p>
+              For over two thousand years, people have turned to the Bhagavad Geeta
+              in such moments. Not for simple answers, but for perspectives that
+              illuminate the question itself. The Geeta is a 701-verse conversation
+              about how to act when the way forward isn't clear, how to balance
+              personal values with responsibility, and how to find equanimity amid
+              life's complexity.
+            </p>
+            <p>
+              Geetanjali brings this wisdom into a form you can engage with
+              directly—whether you're facing a career crossroads, navigating
+              relationships, working through ethical questions, or simply seeking
+              clarity. Share a dilemma, and receive thoughtful perspectives grounded
+              in verses from the Geeta, presented accessibly and without sectarian
+              framing.
+            </p>
+            <p>
+              This is not meant to replace your judgment or offer definitive answers.
+              Think of Geetanjali as one thoughtful companion among many—a way to
+              encounter timeless philosophy when you need it most.
+            </p>
           </div>
         </section>
 
-        {/* Features */}
-        <section aria-labelledby="features-heading" className="mb-10 sm:mb-12">
-          <h2
-            id="features-heading"
-            className="text-xs sm:text-sm font-medium text-[var(--text-muted)] uppercase tracking-widest text-center mb-4 sm:mb-6"
-          >
-            Features
-          </h2>
-          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4" role="list">
-            {[
-              {
-                icon: SparklesIcon,
-                title: "AI-Powered Guidance",
-                desc: "Thoughtful perspectives on your dilemmas, grounded in timeless philosophy.",
-              },
-              {
-                icon: VolumeIcon,
-                title: "Sanskrit Audio",
-                desc: "AI-generated recitations of all 701 verses with natural pronunciation.",
-              },
-              {
-                icon: BookOpenIcon,
-                title: "Study Modes",
-                desc: "Reading mode, study mode, and verse-by-verse exploration with translations.",
-              },
-              {
-                icon: CloudDownloadIcon,
-                title: "Works Offline",
-                desc: "Install as an app. Access verses and cached audio without internet.",
-              },
-            ].map((feature) => (
-              <li
-                key={feature.title}
-                className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] p-4 sm:p-5 shadow-[var(--shadow-card)] flex gap-3 sm:gap-4"
-              >
-                <feature.icon className="w-5 h-5 sm:w-6 sm:h-6 text-[var(--text-link)] shrink-0 mt-0.5" aria-hidden="true" />
-                <div>
-                  <h3 className="text-sm sm:text-base font-semibold text-[var(--text-primary)] mb-0.5 sm:mb-1">
-                    {feature.title}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-[var(--text-tertiary)]">{feature.desc}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        {/* Philosophy */}
+        {/* ─── Philosophy ───────────────────────────────────────────────────
+         *  "ज्ञानं विज्ञानसहितम्" — Knowledge with realization. (BG 7.2)
+         *  Theory meets practice here.
+         */}
         <section
           aria-labelledby="philosophy-heading"
-          className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] shadow-[var(--shadow-card)] p-4 sm:p-6 lg:p-8 mb-8 sm:mb-10"
+          className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] shadow-[var(--shadow-card)] p-5 sm:p-8 mb-10 sm:mb-14"
+          data-chapter="The Approach"
         >
-          <h2 id="philosophy-heading" className="sr-only">Our Philosophy</h2>
-          <div className="grid sm:grid-cols-2 gap-4 sm:gap-6 text-sm text-[var(--text-secondary)]">
-            <article>
-              <h3 className="font-semibold text-[var(--text-primary)] mb-2 flex items-center gap-2 text-sm sm:text-base">
+          <h2
+            id="philosophy-heading"
+            className="text-lg sm:text-xl font-bold font-heading text-[var(--text-primary)] mb-5 sm:mb-6"
+          >
+            Approach & Philosophy
+          </h2>
+
+          <div className="grid gap-6 sm:gap-8 text-sm sm:text-base text-[var(--text-secondary)]">
+            <article data-teaching="jnana-yoga">
+              <h3 className="font-semibold text-[var(--text-primary)] mb-2 flex items-center gap-2">
                 <BookOpenIcon className="w-4 h-4 text-[var(--text-link)]" aria-hidden="true" />
                 Why the Bhagavad Geeta?
               </h3>
-              <p className="text-xs sm:text-sm leading-relaxed">
-                A 701-verse conversation about life's biggest questions: How do we act when the
-                right path isn't clear? How do we balance duty with personal values? Its teachings
-                have guided people for over 2,000 years—practical philosophy anyone can apply.
+              <p className="leading-relaxed">
+                The Geeta addresses universal questions that transcend time and culture:
+                How do we act rightly when outcomes are uncertain? How do we honor our
+                responsibilities while staying true to ourselves? Its teachings have
+                guided seekers across traditions—practical philosophy that meets you
+                where you are.
               </p>
             </article>
-            <article>
-              <h3 className="font-semibold text-[var(--text-primary)] mb-2 flex items-center gap-2 text-sm sm:text-base">
+
+            <article data-teaching="karma-yoga">
+              <h3 className="font-semibold text-[var(--text-primary)] mb-2 flex items-center gap-2">
                 <CompassIcon className="w-4 h-4 text-[var(--text-link)]" aria-hidden="true" />
-                Our Approach
+                Accessible, Not Prescriptive
               </h3>
-              <p className="text-xs sm:text-sm leading-relaxed">
-                We present teachings accessibly and non-sectarianly, focusing on practical
-                Vedantic principles—self-knowledge, ethical action, and finding meaning amid
-                complexity. Think of Geetanjali as one thoughtful voice among many.
+              <p className="leading-relaxed">
+                Geetanjali presents the Geeta's teachings accessibly, focusing on
+                practical Vedantic principles—self-knowledge, ethical action, and
+                finding meaning amid complexity. The goal is to offer perspectives
+                that help you think more clearly, not to tell you what to do.
+              </p>
+            </article>
+
+            <article data-teaching="bhakti-yoga">
+              <h3 className="font-semibold text-[var(--text-primary)] mb-2 flex items-center gap-2">
+                <svg className="w-4 h-4 text-[var(--text-link)]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                Honoring the Source
+              </h3>
+              <p className="leading-relaxed">
+                Geetanjali includes all 701 verses of the Bhagavad Geeta plus the
+                9 verses of Geeta Dhyanam, with Sanskrit text, transliteration, and
+                translations. Audio recitations preserve the sound of the original.
+                The text is treated with the respect it deserves—presented faithfully,
+                not reduced to soundbites.
               </p>
             </article>
           </div>
         </section>
 
-        {/* Trust */}
-        <section aria-labelledby="trust-heading" className="mb-6 sm:mb-8">
-          <h2 id="trust-heading" className="sr-only">Our Commitments</h2>
-          <ul className="grid grid-cols-3 gap-2 sm:gap-4" role="list">
-            {[
-              { icon: "🔓", title: "Open Source", desc: "Fully transparent" },
-              { icon: "🔒", title: "Private", desc: "Your data stays yours" },
-              { icon: "💝", title: "Free Forever", desc: "No paywalls" },
-            ].map((item) => (
-              <li
-                key={item.title}
-                className="bg-[var(--surface-card)] border border-[var(--border-subtle)] rounded-[var(--radius-card)] p-3 sm:p-4 text-center"
-              >
-                <span className="text-xl sm:text-2xl mb-1 sm:mb-2 block" aria-hidden="true">{item.icon}</span>
-                <div className="font-semibold text-[var(--text-primary)] text-xs sm:text-sm">{item.title}</div>
-                <div className="text-[10px] sm:text-xs text-[var(--text-muted)]">{item.desc}</div>
-              </li>
-            ))}
-          </ul>
+        {/* ─── Commitments ──────────────────────────────────────────────────
+         *  "सत्यं वद। धर्मं चर।" — Speak truth. Practice dharma.
+         *  These are our vows, written in code.
+         */}
+        <section
+          aria-labelledby="commitments-heading"
+          className="mb-10 sm:mb-14"
+          data-chapter="The Vows"
+        >
+          <h2
+            id="commitments-heading"
+            className="text-xs sm:text-sm font-medium text-[var(--text-muted)] uppercase tracking-widest text-center mb-5 sm:mb-6"
+          >
+            Commitments
+          </h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <article
+              className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] shadow-[var(--shadow-card)] p-5 text-center"
+              data-vow="transparency"
+            >
+              <h3 className="font-semibold text-[var(--text-primary)] mb-2">Open Source</h3>
+              <p className="text-sm text-[var(--text-tertiary)] leading-relaxed">
+                The entire codebase is publicly available. Transparency builds trust,
+                and contributions are welcome.
+              </p>
+            </article>
+
+            <article
+              className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] shadow-[var(--shadow-card)] p-5 text-center"
+              data-vow="privacy"
+            >
+              <h3 className="font-semibold text-[var(--text-primary)] mb-2">Private</h3>
+              <p className="text-sm text-[var(--text-tertiary)] leading-relaxed">
+                Your dilemmas and reflections belong to you. Geetanjali doesn't
+                track, profile, or share your data.
+              </p>
+            </article>
+
+            <article
+              className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] shadow-[var(--shadow-card)] p-5 text-center"
+              data-vow="accessibility"
+            >
+              <h3 className="font-semibold text-[var(--text-primary)] mb-2">Open & Free</h3>
+              <p className="text-sm text-[var(--text-tertiary)] leading-relaxed">
+                Access to wisdom shouldn't have a price. All features are available
+                to everyone, always.
+              </p>
+            </article>
+          </div>
         </section>
 
-        {/* Links */}
-        <section aria-labelledby="links-heading" className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-8 sm:mb-10">
-          <h2 id="links-heading" className="sr-only">External Links</h2>
+        {/* ─── Links ────────────────────────────────────────────────────────
+         *  "दूरेण ह्यवरं कर्म बुद्धियोगात्" — BG 2.49
+         *  Action guided by wisdom. Links to continue the journey.
+         */}
+        <section
+          aria-labelledby="links-heading"
+          className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10 sm:mb-14"
+          data-chapter="The Paths"
+        >
+          <h2 id="links-heading" className="sr-only">Resources</h2>
+
           <a
             href="https://github.com/geetanjaliapp/geetanjali"
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] shadow-[var(--shadow-card)] p-4 sm:p-5 flex items-center gap-3 sm:gap-4 hover:shadow-[var(--shadow-dropdown)] transition-shadow"
+            className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] shadow-[var(--shadow-card)] p-5 flex items-center gap-4 hover:shadow-[var(--shadow-dropdown)] transition-shadow"
+            data-path="contribution"
           >
-            <svg className="w-8 h-8 sm:w-10 sm:h-10 text-[var(--text-primary)]" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <svg className="w-10 h-10 text-[var(--text-primary)] shrink-0" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
             </svg>
             <div>
-              <div className="font-semibold text-[var(--text-primary)] text-sm sm:text-base">View on GitHub</div>
-              <div className="text-xs sm:text-sm text-[var(--text-muted)]">Explore code, contribute</div>
+              <div className="font-semibold text-[var(--text-primary)]">View on GitHub</div>
+              <div className="text-sm text-[var(--text-muted)]">Explore the code, report issues, contribute</div>
             </div>
           </a>
 
@@ -364,78 +408,132 @@ export default function About() {
             href="https://ko-fi.com/vnykmshr"
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] shadow-[var(--shadow-card)] p-4 sm:p-5 flex items-center gap-3 sm:gap-4 hover:shadow-[var(--shadow-dropdown)] transition-shadow"
+            className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] shadow-[var(--shadow-card)] p-5 flex items-center gap-4 hover:shadow-[var(--shadow-dropdown)] transition-shadow"
+            data-path="support"
           >
-            <span className="text-3xl sm:text-4xl" aria-hidden="true">☕</span>
+            <span className="text-4xl shrink-0" aria-hidden="true">☕</span>
             <div>
-              <div className="font-semibold text-[var(--text-primary)] text-sm sm:text-base">Support the Project</div>
-              <div className="text-xs sm:text-sm text-[var(--text-muted)]">Help cover hosting costs</div>
+              <div className="font-semibold text-[var(--text-primary)]">Support the Project</div>
+              <div className="text-sm text-[var(--text-muted)]">Help cover hosting and development costs</div>
             </div>
           </a>
         </section>
 
-        {/* Contact Form */}
+        {/* ─── Explore ──────────────────────────────────────────────────────
+         *  "नैनं छिन्दन्ति शस्त्राणि" — BG 2.23
+         *  The knowledge within cannot be cut. Explore freely.
+         */}
+        <section
+          aria-labelledby="explore-heading"
+          className="mb-10 sm:mb-14"
+          data-chapter="The Invitation"
+        >
+          <h2
+            id="explore-heading"
+            className="text-xs sm:text-sm font-medium text-[var(--text-muted)] uppercase tracking-widest text-center mb-5"
+          >
+            Explore
+          </h2>
+
+          <nav className="flex flex-wrap justify-center gap-3 sm:gap-4" aria-label="Explore Geetanjali">
+            <Link
+              to="/verses"
+              className="inline-flex items-center gap-2 bg-[var(--surface-card)] border border-[var(--border-subtle)] rounded-[var(--radius-button)] px-4 py-2.5 text-sm font-medium text-[var(--text-primary)] hover:border-[var(--border-accent)] transition-colors"
+            >
+              <BookOpenIcon className="w-4 h-4" aria-hidden="true" />
+              Browse 701 Verses
+            </Link>
+            <Link
+              to="/read"
+              className="inline-flex items-center gap-2 bg-[var(--surface-card)] border border-[var(--border-subtle)] rounded-[var(--radius-button)] px-4 py-2.5 text-sm font-medium text-[var(--text-primary)] hover:border-[var(--border-accent)] transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+              Reading Mode
+            </Link>
+            <Link
+              to="/cases/new"
+              className="inline-flex items-center gap-2 bg-[var(--surface-card)] border border-[var(--border-subtle)] rounded-[var(--radius-button)] px-4 py-2.5 text-sm font-medium text-[var(--text-primary)] hover:border-[var(--border-accent)] transition-colors"
+            >
+              <CompassIcon className="w-4 h-4" aria-hidden="true" />
+              Seek Guidance
+            </Link>
+          </nav>
+        </section>
+
+        {/* ─── Contact ──────────────────────────────────────────────────────
+         *  "प्रश्नः ज्ञानस्य द्वारम्" — A question is the doorway to knowledge.
+         *  Every message is welcome. Every voice matters.
+         */}
         <section
           id="contact"
           aria-labelledby="contact-heading"
-          className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] shadow-[var(--shadow-card)] p-4 sm:p-6 lg:p-8 mb-6"
+          className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] shadow-[var(--shadow-card)] p-5 sm:p-8"
+          data-chapter="The Conversation"
         >
-          <h2 id="contact-heading" className="text-lg sm:text-xl font-bold font-heading text-[var(--text-primary)] mb-1">
+          <h2 id="contact-heading" className="text-lg sm:text-xl font-bold font-heading text-[var(--text-primary)] mb-2">
             Get in Touch
           </h2>
-          <p className="text-[var(--text-tertiary)] text-xs sm:text-sm mb-4 sm:mb-5">
-            Feedback, questions, or ideas? We'd love to hear from you.
+          <p className="text-[var(--text-tertiary)] text-sm mb-5 sm:mb-6">
+            Feedback, questions, bug reports, or ideas for improvement—all are welcome.
           </p>
 
           {submitStatus === "success" ? (
-            <div className="bg-[var(--status-success-bg)] border border-[var(--status-success-border)] rounded-[var(--radius-button)] p-4 sm:p-6 text-center">
-              <div className="text-2xl sm:text-3xl mb-2" aria-hidden="true">✓</div>
-              <h3 className="font-semibold text-[var(--status-success-text)] mb-1 text-sm sm:text-base">Message Sent!</h3>
-              <p className="text-[var(--status-success-text)] text-xs sm:text-sm">We'll get back to you soon.</p>
+            <div className="bg-[var(--status-success-bg)] border border-[var(--status-success-border)] rounded-[var(--radius-button)] p-6 text-center">
+              <div className="text-2xl mb-2" aria-hidden="true">✓</div>
+              <h3 className="font-semibold text-[var(--status-success-text)] mb-1">Message Sent</h3>
+              <p className="text-[var(--status-success-text)] text-sm">Thank you. We'll respond as soon as we can.</p>
               <button
                 onClick={() => setSubmitStatus("idle")}
-                className="mt-3 text-xs sm:text-sm text-[var(--status-success-text)] hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] rounded"
+                className="mt-4 text-sm text-[var(--status-success-text)] hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] rounded"
               >
-                Send another
+                Send another message
               </button>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <form onSubmit={handleSubmit} className="space-y-4" data-form="contact">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="contact-name" className="sr-only">Your name</label>
+                  <label htmlFor="contact-name" className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5">
+                    Name
+                  </label>
                   <input
                     id="contact-name"
                     type="text"
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-[var(--radius-input)] focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent text-sm"
+                    className="w-full px-4 py-2.5 border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-[var(--radius-input)] focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent text-sm"
                     placeholder="Your name"
                   />
                 </div>
                 <div>
-                  <label htmlFor="contact-email" className="sr-only">Your email</label>
+                  <label htmlFor="contact-email" className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5">
+                    Email
+                  </label>
                   <input
                     id="contact-email"
                     type="email"
                     required
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-[var(--radius-input)] focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent text-sm"
+                    className="w-full px-4 py-2.5 border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-[var(--radius-input)] focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent text-sm"
                     placeholder="you@example.com"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="contact-type" className="sr-only">Message type</label>
+                  <label htmlFor="contact-type" className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5">
+                    Type
+                  </label>
                   <select
                     id="contact-type"
                     value={formData.message_type}
                     onChange={(e) => setFormData({ ...formData, message_type: e.target.value as ContactType })}
-                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-[var(--radius-input)] focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent text-sm"
+                    className="w-full px-4 py-2.5 border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-[var(--radius-input)] focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent text-sm"
                   >
                     <option value="feedback">General Feedback</option>
                     <option value="question">Question</option>
@@ -445,33 +543,37 @@ export default function About() {
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="contact-subject" className="sr-only">Subject (optional)</label>
+                  <label htmlFor="contact-subject" className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5">
+                    Subject <span className="text-[var(--text-muted)] font-normal">(optional)</span>
+                  </label>
                   <input
                     id="contact-subject"
                     type="text"
                     value={formData.subject}
                     onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-[var(--radius-input)] focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent text-sm"
-                    placeholder="Subject (optional)"
+                    className="w-full px-4 py-2.5 border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-[var(--radius-input)] focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent text-sm"
+                    placeholder="Brief subject"
                   />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="contact-message" className="sr-only">Your message</label>
+                <label htmlFor="contact-message" className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5">
+                  Message
+                </label>
                 <textarea
                   id="contact-message"
                   required
-                  rows={4}
+                  rows={5}
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-[var(--radius-input)] focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent resize-none text-sm"
-                  placeholder="Your message..."
+                  className="w-full px-4 py-2.5 border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--text-primary)] rounded-[var(--radius-input)] focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent resize-none text-sm"
+                  placeholder="What's on your mind?"
                 />
               </div>
 
               {submitStatus === "error" && (
-                <div className="bg-[var(--status-error-bg)] border border-[var(--status-error-border)] rounded-[var(--radius-button)] p-3 text-[var(--status-error-text)] text-xs sm:text-sm" role="alert">
+                <div className="bg-[var(--status-error-bg)] border border-[var(--status-error-border)] rounded-[var(--radius-button)] p-3 text-[var(--status-error-text)] text-sm" role="alert">
                   {errorMessage}
                 </div>
               )}
@@ -479,7 +581,7 @@ export default function About() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full sm:w-auto bg-[var(--interactive-primary)] hover:bg-[var(--interactive-primary-hover)] disabled:bg-[var(--interactive-primary-disabled-bg)] disabled:text-[var(--interactive-primary-disabled-text)] text-[var(--interactive-primary-text)] font-semibold px-6 py-2.5 sm:py-3 rounded-[var(--radius-button)] transition-[var(--transition-color)] text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2"
+                className="bg-[var(--interactive-primary)] hover:bg-[var(--interactive-primary-hover)] disabled:bg-[var(--interactive-primary-disabled-bg)] disabled:text-[var(--interactive-primary-disabled-text)] text-[var(--interactive-primary-text)] font-semibold px-6 py-2.5 rounded-[var(--radius-button)] transition-[var(--transition-color)] text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2"
               >
                 {isSubmitting ? "Sending..." : "Send Message"}
               </button>
@@ -487,10 +589,12 @@ export default function About() {
           )}
         </section>
 
-        {/* Credits */}
-        <footer className="text-center text-[var(--text-muted)] text-[10px] sm:text-xs">
+        {/* ─── Attribution ──────────────────────────────────────────────────
+         *  "गुरुर्ब्रह्मा गुरुर्विष्णुः" — We honor our sources.
+         */}
+        <footer className="text-center text-[var(--text-muted)] text-xs mt-8 sm:mt-10">
           <p>
-            Verse translations from public domain texts.{" "}
+            Verse translations sourced from public domain texts.{" "}
             <a
               href="https://github.com/geetanjaliapp/geetanjali"
               className="text-[var(--text-link)] hover:text-[var(--text-link-hover)] hover:underline"
@@ -505,3 +609,35 @@ export default function About() {
     </div>
   );
 }
+
+/*
+ * ════════════════════════════════════════════════════════════════════════════
+ *
+ *                            C O L O P H O N
+ *
+ * ┌─────────────────────────────────────────────────────────────────────────┐
+ * │                                                                         │
+ * │   Built with:     React 19 · TypeScript · Vite · Tailwind CSS          │
+ * │   Typography:     Sanskrit 2003 · Inter                                 │
+ * │   Source:         github.com/geetanjaliapp/geetanjali                   │
+ * │   License:        MIT (Copyleft ↄ)                                      │
+ * │                                                                         │
+ * │   ─────────────────────────────────────────────────────────────────     │
+ * │                                                                         │
+ * │   "अहिंसा परमो धर्मः"                                                     │
+ * │    Non-violence is the highest virtue.                                  │
+ * │                                                                         │
+ * │   This code was written with care, tested with patience,               │
+ * │   and released with the hope that it may serve.                        │
+ * │                                                                         │
+ * │   Contributions welcome. Kindness required.                            │
+ * │                                                                         │
+ * │   ─────────────────────────────────────────────────────────────────     │
+ * │                                                                         │
+ * │   🙏 धन्यवाद for reading this far.                                       │
+ * │      May your code compile and your tests pass.                        │
+ * │                                                                         │
+ * └─────────────────────────────────────────────────────────────────────────┘
+ *
+ * ════════════════════════════════════════════════════════════════════════════
+ */
