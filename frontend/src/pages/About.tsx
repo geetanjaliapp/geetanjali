@@ -268,6 +268,7 @@ export default function About() {
          *  Theory meets practice here.
          */}
         <section
+          id="our-approach"
           aria-labelledby="philosophy-heading"
           className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] shadow-[var(--shadow-card)] p-5 sm:p-8 mb-10 sm:mb-14"
           data-chapter="The Approach"
@@ -435,28 +436,28 @@ export default function About() {
             Explore
           </h2>
 
-          <nav className="flex flex-wrap justify-center gap-3 sm:gap-4" aria-label="Explore Geetanjali">
+          <nav className="flex justify-center gap-1.5 sm:gap-4" aria-label="Explore Geetanjali">
             <Link
               to="/verses"
-              className="inline-flex items-center gap-2 bg-[var(--surface-card)] border border-[var(--border-subtle)] rounded-[var(--radius-button)] px-4 py-2.5 text-sm font-medium text-[var(--text-primary)] hover:border-[var(--border-accent)] transition-colors"
+              className="inline-flex items-center gap-1.5 sm:gap-2 bg-[var(--surface-card)] border border-[var(--border-subtle)] rounded-[var(--radius-button)] px-2.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium text-[var(--text-primary)] hover:border-[var(--border-accent)] transition-colors whitespace-nowrap"
             >
-              <BookOpenIcon className="w-4 h-4" aria-hidden="true" />
-              Browse 701 Verses
+              <BookOpenIcon className="hidden sm:inline w-4 h-4 shrink-0" aria-hidden="true" />
+              701 Verses
             </Link>
             <Link
               to="/read"
-              className="inline-flex items-center gap-2 bg-[var(--surface-card)] border border-[var(--border-subtle)] rounded-[var(--radius-button)] px-4 py-2.5 text-sm font-medium text-[var(--text-primary)] hover:border-[var(--border-accent)] transition-colors"
+              className="inline-flex items-center gap-1.5 sm:gap-2 bg-[var(--surface-card)] border border-[var(--border-subtle)] rounded-[var(--radius-button)] px-2.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium text-[var(--text-primary)] hover:border-[var(--border-accent)] transition-colors whitespace-nowrap"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <svg className="hidden sm:inline w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
               </svg>
-              Reading Mode
+              Read
             </Link>
             <Link
               to="/cases/new"
-              className="inline-flex items-center gap-2 bg-[var(--surface-card)] border border-[var(--border-subtle)] rounded-[var(--radius-button)] px-4 py-2.5 text-sm font-medium text-[var(--text-primary)] hover:border-[var(--border-accent)] transition-colors"
+              className="inline-flex items-center gap-1.5 sm:gap-2 bg-[var(--surface-card)] border border-[var(--border-subtle)] rounded-[var(--radius-button)] px-2.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium text-[var(--text-primary)] hover:border-[var(--border-accent)] transition-colors whitespace-nowrap"
             >
-              <CompassIcon className="w-4 h-4" aria-hidden="true" />
+              <CompassIcon className="hidden sm:inline w-4 h-4 shrink-0" aria-hidden="true" />
               Seek Guidance
             </Link>
           </nav>
@@ -593,8 +594,8 @@ export default function About() {
          *  "गुरुर्ब्रह्मा गुरुर्विष्णुः" — We honor our sources.
          */}
         <footer className="text-center text-[var(--text-muted)] text-xs mt-8 sm:mt-10">
-          <p>
-            Verse translations sourced from public domain texts.{" "}
+          <p>Verse translations sourced from public domain texts.</p>
+          <p className="mt-1">
             <a
               href="https://github.com/geetanjaliapp/geetanjali"
               className="text-[var(--text-link)] hover:text-[var(--text-link-hover)] hover:underline"
