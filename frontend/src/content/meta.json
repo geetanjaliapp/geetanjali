@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "Site-wide metadata and SEO defaults. This is the current representation - update freely as design evolves. Consumed by: React SPA, SEO generator.",
+  "site": {
+    "name": "Geetanjali",
+    "tagline": "Ancient Wisdom, Modern Interface",
+    "domain": "geetanjaliapp.com",
+    "url": "https://geetanjaliapp.com"
+  },
+  "seo": {
+    "defaultTitle": "Geetanjali - Bhagavad Gita Wisdom",
+    "defaultDescription": "Ethical guidance grounded in the timeless teachings of the Bhagavad Geeta. Explore 700 verses with Sanskrit, translations, and AI-powered insights.",
+    "ogImage": "/og-image.png"
+  },
+  "footer": {
+    "tagline": "Geetanjali - Ethical Guidance from the Bhagavad Geeta"
+  },
+  "nav": {
+    "links": [
+      { "label": "Verses", "href": "/verses" },
+      { "label": "About", "href": "/about" }
+    ]
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "Homepage content. This is the current representation - update freely as design evolves. Consumed by: Home.tsx, SEO home.html template.",
+  "seo": {
+    "title": "Bhagavad Gita Guidance",
+    "description": "Ethical guidance grounded in the timeless teachings of the Bhagavad Geeta. Explore 700 verses with Sanskrit, translations, and AI-powered insights."
+  },
+  "hero": {
+    "headline": "Wisdom for Life's",
+    "headlineAccent": "Difficult Decisions",
+    "subtitle": "Ethical guidance grounded in the timeless teachings of the Bhagavad Geeta",
+    "guestPrompt": "Try it free — no signup required",
+    "ctaSubtext": "Get personalized guidance in minutes"
+  },
+  "cta": {
+    "primary": {
+      "label": "Ask a Question",
+      "href": "/cases/new"
+    },
+    "secondary": {
+      "label": "Explore Verses",
+      "href": "/verses"
+    }
+  },
+  "features": [
+    {
+      "id": "navigate",
+      "title": "Navigate Tough Choices",
+      "titleShort": "Navigate",
+      "description": "Get clarity when the right path isn't obvious",
+      "icon": "lightbulb"
+    },
+    {
+      "id": "options",
+      "title": "See All Your Options",
+      "titleShort": "Options",
+      "description": "Compare approaches with honest trade-offs",
+      "icon": "arrows"
+    },
+    {
+      "id": "trusted",
+      "title": "Wisdom You Can Trust",
+      "titleShort": "Trusted",
+      "description": "Every recommendation cites its source",
+      "icon": "book"
+    }
+  ],
+  "recentConsultations": {
+    "heading": "Continue where you left off",
+    "viewAllLabel": "View all →",
+    "viewAllHref": "/consultations"
+  }
+}

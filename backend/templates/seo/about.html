@@ -1,0 +1,136 @@
+{% extends "seo/base.html" %}
+
+{% block title %}{{ content.seo.title | default('About') }}{% endblock %}
+
+{% block description %}{{ content.seo.description | default('Learn about Geetanjali - ancient wisdom from the Bhagavad Geeta for modern ethical decisions.') }}{% endblock %}
+
+{% block canonical %}/about{% endblock %}
+
+{% block og_type %}website{% endblock %}
+{% block og_title %}{{ content.hero.title | default('About Geetanjali') }}{% endblock %}
+{% block og_description %}{{ content.seo.description | default('Learn about Geetanjali - ancient wisdom for modern ethical decisions.') }}{% endblock %}
+{% block og_url %}/about{% endblock %}
+
+{% block twitter_title %}{{ content.hero.title | default('About Geetanjali') }}{% endblock %}
+{% block twitter_description %}{{ content.seo.description | default('Learn about Geetanjali - ancient wisdom for modern ethical decisions.') }}{% endblock %}
+
+{% block jsonld %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "AboutPage",
+    "name": "{{ content.hero.title | default('About Geetanjali') }}",
+    "description": "{{ content.seo.description | default('Learn about Geetanjali - ancient wisdom for modern ethical decisions') }}",
+    "url": "{{ meta.site.url | default('https://geetanjaliapp.com') }}/about",
+    "mainEntity": {
+        "@type": "Organization",
+        "name": "{{ meta.site.name | default('Geetanjali') }}",
+        "description": "{{ content.hero.subtitle | default('Ethical leadership guidance grounded in Bhagavad Geeta wisdom') }}",
+        "url": "{{ meta.site.url | default('https://geetanjaliapp.com') }}"
+    }
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<article>
+    <!-- Hero Section -->
+    <header class="hero">
+        <h1>{{ content.hero.title | default('About Geetanjali') }}</h1>
+        <p class="subtitle">{{ content.hero.subtitle | default('Ancient wisdom for life\'s difficult decisions') }}</p>
+    </header>
+
+    <!-- Featured Quote -->
+    {% if content.quote %}
+    <section aria-labelledby="quote" class="quote-section">
+        <blockquote>
+            <p class="quote-text">"{{ content.quote.text }}"</p>
+            {% if content.quote.sanskrit %}
+            <p class="sanskrit" lang="sa">{{ content.quote.sanskrit }}</p>
+            {% endif %}
+            <cite>— {{ content.quote.citation | default('Bhagavad Geeta') }}</cite>
+        </blockquote>
+    </section>
+    {% endif %}
+
+    <!-- Story Section -->
+    {% if content.story %}
+    <section aria-labelledby="story">
+        <h2 id="story" class="visually-hidden">Our Story</h2>
+        {% for paragraph in content.story %}
+        <p>{{ paragraph }}</p>
+        {% endfor %}
+    </section>
+    {% endif %}
+
+    <!-- Philosophy Section -->
+    {% if content.philosophy %}
+    <section aria-labelledby="philosophy">
+        <h2 id="philosophy">{{ content.philosophy.heading | default('Approach & Philosophy') }}</h2>
+        {% for item in content.philosophy['items'] | default([]) %}
+        <div class="philosophy-item">
+            <h3>{{ item.title }}</h3>
+            <p>{{ item.description }}</p>
+        </div>
+        {% endfor %}
+    </section>
+    {% endif %}
+
+    <!-- Commitments Section -->
+    {% if content.commitments %}
+    <section aria-labelledby="commitments">
+        <h2 id="commitments">{{ content.commitments.heading | default('Commitments') }}</h2>
+        <div class="commitments">
+            {% for item in content.commitments['items'] | default([]) %}
+            <div class="commitment">
+                <h3>{{ item.title }}</h3>
+                <p>{{ item.description }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Links Section -->
+    {% if content.links %}
+    <section aria-labelledby="links">
+        <h2 id="links">Connect</h2>
+        <ul>
+            {% if content.links.github %}
+            <li>
+                <a href="{{ content.links.github.url }}" rel="noopener noreferrer">
+                    <strong>{{ content.links.github.title }}</strong> — {{ content.links.github.description }}
+                </a>
+            </li>
+            {% endif %}
+            {% if content.links.support %}
+            <li>
+                <a href="{{ content.links.support.url }}" rel="noopener noreferrer">
+                    <strong>{{ content.links.support.title }}</strong> — {{ content.links.support.description }}
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </section>
+    {% endif %}
+
+    <!-- Explore Section -->
+    {% if content.explore %}
+    <section aria-labelledby="explore">
+        <h2 id="explore">{{ content.explore.heading | default('Explore') }}</h2>
+        <ul>
+            {% for link in content.explore.links | default([]) %}
+            <li><a href="{{ link.href }}">{{ link.label }}</a></li>
+            {% endfor %}
+        </ul>
+    </section>
+    {% endif %}
+
+    <!-- Attribution -->
+    {% if content.attribution %}
+    <footer class="attribution">
+        <p>{{ content.attribution.text }} <a href="{{ content.attribution.linkHref }}">{{ content.attribution.linkText }}</a></p>
+    </footer>
+    {% endif %}
+</article>
+{% endblock %}

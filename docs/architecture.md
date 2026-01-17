@@ -57,7 +57,7 @@ User Query → Embedding → Vector Search → LLM Generation → Structured Out
 
 | Component | Purpose |
 |-----------|---------|
-| Frontend | React SPA with verse browser, case submission, output display |
+| Frontend | React SPA for users; static HTML pages served to search engine bots |
 | Backend | FastAPI handling auth, cases, RAG pipeline, verse management |
 | Worker | RQ background processor for async analysis jobs |
 | PostgreSQL | Cases, users, outputs, verses, feedback |

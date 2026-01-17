@@ -10,6 +10,7 @@ import { LogoIcon } from "../components/icons";
 import { useSEO } from "../hooks";
 import { trackEvent } from "../lib/experiment";
 import { errorMessages } from "../lib/errorMessages";
+import homeContent from "../content/home.json";
 
 // Lazy load FeaturedConsultations to reduce main bundle size
 // (includes react-markdown which adds ~100KB)
@@ -104,22 +105,21 @@ export default function Home() {
 
             {/* Main Tagline */}
             <h1 className="text-xl sm:text-3xl lg:text-4xl font-bold font-heading text-[var(--text-primary)] mb-2">
-              Wisdom for Life's{" "}
+              {homeContent.hero.headline}{" "}
               <span className="bg-linear-to-r from-[var(--text-accent)] to-[var(--gradient-accent-to)] bg-clip-text text-transparent">
-                Difficult Decisions
+                {homeContent.hero.headlineAccent}
               </span>
             </h1>
 
             {/* Subtitle */}
             <p className="text-base sm:text-lg lg:text-xl text-[var(--text-tertiary)] max-w-2xl mx-auto">
-              Ethical guidance grounded in the timeless teachings of the
-              Bhagavad Geeta
+              {homeContent.hero.subtitle}
             </p>
 
             {/* Signup prompt for guests */}
             {!isAuthenticated && (
               <p className="text-sm text-[var(--text-muted)] mt-3 sm:mt-4">
-                Try it free — no signup required
+                {homeContent.hero.guestPrompt}
               </p>
             )}
           </div>
@@ -160,11 +160,11 @@ export default function Home() {
             data-cta-primary
           >
             <Link
-              to="/cases/new"
+              to={homeContent.cta.primary.href}
               onClick={handlePrimaryCTA}
               className="inline-flex items-center gap-2 bg-[var(--interactive-primary)] hover:bg-[var(--interactive-primary-hover)] text-[var(--interactive-primary-text)] font-semibold px-6 py-3 sm:px-8 sm:py-3.5 rounded-[var(--radius-card)] transition-[var(--transition-all)] shadow-[var(--shadow-dropdown)] hover:shadow-[var(--shadow-modal)] text-base sm:text-lg group"
             >
-              <span>Ask a Question</span>
+              <span>{homeContent.cta.primary.label}</span>
               <svg
                 className="w-5 h-5 transition-transform group-hover:translate-x-1"
                 fill="none"
@@ -180,15 +180,15 @@ export default function Home() {
               </svg>
             </Link>
             <Link
-              to="/verses"
+              to={homeContent.cta.secondary.href}
               onClick={handleExploreCTA}
               className="inline-flex items-center gap-2 bg-[var(--surface-elevated)] hover:bg-[var(--surface-muted)] text-[var(--text-secondary)] font-medium px-6 py-3 sm:px-8 sm:py-3.5 rounded-[var(--radius-card)] transition-[var(--transition-all)] border border-[var(--border-default)] hover:border-[var(--border-default)] text-base sm:text-lg"
             >
-              <span>Explore Verses</span>
+              <span>{homeContent.cta.secondary.label}</span>
             </Link>
           </div>
           <p className="text-xs sm:text-sm text-[var(--text-muted)] mb-8 lg:mb-10">
-            Get personalized guidance in minutes
+            {homeContent.hero.ctaSubtext}
           </p>
 
           {/* Featured Consultations - lazy loaded to reduce initial bundle */}
@@ -210,13 +210,13 @@ export default function Home() {
             <div className="mb-8 sm:mb-10 max-w-4xl mx-auto">
               <div className="flex justify-between items-center mb-3">
                 <h2 className="text-base sm:text-lg font-semibold text-[var(--text-primary)]">
-                  Continue where you left off
+                  {homeContent.recentConsultations.heading}
                 </h2>
                 <Link
-                  to="/consultations"
+                  to={homeContent.recentConsultations.viewAllHref}
                   className="text-[var(--interactive-ghost-text)] hover:text-[var(--text-link-hover)] font-medium text-sm shrink-0"
                 >
-                  View all →
+                  {homeContent.recentConsultations.viewAllLabel}
                 </Link>
               </div>
               <div className="space-y-2">
@@ -274,11 +274,11 @@ export default function Home() {
                 </svg>
               </div>
               <h3 className="text-xs sm:text-lg font-semibold text-[var(--text-primary)] sm:mb-1.5">
-                <span className="sm:hidden">Navigate</span>
-                <span className="hidden sm:inline">Navigate Tough Choices</span>
+                <span className="sm:hidden">{homeContent.features[0].titleShort}</span>
+                <span className="hidden sm:inline">{homeContent.features[0].title}</span>
               </h3>
               <p className="hidden sm:block text-[var(--text-tertiary)] text-sm sm:text-base leading-relaxed">
-                Get clarity when the right path isn't obvious
+                {homeContent.features[0].description}
               </p>
             </div>
             <div className="bg-linear-to-br from-[var(--gradient-warm-from)] to-[var(--gradient-warm-to)] p-3 sm:p-6 rounded-[var(--radius-card)] border border-[var(--border-warm)] text-center">
@@ -298,11 +298,11 @@ export default function Home() {
                 </svg>
               </div>
               <h3 className="text-xs sm:text-lg font-semibold text-[var(--text-primary)] sm:mb-1.5">
-                <span className="sm:hidden">Options</span>
-                <span className="hidden sm:inline">See All Your Options</span>
+                <span className="sm:hidden">{homeContent.features[1].titleShort}</span>
+                <span className="hidden sm:inline">{homeContent.features[1].title}</span>
               </h3>
               <p className="hidden sm:block text-[var(--text-tertiary)] text-sm sm:text-base leading-relaxed">
-                Compare approaches with honest trade-offs
+                {homeContent.features[1].description}
               </p>
             </div>
             <div className="bg-linear-to-br from-[var(--gradient-warm-from)] to-[var(--gradient-warm-to)] p-3 sm:p-6 rounded-[var(--radius-card)] border border-[var(--border-warm)] text-center">
@@ -322,11 +322,11 @@ export default function Home() {
                 </svg>
               </div>
               <h3 className="text-xs sm:text-lg font-semibold text-[var(--text-primary)] sm:mb-1.5">
-                <span className="sm:hidden">Trusted</span>
-                <span className="hidden sm:inline">Wisdom You Can Trust</span>
+                <span className="sm:hidden">{homeContent.features[2].titleShort}</span>
+                <span className="hidden sm:inline">{homeContent.features[2].title}</span>
               </h3>
               <p className="hidden sm:block text-[var(--text-tertiary)] text-sm sm:text-base leading-relaxed">
-                Every recommendation cites its source
+                {homeContent.features[2].description}
               </p>
             </div>
           </div>

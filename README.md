@@ -49,6 +49,7 @@ Free. Open source. Private by default.
 - **Cross-device Sync** - Progress, favorites, themes, and preferences sync for logged-in users
 - **Daily Wisdom** - Subscribe to daily verse emails
 - **Offline Support** - Works without network after first load
+- **Search Engine Friendly** - All 701 verses indexable with semantic HTML for bots
 - **Confidence Scoring** - Low-confidence responses flagged for review
 
 ## Quick Start

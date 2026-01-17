@@ -41,6 +41,7 @@ import { api } from "../lib/api";
 import { validateContent } from "../lib/contentFilter";
 import { errorMessages } from "../lib/errorMessages";
 import { useSEO } from "../hooks";
+import aboutContent from "../content/about.json";
 
 /*
  * ─── Types ───────────────────────────────────────────────────────────────────
@@ -73,9 +74,8 @@ export default function About() {
   const location = useLocation();
 
   useSEO({
-    title: "About",
-    description:
-      "Learn about Geetanjali - ancient wisdom from the Bhagavad Geeta for modern ethical decisions. Open source, private, and free.",
+    title: aboutContent.seo.title,
+    description: aboutContent.seo.description,
     canonical: "/about",
   });
 
@@ -199,10 +199,10 @@ export default function About() {
         <header className="text-center mb-10 sm:mb-14">
           <LogoIcon className="h-14 w-14 sm:h-16 sm:w-16 mx-auto mb-4" />
           <h1 className="text-2xl sm:text-3xl font-bold font-heading text-[var(--text-primary)] mb-3">
-            About Geetanjali
+            {aboutContent.hero.title}
           </h1>
           <p className="text-base sm:text-lg text-[var(--text-secondary)] max-w-lg mx-auto leading-relaxed">
-            Ancient wisdom for life's difficult decisions
+            {aboutContent.hero.subtitle}
           </p>
         </header>
 
@@ -220,46 +220,21 @@ export default function About() {
           {/* The verse that anchors everything */}
           <blockquote
             className="text-center mb-8 sm:mb-10"
-            cite="Bhagavad Geeta 2.47"
-            data-sanskrit="कर्मण्येवाधिकारस्ते मा फलेषु कदाचन"
+            cite={aboutContent.quote.citation}
+            data-sanskrit={aboutContent.quote.sanskrit}
           >
             <p className="text-base sm:text-lg italic text-[var(--text-secondary)] max-w-xl mx-auto leading-relaxed">
-              "You have the right to work, but never to the fruit of work.
-              You should never engage in action for the sake of reward,
-              nor should you long for inaction."
+              "{aboutContent.quote.text}"
             </p>
             <cite className="block mt-3 text-sm text-[var(--text-muted)] not-italic">
-              — Bhagavad Geeta 2.47
+              — {aboutContent.quote.citation}
             </cite>
           </blockquote>
 
           <div className="prose prose-neutral dark:prose-invert max-w-none text-[var(--text-secondary)] space-y-4 sm:space-y-5 text-sm sm:text-base leading-relaxed">
-            <p>
-              Life presents moments when the right choice isn't obvious—when duty
-              conflicts with desire, when multiple paths seem equally valid, or when
-              the consequences of any decision feel uncertain.
-            </p>
-            <p>
-              For over two thousand years, people have turned to the Bhagavad Geeta
-              in such moments. Not for simple answers, but for perspectives that
-              illuminate the question itself. The Geeta is a 701-verse conversation
-              about how to act when the way forward isn't clear, how to balance
-              personal values with responsibility, and how to find equanimity amid
-              life's complexity.
-            </p>
-            <p>
-              Geetanjali brings this wisdom into a form you can engage with
-              directly—whether you're facing a career crossroads, navigating
-              relationships, working through ethical questions, or simply seeking
-              clarity. Share a dilemma, and receive thoughtful perspectives grounded
-              in verses from the Geeta, presented accessibly and without sectarian
-              framing.
-            </p>
-            <p>
-              This is not meant to replace your judgment or offer definitive answers.
-              Think of Geetanjali as one thoughtful companion among many—a way to
-              encounter timeless philosophy when you need it most.
-            </p>
+            {aboutContent.story.map((paragraph, index) => (
+              <p key={index}>{paragraph}</p>
+            ))}
           </div>
         </section>
 
@@ -277,34 +252,27 @@ export default function About() {
             id="philosophy-heading"
             className="text-lg sm:text-xl font-bold font-heading text-[var(--text-primary)] mb-5 sm:mb-6"
           >
-            Approach & Philosophy
+            {aboutContent.philosophy.heading}
           </h2>
 
           <div className="grid gap-6 sm:gap-8 text-sm sm:text-base text-[var(--text-secondary)]">
             <article data-teaching="jnana-yoga">
               <h3 className="font-semibold text-[var(--text-primary)] mb-2 flex items-center gap-2">
                 <BookOpenIcon className="w-4 h-4 text-[var(--text-link)]" aria-hidden="true" />
-                Why the Bhagavad Geeta?
+                {aboutContent.philosophy.items[0].title}
               </h3>
               <p className="leading-relaxed">
-                The Geeta addresses universal questions that transcend time and culture:
-                How do we act rightly when outcomes are uncertain? How do we honor our
-                responsibilities while staying true to ourselves? Its teachings have
-                guided seekers across traditions—practical philosophy that meets you
-                where you are.
+                {aboutContent.philosophy.items[0].description}
               </p>
             </article>
 
             <article data-teaching="karma-yoga">
               <h3 className="font-semibold text-[var(--text-primary)] mb-2 flex items-center gap-2">
                 <CompassIcon className="w-4 h-4 text-[var(--text-link)]" aria-hidden="true" />
-                Accessible, Not Prescriptive
+                {aboutContent.philosophy.items[1].title}
               </h3>
               <p className="leading-relaxed">
-                Geetanjali presents the Geeta's teachings accessibly, focusing on
-                practical Vedantic principles—self-knowledge, ethical action, and
-                finding meaning amid complexity. The goal is to offer perspectives
-                that help you think more clearly, not to tell you what to do.
+                {aboutContent.philosophy.items[1].description}
               </p>
             </article>
 
@@ -313,14 +281,10 @@ export default function About() {
                 <svg className="w-4 h-4 text-[var(--text-link)]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
-                Honoring the Source
+                {aboutContent.philosophy.items[2].title}
               </h3>
               <p className="leading-relaxed">
-                Geetanjali includes all 701 verses of the Bhagavad Geeta plus the
-                9 verses of Geeta Dhyanam, with Sanskrit text, transliteration, and
-                translations. Audio recitations preserve the sound of the original.
-                The text is treated with the respect it deserves—presented faithfully,
-                not reduced to soundbites.
+                {aboutContent.philosophy.items[2].description}
               </p>
             </article>
           </div>
@@ -339,42 +303,22 @@ export default function About() {
             id="commitments-heading"
             className="text-xs sm:text-sm font-medium text-[var(--text-muted)] uppercase tracking-widest text-center mb-5 sm:mb-6"
           >
-            Commitments
+            {aboutContent.commitments.heading}
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <article
-              className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] shadow-[var(--shadow-card)] p-5 text-center"
-              data-vow="transparency"
-            >
-              <h3 className="font-semibold text-[var(--text-primary)] mb-2">Open Source</h3>
-              <p className="text-sm text-[var(--text-tertiary)] leading-relaxed">
-                The entire codebase is publicly available. Transparency builds trust,
-                and contributions are welcome.
-              </p>
-            </article>
-
-            <article
-              className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] shadow-[var(--shadow-card)] p-5 text-center"
-              data-vow="privacy"
-            >
-              <h3 className="font-semibold text-[var(--text-primary)] mb-2">Private</h3>
-              <p className="text-sm text-[var(--text-tertiary)] leading-relaxed">
-                Your dilemmas and reflections belong to you. Geetanjali doesn't
-                track, profile, or share your data.
-              </p>
-            </article>
-
-            <article
-              className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] shadow-[var(--shadow-card)] p-5 text-center"
-              data-vow="accessibility"
-            >
-              <h3 className="font-semibold text-[var(--text-primary)] mb-2">Open & Free</h3>
-              <p className="text-sm text-[var(--text-tertiary)] leading-relaxed">
-                Access to wisdom shouldn't have a price. All features are available
-                to everyone, always.
-              </p>
-            </article>
+            {aboutContent.commitments.items.map((item) => (
+              <article
+                key={item.id}
+                className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] shadow-[var(--shadow-card)] p-5 text-center"
+                data-vow={item.id}
+              >
+                <h3 className="font-semibold text-[var(--text-primary)] mb-2">{item.title}</h3>
+                <p className="text-sm text-[var(--text-tertiary)] leading-relaxed">
+                  {item.description}
+                </p>
+              </article>
+            ))}
           </div>
         </section>
 
@@ -390,7 +334,7 @@ export default function About() {
           <h2 id="links-heading" className="sr-only">Resources</h2>
 
           <a
-            href="https://github.com/geetanjaliapp/geetanjali"
+            href={aboutContent.links.github.url}
             target="_blank"
             rel="noopener noreferrer"
             className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] shadow-[var(--shadow-card)] p-5 flex items-center gap-4 hover:shadow-[var(--shadow-dropdown)] transition-shadow"
@@ -400,13 +344,13 @@ export default function About() {
               <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
             </svg>
             <div>
-              <div className="font-semibold text-[var(--text-primary)]">View on GitHub</div>
-              <div className="text-sm text-[var(--text-muted)]">Explore the code, report issues, contribute</div>
+              <div className="font-semibold text-[var(--text-primary)]">{aboutContent.links.github.title}</div>
+              <div className="text-sm text-[var(--text-muted)]">{aboutContent.links.github.description}</div>
             </div>
           </a>
 
           <a
-            href="https://ko-fi.com/vnykmshr"
+            href={aboutContent.links.support.url}
             target="_blank"
             rel="noopener noreferrer"
             className="bg-[var(--surface-elevated)] rounded-[var(--radius-card)] shadow-[var(--shadow-card)] p-5 flex items-center gap-4 hover:shadow-[var(--shadow-dropdown)] transition-shadow"
@@ -414,8 +358,8 @@ export default function About() {
           >
             <span className="text-4xl shrink-0" aria-hidden="true">☕</span>
             <div>
-              <div className="font-semibold text-[var(--text-primary)]">Support the Project</div>
-              <div className="text-sm text-[var(--text-muted)]">Help cover hosting and development costs</div>
+              <div className="font-semibold text-[var(--text-primary)]">{aboutContent.links.support.title}</div>
+              <div className="text-sm text-[var(--text-muted)]">{aboutContent.links.support.description}</div>
             </div>
           </a>
         </section>
@@ -433,7 +377,7 @@ export default function About() {
             id="explore-heading"
             className="text-xs sm:text-sm font-medium text-[var(--text-muted)] uppercase tracking-widest text-center mb-5"
           >
-            Explore
+            {aboutContent.explore.heading}
           </h2>
 
           <nav className="flex justify-center gap-1.5 sm:gap-4" aria-label="Explore Geetanjali">
@@ -594,13 +538,13 @@ export default function About() {
          *  "गुरुर्ब्रह्मा गुरुर्विष्णुः" — We honor our sources.
          */}
         <footer className="text-center text-[var(--text-muted)] text-xs mt-8 sm:mt-10">
-          <p>Verse translations sourced from public domain texts.</p>
+          <p>{aboutContent.attribution.text}</p>
           <p className="mt-1">
             <a
-              href="https://github.com/geetanjaliapp/geetanjali"
+              href={aboutContent.attribution.linkHref}
               className="text-[var(--text-link)] hover:text-[var(--text-link-hover)] hover:underline"
             >
-              Full attribution on GitHub
+              {aboutContent.attribution.linkText}
             </a>
           </p>
         </footer>

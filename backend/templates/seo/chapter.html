@@ -1,0 +1,87 @@
+{% extends "seo/base" %}
+
+{% block title %}Chapter {{ chapter.number }}: {{ chapter.title }}{% endblock %}
+
+{% block description %}{{ chapter.description[:160] if chapter.description else 'Bhagavad Gita Chapter ' ~ chapter.number ~ ' - ' ~ chapter.title ~ ' with Sanskrit verses, translations, and commentary.' }}{% endblock %}
+
+{% block canonical %}/verses/chapter/{{ chapter.number }}{% endblock %}
+
+{% block og_type %}article{% endblock %}
+{% block og_title %}Bhagavad Gita Chapter {{ chapter.number }}: {{ chapter.title }} | Geetanjali{% endblock %}
+{% block og_description %}{{ chapter.description[:200] if chapter.description else 'Read all verses from Chapter ' ~ chapter.number }}{% endblock %}
+{% block og_url %}/verses/chapter/{{ chapter.number }}{% endblock %}
+
+{% block twitter_title %}Bhagavad Gita Chapter {{ chapter.number }}: {{ chapter.title }}{% endblock %}
+{% block twitter_description %}{{ chapter.description[:200] if chapter.description else 'Read all verses from Chapter ' ~ chapter.number }}{% endblock %}
+
+{% block jsonld %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Chapter",
+    "name": "{{ chapter.title }}",
+    "position": {{ chapter.number }},
+    "description": "{{ chapter.description | e if chapter.description else '' }}",
+    "url": "https://geetanjaliapp.com/verses/chapter/{{ chapter.number }}",
+    "isPartOf": {
+        "@type": "Book",
+        "name": "Bhagavad Gita",
+        "author": { "@type": "Person", "name": "Vyasa" }
+    },
+    "hasPart": [
+        {% for verse in verses %}
+        {
+            "@type": "Article",
+            "name": "Verse {{ verse.chapter }}.{{ verse.verse }}",
+            "position": {{ verse.verse }},
+            "url": "https://geetanjaliapp.com/verses/{{ verse.canonical_id }}"
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ]
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<article>
+    <nav aria-label="Breadcrumb">
+        <a href="/verses/">Verses</a> /
+        Chapter {{ chapter.number }}
+    </nav>
+
+    <h1>Chapter {{ chapter.number }}: {{ chapter.title }}</h1>
+
+    {% if chapter.description %}
+    <p class="chapter-description">{{ chapter.description }}</p>
+    {% endif %}
+
+    <section aria-labelledby="verses">
+        <h2 id="verses">Verses ({{ verses|length }})</h2>
+        <ol class="verse-list">
+            {% for verse in verses %}
+            <li>
+                <a href="/verses/{{ verse.canonical_id }}">
+                    <strong>{{ verse.chapter }}.{{ verse.verse }}</strong>
+                </a>
+                <p class="sanskrit" lang="sa">{{ verse.sanskrit_devanagari[:100] }}{% if verse.sanskrit_devanagari|length > 100 %}...{% endif %}</p>
+                {% set preview_text = verse.paraphrase_en if verse.paraphrase_en else verse.translation_en %}
+                {% if preview_text %}
+                <p class="preview">{{ preview_text[:150] }}{% if preview_text|length > 150 %}...{% endif %}</p>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ol>
+    </section>
+
+    <nav aria-label="Chapter navigation">
+        {% if prev_chapter %}
+        <a href="/verses/chapter/{{ prev_chapter.number }}">&larr; Chapter {{ prev_chapter.number }}: {{ prev_chapter.title }}</a>
+        {% else %}
+        <span></span>
+        {% endif %}
+        {% if next_chapter %}
+        <a href="/verses/chapter/{{ next_chapter.number }}">Chapter {{ next_chapter.number }}: {{ next_chapter.title }} &rarr;</a>
+        {% endif %}
+    </nav>
+</article>
+{% endblock %}
