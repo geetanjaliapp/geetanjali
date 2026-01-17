@@ -111,7 +111,7 @@ The base configuration defines all services:
 | `chromadb` | Custom build | Vector store for RAG |
 | `backend` | Custom build | FastAPI application |
 | `worker` | Same as backend | RQ background jobs |
-| `frontend` | Custom build | React + nginx |
+| `frontend` | Custom build | React + nginx, SEO pages generated at build |
 
 **Security features in base:**
 - All containers drop capabilities (`cap_drop: ALL`)
