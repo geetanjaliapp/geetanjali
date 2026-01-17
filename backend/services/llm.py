@@ -1,4 +1,4 @@
-"""Hybrid LLM service with Anthropic Claude primary and Ollama fallback."""
+"""Hybrid LLM service with configurable primary/fallback providers."""
 
 import logging
 from enum import Enum
