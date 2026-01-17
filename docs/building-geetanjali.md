@@ -287,8 +287,8 @@ flowchart TB
 | **PostgreSQL** | Cases, users, verses, translations, outputs |
 | **ChromaDB** | 384-dim verse embeddings for semantic search |
 | **Redis** | Caching, sessions, rate limit state |
-| **Ollama** | Local LLM (default—no API costs, works offline) |
-| **External LLM** | Cloud fallback (any provider—useful when local hardware is limited) |
+| **Ollama** | Local LLM—the ideal setup. No API costs, works offline, complete privacy |
+| **Cloud LLMs** | Gemini/Anthropic APIs—fallback when hardware resources are limited |
 
 ### Data Model
 
@@ -329,12 +329,13 @@ Less friction for first-time users. If you sign up, you get history across devic
 
 Two principles guide the design:
 
-**Local-First** — The whole thing runs self-hosted by default. No external API calls required.
+**Local-First** — The whole thing runs self-hosted by default. No external API calls required. This is the ideal state.
 
-- **Ollama** — Local inference, no API costs, works offline
-- **External LLM** — Optional cloud fallback when local hardware is limited (lower-spec machines, no GPU, etc.)
+- **Ollama** — Local inference, no API costs, works offline, complete privacy
+- **Multi-pass refinement** — 5-pass workflow (Draft → Critique → Refine → Structure) compensates for smaller local models by iterating toward quality
+- **Cloud fallback** — When hardware constraints prevent local inference, Gemini or Anthropic APIs are available as fallback options
 
-Config: `LLM_PROVIDER=ollama` or `LLM_PROVIDER=external`
+Config: `LLM_PROVIDER=ollama` (recommended) or cloud providers when resources are limited
 
 **Mobile-First** — The UI is designed for phones first, then scaled up. Swipe navigation in Reading Mode, touch-friendly controls, responsive grids that work on any screen.
 
@@ -417,7 +418,7 @@ See [Observability](observability.md) for details.
 
 Geetanjali connects ancient text with modern UI. The Consultation Journey uses RAG to ground ethical guidance in scripture—with citations you can verify. The Discovery Journey makes 701 verses browsable and readable without getting in your way.
 
-The technical choices (local-first LLM, graceful degradation, anonymous access) all point at the same goal: make this stuff accessible without hoops to jump through.
+The technical choices (local-first LLM with multi-pass refinement, graceful degradation, anonymous access) all point at the same goal: make this stuff accessible without hoops to jump through. Cloud fallbacks exist for resource-constrained deployments, but the architecture is designed to run entirely self-hosted.
 
 ---
 

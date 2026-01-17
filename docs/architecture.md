@@ -63,7 +63,8 @@ User Query → Embedding → Vector Search → LLM Generation → Structured Out
 | PostgreSQL | Cases, users, outputs, verses, feedback |
 | ChromaDB | Vector embeddings for semantic verse search |
 | Redis | Caching, session storage, task queues, rate limiting |
-| Ollama | Local LLM inference (primary), Anthropic Claude (fallback) |
+| Ollama | Local LLM inference (primary—self-hosted, no API costs) |
+| Cloud LLMs | Gemini/Anthropic APIs (fallback when hardware is limited) |
 | Prometheus | Metrics collection and time-series storage (optional) |
 | Grafana | Dashboards, alerting, visualization (optional) |
 
@@ -76,7 +77,8 @@ User query and all verses are embedded using `sentence-transformers/all-MiniLM-L
 ChromaDB performs cosine similarity search, returning top-k relevant verses with scores.
 
 ### 3. Multi-Pass Generation
-The system uses a 5-pass refinement workflow to ensure thoughtful, well-grounded guidance:
+
+The system uses a 5-pass refinement workflow to ensure thoughtful, well-grounded guidance. This iterative approach compensates for smaller local models—rather than relying on expensive cloud APIs, we invest computation time in refinement to achieve quality output from self-hosted inference.
 
 1. **Acceptance** — Validates the query is a genuine ethical dilemma (not factual questions or harmful requests)
 2. **Draft** — Generates initial reasoning without format constraints
@@ -111,8 +113,8 @@ External services are protected by circuit breakers that prevent cascading failu
 
 | Service | Failure Threshold | Recovery Timeout | Fallback |
 |---------|-------------------|------------------|----------|
-| Ollama LLM | 3 consecutive | 60s | Anthropic Claude API |
-| Anthropic API | 3 consecutive | 60s | Error response |
+| Ollama LLM | 3 consecutive | 60s | Cloud fallback (if configured) |
+| Cloud LLMs | 3 consecutive | 60s | Next provider or error |
 | ChromaDB | 3 consecutive | 60s | SQL keyword search |
 | Email (Resend) | 5 consecutive | 60s | Queue for retry |
 
@@ -122,8 +124,10 @@ External services are protected by circuit breakers that prevent cascading failu
 ```
 Primary Provider ──[CB open]──▶ Fallback Provider ──[CB open]──▶ Error
        │                               │
-       └── ollama (default)            └── anthropic | mock
+       └── ollama (recommended)        └── gemini | anthropic | mock
 ```
+
+The ideal setup uses Ollama locally with multi-pass refinement for quality. Cloud providers (Gemini, Anthropic) are available as fallbacks when hardware resources are limited.
 
 **Vector Search:**
 ```
