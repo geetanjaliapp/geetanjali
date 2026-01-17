@@ -34,7 +34,7 @@ pytest-cov==7.0.0
 # Code Quality
 ruff==0.14.13  # Fast linter and formatter (replaces flake8+black)
 mypy==1.19.1
-types-requests==2.32.4.20250913  # Type stubs for requests
+types-requests==2.32.4.20260107  # Type stubs for requests
 types-PyYAML==6.0.12.20250915  # Type stubs for PyYAML
 types-redis==4.6.0.20241004  # Type stubs for redis
 
