@@ -213,12 +213,15 @@ def run_gemini_consultation(
         # LLM service returns {"response": text, "model": ..., "provider": ...}
         raw_response = result.get("response", "")
 
-        # Parse JSON from response
+        # Parse JSON from response using production extraction logic
+        # This handles markdown code blocks, nested JSON, etc.
+        from utils.json_parsing import extract_json_from_text
+
         parsed = None
         if raw_response:
             try:
-                parsed = json.loads(raw_response)
-            except json.JSONDecodeError as e:
+                parsed = extract_json_from_text(raw_response)
+            except (json.JSONDecodeError, ValueError) as e:
                 print(f"\n{RED}[ERROR]{NC} Failed to parse JSON: {e}")
                 print(f"Raw response (first 500 chars): {raw_response[:500]}")
 
@@ -271,12 +274,15 @@ def run_anthropic_consultation(
         # LLM service returns {"response": text, "model": ..., "provider": ...}
         raw_response = result.get("response", "")
 
-        # Parse JSON from response
+        # Parse JSON from response using production extraction logic
+        # This handles markdown code blocks, nested JSON, etc.
+        from utils.json_parsing import extract_json_from_text
+
         parsed = None
         if raw_response:
             try:
-                parsed = json.loads(raw_response)
-            except json.JSONDecodeError as e:
+                parsed = extract_json_from_text(raw_response)
+            except (json.JSONDecodeError, ValueError) as e:
                 print(f"\n{RED}[ERROR]{NC} Failed to parse JSON: {e}")
                 print(f"Raw response (first 500 chars): {raw_response[:500]}")
 
