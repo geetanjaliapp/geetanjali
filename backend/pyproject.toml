@@ -10,6 +10,7 @@ exclude = [
     "dist",
     "__pycache__",
     "alembic/versions",
+    "scripts/test_*.py",  # Dev test scripts (gitignored)
 ]
 
 [tool.ruff.lint]
