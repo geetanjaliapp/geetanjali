@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %} | Geetanjali</title>
+    <meta name="description" content="{% block description %}{% endblock %}">
+    <link rel="canonical" href="https://geetanjaliapp.com{% block canonical %}{% endblock %}">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+    <meta property="og:title" content="{% block og_title %}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{% endblock %}">
+    <meta property="og:url" content="https://geetanjaliapp.com{% block og_url %}{% endblock %}">
+    <meta property="og:site_name" content="Geetanjali">
+    <meta property="og:image" content="https://geetanjaliapp.com/og-image.png">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block twitter_title %}{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}{% endblock %}">
+
+    <!-- JSON-LD -->
+    {% block jsonld %}{% endblock %}
+
+    <!-- Minimal CSS for readable presentation -->
+    <style>{% include 'seo/minimal.css' %}</style>
+</head>
+<body>
+    <header>
+        <a href="/">Geetanjali</a>
+        <nav>
+            <a href="/verses/">Verses</a>
+            <a href="/about.html">About</a>
+        </nav>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <p>Geetanjali - Ethical Guidance from the Bhagavad Geeta</p>
+        <p><a href="/">Home</a> · <a href="/verses/">Verses</a> · <a href="/about.html">About</a></p>
+    </footer>
+</body>
+</html>

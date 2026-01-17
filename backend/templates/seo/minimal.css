@@ -1,0 +1,33 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    font-family: system-ui, -apple-system, sans-serif;
+    line-height: 1.6;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 1rem;
+    color: #333;
+}
+header { padding: 1rem 0; border-bottom: 1px solid #eee; }
+header a { color: #c65d1a; text-decoration: none; font-weight: bold; }
+header nav { margin-top: 0.5rem; }
+header nav a { margin-right: 1rem; color: #666; }
+main { padding: 2rem 0; }
+footer { padding: 1rem 0; border-top: 1px solid #eee; color: #666; font-size: 0.875rem; }
+h1 { font-size: 1.75rem; margin-bottom: 1rem; }
+h2 { font-size: 1.25rem; margin: 1.5rem 0 0.75rem; color: #555; }
+.sanskrit { font-size: 1.5rem; line-height: 2; }
+.iast { font-style: italic; color: #666; }
+.translation { margin: 1rem 0; }
+.paraphrase { background: #f9f6f2; padding: 1rem; border-radius: 4px; }
+a { color: #c65d1a; }
+ul, ol { padding-left: 1.5rem; }
+li { margin: 0.25rem 0; }
+nav[aria-label="Breadcrumb"] { margin-bottom: 1rem; color: #666; font-size: 0.875rem; }
+nav[aria-label="Breadcrumb"] a { color: #666; }
+nav[aria-label="Verse navigation"],
+nav[aria-label="Chapter navigation"] { margin-top: 2rem; display: flex; justify-content: space-between; }
+section { margin-bottom: 2rem; }
+.verse-count { color: #666; font-size: 0.875rem; }
+.verse-list li { margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #eee; }
+.preview { color: #666; font-size: 0.9rem; }
+blockquote { margin: 1rem 0; padding-left: 1rem; border-left: 3px solid #c65d1a; }

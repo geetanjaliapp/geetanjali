@@ -1,0 +1,105 @@
+{% extends "seo/base.html" %}
+
+{% block title %}Bhagavad Gita {{ verse.chapter }}.{{ verse.verse }}{% endblock %}
+
+{% block description %}{{ verse.paraphrase_en[:160] if verse.paraphrase_en else verse.translation_en[:160] }}{% endblock %}
+
+{% block canonical %}/verses/{{ verse.canonical_id }}{% endblock %}
+
+{% block og_type %}article{% endblock %}
+{% block og_title %}Bhagavad Gita {{ verse.chapter }}.{{ verse.verse }} | Geetanjali{% endblock %}
+{% block og_description %}{{ verse.paraphrase_en[:200] if verse.paraphrase_en else verse.translation_en[:200] }}{% endblock %}
+{% block og_url %}/verses/{{ verse.canonical_id }}{% endblock %}
+
+{% block twitter_title %}Bhagavad Gita {{ verse.chapter }}.{{ verse.verse }}{% endblock %}
+{% block twitter_description %}{{ verse.paraphrase_en[:200] if verse.paraphrase_en else verse.translation_en[:200] }}{% endblock %}
+
+{% block jsonld %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Bhagavad Gita Chapter {{ verse.chapter }}, Verse {{ verse.verse }}",
+    "description": "{{ (verse.paraphrase_en[:200] if verse.paraphrase_en else verse.translation_en[:200]) | e }}",
+    "url": "https://geetanjaliapp.com/verses/{{ verse.canonical_id }}",
+    "mainEntityOfPage": "https://geetanjaliapp.com/verses/{{ verse.canonical_id }}",
+    "inLanguage": ["en", "sa", "hi"],
+    "isPartOf": {
+        "@type": "Book",
+        "name": "Bhagavad Gita",
+        "author": { "@type": "Person", "name": "Vyasa" }
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Geetanjali",
+        "url": "https://geetanjaliapp.com"
+    }
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<article>
+    <nav aria-label="Breadcrumb">
+        <a href="/verses/">Verses</a> /
+        <a href="/verses/chapter/{{ verse.chapter }}.html">Chapter {{ verse.chapter }}</a> /
+        Verse {{ verse.verse }}
+    </nav>
+
+    <h1>Bhagavad Gita {{ verse.chapter }}.{{ verse.verse }}</h1>
+
+    <section aria-labelledby="sanskrit">
+        <h2 id="sanskrit">Sanskrit</h2>
+        <p class="sanskrit" lang="sa">{{ verse.sanskrit_devanagari }}</p>
+        {% if verse.sanskrit_iast %}
+        <p class="iast" lang="sa-Latn">{{ verse.sanskrit_iast }}</p>
+        {% endif %}
+    </section>
+
+    {% if verse.paraphrase_en %}
+    <section aria-labelledby="meaning">
+        <h2 id="meaning">Meaning</h2>
+        <div class="paraphrase">
+            <p>{{ verse.paraphrase_en }}</p>
+        </div>
+    </section>
+    {% endif %}
+
+    {% if verse.translation_en %}
+    <section aria-labelledby="translation">
+        <h2 id="translation">Translation</h2>
+        <p class="translation">{{ verse.translation_en }}</p>
+    </section>
+    {% endif %}
+
+    {% if verse.translation_hi %}
+    <section aria-labelledby="hindi">
+        <h2 id="hindi">Hindi Translation</h2>
+        <p class="translation" lang="hi">{{ verse.translation_hi }}</p>
+    </section>
+    {% endif %}
+
+    {% if translations %}
+    <section aria-labelledby="other-translations">
+        <h2 id="other-translations">Other Translations</h2>
+        {% for t in translations %}
+        <div class="translation">
+            <p><strong>{{ t.translator }}</strong>{% if t.school %} ({{ t.school }}){% endif %}</p>
+            <p lang="{{ t.language }}">{{ t.text }}</p>
+        </div>
+        {% endfor %}
+    </section>
+    {% endif %}
+
+    <nav aria-label="Verse navigation">
+        {% if prev_verse %}
+        <a href="/verses/{{ prev_verse.canonical_id }}.html">&larr; Previous: {{ prev_verse.chapter }}.{{ prev_verse.verse }}</a>
+        {% else %}
+        <span></span>
+        {% endif %}
+        {% if next_verse %}
+        <a href="/verses/{{ next_verse.canonical_id }}.html">Next: {{ next_verse.chapter }}.{{ next_verse.verse }} &rarr;</a>
+        {% endif %}
+    </nav>
+</article>
+{% endblock %}

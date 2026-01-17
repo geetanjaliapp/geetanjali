@@ -1,0 +1,105 @@
+{% extends "seo/base.html" %}
+
+{% block title %}{{ content.seo.title | default('Bhagavad Gita Guidance') }}{% endblock %}
+
+{% block description %}{{ content.seo.description | default('Ethical guidance grounded in the timeless teachings of the Bhagavad Geeta.') }}{% endblock %}
+
+{% block canonical %}/{% endblock %}
+
+{% block og_type %}website{% endblock %}
+{% block og_title %}{{ meta.seo.defaultTitle | default('Geetanjali - Bhagavad Gita Wisdom') }}{% endblock %}
+{% block og_description %}{{ content.seo.description | default('Ethical guidance grounded in the timeless teachings of the Bhagavad Geeta.') }}{% endblock %}
+{% block og_url %}/{% endblock %}
+
+{% block twitter_title %}{{ meta.seo.defaultTitle | default('Geetanjali - Bhagavad Gita Wisdom') }}{% endblock %}
+{% block twitter_description %}{{ content.seo.description | default('Ethical guidance grounded in the timeless teachings of the Bhagavad Geeta.') }}{% endblock %}
+
+{% block jsonld %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "{{ meta.site.name | default('Geetanjali') }}",
+    "description": "{{ content.seo.description | default('Ethical guidance grounded in Bhagavad Geeta wisdom') }}",
+    "url": "{{ meta.site.url | default('https://geetanjaliapp.com') }}",
+    "potentialAction": {
+        "@type": "SearchAction",
+        "target": "{{ meta.site.url | default('https://geetanjaliapp.com') }}/search?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "{{ meta.site.name | default('Geetanjali') }}",
+        "url": "{{ meta.site.url | default('https://geetanjaliapp.com') }}"
+    }
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<article>
+    <!-- Hero Section -->
+    <header class="hero">
+        <h1>{{ content.hero.headline | default('Wisdom for Life\'s') }} <span class="accent">{{ content.hero.headlineAccent | default('Difficult Decisions') }}</span></h1>
+        <p class="subtitle">{{ content.hero.subtitle | default('Ethical guidance grounded in the timeless teachings of the Bhagavad Geeta') }}</p>
+        <p class="guest-prompt">{{ content.hero.guestPrompt | default('Try it free — no signup required') }}</p>
+    </header>
+
+    <!-- Verse of the Day -->
+    {% if daily_verse %}
+    <section aria-labelledby="daily">
+        <h2 id="daily">Verse of the Day</h2>
+        <blockquote class="sanskrit" lang="sa">{{ daily_verse.sanskrit_devanagari }}</blockquote>
+        {% if daily_verse.sanskrit_iast %}
+        <p class="iast" lang="sa-Latn">{{ daily_verse.sanskrit_iast }}</p>
+        {% endif %}
+        {% if daily_verse.paraphrase_en %}
+        <p>{{ daily_verse.paraphrase_en }}</p>
+        {% endif %}
+        <p><a href="/verses/{{ daily_verse.canonical_id }}.html">Read full verse &rarr;</a></p>
+    </section>
+    {% endif %}
+
+    <!-- CTA Section -->
+    <section aria-labelledby="cta">
+        <h2 id="cta" class="visually-hidden">Get Started</h2>
+        <div class="cta-buttons">
+            <a href="{{ content.cta.primary.href | default('/cases/new') }}" class="cta-primary">{{ content.cta.primary.label | default('Ask a Question') }}</a>
+            <a href="{{ content.cta.secondary.href | default('/verses') }}" class="cta-secondary">{{ content.cta.secondary.label | default('Explore Verses') }}</a>
+        </div>
+        <p class="cta-subtext">{{ content.hero.ctaSubtext | default('Get personalized guidance in minutes') }}</p>
+    </section>
+
+    <!-- Features Section -->
+    <section aria-labelledby="features">
+        <h2 id="features">Why Geetanjali?</h2>
+        <div class="features">
+            {% for feature in content.features | default([]) %}
+            <div class="feature">
+                <h3>{{ feature.title }}</h3>
+                <p>{{ feature.description }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Explore Section -->
+    <section aria-labelledby="explore">
+        <h2 id="explore">Explore the Bhagavad Gita</h2>
+        <ul>
+            <li><a href="/verses/">Browse All 700 Verses</a></li>
+            {% for chapter in chapters[:6] %}
+            <li><a href="/verses/chapter/{{ chapter.number }}.html">Chapter {{ chapter.number }}: {{ chapter.title }}</a></li>
+            {% endfor %}
+        </ul>
+        <p><a href="/verses/">View all 18 chapters &rarr;</a></p>
+    </section>
+
+    <!-- About Link -->
+    <section aria-labelledby="about-link">
+        <h2 id="about-link">About Geetanjali</h2>
+        <p>{{ meta.site.tagline | default('Ancient Wisdom, Modern Interface') }}</p>
+        <p><a href="/about.html">Learn more about us &rarr;</a></p>
+    </section>
+</article>
+{% endblock %}
