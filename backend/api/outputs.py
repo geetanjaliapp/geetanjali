@@ -110,7 +110,10 @@ def _run_consultation_pipeline(
     Returns:
         Tuple of (result_dict, is_policy_violation)
     """
-    # Provider-aware routing: multipass only for Ollama
+    # Provider-aware routing:
+    # - anthropic, gemini: Always single-pass (external LLMs deliver quality in one pass)
+    # - ollama + MULTIPASS_ENABLED: 5-pass refinement pipeline
+    # - ollama without MULTIPASS_ENABLED: Single-pass
     use_multipass = settings.MULTIPASS_ENABLED and settings.LLM_PROVIDER == "ollama"
 
     if use_multipass:
