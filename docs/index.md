@@ -120,7 +120,7 @@ For operators and contributors:
 - **[API Reference](api.md)** — REST API endpoints, authentication, rate limits, examples
 - **[Reference](reference.md)** — Environment variables, error codes, glossary, scripts
 - **[Data Sources](data.md)** — Bhagavad Geeta content, licensing, ingestion pipeline
-- **[SEO](seo.md)** — Search engine setup and why we skipped prerendering
+- **[SEO](seo.md)** — Bot-served static HTML for search engine visibility
 
 ---
 
