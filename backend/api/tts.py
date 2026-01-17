@@ -247,6 +247,15 @@ async def generate_speech(request: Request, body: TTSRequest):
             detail="Text-to-speech service timed out",
         )
 
+    except asyncio.CancelledError:
+        # Client disconnected or request was cancelled - return 499 (nginx convention)
+        logger.info("TTS request cancelled (client disconnected)")
+        tts_requests_total.labels(lang=body.lang, result="cancelled").inc()
+        raise HTTPException(
+            status_code=499,
+            detail="Request cancelled",
+        )
+
     except HTTPException:
         # Re-raise HTTP exceptions (don't wrap them)
         raise
