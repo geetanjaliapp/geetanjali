@@ -89,7 +89,7 @@ class Settings(BaseSettings):
     GOOGLE_API_KEY: str | None = None  # Required for Gemini
     GEMINI_MODEL: str = "gemini-2.5-flash"  # Fast, cost-effective (85% cheaper than Claude)
     GEMINI_MAX_TOKENS: int = 4096  # Higher than Anthropic - Gemini needs more for consultations
-    GEMINI_TIMEOUT: int = 30
+    GEMINI_TIMEOUT: int = 30000  # Milliseconds (SDK uses ms, not seconds)
 
     # Ollama (Local fallback)
     OLLAMA_ENABLED: bool = True  # Set to False to disable Ollama dependency

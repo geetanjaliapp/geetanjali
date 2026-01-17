@@ -134,7 +134,7 @@ class LLMService:
             )
             logger.info(
                 f"Gemini client initialized: {settings.GEMINI_MODEL} "
-                f"(timeout={settings.GEMINI_TIMEOUT}s)"
+                f"(timeout={settings.GEMINI_TIMEOUT / 1000}s)"
             )
         elif self.primary_provider == LLMProvider.GEMINI:
             logger.warning(
