@@ -472,8 +472,10 @@ def main():
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Setup Jinja2 with templates directory relative to backend root
+    # Autoescape disabled intentionally: all input is from our API/JSON (no user input),
+    # and we need to render HTML content in verse texts
     templates_dir = Path(__file__).parent.parent / "templates"
-    env = Environment(loader=FileSystemLoader(templates_dir))
+    env = Environment(loader=FileSystemLoader(templates_dir))  # nosec B701
 
     # Load content from JSON files (single source of truth)
     if args.content_dir:
