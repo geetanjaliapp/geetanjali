@@ -2,6 +2,38 @@
 
 All notable changes to Geetanjali are documented here.
 
+## [1.30.0] - 2026-01-17
+
+Search engine optimization through bot-served static HTML pages.
+
+### Features
+
+- **SEO Static Pages** - All 725 pages now indexable by search engines
+  - Bot-served HTML via nginx User-Agent detection
+  - Build-time generation using Jinja2 templates
+  - Full verse content with Sanskrit, transliteration, translations
+  - Schema.org JSON-LD structured data
+  - Open Graph and Twitter Card meta tags
+
+- **Bot Infrastructure** - Complete crawler support
+  - robots.txt with explicit allow/disallow directives
+  - sitemap.xml with ~725 URLs (verses, chapters, static pages)
+  - 404 error page for graceful bot error handling
+  - Expanded bot detection (AI crawlers: GPTBot, CCBot, Bytespider)
+
+### Technical
+
+- Content JSON files as single source of truth (SPA + SEO templates)
+- SEO generation stage in frontend Docker build
+- nginx routing: bots get `/seo/*.html`, users get React SPA
+- Internal links use SPA routes for canonical URL consistency
+
+### Documentation
+
+- Rewrote docs/seo.md to reflect bot-served approach
+- Updated architecture.md and deployment.md with SEO mentions
+- Added "Search Engine Friendly" feature to README
+
 ## [1.29.0] - 2026-01-17
 
 Gemini LLM provider support and consultation quality improvements.
