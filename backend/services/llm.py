@@ -312,6 +312,7 @@ class LLMService:
         system_prompt: str | None = None,
         temperature: float = 0.7,
         max_tokens: int | None = None,
+        json_mode: bool = True,
     ) -> dict[str, Any]:
         """Generate response using Google Gemini with retry and circuit breaker.
 
@@ -320,6 +321,7 @@ class LLMService:
             system_prompt: System instruction (optional)
             temperature: Sampling temperature 0.0-2.0 (default: 0.7)
             max_tokens: Maximum tokens to generate (default: settings.GEMINI_MAX_TOKENS)
+            json_mode: If True, force JSON output format. Set False for prose/markdown.
 
         Returns:
             Dict with keys: response, model, provider, input_tokens, output_tokens
@@ -353,6 +355,7 @@ class LLMService:
                 system_instruction=system_prompt if system_prompt else None,
                 max_output_tokens=max_tokens,
                 temperature=temperature,
+                response_mime_type="application/json" if json_mode else None,
                 http_options=genai_types.HttpOptions(timeout=settings.GEMINI_TIMEOUT),
             )
 
