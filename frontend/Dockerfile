@@ -1,5 +1,35 @@
 # Frontend Dockerfile for Geetanjali
 
+# ==========================================
+# Stage 1: SEO Page Generation (optional)
+# Generates static HTML for search bots
+# Requires backend API to be running
+# ==========================================
+FROM python:3.11-alpine AS seo-generator
+
+WORKDIR /gen
+
+# Install dependencies
+RUN pip install --no-cache-dir jinja2 httpx
+
+# Copy generator script and templates from backend
+# Note: Build context must include backend directory or use BuildKit
+COPY backend/scripts/generate_seo.py ./
+COPY backend/templates/seo ./templates/seo/
+
+# Copy content JSON files (single source of truth for page content)
+COPY frontend/src/content ./content/
+
+# Generate SEO pages
+# API_URL is passed as build arg (defaults to host.docker.internal for Docker Desktop)
+ARG API_URL=http://host.docker.internal:8000
+RUN mkdir -p ./output && \
+    (python generate_seo.py --output ./output --api-url $API_URL --content-dir ./content || \
+    echo "Warning: SEO generation failed, continuing without SEO pages")
+
+# ==========================================
+# Stage 2: Frontend Build
+# ==========================================
 FROM node:20-alpine AS builder
 
 # Build args for Vite environment variables (baked into bundle)
@@ -34,6 +64,10 @@ FROM nginx:alpine
 
 # Copy built files from builder
 COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Copy generated SEO pages (if available)
+# These are served to search engine bots for indexing
+COPY --from=seo-generator /gen/output /usr/share/nginx/html/seo
 
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
