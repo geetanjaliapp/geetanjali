@@ -353,6 +353,7 @@ class LLMService:
                 system_instruction=system_prompt if system_prompt else None,
                 max_output_tokens=max_tokens,
                 temperature=temperature,
+                http_options=genai_types.HttpOptions(timeout=settings.GEMINI_TIMEOUT),
             )
 
             response = self.gemini_client.models.generate_content(
