@@ -350,7 +350,7 @@ class LLMService:
             )
 
             config = genai_types.GenerateContentConfig(
-                system_instruction=system_prompt or "",
+                system_instruction=system_prompt if system_prompt else None,
                 max_output_tokens=max_tokens,
                 temperature=temperature,
             )
@@ -404,15 +404,15 @@ class LLMService:
 
         except (ServerError, httpx.TimeoutException, httpx.ConnectError) as e:
             # Transient errors (server issues, timeouts, connection errors) - retry
-            logger.error(f"Gemini API error (retryable): {type(e).__name__}")
+            logger.error(f"Gemini API error (retryable): {type(e).__name__}: {e}")
             llm_requests_total.labels(provider="gemini", status="error").inc()
-            raise RetryableLLMError("Gemini service temporarily unavailable")
+            raise RetryableLLMError(f"Gemini service temporarily unavailable: {type(e).__name__}")
         except ClientError as e:
             # Permanent client errors (auth, invalid request) - fail immediately
             self._gemini_breaker.record_failure()
-            logger.error(f"Gemini error (permanent): {type(e).__name__}")
+            logger.error(f"Gemini error (permanent): {type(e).__name__}: {e}")
             llm_requests_total.labels(provider="gemini", status="error").inc()
-            raise LLMError("Gemini request failed due to client error")
+            raise LLMError(f"Gemini request failed: {e}")
         except LLMError:
             # Re-raise our own errors (empty response, malformed response)
             raise

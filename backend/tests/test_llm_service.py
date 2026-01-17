@@ -788,7 +788,7 @@ class TestGeminiProvider:
             # ClientError should raise LLMError and record circuit breaker failure
             initial_failures = service._gemini_breaker.failure_count
 
-            with pytest.raises(LLMError, match="client error"):
+            with pytest.raises(LLMError, match="Gemini request failed"):
                 service._generate_gemini("Test prompt")
 
             # Circuit breaker SHOULD have recorded failure on permanent error
