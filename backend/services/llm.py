@@ -584,7 +584,7 @@ class LLMService:
                 )
             elif self.primary_provider == LLMProvider.GEMINI:
                 return self._generate_gemini(
-                    prompt, system_prompt, temperature, max_tokens
+                    prompt, system_prompt, temperature, max_tokens, json_mode=json_mode
                 )
             elif self.primary_provider == LLMProvider.OLLAMA:
                 return self._generate_ollama(
@@ -672,7 +672,7 @@ class LLMService:
                 elif self.fallback_provider == LLMProvider.GEMINI:
                     if self.gemini_client:
                         return self._generate_gemini(
-                            fb_prompt, fb_system, temperature, max_tokens
+                            fb_prompt, fb_system, temperature, max_tokens, json_mode=json_mode
                         )
                     else:
                         raise LLMError("Gemini fallback not available (no API key)")

@@ -24,10 +24,10 @@ def get_verse_id(verse: dict, default: str = "Unknown") -> str:
     """
     # Try direct canonical_id first (pipeline format)
     if "canonical_id" in verse:
-        return verse["canonical_id"]
+        return str(verse["canonical_id"])
     # Fall back to metadata.canonical_id (test/other format)
     if "metadata" in verse and "canonical_id" in verse.get("metadata", {}):
-        return verse["metadata"]["canonical_id"]
+        return str(verse["metadata"]["canonical_id"])
     return default
 
 
@@ -44,10 +44,12 @@ def get_verse_metadata(verse: dict, key: str, default: str = "") -> str:
     """
     # Try direct field first (pipeline format)
     if key in verse:
-        return verse.get(key, default)
+        val = verse.get(key, default)
+        return str(val) if val is not None else default
     # Fall back to metadata.field (test/other format)
     if "metadata" in verse:
-        return verse.get("metadata", {}).get(key, default)
+        val = verse.get("metadata", {}).get(key, default)
+        return str(val) if val is not None else default
     return default
 
 
