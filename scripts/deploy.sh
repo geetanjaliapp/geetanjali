@@ -116,11 +116,15 @@ while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
     sleep 2
 done
 
-# Step 8: Verify deployment
+# Step 8: Generate SEO pages (requires backend to be healthy)
+log "Generating SEO pages..."
+$SSH_CMD "cd ${DEPLOY_DIR} && ./scripts/generate-seo.sh" || warn "SEO generation failed (non-blocking)"
+
+# Step 9: Verify deployment
 log "Service status:"
 $SSH_CMD "docker ps --format 'table {{.Names}}\t{{.Status}}'"
 
-# Step 9: Health check (via docker exec since port not exposed)
+# Step 10: Health check (via docker exec since port not exposed)
 HEALTH_STATUS=$($SSH_CMD "docker exec geetanjali-backend curl -s -o /dev/null -w '%{http_code}' http://localhost:8000/health 2>/dev/null" || echo "000")
 if [[ "$HEALTH_STATUS" == "200" ]]; then
     echo ""

@@ -1,36 +1,11 @@
 # Frontend Dockerfile for Geetanjali
+#
+# SEO pages are generated post-deployment (not during build)
+# because they require the backend API to be running.
+# See: scripts/generate-seo.sh
 
 # ==========================================
-# Stage 1: SEO Page Generation (optional)
-# Generates static HTML for search bots
-# Requires backend API to be running
-# ==========================================
-FROM python:3.11-alpine AS seo-generator
-
-WORKDIR /gen
-
-# Install dependencies
-RUN pip install --no-cache-dir jinja2 httpx
-
-# Copy generator script and templates from backend
-# Note: Build context is repo root (set in docker-compose.yml)
-COPY backend/scripts/generate_seo.py ./
-COPY backend/templates/seo ./templates/seo/
-
-# Copy content JSON files (single source of truth for page content)
-COPY frontend/src/content ./content/
-
-# Generate SEO pages
-# API_URL: Use docker compose network by default (backend:8000)
-# For local builds: pass --build-arg API_URL=http://localhost:8000
-# Note: Backend must be running before building frontend with SEO pages
-ARG API_URL=http://backend:8000
-RUN mkdir -p ./output && \
-    (python generate_seo.py --output ./output --api-url $API_URL --content-dir ./content || \
-    echo "Warning: SEO generation failed (is backend running?), continuing without SEO pages")
-
-# ==========================================
-# Stage 2: Frontend Build
+# Stage 1: Frontend Build
 # ==========================================
 FROM node:20-alpine AS builder
 
@@ -67,10 +42,6 @@ FROM nginx:alpine
 # Copy built files from builder
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Copy generated SEO pages (if available)
-# These are served to search engine bots for indexing
-COPY --from=seo-generator /gen/output /usr/share/nginx/html/seo
-
 # Copy nginx configuration (context is repo root)
 COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
 
@@ -78,6 +49,8 @@ COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
 # nginx:alpine has nginx user (UID 101, GID 101)
 RUN chmod -R 755 /usr/share/nginx/html && \
     find /usr/share/nginx/html -type f -exec chmod 644 {} \; && \
+    # Create SEO directory (populated post-deployment by generate-seo.sh)
+    mkdir -p /usr/share/nginx/html/seo && \
     # Create directories nginx needs to write to
     mkdir -p /var/cache/nginx/client_temp \
              /var/cache/nginx/proxy_temp \

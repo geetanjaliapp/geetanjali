@@ -1,7 +1,7 @@
 # Geetanjali - Development Shortcuts
 # See docs/deployment.md for detailed deployment documentation
 
-.PHONY: help dev build up down clean logs test lint format
+.PHONY: help dev build up down clean logs test lint format generate-seo generate-seo-remote
 
 # Use modern docker compose (not docker-compose)
 COMPOSE := docker compose
@@ -174,6 +174,12 @@ setup-server: ## First-time server setup (run on production server)
 
 deploy: ## Deploy to production
 	./scripts/deploy.sh
+
+generate-seo: ## Generate SEO pages (local or --remote)
+	./scripts/generate-seo.sh $(ARGS)
+
+generate-seo-remote: ## Generate SEO pages on production server
+	./scripts/generate-seo.sh --remote
 
 rollback: ## Rollback to previous deployment (uses .env.local or env vars)
 	@if [ -f .env.local ]; then . .env.local; fi; \
