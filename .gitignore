@@ -190,6 +190,9 @@ models/*.bin
 models/*.safetensors
 *.gguf
 
+# Script outputs (test comparison files, etc.)
+backend/scripts/output/
+
 # Data files (uncomment if you want to exclude large datasets)
 # data/*.json
 # data/*.csv
