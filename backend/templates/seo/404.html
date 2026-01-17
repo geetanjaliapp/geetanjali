@@ -1,0 +1,38 @@
+{% extends "seo/base.html" %}
+
+{% block title %}Page Not Found{% endblock %}
+{% block description %}The requested page could not be found. Explore the Bhagavad Geeta verses or return to the homepage.{% endblock %}
+{% block canonical %}/404{% endblock %}
+
+{% block og_title %}Page Not Found | Geetanjali{% endblock %}
+{% block og_description %}The requested page could not be found.{% endblock %}
+{% block og_url %}/404{% endblock %}
+
+{% block twitter_title %}Page Not Found | Geetanjali{% endblock %}
+{% block twitter_description %}The requested page could not be found.{% endblock %}
+
+{% block content %}
+<article>
+    <h1>Page Not Found</h1>
+
+    <p>The page you're looking for doesn't exist or may have been moved.</p>
+
+    <section>
+        <h2>Explore Geetanjali</h2>
+        <ul>
+            <li><a href="/">Home</a> - Return to the homepage</li>
+            <li><a href="/verses">Browse Verses</a> - Explore all 701 verses of the Bhagavad Geeta</li>
+            <li><a href="/about">About</a> - Learn about Geetanjali</li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>Popular Chapters</h2>
+        <ul>
+            <li><a href="/verses/chapter/2">Chapter 2: Sankhya Yoga</a> - The Yoga of Knowledge</li>
+            <li><a href="/verses/chapter/3">Chapter 3: Karma Yoga</a> - The Yoga of Action</li>
+            <li><a href="/verses/chapter/12">Chapter 12: Bhakti Yoga</a> - The Yoga of Devotion</li>
+        </ul>
+    </section>
+</article>
+{% endblock %}

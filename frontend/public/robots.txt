@@ -2,8 +2,24 @@
 # https://geetanjaliapp.com
 
 User-agent: *
-Allow: /
-Disallow: /api/
 
-# Sitemap
+# Public content - indexable
+Allow: /
+Allow: /about
+Allow: /verses
+Allow: /read
+
+# Private/auth routes - not indexable
+Disallow: /api/
+Disallow: /cases/
+Disallow: /consultations
+Disallow: /login
+Disallow: /signup
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /verify-email
+Disallow: /settings
+Disallow: /n/
+
+# Sitemap location
 Sitemap: https://geetanjaliapp.com/sitemap.xml

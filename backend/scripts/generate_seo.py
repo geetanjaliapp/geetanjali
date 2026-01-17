@@ -344,6 +344,68 @@ def generate_about(env: Environment, output_dir: str, content: dict):
     print("  Generated about page")
 
 
+def generate_404(env: Environment, output_dir: str):
+    """Generate 404 error page for bots."""
+    template = env.get_template("seo/404.html")
+    html = template.render()
+
+    output_file = Path(output_dir) / "404.html"
+    output_file.write_text(html)
+    print("  Generated 404 page")
+
+
+def generate_sitemap(verses: list[dict], output_dir: str, base_url: str = "https://geetanjaliapp.com"):
+    """Generate sitemap.xml for search engine discovery."""
+    from datetime import datetime
+
+    today = datetime.now().strftime("%Y-%m-%d")
+
+    urls = []
+
+    # Static pages (high priority)
+    urls.append({"loc": f"{base_url}/", "priority": "1.0", "changefreq": "weekly"})
+    urls.append({"loc": f"{base_url}/about", "priority": "0.8", "changefreq": "monthly"})
+    urls.append({"loc": f"{base_url}/verses", "priority": "0.9", "changefreq": "weekly"})
+    urls.append({"loc": f"{base_url}/read", "priority": "0.7", "changefreq": "monthly"})
+
+    # Chapter pages (medium-high priority)
+    for chapter in CHAPTERS:
+        urls.append({
+            "loc": f"{base_url}/verses/chapter/{chapter['number']}",
+            "priority": "0.8",
+            "changefreq": "monthly",
+        })
+
+    # Verse pages (medium priority, bulk of content)
+    for verse in verses:
+        urls.append({
+            "loc": f"{base_url}/verses/{verse['canonical_id']}",
+            "priority": "0.6",
+            "changefreq": "yearly",
+        })
+
+    # Build XML
+    xml_parts = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    ]
+
+    for url in urls:
+        xml_parts.append("  <url>")
+        xml_parts.append(f"    <loc>{url['loc']}</loc>")
+        xml_parts.append(f"    <lastmod>{today}</lastmod>")
+        xml_parts.append(f"    <changefreq>{url['changefreq']}</changefreq>")
+        xml_parts.append(f"    <priority>{url['priority']}</priority>")
+        xml_parts.append("  </url>")
+
+    xml_parts.append("</urlset>")
+
+    sitemap_xml = "\n".join(xml_parts)
+    output_file = Path(output_dir) / "sitemap.xml"
+    output_file.write_text(sitemap_xml)
+    print(f"  Generated sitemap.xml ({len(urls)} URLs)")
+
+
 def main():
     parser = argparse.ArgumentParser(description="Generate SEO static pages")
     parser.add_argument("--output", required=True, help="Output directory")
@@ -385,12 +447,15 @@ def main():
     generate_verse_index(env, args.output)
     generate_home(env, args.output, daily_verse, content)
     generate_about(env, args.output, content)
+    generate_404(env, args.output)
+    generate_sitemap(verses, args.output)
 
     elapsed = time.time() - start
 
     # Count generated files
-    total_files = sum(1 for _ in Path(args.output).rglob("*.html"))
-    print(f"\nGenerated {total_files} pages in {elapsed:.1f}s")
+    total_html = sum(1 for _ in Path(args.output).rglob("*.html"))
+    total_xml = sum(1 for _ in Path(args.output).rglob("*.xml"))
+    print(f"\nGenerated {total_html} HTML pages + {total_xml} XML files in {elapsed:.1f}s")
 
 
 if __name__ == "__main__":
