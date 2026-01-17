@@ -386,6 +386,16 @@ def post_process_ollama_response(
             return verse_id.replace(".", "_")
         return verse_id
 
+    def get_verse_id(verse: dict, default: str) -> str:
+        """Get canonical_id from verse dict, handling both structures."""
+        # Try direct canonical_id first (pipeline format)
+        if "canonical_id" in verse:
+            return verse["canonical_id"]
+        # Fall back to metadata.canonical_id (test/other format)
+        if "metadata" in verse and "canonical_id" in verse.get("metadata", {}):
+            return verse["metadata"]["canonical_id"]
+        return default
+
     # Fix sources array if it contains verse IDs as strings
     if data.get("sources") and isinstance(data["sources"], list):
         for source in data["sources"]:
@@ -427,7 +437,7 @@ def post_process_ollama_response(
                 "pros": ["Aligns with dharma", "Long-term oriented"],
                 "cons": ["May be challenging"],
                 "sources": (
-                    [retrieved_verses[0]["metadata"]["canonical_id"]]
+                    [get_verse_id(retrieved_verses[0], "BG_2_47")]
                     if retrieved_verses
                     else ["BG_2_47"]
                 ),
@@ -438,7 +448,7 @@ def post_process_ollama_response(
                 "pros": ["Pragmatic", "Considers stakeholders"],
                 "cons": ["Requires careful execution"],
                 "sources": (
-                    [retrieved_verses[1]["metadata"]["canonical_id"]]
+                    [get_verse_id(retrieved_verses[1], "BG_3_19")]
                     if len(retrieved_verses) > 1
                     else ["BG_3_19"]
                 ),
@@ -455,7 +465,7 @@ def post_process_ollama_response(
                 "Act with detachment from outcomes",
             ],
             "sources": (
-                [retrieved_verses[0]["metadata"]["canonical_id"]]
+                [get_verse_id(retrieved_verses[0], "BG_2_47")]
                 if retrieved_verses
                 else ["BG_2_47"]
             ),
