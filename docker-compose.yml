@@ -262,8 +262,8 @@ services:
   # Frontend (React/Vite)
   frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: frontend/Dockerfile
       args:
         # VITE_* variables are baked into JS bundle at build time
         VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}

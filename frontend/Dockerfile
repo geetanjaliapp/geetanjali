@@ -13,7 +13,7 @@ WORKDIR /gen
 RUN pip install --no-cache-dir jinja2 httpx
 
 # Copy generator script and templates from backend
-# Note: Build context must include backend directory or use BuildKit
+# Note: Build context is repo root (set in docker-compose.yml)
 COPY backend/scripts/generate_seo.py ./
 COPY backend/templates/seo ./templates/seo/
 
@@ -43,14 +43,14 @@ ARG VITE_UMAMI_WEBSITE_ID=
 # Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy package files (context is repo root, so prefix with frontend/)
+COPY frontend/package*.json ./
 
 # Install dependencies
 RUN npm ci
 
-# Copy source code
-COPY . .
+# Copy frontend source code
+COPY frontend/ .
 
 # Pass build args as environment variables for Vite
 ENV VITE_API_URL=$VITE_API_URL
@@ -71,8 +71,8 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 # These are served to search engine bots for indexing
 COPY --from=seo-generator /gen/output /usr/share/nginx/html/seo
 
-# Copy nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy nginx configuration (context is repo root)
+COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Create nginx user writable directories and fix permissions
 # nginx:alpine has nginx user (UID 101, GID 101)
