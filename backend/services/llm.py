@@ -631,9 +631,12 @@ class LLMService:
                 f"(reason: {fallback_reason})"
             )
             try:
-                # Use simplified prompts for fallback if provided
-                fb_prompt = fallback_prompt or prompt
-                fb_system = fallback_system or system_prompt
+                # Fallback prompt strategy:
+                # - Ollama: Use simplified prompt (designed for smaller models)
+                # - Anthropic/Gemini: Use original full prompt (they can handle it)
+                use_simplified = self.fallback_provider == LLMProvider.OLLAMA
+                fb_prompt = (fallback_prompt or prompt) if use_simplified else prompt
+                fb_system = (fallback_system or system_prompt) if use_simplified else system_prompt
 
                 if self.fallback_provider == LLMProvider.MOCK:
                     return dict(
