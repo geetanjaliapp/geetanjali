@@ -63,7 +63,12 @@ info "Backend is healthy"
 
 # Create temp output directory
 OUTPUT_DIR=$(mktemp -d)
-trap "rm -rf $OUTPUT_DIR" EXIT
+# Cleanup function - use docker to remove root-owned files
+cleanup() {
+    docker run --rm -v "${OUTPUT_DIR}:/cleanup" alpine rm -rf /cleanup/* 2>/dev/null || true
+    rm -rf "$OUTPUT_DIR" 2>/dev/null || true
+}
+trap cleanup EXIT
 
 log "Generating SEO pages..."
 
