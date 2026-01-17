@@ -1,4 +1,4 @@
-{% extends "seo/base.html" %}
+{% extends "seo/base" %}
 
 {% block title %}{{ content.seo.title | default('Bhagavad Gita Guidance') }}{% endblock %}
 
@@ -56,7 +56,7 @@
         {% if daily_verse.paraphrase_en %}
         <p>{{ daily_verse.paraphrase_en }}</p>
         {% endif %}
-        <p><a href="/verses/{{ daily_verse.canonical_id }}.html">Read full verse &rarr;</a></p>
+        <p><a href="/verses/{{ daily_verse.canonical_id }}">Read full verse &rarr;</a></p>
     </section>
     {% endif %}
 
@@ -89,7 +89,7 @@
         <ul>
             <li><a href="/verses/">Browse All 700 Verses</a></li>
             {% for chapter in chapters[:6] %}
-            <li><a href="/verses/chapter/{{ chapter.number }}.html">Chapter {{ chapter.number }}: {{ chapter.title }}</a></li>
+            <li><a href="/verses/chapter/{{ chapter.number }}">Chapter {{ chapter.number }}: {{ chapter.title }}</a></li>
             {% endfor %}
         </ul>
         <p><a href="/verses/">View all 18 chapters &rarr;</a></p>
@@ -99,7 +99,7 @@
     <section aria-labelledby="about-link">
         <h2 id="about-link">About Geetanjali</h2>
         <p>{{ meta.site.tagline | default('Ancient Wisdom, Modern Interface') }}</p>
-        <p><a href="/about.html">Learn more about us &rarr;</a></p>
+        <p><a href="/about">Learn more about us &rarr;</a></p>
     </section>
 </article>
 {% endblock %}

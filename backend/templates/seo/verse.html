@@ -1,4 +1,4 @@
-{% extends "seo/base.html" %}
+{% extends "seo/base" %}
 
 {% block title %}Bhagavad Gita {{ verse.chapter }}.{{ verse.verse }}{% endblock %}
 
@@ -42,7 +42,7 @@
 <article>
     <nav aria-label="Breadcrumb">
         <a href="/verses/">Verses</a> /
-        <a href="/verses/chapter/{{ verse.chapter }}.html">Chapter {{ verse.chapter }}</a> /
+        <a href="/verses/chapter/{{ verse.chapter }}">Chapter {{ verse.chapter }}</a> /
         Verse {{ verse.verse }}
     </nav>
 
@@ -93,12 +93,12 @@
 
     <nav aria-label="Verse navigation">
         {% if prev_verse %}
-        <a href="/verses/{{ prev_verse.canonical_id }}.html">&larr; Previous: {{ prev_verse.chapter }}.{{ prev_verse.verse }}</a>
+        <a href="/verses/{{ prev_verse.canonical_id }}">&larr; Previous: {{ prev_verse.chapter }}.{{ prev_verse.verse }}</a>
         {% else %}
         <span></span>
         {% endif %}
         {% if next_verse %}
-        <a href="/verses/{{ next_verse.canonical_id }}.html">Next: {{ next_verse.chapter }}.{{ next_verse.verse }} &rarr;</a>
+        <a href="/verses/{{ next_verse.canonical_id }}">Next: {{ next_verse.chapter }}.{{ next_verse.verse }} &rarr;</a>
         {% endif %}
     </nav>
 </article>

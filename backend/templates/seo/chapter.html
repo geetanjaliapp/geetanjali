@@ -1,4 +1,4 @@
-{% extends "seo/base.html" %}
+{% extends "seo/base" %}
 
 {% block title %}Chapter {{ chapter.number }}: {{ chapter.title }}{% endblock %}
 
@@ -60,7 +60,7 @@
         <ol class="verse-list">
             {% for verse in verses %}
             <li>
-                <a href="/verses/{{ verse.canonical_id }}.html">
+                <a href="/verses/{{ verse.canonical_id }}">
                     <strong>{{ verse.chapter }}.{{ verse.verse }}</strong>
                 </a>
                 <p class="sanskrit" lang="sa">{{ verse.sanskrit_devanagari[:100] }}{% if verse.sanskrit_devanagari|length > 100 %}...{% endif %}</p>
@@ -75,12 +75,12 @@
 
     <nav aria-label="Chapter navigation">
         {% if prev_chapter %}
-        <a href="/verses/chapter/{{ prev_chapter.number }}.html">&larr; Chapter {{ prev_chapter.number }}: {{ prev_chapter.title }}</a>
+        <a href="/verses/chapter/{{ prev_chapter.number }}">&larr; Chapter {{ prev_chapter.number }}: {{ prev_chapter.title }}</a>
         {% else %}
         <span></span>
         {% endif %}
         {% if next_chapter %}
-        <a href="/verses/chapter/{{ next_chapter.number }}.html">Chapter {{ next_chapter.number }}: {{ next_chapter.title }} &rarr;</a>
+        <a href="/verses/chapter/{{ next_chapter.number }}">Chapter {{ next_chapter.number }}: {{ next_chapter.title }} &rarr;</a>
         {% endif %}
     </nav>
 </article>

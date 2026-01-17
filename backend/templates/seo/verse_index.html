@@ -1,4 +1,4 @@
-{% extends "seo/base.html" %}
+{% extends "seo/base" %}
 
 {% block title %}Browse Bhagavad Gita Verses{% endblock %}
 
@@ -55,7 +55,7 @@
         <ol>
             {% for chapter in chapters %}
             <li>
-                <a href="/verses/chapter/{{ chapter.number }}.html">
+                <a href="/verses/chapter/{{ chapter.number }}">
                     <strong>{{ chapter.title }}</strong>
                 </a>
                 <span class="verse-count">({{ chapter.verse_count }} verses)</span>
