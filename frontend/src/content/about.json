@@ -1,4 +1,6 @@
 {
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "About page content. This is the current representation - update freely as design evolves. Consumed by: About.tsx, SEO about.html template.",
   "seo": {
     "title": "About",
     "description": "Learn about Geetanjali - ancient wisdom from the Bhagavad Geeta for modern ethical decisions. Open source, private, and free."

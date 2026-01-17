@@ -1,4 +1,6 @@
 {
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "Site-wide metadata and SEO defaults. This is the current representation - update freely as design evolves. Consumed by: React SPA, SEO generator.",
   "site": {
     "name": "Geetanjali",
     "tagline": "Ancient Wisdom, Modern Interface",
