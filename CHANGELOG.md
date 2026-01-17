@@ -2,6 +2,42 @@
 
 All notable changes to Geetanjali are documented here.
 
+## [1.29.0] - 2026-01-17
+
+Gemini LLM provider support and consultation quality improvements.
+
+### Features
+
+- **Gemini LLM Provider** - Add Google Gemini as a cloud LLM option
+  - GeminiClient using google-genai SDK with Gemini 2.5 Flash model
+  - Circuit breaker integration for fault tolerance
+  - Retry logic with exponential backoff for transient failures
+  - Proper exception hierarchy (ServerError vs ClientError)
+  - 85% cost reduction compared to Anthropic Claude
+  - Configurable as primary or fallback provider
+
+### Improvements
+
+- **Consultation Quality** - Enhanced prompts for better guidance output
+  - Added explicit quality checklist (alignment, distinctiveness, actionability)
+  - Added "avoid patterns" section to prevent vague LLM habits
+  - Red flag phrase detection in multipass critique pass
+  - Condensed quality rules in Ollama system prompt
+
+### Technical
+
+- 30 new unit tests for LLM service (circuit breaker, providers, fallback)
+- Environment configuration reorganized with Gemini variables
+- Documentation updated for local-first narrative with cloud fallbacks
+
+### Configuration
+
+New environment variables:
+- `GOOGLE_API_KEY` - Required if using Gemini provider
+- `GEMINI_MODEL` - Model name (default: gemini-2.5-flash)
+- `GEMINI_MAX_TOKENS` - Max output tokens (default: 4096)
+- `GEMINI_TIMEOUT` - Request timeout in seconds (default: 30)
+
 ## [1.28.0] - 2026-01-14
 
 About page redesign and audio playback reliability improvements.
