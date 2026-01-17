@@ -105,6 +105,14 @@ test: ## Run backend tests
 test-cov: ## Run tests with coverage
 	$(COMPOSE) exec backend pytest --cov=. --cov-report=html
 
+test-gemini: ## Test Gemini LLM conformance locally
+	@echo "Testing Gemini LLM conformance..."
+	cd backend && source venv/bin/activate && python ../scripts/test_gemini.py
+
+test-gemini-compare: ## Compare Gemini vs Anthropic responses
+	@echo "Comparing Gemini vs Anthropic..."
+	cd backend && source venv/bin/activate && python ../scripts/test_gemini.py --provider compare --verbose
+
 lint: ## Run linters
 	$(COMPOSE) exec backend flake8 .
 
