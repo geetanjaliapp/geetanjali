@@ -86,11 +86,11 @@ Services:
 | Database | PostgreSQL 15 |
 | Vector DB | ChromaDB |
 | Cache | Redis 7 |
-| LLM | Ollama (qwen2.5:3b) primary, configurable fallback |
+| LLM | Ollama (local-first), with cloud fallback options |
 | Embeddings | sentence-transformers/all-MiniLM-L6-v2 |
 | Audio | Indic Parler-TTS (AI4Bharat), Edge TTS |
 
-The system uses circuit breakers for service resilience: Ollama falls back to Anthropic, ChromaDB falls back to SQL keyword search. See [Architecture](docs/architecture.md) for details.
+The system uses circuit breakers for resilience. Ollama is primary; cloud providers available as fallback. ChromaDB falls back to SQL keyword search. See [Architecture](docs/architecture.md) for details.
 
 ## Configuration
 
@@ -100,7 +100,7 @@ Essential for production:
 ```bash
 JWT_SECRET=your-secret-key
 API_KEY=your-api-key
-LLM_PROVIDER=ollama  # or anthropic
+LLM_PROVIDER=ollama  # local-first (or gemini, anthropic for cloud)
 COOKIE_SECURE=true
 ```
 

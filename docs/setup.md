@@ -89,10 +89,12 @@ DATABASE_URL=postgresql://geetanjali:geetanjali@localhost:5432/geetanjali
 JWT_SECRET=change-in-production
 API_KEY=change-in-production
 
-# LLM (choose provider)
+# LLM (local-first recommended)
 LLM_PROVIDER=ollama
 OLLAMA_BASE_URL=http://localhost:11434
-# Or: LLM_PROVIDER=anthropic + ANTHROPIC_API_KEY=your-key
+# Cloud fallback (when hardware resources are limited):
+# LLM_PROVIDER=gemini + GOOGLE_API_KEY=your-key
+# LLM_PROVIDER=anthropic + ANTHROPIC_API_KEY=your-key
 
 # Optional
 REDIS_URL=redis://localhost:6379/0
@@ -113,16 +115,21 @@ All environment variables with defaults. Only override what you need.
 
 ### LLM Providers
 
+Ollama is the recommended provider for self-hosted deployments. Cloud providers (Gemini, Anthropic) are available as fallbacks when hardware resources are limited.
+
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `LLM_PROVIDER` | anthropic | Primary: ollama, anthropic, or mock |
-| `LLM_FALLBACK_PROVIDER` | mock | Fallback provider |
+| `LLM_PROVIDER` | ollama | Primary: ollama (recommended), gemini, anthropic, or mock |
+| `LLM_FALLBACK_PROVIDER` | mock | Fallback when primary fails |
 | `LLM_FALLBACK_ENABLED` | true | Enable automatic fallback |
-| `ANTHROPIC_API_KEY` | - | Required if using Anthropic |
-| `ANTHROPIC_MODEL` | claude-haiku-4-5-20251001 | Claude model |
 | `OLLAMA_BASE_URL` | http://localhost:11434 | Ollama server URL |
 | `OLLAMA_MODEL` | qwen2.5:3b | Ollama model |
 | `OLLAMA_TIMEOUT` | 300 | Timeout in seconds |
+| `GOOGLE_API_KEY` | - | Required if using Gemini (cloud fallback) |
+| `GEMINI_MODEL` | gemini-2.5-flash | Gemini model |
+| `GEMINI_TIMEOUT` | 30 | Timeout in seconds |
+| `ANTHROPIC_API_KEY` | - | Required if using Anthropic (cloud fallback) |
+| `ANTHROPIC_MODEL` | claude-haiku-4-5-20251001 | Claude model |
 
 ### Database & Cache
 

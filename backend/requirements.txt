@@ -24,6 +24,7 @@ sentence-transformers==5.2.0
 # LLM Clients
 httpx>=0.27.0  # For Ollama API calls (chromadb 1.3.5 requires >=0.27.0)
 anthropic==0.75.0  # Anthropic Claude API
+google-genai>=1.0.0  # Google Gemini API
 
 # Testing
 pytest==9.0.2

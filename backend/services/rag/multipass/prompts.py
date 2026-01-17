@@ -100,6 +100,12 @@ Context: {description}
    - Are the proposed actions actually doable?
    - Or are they vague/impossible?
 
+6. **Red Flag Phrases** (flag if present):
+   - "It's important to consider..." → Should state directly what to do
+   - "You might want to think about..." → Should say what to think about
+   - "This approach involves..." → Should name the specific action
+   - Generic wisdom that applies to any situation → Must be tailored
+
 For each weakness found, list it as:
 - ISSUE: [specific problem]
   FIX: [concrete improvement needed]

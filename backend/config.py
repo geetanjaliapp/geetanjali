@@ -50,16 +50,25 @@ class Settings(BaseSettings):
     CHROMA_RETRY_MIN_WAIT: int = 1
     CHROMA_RETRY_MAX_WAIT: int = 5
 
-    # LLM Configuration
-    # Primary LLM Provider: anthropic, ollama, or mock
+    # ============================================================
+    # LLM CONFIGURATION
+    # ============================================================
+    # Provider routing (automatic):
+    #   anthropic, gemini → Single-pass (external LLMs, high quality)
+    #   ollama + MULTIPASS_ENABLED=true → Multipass (5-pass refinement)
+    #   ollama + MULTIPASS_ENABLED=false → Single-pass
+    #   mock → Instant test responses
+    # ============================================================
+    #
+    # Primary LLM Provider: anthropic, gemini, ollama, or mock
     # Recommended setup:
     #   Development: LLM_PROVIDER=ollama (local-first, no API costs)
-    #   Production:  LLM_PROVIDER=anthropic (best quality responses)
+    #   Production:  LLM_PROVIDER=anthropic or gemini (best quality)
     LLM_PROVIDER: str = "anthropic"  # Primary provider
     LLM_USE_FEW_SHOTS: bool = (
         False  # Include few-shot example in prompts (increases tokens)
     )
-    # Fallback provider: anthropic, ollama, or mock
+    # Fallback provider: anthropic, gemini, ollama, or mock
     # Provides resilience when primary provider fails or circuit breaker opens
     # Fallback events are tracked via geetanjali_llm_fallback_total metric
     # with labels: primary, fallback, reason (circuit_open, retries_exhausted, error)
@@ -75,6 +84,13 @@ class Settings(BaseSettings):
     ANTHROPIC_MAX_TOKENS: int = 2048
     ANTHROPIC_TIMEOUT: int = 30
 
+    # Gemini (Google)
+    # Get API key: https://aistudio.google.com/apikey
+    GOOGLE_API_KEY: str | None = None  # Required for Gemini
+    GEMINI_MODEL: str = "gemini-2.5-flash"  # Fast, cost-effective (85% cheaper than Claude)
+    GEMINI_MAX_TOKENS: int = 4096  # Higher than Anthropic - Gemini needs more for consultations
+    GEMINI_TIMEOUT: int = 30
+
     # Ollama (Local fallback)
     OLLAMA_ENABLED: bool = True  # Set to False to disable Ollama dependency
     OLLAMA_BASE_URL: str = "http://localhost:11434"
@@ -85,6 +101,12 @@ class Settings(BaseSettings):
     OLLAMA_RETRY_MAX_WAIT: int = 10
     OLLAMA_MAX_TOKENS: int = 1024  # Balanced token limit
     OLLAMA_KEEP_ALIVE: str = "1h"  # How long model stays in memory (5m, 1h, 24h, -1=never)
+
+    # --- LLM Circuit Breaker ---
+    # Shared for all LLM providers (Anthropic, Gemini, Ollama)
+    # Opens after consecutive failures; tests recovery after timeout
+    CB_LLM_FAILURE_THRESHOLD: int = 3  # Failures before opening circuit
+    CB_LLM_RECOVERY_TIMEOUT: int = 60  # Seconds before testing recovery
 
     # ========================================
     # Multi-Pass Ollama Consultation Settings
@@ -271,13 +293,11 @@ class Settings(BaseSettings):
     # to failing services. After recovery_timeout seconds, a single request
     # is allowed through to test if the service has recovered.
     #
+    # Note: LLM circuit breaker (CB_LLM_*) is in the LLM Configuration section above.
+    #
     # Email circuit breaker (higher threshold - email failures less critical)
     CB_EMAIL_FAILURE_THRESHOLD: int = 5  # Failures before opening circuit
     CB_EMAIL_RECOVERY_TIMEOUT: int = 60  # Seconds before testing recovery
-    #
-    # LLM circuit breaker (shared for Anthropic and Ollama)
-    CB_LLM_FAILURE_THRESHOLD: int = 3  # Failures before opening circuit
-    CB_LLM_RECOVERY_TIMEOUT: int = 60  # Seconds before testing recovery
     #
     # ChromaDB/VectorStore circuit breaker
     CB_CHROMADB_FAILURE_THRESHOLD: int = 3  # Failures before opening circuit
@@ -286,6 +306,7 @@ class Settings(BaseSettings):
     @field_validator(
         # Only apply to truly Optional fields (can be None)
         "ANTHROPIC_API_KEY",
+        "GOOGLE_API_KEY",
         "RESEND_API_KEY",
         "CONTACT_EMAIL_TO",
         "CONTACT_EMAIL_FROM",
@@ -399,8 +420,8 @@ class Settings(BaseSettings):
         # LLM provider validation
         # ========================================
         # Ollama and mock are valid self-contained providers - no external API needed
-        # Anthropic requires API key when used as primary or fallback
-        valid_providers = {"ollama", "anthropic", "mock"}
+        # Anthropic and Gemini require API keys when used as primary or fallback
+        valid_providers = {"ollama", "anthropic", "gemini", "mock"}
 
         if self.LLM_PROVIDER not in valid_providers:
             errors.append(
@@ -415,6 +436,13 @@ class Settings(BaseSettings):
                 "Set ANTHROPIC_API_KEY or use LLM_PROVIDER=ollama."
             )
 
+        # Only require Gemini key if it's the configured provider
+        if self.LLM_PROVIDER == "gemini" and not self.GOOGLE_API_KEY:
+            errors.append(
+                "LLM_PROVIDER=gemini but GOOGLE_API_KEY is not set. "
+                "Set GOOGLE_API_KEY or use LLM_PROVIDER=ollama."
+            )
+
         # Warn if Anthropic is fallback but key is missing (degraded fallback)
         is_anthropic_fallback = self.LLM_FALLBACK_PROVIDER == "anthropic"
         if (
@@ -427,7 +455,21 @@ class Settings(BaseSettings):
                 "Fallback to Anthropic will not work."
             )
 
-        # Info log for self-contained providers (not warnings - they're valid choices)
+        # Warn if Gemini is fallback but key is missing (degraded fallback)
+        is_gemini_fallback = self.LLM_FALLBACK_PROVIDER == "gemini"
+        if (
+            is_gemini_fallback
+            and self.LLM_FALLBACK_ENABLED
+            and not self.GOOGLE_API_KEY
+        ):
+            logger.warning(
+                "PRODUCTION: LLM_FALLBACK_PROVIDER=gemini but GOOGLE_API_KEY not set. "
+                "Fallback to Gemini will not work."
+            )
+
+        # Info log for provider selection
+        if self.LLM_PROVIDER == "gemini":
+            logger.info("PRODUCTION: Using Gemini as primary LLM provider.")
         if self.LLM_PROVIDER == "ollama":
             logger.info("PRODUCTION: Using Ollama as primary LLM provider.")
         if self.LLM_PROVIDER == "mock":

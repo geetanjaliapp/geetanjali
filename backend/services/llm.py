@@ -1,4 +1,4 @@
-"""Hybrid LLM service with Anthropic Claude primary and Ollama fallback."""
+"""Hybrid LLM service with configurable primary/fallback providers."""
 
 import logging
 from enum import Enum
@@ -20,6 +20,15 @@ try:
 except ImportError:
     ANTHROPIC_AVAILABLE = False
 
+try:
+    from google import genai
+    from google.genai import types as genai_types
+    from google.genai.errors import ClientError, ServerError
+
+    GEMINI_AVAILABLE = True
+except ImportError:
+    GEMINI_AVAILABLE = False
+
 from config import settings
 from services.mock_llm import MockLLMService
 from utils.circuit_breaker import CircuitBreaker, CircuitBreakerOpen
@@ -38,6 +47,7 @@ class LLMProvider(str, Enum):
     """LLM provider types."""
 
     ANTHROPIC = "anthropic"
+    GEMINI = "gemini"
     OLLAMA = "ollama"
     MOCK = "mock"
 
@@ -46,7 +56,7 @@ class LLMCircuitBreaker(CircuitBreaker):
     """
     Circuit breaker for LLM providers.
 
-    Each provider (Anthropic, Ollama) has its own circuit breaker instance
+    Each provider (Anthropic, Gemini, Ollama) has its own circuit breaker instance
     to allow independent failure isolation.
     """
 
@@ -60,7 +70,7 @@ class LLMCircuitBreaker(CircuitBreaker):
         Initialize LLM circuit breaker.
 
         Args:
-            provider: Provider name for metrics (e.g., "anthropic", "ollama")
+            provider: Provider name for metrics (e.g., "anthropic", "gemini", "ollama")
             failure_threshold: Consecutive failures before opening (default: 3)
             recovery_timeout: Seconds before testing recovery (default: 60)
         """
@@ -82,8 +92,9 @@ class LLMService:
     """
     Hybrid LLM service with primary and fallback providers.
 
-    Primary: Anthropic Claude (fast, high-quality)
-    Fallback: Ollama (local, simplified prompt)
+    Supports: Anthropic Claude, Google Gemini, Ollama (local)
+    External providers (Anthropic, Gemini) use single-pass generation.
+    Ollama can use single-pass or multipass (5-pass refinement).
     """
 
     def __init__(self):
@@ -114,6 +125,22 @@ class LLMService:
                 "Anthropic selected as primary but API key not set or SDK not installed"
             )
 
+        # Initialize Gemini client if available
+        self.gemini_client = None
+        if settings.GOOGLE_API_KEY and GEMINI_AVAILABLE:
+            self.gemini_client = genai.Client(
+                api_key=settings.GOOGLE_API_KEY,
+                http_options=genai_types.HttpOptions(timeout=settings.GEMINI_TIMEOUT),
+            )
+            logger.info(
+                f"Gemini client initialized: {settings.GEMINI_MODEL} "
+                f"(timeout={settings.GEMINI_TIMEOUT}s)"
+            )
+        elif self.primary_provider == LLMProvider.GEMINI:
+            logger.warning(
+                "Gemini selected as primary but API key not set or SDK not installed"
+            )
+
         # Ollama configuration with persistent HTTP client
         self.ollama_enabled = settings.OLLAMA_ENABLED
         self.ollama_base_url = settings.OLLAMA_BASE_URL
@@ -127,16 +154,9 @@ class LLMService:
         )
 
         # Initialize per-provider circuit breakers (uses config settings)
-        self._anthropic_breaker = LLMCircuitBreaker(
-            provider="anthropic",
-            failure_threshold=settings.CB_LLM_FAILURE_THRESHOLD,
-            recovery_timeout=float(settings.CB_LLM_RECOVERY_TIMEOUT),
-        )
-        self._ollama_breaker = LLMCircuitBreaker(
-            provider="ollama",
-            failure_threshold=settings.CB_LLM_FAILURE_THRESHOLD,
-            recovery_timeout=float(settings.CB_LLM_RECOVERY_TIMEOUT),
-        )
+        self._anthropic_breaker = self._create_circuit_breaker("anthropic")
+        self._gemini_breaker = self._create_circuit_breaker("gemini")
+        self._ollama_breaker = self._create_circuit_breaker("ollama")
 
         logger.info(
             f"LLM Service initialized - Primary: {self.primary_provider.value}, "
@@ -155,9 +175,29 @@ class LLMService:
 
         if self.primary_provider == LLMProvider.ANTHROPIC:
             return self.anthropic_client is not None
+        elif self.primary_provider == LLMProvider.GEMINI:
+            return self.gemini_client is not None
         elif self.primary_provider == LLMProvider.OLLAMA:
             return self._check_ollama_health()
         return False
+
+    def _create_circuit_breaker(self, provider: str) -> LLMCircuitBreaker:
+        """Create a circuit breaker for the given provider.
+
+        All providers share the same failure threshold and recovery timeout
+        from config, but maintain independent state.
+
+        Args:
+            provider: Provider name (anthropic, gemini, ollama)
+
+        Returns:
+            Configured LLMCircuitBreaker instance
+        """
+        return LLMCircuitBreaker(
+            provider=provider,
+            failure_threshold=settings.CB_LLM_FAILURE_THRESHOLD,
+            recovery_timeout=float(settings.CB_LLM_RECOVERY_TIMEOUT),
+        )
 
     def _check_ollama_health(self) -> bool:
         """Check if Ollama is accessible."""
@@ -258,6 +298,130 @@ class LLMService:
             logger.error(f"Anthropic error (permanent): {e}")
             llm_requests_total.labels(provider="anthropic", status="error").inc()
             raise LLMError(f"Anthropic error: {str(e)}")
+
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(min=2, max=10),
+        retry=retry_if_exception_type((RetryableLLMError,)),
+        before_sleep=before_sleep_log(logger, logging.WARNING),
+        reraise=True,
+    )
+    def _generate_gemini(
+        self,
+        prompt: str,
+        system_prompt: str | None = None,
+        temperature: float = 0.7,
+        max_tokens: int | None = None,
+    ) -> dict[str, Any]:
+        """Generate response using Google Gemini with retry and circuit breaker.
+
+        Args:
+            prompt: User prompt text
+            system_prompt: System instruction (optional)
+            temperature: Sampling temperature 0.0-2.0 (default: 0.7)
+            max_tokens: Maximum tokens to generate (default: settings.GEMINI_MAX_TOKENS)
+
+        Returns:
+            Dict with keys: response, model, provider, input_tokens, output_tokens
+
+        Raises:
+            LLMError: For client errors, empty responses, or malformed responses
+            RetryableLLMError: For transient server/timeout errors (triggers retry)
+            CircuitBreakerOpen: When circuit breaker prevents request
+
+        Retry: Up to 3 attempts with exponential backoff (2s, 4s, 8s).
+        Circuit Breaker: Opens after 3 consecutive failures, 60s recovery.
+        """
+        if not self.gemini_client:
+            raise LLMError("Gemini client not initialized")
+
+        # Check circuit breaker before attempting request
+        if not self._gemini_breaker.allow_request():
+            raise CircuitBreakerOpen(
+                self._gemini_breaker.name,
+                self._gemini_breaker.recovery_timeout,
+            )
+
+        max_tokens = max_tokens or settings.GEMINI_MAX_TOKENS
+
+        try:
+            logger.debug(
+                f"Calling Gemini ({settings.GEMINI_MODEL}) with {len(prompt)} char prompt"
+            )
+
+            config = genai_types.GenerateContentConfig(
+                system_instruction=system_prompt or "",
+                max_output_tokens=max_tokens,
+                temperature=temperature,
+            )
+
+            response = self.gemini_client.models.generate_content(
+                model=settings.GEMINI_MODEL,
+                contents=prompt,
+                config=config,
+            )
+
+            # Guard against malformed response (missing .text or .usage_metadata)
+            try:
+                response_text = response.text
+            except AttributeError:
+                raise LLMError("Gemini returned malformed response (missing text)")
+
+            if not response_text or not response_text.strip():
+                raise LLMError("Gemini returned empty response")
+
+            # Extract token counts with safe defaults
+            try:
+                input_tokens = response.usage_metadata.prompt_token_count or 0
+                output_tokens = response.usage_metadata.candidates_token_count or 0
+            except AttributeError:
+                logger.warning("Gemini response missing usage_metadata, using 0 tokens")
+                input_tokens = 0
+                output_tokens = 0
+
+            logger.info(
+                f"Gemini response: {len(response_text)} chars, "
+                f"{input_tokens} in / {output_tokens} out tokens"
+            )
+
+            # Track LLM metrics and record circuit breaker success
+            llm_requests_total.labels(provider="gemini", status="success").inc()
+            llm_tokens_total.labels(provider="gemini", token_type="input").inc(
+                input_tokens
+            )
+            llm_tokens_total.labels(provider="gemini", token_type="output").inc(
+                output_tokens
+            )
+            self._gemini_breaker.record_success()
+
+            return {
+                "response": response_text,
+                "model": settings.GEMINI_MODEL,
+                "provider": "gemini",
+                "input_tokens": input_tokens,
+                "output_tokens": output_tokens,
+            }
+
+        except (ServerError, httpx.TimeoutException, httpx.ConnectError) as e:
+            # Transient errors (server issues, timeouts, connection errors) - retry
+            logger.error(f"Gemini API error (retryable): {type(e).__name__}")
+            llm_requests_total.labels(provider="gemini", status="error").inc()
+            raise RetryableLLMError("Gemini service temporarily unavailable")
+        except ClientError as e:
+            # Permanent client errors (auth, invalid request) - fail immediately
+            self._gemini_breaker.record_failure()
+            logger.error(f"Gemini error (permanent): {type(e).__name__}")
+            llm_requests_total.labels(provider="gemini", status="error").inc()
+            raise LLMError("Gemini request failed due to client error")
+        except LLMError:
+            # Re-raise our own errors (empty response, malformed response)
+            raise
+        except Exception as e:
+            # Catch-all for unexpected errors
+            self._gemini_breaker.record_failure()
+            logger.error(f"Gemini unexpected error: {type(e).__name__}: {e}")
+            llm_requests_total.labels(provider="gemini", status="error").inc()
+            raise LLMError("Gemini request failed unexpectedly")
 
     @retry(
         stop=stop_after_attempt(settings.OLLAMA_MAX_RETRIES),
@@ -414,6 +578,10 @@ class LLMService:
                 return self._generate_anthropic(
                     prompt, system_prompt, temperature, max_tokens
                 )
+            elif self.primary_provider == LLMProvider.GEMINI:
+                return self._generate_gemini(
+                    prompt, system_prompt, temperature, max_tokens
+                )
             elif self.primary_provider == LLMProvider.OLLAMA:
                 return self._generate_ollama(
                     prompt, system_prompt, temperature, max_tokens, json_mode=json_mode
@@ -428,6 +596,8 @@ class LLMService:
             primary_error = e
             if self.primary_provider == LLMProvider.ANTHROPIC:
                 self._anthropic_breaker.record_failure()
+            elif self.primary_provider == LLMProvider.GEMINI:
+                self._gemini_breaker.record_failure()
             elif self.primary_provider == LLMProvider.OLLAMA:
                 self._ollama_breaker.record_failure()
             logger.warning(
@@ -492,6 +662,13 @@ class LLMService:
                         )
                     else:
                         raise LLMError("Anthropic fallback not available (no API key)")
+                elif self.fallback_provider == LLMProvider.GEMINI:
+                    if self.gemini_client:
+                        return self._generate_gemini(
+                            fb_prompt, fb_system, temperature, max_tokens
+                        )
+                    else:
+                        raise LLMError("Gemini fallback not available (no API key)")
                 else:
                     raise LLMError(
                         f"Unknown fallback provider: {self.fallback_provider}"
