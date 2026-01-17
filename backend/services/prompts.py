@@ -9,6 +9,48 @@ from utils.json_parsing import extract_json_from_markdown
 logger = logging.getLogger(__name__)
 
 
+def get_verse_id(verse: dict, default: str = "Unknown") -> str:
+    """Get canonical_id from verse dict, handling both structures.
+
+    The RAG pipeline returns verses with canonical_id at top level,
+    while some test fixtures use metadata.canonical_id.
+
+    Args:
+        verse: Verse dict from RAG pipeline or test fixture
+        default: Default value if no canonical_id found
+
+    Returns:
+        The canonical_id string
+    """
+    # Try direct canonical_id first (pipeline format)
+    if "canonical_id" in verse:
+        return verse["canonical_id"]
+    # Fall back to metadata.canonical_id (test/other format)
+    if "metadata" in verse and "canonical_id" in verse.get("metadata", {}):
+        return verse["metadata"]["canonical_id"]
+    return default
+
+
+def get_verse_metadata(verse: dict, key: str, default: str = "") -> str:
+    """Get metadata field from verse dict, handling both structures.
+
+    Args:
+        verse: Verse dict from RAG pipeline or test fixture
+        key: Metadata field name (e.g., 'paraphrase', 'translation_en')
+        default: Default value if field not found
+
+    Returns:
+        The metadata field value
+    """
+    # Try direct field first (pipeline format)
+    if key in verse:
+        return verse.get(key, default)
+    # Fall back to metadata.field (test/other format)
+    if "metadata" in verse:
+        return verse.get("metadata", {}).get(key, default)
+    return default
+
+
 SYSTEM_PROMPT = """You are Geetanjali: an AI consulting aide that uses Bhagavad Geeta principles to generate concise consulting briefs for leadership ethical decisions.
 
 CRITICAL REQUIREMENTS - DO NOT DEVIATE:
@@ -161,12 +203,15 @@ def build_user_prompt(
     prompt_parts.append("\nUse these verses to inform your consulting brief:\n\n")
 
     for i, verse in enumerate(retrieved_verses, 1):
-        metadata = verse.get("metadata", {})
-        canonical_id = metadata.get("canonical_id", "Unknown")
-        paraphrase = metadata.get("paraphrase", "N/A")
-        translation = metadata.get("translation_en", "")
-        principles = metadata.get("principles", "")
-        translations = metadata.get("translations", [])
+        # Use helper functions to handle both verse structures
+        canonical_id = get_verse_id(verse, "Unknown")
+        paraphrase = get_verse_metadata(verse, "paraphrase", "N/A")
+        translation = get_verse_metadata(verse, "translation_en", "")
+        principles = get_verse_metadata(verse, "principles", "")
+        # translations can be in verse directly or in metadata
+        translations = verse.get("translations") or verse.get("metadata", {}).get(
+            "translations", []
+        )
 
         prompt_parts.append(f"**Verse {i}: {canonical_id}**\n")
         prompt_parts.append(f"Paraphrase: {paraphrase}\n")
@@ -184,9 +229,9 @@ def build_user_prompt(
 
     # Add explicit constraint on allowed verse IDs
     valid_ids = [
-        verse.get("metadata", {}).get("canonical_id")
+        get_verse_id(verse)
         for verse in retrieved_verses
-        if verse.get("metadata", {}).get("canonical_id")
+        if get_verse_id(verse) != "Unknown"
     ]
     if valid_ids:
         prompt_parts.append(
@@ -336,10 +381,10 @@ def build_ollama_prompt(
     prompt_parts.append("\n# Geeta Verses\n")
     valid_ids = []
     for i, verse in enumerate(retrieved_verses[:3], 1):
-        metadata = verse.get("metadata", {})
-        canonical_id = metadata.get("canonical_id", "Unknown")
-        paraphrase = metadata.get("paraphrase", "N/A")
-        translation = metadata.get("translation_en", "")
+        # Use helper functions to handle both verse structures
+        canonical_id = get_verse_id(verse, "Unknown")
+        paraphrase = get_verse_metadata(verse, "paraphrase", "N/A")
+        translation = get_verse_metadata(verse, "translation_en", "")
         prompt_parts.append(f"{i}. {canonical_id}: {paraphrase}\n")
         if translation:
             prompt_parts.append(f"   Translation: {translation}\n")
@@ -386,15 +431,7 @@ def post_process_ollama_response(
             return verse_id.replace(".", "_")
         return verse_id
 
-    def get_verse_id(verse: dict, default: str) -> str:
-        """Get canonical_id from verse dict, handling both structures."""
-        # Try direct canonical_id first (pipeline format)
-        if "canonical_id" in verse:
-            return verse["canonical_id"]
-        # Fall back to metadata.canonical_id (test/other format)
-        if "metadata" in verse and "canonical_id" in verse.get("metadata", {}):
-            return verse["metadata"]["canonical_id"]
-        return default
+    # Note: get_verse_id is now a module-level function
 
     # Fix sources array if it contains verse IDs as strings
     if data.get("sources") and isinstance(data["sources"], list):
