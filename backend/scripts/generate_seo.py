@@ -21,6 +21,55 @@ import httpx
 from jinja2 import Environment, FileSystemLoader
 
 
+class ContentValidationError(Exception):
+    """Raised when content JSON fails validation."""
+    pass
+
+
+def validate_content(content: dict) -> None:
+    """
+    Validate content JSON has required fields.
+    Fails early at build time to catch data entry errors.
+    """
+    errors = []
+
+    # Validate meta.json
+    meta = content.get("meta", {})
+    if not meta.get("site", {}).get("name"):
+        errors.append("meta.json: missing site.name")
+    if not meta.get("site", {}).get("url"):
+        errors.append("meta.json: missing site.url")
+    if not meta.get("seo", {}).get("defaultTitle"):
+        errors.append("meta.json: missing seo.defaultTitle")
+
+    # Validate home.json
+    home = content.get("home", {})
+    if not home.get("seo", {}).get("title"):
+        errors.append("home.json: missing seo.title")
+    if not home.get("hero", {}).get("headline"):
+        errors.append("home.json: missing hero.headline")
+    if not home.get("cta", {}).get("primary", {}).get("label"):
+        errors.append("home.json: missing cta.primary.label")
+
+    # Validate about.json
+    about = content.get("about", {})
+    if not about.get("seo", {}).get("title"):
+        errors.append("about.json: missing seo.title")
+    if not about.get("hero", {}).get("title"):
+        errors.append("about.json: missing hero.title")
+    if not about.get("story"):
+        errors.append("about.json: missing story array")
+    if not about.get("philosophy", {}).get("items"):
+        errors.append("about.json: missing philosophy.items")
+    if not about.get("commitments", {}).get("items"):
+        errors.append("about.json: missing commitments.items")
+
+    if errors:
+        raise ContentValidationError(
+            "Content validation failed:\n  " + "\n  ".join(errors)
+        )
+
+
 def load_content(content_dir: Path) -> dict:
     """Load all content JSON files from content directory."""
     content = {}
@@ -366,7 +415,6 @@ def generate_sitemap(verses: list[dict], output_dir: str, base_url: str = "https
     urls.append({"loc": f"{base_url}/", "priority": "1.0", "changefreq": "weekly"})
     urls.append({"loc": f"{base_url}/about", "priority": "0.8", "changefreq": "monthly"})
     urls.append({"loc": f"{base_url}/verses", "priority": "0.9", "changefreq": "weekly"})
-    urls.append({"loc": f"{base_url}/read", "priority": "0.7", "changefreq": "monthly"})
 
     # Chapter pages (medium-high priority)
     for chapter in CHAPTERS:
@@ -435,6 +483,10 @@ def main():
 
     content = load_content(content_dir)
     print(f"Loaded content from {content_dir}")
+
+    # Validate content early to catch data entry errors at build time
+    validate_content(content)
+    print("  Content validation passed")
 
     # Fetch all data
     verses = fetch_all_verses(args.api_url)

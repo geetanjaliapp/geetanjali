@@ -21,11 +21,13 @@ COPY backend/templates/seo ./templates/seo/
 COPY frontend/src/content ./content/
 
 # Generate SEO pages
-# API_URL is passed as build arg (defaults to host.docker.internal for Docker Desktop)
-ARG API_URL=http://host.docker.internal:8000
+# API_URL: Use docker compose network by default (backend:8000)
+# For local builds: pass --build-arg API_URL=http://localhost:8000
+# Note: Backend must be running before building frontend with SEO pages
+ARG API_URL=http://backend:8000
 RUN mkdir -p ./output && \
     (python generate_seo.py --output ./output --api-url $API_URL --content-dir ./content || \
-    echo "Warning: SEO generation failed, continuing without SEO pages")
+    echo "Warning: SEO generation failed (is backend running?), continuing without SEO pages")
 
 # ==========================================
 # Stage 2: Frontend Build

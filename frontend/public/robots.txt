@@ -7,7 +7,6 @@ User-agent: *
 Allow: /
 Allow: /about
 Allow: /verses
-Allow: /read
 
 # Private/auth routes - not indexable
 Disallow: /api/
