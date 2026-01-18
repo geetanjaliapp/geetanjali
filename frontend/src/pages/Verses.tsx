@@ -212,6 +212,15 @@ export default function Verses() {
   const [showGoalSelector, setShowGoalSelector] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState<string | null>(null);
 
+  // Compute principles for the selected goal filter (from GoalFilterSelector)
+  const goalPrinciples = useMemo(() => {
+    if (!selectedGoal) return [];
+    const goal = getGoal(selectedGoal);
+    if (!goal) return [];
+    // "exploring" goal has empty principles - means all principles
+    return goal.principles || [];
+  }, [selectedGoal, getGoal]);
+
   // Sync filter state with URL changes (e.g., clicking "Verses" in navbar resets filters)
   useEffect(() => {
     const urlTopic = searchParams.get("topic");
@@ -267,11 +276,22 @@ export default function Verses() {
   // Memoized load functions
   const loadCount = useCallback(async () => {
     // For favorites mode, count is just the localStorage favorites count
-    if (filterMode === "favorites" && !selectedPrinciple) {
+    if (filterMode === "favorites" && !selectedPrinciple && !selectedGoal) {
       setTotalCount(favoritesCount);
       return;
     }
     try {
+      // For goal filter, use the selected goal's principles
+      if (selectedGoal && goalPrinciples.length > 0) {
+        const count = await versesApi.count(
+          undefined,
+          undefined,
+          goalPrinciples.join(","),
+        );
+        setTotalCount(count);
+        return;
+      }
+
       // For recommended mode, use the user's goal principles
       if (filterMode === "recommended" && recommendedPrinciples.length > 0) {
         const count = await versesApi.count(
@@ -303,7 +323,7 @@ export default function Verses() {
     } catch {
       setTotalCount(null);
     }
-  }, [filterMode, selectedPrinciple, favoritesCount, recommendedPrinciples]);
+  }, [filterMode, selectedPrinciple, selectedGoal, goalPrinciples, favoritesCount, recommendedPrinciples]);
 
   const loadVerses = useCallback(
     async (reset: boolean = false) => {
@@ -350,6 +370,22 @@ export default function Verses() {
           setLoadingMore(true);
         }
         setError(null);
+
+        // For goal filter, use the selected goal's principles
+        if (selectedGoal && goalPrinciples.length > 0 && reset) {
+          const data = await versesApi.list(
+            0,
+            pageSize,
+            undefined,
+            undefined,
+            goalPrinciples.join(","),
+          );
+          setVerses(data);
+          setHasMore(data.length === pageSize);
+          setLoading(false);
+          setLoadingMore(false);
+          return;
+        }
 
         // For recommended mode, use the user's goal principles (loadMore handles pagination)
         if (
@@ -406,7 +442,7 @@ export default function Verses() {
         setLoadingMore(false);
       }
     },
-    [filterMode, selectedPrinciple, pageSize, recommendedPrinciples],
+    [filterMode, selectedPrinciple, selectedGoal, goalPrinciples, pageSize, recommendedPrinciples],
   );
 
   useEffect(() => {
@@ -478,7 +514,7 @@ export default function Verses() {
   useEffect(() => {
     // Only handle escape for filters when not in search mode and a filter is active
     const hasActiveFilter =
-      selectedPrinciple || selectedChapter || filterMode !== "featured";
+      selectedPrinciple || selectedGoal || selectedChapter || filterMode !== "featured";
     if (isSearchMode || !hasActiveFilter) return;
 
     const handleEscape = (e: KeyboardEvent) => {
@@ -486,6 +522,7 @@ export default function Verses() {
         // Reset to default state
         setFilterMode("featured");
         setSelectedPrinciple(null);
+        setSelectedGoal(null);
         setSearchParams({});
         // Clear focus from any filter button
         if (document.activeElement instanceof HTMLElement) {
@@ -498,6 +535,7 @@ export default function Verses() {
   }, [
     isSearchMode,
     selectedPrinciple,
+    selectedGoal,
     selectedChapter,
     filterMode,
     setSearchParams,
@@ -509,6 +547,26 @@ export default function Verses() {
     setError(null);
 
     try {
+      // For goal filter, use the selected goal's principles
+      if (selectedGoal && goalPrinciples.length > 0) {
+        const data = await versesApi.list(
+          verses.length,
+          pageSize,
+          undefined,
+          undefined,
+          goalPrinciples.join(","),
+        );
+
+        setVerses((prev) => {
+          const existingIds = new Set(prev.map((v) => v.id));
+          const newVerses = data.filter((v) => !existingIds.has(v.id));
+          return [...prev, ...newVerses];
+        });
+        setHasMore(data.length === pageSize);
+        setLoadingMore(false);
+        return;
+      }
+
       // For recommended mode, use the user's goal principles
       if (filterMode === "recommended" && recommendedPrinciples.length > 0) {
         const data = await versesApi.list(
@@ -564,6 +622,8 @@ export default function Verses() {
   }, [
     filterMode,
     selectedPrinciple,
+    selectedGoal,
+    goalPrinciples,
     verses.length,
     loadingMore,
     pageSize,
@@ -1019,7 +1079,7 @@ export default function Verses() {
                 </span>
               )}
             </div>
-          ) : selectedChapter || selectedPrinciple ? (
+          ) : selectedChapter || selectedPrinciple || selectedGoal ? (
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-xs sm:text-sm text-[var(--text-accent)]">
                 Filtering by:
@@ -1033,6 +1093,21 @@ export default function Verses() {
                     onClick={() => handleFilterSelect("featured")}
                     className="ml-0.5 hover:bg-[var(--badge-primary-hover)] rounded-[var(--radius-chip)] p-0.5 transition-[var(--transition-color)]"
                     aria-label="Clear chapter filter"
+                  >
+                    <CloseIcon />
+                  </button>
+                </span>
+              )}
+
+              {/* Goal filter tag */}
+              {selectedGoal && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[var(--radius-chip)] bg-[var(--chip-selected-bg)] text-[var(--chip-selected-text)] text-xs sm:text-sm font-medium">
+                  <CompassIcon className="w-3.5 h-3.5" />
+                  {getGoal(selectedGoal)?.label || "Goal"}
+                  <button
+                    onClick={() => handleGoalSelect(null)}
+                    className="ml-0.5 hover:bg-[var(--chip-selected-ring)] rounded-[var(--radius-chip)] p-0.5 transition-[var(--transition-color)]"
+                    aria-label="Clear goal filter"
                   >
                     <CloseIcon />
                   </button>
@@ -1064,6 +1139,7 @@ export default function Verses() {
                   onClick={() => {
                     setFilterMode("featured");
                     setSelectedPrinciple(null);
+                    setSelectedGoal(null);
                     updateSearchParams("featured", null);
                   }}
                   className="text-xs sm:text-sm text-[var(--text-accent)] hover:text-[var(--badge-warm-text)] font-medium underline underline-offset-2"
