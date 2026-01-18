@@ -617,20 +617,20 @@ def sync_principles(db: Session) -> dict[str, int]:
             existing_principle.chapter_focus = principle_data["chapterFocus"]
             p_display_order: int = principle_data.get("display_order") or 0  # type: ignore[assignment]
             existing_principle.display_order = p_display_order
-            # Extended content (optional)
+            # Extended content (optional - camelCase in JSON)
             existing_principle.extended_description = principle_data.get(
-                "extended_description"
+                "extendedDescription"
             )
             existing_principle.practical_application = principle_data.get(
-                "practical_application"
+                "practicalApplication"
             )
             existing_principle.common_misconceptions = principle_data.get(
-                "common_misconceptions"
+                "commonMisconceptions"
             )
-            existing_principle.faq_question = principle_data.get("faq_question")
-            existing_principle.faq_answer = principle_data.get("faq_answer")
+            existing_principle.faq_question = principle_data.get("faqQuestion")
+            existing_principle.faq_answer = principle_data.get("faqAnswer")
             existing_principle.related_principles = principle_data.get(
-                "related_principles"
+                "relatedPrinciples"
             )
             existing_principle.updated_at = datetime.utcnow()
             updated += 1
@@ -649,13 +649,13 @@ def sync_principles(db: Session) -> dict[str, int]:
                 keywords=principle_data["keywords"],
                 chapter_focus=principle_data["chapterFocus"],
                 display_order=p_display_order_new,
-                # Extended content (optional)
-                extended_description=principle_data.get("extended_description"),
-                practical_application=principle_data.get("practical_application"),
-                common_misconceptions=principle_data.get("common_misconceptions"),
-                faq_question=principle_data.get("faq_question"),
-                faq_answer=principle_data.get("faq_answer"),
-                related_principles=principle_data.get("related_principles"),
+                # Extended content (optional - camelCase in JSON)
+                extended_description=principle_data.get("extendedDescription"),
+                practical_application=principle_data.get("practicalApplication"),
+                common_misconceptions=principle_data.get("commonMisconceptions"),
+                faq_question=principle_data.get("faqQuestion"),
+                faq_answer=principle_data.get("faqAnswer"),
+                related_principles=principle_data.get("relatedPrinciples"),
             )
             db.add(new_principle)
             created += 1

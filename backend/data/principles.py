@@ -39,13 +39,13 @@ class PrincipleData(TypedDict, total=False):
     keywords: list[str]
     group: str
     chapterFocus: list[int]
-    # Extended content (optional - for SEO)
-    extended_description: str
-    practical_application: str
-    common_misconceptions: str
-    faq_question: str
-    faq_answer: str
-    related_principles: list[str]
+    # Extended content (optional - for SEO, camelCase to match JSON)
+    extendedDescription: str
+    practicalApplication: str
+    commonMisconceptions: str
+    faqQuestion: str
+    faqAnswer: str
+    relatedPrinciples: list[str]
 
 
 def _load_json(filename: str) -> dict[str, Any]:

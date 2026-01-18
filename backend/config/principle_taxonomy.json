@@ -9,7 +9,13 @@
     "leadershipContext": "Leaders must understand and fulfill their responsibilities to stakeholders, teams, and society.",
     "keywords": ["duty", "responsibility", "dharma", "obligation", "role", "commitment", "righteous", "right action"],
     "group": "karma",
-    "chapterFocus": [2, 3, 18]
+    "chapterFocus": [2, 3, 18],
+    "extendedDescription": "Dharma is the foundational principle of the Bhagavad Gita, representing the cosmic order that sustains life and society. It encompasses your duties, responsibilities, and the right way of living based on your position in life. Unlike rigid rules, dharma is contextual and requires discernment to apply correctly in each situation.",
+    "practicalApplication": "In daily life, dharma means fulfilling your commitments—as a professional, family member, citizen, and human being. Ask yourself: What is my duty in this situation? What would a person of integrity do? Then act accordingly, even when it's difficult. For leaders, this means prioritizing team welfare over personal gain and making decisions that serve the greater good.",
+    "commonMisconceptions": "Many confuse dharma with blind rule-following or religious obligation. Dharma is not about external compliance but internal alignment with what is right. It's also not about doing what's easy or popular—sometimes dharma requires courage to stand against the crowd.",
+    "faqQuestion": "How do I know what my dharma is?",
+    "faqAnswer": "Your dharma emerges from understanding your natural abilities, your responsibilities to others, and the needs of the situation. Start by honestly assessing your roles (parent, professional, friend) and the expectations that come with them. Then consider your unique gifts and how they can serve others. When facing difficult choices, ask: What action aligns with truth, benefits others, and maintains my integrity?",
+    "relatedPrinciples": ["svadharma", "nishkama_karma", "virtue"]
   },
   "nishkama_karma": {
     "id": "nishkama_karma",
@@ -21,7 +27,13 @@
     "leadershipContext": "Leaders perform their duties with excellence regardless of recognition or reward.",
     "keywords": ["detachment", "non-attachment", "selfless", "process", "outcomes", "results", "action without desire"],
     "group": "karma",
-    "chapterFocus": [2, 3, 5]
+    "chapterFocus": [2, 3, 5],
+    "extendedDescription": "Nishkama Karma is one of the central teachings of the Bhagavad Gita—the concept of performing action without attachment to its fruits. This doesn't mean indifference to quality or lack of goals, but rather freedom from the anxiety and suffering that comes from being overly attached to specific outcomes. When we focus entirely on doing our best in the present moment, we perform better and find greater peace.",
+    "practicalApplication": "Apply this principle by giving your full attention to the task at hand rather than constantly calculating potential rewards or worrying about failure. Before starting work, set your intention to do excellent work for its own sake. After completing a task, reflect on what you learned rather than fixating on external validation. In negotiations, focus on creating value rather than 'winning.'",
+    "commonMisconceptions": "Nishkama Karma is often misunderstood as passivity or lack of ambition. It's not about having no goals—it's about not letting goals control your peace of mind. You can work hard toward objectives while accepting that outcomes involve factors beyond your control. The key is maintaining equanimity regardless of results.",
+    "faqQuestion": "How can I be motivated without attachment to results?",
+    "faqAnswer": "True motivation comes from finding meaning in the work itself, not just external rewards. When you're attached to outcomes, anxiety and fear of failure actually impair performance. By focusing on process excellence—doing your best moment to moment—you enter a flow state that produces better results naturally. The paradox is that detachment from outcomes often leads to better outcomes.",
+    "relatedPrinciples": ["dharma", "samatvam", "tyaga"]
   },
   "samatvam": {
     "id": "samatvam",
@@ -33,7 +45,13 @@
     "leadershipContext": "Leaders maintain emotional equilibrium regardless of outcomes, modeling stability for their teams.",
     "keywords": ["equanimity", "balance", "evenness", "composure", "stability", "calm", "poise", "equilibrium"],
     "group": "sadachara",
-    "chapterFocus": [2, 6, 14]
+    "chapterFocus": [2, 6, 14],
+    "extendedDescription": "Samatvam is the art of maintaining inner equilibrium regardless of external circumstances. The Gita defines yoga itself as 'samatvam'—evenness of mind. This principle teaches us that our response to life's ups and downs matters more than the events themselves. By cultivating equanimity, we become less reactive, make better decisions, and find sustainable peace that doesn't depend on favorable conditions.",
+    "practicalApplication": "Practice samatvam by pausing before reacting to good or bad news. Notice your emotional response without immediately acting on it. When praised, acknowledge gracefully without inflating your ego; when criticized, listen for truth without defensiveness. Keep a journal to track emotional patterns and triggers. Regular meditation helps develop this steady awareness.",
+    "commonMisconceptions": "Equanimity is not emotional suppression or indifference. You can feel joy and sorrow while maintaining a stable core. It's also not about having no preferences—you can work toward goals while accepting that you cannot control all outcomes. True equanimity is dynamic balance, not rigid stoicism.",
+    "faqQuestion": "How do I stay calm when things go wrong?",
+    "faqAnswer": "First, remember that your reaction is separate from the event—you have a choice in how you respond. Take three deep breaths before responding to any crisis. Ask yourself: 'Will this matter in a year? In five years?' Focus on what you can control (your response) rather than what you can't (what happened). Regular meditation practice builds the mental muscle of equanimity, making it easier to access during difficult moments.",
+    "relatedPrinciples": ["sthitaprajna", "nishkama_karma", "viveka"]
   },
   "sthitaprajna": {
     "id": "sthitaprajna",
