@@ -46,9 +46,9 @@ def ms_to_iso8601_duration(ms: int | None) -> str | None:
         ms: Duration in milliseconds
 
     Returns:
-        ISO 8601 duration string or None if ms is None
+        ISO 8601 duration string or None if ms is None or negative
     """
-    if ms is None:
+    if ms is None or ms < 0:
         return None
 
     total_seconds = ms // 1000

@@ -1,28 +1,28 @@
 {% extends "seo/base.html" %}
 
-{% block title %}Chapter {{ chapter.number }}: {{ chapter.title }}{% endblock %}
+{% block title %}Chapter {{ chapter.chapter_number }}: {{ chapter.english_title }}{% endblock %}
 
-{% block description %}{{ chapter.description[:160] if chapter.description else 'Bhagavad Gita Chapter ' ~ chapter.number ~ ' - ' ~ chapter.title ~ ' with Sanskrit verses, translations, and commentary.' }}{% endblock %}
+{% block description %}{{ chapter.summary[:160] if chapter.summary else 'Bhagavad Gita Chapter ' ~ chapter.chapter_number ~ ' - ' ~ chapter.english_title ~ ' with Sanskrit verses, translations, and commentary.' }}{% endblock %}
 
-{% block canonical %}/verses/chapter/{{ chapter.number }}{% endblock %}
+{% block canonical %}/verses/chapter/{{ chapter.chapter_number }}{% endblock %}
 
 {% block og_type %}article{% endblock %}
-{% block og_title %}Bhagavad Gita Chapter {{ chapter.number }}: {{ chapter.title }} | Geetanjali{% endblock %}
-{% block og_description %}{{ chapter.description[:200] if chapter.description else 'Read all verses from Chapter ' ~ chapter.number }}{% endblock %}
-{% block og_url %}/verses/chapter/{{ chapter.number }}{% endblock %}
+{% block og_title %}Bhagavad Gita Chapter {{ chapter.chapter_number }}: {{ chapter.english_title }} | Geetanjali{% endblock %}
+{% block og_description %}{{ chapter.summary[:200] if chapter.summary else 'Read all verses from Chapter ' ~ chapter.chapter_number }}{% endblock %}
+{% block og_url %}/verses/chapter/{{ chapter.chapter_number }}{% endblock %}
 
-{% block twitter_title %}Bhagavad Gita Chapter {{ chapter.number }}: {{ chapter.title }}{% endblock %}
-{% block twitter_description %}{{ chapter.description[:200] if chapter.description else 'Read all verses from Chapter ' ~ chapter.number }}{% endblock %}
+{% block twitter_title %}Bhagavad Gita Chapter {{ chapter.chapter_number }}: {{ chapter.english_title }}{% endblock %}
+{% block twitter_description %}{{ chapter.summary[:200] if chapter.summary else 'Read all verses from Chapter ' ~ chapter.chapter_number }}{% endblock %}
 
 {% block jsonld %}
 <script type="application/ld+json">
 {
     "@context": "https://schema.org",
     "@type": "Chapter",
-    "name": "{{ chapter.title }}",
-    "position": {{ chapter.number }},
-    "description": "{{ chapter.description | e if chapter.description else '' }}",
-    "url": "https://geetanjaliapp.com/verses/chapter/{{ chapter.number }}",
+    "name": "{{ chapter.english_title | e }}",
+    "position": {{ chapter.chapter_number }},
+    "description": "{{ chapter.summary | e if chapter.summary else '' }}",
+    "url": "https://geetanjaliapp.com/verses/chapter/{{ chapter.chapter_number }}",
     "isPartOf": {
         "@type": "Book",
         "name": "Bhagavad Gita",
@@ -60,7 +60,7 @@
         {
             "@type": "ListItem",
             "position": 3,
-            "name": "Chapter {{ chapter.number }}"
+            "name": "Chapter {{ chapter.chapter_number }}"
         }
     ]
 }
@@ -71,13 +71,13 @@
 <article>
     <nav aria-label="Breadcrumb">
         <a href="/verses/">Verses</a> /
-        Chapter {{ chapter.number }}
+        Chapter {{ chapter.chapter_number }}
     </nav>
 
-    <h1>Chapter {{ chapter.number }}: {{ chapter.title }}</h1>
+    <h1>Chapter {{ chapter.chapter_number }}: {{ chapter.english_title }}</h1>
 
-    {% if chapter.description %}
-    <p class="chapter-description">{{ chapter.description }}</p>
+    {% if chapter.summary %}
+    <p class="chapter-description">{{ chapter.summary }}</p>
     {% endif %}
 
     <section aria-labelledby="verses">
@@ -100,12 +100,12 @@
 
     <nav aria-label="Chapter navigation">
         {% if prev_chapter %}
-        <a href="/verses/chapter/{{ prev_chapter.number }}">&larr; Chapter {{ prev_chapter.number }}: {{ prev_chapter.title }}</a>
+        <a href="/verses/chapter/{{ prev_chapter.chapter_number }}">&larr; Chapter {{ prev_chapter.chapter_number }}: {{ prev_chapter.english_title }}</a>
         {% else %}
         <span></span>
         {% endif %}
         {% if next_chapter %}
-        <a href="/verses/chapter/{{ next_chapter.number }}">Chapter {{ next_chapter.number }}: {{ next_chapter.title }} &rarr;</a>
+        <a href="/verses/chapter/{{ next_chapter.chapter_number }}">Chapter {{ next_chapter.chapter_number }}: {{ next_chapter.english_title }} &rarr;</a>
         {% endif %}
     </nav>
 </article>

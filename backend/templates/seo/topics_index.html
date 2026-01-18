@@ -38,7 +38,7 @@
                 "@type": "ListItem",
                 "position": {{ ns.pos }},
                 "url": "https://geetanjaliapp.com/topics/{{ principle.id }}",
-                "name": "{{ principle.label }}"
+                "name": "{{ principle.label | e }}"
             }{% if ns.pos < ns.total %},{% endif %}
             {%- endfor -%}
             {%- endfor %}

@@ -33,9 +33,9 @@
         {% for chapter in chapters %}
         {
             "@type": "Chapter",
-            "name": "Chapter {{ chapter.number }}: {{ chapter.title }}",
-            "position": {{ chapter.number }},
-            "url": "https://geetanjaliapp.com/verses/chapter/{{ chapter.number }}"
+            "name": "Chapter {{ chapter.chapter_number }}: {{ chapter.english_title | e }}",
+            "position": {{ chapter.chapter_number }},
+            "url": "https://geetanjaliapp.com/verses/chapter/{{ chapter.chapter_number }}"
         }{% if not loop.last %},{% endif %}
         {% endfor %}
     ]
@@ -74,12 +74,12 @@
         <ol>
             {% for chapter in chapters %}
             <li>
-                <a href="/verses/chapter/{{ chapter.number }}">
-                    <strong>{{ chapter.title }}</strong>
+                <a href="/verses/chapter/{{ chapter.chapter_number }}">
+                    <strong>{{ chapter.english_title }}</strong>
                 </a>
                 <span class="verse-count">({{ chapter.verse_count }} verses)</span>
-                {% if chapter.description %}
-                <p>{{ chapter.description }}</p>
+                {% if chapter.summary %}
+                <p>{{ chapter.summary }}</p>
                 {% endif %}
             </li>
             {% endfor %}
