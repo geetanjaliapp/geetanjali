@@ -599,7 +599,7 @@ class SeoGeneratorService:
         total_size = self.db.query(func.sum(SeoPage.file_size_bytes)).scalar() or 0
 
         # Convert query results to dict
-        pages_by_type = {page_type: count for page_type, count in type_counts}
+        pages_by_type = dict(type_counts)
 
         return {
             "pages_by_type": pages_by_type,
