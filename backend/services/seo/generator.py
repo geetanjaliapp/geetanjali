@@ -25,7 +25,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import NamedTuple
 
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
@@ -97,9 +97,12 @@ class SeoGeneratorService:
     def env(self) -> Environment:
         """Lazy-load Jinja2 environment."""
         if self._env is None:
-            # Autoescape disabled: all input is from our DB/JSON (no user input),
-            # and we need to render HTML content in verse texts
-            self._env = Environment(loader=FileSystemLoader(self.templates_dir))  # nosec B701
+            # Enable autoescape for security - prevents XSS if data is compromised
+            # Templates should use |safe filter only for fields with intentional HTML
+            self._env = Environment(
+                loader=FileSystemLoader(self.templates_dir),
+                autoescape=select_autoescape(["html", "htm", "xml"]),
+            )
         return self._env
 
     def _acquire_lock(self) -> bool:
@@ -348,6 +351,10 @@ class SeoGeneratorService:
                 duration_ms=duration_ms,
             )
 
+        except Exception:
+            # Rollback on any unhandled exception to prevent partial state
+            self.db.rollback()
+            raise
         finally:
             self._release_lock()
 
@@ -427,7 +434,8 @@ class SeoGeneratorService:
 
             except Exception as e:
                 logger.error(
-                    f"SEO GENERATION: Error generating verse {verse.canonical_id}: {e}"
+                    f"SEO GENERATION: Error generating verse {verse.canonical_id}: {e}",
+                    exc_info=True,
                 )
                 stats["errors"] += 1
 
@@ -439,6 +447,8 @@ class SeoGeneratorService:
 
     def _generate_chapter_pages(self, force: bool) -> dict[str, int]:
         """Generate all chapter index pages."""
+        from collections import defaultdict
+
         from models import ChapterMetadata, Verse
 
         stats = {"generated": 0, "skipped": 0, "errors": 0}
@@ -457,6 +467,14 @@ class SeoGeneratorService:
             logger.warning("SEO GENERATION: No chapter metadata found")
             return stats
 
+        # Prefetch all verses in one query to avoid N+1
+        all_verses = (
+            self.db.query(Verse).order_by(Verse.chapter, Verse.verse).all()
+        )
+        verses_by_chapter: dict[int, list] = defaultdict(list)
+        for verse in all_verses:
+            verses_by_chapter[verse.chapter].append(verse)
+
         logger.info(f"SEO GENERATION: Processing {len(chapters)} chapters")
 
         for i, chapter in enumerate(chapters):
@@ -464,13 +482,8 @@ class SeoGeneratorService:
                 page_key = f"chapter_{chapter.chapter_number}"
                 page_type = "chapter"
 
-                # Get verses for this chapter
-                verses = (
-                    self.db.query(Verse)
-                    .filter(Verse.chapter == chapter.chapter_number)
-                    .order_by(Verse.verse)
-                    .all()
-                )
+                # Get verses for this chapter from prefetched data
+                verses = verses_by_chapter[chapter.chapter_number]
 
                 # Compute source hash
                 source_data = {
@@ -523,7 +536,8 @@ class SeoGeneratorService:
 
             except Exception as e:
                 logger.error(
-                    f"SEO GENERATION: Error generating chapter {chapter.chapter_number}: {e}"
+                    f"SEO GENERATION: Error generating chapter {chapter.chapter_number}: {e}",
+                    exc_info=True,
                 )
                 stats["errors"] += 1
 
@@ -584,7 +598,10 @@ class SeoGeneratorService:
                 logger.info(f"SEO GENERATION: Generated {page_key}")
 
             except Exception as e:
-                logger.error(f"SEO GENERATION: Error generating {page_key}: {e}")
+                logger.error(
+                    f"SEO GENERATION: Error generating {page_key}: {e}",
+                    exc_info=True,
+                )
                 stats["errors"] += 1
 
         return stats
@@ -614,6 +631,8 @@ class SeoGeneratorService:
 
     def _generate_topic_pages(self, force: bool) -> dict[str, int]:
         """Generate topic pages for principles and topics index."""
+        from sqlalchemy.orm import joinedload
+
         from models import Principle, PrincipleGroup
 
         stats = {"generated": 0, "skipped": 0, "errors": 0}
@@ -624,8 +643,10 @@ class SeoGeneratorService:
             .order_by(Principle.display_order)
             .all()
         )
+        # Eager load principles relationship to avoid N+1 queries in template
         groups = (
             self.db.query(PrincipleGroup)
+            .options(joinedload(PrincipleGroup.principles))
             .order_by(PrincipleGroup.display_order)
             .all()
         )
@@ -720,7 +741,8 @@ class SeoGeneratorService:
 
             except Exception as e:
                 logger.error(
-                    f"SEO GENERATION: Error generating topic {principle.id}: {e}"
+                    f"SEO GENERATION: Error generating topic {principle.id}: {e}",
+                    exc_info=True,
                 )
                 stats["errors"] += 1
 
@@ -792,7 +814,10 @@ class SeoGeneratorService:
             logger.info("SEO GENERATION: Generated topics index")
 
         except Exception as e:
-            logger.error(f"SEO GENERATION: Error generating topics index: {e}")
+            logger.error(
+                f"SEO GENERATION: Error generating topics index: {e}",
+                exc_info=True,
+            )
             stats["errors"] += 1
 
         return stats
