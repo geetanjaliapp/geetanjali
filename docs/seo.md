@@ -83,6 +83,41 @@ backend/services/seo/
 └── hash_utils.py      # Hash computation utilities
 ```
 
+### Docker Volume Architecture
+
+SEO pages are shared between containers via a Docker named volume:
+
+```
+Backend Container                    Frontend Container
+┌─────────────────────┐              ┌─────────────────────┐
+│ SeoGeneratorService │              │ Nginx               │
+│ writes to:          │     📦       │ serves from:        │
+│ /app/seo-output/ ───┼─────────────→│ /usr/share/nginx/   │
+│                     │  seo_output  │   html/seo/         │
+└─────────────────────┘   volume     └─────────────────────┘
+```
+
+**docker-compose.yml configuration:**
+```yaml
+volumes:
+  seo_output:  # Shared SEO pages
+
+services:
+  backend:
+    volumes:
+      - seo_output:/app/seo-output  # Backend writes
+
+  frontend:
+    volumes:
+      - seo_output:/usr/share/nginx/html/seo:ro  # Nginx reads (read-only)
+```
+
+**Why volume sharing instead of Git LFS:**
+- SEO pages are **generated content**, not source assets
+- They're derived from database + templates (not binary files like audio)
+- Regenerated on every deploy with hash-based change detection
+- Treated as build artifacts, not version-controlled assets
+
 ### Nginx Routing
 
 ```nginx
@@ -159,7 +194,9 @@ Bots get `/seo/404.html` for missing pages. Users get SPA (React router handles 
 | `backend/services/seo/hash_utils.py` | Hash computation for change detection |
 | `backend/templates/seo/*.html` | Jinja2 templates |
 | `backend/utils/metrics_seo.py` | Prometheus metrics |
+| `docker-compose.yml` | Volume sharing (seo_output) |
 | `frontend/nginx.conf` | Bot detection and routing |
+| `frontend/Dockerfile` | Creates /seo directory (overlaid by volume) |
 | `frontend/public/robots.txt` | Crawler directives |
 | `frontend/public/og-image.png` | Social share image |
 | `monitoring/grafana/dashboards/geetanjali-seo.json` | Grafana dashboard |
@@ -308,8 +345,11 @@ Consider alerting on:
 ### Pages Not Serving
 
 1. Verify nginx config includes bot routing
-2. Check `/seo-output/` volume is mounted
-3. Verify files exist: `ls /app/seo-output/verses/`
+2. Check `seo_output` volume is mounted in both containers:
+   - Backend: `docker exec geetanjali-backend ls /app/seo-output/`
+   - Frontend: `docker exec geetanjali-frontend ls /usr/share/nginx/html/seo/`
+3. Verify files were generated: `docker exec geetanjali-backend ls /app/seo-output/verses/`
+4. Check volume exists: `docker volume ls | grep seo_output`
 
 ### Structured Data Errors
 

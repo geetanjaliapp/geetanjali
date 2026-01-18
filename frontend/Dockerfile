@@ -1,8 +1,8 @@
 # Frontend Dockerfile for Geetanjali
 #
-# SEO pages are generated post-deployment (not during build)
-# because they require the backend API to be running.
-# See: scripts/generate-seo.sh
+# SEO pages are generated post-deployment via backend API and shared
+# between containers using a Docker volume (seo_output).
+# Backend writes to /app/seo-output, nginx reads from /usr/share/nginx/html/seo
 
 # ==========================================
 # Stage 1: Frontend Build
@@ -49,7 +49,7 @@ COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
 # nginx:alpine has nginx user (UID 101, GID 101)
 RUN chmod -R 755 /usr/share/nginx/html && \
     find /usr/share/nginx/html -type f -exec chmod 644 {} \; && \
-    # Create SEO directory (populated post-deployment by generate-seo.sh)
+    # Create SEO directory (overlaid by seo_output volume in docker-compose)
     mkdir -p /usr/share/nginx/html/seo && \
     # Create directories nginx needs to write to
     mkdir -p /var/cache/nginx/client_temp \
