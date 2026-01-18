@@ -28,7 +28,6 @@ import {
   HeartIcon,
   ShareIcon,
   ChevronDownIcon,
-  ChevronLeftIcon,
   PlayIcon,
   PauseIcon,
   SpinnerIcon,
@@ -91,10 +90,6 @@ export default function VerseDetail() {
   // With ?from=browse: full nav - user is sequentially browsing verses
   const fromContext = searchParams.get("from");
   const showVerseNavigation = fromContext === "browse";
-
-  // Topic context - show breadcrumb when navigating from a topic page
-  const fromTopic = fromContext === "topic";
-  const topicId = searchParams.get("topic");
 
   const [verse, setVerse] = useState<Verse | null>(null);
   const [translations, setTranslations] = useState<Translation[]>([]);
@@ -467,21 +462,6 @@ export default function VerseDetail() {
 
       <div className="flex-1 py-4 sm:py-6 lg:py-8">
         <div className="max-w-5xl mx-auto px-3 sm:px-4 lg:px-6">
-          {/* Topic breadcrumb - shown when navigating from topic page */}
-          {fromTopic && topicId && (
-            <nav className="mb-4" aria-label="Breadcrumb">
-              <Link
-                to={`/topics/${topicId}`}
-                className="inline-flex items-center gap-1 text-sm text-[var(--text-tertiary)]
-                           hover:text-[var(--text-secondary)] transition-colors
-                           min-h-[44px] py-2"
-              >
-                <ChevronLeftIcon className="w-4 h-4" />
-                Back to {getPrincipleLabel(topicId)}
-              </Link>
-            </nav>
-          )}
-
           {/* Chapter Context Bar with font controls */}
           <ChapterContextBar
             chapter={verse.chapter}
