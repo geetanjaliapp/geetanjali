@@ -26,6 +26,8 @@ export { useAdjacentVerses } from "./useAdjacentVerses";
 export { useSwipeNavigation } from "./useSwipeNavigation";
 export { useSearch } from "./useSearch";
 export { useTaxonomy, preloadTaxonomy } from "./useTaxonomy";
+export { useTopics, preloadTopics, clearTopicsCache } from "./useTopics";
+export { useTopic, preloadTopic, clearTopicCache } from "./useTopic";
 // useLearningGoal removed - use useGoalsPrefs() from usePreferences instead
 export { useFocusTrap } from "./useFocusTrap";
 export { useOnlineStatus } from "./useOnlineStatus";
