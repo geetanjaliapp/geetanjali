@@ -24,8 +24,10 @@ import {
   SearchIcon,
   BookOpenIcon,
   TagIcon,
+  CompassIcon,
 } from "../components/icons";
 import { TopicSelector } from "../components/TopicSelector";
+import { GoalFilterSelector } from "../components/GoalFilterSelector";
 import { errorMessages } from "../lib/errorMessages";
 import {
   useSEO,
@@ -72,8 +74,8 @@ export default function Verses() {
   const favoritesRef = useRef(favorites);
   favoritesRef.current = favorites;
 
-  // Taxonomy hook for principle label lookup
-  const { getPrincipleShortLabel } = useTaxonomy();
+  // Taxonomy hook for principle and goal label lookup
+  const { getPrincipleShortLabel, getGoal } = useTaxonomy();
 
   // Compute recommended principles: union of all principles from non-exploring goals
   const recommendedPrinciples = useMemo(() => {
@@ -207,6 +209,8 @@ export default function Verses() {
   );
   const [showChapterDropdown, setShowChapterDropdown] = useState(false);
   const [showTopicSelector, setShowTopicSelector] = useState(false);
+  const [showGoalSelector, setShowGoalSelector] = useState(false);
+  const [selectedGoal, setSelectedGoal] = useState<string | null>(null);
 
   // Sync filter state with URL changes (e.g., clicking "Verses" in navbar resets filters)
   useEffect(() => {
@@ -595,6 +599,7 @@ export default function Verses() {
     }
     setFilterMode(filter);
     setSelectedPrinciple(null); // Clear topic on mode change
+    setSelectedGoal(null); // Clear goal on mode change
     updateSearchParams(filter, null);
   };
 
@@ -607,6 +612,7 @@ export default function Verses() {
         clearSearch();
       }
       setSelectedPrinciple(principle);
+      setSelectedGoal(null); // Clear goal when topic is selected directly
       // Reset filterMode to "featured" when selecting a topic (filters are independent)
       // This ensures the "Filtering by:" banner doesn't show stale chapter info
       if (principle) {
@@ -617,6 +623,24 @@ export default function Verses() {
       }
     },
     [isSearchMode, clearSearch, filterMode, updateSearchParams],
+  );
+
+  // Handle goal selection from GoalFilterSelector
+  const handleGoalSelect = useCallback(
+    (goalId: string | null) => {
+      // Clear search mode when selecting a goal
+      if (isSearchMode) {
+        setSearchInputValue("");
+        setValidationError(null);
+        clearSearch();
+      }
+      setSelectedGoal(goalId);
+      setSelectedPrinciple(null); // Clear topic when goal is selected
+      // Reset to featured mode, filtering by goal's principles will happen via the goal state
+      setFilterMode("featured");
+      updateSearchParams("featured", null);
+    },
+    [isSearchMode, clearSearch, updateSearchParams],
   );
 
   // Search handlers
@@ -748,7 +772,7 @@ export default function Verses() {
           </div>
 
           {/* Row 2: Mode Filters - Segmented Control + Chapter Dropdown */}
-          <div className="flex items-center gap-2 sm:gap-3 mb-2">
+          <div className="flex items-center justify-center gap-2 sm:gap-3 mb-2 overflow-x-auto pb-1 -mb-1">
             {/* Segmented Control: Featured | All | Favorites */}
             <div className="inline-flex rounded-[var(--radius-button)] border border-[var(--border-default)] bg-[var(--surface-elevated)] p-0.5 shadow-[var(--shadow-button)]">
               {/* Featured Segment */}
@@ -880,6 +904,31 @@ export default function Verses() {
                   </div>
                 </>
               )}
+            </div>
+
+            {/* Goal Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setShowGoalSelector(!showGoalSelector)}
+                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-[var(--radius-button)] text-sm font-medium transition-[var(--transition-color)] border focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
+                  selectedGoal && !isSearchMode
+                    ? "bg-[var(--chip-selected-bg)] text-[var(--chip-selected-text)] border-[var(--chip-selected-ring)] ring-1 ring-inset ring-[var(--chip-selected-ring)]"
+                    : "bg-[var(--surface-elevated)] text-[var(--text-primary)] border-[var(--border-default)] hover:bg-[var(--badge-warm-bg)] hover:text-[var(--badge-warm-text)]"
+                }`}
+              >
+                <CompassIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                {selectedGoal ? getGoal(selectedGoal)?.label || "Goal" : "Goal"}
+                <ChevronDownIcon
+                  className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform ${showGoalSelector ? "rotate-180" : ""}`}
+                />
+              </button>
+
+              <GoalFilterSelector
+                selectedGoal={selectedGoal}
+                onSelect={handleGoalSelect}
+                onClose={() => setShowGoalSelector(false)}
+                isOpen={showGoalSelector}
+              />
             </div>
 
             {/* Topic Dropdown */}
