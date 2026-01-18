@@ -647,6 +647,67 @@
     {
       "collapsed": true,
       "gridPos": { "h": 1, "w": 24, "x": 0, "y": 40 },
+      "id": 240,
+      "title": "🔍 SEO Pages",
+      "type": "row",
+      "panels": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "fieldConfig": {
+            "defaults": { "color": { "mode": "thresholds" }, "mappings": [], "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] } }
+          },
+          "gridPos": { "h": 4, "w": 4, "x": 0, "y": 41 },
+          "id": 241,
+          "options": { "colorMode": "value", "graphMode": "none", "justifyMode": "center", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
+          "title": "Total Pages",
+          "type": "stat",
+          "targets": [{ "expr": "sum(geetanjali_seo_pages_total) or vector(0)", "refId": "A" }]
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "fieldConfig": {
+            "defaults": { "color": { "mode": "thresholds" }, "mappings": [], "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 86400 }, { "color": "red", "value": 604800 }] }, "unit": "s" }
+          },
+          "gridPos": { "h": 4, "w": 4, "x": 4, "y": 41 },
+          "id": 242,
+          "options": { "colorMode": "value", "graphMode": "none", "justifyMode": "center", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
+          "title": "Time Since Gen",
+          "type": "stat",
+          "targets": [{ "expr": "time() - geetanjali_seo_generation_last_success_timestamp or vector(0)", "refId": "A" }]
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "fieldConfig": {
+            "defaults": { "color": { "mode": "thresholds" }, "mappings": [], "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 1 }, { "color": "red", "value": 5 }] } }
+          },
+          "gridPos": { "h": 4, "w": 4, "x": 8, "y": 41 },
+          "id": 243,
+          "options": { "colorMode": "value", "graphMode": "none", "justifyMode": "center", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
+          "title": "Last Errors",
+          "type": "stat",
+          "targets": [{ "expr": "geetanjali_seo_generation_pages_errors or vector(0)", "refId": "A" }]
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "palette-classic" },
+              "custom": { "axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "", "axisPlacement": "auto", "barAlignment": 0, "drawStyle": "bars", "fillOpacity": 80, "gradientMode": "none", "hideFrom": { "legend": false, "tooltip": false, "viz": false }, "lineInterpolation": "linear", "lineWidth": 1, "pointSize": 5, "scaleDistribution": { "type": "linear" }, "showPoints": "never", "spanNulls": false, "stacking": { "group": "A", "mode": "normal" }, "thresholdsStyle": { "mode": "off" } },
+              "mappings": [], "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }, "unit": "short"
+            }
+          },
+          "gridPos": { "h": 4, "w": 12, "x": 12, "y": 41 },
+          "id": 244,
+          "options": { "legend": { "calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "multi", "sort": "desc" } },
+          "title": "Pages by Type",
+          "type": "timeseries",
+          "targets": [{ "expr": "geetanjali_seo_pages_total", "legendFormat": "{{page_type}}", "refId": "A" }]
+        }
+      ]
+    },
+    {
+      "collapsed": true,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 42 },
       "id": 220,
       "title": "📧 Email Details",
       "type": "row",
@@ -699,7 +760,7 @@
     },
     {
       "collapsed": true,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 42 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 43 },
       "id": 230,
       "title": "🔊 TTS / Audio",
       "type": "row",

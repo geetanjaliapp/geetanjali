@@ -262,6 +262,7 @@ Pre-configured dashboard at `monitoring/grafana/dashboards/geetanjali-overview.j
 - **Business**: Consultations, active users, completion rate, feedback
 - **Queue**: Job depth, worker count, failed jobs
 - **Newsletter**: Subscribers, emails sent
+- **SEO Pages** (collapsed): Total pages, time since generation, errors, pages by type
 
 ### Importing Dashboards
 
