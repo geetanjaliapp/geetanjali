@@ -48,8 +48,11 @@ def mock_jsonb_queries():
             return_value=MOCK_VERSE_COUNTS,
         ),
         patch(
-            "api.topics._get_verses_for_principle",
-            return_value=[],
+            "api.topics._get_verses_for_principle_with_count",
+            side_effect=lambda db, pid, limit=50: (
+                [],
+                MOCK_VERSE_COUNTS.get(pid, 0),
+            ),
         ),
         patch(
             "api.topics._get_verse_count_for_principle",

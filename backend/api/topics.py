@@ -205,20 +205,28 @@ def _get_related_principles(
     ]
 
 
-def _get_verses_for_principle(
+def _get_verses_for_principle_with_count(
     db: Session, principle_id: str, limit: int = 50
-) -> list[dict[str, Any]]:
-    """Get verses tagged with a principle."""
-    verses = (
+) -> tuple[list[dict[str, Any]], int]:
+    """Get verses tagged with a principle and total count in optimized queries.
+
+    Returns tuple of (verses_list, total_count).
+    Uses a single base query with both fetch and count to avoid duplicate filtering.
+    """
+    # Build base query once (GIN index on consulting_principles)
+    base_query = (
         db.query(Verse)
         .filter(Verse.consulting_principles.isnot(None))
         .filter(cast(Verse.consulting_principles, JSONB).contains([principle_id]))
-        .order_by(Verse.chapter, Verse.verse)
-        .limit(limit)
-        .all()
     )
 
-    return [
+    # Get total count
+    total_count = base_query.count()
+
+    # Get limited verses
+    verses = base_query.order_by(Verse.chapter, Verse.verse).limit(limit).all()
+
+    verses_list = [
         {
             "canonicalId": v.canonical_id,
             "chapter": v.chapter,
@@ -229,6 +237,8 @@ def _get_verses_for_principle(
         }
         for v in verses
     ]
+
+    return verses_list, total_count
 
 
 def _get_verse_count_for_principle(db: Session, principle_id: str) -> int:
@@ -347,11 +357,14 @@ async def get_topic(
         db.query(PrincipleGroup).filter(PrincipleGroup.id == principle.group_id).first()
     )
 
-    # Get verses and count
+    # Get verses and count (optimized: single base query for both)
     verses: list[dict[str, Any]] = []
     if include_verses:
-        verses = _get_verses_for_principle(db, principle_id, verse_limit)
-    verse_count = _get_verse_count_for_principle(db, principle_id)
+        verses, verse_count = _get_verses_for_principle_with_count(
+            db, principle_id, verse_limit
+        )
+    else:
+        verse_count = _get_verse_count_for_principle(db, principle_id)
 
     # Get related principles
     related = _get_related_principles(db, principle.related_principles)
