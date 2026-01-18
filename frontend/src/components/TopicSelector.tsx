@@ -35,19 +35,24 @@ export function TopicSelector({
   isOpen,
 }: TopicSelectorProps) {
   const { groups, getPrinciplesForGroup } = useTaxonomy();
-  const panelRef = useRef<HTMLDivElement>(null);
   const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
-  // Build flat list of all principles for keyboard navigation
-  const allPrinciples = useMemo(() => {
+  // Build flat list of all principles and group offsets for keyboard navigation
+  const { allPrinciples, groupOffsets } = useMemo(() => {
     const principles: Array<{ id: string; label: string; groupId: string }> = [];
+    const offsets: Record<string, number> = {};
+    let offset = 0;
+
     groups.forEach((group) => {
+      offsets[group.id] = offset;
       const groupPrinciples = getPrinciplesForGroup(group.id);
       groupPrinciples.forEach((p) => {
         principles.push({ id: p.id, label: p.shortLabel, groupId: group.id });
       });
+      offset += groupPrinciples.length;
     });
-    return principles;
+
+    return { allPrinciples: principles, groupOffsets: offsets };
   }, [groups, getPrinciplesForGroup]);
 
   // Focus management: focus selected topic or first topic on open
@@ -64,7 +69,9 @@ export function TopicSelector({
   }, [isOpen, selectedTopic, allPrinciples]);
 
   // Keyboard navigation (WCAG grid pattern)
-  // Mobile: 2 columns, Tablet+: 4 columns (2 groups per row × 2 per group)
+  // Uses flat navigation across all principles. Arrow left/right move sequentially.
+  // Arrow up/down skip by column count (2 mobile, 4 tablet) for approximate grid feel.
+  // This is a simplification - true grid nav would need per-group handling.
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent, index: number) => {
       const total = allPrinciples.length;
@@ -135,9 +142,6 @@ export function TopicSelector({
 
   if (!isOpen) return null;
 
-  // Track button index across all groups
-  let buttonIndex = 0;
-
   return (
     <>
       {/* Subtle backdrop */}
@@ -150,7 +154,6 @@ export function TopicSelector({
 
       {/* Popover - positioned below trigger on desktop, bottom on mobile */}
       <div
-        ref={panelRef}
         className="fixed sm:absolute bottom-16 sm:bottom-auto sm:top-full sm:mt-2
                    left-1/2 sm:left-auto sm:right-0 -translate-x-1/2 sm:translate-x-0
                    z-50 w-[calc(100vw-2rem)] sm:w-[400px] md:w-[480px] max-h-[70vh] overflow-y-auto
@@ -165,7 +168,7 @@ export function TopicSelector({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {groups.map((group) => {
             const groupPrinciples = getPrinciplesForGroup(group.id);
-            const startIndex = buttonIndex;
+            const startIndex = groupOffsets[group.id] ?? 0;
 
             return (
               <div key={group.id} role="group" aria-labelledby={`group-${group.id}`}>
@@ -183,7 +186,6 @@ export function TopicSelector({
                 <div className="grid grid-cols-2 gap-1.5">
                   {groupPrinciples.map((principle, i) => {
                     const currentIndex = startIndex + i;
-                    buttonIndex++;
                     const isSelected = principle.id === selectedTopic;
                     const isTabTarget =
                       (selectedTopic && principle.id === selectedTopic) ||
