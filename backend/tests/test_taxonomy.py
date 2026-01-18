@@ -19,18 +19,18 @@ pytestmark = pytest.mark.integration
 class TestPrinciplesEndpoint:
     """Tests for GET /api/v1/taxonomy/principles."""
 
-    def test_list_principles_returns_16_principles(self, client):
+    def test_list_principles_returns_16_principles(self, client_with_principles):
         """Verify all 16 principles are returned."""
-        response = client.get("/api/v1/taxonomy/principles")
+        response = client_with_principles.get("/api/v1/taxonomy/principles")
 
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
         assert data["count"] == 16
         assert len(data["principles"]) == 16
 
-    def test_list_principles_includes_groups(self, client):
+    def test_list_principles_includes_groups(self, client_with_principles):
         """Verify 4 yoga groups are included."""
-        response = client.get("/api/v1/taxonomy/principles")
+        response = client_with_principles.get("/api/v1/taxonomy/principles")
 
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
@@ -40,9 +40,9 @@ class TestPrinciplesEndpoint:
         group_ids = {g["id"] for g in data["groups"]}
         assert group_ids == {"karma", "jnana", "bhakti", "sadachara"}
 
-    def test_principles_have_required_fields(self, client):
+    def test_principles_have_required_fields(self, client_with_principles):
         """Verify each principle has all required metadata fields."""
-        response = client.get("/api/v1/taxonomy/principles")
+        response = client_with_principles.get("/api/v1/taxonomy/principles")
 
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
@@ -66,9 +66,9 @@ class TestPrinciplesEndpoint:
                     field in principle
                 ), f"Missing field '{field}' in principle {principle.get('id')}"
 
-    def test_principles_grouped_correctly(self, client):
+    def test_principles_grouped_correctly(self, client_with_principles):
         """Verify each principle belongs to a valid group."""
-        response = client.get("/api/v1/taxonomy/principles")
+        response = client_with_principles.get("/api/v1/taxonomy/principles")
 
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
@@ -79,9 +79,9 @@ class TestPrinciplesEndpoint:
                 principle["group"] in valid_groups
             ), f"Principle {principle['id']} has invalid group {principle['group']}"
 
-    def test_each_group_has_4_principles(self, client):
+    def test_each_group_has_4_principles(self, client_with_principles):
         """Verify balanced 4x4 grouping."""
-        response = client.get("/api/v1/taxonomy/principles")
+        response = client_with_principles.get("/api/v1/taxonomy/principles")
 
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
@@ -99,9 +99,9 @@ class TestPrinciplesEndpoint:
 class TestPrincipleDetailEndpoint:
     """Tests for GET /api/v1/taxonomy/principles/{id}."""
 
-    def test_get_dharma_principle(self, client):
+    def test_get_dharma_principle(self, client_with_principles):
         """Test fetching a specific principle."""
-        response = client.get("/api/v1/taxonomy/principles/dharma")
+        response = client_with_principles.get("/api/v1/taxonomy/principles/dharma")
 
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
@@ -111,16 +111,16 @@ class TestPrincipleDetailEndpoint:
         assert data["group"] == "karma"
         assert "धर्म" in data["sanskrit"]
 
-    def test_get_nonexistent_principle_returns_404(self, client):
+    def test_get_nonexistent_principle_returns_404(self, client_with_principles):
         """Test that invalid principle ID returns 404."""
-        response = client.get("/api/v1/taxonomy/principles/nonexistent")
+        response = client_with_principles.get("/api/v1/taxonomy/principles/nonexistent")
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
         assert "not found" in response.json()["detail"].lower()
 
-    def test_principle_has_keywords(self, client):
+    def test_principle_has_keywords(self, client_with_principles):
         """Verify principles have keyword arrays."""
-        response = client.get("/api/v1/taxonomy/principles/viveka")
+        response = client_with_principles.get("/api/v1/taxonomy/principles/viveka")
 
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
@@ -128,9 +128,9 @@ class TestPrincipleDetailEndpoint:
         assert len(data["keywords"]) > 0
         assert "discernment" in data["keywords"]
 
-    def test_principle_has_chapter_focus(self, client):
+    def test_principle_has_chapter_focus(self, client_with_principles):
         """Verify principles have chapter focus arrays."""
-        response = client.get("/api/v1/taxonomy/principles/dharma")
+        response = client_with_principles.get("/api/v1/taxonomy/principles/dharma")
 
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
@@ -249,17 +249,17 @@ class TestGoalDetailEndpoint:
 class TestGroupsEndpoint:
     """Tests for GET /api/v1/taxonomy/groups."""
 
-    def test_list_groups_returns_4_groups(self, client):
+    def test_list_groups_returns_4_groups(self, client_with_principles):
         """Verify all 4 yoga groups are returned."""
-        response = client.get("/api/v1/taxonomy/groups")
+        response = client_with_principles.get("/api/v1/taxonomy/groups")
 
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
         assert len(data) == 4
 
-    def test_groups_have_required_fields(self, client):
+    def test_groups_have_required_fields(self, client_with_principles):
         """Verify each group has all required fields."""
-        response = client.get("/api/v1/taxonomy/groups")
+        response = client_with_principles.get("/api/v1/taxonomy/groups")
 
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
@@ -279,9 +279,9 @@ class TestGroupsEndpoint:
                     field in group
                 ), f"Missing field '{field}' in group {group.get('id')}"
 
-    def test_groups_are_yoga_paths(self, client):
+    def test_groups_are_yoga_paths(self, client_with_principles):
         """Verify groups represent the yoga paths."""
-        response = client.get("/api/v1/taxonomy/groups")
+        response = client_with_principles.get("/api/v1/taxonomy/groups")
 
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
@@ -289,9 +289,9 @@ class TestGroupsEndpoint:
         group_ids = {g["id"] for g in data}
         assert group_ids == {"karma", "jnana", "bhakti", "sadachara"}
 
-    def test_groups_have_4_principles_each(self, client):
+    def test_groups_have_4_principles_each(self, client_with_principles):
         """Verify each group has exactly 4 principles."""
-        response = client.get("/api/v1/taxonomy/groups")
+        response = client_with_principles.get("/api/v1/taxonomy/groups")
 
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
@@ -301,9 +301,9 @@ class TestGroupsEndpoint:
                 len(group["principles"]) == 4
             ), f"Group '{group['id']}' has {len(group['principles'])} principles"
 
-    def test_karma_group_has_correct_principles(self, client):
+    def test_karma_group_has_correct_principles(self, client_with_principles):
         """Verify Karma yoga group has correct principles."""
-        response = client.get("/api/v1/taxonomy/groups")
+        response = client_with_principles.get("/api/v1/taxonomy/groups")
 
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
@@ -321,10 +321,10 @@ class TestGroupsEndpoint:
 class TestTaxonomyConsistency:
     """Tests for consistency across taxonomy endpoints."""
 
-    def test_group_principles_match_principle_groups(self, client):
+    def test_group_principles_match_principle_groups(self, client_with_principles):
         """Verify principle.group matches what's in group.principles."""
-        principles_resp = client.get("/api/v1/taxonomy/principles")
-        groups_resp = client.get("/api/v1/taxonomy/groups")
+        principles_resp = client_with_principles.get("/api/v1/taxonomy/principles")
+        groups_resp = client_with_principles.get("/api/v1/taxonomy/groups")
 
         principles = principles_resp.json()["principles"]
         groups = groups_resp.json()
@@ -340,10 +340,10 @@ class TestTaxonomyConsistency:
                 f"but group doesn't list it"
             )
 
-    def test_goal_principles_are_valid(self, client):
+    def test_goal_principles_are_valid(self, client_with_principles):
         """Verify all principle IDs in goals are valid principles."""
-        principles_resp = client.get("/api/v1/taxonomy/principles")
-        goals_resp = client.get("/api/v1/taxonomy/goals")
+        principles_resp = client_with_principles.get("/api/v1/taxonomy/principles")
+        goals_resp = client_with_principles.get("/api/v1/taxonomy/goals")
 
         valid_principle_ids = {p["id"] for p in principles_resp.json()["principles"]}
         goals = goals_resp.json()["goals"]

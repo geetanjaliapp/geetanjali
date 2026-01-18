@@ -7,8 +7,7 @@ Data is maintained in code (config/principle_taxonomy.json, config/principle_gro
 and synced to DB via StartupSyncService. API and SEO read from DB.
 """
 
-from sqlalchemy import ForeignKey, Integer, String, Text
-from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy import ForeignKey, Integer, JSON, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models.base import Base, TimestampMixin
@@ -73,8 +72,8 @@ class Principle(Base, TimestampMixin):
     group_id: Mapped[str] = mapped_column(
         String(50), ForeignKey("principle_groups.id"), nullable=False, index=True
     )
-    keywords: Mapped[list[str]] = mapped_column(ARRAY(String), nullable=False)
-    chapter_focus: Mapped[list[int]] = mapped_column(ARRAY(Integer), nullable=False)
+    keywords: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    chapter_focus: Mapped[list[int]] = mapped_column(JSON, nullable=False)
 
     # Display order within group (1-4)
     display_order: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
@@ -89,9 +88,7 @@ class Principle(Base, TimestampMixin):
     faq_answer: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     # Related principles (IDs) for internal linking
-    related_principles: Mapped[list[str] | None] = mapped_column(
-        ARRAY(String), nullable=True
-    )
+    related_principles: Mapped[list[str] | None] = mapped_column(JSON, nullable=True)
 
     # Relationship
     group_rel: Mapped["PrincipleGroup"] = relationship(

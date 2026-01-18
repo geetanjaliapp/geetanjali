@@ -15,7 +15,6 @@ Tables:
 
 import sqlalchemy as sa
 from sqlalchemy import inspect
-from sqlalchemy.dialects import postgresql
 
 from alembic import op
 
@@ -76,8 +75,8 @@ def upgrade() -> None:
                 nullable=False,
                 index=True,
             ),
-            sa.Column("keywords", postgresql.ARRAY(sa.String), nullable=False),
-            sa.Column("chapter_focus", postgresql.ARRAY(sa.Integer), nullable=False),
+            sa.Column("keywords", sa.JSON, nullable=False),
+            sa.Column("chapter_focus", sa.JSON, nullable=False),
             sa.Column("display_order", sa.Integer, nullable=False, default=0),
             # Extended content for SEO (nullable - populated in Sprint 2)
             sa.Column("extended_description", sa.Text, nullable=True),
@@ -85,7 +84,7 @@ def upgrade() -> None:
             sa.Column("common_misconceptions", sa.Text, nullable=True),
             sa.Column("faq_question", sa.Text, nullable=True),
             sa.Column("faq_answer", sa.Text, nullable=True),
-            sa.Column("related_principles", postgresql.ARRAY(sa.String), nullable=True),
+            sa.Column("related_principles", sa.JSON, nullable=True),
             # Timestamps
             sa.Column(
                 "created_at",
