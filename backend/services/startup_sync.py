@@ -148,6 +148,12 @@ class StartupSyncService:
             self._sync_audio_durations,
         )
 
+        # SEO pages (optional - checks status, doesn't regenerate on startup)
+        self._sync_with_error_handling(
+            "SEO Pages",
+            self._check_seo_status,
+        )
+
         # Log summary
         total_duration_ms = int((time.time() - start_time) * 1000)
         self._log_summary(total_duration_ms)
@@ -619,6 +625,89 @@ class StartupSyncService:
             reason="Extracted durations from audio files",
             synced=updated,
             updated=updated,
+        )
+
+    def _check_seo_status(self) -> SyncResult | None:
+        """
+        Check SEO page status on startup.
+
+        This doesn't regenerate pages automatically - it just reports status.
+        Use force_sync=True or the admin API to trigger generation.
+
+        Returns:
+            SyncResult with SEO page status
+        """
+        from sqlalchemy import inspect
+
+        from models import SeoPage, Verse
+
+        # Check if seo_pages table exists (migration may not have run yet)
+        conn = self.db.get_bind()
+        if conn is None:
+            return SyncResult(
+                name="SEO Pages",
+                action="error",
+                reason="No database connection",
+            )
+        inspector = inspect(conn)
+        if "seo_pages" not in inspector.get_table_names():
+            return SyncResult(
+                name="SEO Pages",
+                action="skipped_no_data",
+                reason="Table not created (run migration 028)",
+            )
+
+        # Check if we have verses (SEO depends on verse data)
+        verse_count = self.db.query(Verse).count()
+        if verse_count == 0:
+            return SyncResult(
+                name="SEO Pages",
+                action="skipped_no_data",
+                reason="No verses in DB (run ingestion first)",
+            )
+
+        # Count existing SEO pages
+        seo_page_count = self.db.query(SeoPage).count()
+
+        if seo_page_count == 0:
+            # No SEO pages - log warning but don't auto-generate
+            logger.warning(
+                "STARTUP SYNC: No SEO pages found. "
+                "Run POST /api/v1/admin/seo/generate to create them."
+            )
+            return SyncResult(
+                name="SEO Pages",
+                action="skipped_no_data",
+                reason=f"No pages generated ({verse_count} verses available)",
+            )
+
+        # If force sync, trigger regeneration
+        if self.force_sync:
+            try:
+                from services.seo import GenerationInProgressError, SeoGeneratorService
+
+                service = SeoGeneratorService(self.db)
+                result = service.generate_all(force=True)
+
+                return SyncResult(
+                    name="SEO Pages",
+                    action="synced",
+                    reason="Force regeneration",
+                    synced=result.generated,
+                    created=result.generated,
+                )
+            except GenerationInProgressError:
+                return SyncResult(
+                    name="SEO Pages",
+                    action="skipped_no_change",
+                    reason="Generation already in progress",
+                )
+
+        # Pages exist, just report status
+        return SyncResult(
+            name="SEO Pages",
+            action="skipped_no_change",
+            reason=f"{seo_page_count} pages exist",
         )
 
     def _log_summary(self, total_duration_ms: int) -> None:
