@@ -23,7 +23,9 @@ import {
   GridIcon,
   SearchIcon,
   BookOpenIcon,
+  TagIcon,
 } from "../components/icons";
+import { TopicSelector } from "../components/TopicSelector";
 import { errorMessages } from "../lib/errorMessages";
 import {
   useSEO,
@@ -70,8 +72,8 @@ export default function Verses() {
   const favoritesRef = useRef(favorites);
   favoritesRef.current = favorites;
 
-  // Taxonomy hook for principles (single source of truth from backend)
-  const { principles, getPrincipleShortLabel } = useTaxonomy();
+  // Taxonomy hook for principle label lookup
+  const { getPrincipleShortLabel } = useTaxonomy();
 
   // Compute recommended principles: union of all principles from non-exploring goals
   const recommendedPrinciples = useMemo(() => {
@@ -204,37 +206,7 @@ export default function Verses() {
     getInitialPrinciple,
   );
   const [showChapterDropdown, setShowChapterDropdown] = useState(false);
-
-  // Ref for auto-scrolling to selected principle pill
-  const principlesContainerRef = useRef<HTMLDivElement>(null);
-
-  // Auto-scroll to selected principle pill when it changes (e.g., from URL param)
-  useEffect(() => {
-    if (selectedPrinciple && principlesContainerRef.current) {
-      const container = principlesContainerRef.current;
-      const selectedButton = container.querySelector(
-        `[data-principle-id="${selectedPrinciple}"]`,
-      ) as HTMLElement | null;
-
-      if (selectedButton) {
-        // Scroll the button into view with some padding
-        const containerRect = container.getBoundingClientRect();
-        const buttonRect = selectedButton.getBoundingClientRect();
-
-        // Check if button is outside visible area
-        if (
-          buttonRect.left < containerRect.left ||
-          buttonRect.right > containerRect.right
-        ) {
-          selectedButton.scrollIntoView({
-            behavior: "smooth",
-            block: "nearest",
-            inline: "center",
-          });
-        }
-      }
-    }
-  }, [selectedPrinciple, principles]); // Also depend on principles loading
+  const [showTopicSelector, setShowTopicSelector] = useState(false);
 
   // Sync filter state with URL changes (e.g., clicking "Verses" in navbar resets filters)
   useEffect(() => {
@@ -909,36 +881,32 @@ export default function Verses() {
                 </>
               )}
             </div>
-          </div>
 
-          {/* Row 3: Topic/Principle Pills - scrollable */}
-          <div className="relative">
-            {/* Scroll fade indicators */}
-            <div className="absolute left-0 top-0 bottom-0 w-4 bg-linear-to-r from-[var(--surface-sticky)] to-transparent z-10 pointer-events-none" />
-            <div className="absolute right-0 top-0 bottom-0 w-4 bg-linear-to-l from-[var(--surface-sticky)] to-transparent z-10 pointer-events-none" />
+            {/* Topic Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setShowTopicSelector(!showTopicSelector)}
+                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-[var(--radius-button)] text-sm font-medium transition-[var(--transition-color)] border focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
+                  selectedPrinciple && !isSearchMode
+                    ? "bg-[var(--chip-selected-bg)] text-[var(--chip-selected-text)] border-[var(--chip-selected-ring)] ring-1 ring-inset ring-[var(--chip-selected-ring)]"
+                    : "bg-[var(--surface-elevated)] text-[var(--text-primary)] border-[var(--border-default)] hover:bg-[var(--badge-warm-bg)] hover:text-[var(--badge-warm-text)]"
+                }`}
+              >
+                <TagIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                {selectedPrinciple
+                  ? getPrincipleShortLabel(selectedPrinciple)
+                  : "Topic"}
+                <ChevronDownIcon
+                  className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform ${showTopicSelector ? "rotate-180" : ""}`}
+                />
+              </button>
 
-            <div
-              ref={principlesContainerRef}
-              className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-0.5 px-1 scrollbar-hide"
-            >
-              {principles.map((principle) => (
-                <button
-                  key={principle.id}
-                  data-principle-id={principle.id}
-                  onClick={() =>
-                    handlePrincipleSelect(
-                      selectedPrinciple === principle.id ? null : principle.id,
-                    )
-                  }
-                  className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-[var(--radius-chip)] text-xs sm:text-sm font-medium transition-[var(--transition-color)] whitespace-nowrap shrink-0 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
-                    selectedPrinciple === principle.id && !isSearchMode
-                      ? "bg-[var(--chip-selected-bg)] text-[var(--chip-selected-text)] ring-1 ring-[var(--chip-selected-ring)]"
-                      : "bg-[var(--badge-warm-bg)] text-[var(--badge-warm-text)] hover:bg-[var(--badge-warm-hover)] border border-[var(--border-warm-subtle)]"
-                  }`}
-                >
-                  {principle.shortLabel}
-                </button>
-              ))}
+              <TopicSelector
+                selectedTopic={selectedPrinciple}
+                onSelect={handlePrincipleSelect}
+                onClose={() => setShowTopicSelector(false)}
+                isOpen={showTopicSelector}
+              />
             </div>
           </div>
         </div>
