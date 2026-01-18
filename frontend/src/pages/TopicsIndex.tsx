@@ -357,6 +357,13 @@ export default function TopicsIndex() {
               <section>
                 {/* Selection Header */}
                 <div className="mb-6">
+                  <button
+                    onClick={clearSelection}
+                    className="inline-flex items-center gap-1 text-sm text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] mb-3"
+                  >
+                    ← Back to all goals
+                  </button>
+
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
                       <div className="flex items-center gap-2">
