@@ -913,12 +913,17 @@ class SeoGeneratorService:
             )
             chapters_lookup = {c.chapter_number: c for c in chapters}
 
-            # Source hash includes featured verse IDs and their content
+            # Source hash includes featured verse IDs and content (for regen on content change)
             source_data = {
                 "featured_verse_ids": FEATURED_VERSES,
                 "verse_count": len(verses),
-                "verse_hashes": [
-                    f"{v.canonical_id}:{v.chapter}:{v.verse}"
+                "verse_content": [
+                    {
+                        "id": v.canonical_id,
+                        "sanskrit": v.sanskrit_devanagari[:50] if v.sanskrit_devanagari else "",
+                        "translation": v.translation_en[:50] if v.translation_en else "",
+                        "paraphrase": v.paraphrase_en[:50] if v.paraphrase_en else "",
+                    }
                     for v in verses
                 ],
             }
