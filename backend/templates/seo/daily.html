@@ -1,0 +1,124 @@
+{% extends "seo/base.html" %}
+
+{% block title %}Verse of the Day - Daily Bhagavad Gita Wisdom{% endblock %}
+
+{% block description %}Start each day with timeless wisdom from the Bhagavad Gita. Today's verse: {{ verse.chapter }}.{{ verse.verse }}{% if preview %} - {{ preview[:100] }}{% endif %}{% endblock %}
+
+{% block canonical %}/daily{% endblock %}
+
+{% block og_type %}article{% endblock %}
+{% block og_title %}Verse of the Day | Geetanjali{% endblock %}
+{% block og_description %}Daily wisdom from the Bhagavad Gita. Verse {{ verse.chapter }}.{{ verse.verse }} selected from our curated collection.{% endblock %}
+{% block og_url %}/daily{% endblock %}
+
+{% block twitter_title %}Bhagavad Gita Verse of the Day{% endblock %}
+{% block twitter_description %}Daily wisdom from the Bhagavad Gita. Start your day with timeless guidance.{% endblock %}
+
+{% block jsonld %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Verse of the Day",
+    "description": "Daily wisdom from the Bhagavad Gita",
+    "url": "https://geetanjaliapp.com/daily",
+    "mainEntity": {
+        "@type": "Quotation",
+        "text": "{{ verse.translation_en | e if verse.translation_en else verse.paraphrase_en | e }}",
+        "spokenByCharacter": "Krishna",
+        "isPartOf": {
+            "@type": "Book",
+            "name": "Bhagavad Gita",
+            "author": { "@type": "Person", "name": "Vyasa" }
+        }
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Geetanjali",
+        "url": "https://geetanjaliapp.com"
+    }
+}
+</script>
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+        {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://geetanjaliapp.com/"
+        },
+        {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Verse of the Day"
+        }
+    ]
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<article>
+    <h1>Verse of the Day</h1>
+
+    <p class="intro">
+        Start each day with timeless wisdom from the Bhagavad Gita. Our daily verse
+        is drawn from a curated collection of {{ featured_count }} essential verses,
+        ensuring you receive profound guidance for ethical living and leadership.
+    </p>
+
+    <section aria-labelledby="today">
+        <h2 id="today">Today's Verse: {{ verse.chapter }}.{{ verse.verse }}</h2>
+
+        {% if verse.sanskrit_devanagari %}
+        <blockquote class="sanskrit" lang="sa">
+            {{ verse.sanskrit_devanagari }}
+        </blockquote>
+        {% endif %}
+
+        {% if verse.sanskrit_iast %}
+        <p class="transliteration" lang="sa-Latn">{{ verse.sanskrit_iast }}</p>
+        {% endif %}
+
+        {% if verse.translation_en %}
+        <blockquote class="translation">
+            {{ verse.translation_en }}
+        </blockquote>
+        {% endif %}
+
+        {% if verse.paraphrase_en %}
+        <p class="paraphrase">{{ verse.paraphrase_en }}</p>
+        {% endif %}
+
+        <p>
+            <a href="/verses/{{ verse.canonical_id }}">Read full verse with commentary &rarr;</a>
+        </p>
+    </section>
+
+    <section aria-labelledby="about">
+        <h2 id="about">About Daily Verses</h2>
+        <p>
+            The Verse of the Day feature presents one verse each day from our collection
+            of {{ featured_count }} carefully selected verses. These verses are chosen for their:
+        </p>
+        <ul>
+            <li><strong>Universal Recognition</strong> - Frequently cited across traditions</li>
+            <li><strong>Practical Wisdom</strong> - Applicable to daily life and leadership</li>
+            <li><strong>Philosophical Depth</strong> - Rich meaning that rewards reflection</li>
+        </ul>
+        <p>
+            Each day at midnight (UTC), a new verse is selected deterministically,
+            ensuring all readers worldwide share the same verse for reflection.
+        </p>
+    </section>
+
+    <nav aria-label="Related pages">
+        <a href="/featured">Browse All Featured Verses</a>
+        <a href="/verses/">Explore All 701 Verses</a>
+        <a href="/topics/">Study by Topic</a>
+    </nav>
+</article>
+{% endblock %}

@@ -350,6 +350,18 @@ class SeoGeneratorService:
             skipped += topic_stats["skipped"]
             errors += topic_stats["errors"]
 
+            # Generate featured verses page
+            featured_stats = self._generate_featured_page(force)
+            generated += featured_stats["generated"]
+            skipped += featured_stats["skipped"]
+            errors += featured_stats["errors"]
+
+            # Generate daily verse page
+            daily_stats = self._generate_daily_page(force)
+            generated += daily_stats["generated"]
+            skipped += daily_stats["skipped"]
+            errors += daily_stats["errors"]
+
             # Commit all changes
             self.db.commit()
 
@@ -862,6 +874,185 @@ class SeoGeneratorService:
         except Exception as e:
             logger.error(
                 f"SEO GENERATION: Error generating topics index: {e}",
+                exc_info=True,
+            )
+            stats["errors"] += 1
+
+        return stats
+
+    def _generate_featured_page(self, force: bool) -> dict[str, int]:
+        """Generate featured verses page."""
+        from data.featured_verses import FEATURED_VERSES
+        from models import ChapterMetadata, Verse
+
+        stats = {"generated": 0, "skipped": 0, "errors": 0}
+
+        try:
+            page_key = "featured"
+            page_type = "featured"
+            template_name = "seo/featured.html"
+            template_hash = self._get_template_hash(template_name)
+
+            # Query featured verses from database
+            verses = (
+                self.db.query(Verse)
+                .filter(Verse.canonical_id.in_(FEATURED_VERSES))
+                .order_by(Verse.chapter, Verse.verse)
+                .all()
+            )
+
+            if not verses:
+                logger.warning("SEO GENERATION: No featured verses found in database")
+                return stats
+
+            # Get chapter metadata for titles
+            chapters = (
+                self.db.query(ChapterMetadata)
+                .order_by(ChapterMetadata.chapter_number)
+                .all()
+            )
+            chapters_lookup = {c.chapter_number: c for c in chapters}
+
+            # Source hash includes featured verse IDs and their content
+            source_data = {
+                "featured_verse_ids": FEATURED_VERSES,
+                "verse_count": len(verses),
+                "verse_hashes": [
+                    f"{v.canonical_id}:{v.chapter}:{v.verse}"
+                    for v in verses
+                ],
+            }
+            source_hash = compute_source_hash(source_data)
+
+            if not force and not self._needs_regeneration(
+                page_key, source_hash, template_hash
+            ):
+                stats["skipped"] += 1
+                return stats
+
+            gen_start = time.time()
+            template = self.env.get_template(template_name)
+
+            html = template.render(
+                verses=verses,
+                chapters=chapters_lookup,
+            )
+
+            file_path = "featured.html"
+            output_path = self.output_dir / file_path
+            file_size = self._write_atomic(output_path, html)
+
+            gen_ms = int((time.time() - gen_start) * 1000)
+
+            self._record_page(
+                page_key=page_key,
+                page_type=page_type,
+                source_hash=source_hash,
+                template_hash=template_hash,
+                file_path=file_path,
+                file_size=file_size,
+                generation_ms=gen_ms,
+            )
+
+            stats["generated"] += 1
+            logger.info(
+                f"SEO GENERATION: Generated featured page ({len(verses)} verses)"
+            )
+
+        except Exception as e:
+            logger.error(
+                f"SEO GENERATION: Error generating featured page: {e}",
+                exc_info=True,
+            )
+            stats["errors"] += 1
+
+        return stats
+
+    def _generate_daily_page(self, force: bool) -> dict[str, int]:
+        """Generate daily verse landing page."""
+        from datetime import date
+
+        from data.featured_verses import FEATURED_VERSES
+        from models import Verse
+
+        stats = {"generated": 0, "skipped": 0, "errors": 0}
+
+        try:
+            page_key = "daily"
+            page_type = "daily"
+            template_name = "seo/daily.html"
+            template_hash = self._get_template_hash(template_name)
+
+            # Get today's verse deterministically (same logic as API)
+            today = date.today()
+            day_of_year = today.timetuple().tm_yday
+            featured_count = len(FEATURED_VERSES)
+            verse_index = day_of_year % featured_count
+            daily_verse_id = FEATURED_VERSES[verse_index]
+
+            # Query the verse
+            verse = (
+                self.db.query(Verse)
+                .filter(Verse.canonical_id == daily_verse_id)
+                .first()
+            )
+
+            if not verse:
+                logger.warning(
+                    f"SEO GENERATION: Daily verse {daily_verse_id} not found"
+                )
+                return stats
+
+            # Source hash includes date (daily regeneration) and template
+            source_data = {
+                "date": today.isoformat(),
+                "verse_id": daily_verse_id,
+                "featured_count": featured_count,
+            }
+            source_hash = compute_source_hash(source_data)
+
+            if not force and not self._needs_regeneration(
+                page_key, source_hash, template_hash
+            ):
+                stats["skipped"] += 1
+                return stats
+
+            gen_start = time.time()
+            template = self.env.get_template(template_name)
+
+            # Preview text for meta description
+            preview = verse.paraphrase_en or verse.translation_en
+
+            html = template.render(
+                verse=verse,
+                featured_count=featured_count,
+                preview=preview,
+            )
+
+            file_path = "daily.html"
+            output_path = self.output_dir / file_path
+            file_size = self._write_atomic(output_path, html)
+
+            gen_ms = int((time.time() - gen_start) * 1000)
+
+            self._record_page(
+                page_key=page_key,
+                page_type=page_type,
+                source_hash=source_hash,
+                template_hash=template_hash,
+                file_path=file_path,
+                file_size=file_size,
+                generation_ms=gen_ms,
+            )
+
+            stats["generated"] += 1
+            logger.info(
+                f"SEO GENERATION: Generated daily page (verse {verse.canonical_id})"
+            )
+
+        except Exception as e:
+            logger.error(
+                f"SEO GENERATION: Error generating daily page: {e}",
                 exc_info=True,
             )
             stats["errors"] += 1
