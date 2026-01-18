@@ -1,7 +1,7 @@
 # Geetanjali - Development Shortcuts
 # See docs/deployment.md for detailed deployment documentation
 
-.PHONY: help dev build up down clean logs test lint format generate-seo generate-seo-remote
+.PHONY: help dev build up down clean logs test lint format seo-generate seo-status
 
 # Use modern docker compose (not docker-compose)
 COMPOSE := docker compose
@@ -175,11 +175,11 @@ setup-server: ## First-time server setup (run on production server)
 deploy: ## Deploy to production
 	./scripts/deploy.sh
 
-generate-seo: ## Generate SEO pages (local or --remote)
-	./scripts/generate-seo.sh $(ARGS)
+seo-generate: ## Trigger SEO page generation via admin API
+	@docker exec geetanjali-backend curl -s -f -X POST http://localhost:8000/api/v1/admin/seo/generate | python3 -m json.tool
 
-generate-seo-remote: ## Generate SEO pages on production server
-	./scripts/generate-seo.sh --remote
+seo-status: ## Check SEO generation status
+	@docker exec geetanjali-backend curl -s http://localhost:8000/api/v1/admin/seo/status | python3 -m json.tool
 
 rollback: ## Rollback to previous deployment (uses .env.local or env vars)
 	@if [ -f .env.local ]; then . .env.local; fi; \
