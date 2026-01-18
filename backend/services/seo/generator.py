@@ -39,6 +39,27 @@ logger = logging.getLogger(__name__)
 SEO_GENERATION_LOCK_ID = 8675309
 
 
+def ms_to_iso8601_duration(ms: int | None) -> str | None:
+    """Convert milliseconds to ISO 8601 duration format (PTxMxS).
+
+    Args:
+        ms: Duration in milliseconds
+
+    Returns:
+        ISO 8601 duration string or None if ms is None
+    """
+    if ms is None:
+        return None
+
+    total_seconds = ms // 1000
+    minutes = total_seconds // 60
+    seconds = total_seconds % 60
+
+    if minutes > 0:
+        return f"PT{minutes}M{seconds}S"
+    return f"PT{seconds}S"
+
+
 class GenerationInProgressError(Exception):
     """Raised when another SEO generation is already running."""
 
@@ -360,12 +381,19 @@ class SeoGeneratorService:
 
     def _generate_verse_pages(self, force: bool) -> dict[str, int]:
         """Generate all verse detail pages."""
-        from models import Verse
+        from models import Principle, Verse
+        from services.audio import get_audio_info
 
         stats = {"generated": 0, "skipped": 0, "errors": 0}
         template_name = "seo/verse.html"
         template_hash = self._get_template_hash(template_name)
         template = self.env.get_template(template_name)
+
+        # Build principle lookup for internal linking
+        principles_lookup: dict[str, dict] = {}
+        all_principles = self.db.query(Principle).all()
+        for p in all_principles:
+            principles_lookup[p.id] = {"id": p.id, "label": p.label}
 
         verses = self.db.query(Verse).order_by(Verse.chapter, Verse.verse).all()
         logger.info(f"SEO GENERATION: Processing {len(verses)} verses")
@@ -375,7 +403,10 @@ class SeoGeneratorService:
                 page_key = verse.canonical_id
                 page_type = "verse"
 
-                # Compute source hash from verse data
+                # Get audio info for this verse
+                audio_url, audio_duration_ms = get_audio_info(verse.canonical_id)
+
+                # Compute source hash from verse data (include audio for regeneration)
                 source_data = {
                     "canonical_id": verse.canonical_id,
                     "chapter": verse.chapter,
@@ -385,6 +416,8 @@ class SeoGeneratorService:
                     "translation_en": verse.translation_en,
                     "paraphrase_en": verse.paraphrase_en,
                     "consulting_principles": verse.consulting_principles,
+                    "audio_url": audio_url,
+                    "audio_duration_ms": audio_duration_ms,
                 }
                 source_hash = compute_source_hash(source_data)
 
@@ -401,10 +434,23 @@ class SeoGeneratorService:
                 prev_verse = verses[i - 1] if i > 0 else None
                 next_verse = verses[i + 1] if i < len(verses) - 1 else None
 
+                # Convert duration to ISO 8601 format for schema
+                audio_duration_iso = ms_to_iso8601_duration(audio_duration_ms)
+
+                # Resolve principle IDs to full principle data for internal linking
+                principles = []
+                if verse.consulting_principles:
+                    for pid in verse.consulting_principles:
+                        if pid in principles_lookup:
+                            principles.append(principles_lookup[pid])
+
                 html = template.render(
                     verse=verse,
                     prev_verse=prev_verse,
                     next_verse=next_verse,
+                    audio_url=audio_url,
+                    audio_duration_iso=audio_duration_iso,
+                    principles=principles,
                 )
 
                 # Write file atomically

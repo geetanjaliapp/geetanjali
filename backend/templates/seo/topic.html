@@ -58,6 +58,31 @@
 }
 </script>
 {% endif %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+        {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://geetanjaliapp.com/"
+        },
+        {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Topics",
+            "item": "https://geetanjaliapp.com/topics"
+        },
+        {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "{{ principle.short_label }}"
+        }
+    ]
+}
+</script>
 {% endblock %}
 
 {% block content %}
