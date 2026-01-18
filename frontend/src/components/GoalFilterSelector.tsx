@@ -226,7 +226,7 @@ export function GoalFilterSelector({
                   {/* Principle count - subtle */}
                   <span className="text-[10px] text-[var(--text-muted)] mt-0.5">
                     {goal.principles.length === 0
-                      ? "All"
+                      ? "All 16 topics"
                       : `${goal.principles.length} topics`}
                   </span>
                 </button>

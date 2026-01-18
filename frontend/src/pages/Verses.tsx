@@ -75,7 +75,7 @@ export default function Verses() {
   favoritesRef.current = favorites;
 
   // Taxonomy hook for principle and goal label lookup
-  const { getPrincipleShortLabel, getGoal } = useTaxonomy();
+  const { getPrincipleShortLabel, getGoal, getPrinciplesForGoal } = useTaxonomy();
 
   // Compute recommended principles: union of all principles from non-exploring goals
   const recommendedPrinciples = useMemo(() => {
@@ -212,14 +212,13 @@ export default function Verses() {
   const [showGoalSelector, setShowGoalSelector] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState<string | null>(null);
 
-  // Compute principles for the selected goal filter (from GoalFilterSelector)
+  // Compute principle IDs for the selected goal filter (from GoalFilterSelector)
+  // Uses getPrinciplesForGoal which correctly handles "exploring" goal (returns all 16)
   const goalPrinciples = useMemo(() => {
     if (!selectedGoal) return [];
-    const goal = getGoal(selectedGoal);
-    if (!goal) return [];
-    // "exploring" goal has empty principles - means all principles
-    return goal.principles || [];
-  }, [selectedGoal, getGoal]);
+    const principles = getPrinciplesForGoal(selectedGoal);
+    return principles.map((p) => p.id);
+  }, [selectedGoal, getPrinciplesForGoal]);
 
   // Sync filter state with URL changes (e.g., clicking "Verses" in navbar resets filters)
   useEffect(() => {

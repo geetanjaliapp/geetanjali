@@ -136,9 +136,11 @@ function GoalCard({
 /** Yoga path row for "browse by tradition" section */
 function PathRow({
   group,
+  principleCount,
   onClick,
 }: {
   group: { id: string; label: string; sanskrit: string; description: string };
+  principleCount: number;
   onClick: () => void;
 }) {
   return (
@@ -152,7 +154,7 @@ function PathRow({
         <p className="text-xs sm:text-sm text-[var(--text-muted)] mt-0.5">{group.description}</p>
       </div>
       <div className="flex items-center gap-1 text-[var(--text-accent)]">
-        <span className="text-xs sm:text-sm">4 principles</span>
+        <span className="text-xs sm:text-sm">{principleCount} principles</span>
         <span className="text-sm">→</span>
       </div>
     </button>
@@ -320,6 +322,7 @@ export default function TopicsIndex() {
                         <PathRow
                           key={group.id}
                           group={group}
+                          principleCount={group.principles.length}
                           onClick={() => handlePathClick(group.id)}
                         />
                       ))}
