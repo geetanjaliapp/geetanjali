@@ -32,10 +32,11 @@ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # =============================================================================
 # Daily SEO refresh regenerates the daily verse page (content changes daily).
 # Other pages are hash-checked and skipped if unchanged.
+# Auth: Uses API_KEY from container environment (defense in depth).
 
 # SEO daily refresh (00:05 UTC = 5:35 AM IST)
 # -f flag fails on HTTP errors, -w adds status code to output
-5 0 * * * cd ${GEETANJALI_DIR} && docker exec geetanjali-backend curl -s -f -X POST http://localhost:8000/api/v1/admin/seo/generate -w ' [HTTP %{http_code}]' >> ${LOG_DIR}/seo.log 2>&1 || echo \"[FAILED] SEO generation error at \$(date)\" >> ${LOG_DIR}/seo.log
+5 0 * * * cd ${GEETANJALI_DIR} && docker exec geetanjali-backend sh -c 'curl -s -f -X POST -H \"X-API-Key: \$API_KEY\" http://localhost:8000/api/v1/admin/seo/generate -w \" [HTTP %{http_code}]\"' >> ${LOG_DIR}/seo.log 2>&1 || echo \"[FAILED] SEO generation error at \$(date)\" >> ${LOG_DIR}/seo.log
 
 # =============================================================================
 # Maintenance Jobs

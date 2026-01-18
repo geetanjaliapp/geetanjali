@@ -60,12 +60,14 @@ Each page includes:
 
 ### Post-Deploy Generation
 
-SEO pages are generated **after deployment** via the backend service:
+SEO pages are generated **after deployment** via the admin API:
 
 ```bash
-# Triggered automatically via GitHub Actions after deploy
-curl -X POST https://geetanjaliapp.com/api/v1/seo/generate \
-  -H "Authorization: Bearer $API_KEY"
+# Triggered automatically by deploy.sh after container restart
+# Uses API_KEY from container environment for authentication
+docker exec geetanjali-backend sh -c 'curl -s -f -X POST \
+  -H "X-API-Key: $API_KEY" \
+  http://localhost:8000/api/v1/admin/seo/generate'
 ```
 
 The `SeoGeneratorService` uses:
@@ -179,6 +181,54 @@ Includes lastmod, changefreq, and priority for each URL.
 
 Bots get `/seo/404.html` for missing pages. Users get SPA (React router handles display).
 
+## Security
+
+SEO admin endpoints use **defense in depth** with two protection layers:
+
+### Layer 1: Network (nginx)
+
+Admin endpoints are blocked from external access:
+
+```nginx
+# nginx.conf
+location /api/v1/admin/ {
+    allow 127.0.0.1;
+    allow ::1;
+    deny all;  # External requests blocked
+}
+```
+
+### Layer 2: Application (FastAPI)
+
+All admin endpoints require API key authentication:
+
+```python
+# backend/api/admin/seo.py
+@router.post("/seo/generate")
+def trigger_seo_generation(
+    _: bool = Depends(verify_admin_api_key),  # Requires X-API-Key header
+):
+```
+
+The `verify_admin_api_key` dependency:
+- Requires `X-API-Key` header matching `settings.API_KEY`
+- Uses constant-time comparison to prevent timing attacks
+- Returns 404 (not 401) to hide endpoint existence
+
+### Automation Pattern
+
+Automation scripts (deploy.sh, cron, Makefile) bypass nginx by running inside the container, but still authenticate:
+
+```bash
+# Uses API_KEY from container environment
+docker exec geetanjali-backend sh -c 'curl -H "X-API-Key: $API_KEY" ...'
+```
+
+This pattern:
+1. Bypasses nginx (curl runs inside container via docker exec)
+2. Authenticates at application level (X-API-Key header)
+3. Uses environment variable already available in container
+
 ## Search Engine Registration
 
 | Engine | Status | Method |
@@ -224,8 +274,13 @@ After deploying SEO changes, verify the following:
 ### 1. Generation Success
 
 ```bash
-# Check generation status via API
-curl https://geetanjaliapp.com/api/v1/seo/status
+# Check generation status via Makefile (recommended)
+make seo-status
+
+# Or directly via docker exec
+docker exec geetanjali-backend sh -c 'curl -s \
+  -H "X-API-Key: $API_KEY" \
+  http://localhost:8000/api/v1/admin/seo/status'
 
 # Expected response includes:
 # - pages_by_type: counts for each page type

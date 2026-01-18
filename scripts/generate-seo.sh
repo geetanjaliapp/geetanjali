@@ -86,15 +86,17 @@ if [[ "$HEALTH" != "200" ]]; then
 fi
 
 # Status check only
+# Auth: Uses API_KEY from container environment (defense in depth)
 if [[ -n "$STATUS_ONLY" ]]; then
     log "Checking SEO status..."
-    docker exec geetanjali-backend curl -s http://localhost:8000/api/v1/admin/seo/status | python3 -m json.tool
+    docker exec geetanjali-backend sh -c 'curl -s -H "X-API-Key: $API_KEY" http://localhost:8000/api/v1/admin/seo/status' | python3 -m json.tool
     exit 0
 fi
 
 # Trigger generation
+# Auth: Uses API_KEY from container environment (defense in depth)
 log "Triggering SEO generation..."
-RESULT=$(docker exec geetanjali-backend curl -s -f -X POST "http://localhost:8000/api/v1/admin/seo/generate${FORCE}" 2>&1)
+RESULT=$(docker exec geetanjali-backend sh -c "curl -s -f -X POST -H \"X-API-Key: \$API_KEY\" \"http://localhost:8000/api/v1/admin/seo/generate${FORCE}\"" 2>&1)
 if [[ $? -ne 0 ]]; then
     error "SEO generation failed: $RESULT"
 fi

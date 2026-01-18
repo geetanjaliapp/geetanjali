@@ -176,10 +176,10 @@ deploy: ## Deploy to production
 	./scripts/deploy.sh
 
 seo-generate: ## Trigger SEO page generation via admin API
-	@docker exec geetanjali-backend curl -s -f -X POST http://localhost:8000/api/v1/admin/seo/generate | python3 -m json.tool
+	@docker exec geetanjali-backend sh -c 'curl -s -f -X POST -H "X-API-Key: $$API_KEY" http://localhost:8000/api/v1/admin/seo/generate' | python3 -m json.tool
 
 seo-status: ## Check SEO generation status
-	@docker exec geetanjali-backend curl -s http://localhost:8000/api/v1/admin/seo/status | python3 -m json.tool
+	@docker exec geetanjali-backend sh -c 'curl -s -H "X-API-Key: $$API_KEY" http://localhost:8000/api/v1/admin/seo/status' | python3 -m json.tool
 
 rollback: ## Rollback to previous deployment (uses .env.local or env vars)
 	@if [ -f .env.local ]; then . .env.local; fi; \

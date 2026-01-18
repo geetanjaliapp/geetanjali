@@ -119,8 +119,9 @@ done
 # Step 8: Trigger SEO page generation via admin API
 # Uses hash-based detection - only regenerates changed pages
 # Pages are shared via Docker volume (seo_output) between backend and nginx
+# Auth: Uses API_KEY from container environment (defense in depth)
 log "Triggering SEO generation..."
-SEO_RESULT=$($SSH_CMD "docker exec geetanjali-backend curl -s -f -X POST http://localhost:8000/api/v1/admin/seo/generate" 2>&1) || warn "SEO generation failed (non-blocking)"
+SEO_RESULT=$($SSH_CMD "docker exec geetanjali-backend sh -c 'curl -s -f -X POST -H \"X-API-Key: \$API_KEY\" http://localhost:8000/api/v1/admin/seo/generate'" 2>&1) || warn "SEO generation failed (non-blocking)"
 if [[ -n "$SEO_RESULT" ]]; then
     info "SEO: $SEO_RESULT"
 fi
