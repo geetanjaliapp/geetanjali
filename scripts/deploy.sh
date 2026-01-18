@@ -116,9 +116,14 @@ while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
     sleep 2
 done
 
-# Step 8: Generate SEO pages (requires backend to be healthy)
-log "Generating SEO pages..."
-$SSH_CMD "cd ${DEPLOY_DIR} && ./scripts/generate-seo.sh" || warn "SEO generation failed (non-blocking)"
+# Step 8: Trigger SEO page generation via admin API
+# Uses hash-based detection - only regenerates changed pages
+# Pages are shared via Docker volume (seo_output) between backend and nginx
+log "Triggering SEO generation..."
+SEO_RESULT=$($SSH_CMD "docker exec geetanjali-backend curl -s -f -X POST http://localhost:8000/api/v1/admin/seo/generate" 2>&1) || warn "SEO generation failed (non-blocking)"
+if [[ -n "$SEO_RESULT" ]]; then
+    info "SEO: $SEO_RESULT"
+fi
 
 # Step 9: Verify deployment
 log "Service status:"

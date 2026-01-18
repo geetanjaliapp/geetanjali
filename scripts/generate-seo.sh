@@ -1,8 +1,17 @@
 #!/bin/bash
 # Generate SEO static pages for Geetanjali
 #
-# This script generates static HTML pages for search engine bots.
-# It requires the backend API to be running (fetches verse data).
+# DEPRECATED: This script uses the legacy standalone generator.
+# Prefer using the admin API which has hash-based change detection:
+#
+#   curl -X POST http://localhost:8000/api/v1/admin/seo/generate
+#
+# The admin API is automatically triggered by:
+#   - deploy.sh (post-deploy)
+#   - Daily cron job (00:05 UTC)
+#   - Startup sync (if no pages exist)
+#
+# This script is kept for debugging or manual regeneration scenarios.
 #
 # Usage:
 #   ./scripts/generate-seo.sh              # Run locally or on server
