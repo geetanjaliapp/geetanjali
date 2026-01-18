@@ -320,6 +320,12 @@ class SeoGeneratorService:
             skipped += static_stats["skipped"]
             errors += static_stats["errors"]
 
+            # Generate topic pages (principles)
+            topic_stats = self._generate_topic_pages(force)
+            generated += topic_stats["generated"]
+            skipped += topic_stats["skipped"]
+            errors += topic_stats["errors"]
+
             # Commit all changes
             self.db.commit()
 
@@ -605,6 +611,191 @@ class SeoGeneratorService:
 
         # About and 404 don't need special context
         return {}
+
+    def _generate_topic_pages(self, force: bool) -> dict[str, int]:
+        """Generate topic pages for principles and topics index."""
+        from models import Principle, PrincipleGroup
+
+        stats = {"generated": 0, "skipped": 0, "errors": 0}
+
+        # Query principles and groups from database
+        principles = (
+            self.db.query(Principle)
+            .order_by(Principle.display_order)
+            .all()
+        )
+        groups = (
+            self.db.query(PrincipleGroup)
+            .order_by(PrincipleGroup.display_order)
+            .all()
+        )
+
+        if not principles:
+            logger.warning("SEO GENERATION: No principles found in database")
+            return stats
+
+        logger.info(f"SEO GENERATION: Processing {len(principles)} principles")
+
+        # Generate individual principle pages
+        template_name = "seo/topic.html"
+        template_hash = self._get_template_hash(template_name)
+        template = self.env.get_template(template_name)
+
+        for i, principle in enumerate(principles):
+            try:
+                page_key = f"topic_{principle.id}"
+                page_type = "topic"
+
+                # Compute source hash from principle data
+                source_data = {
+                    "id": principle.id,
+                    "label": principle.label,
+                    "short_label": principle.short_label,
+                    "sanskrit": principle.sanskrit,
+                    "transliteration": principle.transliteration,
+                    "description": principle.description,
+                    "leadership_context": principle.leadership_context,
+                    "group_id": principle.group_id,
+                    "keywords": principle.keywords,
+                    "chapter_focus": principle.chapter_focus,
+                    "extended_description": principle.extended_description,
+                    "practical_application": principle.practical_application,
+                    "common_misconceptions": principle.common_misconceptions,
+                    "faq_question": principle.faq_question,
+                    "faq_answer": principle.faq_answer,
+                    "related_principles": principle.related_principles,
+                }
+                source_hash = compute_source_hash(source_data)
+
+                if not force and not self._needs_regeneration(
+                    page_key, source_hash, template_hash
+                ):
+                    stats["skipped"] += 1
+                    continue
+
+                # Generate page
+                gen_start = time.time()
+
+                # Get group for this principle
+                group = next((g for g in groups if g.id == principle.group_id), None)
+
+                # Get related principles if specified
+                related_principles = []
+                if principle.related_principles:
+                    related_principles = [
+                        p for p in principles
+                        if p.id in principle.related_principles
+                    ]
+
+                # Get prev/next for navigation
+                prev_principle = principles[i - 1] if i > 0 else None
+                next_principle = principles[i + 1] if i < len(principles) - 1 else None
+
+                html = template.render(
+                    principle=principle,
+                    group=group,
+                    related_principles=related_principles,
+                    prev_principle=prev_principle,
+                    next_principle=next_principle,
+                )
+
+                # Write file
+                file_path = f"topics/{principle.id}.html"
+                output_path = self.output_dir / file_path
+                file_size = self._write_atomic(output_path, html)
+
+                gen_ms = int((time.time() - gen_start) * 1000)
+
+                self._record_page(
+                    page_key=page_key,
+                    page_type=page_type,
+                    source_hash=source_hash,
+                    template_hash=template_hash,
+                    file_path=file_path,
+                    file_size=file_size,
+                    generation_ms=gen_ms,
+                )
+
+                stats["generated"] += 1
+
+            except Exception as e:
+                logger.error(
+                    f"SEO GENERATION: Error generating topic {principle.id}: {e}"
+                )
+                stats["errors"] += 1
+
+        # Generate topics index page
+        index_stats = self._generate_topics_index(groups, force)
+        stats["generated"] += index_stats["generated"]
+        stats["skipped"] += index_stats["skipped"]
+        stats["errors"] += index_stats["errors"]
+
+        logger.info(
+            f"SEO GENERATION: Topics - "
+            f"{stats['generated']} generated, {stats['skipped']} skipped"
+        )
+        return stats
+
+    def _generate_topics_index(
+        self, groups: list, force: bool
+    ) -> dict[str, int]:
+        """Generate topics index page."""
+        stats = {"generated": 0, "skipped": 0, "errors": 0}
+
+        try:
+            page_key = "topics_index"
+            page_type = "topics_index"
+            template_name = "seo/topics_index.html"
+            template_hash = self._get_template_hash(template_name)
+
+            # Source hash based on all groups and their principles
+            source_data = {
+                "groups": [
+                    {
+                        "id": g.id,
+                        "label": g.label,
+                        "principles": [p.id for p in g.principles],
+                    }
+                    for g in groups
+                ]
+            }
+            source_hash = compute_source_hash(source_data)
+
+            if not force and not self._needs_regeneration(
+                page_key, source_hash, template_hash
+            ):
+                stats["skipped"] += 1
+                return stats
+
+            gen_start = time.time()
+            template = self.env.get_template(template_name)
+
+            html = template.render(groups=groups)
+
+            file_path = "topics/index.html"
+            output_path = self.output_dir / file_path
+            file_size = self._write_atomic(output_path, html)
+
+            gen_ms = int((time.time() - gen_start) * 1000)
+
+            self._record_page(
+                page_key=page_key,
+                page_type=page_type,
+                source_hash=source_hash,
+                template_hash=template_hash,
+                file_path=file_path,
+                file_size=file_size,
+                generation_ms=gen_ms,
+            )
+
+            stats["generated"] += 1
+            logger.info("SEO GENERATION: Generated topics index")
+
+        except Exception as e:
+            logger.error(f"SEO GENERATION: Error generating topics index: {e}")
+            stats["errors"] += 1
+
+        return stats
 
     def get_status(self) -> dict:
         """

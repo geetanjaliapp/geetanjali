@@ -1,0 +1,80 @@
+{% extends "seo/base.html" %}
+
+{% block title %}Bhagavad Gita Principles - 16 Timeless Wisdom Topics{% endblock %}
+
+{% block description %}Explore 16 consulting principles from the Bhagavad Gita organized by four yoga paths: Karma (Action), Jnana (Knowledge), Bhakti (Devotion), and Sadachara (Character).{% endblock %}
+
+{% block canonical %}/topics/{% endblock %}
+
+{% block og_type %}website{% endblock %}
+{% block og_title %}16 Principles of the Bhagavad Gita | Geetanjali{% endblock %}
+{% block og_description %}Explore timeless wisdom organized by four yoga paths: Action, Knowledge, Devotion, and Character.{% endblock %}
+{% block og_url %}/topics/{% endblock %}
+
+{% block twitter_title %}16 Principles of the Bhagavad Gita{% endblock %}
+{% block twitter_description %}Explore timeless wisdom organized by four yoga paths.{% endblock %}
+
+{% block jsonld %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "Bhagavad Gita Principles",
+    "description": "16 consulting principles from the Bhagavad Gita organized by yoga paths",
+    "url": "https://geetanjaliapp.com/topics/",
+    "mainEntity": {
+        "@type": "ItemList",
+        "itemListElement": [
+            {% for group in groups %}
+            {% for principle in group.principles %}
+            {
+                "@type": "ListItem",
+                "position": {{ loop.index + (loop.parent.index0 * 4) }},
+                "url": "https://geetanjaliapp.com/topics/{{ principle.id }}",
+                "name": "{{ principle.label }}"
+            }{% if not loop.last or not loop.parent.last %},{% endif %}
+            {% endfor %}
+            {% endfor %}
+        ]
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Geetanjali",
+        "url": "https://geetanjaliapp.com"
+    }
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<article>
+    <h1>Principles of the Bhagavad Gita</h1>
+
+    <p class="intro">
+        The Bhagavad Gita offers timeless wisdom through 16 consulting principles,
+        organized into four yoga paths. Each path represents a different approach
+        to living a meaningful and ethical life.
+    </p>
+
+    {% for group in groups %}
+    <section aria-labelledby="group-{{ group.id }}">
+        <h2 id="group-{{ group.id }}">{{ group.label }}</h2>
+        <p class="group-sanskrit" lang="sa">{{ group.sanskrit }}</p>
+        <p class="group-transliteration" lang="sa-Latn">{{ group.transliteration }}</p>
+        <p>{{ group.description }}</p>
+
+        <ul class="principles-list">
+            {% for principle in group.principles %}
+            <li>
+                <a href="/topics/{{ principle.id }}">
+                    <strong>{{ principle.label }}</strong>
+                    <span class="sanskrit-small" lang="sa">{{ principle.sanskrit }}</span>
+                </a>
+                <p>{{ principle.description[:150] }}{% if principle.description|length > 150 %}...{% endif %}</p>
+            </li>
+            {% endfor %}
+        </ul>
+    </section>
+    {% endfor %}
+</article>
+{% endblock %}

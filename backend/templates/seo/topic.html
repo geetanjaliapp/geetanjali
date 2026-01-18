@@ -1,0 +1,160 @@
+{% extends "seo/base.html" %}
+
+{% block title %}{{ principle.label }} - {{ principle.sanskrit }} | Bhagavad Gita Wisdom{% endblock %}
+
+{% block description %}{{ principle.description[:160] }}{% endblock %}
+
+{% block canonical %}/topics/{{ principle.id }}{% endblock %}
+
+{% block og_type %}article{% endblock %}
+{% block og_title %}{{ principle.label }} ({{ principle.transliteration }}) | Geetanjali{% endblock %}
+{% block og_description %}{{ principle.description[:200] }}{% endblock %}
+{% block og_url %}/topics/{{ principle.id }}{% endblock %}
+
+{% block twitter_title %}{{ principle.label }} - Bhagavad Gita Wisdom{% endblock %}
+{% block twitter_description %}{{ principle.description[:200] }}{% endblock %}
+
+{% block jsonld %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "{{ principle.label }} ({{ principle.transliteration }})",
+    "description": "{{ principle.description | e }}",
+    "url": "https://geetanjaliapp.com/topics/{{ principle.id }}",
+    "mainEntityOfPage": "https://geetanjaliapp.com/topics/{{ principle.id }}",
+    "inLanguage": ["en", "sa"],
+    "about": {
+        "@type": "Thing",
+        "name": "{{ principle.label }}",
+        "alternateName": "{{ principle.transliteration }}",
+        "description": "{{ principle.description | e }}"
+    },
+    "isPartOf": {
+        "@type": "Book",
+        "name": "Bhagavad Gita",
+        "author": { "@type": "Person", "name": "Vyasa" }
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Geetanjali",
+        "url": "https://geetanjaliapp.com"
+    }
+    {% if principle.faq_question and principle.faq_answer %}
+    ,"mainEntity": [{
+        "@type": "Question",
+        "name": "{{ principle.faq_question | e }}",
+        "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "{{ principle.faq_answer | e }}"
+        }
+    }]
+    {% endif %}
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<article>
+    <nav aria-label="Breadcrumb">
+        <a href="/">Home</a> /
+        <a href="/topics/">Topics</a> /
+        {{ principle.short_label }}
+    </nav>
+
+    <header>
+        <h1>{{ principle.label }}</h1>
+        <p class="sanskrit" lang="sa">{{ principle.sanskrit }}</p>
+        <p class="transliteration" lang="sa-Latn">{{ principle.transliteration }}</p>
+        <p class="group-label">{{ group.label }} Path ({{ group.transliteration }})</p>
+    </header>
+
+    <section aria-labelledby="description">
+        <h2 id="description">What is {{ principle.label }}?</h2>
+        <p>{{ principle.description }}</p>
+        {% if principle.extended_description %}
+        <div class="extended">
+            {{ principle.extended_description }}
+        </div>
+        {% endif %}
+    </section>
+
+    <section aria-labelledby="leadership">
+        <h2 id="leadership">Application in Leadership</h2>
+        <p>{{ principle.leadership_context }}</p>
+    </section>
+
+    {% if principle.practical_application %}
+    <section aria-labelledby="practical">
+        <h2 id="practical">Practical Application</h2>
+        <div class="practical">
+            {{ principle.practical_application }}
+        </div>
+    </section>
+    {% endif %}
+
+    {% if principle.common_misconceptions %}
+    <section aria-labelledby="misconceptions">
+        <h2 id="misconceptions">Common Misconceptions</h2>
+        <div class="misconceptions">
+            {{ principle.common_misconceptions }}
+        </div>
+    </section>
+    {% endif %}
+
+    {% if principle.faq_question and principle.faq_answer %}
+    <section aria-labelledby="faq">
+        <h2 id="faq">Frequently Asked Question</h2>
+        <div class="faq">
+            <h3>{{ principle.faq_question }}</h3>
+            <p>{{ principle.faq_answer }}</p>
+        </div>
+    </section>
+    {% endif %}
+
+    {% if principle.chapter_focus %}
+    <section aria-labelledby="chapters">
+        <h2 id="chapters">Key Chapters</h2>
+        <p>This principle is particularly emphasized in:</p>
+        <ul>
+            {% for chapter_num in principle.chapter_focus %}
+            <li><a href="/verses/chapter/{{ chapter_num }}">Chapter {{ chapter_num }}</a></li>
+            {% endfor %}
+        </ul>
+    </section>
+    {% endif %}
+
+    {% if related_principles %}
+    <section aria-labelledby="related">
+        <h2 id="related">Related Principles</h2>
+        <ul>
+            {% for related in related_principles %}
+            <li><a href="/topics/{{ related.id }}">{{ related.label }} ({{ related.transliteration }})</a></li>
+            {% endfor %}
+        </ul>
+    </section>
+    {% endif %}
+
+    {% if principle.keywords %}
+    <section aria-labelledby="keywords">
+        <h2 id="keywords">Keywords</h2>
+        <p class="keywords">
+            {% for keyword in principle.keywords %}
+            <span class="keyword">{{ keyword }}</span>{% if not loop.last %}, {% endif %}
+            {% endfor %}
+        </p>
+    </section>
+    {% endif %}
+
+    <nav aria-label="Principle navigation">
+        {% if prev_principle %}
+        <a href="/topics/{{ prev_principle.id }}">&larr; {{ prev_principle.short_label }}</a>
+        {% else %}
+        <span></span>
+        {% endif %}
+        {% if next_principle %}
+        <a href="/topics/{{ next_principle.id }}">{{ next_principle.short_label }} &rarr;</a>
+        {% endif %}
+    </nav>
+</article>
+{% endblock %}
