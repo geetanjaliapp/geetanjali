@@ -667,10 +667,14 @@ class StartupSyncService:
 
     def _check_seo_status(self) -> SyncResult | None:
         """
-        Check SEO page status on startup.
+        Check SEO page status on startup and auto-generate if missing.
 
-        This doesn't regenerate pages automatically - it just reports status.
-        Use force_sync=True or the admin API to trigger generation.
+        Auto-generates SEO pages if:
+        - No pages exist (first deploy)
+        - force_sync=True is set
+
+        Otherwise just reports status (hash-based regeneration is handled
+        by daily cron job and post-deploy trigger).
 
         Returns:
             SyncResult with SEO page status
@@ -708,16 +712,36 @@ class StartupSyncService:
         seo_page_count = self.db.query(SeoPage).count()
 
         if seo_page_count == 0:
-            # No SEO pages - log warning but don't auto-generate
-            logger.warning(
-                "STARTUP SYNC: No SEO pages found. "
-                "Run POST /api/v1/admin/seo/generate to create them."
+            # No SEO pages - auto-generate on first startup
+            logger.info(
+                "STARTUP SYNC: No SEO pages found. Auto-generating..."
             )
-            return SyncResult(
-                name="SEO Pages",
-                action="skipped_no_data",
-                reason=f"No pages generated ({verse_count} verses available)",
-            )
+            try:
+                from services.seo import GenerationInProgressError, SeoGeneratorService
+
+                service = SeoGeneratorService(self.db)
+                result = service.generate_all(force=False, trigger="startup")
+
+                return SyncResult(
+                    name="SEO Pages",
+                    action="synced",
+                    reason="Initial generation (no pages existed)",
+                    synced=result.generated,
+                    created=result.generated,
+                )
+            except GenerationInProgressError:
+                return SyncResult(
+                    name="SEO Pages",
+                    action="skipped_no_change",
+                    reason="Generation already in progress",
+                )
+            except Exception as e:
+                logger.error(f"STARTUP SYNC: SEO generation failed: {e}")
+                return SyncResult(
+                    name="SEO Pages",
+                    action="error",
+                    reason=str(e)[:100],
+                )
 
         # If force sync, trigger regeneration
         if self.force_sync:
