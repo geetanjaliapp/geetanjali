@@ -143,7 +143,6 @@ export default function TopicDetail() {
             {/* Verse list */}
             <TopicVerseList
               verses={topic.verses}
-              topicId={topic.id}
               topicLabel={topic.shortLabel}
             />
           </>

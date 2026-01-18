@@ -16,8 +16,6 @@ import { VolumeIcon } from "../icons";
 interface TopicVerseListProps {
   /** Verses to display */
   verses: TopicVerseSummary[];
-  /** Topic ID for back navigation context */
-  topicId: string;
   /** Topic label for heading */
   topicLabel: string;
 }
@@ -26,7 +24,6 @@ const INITIAL_SHOW_COUNT = 8;
 
 export function TopicVerseList({
   verses,
-  topicId,
   topicLabel,
 }: TopicVerseListProps) {
   const [showAll, setShowAll] = useState(false);
@@ -51,7 +48,7 @@ export function TopicVerseList({
         {displayedVerses.map((verse) => (
           <Link
             key={verse.canonicalId}
-            to={`/verses/${verse.canonicalId}?from=topic&topic=${topicId}`}
+            to={`/verses/${verse.canonicalId}`}
             className="flex items-start gap-3 p-3 sm:p-4
                        bg-[var(--surface-card)] border border-[var(--border-default)]
                        rounded-[var(--radius-card)]

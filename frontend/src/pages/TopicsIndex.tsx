@@ -108,7 +108,7 @@ export default function TopicsIndex() {
                 >
                   <span>{group.label}</span>
                   <span className="font-serif text-[var(--text-tertiary)]">
-                    {group.transliteration}
+                    {group.sanskrit}
                   </span>
                   <span className="text-sm font-normal text-[var(--text-muted)]">
                     · {group.description}
