@@ -40,8 +40,14 @@
         "name": "Geetanjali",
         "url": "https://geetanjaliapp.com"
     }
-    {% if principle.faq_question and principle.faq_answer %}
-    ,"mainEntity": [{
+}
+</script>
+{% if principle.faq_question and principle.faq_answer %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [{
         "@type": "Question",
         "name": "{{ principle.faq_question | e }}",
         "acceptedAnswer": {
@@ -49,9 +55,9 @@
             "text": "{{ principle.faq_answer | e }}"
         }
     }]
-    {% endif %}
 }
 </script>
+{% endif %}
 {% endblock %}
 
 {% block content %}

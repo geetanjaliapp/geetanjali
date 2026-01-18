@@ -15,6 +15,11 @@
 {% block twitter_description %}Explore timeless wisdom organized by four yoga paths.{% endblock %}
 
 {% block jsonld %}
+{# Count total principles for comma logic #}
+{%- set ns = namespace(total=0) -%}
+{%- for group in groups -%}
+{%- set ns.total = ns.total + group.principles|length -%}
+{%- endfor -%}
 <script type="application/ld+json">
 {
     "@context": "https://schema.org",
@@ -25,16 +30,18 @@
     "mainEntity": {
         "@type": "ItemList",
         "itemListElement": [
-            {% for group in groups %}
-            {% for principle in group.principles %}
+            {%- set ns.pos = 0 -%}
+            {%- for group in groups -%}
+            {%- for principle in group.principles -%}
+            {%- set ns.pos = ns.pos + 1 -%}
             {
                 "@type": "ListItem",
-                "position": {{ loop.index + (loop.parent.index0 * 4) }},
+                "position": {{ ns.pos }},
                 "url": "https://geetanjaliapp.com/topics/{{ principle.id }}",
                 "name": "{{ principle.label }}"
-            }{% if not loop.last or not loop.parent.last %},{% endif %}
-            {% endfor %}
-            {% endfor %}
+            }{% if ns.pos < ns.total %},{% endif %}
+            {%- endfor -%}
+            {%- endfor %}
         ]
     },
     "publisher": {
