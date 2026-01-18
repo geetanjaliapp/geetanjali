@@ -28,6 +28,7 @@ import {
   HeartIcon,
   ShareIcon,
   ChevronDownIcon,
+  ChevronLeftIcon,
   PlayIcon,
   PauseIcon,
   SpinnerIcon,
@@ -90,6 +91,10 @@ export default function VerseDetail() {
   // With ?from=browse: full nav - user is sequentially browsing verses
   const fromContext = searchParams.get("from");
   const showVerseNavigation = fromContext === "browse";
+
+  // Topic context - show breadcrumb when navigating from a topic page
+  const fromTopic = fromContext === "topic";
+  const topicId = searchParams.get("topic");
 
   const [verse, setVerse] = useState<Verse | null>(null);
   const [translations, setTranslations] = useState<Translation[]>([]);
@@ -462,6 +467,21 @@ export default function VerseDetail() {
 
       <div className="flex-1 py-4 sm:py-6 lg:py-8">
         <div className="max-w-5xl mx-auto px-3 sm:px-4 lg:px-6">
+          {/* Topic breadcrumb - shown when navigating from topic page */}
+          {fromTopic && topicId && (
+            <nav className="mb-4" aria-label="Breadcrumb">
+              <Link
+                to={`/topics/${topicId}`}
+                className="inline-flex items-center gap-1 text-sm text-[var(--text-tertiary)]
+                           hover:text-[var(--text-secondary)] transition-colors
+                           min-h-[44px] py-2"
+              >
+                <ChevronLeftIcon className="w-4 h-4" />
+                Back to {getPrincipleLabel(topicId)}
+              </Link>
+            </nav>
+          )}
+
           {/* Chapter Context Bar with font controls */}
           <ChapterContextBar
             chapter={verse.chapter}
@@ -755,7 +775,7 @@ export default function VerseDetail() {
                     {verse.consulting_principles.map((principleId) => (
                       <Link
                         key={principleId}
-                        to={`/verses?topic=${principleId}`}
+                        to={`/topics/${principleId}`}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2
                                    bg-[var(--badge-principle-bg)] text-[var(--badge-principle-text)] rounded-[var(--radius-chip)] text-sm sm:text-base
                                    font-medium shadow-[var(--shadow-button)]
@@ -764,7 +784,7 @@ export default function VerseDetail() {
                                    transition-[var(--transition-all)]
                                    focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]
                                    focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
-                        aria-label={`View all verses about ${getPrincipleLabel(principleId)}`}
+                        aria-label={`Learn about ${getPrincipleLabel(principleId)}`}
                       >
                         <span>{getPrincipleShortLabel(principleId)}</span>
                         <span

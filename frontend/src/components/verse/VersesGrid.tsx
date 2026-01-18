@@ -34,7 +34,6 @@ export interface BrowseVerseGridProps {
   loading: boolean;
   isFavorite: (id: string) => boolean;
   toggleFavorite: (id: string) => void;
-  onPrincipleClick: (principle: string | null) => void;
 }
 
 export function BrowseVerseGrid({
@@ -43,7 +42,6 @@ export function BrowseVerseGrid({
   loading,
   isFavorite,
   toggleFavorite,
-  onPrincipleClick,
 }: BrowseVerseGridProps) {
   // Calculate row count for virtualization
   const rowCount = Math.ceil(verses.length / columnCount);
@@ -68,7 +66,6 @@ export function BrowseVerseGrid({
       showCitation={true}
       showTranslation={false}
       showTranslationPreview={true}
-      onPrincipleClick={onPrincipleClick}
       linkTo={`/verses/${verse.canonical_id}?from=browse`}
       isFavorite={isFavorite(verse.canonical_id)}
       onToggleFavorite={toggleFavorite}
@@ -138,7 +135,6 @@ export interface SearchVerseGridProps {
   loading: boolean;
   isFavorite: (id: string) => boolean;
   toggleFavorite: (id: string) => void;
-  onPrincipleClick: (principle: string | null) => void;
 }
 
 export function SearchVerseGrid({
@@ -147,7 +143,6 @@ export function SearchVerseGrid({
   loading,
   isFavorite,
   toggleFavorite,
-  onPrincipleClick,
 }: SearchVerseGridProps) {
   // Calculate row count for virtualization
   const rowCount = Math.ceil(results.length / columnCount);
@@ -179,7 +174,6 @@ export function SearchVerseGrid({
       showCitation={true}
       showTranslation={false}
       showTranslationPreview={!result.match.highlight}
-      onPrincipleClick={onPrincipleClick}
       linkTo={`/verses/${result.canonical_id}?from=search`}
       isFavorite={isFavorite(result.canonical_id)}
       onToggleFavorite={toggleFavorite}

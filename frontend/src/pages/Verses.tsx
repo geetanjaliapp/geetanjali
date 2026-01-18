@@ -1121,7 +1121,6 @@ export default function Verses() {
                     loading={searchLoading}
                     isFavorite={isFavorite}
                     toggleFavorite={toggleFavorite}
-                    onPrincipleClick={handlePrincipleSelect}
                   />
 
                   {/* Search Load More / End of Results */}
@@ -1360,7 +1359,6 @@ export default function Verses() {
                     loading={loading}
                     isFavorite={isFavorite}
                     toggleFavorite={toggleFavorite}
-                    onPrincipleClick={handlePrincipleSelect}
                   />
 
                   {/* Load More / End of Results */}
