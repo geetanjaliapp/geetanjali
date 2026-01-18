@@ -74,10 +74,12 @@ function TopicsError({ message }: { message: string }) {
 function GoalCard({
   goal,
   isSelected,
+  totalPrinciples,
   onClick,
 }: {
   goal: Goal;
   isSelected: boolean;
+  totalPrinciples: number;
   onClick: () => void;
 }) {
   const IconComponent = GoalIconsById[goal.id];
@@ -127,7 +129,7 @@ function GoalCard({
 
       {/* Principle count */}
       <span className="text-[10px] sm:text-xs text-[var(--text-muted)] mt-1 sm:mt-2">
-        {goal.principles.length === 0 ? "All 16" : `${goal.principles.length} principles`}
+        {goal.principles.length === 0 ? `All ${totalPrinciples}` : `${goal.principles.length} principles`}
       </span>
     </button>
   );
@@ -289,6 +291,7 @@ export default function TopicsIndex() {
                         key={goal.id}
                         goal={goal}
                         isSelected={selectedGoal === goal.id}
+                        totalPrinciples={totalPrinciples}
                         onClick={() => handleGoalClick(goal.id)}
                       />
                     ))}
@@ -354,13 +357,6 @@ export default function TopicsIndex() {
               <section>
                 {/* Selection Header */}
                 <div className="mb-6">
-                  <button
-                    onClick={clearSelection}
-                    className="inline-flex items-center gap-1 text-sm text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] mb-3"
-                  >
-                    ← Back to all goals
-                  </button>
-
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
                       <div className="flex items-center gap-2">

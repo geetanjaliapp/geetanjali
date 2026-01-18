@@ -36,7 +36,7 @@ export function GoalFilterSelector({
   onClose,
   isOpen,
 }: GoalFilterSelectorProps) {
-  const { goals, loading } = useTaxonomy();
+  const { goals, principles, loading } = useTaxonomy();
   const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   // Focus management: focus selected goal or first goal on open
@@ -226,7 +226,7 @@ export function GoalFilterSelector({
                   {/* Principle count - subtle */}
                   <span className="text-[10px] text-[var(--text-muted)] mt-0.5">
                     {goal.principles.length === 0
-                      ? "All 16 topics"
+                      ? `All ${principles.length} topics`
                       : `${goal.principles.length} topics`}
                   </span>
                 </button>
