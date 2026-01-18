@@ -56,8 +56,3 @@ seo_generation_last_success_timestamp = Gauge(
     "geetanjali_seo_generation_last_success_timestamp",
     "Unix timestamp of last successful generation",
 )
-
-seo_pages_stale = Gauge(
-    "geetanjali_seo_pages_stale",
-    "Number of SEO pages that need regeneration",
-)
