@@ -76,21 +76,21 @@ class TestTopicsListEndpoint:
         assert len(data["groups"]) == 4
 
     def test_list_topics_returns_16_total_principles(self, client_with_principles):
-        """Verify total_principles count is 16."""
+        """Verify totalPrinciples count is 16."""
         response = client_with_principles.get("/api/v1/topics")
 
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
-        assert data["total_principles"] == 16
+        assert data["totalPrinciples"] == 16
 
     def test_list_topics_includes_total_verses(self, client_with_principles):
-        """Verify total_verses field is included (0 in test DB)."""
+        """Verify totalVerses field is included (0 in test DB)."""
         response = client_with_principles.get("/api/v1/topics")
 
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
-        assert "total_verses" in data
-        assert isinstance(data["total_verses"], int)
+        assert "totalVerses" in data
+        assert isinstance(data["totalVerses"], int)
 
     def test_groups_are_yoga_paths(self, client_with_principles):
         """Verify groups represent the 4 yoga paths."""
@@ -120,7 +120,9 @@ class TestTopicsListEndpoint:
 
         for group in data["groups"]:
             for field in required_fields:
-                assert field in group, f"Missing field '{field}' in group {group.get('id')}"
+                assert (
+                    field in group
+                ), f"Missing field '{field}' in group {group.get('id')}"
 
     def test_each_group_has_4_principles(self, client_with_principles):
         """Verify balanced 4x4 grouping."""
@@ -144,19 +146,19 @@ class TestTopicsListEndpoint:
         required_fields = [
             "id",
             "label",
-            "short_label",
+            "shortLabel",
             "sanskrit",
             "transliteration",
             "description",
-            "verse_count",
+            "verseCount",
         ]
 
         for group in data["groups"]:
             for principle in group["principles"]:
                 for field in required_fields:
-                    assert field in principle, (
-                        f"Missing field '{field}' in principle {principle.get('id')}"
-                    )
+                    assert (
+                        field in principle
+                    ), f"Missing field '{field}' in principle {principle.get('id')}"
 
     def test_karma_group_has_correct_principles(self, client_with_principles):
         """Verify Karma yoga group has the correct principles."""
@@ -187,7 +189,7 @@ class TestTopicDetailEndpoint:
         data = response.json()
         assert data["id"] == "dharma"
         assert data["label"] == "Righteous Duty"
-        assert data["short_label"] == "Duty"
+        assert data["shortLabel"] == "Duty"
         assert "धर्म" in data["sanskrit"]
 
     def test_topic_includes_group_info(self, client_with_principles):
@@ -212,13 +214,13 @@ class TestTopicDetailEndpoint:
         required_fields = [
             "id",
             "label",
-            "short_label",
+            "shortLabel",
             "sanskrit",
             "transliteration",
             "description",
-            "leadership_context",
+            "leadershipContext",
             "group",
-            "verse_count",
+            "verseCount",
             "verses",
         ]
 
@@ -233,12 +235,12 @@ class TestTopicDetailEndpoint:
         data = response.json()
 
         extended_fields = [
-            "extended_description",
-            "practical_application",
-            "common_misconceptions",
+            "extendedDescription",
+            "practicalApplication",
+            "commonMisconceptions",
             "faq",
-            "related_principles",
-            "chapter_focus",
+            "relatedPrinciples",
+            "chapterFocus",
             "keywords",
         ]
 
@@ -263,8 +265,8 @@ class TestTopicDetailEndpoint:
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
 
-        assert isinstance(data["chapter_focus"], list)
-        assert len(data["chapter_focus"]) > 0
+        assert isinstance(data["chapterFocus"], list)
+        assert len(data["chapterFocus"]) > 0
 
     def test_get_nonexistent_topic_returns_404(self, client_with_principles):
         """Test that invalid topic ID returns 404."""
@@ -284,8 +286,8 @@ class TestTopicDetailEndpoint:
 
         # With no verses in test DB and include_verses=false, verses should be empty
         assert data["verses"] == []
-        # But verse_count should still be present
-        assert "verse_count" in data
+        # But verseCount should still be present
+        assert "verseCount" in data
 
     def test_verse_limit_parameter(self, client_with_principles):
         """Test verse_limit parameter is accepted."""
@@ -322,10 +324,10 @@ class TestTopicsResponseSchemas:
         data = response.json()
 
         # Top-level structure
-        assert set(data.keys()) == {"groups", "total_principles", "total_verses"}
+        assert set(data.keys()) == {"groups", "totalPrinciples", "totalVerses"}
         assert isinstance(data["groups"], list)
-        assert isinstance(data["total_principles"], int)
-        assert isinstance(data["total_verses"], int)
+        assert isinstance(data["totalPrinciples"], int)
+        assert isinstance(data["totalVerses"], int)
 
     def test_topic_detail_response_shape(self, client_with_principles):
         """Verify detail response matches TopicDetailResponse schema."""
@@ -338,20 +340,20 @@ class TestTopicsResponseSchemas:
         expected_keys = {
             "id",
             "label",
-            "short_label",
+            "shortLabel",
             "sanskrit",
             "transliteration",
             "description",
-            "leadership_context",
+            "leadershipContext",
             "group",
-            "extended_description",
-            "practical_application",
-            "common_misconceptions",
+            "extendedDescription",
+            "practicalApplication",
+            "commonMisconceptions",
             "faq",
-            "related_principles",
-            "chapter_focus",
+            "relatedPrinciples",
+            "chapterFocus",
             "keywords",
-            "verse_count",
+            "verseCount",
             "verses",
         }
         assert set(data.keys()) == expected_keys
