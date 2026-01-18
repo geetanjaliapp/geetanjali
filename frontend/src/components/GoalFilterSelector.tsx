@@ -134,9 +134,10 @@ export function GoalFilterSelector({
         data-testid="goal-backdrop"
       />
 
-      {/* Bottom sheet on mobile, dropdown on desktop */}
+      {/* Bottom sheet on mobile, centered dropdown on desktop */}
       <div
-        className="fixed bottom-0 left-0 right-0 sm:bottom-auto sm:top-[140px] sm:right-4 sm:left-auto
+        className="fixed bottom-0 left-0 right-0
+                   sm:bottom-auto sm:top-[160px] sm:left-1/2 sm:-translate-x-1/2 sm:right-auto
                    z-50 w-full sm:w-[360px] md:w-[420px] max-h-[80vh] sm:max-h-[70vh] overflow-y-auto
                    bg-[var(--surface-sticky-translucent)] backdrop-blur-xs
                    border-t sm:border border-[var(--border-warm)]

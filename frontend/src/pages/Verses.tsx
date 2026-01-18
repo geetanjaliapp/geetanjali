@@ -28,6 +28,7 @@ import {
 } from "../components/icons";
 import { TopicSelector } from "../components/TopicSelector";
 import { GoalFilterSelector } from "../components/GoalFilterSelector";
+import { ChapterFilterSelector } from "../components/ChapterFilterSelector";
 import { errorMessages } from "../lib/errorMessages";
 import {
   useSEO,
@@ -916,7 +917,7 @@ export default function Verses() {
               </button>
             </div>
 
-            {/* Chapter Dropdown - Separate */}
+            {/* Chapter Dropdown */}
             <div className="relative">
               <button
                 onClick={() => setShowChapterDropdown(!showChapterDropdown)}
@@ -933,36 +934,12 @@ export default function Verses() {
                 />
               </button>
 
-              {showChapterDropdown && (
-                <>
-                  <div
-                    className="fixed inset-0 z-10"
-                    onClick={() => setShowChapterDropdown(false)}
-                  />
-                  <div className="absolute left-0 mt-2 p-2 sm:p-3 bg-[var(--surface-elevated)] rounded-[var(--radius-card)] shadow-[var(--shadow-modal)] border border-[var(--border-default)] z-20 w-64 sm:w-80">
-                    <div className="grid grid-cols-6 gap-2">
-                      {Array.from({ length: 18 }, (_, i) => i + 1).map(
-                        (chapter) => (
-                          <button
-                            key={chapter}
-                            onClick={() => {
-                              handleFilterSelect(chapter);
-                              setShowChapterDropdown(false);
-                            }}
-                            className={`h-10 sm:h-11 rounded-[var(--radius-button)] text-xs sm:text-sm font-medium transition-[var(--transition-all)] ${
-                              selectedChapter === chapter
-                                ? "bg-[var(--chip-selected-bg)] text-[var(--chip-selected-text)] ring-1 ring-[var(--chip-selected-ring)]"
-                                : "text-[var(--text-secondary)] hover:bg-[var(--badge-warm-bg)] hover:text-[var(--badge-warm-text)] active:bg-[var(--badge-warm-hover)]"
-                            }`}
-                          >
-                            {chapter}
-                          </button>
-                        ),
-                      )}
-                    </div>
-                  </div>
-                </>
-              )}
+              <ChapterFilterSelector
+                selectedChapter={selectedChapter}
+                onSelect={(chapter) => handleFilterSelect(chapter ?? "all")}
+                onClose={() => setShowChapterDropdown(false)}
+                isOpen={showChapterDropdown}
+              />
             </div>
 
             {/* Goal Dropdown */}

@@ -14,6 +14,7 @@
  */
 
 import { useEffect, useCallback, useRef, useMemo } from "react";
+import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import { useTaxonomy } from "../hooks/useTaxonomy";
 
@@ -142,7 +143,8 @@ export function TopicSelector({
 
   if (!isOpen) return null;
 
-  return (
+  // Use portal to render outside sticky filter bar (which has backdrop-blur that breaks fixed positioning)
+  return createPortal(
     <>
       {/* Subtle backdrop */}
       <div
@@ -152,18 +154,24 @@ export function TopicSelector({
         data-testid="backdrop"
       />
 
-      {/* Popover - positioned below trigger on desktop, bottom on mobile */}
+      {/* Bottom sheet on mobile, centered dropdown on desktop */}
       <div
-        className="fixed sm:absolute bottom-16 sm:bottom-auto sm:top-full sm:mt-2
-                   left-1/2 sm:left-auto sm:right-0 -translate-x-1/2 sm:translate-x-0
-                   z-50 w-[calc(100vw-2rem)] sm:w-[400px] md:w-[480px] max-h-[70vh] overflow-y-auto
+        className="fixed bottom-0 left-0 right-0
+                   sm:bottom-auto sm:top-[160px] sm:left-1/2 sm:-translate-x-1/2 sm:right-auto
+                   z-50 w-full sm:w-[400px] md:w-[480px] max-h-[80vh] sm:max-h-[70vh] overflow-y-auto
                    bg-[var(--surface-sticky-translucent)] backdrop-blur-xs
-                   border border-[var(--border-warm)]
-                   rounded-[var(--radius-card)] shadow-[var(--shadow-dropdown)] p-4"
+                   border-t sm:border border-[var(--border-warm)]
+                   rounded-t-[var(--radius-modal)] sm:rounded-[var(--radius-card)] shadow-[var(--shadow-dropdown)]
+                   p-4 pb-20 sm:pb-4"
         role="dialog"
         aria-modal="true"
         aria-label="Select topic"
       >
+        {/* Mobile drag handle indicator */}
+        <div className="sm:hidden flex justify-center mb-3">
+          <div className="w-10 h-1 bg-[var(--border-warm)] rounded-full" />
+        </div>
+
         {/* Groups grid: 1 column on mobile, 2 columns on tablet+ */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {groups.map((group) => {
@@ -237,6 +245,7 @@ export function TopicSelector({
           </Link>
         </div>
       </div>
-    </>
+    </>,
+    document.body
   );
 }
