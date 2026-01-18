@@ -62,6 +62,7 @@ Run Geetanjali locally in under 5 minutes:
 ```bash
 git clone https://github.com/geetanjaliapp/geetanjali.git
 cd geetanjali
+git lfs pull                                        # Audio files
 docker compose up -d
 docker exec geetanjali-ollama ollama pull qwen2.5:3b
 ```
