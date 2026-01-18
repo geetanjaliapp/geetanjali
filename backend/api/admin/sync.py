@@ -1,6 +1,7 @@
 """Admin endpoints for data synchronization operations."""
 
 import logging
+from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
@@ -8,8 +9,9 @@ from sqlalchemy.orm import Session
 
 from api.dependencies import verify_admin_api_key
 from data.featured_verses import get_featured_verse_ids
+from data.principles import get_principle_groups, get_principles
 from db.connection import get_db
-from models import Verse
+from models import Principle, PrincipleGroup, Verse
 
 logger = logging.getLogger(__name__)
 
@@ -520,3 +522,186 @@ def trigger_sync_audio_metadata(
     except Exception as e:
         logger.error(f"Failed to sync audio metadata: {e}")
         raise HTTPException(status_code=500, detail="Failed to sync audio metadata")
+
+
+# =============================================================================
+# Principles Taxonomy Sync
+# =============================================================================
+
+
+class SyncPrinciplesResponse(BaseModel):
+    """Response model for principles sync."""
+
+    status: str
+    message: str
+    groups_synced: int
+    principles_synced: int
+    created: int
+    updated: int
+
+
+def sync_principles(db: Session) -> dict[str, int]:
+    """
+    Sync principle groups and principles from config files to database.
+
+    Syncs in order:
+    1. Principle groups (4 yoga paths)
+    2. Principles (16 consulting principles)
+
+    Args:
+        db: Database session
+
+    Returns:
+        Stats dict with sync results
+    """
+    groups_data = get_principle_groups()
+    principles_data = get_principles()
+
+    groups_synced = 0
+    principles_synced = 0
+    created = 0
+    updated = 0
+
+    # Step 1: Sync principle groups
+    for group_data in groups_data:
+        existing_group = (
+            db.query(PrincipleGroup)
+            .filter(PrincipleGroup.id == group_data["id"])
+            .first()
+        )
+
+        if existing_group:
+            existing_group.label = group_data["label"]
+            existing_group.sanskrit = group_data["sanskrit"]
+            existing_group.transliteration = group_data["transliteration"]
+            existing_group.description = group_data["description"]
+            display_order: int = group_data.get("display_order") or 0  # type: ignore[assignment]
+            existing_group.display_order = display_order
+            existing_group.updated_at = datetime.utcnow()
+        else:
+            display_order_new: int = group_data.get("display_order") or 0  # type: ignore[assignment]
+            new_group = PrincipleGroup(
+                id=group_data["id"],
+                label=group_data["label"],
+                sanskrit=group_data["sanskrit"],
+                transliteration=group_data["transliteration"],
+                description=group_data["description"],
+                display_order=display_order_new,
+            )
+            db.add(new_group)
+            created += 1
+
+        groups_synced += 1
+
+    # Flush groups so FK references work
+    db.flush()
+
+    # Step 2: Sync principles
+    for principle_data in principles_data:
+        existing_principle = (
+            db.query(Principle)
+            .filter(Principle.id == principle_data["id"])
+            .first()
+        )
+
+        if existing_principle:
+            # Update existing
+            existing_principle.label = principle_data["label"]
+            existing_principle.short_label = principle_data["shortLabel"]
+            existing_principle.sanskrit = principle_data["sanskrit"]
+            existing_principle.transliteration = principle_data["transliteration"]
+            existing_principle.description = principle_data["description"]
+            existing_principle.leadership_context = principle_data["leadershipContext"]
+            existing_principle.group_id = principle_data["group"]
+            existing_principle.keywords = principle_data["keywords"]
+            existing_principle.chapter_focus = principle_data["chapterFocus"]
+            p_display_order: int = principle_data.get("display_order") or 0  # type: ignore[assignment]
+            existing_principle.display_order = p_display_order
+            # Extended content (optional)
+            existing_principle.extended_description = principle_data.get(
+                "extended_description"
+            )
+            existing_principle.practical_application = principle_data.get(
+                "practical_application"
+            )
+            existing_principle.common_misconceptions = principle_data.get(
+                "common_misconceptions"
+            )
+            existing_principle.faq_question = principle_data.get("faq_question")
+            existing_principle.faq_answer = principle_data.get("faq_answer")
+            existing_principle.related_principles = principle_data.get(
+                "related_principles"
+            )
+            existing_principle.updated_at = datetime.utcnow()
+            updated += 1
+        else:
+            # Create new
+            p_display_order_new: int = principle_data.get("display_order") or 0  # type: ignore[assignment]
+            new_principle = Principle(
+                id=principle_data["id"],
+                label=principle_data["label"],
+                short_label=principle_data["shortLabel"],
+                sanskrit=principle_data["sanskrit"],
+                transliteration=principle_data["transliteration"],
+                description=principle_data["description"],
+                leadership_context=principle_data["leadershipContext"],
+                group_id=principle_data["group"],
+                keywords=principle_data["keywords"],
+                chapter_focus=principle_data["chapterFocus"],
+                display_order=p_display_order_new,
+                # Extended content (optional)
+                extended_description=principle_data.get("extended_description"),
+                practical_application=principle_data.get("practical_application"),
+                common_misconceptions=principle_data.get("common_misconceptions"),
+                faq_question=principle_data.get("faq_question"),
+                faq_answer=principle_data.get("faq_answer"),
+                related_principles=principle_data.get("related_principles"),
+            )
+            db.add(new_principle)
+            created += 1
+
+        principles_synced += 1
+
+    db.commit()
+
+    logger.info(
+        f"Synced {groups_synced} principle groups and {principles_synced} principles "
+        f"(created={created}, updated={updated})"
+    )
+
+    return {
+        "groups_synced": groups_synced,
+        "principles_synced": principles_synced,
+        "created": created,
+        "updated": updated,
+    }
+
+
+@router.post("/sync-principles", response_model=SyncPrinciplesResponse)
+def trigger_sync_principles(
+    db: Session = Depends(get_db), _: bool = Depends(verify_admin_api_key)
+):
+    """
+    Sync principle taxonomy from config files to database.
+
+    This populates/updates the principle_groups and principles tables
+    from the JSON config files (principle_groups.json, principle_taxonomy.json).
+
+    Returns:
+        Sync statistics
+    """
+    try:
+        stats = sync_principles(db)
+
+        return SyncPrinciplesResponse(
+            status="success",
+            message=f"Synced {stats['groups_synced']} groups and {stats['principles_synced']} principles.",
+            groups_synced=stats["groups_synced"],
+            principles_synced=stats["principles_synced"],
+            created=stats["created"],
+            updated=stats["updated"],
+        )
+
+    except Exception as e:
+        logger.error(f"Failed to sync principles: {e}")
+        raise HTTPException(status_code=500, detail="Failed to sync principles")

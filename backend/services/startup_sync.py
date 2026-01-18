@@ -131,6 +131,10 @@ class StartupSyncService:
             "Dhyanam Verses",
             self._sync_dhyanam_verses,
         )
+        self._sync_with_error_handling(
+            "Principles",
+            self._sync_principles,
+        )
 
         # Dependent content (requires verses)
         self._sync_with_error_handling(
@@ -358,6 +362,40 @@ class StartupSyncService:
             action="synced",
             reason="Content changed or first sync",
             synced=stats["synced"],
+            created=stats["created"],
+            updated=stats["updated"],
+        )
+
+    def _sync_principles(self) -> SyncResult | None:
+        """Sync principle taxonomy if changed."""
+        from data.principles import get_principle_groups, get_principles
+
+        content_type = "principles"
+        # Compute hash from both groups and principles data
+        source_data = {
+            "groups": get_principle_groups(),
+            "principles": get_principles(),
+        }
+        current_hash = compute_content_hash(source_data)
+
+        if not self._needs_sync(content_type, current_hash):
+            return SyncResult(
+                name="Principles",
+                action="skipped_no_change",
+                reason="Content unchanged",
+            )
+
+        # Sync needed
+        from api.admin import sync_principles
+
+        stats = sync_principles(self.db)
+        self._update_stored_hash(content_type, current_hash)
+
+        return SyncResult(
+            name="Principles",
+            action="synced",
+            reason="Content changed or first sync",
+            synced=stats["groups_synced"] + stats["principles_synced"],
             created=stats["created"],
             updated=stats["updated"],
         )

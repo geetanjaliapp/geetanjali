@@ -24,6 +24,7 @@ from .sync import (
     sync_featured_verses,
     sync_geeta_dhyanam,
     sync_metadata,
+    sync_principles,
     sync_verse_audio_metadata,
 )
 
@@ -40,4 +41,5 @@ __all__ = [
     "sync_metadata",
     "sync_geeta_dhyanam",
     "sync_verse_audio_metadata",
+    "sync_principles",
 ]
