@@ -63,7 +63,13 @@
     "leadershipContext": "Leaders remain composed and clear-thinking during crises and uncertainty.",
     "keywords": ["steady", "stable", "wisdom", "clarity", "composure", "unshaken", "centered", "grounded"],
     "group": "jnana",
-    "chapterFocus": [2, 6, 14]
+    "chapterFocus": [2, 6, 14],
+    "extendedDescription": "Sthitaprajna describes the person of steady wisdom—one whose understanding remains unshaken regardless of external circumstances. In Chapter 2, Arjuna asks Krishna to describe such a person, and Krishna's answer forms one of the Gita's most profound teachings. The sthitaprajna is not disturbed by adversity nor elated by success; they have withdrawn their senses from objects of desire like a tortoise withdrawing its limbs.",
+    "practicalApplication": "Cultivate steady wisdom by developing a daily contemplative practice that anchors you before the day's demands begin. When facing difficult situations, pause and ask: 'What would a person of steady wisdom do here?' Practice responding rather than reacting—create space between stimulus and response. Build your capacity for equanimity through small daily challenges before facing larger tests.",
+    "commonMisconceptions": "Steady wisdom is not emotional numbness or detachment from life. The sthitaprajna feels deeply but is not controlled by feelings. It's also not about suppressing desires—rather, it's about not being enslaved by them. You can have preferences and work toward goals while maintaining inner stability.",
+    "faqQuestion": "How do I develop steady wisdom when my mind is constantly reactive?",
+    "faqAnswer": "Start with awareness—simply notice when your mind reacts strongly to events. Don't judge the reaction, just observe it. Over time, this observation creates a gap between the event and your response. Regular meditation strengthens this capacity. Also, study the qualities of the sthitaprajna described in Gita 2.54-72 and reflect on how you might embody them in daily situations.",
+    "relatedPrinciples": ["samatvam", "viveka", "dhyana"]
   },
   "dhyana": {
     "id": "dhyana",
@@ -75,7 +81,13 @@
     "leadershipContext": "Leaders develop focus and presence through mindful practices that quiet the mind.",
     "keywords": ["meditation", "contemplation", "focus", "stillness", "mindfulness", "concentration", "inner", "awareness"],
     "group": "bhakti",
-    "chapterFocus": [6, 8]
+    "chapterFocus": [6, 8],
+    "extendedDescription": "Dhyana is the practice of sustained, focused attention that leads to deeper states of awareness and ultimately to self-realization. Chapter 6 of the Gita provides detailed guidance on meditation—from physical posture to mental technique. The Gita teaches that meditation is not an escape from action but the foundation for effective action. Through regular practice, the mind becomes clear, stable, and capable of sustained focus.",
+    "practicalApplication": "Begin with just five minutes of daily meditation, gradually increasing duration. Find a quiet space, sit comfortably with spine erect, and focus on your breath or a meaningful word. When the mind wanders—and it will—gently return attention to your focus point without self-criticism. Consistency matters more than duration; daily short practice beats occasional long sessions. Use meditation to center yourself before important meetings or decisions.",
+    "commonMisconceptions": "Meditation is not about stopping thoughts—that's impossible. It's about changing your relationship with thoughts, observing them without being carried away. It's also not just relaxation, though relaxation may occur. True dhyana involves alert awareness, not drowsiness. Finally, meditation isn't only for spiritual seekers; it's a practical tool for mental clarity and emotional regulation.",
+    "faqQuestion": "I can't meditate because my mind won't stop thinking. What should I do?",
+    "faqAnswer": "A busy mind is completely normal—even experienced meditators have active minds. The goal isn't to stop thinking but to notice when you've been carried away by thoughts and gently return to your focus point. Each time you notice and return, you're strengthening your capacity for awareness. Start with guided meditations if helpful. Remember that meditation is called 'practice' because it's something you develop over time, not achieve instantly.",
+    "relatedPrinciples": ["sthitaprajna", "abhyasa", "bhakti"]
   },
   "viveka": {
     "id": "viveka",
@@ -87,7 +99,13 @@
     "leadershipContext": "Leaders make informed decisions by clearly seeing what matters and what doesn't.",
     "keywords": ["discernment", "discrimination", "wisdom", "choice", "judgment", "clarity", "essential", "priorities"],
     "group": "jnana",
-    "chapterFocus": [2, 13, 18]
+    "chapterFocus": [2, 13, 18],
+    "extendedDescription": "Viveka is the capacity to discriminate between the real and unreal, the permanent and temporary, the essential and trivial. This discernment is the foundation of wisdom in the Gita's teaching. Without viveka, we chase fleeting pleasures while ignoring lasting fulfillment; we react to symptoms while missing root causes; we confuse the urgent with the important. Cultivating viveka means developing clarity about what truly matters.",
+    "practicalApplication": "Before making decisions, ask: 'What is truly at stake here? What will matter in five years?' Distinguish between what you can and cannot control. When faced with competing priorities, identify which align with your deepest values versus which are merely urgent or externally imposed. Practice saying no to good opportunities so you can say yes to great ones. Regularly review how you spend your time and energy against your stated priorities.",
+    "commonMisconceptions": "Discernment is not cold analysis or judgment of others. It's about seeing clearly, not critically. It's also not about having all the answers—viveka includes knowing the limits of your knowledge. True discernment involves both intellect and intuition working together, not intellect alone.",
+    "faqQuestion": "How do I know if I'm making decisions from true discernment or just rationalizing what I want?",
+    "faqAnswer": "Genuine discernment feels calm and clear; rationalization often carries an undertone of anxiety or defensiveness. Ask yourself: 'Am I seeing this situation as it is, or as I want it to be?' Seek input from trusted advisors who will challenge your thinking. Notice if you're avoiding information that might contradict your preferred conclusion. True discernment welcomes all relevant data, even uncomfortable truths.",
+    "relatedPrinciples": ["jnana", "sthitaprajna", "samatvam"]
   },
   "jnana": {
     "id": "jnana",
@@ -99,7 +117,13 @@
     "leadershipContext": "Leaders grow through continuous learning and honest self-assessment.",
     "keywords": ["knowledge", "wisdom", "understanding", "truth", "learning", "self-awareness", "insight", "realization"],
     "group": "jnana",
-    "chapterFocus": [4, 7, 13]
+    "chapterFocus": [4, 7, 13],
+    "extendedDescription": "Jnana in the Gita refers not merely to intellectual knowledge but to direct experiential understanding of the self and reality. Krishna declares that among purifiers, knowledge is supreme (Gita 4.38). This knowledge illuminates our true nature beyond the temporary roles and identities we assume. Jnana yoga—the path of knowledge—involves inquiry, study, reflection, and ultimately direct realization of truth.",
+    "practicalApplication": "Cultivate self-knowledge through regular reflection: What are my patterns? What triggers me? What do I truly value versus what I claim to value? Seek feedback from others to see your blind spots. Study wisdom teachings and contemplate their meaning for your life. Keep a journal to track insights and patterns over time. Remember that intellectual understanding must be integrated through lived experience to become true jnana.",
+    "commonMisconceptions": "Jnana is not mere book learning or accumulation of facts. You can have many degrees yet lack self-knowledge. It's also not opposed to action or devotion—the Gita ultimately synthesizes all paths. Some mistake jnana for detached intellectualism, but true knowledge transforms how you live, not just what you think.",
+    "faqQuestion": "How do I gain self-knowledge when I'm constantly busy with external demands?",
+    "faqAnswer": "Self-knowledge doesn't require hours of solitude—it grows through moments of honest reflection amid daily life. After interactions, briefly ask: 'What did that reveal about me?' Notice your reactions without judgment. Use commutes or transitions for contemplation. Even five minutes of journaling can yield insights. The key is consistent small practices rather than waiting for perfect conditions that never come.",
+    "relatedPrinciples": ["viveka", "sthitaprajna", "tyaga"]
   },
   "tyaga": {
     "id": "tyaga",
@@ -111,7 +135,13 @@
     "leadershipContext": "Leaders let go of ego, past failures, and the need for control to move forward effectively.",
     "keywords": ["renunciation", "letting go", "release", "surrender", "detachment", "ego", "freedom", "liberation"],
     "group": "jnana",
-    "chapterFocus": [12, 18]
+    "chapterFocus": [12, 18],
+    "extendedDescription": "Tyaga is the art of letting go—releasing attachment to outcomes, possessions, identity, and the past. Chapter 18 of the Gita distinguishes true renunciation from mere abandonment: the wise don't abandon action itself but rather attachment to the fruits of action. Tyaga frees us from the weight of accumulated expectations, grievances, and self-images that constrain our growth and peace.",
+    "practicalApplication": "Practice letting go in small ways daily: release minor grievances, donate unused possessions, forgive small slights. When holding onto something—a grudge, a position, an outcome—ask: 'What is this costing me?' Learn to distinguish between healthy commitment and unhealthy attachment. After setbacks, consciously release the past and redirect energy toward present possibilities. Leaders can practice tyaga by delegating, trusting others, and not micromanaging.",
+    "commonMisconceptions": "Tyaga is not abandoning responsibilities or becoming passive. The Gita criticizes abandoning prescribed duties as 'tamasic' renunciation. True letting go means releasing internal attachment while continuing appropriate action. It's also not about suppressing care—you can love deeply while accepting impermanence and uncertainty.",
+    "faqQuestion": "How do I let go when I've invested so much in something?",
+    "faqAnswer": "Recognize that holding on to what no longer serves you doesn't honor your past investment—it compounds the loss. Ask: 'Is my attachment to this helping me move forward, or holding me back?' Practice the 'sunk cost' awareness: past investments don't obligate future ones. Letting go isn't admitting failure; it's wisdom to redirect energy where it can bear fruit. Start with gratitude for what was, then consciously release it.",
+    "relatedPrinciples": ["nishkama_karma", "sharanagati", "jnana"]
   },
   "bhakti": {
     "id": "bhakti",
@@ -123,7 +153,13 @@
     "leadershipContext": "Leaders find purpose in serving something larger than personal ambition.",
     "keywords": ["devotion", "love", "connection", "divine", "surrender", "worship", "dedication", "higher purpose"],
     "group": "bhakti",
-    "chapterFocus": [9, 11, 12]
+    "chapterFocus": [9, 11, 12],
+    "extendedDescription": "Bhakti is the path of love and devotion—directing the heart toward something greater than the individual self. Krishna describes bhakti as the supreme path (Gita 12.2), accessible to all regardless of background or ability. Bhakti transforms work into worship when we dedicate our actions to a higher purpose. This devotion isn't blind faith but a loving relationship that elevates everything we do.",
+    "practicalApplication": "Connect your daily work to a purpose larger than personal gain. Before beginning tasks, mentally dedicate your efforts to the welfare of others or a principle you cherish. Cultivate gratitude through daily recognition of what you've received. Build relationships characterized by genuine care rather than transactional exchange. Find or create community around shared values. Leaders can embody bhakti by serving their team's growth rather than using them for personal advancement.",
+    "commonMisconceptions": "Bhakti is not religious fanaticism or blind worship. The Gita's bhakti is characterized by wisdom and discernment, not superstition. It's also not escapism—true devotion enhances engagement with the world rather than withdrawal from it. Bhakti doesn't require belief in a personal deity; it can be directed toward truth, humanity, or one's highest values.",
+    "faqQuestion": "How can I practice devotion if I'm not religious?",
+    "faqAnswer": "Bhakti is fundamentally about directing your deepest commitment toward something beyond self-interest. This could be service to humanity, dedication to truth, love for family, or passion for your craft. The essence is wholehearted engagement rather than half-hearted effort. Ask: 'What would I gladly give my best to, expecting nothing in return?' That's your bhakti. Express it through quality of attention and care in everything you do.",
+    "relatedPrinciples": ["shraddha", "sharanagati", "seva"]
   },
   "shraddha": {
     "id": "shraddha",
@@ -135,7 +171,13 @@
     "leadershipContext": "Leaders inspire confidence through their own unwavering belief in vision and values.",
     "keywords": ["faith", "conviction", "belief", "trust", "confidence", "dedication", "commitment", "resolve"],
     "group": "bhakti",
-    "chapterFocus": [4, 17]
+    "chapterFocus": [4, 17],
+    "extendedDescription": "Shraddha is faith in its deepest sense—not blind belief but heartfelt conviction that shapes our actions and ultimately our character. The Gita teaches that 'a person is made of their shraddha' (17.3)—we become what we place our faith in. Shraddha provides the foundation for sustained effort; without it, we abandon pursuits at the first obstacle. True shraddha combines heartfelt trust with discerning wisdom.",
+    "practicalApplication": "Examine what you truly place faith in by observing where you invest your time and energy. Align your stated beliefs with your actual behavior. Before beginning important endeavors, cultivate conviction in their worthiness—half-hearted effort yields half-hearted results. When doubt arises, return to your core purpose and values. Build shraddha through small commitments kept, gradually increasing trust in yourself and your path.",
+    "commonMisconceptions": "Shraddha is not credulity or blind acceptance. The Gita encourages questioning and understanding (Gita 4.34). Faith here means trusting a path enough to walk it fully, not accepting claims without examination. It's also not positive thinking that ignores reality—shraddha is grounded conviction, not wishful denial.",
+    "faqQuestion": "How do I maintain faith when things aren't working out?",
+    "faqAnswer": "Distinguish between faith in outcomes and faith in the process. You can't guarantee specific results, but you can commit to acting with integrity and excellence regardless. Review whether your path truly aligns with your values—authentic shraddha is sustained more easily than forced belief. Remember that meaningful pursuits face obstacles; temporary setbacks don't disprove the path. Seek community with others who share your conviction for mutual support.",
+    "relatedPrinciples": ["bhakti", "abhyasa", "dharma"]
   },
   "sharanagati": {
     "id": "sharanagati",
@@ -147,7 +189,13 @@
     "leadershipContext": "Leaders accept what they cannot control and trust in their team and process.",
     "keywords": ["surrender", "trust", "refuge", "acceptance", "letting go", "faith", "submission", "reliance"],
     "group": "bhakti",
-    "chapterFocus": [18]
+    "chapterFocus": [18],
+    "extendedDescription": "Sharanagati is the ultimate act of trust—surrendering the ego's insistence on control and taking refuge in a larger wisdom. The Gita's final teaching invites Arjuna to surrender all dharmas and take refuge in the divine (18.66). This isn't passive resignation but active trust—doing your best while accepting that results involve forces beyond your control. Surrender brings freedom from the exhausting burden of trying to control the uncontrollable.",
+    "practicalApplication": "Identify what you're trying to control that's actually beyond your power—others' opinions, market conditions, the past, the future. Practice the serenity prayer's wisdom: change what you can, accept what you can't, and develop wisdom to know the difference. After doing your best preparation, release attachment to specific outcomes. In leadership, trust your team rather than micromanaging. When facing the unknown, move forward with open hands rather than clenched fists.",
+    "commonMisconceptions": "Surrender is not weakness, passivity, or giving up. It's the strength to accept reality as it is while continuing appropriate action. It's not fatalism—we still make effort and choices. Surrender means releasing the illusion of control, not abandoning responsibility. The surrendered person acts fully but doesn't suffer over what's beyond their influence.",
+    "faqQuestion": "How is surrender different from giving up?",
+    "faqAnswer": "Giving up means abandoning effort; surrender means releasing attachment to controlling outcomes while continuing wholehearted action. The person who gives up stops trying; the person who surrenders tries their best and then accepts whatever comes. Surrender is active trust, not passive resignation. You do your part fully, then release the rest. This actually improves performance because anxiety about outcomes no longer interferes with present action.",
+    "relatedPrinciples": ["tyaga", "bhakti", "shraddha"]
   },
   "discipline": {
     "id": "discipline",
@@ -159,7 +207,13 @@
     "leadershipContext": "Leaders demonstrate self-control and discipline, mastering their own impulses before leading others.",
     "keywords": ["discipline", "self-control", "restraint", "mastery", "control", "temperament", "willpower", "regulation"],
     "group": "sadachara",
-    "chapterFocus": [2, 3, 6]
+    "chapterFocus": [2, 3, 6],
+    "extendedDescription": "Samyama is the discipline of self-mastery—the ability to regulate our senses, emotions, and impulses rather than being controlled by them. The Gita compares the undisciplined mind to a boat tossed by winds; with samyama, we become the captain steering through storms. This isn't rigid suppression but skillful regulation—knowing when to act on impulses and when to restrain them for greater purposes.",
+    "practicalApplication": "Build discipline through small daily practices: wake at a consistent time, complete tasks before checking distractions, pause before reacting emotionally. When facing temptation, create space—delay gratification by ten minutes and reassess. Replace willpower with environment design: remove temptations, make good choices easier. Track your commitments and follow through on small promises to yourself before tackling larger ones. Leaders must demonstrate self-mastery before asking it of others.",
+    "commonMisconceptions": "Discipline is not punishment or harsh self-denial. Effective samyama is sustainable, not brutal. It's also not about suppressing all desires—rather, it's about choosing which impulses to follow based on your values. True discipline feels like freedom, not prison; it liberates you from being a slave to every passing urge.",
+    "faqQuestion": "How do I build discipline when my willpower always fails?",
+    "faqAnswer": "Don't rely on willpower alone—it's a limited resource that depletes with use. Instead, design your environment to make good choices automatic: remove temptations, create triggers for desired behaviors, and build routines. Start with one small discipline and master it before adding more. Track your consistency rather than perfection. When you fail, don't abandon the practice—just resume without self-criticism. Discipline is built through consistent imperfect practice, not sporadic perfect performance.",
+    "relatedPrinciples": ["abhyasa", "samatvam", "viveka"]
   },
   "virtue": {
     "id": "virtue",
@@ -171,7 +225,13 @@
     "leadershipContext": "Leaders cultivate and demonstrate virtuous character traits that inspire trust and respect.",
     "keywords": ["virtue", "character", "ethics", "qualities", "values", "integrity", "truthfulness", "courage", "compassion"],
     "group": "sadachara",
-    "chapterFocus": [16]
+    "chapterFocus": [16],
+    "extendedDescription": "Daivi sampat refers to the divine qualities that characterize an evolved person. Chapter 16 of the Gita lists these virtues: fearlessness, purity, steadfastness in knowledge, generosity, self-control, sacrifice, study, austerity, non-violence, truthfulness, freedom from anger, renunciation, peace, compassion, gentleness, modesty, and absence of fickleness. These qualities are not merely moral ideals but practical characteristics that lead to freedom and fulfillment.",
+    "practicalApplication": "Choose one virtue to focus on each month—notice opportunities to practice it, reflect on your successes and failures. When facing ethical dilemmas, ask which choice reflects the person you want to become. Surround yourself with people who embody qualities you admire. Practice truthfulness in small matters to build the strength for larger ones. Develop courage by gradually facing fears. Cultivate compassion through active empathy—genuinely seeking to understand others' perspectives.",
+    "commonMisconceptions": "Virtue is not about appearing good or following external rules. It's about developing internal qualities that naturally express in beneficial action. It's also not weakness—courage is a virtue, as is standing firm against injustice. Virtue doesn't mean avoiding all conflict or being endlessly agreeable; it sometimes requires difficult stands.",
+    "faqQuestion": "Can virtue be developed, or is character fixed?",
+    "faqAnswer": "Character is absolutely developable—the Gita's entire teaching assumes we can grow. Virtue develops like any skill: through intentional practice, reflection, and repetition. Start by identifying one quality you want to strengthen. Notice situations that call for it. Practice deliberately, even imperfectly. Reflect on what worked and what didn't. Over time, virtuous responses become more natural. The key is consistent effort—we become what we repeatedly do.",
+    "relatedPrinciples": ["dharma", "discipline", "seva"]
   },
   "svadharma": {
     "id": "svadharma",
@@ -183,7 +243,13 @@
     "leadershipContext": "Leaders match responsibilities to natural capabilities and temperament, both for themselves and their teams.",
     "keywords": ["nature", "authentic", "strengths", "temperament", "calling", "role fit", "innate", "self"],
     "group": "karma",
-    "chapterFocus": [3, 18]
+    "chapterFocus": [3, 18],
+    "extendedDescription": "Svadharma is your own particular dharma—the path and duties that align with your unique nature, abilities, and circumstances. The Gita famously states that it's better to perform one's own dharma imperfectly than another's dharma perfectly (3.35, 18.47). This teaching encourages authenticity over imitation. When we work in alignment with our natural strengths and temperament, effort flows more easily and results come more sustainably.",
+    "practicalApplication": "Identify your natural strengths—what activities energize you even when challenging? What do others consistently ask your help with? Distinguish between roles that fit your nature versus those you've adopted from external expectations. When choosing work or responsibilities, prioritize alignment with your authentic capabilities over prestige or others' expectations. Leaders should match team members to roles that fit their natures, recognizing that forcing misalignment creates friction and underperformance.",
+    "commonMisconceptions": "Svadharma is not an excuse to avoid growth or stay in your comfort zone. Your nature can expand and develop. It's also not about rigid categorization—you are more than any label. The point is authentic alignment, not limiting yourself to a box. Sometimes discovering your svadharma requires experimenting with different paths.",
+    "faqQuestion": "How do I find my svadharma when I've spent years doing what others expected?",
+    "faqAnswer": "Start by noticing what you're naturally drawn to when no one is watching or evaluating. What activities make you lose track of time? What topics do you read about unprompted? What did you love doing as a child before others' expectations shaped you? Experiment with different activities and notice your energy—authentic work energizes even when tiring, while misaligned work drains. Talk to people who know you well about what they see as your natural gifts. Recovery of svadharma is a gradual process of listening to yourself.",
+    "relatedPrinciples": ["dharma", "jnana", "nishkama_karma"]
   },
   "seva": {
     "id": "seva",
@@ -195,7 +261,13 @@
     "leadershipContext": "Leaders serve their teams and stakeholders, leading through personal action rather than just direction.",
     "keywords": ["service", "selfless", "welfare", "others", "example", "role model", "compassion", "helping"],
     "group": "karma",
-    "chapterFocus": [3, 12, 16]
+    "chapterFocus": [3, 12, 16],
+    "extendedDescription": "Seva is selfless service—action performed for the welfare of others without expectation of reward or recognition. The Gita teaches that the wise act for the welfare of the world (loka-sangraha, 3.20). Seva purifies the heart, dissolves ego, and connects us to something larger than ourselves. When we serve genuinely, we discover that giving and receiving become one; helping others fulfills our own deepest needs.",
+    "practicalApplication": "Look for ways to serve in your current roles rather than waiting for special opportunities. Ask: 'How can I make this interaction better for the other person?' Practice anonymous giving—do good without seeking credit. Leaders can embody seva by removing obstacles for their teams, giving credit to others, and rolling up their sleeves alongside those they lead. Start small: hold doors, listen fully, offer help before being asked.",
+    "commonMisconceptions": "Seva is not martyrdom or self-neglect. You cannot serve sustainably from an empty cup—taking care of yourself enables greater service. It's also not transactional helping—doing good to get something back. True seva has no strings attached. Finally, it's not doing for others what they should do themselves; sometimes the greatest service is empowering others' own growth.",
+    "faqQuestion": "How do I serve others when I'm barely managing my own responsibilities?",
+    "faqAnswer": "Seva doesn't require grand gestures or extra time—it's about the spirit you bring to what you're already doing. Listening fully to a colleague is seva. Doing your job excellently so others don't have to fix problems is seva. Offering encouragement costs nothing but changes someone's day. Start by serving those closest to you—family, coworkers, neighbors. As you practice, you'll find that service often gives energy rather than depleting it. The busiest people often serve the most because they understand the return.",
+    "relatedPrinciples": ["nishkama_karma", "bhakti", "virtue"]
   },
   "abhyasa": {
     "id": "abhyasa",
@@ -207,6 +279,12 @@
     "leadershipContext": "Leaders develop skills and wisdom through persistent, deliberate practice over time.",
     "keywords": ["practice", "repetition", "consistency", "effort", "persistence", "training", "habit", "discipline", "routine"],
     "group": "sadachara",
-    "chapterFocus": [6, 12]
+    "chapterFocus": [6, 12],
+    "extendedDescription": "Abhyasa is persistent, dedicated practice—the principle that genuine mastery comes through sustained repetition over time. When Arjuna worries that controlling the restless mind seems impossible, Krishna reassures him that through abhyasa (practice) and vairagya (detachment), even the wandering mind can be trained (6.35). There are no shortcuts to excellence; abhyasa is the path of patient, consistent effort.",
+    "practicalApplication": "Choose practices that matter and commit to them daily, even briefly. Track your consistency rather than perfection—a 5-minute daily practice beats sporadic hours. Schedule practice as non-negotiable appointments with yourself. When you miss a day, simply resume without self-criticism. Build practice chains—link new habits to existing ones. Celebrate small wins to maintain motivation. Remember that visible improvement often comes long after consistent practice begins; trust the process.",
+    "commonMisconceptions": "Abhyasa is not mindless repetition. Effective practice involves attention, reflection, and gradual refinement. It's also not about rigid routines that ignore life's realities—sustainable practice adapts to circumstances while maintaining consistency. Practice isn't punishment; find ways to make it engaging. Finally, quantity alone doesn't guarantee quality—practice deliberately, not just repeatedly.",
+    "faqQuestion": "How do I maintain practice when motivation fades?",
+    "faqAnswer": "Don't rely on motivation—it's unreliable. Instead, build systems: practice at the same time each day, create environmental triggers, make the practice easy to start. Reduce the commitment to something too small to fail—even two minutes counts. Track your streak and protect it. Find accountability through partners or communities. When you truly don't feel like practicing, commit to just beginning—often momentum carries you through. Remember your deeper purpose; reconnect with why this practice matters.",
+    "relatedPrinciples": ["discipline", "shraddha", "dhyana"]
   }
 }
