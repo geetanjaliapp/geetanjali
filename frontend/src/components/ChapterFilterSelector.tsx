@@ -125,11 +125,11 @@ export function ChapterFilterSelector({
       <div
         className="fixed bottom-0 left-0 right-0
                    sm:bottom-auto sm:top-[160px] sm:left-1/2 sm:-translate-x-1/2 sm:right-auto
-                   z-50 w-full sm:w-[320px] max-h-[80vh] sm:max-h-[70vh] overflow-y-auto
+                   z-50 w-full sm:w-[320px]
                    bg-[var(--surface-sticky-translucent)] backdrop-blur-xs
                    border-t sm:border border-[var(--border-warm)]
                    rounded-t-[var(--radius-modal)] sm:rounded-[var(--radius-card)] shadow-[var(--shadow-dropdown)]
-                   p-4 pb-20 sm:pb-4"
+                   p-4 pb-8 sm:pb-4"
         role="dialog"
         aria-modal="true"
         aria-label="Select chapter"
