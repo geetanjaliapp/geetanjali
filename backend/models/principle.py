@@ -7,7 +7,7 @@ Data is maintained in code (config/principle_taxonomy.json, config/principle_gro
 and synced to DB via StartupSyncService. API and SEO read from DB.
 """
 
-from sqlalchemy import ForeignKey, Integer, JSON, String, Text
+from sqlalchemy import JSON, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models.base import Base, TimestampMixin

@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from api.dependencies import verify_admin_api_key
 from db.connection import get_db
 from services.seo import GenerationInProgressError, SeoGeneratorService
+from utils.metrics_seo import seo_generation_total
 
 logger = logging.getLogger(__name__)
 
@@ -141,10 +142,14 @@ def trigger_seo_generation_async(
                 f"SEO ASYNC: Completed - "
                 f"{result.generated} generated, {result.skipped} skipped"
             )
+            seo_generation_total.labels(trigger="async", result="success").inc()
         except GenerationInProgressError:
             logger.warning("SEO ASYNC: Generation already in progress")
+            seo_generation_total.labels(trigger="async", result="skipped").inc()
         except Exception as e:
             logger.error(f"SEO ASYNC: Failed - {e}", exc_info=True)
+            seo_generation_total.labels(trigger="async", result="error").inc()
+            db_session.rollback()
         finally:
             db_session.close()
 
