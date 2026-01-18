@@ -32,7 +32,11 @@ from .generator import (
     SeoGenerationResult,
     SeoGeneratorService,
 )
-from .hash_utils import compute_source_hash, compute_template_hash
+from .hash_utils import (
+    compute_source_hash,
+    compute_template_hash,
+    compute_template_tree_hash,
+)
 
 __all__ = [
     "SeoGeneratorService",
@@ -40,4 +44,5 @@ __all__ = [
     "GenerationInProgressError",
     "compute_source_hash",
     "compute_template_hash",
+    "compute_template_tree_hash",
 ]

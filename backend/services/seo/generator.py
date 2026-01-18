@@ -31,7 +31,7 @@ from sqlalchemy.orm import Session
 
 from models import SeoPage
 
-from .hash_utils import compute_source_hash, compute_template_hash
+from .hash_utils import compute_source_hash, compute_template_tree_hash
 
 logger = logging.getLogger(__name__)
 
@@ -126,6 +126,9 @@ class SeoGeneratorService:
         """
         Get cached template hash or compute if not cached.
 
+        Computes hash over the template AND its dependencies (base.html, minimal.css)
+        so that changes to any file in the template tree trigger regeneration.
+
         Args:
             template_name: Template file name (e.g., "seo/verse.html")
 
@@ -133,8 +136,18 @@ class SeoGeneratorService:
             16-character template hash
         """
         if template_name not in self._template_hashes:
-            template_path = self.templates_dir / template_name
-            self._template_hashes[template_name] = compute_template_hash(template_path)
+            # All SEO templates extend base.html and include minimal.css
+            # Hash the entire dependency tree for accurate change detection
+            template_paths = [
+                self.templates_dir / template_name,
+                self.templates_dir / "seo" / "base.html",
+                self.templates_dir / "seo" / "minimal.css",
+            ]
+            # Only include files that exist (static pages may use different base)
+            existing_paths = [p for p in template_paths if p.exists()]
+            self._template_hashes[template_name] = compute_template_tree_hash(
+                existing_paths
+            )
         return self._template_hashes[template_name]
 
     def _write_atomic(self, path: Path, content: str, create_gzip: bool = True) -> int:
@@ -142,6 +155,7 @@ class SeoGeneratorService:
         Write content atomically using temp file + rename.
 
         This prevents nginx from serving partial content during writes.
+        Temp files are cleaned up on failure to prevent orphans.
 
         Args:
             path: Target file path
@@ -150,25 +164,41 @@ class SeoGeneratorService:
 
         Returns:
             File size in bytes
+
+        Raises:
+            ValueError: If path would escape output directory (path traversal)
         """
+        # Security: Validate path stays within output directory
+        resolved_path = path.resolve()
+        resolved_output_dir = self.output_dir.resolve()
+        if not str(resolved_path).startswith(str(resolved_output_dir) + "/"):
+            raise ValueError(f"Path traversal detected: {path} escapes {self.output_dir}")
+
         # Ensure parent directory exists
         path.parent.mkdir(parents=True, exist_ok=True)
 
-        # Write to temp file
-        temp_path = path.with_suffix(".tmp")
         content_bytes = content.encode("utf-8")
-        temp_path.write_bytes(content_bytes)
+        temp_path = path.with_suffix(".tmp")
 
-        # Atomic rename
-        temp_path.rename(path)
+        # Write HTML file atomically with cleanup on failure
+        try:
+            temp_path.write_bytes(content_bytes)
+            temp_path.rename(path)
+        except Exception:
+            temp_path.unlink(missing_ok=True)
+            raise
 
         # Create gzip version for nginx gzip_static
         if create_gzip:
             gz_path = path.with_suffix(path.suffix + ".gz")
             gz_temp = gz_path.with_suffix(".tmp")
-            with gzip.open(gz_temp, "wb", compresslevel=9) as f:
-                f.write(content_bytes)
-            gz_temp.rename(gz_path)
+            try:
+                with gzip.open(gz_temp, "wb", compresslevel=9) as f:
+                    f.write(content_bytes)
+                gz_temp.rename(gz_path)
+            except Exception:
+                gz_temp.unlink(missing_ok=True)
+                raise
 
         return len(content_bytes)
 
@@ -598,8 +628,8 @@ class SeoGeneratorService:
         # Total file size
         total_size = self.db.query(func.sum(SeoPage.file_size_bytes)).scalar() or 0
 
-        # Convert query results to dict
-        pages_by_type = dict(type_counts)
+        # Convert query results to dict (list of (str, int) tuples)
+        pages_by_type: dict[str, int] = {row[0]: row[1] for row in type_counts}
 
         return {
             "pages_by_type": pages_by_type,

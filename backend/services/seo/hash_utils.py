@@ -32,6 +32,10 @@ def compute_template_hash(template_path: Path) -> str:
     Returns first 16 characters of the hash for storage efficiency.
     Template changes are infrequent, so shorter hash is acceptable.
 
+    NOTE: This only hashes the single template file. For templates that
+    extend base templates or include other files, use compute_template_tree_hash
+    to capture all dependencies.
+
     Args:
         template_path: Path to the Jinja2 template file
 
@@ -41,6 +45,28 @@ def compute_template_hash(template_path: Path) -> str:
     content = template_path.read_bytes()
     full_hash = hashlib.sha256(content).hexdigest()
     return full_hash[:16]
+
+
+def compute_template_tree_hash(template_paths: list[Path]) -> str:
+    """
+    Compute SHA256 hash of multiple template files (e.g., template + base + includes).
+
+    This is used when a template extends or includes other templates. The hash
+    captures changes to any file in the dependency tree.
+
+    Args:
+        template_paths: List of paths to all template files in dependency order.
+                       E.g., [verse.html, base.html, minimal.css]
+
+    Returns:
+        16-character hex string (truncated SHA256 hash of combined content)
+    """
+    hasher = hashlib.sha256()
+    for path in sorted(template_paths):  # Sort for consistent ordering
+        # Include filename in hash to detect renamed files
+        hasher.update(path.name.encode("utf-8"))
+        hasher.update(path.read_bytes())
+    return hasher.hexdigest()[:16]
 
 
 def compute_combined_hash(source_hash: str, template_hash: str) -> str:
