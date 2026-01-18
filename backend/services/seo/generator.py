@@ -30,6 +30,16 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from models import SeoPage
+from utils.metrics_seo import (
+    seo_generation_duration_seconds,
+    seo_generation_last_duration_seconds,
+    seo_generation_last_success_timestamp,
+    seo_generation_pages_errors,
+    seo_generation_pages_generated,
+    seo_generation_pages_skipped,
+    seo_generation_total,
+    seo_pages_total,
+)
 
 from .hash_utils import compute_source_hash, compute_template_tree_hash
 
@@ -196,7 +206,9 @@ class SeoGeneratorService:
         resolved_path = path.resolve()
         resolved_output_dir = self.output_dir.resolve()
         if not str(resolved_path).startswith(str(resolved_output_dir) + "/"):
-            raise ValueError(f"Path traversal detected: {path} escapes {self.output_dir}")
+            raise ValueError(
+                f"Path traversal detected: {path} escapes {self.output_dir}"
+            )
 
         # Ensure parent directory exists
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -294,12 +306,28 @@ class SeoGeneratorService:
             )
             self.db.add(page)
 
-    def generate_all(self, force: bool = False) -> SeoGenerationResult:
+    def _update_page_type_metrics(self) -> None:
+        """Update seo_pages_total gauge with current page counts by type."""
+        from sqlalchemy import func
+
+        type_counts = (
+            self.db.query(SeoPage.page_type, func.count(SeoPage.page_key))
+            .group_by(SeoPage.page_type)
+            .all()
+        )
+
+        for page_type, count in type_counts:
+            seo_pages_total.labels(page_type=page_type).set(count)
+
+    def generate_all(
+        self, force: bool = False, trigger: str = "manual"
+    ) -> SeoGenerationResult:
         """
         Generate all SEO pages with concurrency protection.
 
         Args:
             force: If True, regenerate all pages regardless of hash
+            trigger: What triggered this generation (startup, admin, deploy, manual)
 
         Returns:
             SeoGenerationResult with generation statistics
@@ -367,6 +395,18 @@ class SeoGeneratorService:
 
             total_pages = generated + skipped
             duration_ms = int((time.time() - start_time) * 1000)
+            duration_seconds = duration_ms / 1000.0
+
+            # Record Prometheus metrics
+            seo_generation_total.labels(trigger=trigger, result="success").inc()
+            seo_generation_pages_generated.set(generated)
+            seo_generation_pages_skipped.set(skipped)
+            seo_generation_pages_errors.set(errors)
+            seo_generation_last_duration_seconds.set(duration_seconds)
+            seo_generation_last_success_timestamp.set(time.time())
+
+            # Update page type totals from database
+            self._update_page_type_metrics()
 
             logger.info("=" * 60)
             logger.info(
@@ -387,6 +427,8 @@ class SeoGeneratorService:
         except Exception:
             # Rollback on any unhandled exception to prevent partial state
             self.db.rollback()
+            # Record error metric
+            seo_generation_total.labels(trigger=trigger, result="error").inc()
             raise
         finally:
             self._release_lock()
@@ -471,6 +513,7 @@ class SeoGeneratorService:
                 file_size = self._write_atomic(output_path, html)
 
                 gen_ms = int((time.time() - gen_start) * 1000)
+                gen_seconds = gen_ms / 1000.0
 
                 # Record in database
                 self._record_page(
@@ -481,6 +524,11 @@ class SeoGeneratorService:
                     file_path=file_path,
                     file_size=file_size,
                     generation_ms=gen_ms,
+                )
+
+                # Record generation duration histogram
+                seo_generation_duration_seconds.labels(page_type="verse").observe(
+                    gen_seconds
                 )
 
                 stats["generated"] += 1
@@ -526,9 +574,7 @@ class SeoGeneratorService:
             return stats
 
         # Prefetch all verses in one query to avoid N+1
-        all_verses = (
-            self.db.query(Verse).order_by(Verse.chapter, Verse.verse).all()
-        )
+        all_verses = self.db.query(Verse).order_by(Verse.chapter, Verse.verse).all()
         verses_by_chapter: dict[int, list] = defaultdict(list)
         for verse in all_verses:
             verses_by_chapter[verse.chapter].append(verse)
@@ -579,6 +625,7 @@ class SeoGeneratorService:
                 file_size = self._write_atomic(output_path, html)
 
                 gen_ms = int((time.time() - gen_start) * 1000)
+                gen_seconds = gen_ms / 1000.0
 
                 self._record_page(
                     page_key=page_key,
@@ -588,6 +635,11 @@ class SeoGeneratorService:
                     file_path=file_path,
                     file_size=file_size,
                     generation_ms=gen_ms,
+                )
+
+                # Record generation duration histogram
+                seo_generation_duration_seconds.labels(page_type="chapter").observe(
+                    gen_seconds
                 )
 
                 stats["generated"] += 1
@@ -641,6 +693,7 @@ class SeoGeneratorService:
                 file_size = self._write_atomic(output_path, html)
 
                 gen_ms = int((time.time() - gen_start) * 1000)
+                gen_seconds = gen_ms / 1000.0
 
                 self._record_page(
                     page_key=page_key,
@@ -650,6 +703,11 @@ class SeoGeneratorService:
                     file_path=file_path,
                     file_size=file_size,
                     generation_ms=gen_ms,
+                )
+
+                # Record generation duration histogram
+                seo_generation_duration_seconds.labels(page_type="static").observe(
+                    gen_seconds
                 )
 
                 stats["generated"] += 1
@@ -696,11 +754,7 @@ class SeoGeneratorService:
         stats = {"generated": 0, "skipped": 0, "errors": 0}
 
         # Query principles and groups from database
-        principles = (
-            self.db.query(Principle)
-            .order_by(Principle.display_order)
-            .all()
-        )
+        principles = self.db.query(Principle).order_by(Principle.display_order).all()
         # Eager load principles relationship to avoid N+1 queries in template
         groups = (
             self.db.query(PrincipleGroup)
@@ -762,8 +816,7 @@ class SeoGeneratorService:
                 related_principles = []
                 if principle.related_principles:
                     related_principles = [
-                        p for p in principles
-                        if p.id in principle.related_principles
+                        p for p in principles if p.id in principle.related_principles
                     ]
 
                 # Get prev/next for navigation
@@ -784,6 +837,7 @@ class SeoGeneratorService:
                 file_size = self._write_atomic(output_path, html)
 
                 gen_ms = int((time.time() - gen_start) * 1000)
+                gen_seconds = gen_ms / 1000.0
 
                 self._record_page(
                     page_key=page_key,
@@ -793,6 +847,11 @@ class SeoGeneratorService:
                     file_path=file_path,
                     file_size=file_size,
                     generation_ms=gen_ms,
+                )
+
+                # Record generation duration histogram
+                seo_generation_duration_seconds.labels(page_type="topic").observe(
+                    gen_seconds
                 )
 
                 stats["generated"] += 1
@@ -816,9 +875,7 @@ class SeoGeneratorService:
         )
         return stats
 
-    def _generate_topics_index(
-        self, groups: list, force: bool
-    ) -> dict[str, int]:
+    def _generate_topics_index(self, groups: list, force: bool) -> dict[str, int]:
         """Generate topics index page."""
         stats = {"generated": 0, "skipped": 0, "errors": 0}
 
@@ -857,6 +914,7 @@ class SeoGeneratorService:
             file_size = self._write_atomic(output_path, html)
 
             gen_ms = int((time.time() - gen_start) * 1000)
+            gen_seconds = gen_ms / 1000.0
 
             self._record_page(
                 page_key=page_key,
@@ -866,6 +924,11 @@ class SeoGeneratorService:
                 file_path=file_path,
                 file_size=file_size,
                 generation_ms=gen_ms,
+            )
+
+            # Record generation duration histogram
+            seo_generation_duration_seconds.labels(page_type="topics_index").observe(
+                gen_seconds
             )
 
             stats["generated"] += 1
@@ -920,8 +983,12 @@ class SeoGeneratorService:
                 "verse_content": [
                     {
                         "id": v.canonical_id,
-                        "sanskrit": v.sanskrit_devanagari[:50] if v.sanskrit_devanagari else "",
-                        "translation": v.translation_en[:50] if v.translation_en else "",
+                        "sanskrit": v.sanskrit_devanagari[:50]
+                        if v.sanskrit_devanagari
+                        else "",
+                        "translation": v.translation_en[:50]
+                        if v.translation_en
+                        else "",
                         "paraphrase": v.paraphrase_en[:50] if v.paraphrase_en else "",
                     }
                     for v in verses
@@ -948,6 +1015,7 @@ class SeoGeneratorService:
             file_size = self._write_atomic(output_path, html)
 
             gen_ms = int((time.time() - gen_start) * 1000)
+            gen_seconds = gen_ms / 1000.0
 
             self._record_page(
                 page_key=page_key,
@@ -957,6 +1025,11 @@ class SeoGeneratorService:
                 file_path=file_path,
                 file_size=file_size,
                 generation_ms=gen_ms,
+            )
+
+            # Record generation duration histogram
+            seo_generation_duration_seconds.labels(page_type="featured").observe(
+                gen_seconds
             )
 
             stats["generated"] += 1
@@ -1039,6 +1112,7 @@ class SeoGeneratorService:
             file_size = self._write_atomic(output_path, html)
 
             gen_ms = int((time.time() - gen_start) * 1000)
+            gen_seconds = gen_ms / 1000.0
 
             self._record_page(
                 page_key=page_key,
@@ -1048,6 +1122,11 @@ class SeoGeneratorService:
                 file_path=file_path,
                 file_size=file_size,
                 generation_ms=gen_ms,
+            )
+
+            # Record generation duration histogram
+            seo_generation_duration_seconds.labels(page_type="daily").observe(
+                gen_seconds
             )
 
             stats["generated"] += 1
