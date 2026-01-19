@@ -673,7 +673,7 @@
           "options": { "colorMode": "value", "graphMode": "none", "justifyMode": "center", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
           "title": "Time Since Gen",
           "type": "stat",
-          "targets": [{ "expr": "time() - geetanjali_seo_generation_last_success_timestamp or vector(0)", "refId": "A" }]
+          "targets": [{ "expr": "time() - max(geetanjali_seo_generation_last_success_timestamp) or vector(0)", "refId": "A" }]
         },
         {
           "datasource": { "type": "prometheus", "uid": "${datasource}" },
@@ -685,7 +685,7 @@
           "options": { "colorMode": "value", "graphMode": "none", "justifyMode": "center", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
           "title": "Last Errors",
           "type": "stat",
-          "targets": [{ "expr": "geetanjali_seo_generation_pages_errors or vector(0)", "refId": "A" }]
+          "targets": [{ "expr": "max(geetanjali_seo_generation_pages_errors) or vector(0)", "refId": "A" }]
         },
         {
           "datasource": { "type": "prometheus", "uid": "${datasource}" },
