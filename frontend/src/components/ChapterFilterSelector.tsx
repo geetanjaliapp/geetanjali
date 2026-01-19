@@ -1,8 +1,8 @@
 /**
  * ChapterFilterSelector - Chapter picker for Verse Explorer filter bar
  *
- * Design: Matches GoalFilterSelector/TopicSelector pattern - portal-based
- * popover that escapes sticky bar clipping.
+ * Design: Portal-based popover matching GoalFilterSelector/TopicSelector.
+ * Mobile uses top+bottom positioning due to mobile viewport quirks.
  *
  * Features:
  * - 18 chapter buttons in 6-column grid
@@ -17,13 +17,9 @@ import { useEffect, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 
 interface ChapterFilterSelectorProps {
-  /** Currently selected chapter (null = none) */
   selectedChapter: number | null;
-  /** Callback when a chapter is selected */
   onSelect: (chapter: number | null) => void;
-  /** Callback to close the selector */
   onClose: () => void;
-  /** Whether the selector is visible */
   isOpen: boolean;
 }
 
@@ -38,7 +34,7 @@ export function ChapterFilterSelector({
 }: ChapterFilterSelectorProps) {
   const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
-  // Focus management: focus selected chapter or first on open
+  // Focus management
   useEffect(() => {
     if (isOpen) {
       requestAnimationFrame(() => {
@@ -100,7 +96,6 @@ export function ChapterFilterSelector({
     [onClose]
   );
 
-  // Handle chapter selection (toggle off if already selected)
   const handleSelect = useCallback(
     (chapter: number) => {
       onSelect(selectedChapter === chapter ? null : chapter);
@@ -113,7 +108,7 @@ export function ChapterFilterSelector({
 
   return createPortal(
     <>
-      {/* Subtle backdrop */}
+      {/* Backdrop */}
       <div
         className="fixed inset-0 bg-[var(--overlay-bg-light)] z-50"
         onClick={onClose}
@@ -121,20 +116,17 @@ export function ChapterFilterSelector({
         data-testid="chapter-backdrop"
       />
 
-      {/* Bottom sheet on mobile, centered dropdown on desktop */}
+      {/* Dropdown: Mobile bottom sheet, Desktop centered */}
       <div
-        className="fixed bottom-0 left-0 right-0
-                   sm:bottom-auto sm:top-[160px] sm:left-1/2 sm:-translate-x-1/2 sm:right-auto
-                   z-50 w-full sm:w-[320px] max-h-[80vh] sm:max-h-[70vh] overflow-y-auto
-                   bg-[var(--surface-sticky-translucent)] backdrop-blur-xs
-                   border-t sm:border border-[var(--border-warm)]
-                   rounded-t-[var(--radius-modal)] sm:rounded-[var(--radius-card)] shadow-[var(--shadow-dropdown)]
-                   p-4 pb-8 sm:pb-4"
+        className="fixed z-50 bg-[var(--surface-elevated)] shadow-[var(--shadow-dropdown)]
+                   left-0 right-0 top-[50%] bottom-0 rounded-t-2xl overflow-y-auto p-4
+                   sm:bottom-auto sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:top-[160px]
+                   sm:w-[280px] sm:rounded-xl sm:border sm:border-[var(--border-default)]"
         role="dialog"
         aria-modal="true"
         aria-label="Select chapter"
       >
-        {/* Mobile drag handle indicator */}
+        {/* Mobile drag handle */}
         <div className="sm:hidden flex justify-center mb-3">
           <div className="w-10 h-1 bg-[var(--border-warm)] rounded-full" />
         </div>
@@ -144,12 +136,8 @@ export function ChapterFilterSelector({
           Select Chapter
         </h3>
 
-        {/* Chapter grid: 6 columns */}
-        <div
-          className="grid grid-cols-6 gap-2"
-          role="group"
-          aria-label="Chapters"
-        >
+        {/* Chapter grid */}
+        <div className="grid grid-cols-6 gap-2" role="group" aria-label="Chapters">
           {Array.from({ length: TOTAL_CHAPTERS }, (_, i) => i + 1).map(
             (chapter, index) => {
               const isSelected = chapter === selectedChapter;
@@ -167,14 +155,12 @@ export function ChapterFilterSelector({
                   onKeyDown={(e) => handleKeyDown(e, index)}
                   tabIndex={isTabTarget ? 0 : -1}
                   className={`
-                    h-10 sm:h-11 rounded-[var(--radius-button)]
-                    text-sm font-medium
-                    transition-[var(--transition-color)]
-                    focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)]
+                    h-10 sm:h-11 rounded-lg text-sm font-medium transition-colors
+                    focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border-focus)]
                     ${
                       isSelected
                         ? "bg-[var(--chip-selected-bg)] text-[var(--chip-selected-text)] ring-1 ring-[var(--chip-selected-ring)]"
-                        : "text-[var(--text-secondary)] hover:bg-[var(--badge-warm-bg)] hover:text-[var(--badge-warm-text)] active:bg-[var(--badge-warm-hover)]"
+                        : "bg-[var(--surface-muted)] text-[var(--text-secondary)] hover:bg-[var(--badge-warm-bg)] hover:text-[var(--badge-warm-text)]"
                     }
                   `}
                   aria-pressed={isSelected}
