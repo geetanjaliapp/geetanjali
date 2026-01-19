@@ -238,6 +238,7 @@ class Settings(BaseSettings):
     CACHE_TTL_METADATA: int = 86400  # 24 hours - book/chapter metadata is static
     CACHE_TTL_SEARCH: int = 300  # 5 minutes - short TTL for burst protection
     CACHE_TTL_PRINCIPLES: int = 3600  # 1 hour - principles list rarely changes
+    CACHE_TTL_TOPICS: int = 3600  # 1 hour - topics/principles content rarely changes
     CACHE_TTL_FEATURED_COUNT: int = 3600  # 1 hour - featured count rarely changes
     CACHE_TTL_FEATURED_CASES: int = (
         86400  # 24 hours - featured cases are static content

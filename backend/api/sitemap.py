@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session
 from api.dependencies import limiter
 from config import settings
 from db.connection import get_db
+from models import ChapterMetadata, Principle
 from models.verse import Verse
 from services.cache import cache
 
@@ -33,17 +34,26 @@ STATIC_PAGES = [
     {"path": "/", "priority": "1.0", "changefreq": "weekly"},
     {"path": "/about", "priority": "0.8", "changefreq": "monthly"},
     {"path": "/verses", "priority": "0.9", "changefreq": "weekly"},
+    {"path": "/topics/", "priority": "0.9", "changefreq": "weekly"},
+    {"path": "/featured", "priority": "0.8", "changefreq": "monthly"},
+    {"path": "/daily", "priority": "0.7", "changefreq": "daily"},
     {"path": "/consultations", "priority": "0.8", "changefreq": "daily"},
     {"path": "/cases/new", "priority": "0.7", "changefreq": "monthly"},
 ]
 
 
-def build_sitemap_xml(verses: list) -> str:
+def build_sitemap_xml(
+    verses: list,
+    chapters: list | None = None,
+    principles: list | None = None,
+) -> str:
     """
     Build XML sitemap string.
 
     Args:
         verses: List of Verse objects
+        chapters: List of ChapterMetadata objects
+        principles: List of Principle objects
 
     Returns:
         XML sitemap string
@@ -58,6 +68,24 @@ def build_sitemap_xml(verses: list) -> str:
         SubElement(url, "loc").text = f"{BASE_URL}{page['path']}"
         SubElement(url, "changefreq").text = page["changefreq"]
         SubElement(url, "priority").text = page["priority"]
+
+    # Add chapter pages
+    if chapters:
+        for chapter in chapters:
+            url = SubElement(urlset, "url")
+            SubElement(url, "loc").text = (
+                f"{BASE_URL}/verses/chapter/{chapter.chapter_number}"
+            )
+            SubElement(url, "changefreq").text = "monthly"
+            SubElement(url, "priority").text = "0.8"
+
+    # Add topic/principle pages
+    if principles:
+        for principle in principles:
+            url = SubElement(urlset, "url")
+            SubElement(url, "loc").text = f"{BASE_URL}/topics/{principle.id}"
+            SubElement(url, "changefreq").text = "monthly"
+            SubElement(url, "priority").text = "0.7"
 
     # Add verse pages
     for verse in verses:
@@ -104,8 +132,22 @@ async def get_sitemap(request: Request, db: Session = Depends(get_db)):
         .all()
     )
 
+    # Get chapters for chapter pages
+    chapters = (
+        db.query(ChapterMetadata.chapter_number)
+        .order_by(ChapterMetadata.chapter_number)
+        .all()
+    )
+
+    # Get principles for topic pages
+    principles = (
+        db.query(Principle.id)
+        .order_by(Principle.display_order)
+        .all()
+    )
+
     # Build XML
-    sitemap_xml = build_sitemap_xml(verses)
+    sitemap_xml = build_sitemap_xml(verses, chapters, principles)
 
     # Cache the result
     cache.set(SITEMAP_CACHE_KEY, sitemap_xml, settings.CACHE_TTL_SITEMAP)

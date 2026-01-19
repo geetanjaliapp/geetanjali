@@ -7,6 +7,7 @@
 #   ./scripts/setup-crons.sh --show   # Show what would be installed
 #
 # Cron Jobs:
+#   - SEO daily refresh (00:05 UTC) - regenerates daily verse page
 #   - Daily maintenance (3 AM UTC)
 #   - Weekly maintenance (4 AM UTC, Sundays)
 #   - Newsletter: Morning (6 AM IST = 00:30 UTC)
@@ -25,6 +26,17 @@ CRONTAB_CONTENT="# Geetanjali Cron Jobs
 
 # Set PATH for cron environment (required for docker, etc.)
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+# =============================================================================
+# SEO Jobs
+# =============================================================================
+# Daily SEO refresh regenerates the daily verse page (content changes daily).
+# Other pages are hash-checked and skipped if unchanged.
+# Auth: Uses API_KEY from container environment (defense in depth).
+
+# SEO daily refresh (00:05 UTC = 5:35 AM IST)
+# -f flag fails on HTTP errors, -w adds status code to output
+5 0 * * * cd ${GEETANJALI_DIR} && docker exec geetanjali-backend sh -c 'curl -s -f -X POST -H \"X-API-Key: \$API_KEY\" http://localhost:8000/api/v1/admin/seo/generate -w \" [HTTP %{http_code}]\"' >> ${LOG_DIR}/seo.log 2>&1 || echo \"[FAILED] SEO generation error at \$(date)\" >> ${LOG_DIR}/seo.log
 
 # =============================================================================
 # Maintenance Jobs
@@ -74,6 +86,7 @@ install_crontab() {
     echo ""
     echo "Verify with: crontab -l"
     echo "Logs:"
+    echo "  - SEO:         ${LOG_DIR}/seo.log"
     echo "  - Maintenance: ${LOG_DIR}/maintenance.log"
     echo "  - Newsletter:  ${LOG_DIR}/newsletter.log"
 }

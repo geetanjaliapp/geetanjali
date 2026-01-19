@@ -1,0 +1,120 @@
+{% extends "seo/base.html" %}
+
+{% block title %}Featured Bhagavad Geeta Verses - Essential Wisdom{% endblock %}
+
+{% block description %}Explore {{ verses|length }} carefully curated verses from the Bhagavad Geeta, selected for their universal wisdom, philosophical depth, and practical guidance for ethical living.{% endblock %}
+
+{% block canonical %}/featured{% endblock %}
+
+{% block og_type %}website{% endblock %}
+{% block og_title %}Featured Bhagavad Geeta Verses | Geetanjali{% endblock %}
+{% block og_description %}{{ verses|length }} essential verses from the Bhagavad Geeta selected for leadership, ethics, and spiritual growth.{% endblock %}
+{% block og_url %}/featured{% endblock %}
+
+{% block twitter_title %}Featured Bhagavad Geeta Verses{% endblock %}
+{% block twitter_description %}{{ verses|length }} essential verses selected for their universal wisdom and practical guidance.{% endblock %}
+
+{% block jsonld %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "Featured Bhagavad Geeta Verses",
+    "description": "Curated collection of essential Bhagavad Geeta verses selected for universal wisdom and practical guidance",
+    "url": "https://geetanjaliapp.com/featured",
+    "mainEntity": {
+        "@type": "ItemList",
+        "numberOfItems": {{ verses|length }},
+        "itemListElement": [
+            {% for verse in verses %}
+            {
+                "@type": "ListItem",
+                "position": {{ loop.index }},
+                "url": "https://geetanjaliapp.com/verses/{{ verse.canonical_id }}",
+                "name": "Bhagavad Geeta {{ verse.chapter }}.{{ verse.verse }}"
+            }{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ]
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Geetanjali",
+        "url": "https://geetanjaliapp.com"
+    }
+}
+</script>
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+        {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://geetanjaliapp.com/"
+        },
+        {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Featured Verses"
+        }
+    ]
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<article>
+    <h1>Featured Bhagavad Geeta Verses</h1>
+
+    <p class="intro">
+        This collection of {{ verses|length }} verses represents the most profound and frequently cited
+        teachings from the Bhagavad Geeta. Selected for their universal applicability to leadership,
+        ethical decision-making, and personal growth.
+    </p>
+
+    <section aria-labelledby="highlights">
+        <h2 id="highlights">Notable Highlights</h2>
+        <ul>
+            <li><a href="/verses/BG_2_47"><strong>2.47</strong></a> - The most famous verse: "You have a right to action, but not to its fruits"</li>
+            <li><a href="/verses/BG_4_7"><strong>4.7</strong></a> - "Whenever dharma declines, I manifest"</li>
+            <li><a href="/verses/BG_11_32"><strong>11.32</strong></a> - "I am Time, the destroyer of worlds" (Kālo'smi)</li>
+            <li><a href="/verses/BG_18_66"><strong>18.66</strong></a> - "Abandon all dharmas, surrender to Me alone"</li>
+        </ul>
+    </section>
+
+    {% set current_chapter = namespace(num=0) %}
+    {% for verse in verses %}
+    {% if verse.chapter != current_chapter.num %}
+    {% if current_chapter.num != 0 %}
+        </ol>
+    </section>
+    {% endif %}
+    {% set current_chapter.num = verse.chapter %}
+    <section aria-labelledby="chapter-{{ verse.chapter }}">
+        <h2 id="chapter-{{ verse.chapter }}">Chapter {{ verse.chapter }}{% if verse.chapter in chapters %}: {{ chapters[verse.chapter].english_title }}{% endif %}</h2>
+        <ol class="verse-list">
+    {% endif %}
+            <li>
+                <a href="/verses/{{ verse.canonical_id }}">
+                    <strong>{{ verse.chapter }}.{{ verse.verse }}</strong>
+                </a>
+                {% if verse.sanskrit_devanagari %}
+                <p class="sanskrit" lang="sa">{{ verse.sanskrit_devanagari[:100] }}{% if verse.sanskrit_devanagari|length > 100 %}...{% endif %}</p>
+                {% endif %}
+                {% set preview = verse.paraphrase_en if verse.paraphrase_en else verse.translation_en %}
+                {% if preview %}
+                <p class="preview">{{ preview[:150] }}{% if preview|length > 150 %}...{% endif %}</p>
+                {% endif %}
+            </li>
+    {% endfor %}
+        </ol>
+    </section>
+
+    <nav aria-label="Related pages">
+        <a href="/verses/">Browse All Verses</a>
+        <a href="/topics/">Explore Topics</a>
+    </nav>
+</article>
+{% endblock %}

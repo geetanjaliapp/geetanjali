@@ -312,10 +312,12 @@ async def get_verse_of_the_day(request: Request, db: Session = Depends(get_db)):
 
     if featured_count and featured_count > 0:
         # Use featured verses only
+        # ORDER BY chapter, verse ensures deterministic selection matching FEATURED_VERSES order
         verse_index = day_of_year % featured_count
         verse = (
             db.query(Verse)
             .filter(Verse.is_featured.is_(True))
+            .order_by(Verse.chapter, Verse.verse)
             .offset(verse_index)
             .first()
         )
@@ -329,8 +331,14 @@ async def get_verse_of_the_day(request: Request, db: Session = Depends(get_db)):
                 detail=ERR_NO_VERSES_IN_DB,
             )
 
+        # ORDER BY ensures deterministic selection
         verse_index = day_of_year % total_verses
-        verse = db.query(Verse).offset(verse_index).first()
+        verse = (
+            db.query(Verse)
+            .order_by(Verse.chapter, Verse.verse)
+            .offset(verse_index)
+            .first()
+        )
 
     if not verse:
         raise HTTPException(

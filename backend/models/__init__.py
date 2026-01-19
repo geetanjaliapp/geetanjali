@@ -18,7 +18,9 @@ from models.multipass import (
     PassStatus,
 )
 from models.output import Output
+from models.principle import Principle, PrincipleGroup
 from models.refresh_token import RefreshToken
+from models.seo_page import SeoPage
 from models.subscriber import SendTime, Subscriber
 from models.sync_hash import SyncHash
 from models.user import User
@@ -49,7 +51,10 @@ __all__ = [
     "FeaturedCase",
     "UserPreferences",
     "VerseAudioMetadata",
+    "SeoPage",
     "SyncHash",
+    "Principle",
+    "PrincipleGroup",
     "MultiPassComparison",
     "MultiPassConsultation",
     "MultiPassPassResponse",

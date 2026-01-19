@@ -240,6 +240,9 @@ curl -X POST http://localhost:8000/api/v1/tts \
 | POST | `/admin/sync-dhyanam` | Sync Geeta Dhyanam verses |
 | POST | `/admin/sync-audio-metadata` | Sync verse audio metadata |
 | POST | `/admin/enrich` | Enrich verse metadata |
+| GET | `/admin/seo/status` | SEO generation status |
+| POST | `/admin/seo/generate` | Trigger SEO page generation |
+| POST | `/admin/seo/generate/async` | Queue SEO generation (background) |
 
 ```bash
 curl -H "X-API-Key: your-api-key" \

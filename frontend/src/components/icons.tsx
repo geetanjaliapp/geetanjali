@@ -45,6 +45,24 @@ export function ChevronDownIcon({ className = "w-4 h-4" }: IconProps) {
   );
 }
 
+export function ChevronLeftIcon({ className = "w-4 h-4" }: IconProps) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M15 19l-7-7 7-7"
+      />
+    </svg>
+  );
+}
+
 export function StarIcon({ className = "w-3 h-3" }: IconProps) {
   return (
     <svg className={className} fill="currentColor" viewBox="0 0 20 20">
@@ -686,6 +704,23 @@ export function CloudDownloadIcon({ className = "w-4 h-4" }: IconProps) {
       <path d="M12 13v8" />
       <path d="m8 17 4 4 4-4" />
       <path d="M20 16.2A4.5 4.5 0 0 0 17.5 8h-1.8A7 7 0 1 0 4 14.9" />
+    </svg>
+  );
+}
+
+export function TagIcon({ className = "w-4 h-4" }: IconProps) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      viewBox="0 0 24 24"
+    >
+      <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" />
+      <circle cx="7.5" cy="7.5" r="1.5" fill="currentColor" />
     </svg>
   );
 }

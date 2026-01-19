@@ -529,3 +529,113 @@ export const newsletterApi = {
     return response.data;
   },
 };
+
+// =============================================================================
+// Topics API Types
+// =============================================================================
+
+/** Principle summary for list views */
+export interface TopicPrincipleSummary {
+  id: string;
+  label: string;
+  shortLabel: string;
+  sanskrit: string;
+  transliteration: string;
+  description: string;
+  verseCount: number;
+}
+
+/** Yoga path group with principles */
+export interface TopicGroup {
+  id: string;
+  label: string;
+  sanskrit: string;
+  transliteration: string;
+  description: string;
+  principles: TopicPrincipleSummary[];
+}
+
+/** Response for GET /topics */
+export interface TopicsListResponse {
+  groups: TopicGroup[];
+  totalPrinciples: number;
+  totalVerses: number;
+}
+
+/** FAQ content */
+export interface TopicFAQ {
+  question: string;
+  answer: string;
+}
+
+/** Related principle link */
+export interface TopicRelatedPrinciple {
+  id: string;
+  label: string;
+  shortLabel: string;
+}
+
+/** Group summary for topic detail */
+export interface TopicGroupSummary {
+  id: string;
+  label: string;
+  transliteration: string;
+}
+
+/** Verse summary for topic detail */
+export interface TopicVerseSummary {
+  canonicalId: string;
+  chapter: number;
+  verse: number;
+  sanskritDevanagari: string;
+  paraphraseEn: string;
+  hasAudio: boolean;
+}
+
+/** Response for GET /topics/{id} */
+export interface TopicDetailResponse {
+  id: string;
+  label: string;
+  shortLabel: string;
+  sanskrit: string;
+  transliteration: string;
+  description: string;
+  leadershipContext: string;
+  group: TopicGroupSummary;
+  extendedDescription: string | null;
+  practicalApplication: string | null;
+  commonMisconceptions: string | null;
+  faq: TopicFAQ | null;
+  relatedPrinciples: TopicRelatedPrinciple[];
+  chapterFocus: number[];
+  keywords: string[];
+  verseCount: number;
+  verses: TopicVerseSummary[];
+}
+
+// =============================================================================
+// Topics API Client
+// =============================================================================
+
+export const topicsApi = {
+  /** Get all topics grouped by yoga path */
+  getAll: async (): Promise<TopicsListResponse> => {
+    const response = await api.get("/topics");
+    return response.data;
+  },
+
+  /** Get detailed topic by ID */
+  getById: async (
+    principleId: string,
+    options?: { includeVerses?: boolean }
+  ): Promise<TopicDetailResponse> => {
+    const params = new URLSearchParams();
+    if (options?.includeVerses === false) {
+      params.set("include_verses", "false");
+    }
+    const queryString = params.toString();
+    const url = `/topics/${principleId}${queryString ? `?${queryString}` : ""}`;
+    const response = await api.get(url);
+    return response.data;
+  },
+};

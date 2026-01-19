@@ -755,7 +755,7 @@ export default function VerseDetail() {
                     {verse.consulting_principles.map((principleId) => (
                       <Link
                         key={principleId}
-                        to={`/verses?topic=${principleId}`}
+                        to={`/topics/${principleId}`}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2
                                    bg-[var(--badge-principle-bg)] text-[var(--badge-principle-text)] rounded-[var(--radius-chip)] text-sm sm:text-base
                                    font-medium shadow-[var(--shadow-button)]
@@ -764,7 +764,7 @@ export default function VerseDetail() {
                                    transition-[var(--transition-all)]
                                    focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]
                                    focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
-                        aria-label={`View all verses about ${getPrincipleLabel(principleId)}`}
+                        aria-label={`Learn about ${getPrincipleLabel(principleId)}`}
                       >
                         <span>{getPrincipleShortLabel(principleId)}</span>
                         <span

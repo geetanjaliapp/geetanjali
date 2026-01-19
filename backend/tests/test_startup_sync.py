@@ -69,8 +69,9 @@ class TestStartupSyncService:
         service = StartupSyncService(db_session)
         results = service.sync_all()
 
-        # Verify results - now 5 content types (metadata combined + audio durations)
-        assert len(results) == 5
+        # Verify results - 7 content types:
+        # metadata, dhyanam, principles, featured, audio metadata, audio durations, seo pages
+        assert len(results) == 7
 
         # Metadata (book + chapters) should be synced
         metadata_result = next(r for r in results if r.name == "Metadata")
@@ -98,8 +99,17 @@ class TestStartupSyncService:
         assert db_session.query(ChapterMetadata).count() == 18
         assert db_session.query(DhyanamVerse).count() == 9
 
-        # Verify hashes were stored (metadata, dhyanam)
-        assert db_session.query(SyncHash).count() == 2
+        # Verify Principles were synced
+        principles_result = next(r for r in results if r.name == "Principles")
+        assert principles_result.action == "synced"
+        assert principles_result.synced == 20  # 4 groups + 16 principles
+
+        # SEO Pages should be skipped (no verses in DB)
+        seo_result = next(r for r in results if r.name == "SEO Pages")
+        assert seo_result.action == "skipped_no_data"
+
+        # Verify hashes were stored (metadata, dhyanam, principles)
+        assert db_session.query(SyncHash).count() == 3
 
     def test_second_sync_skips_unchanged(self, db_session: Session):
         """Second run skips unchanged content (hash matches)."""
@@ -108,7 +118,7 @@ class TestStartupSyncService:
         results1 = service1.sync_all()
 
         synced_first = [r for r in results1 if r.action == "synced"]
-        assert len(synced_first) == 2  # metadata, dhyanam
+        assert len(synced_first) == 3  # metadata, dhyanam, principles
 
         # Second sync
         service2 = StartupSyncService(db_session)
@@ -119,7 +129,7 @@ class TestStartupSyncService:
         assert len(synced_second) == 0
 
         unchanged = [r for r in results2 if r.action == "skipped_no_change"]
-        assert len(unchanged) == 2  # metadata, dhyanam
+        assert len(unchanged) == 3  # metadata, dhyanam, principles
 
     def test_sync_detects_hash_change(self, db_session: Session):
         """Sync detects when stored hash differs from current."""
@@ -164,7 +174,7 @@ class TestStartupSyncService:
 
         # Should sync even though hash matches
         synced = [r for r in results2 if r.action == "synced"]
-        assert len(synced) == 2  # metadata, dhyanam (not featured/audio - no verses)
+        assert len(synced) == 3  # metadata, dhyanam, principles (not featured/audio/seo - no verses)
 
     def test_error_in_one_sync_doesnt_block_others(
         self, db_session: Session, monkeypatch
@@ -181,8 +191,8 @@ class TestStartupSyncService:
         monkeypatch.setattr(service, "_sync_metadata", mock_sync_metadata)
         results = service.sync_all()
 
-        # Should have 5 results (metadata, dhyanam, featured, audio metadata, audio durations)
-        assert len(results) == 5
+        # Should have 7 results (metadata, dhyanam, principles, featured, audio, durations, seo)
+        assert len(results) == 7
 
         # Metadata should have error
         metadata_result = next(r for r in results if r.name == "Metadata")

@@ -69,6 +69,8 @@ from models import (  # noqa: F401
 from models.contact import ContactMessage  # noqa: F401
 from models.metadata import BookMetadata, ChapterMetadata  # noqa: F401
 from models.multipass import MultiPassConsultation, MultiPassPassResponse  # noqa: F401
+from models.principle import Principle, PrincipleGroup  # noqa: F401
+from models.seo_page import SeoPage  # noqa: F401
 from models.user_preferences import UserPreferences  # noqa: F401
 
 # Use in-memory SQLite with StaticPool for single connection across threads
@@ -136,3 +138,68 @@ def mock_email_sending():
         patch("api.newsletter.send_newsletter_verification_email", return_value=True),
     ):
         yield
+
+
+@pytest.fixture(scope="function")
+def seeded_principles(db_session):
+    """
+    Seed principle groups and principles into the test database.
+
+    This fixture must be used by tests that require principle data
+    (e.g., taxonomy API tests).
+    """
+    from data.principles import get_principle_groups, get_principles
+
+    # Seed groups first (required for FK)
+    for group_data in get_principle_groups():
+        group = PrincipleGroup(
+            id=group_data["id"],
+            label=group_data["label"],
+            sanskrit=group_data["sanskrit"],
+            transliteration=group_data["transliteration"],
+            description=group_data["description"],
+            display_order=group_data.get("display_order") or 0,
+        )
+        db_session.add(group)
+
+    db_session.flush()
+
+    # Seed principles
+    for p_data in get_principles():
+        principle = Principle(
+            id=p_data["id"],
+            label=p_data["label"],
+            short_label=p_data["shortLabel"],
+            sanskrit=p_data["sanskrit"],
+            transliteration=p_data["transliteration"],
+            description=p_data["description"],
+            leadership_context=p_data["leadershipContext"],
+            group_id=p_data["group"],
+            keywords=p_data["keywords"],
+            chapter_focus=p_data["chapterFocus"],
+            display_order=p_data.get("display_order") or 0,
+        )
+        db_session.add(principle)
+
+    db_session.commit()
+
+    return {"groups": 4, "principles": 16}
+
+
+@pytest.fixture(scope="function")
+def client_with_principles(db_session, seeded_principles):
+    """Create a test client with seeded principle data."""
+
+    def override_get_db():
+        try:
+            yield db_session
+        finally:
+            pass
+
+    app.dependency_overrides[get_db] = override_get_db
+
+    with TestClient(app) as test_client:
+        yield test_client
+
+    # Clear overrides
+    app.dependency_overrides.clear()

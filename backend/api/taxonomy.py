@@ -1,7 +1,9 @@
 """Taxonomy API endpoints for principles and goals.
 
 Provides public endpoints for accessing the principle and goal taxonomies.
-These serve as the single source of truth for the frontend.
+
+Principles and groups are read from the database (synced from JSON via
+StartupSyncService). Goals still read from JSON config files.
 """
 
 import json
@@ -9,16 +11,19 @@ import logging
 from pathlib import Path
 from typing import Any, cast
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
+from sqlalchemy.orm import Session
 
 from api.dependencies import limiter
+from db.connection import get_db
+from models import Principle, PrincipleGroup
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1/taxonomy")
 
-# Load taxonomy data once at module level
+# Load goals from JSON (no DB model for goals yet)
 CONFIG_DIR = Path(__file__).parent.parent / "config"
 
 
@@ -32,18 +37,8 @@ def _load_json(filename: str) -> dict[str, Any]:
         return cast(dict[str, Any], json.load(f))
 
 
-# Cache loaded taxonomy data
-_principles_cache: dict[str, Any] | None = None
+# Cache for goals (still read from JSON)
 _goals_cache: dict[str, Any] | None = None
-_groups_cache: dict[str, Any] | None = None
-
-
-def get_principles() -> dict[str, Any]:
-    """Get principles taxonomy with caching."""
-    global _principles_cache
-    if _principles_cache is None:
-        _principles_cache = _load_json("principle_taxonomy.json")
-    return _principles_cache
 
 
 def get_goals() -> dict[str, Any]:
@@ -52,14 +47,6 @@ def get_goals() -> dict[str, Any]:
     if _goals_cache is None:
         _goals_cache = _load_json("goal_taxonomy.json")
     return _goals_cache
-
-
-def get_groups() -> dict[str, Any]:
-    """Get principle groups with caching."""
-    global _groups_cache
-    if _groups_cache is None:
-        _groups_cache = _load_json("principle_groups.json")
-    return _groups_cache
 
 
 def _ensure_id(key: str, data: dict[str, Any]) -> dict[str, Any]:
@@ -90,6 +77,21 @@ class PrincipleResponse(BaseModel):
     group: str = Field(..., description="Parent yoga group ID")
     chapterFocus: list[int] = Field(
         default_factory=list, description="Key chapters for this principle"
+    )
+    # Extended content (optional - for SEO)
+    extendedDescription: str | None = Field(
+        None, description="Extended description for topic pages"
+    )
+    practicalApplication: str | None = Field(
+        None, description="Practical application examples"
+    )
+    commonMisconceptions: str | None = Field(
+        None, description="Common misconceptions about this principle"
+    )
+    faqQuestion: str | None = Field(None, description="FAQ question")
+    faqAnswer: str | None = Field(None, description="FAQ answer")
+    relatedPrinciples: list[str] | None = Field(
+        None, description="Related principle IDs"
     )
 
 
@@ -138,13 +140,55 @@ class GoalsListResponse(BaseModel):
 
 
 # =============================================================================
+# Helper Functions
+# =============================================================================
+
+
+def _principle_to_response(p: Principle) -> dict[str, Any]:
+    """Convert Principle model to response dict."""
+    return {
+        "id": p.id,
+        "label": p.label,
+        "shortLabel": p.short_label,
+        "sanskrit": p.sanskrit,
+        "transliteration": p.transliteration,
+        "description": p.description,
+        "leadershipContext": p.leadership_context,
+        "keywords": p.keywords or [],
+        "group": p.group_id,
+        "chapterFocus": p.chapter_focus or [],
+        # Extended content
+        "extendedDescription": p.extended_description,
+        "practicalApplication": p.practical_application,
+        "commonMisconceptions": p.common_misconceptions,
+        "faqQuestion": p.faq_question,
+        "faqAnswer": p.faq_answer,
+        "relatedPrinciples": p.related_principles,
+    }
+
+
+def _group_to_response(g: PrincipleGroup) -> dict[str, Any]:
+    """Convert PrincipleGroup model to response dict."""
+    return {
+        "id": g.id,
+        "label": g.label,
+        "sanskrit": g.sanskrit,
+        "transliteration": g.transliteration,
+        "description": g.description,
+        "principles": [p.id for p in g.principles],
+    }
+
+
+# =============================================================================
 # Endpoints
 # =============================================================================
 
 
 @router.get("/principles", response_model=PrinciplesListResponse)
 @limiter.limit("60/minute")
-async def list_principles(request: Request) -> dict[str, Any]:
+async def list_principles(
+    request: Request, db: Session = Depends(get_db)
+) -> dict[str, Any]:
     """
     Get all principles with full metadata.
 
@@ -156,36 +200,40 @@ async def list_principles(request: Request) -> dict[str, Any]:
 
     Use this endpoint to populate principle filters and displays.
     """
-    principles_data = get_principles()
-    groups_data = get_groups()
-
-    principles = [_ensure_id(key, data) for key, data in principles_data.items()]
-    groups = [_ensure_id(key, data) for key, data in groups_data.items()]
+    # Query from database
+    principles = (
+        db.query(Principle).order_by(Principle.display_order).all()
+    )
+    groups = (
+        db.query(PrincipleGroup).order_by(PrincipleGroup.display_order).all()
+    )
 
     return {
-        "principles": principles,
-        "groups": groups,
+        "principles": [_principle_to_response(p) for p in principles],
+        "groups": [_group_to_response(g) for g in groups],
         "count": len(principles),
     }
 
 
 @router.get("/principles/{principle_id}", response_model=PrincipleResponse)
 @limiter.limit("60/minute")
-async def get_principle(request: Request, principle_id: str) -> dict[str, Any]:
+async def get_principle(
+    request: Request, principle_id: str, db: Session = Depends(get_db)
+) -> dict[str, Any]:
     """
     Get a single principle by ID.
 
     Returns full metadata for the specified principle including
     Sanskrit text, description, and leadership context.
     """
-    principles_data = get_principles()
+    principle = db.query(Principle).filter(Principle.id == principle_id).first()
 
-    if principle_id not in principles_data:
+    if not principle:
         raise HTTPException(
             status_code=404, detail=f"Principle '{principle_id}' not found"
         )
 
-    return _ensure_id(principle_id, principles_data[principle_id])
+    return _principle_to_response(principle)
 
 
 @router.get("/goals", response_model=GoalsListResponse)
@@ -233,7 +281,9 @@ async def get_goal(request: Request, goal_id: str) -> dict[str, Any]:
 
 @router.get("/groups", response_model=list[PrincipleGroupResponse])
 @limiter.limit("60/minute")
-async def list_groups(request: Request) -> list[dict[str, Any]]:
+async def list_groups(
+    request: Request, db: Session = Depends(get_db)
+) -> list[dict[str, Any]]:
     """
     Get all principle groups (yoga paths).
 
@@ -243,5 +293,5 @@ async def list_groups(request: Request) -> list[dict[str, Any]]:
     - **bhakti**: The path of love and surrender
     - **sadachara**: The path of virtuous conduct
     """
-    groups_data = get_groups()
-    return [_ensure_id(key, data) for key, data in groups_data.items()]
+    groups = db.query(PrincipleGroup).order_by(PrincipleGroup.display_order).all()
+    return [_group_to_response(g) for g in groups]

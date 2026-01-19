@@ -44,6 +44,8 @@ def _extract_key_type(key: str) -> str:
         return "featured"
     elif key.startswith("dhyanam:"):
         return "dhyanam"
+    elif key.startswith("topics:"):
+        return "topics"
     else:
         return "other"
 
@@ -488,6 +490,16 @@ def daily_views_counter_key() -> str:
     so it automatically resets daily.
     """
     return f"case_views_daily:{datetime.utcnow().date().isoformat()}"
+
+
+def topics_list_key() -> str:
+    """Build cache key for topics list (all groups with principles)."""
+    return "topics:list:all"
+
+
+def topic_detail_key(principle_id: str, include_verses: bool = True) -> str:
+    """Build cache key for topic detail page."""
+    return f"topics:detail:{principle_id}:verses={include_verses}"
 
 
 # TTS Binary Cache (separate from JSON cache)

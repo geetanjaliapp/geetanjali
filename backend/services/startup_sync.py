@@ -131,6 +131,10 @@ class StartupSyncService:
             "Dhyanam Verses",
             self._sync_dhyanam_verses,
         )
+        self._sync_with_error_handling(
+            "Principles",
+            self._sync_principles,
+        )
 
         # Dependent content (requires verses)
         self._sync_with_error_handling(
@@ -146,6 +150,12 @@ class StartupSyncService:
         self._sync_with_error_handling(
             "Audio Durations",
             self._sync_audio_durations,
+        )
+
+        # SEO pages (optional - checks status, doesn't regenerate on startup)
+        self._sync_with_error_handling(
+            "SEO Pages",
+            self._check_seo_status,
         )
 
         # Log summary
@@ -352,6 +362,40 @@ class StartupSyncService:
             action="synced",
             reason="Content changed or first sync",
             synced=stats["synced"],
+            created=stats["created"],
+            updated=stats["updated"],
+        )
+
+    def _sync_principles(self) -> SyncResult | None:
+        """Sync principle taxonomy if changed."""
+        from data.principles import get_principle_groups, get_principles
+
+        content_type = "principles"
+        # Compute hash from both groups and principles data
+        source_data = {
+            "groups": get_principle_groups(),
+            "principles": get_principles(),
+        }
+        current_hash = compute_content_hash(source_data)
+
+        if not self._needs_sync(content_type, current_hash):
+            return SyncResult(
+                name="Principles",
+                action="skipped_no_change",
+                reason="Content unchanged",
+            )
+
+        # Sync needed
+        from api.admin import sync_principles
+
+        stats = sync_principles(self.db)
+        self._update_stored_hash(content_type, current_hash)
+
+        return SyncResult(
+            name="Principles",
+            action="synced",
+            reason="Content changed or first sync",
+            synced=stats["groups_synced"] + stats["principles_synced"],
             created=stats["created"],
             updated=stats["updated"],
         )
@@ -619,6 +663,113 @@ class StartupSyncService:
             reason="Extracted durations from audio files",
             synced=updated,
             updated=updated,
+        )
+
+    def _check_seo_status(self) -> SyncResult | None:
+        """
+        Check SEO page status on startup and auto-generate if missing.
+
+        Auto-generates SEO pages if:
+        - No pages exist (first deploy)
+        - force_sync=True is set
+
+        Otherwise just reports status (hash-based regeneration is handled
+        by daily cron job and post-deploy trigger).
+
+        Returns:
+            SyncResult with SEO page status
+        """
+        from sqlalchemy import inspect
+
+        from models import SeoPage, Verse
+
+        # Check if seo_pages table exists (migration may not have run yet)
+        conn = self.db.get_bind()
+        if conn is None:
+            return SyncResult(
+                name="SEO Pages",
+                action="error",
+                reason="No database connection",
+            )
+        inspector = inspect(conn)
+        if "seo_pages" not in inspector.get_table_names():
+            return SyncResult(
+                name="SEO Pages",
+                action="skipped_no_data",
+                reason="Table not created (run migration 028)",
+            )
+
+        # Check if we have verses (SEO depends on verse data)
+        verse_count = self.db.query(Verse).count()
+        if verse_count == 0:
+            return SyncResult(
+                name="SEO Pages",
+                action="skipped_no_data",
+                reason="No verses in DB (run ingestion first)",
+            )
+
+        # Count existing SEO pages
+        seo_page_count = self.db.query(SeoPage).count()
+
+        if seo_page_count == 0:
+            # No SEO pages - auto-generate on first startup
+            logger.info(
+                "STARTUP SYNC: No SEO pages found. Auto-generating..."
+            )
+            try:
+                from services.seo import GenerationInProgressError, SeoGeneratorService
+
+                service = SeoGeneratorService(self.db)
+                result = service.generate_all(force=False, trigger="startup")
+
+                return SyncResult(
+                    name="SEO Pages",
+                    action="synced",
+                    reason="Initial generation (no pages existed)",
+                    synced=result.generated,
+                    created=result.generated,
+                )
+            except GenerationInProgressError:
+                return SyncResult(
+                    name="SEO Pages",
+                    action="skipped_no_change",
+                    reason="Generation already in progress",
+                )
+            except Exception as e:
+                logger.error(f"STARTUP SYNC: SEO generation failed: {e}")
+                return SyncResult(
+                    name="SEO Pages",
+                    action="error",
+                    reason=str(e)[:100],
+                )
+
+        # If force sync, trigger regeneration
+        if self.force_sync:
+            try:
+                from services.seo import GenerationInProgressError, SeoGeneratorService
+
+                service = SeoGeneratorService(self.db)
+                result = service.generate_all(force=True)
+
+                return SyncResult(
+                    name="SEO Pages",
+                    action="synced",
+                    reason="Force regeneration",
+                    synced=result.generated,
+                    created=result.generated,
+                )
+            except GenerationInProgressError:
+                return SyncResult(
+                    name="SEO Pages",
+                    action="skipped_no_change",
+                    reason="Generation already in progress",
+                )
+
+        # Pages exist, just report status
+        return SyncResult(
+            name="SEO Pages",
+            action="skipped_no_change",
+            reason=f"{seo_page_count} pages exist",
         )
 
     def _log_summary(self, total_duration_ms: int) -> None:

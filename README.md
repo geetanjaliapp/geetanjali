@@ -36,6 +36,7 @@ Free. Open source. Private by default.
 
 ### Discovery
 - **Verse Browser** - Explore 701 verses across 18 chapters with translations
+- **Topics** - Browse 16 consulting principles organized by yoga path (Karma, Jnana, Bhakti, Sadachara)
 - **Reading Mode** - Distraction-free sequential reading, Sanskrit-first
 - **Audio Recitations** - AI-generated Sanskrit verse audio with speed control and loop mode
 - **Study Mode** - Guided narration with auto-advance: Sanskrit → English → Hindi → Insight
@@ -141,6 +142,8 @@ POST /api/v1/cases/{id}/analyze/async  # Analyze case (async)
 POST /api/v1/cases/{id}/follow-up   # Follow-up question
 GET  /api/v1/verses                 # List verses
 GET  /api/v1/verses/daily           # Daily verse
+GET  /api/v1/topics                 # List topics by group
+GET  /api/v1/topics/{id}            # Topic detail with verses
 GET  /api/v1/search?q={query}       # Search verses
 POST /api/v1/auth/signup            # Create account
 POST /api/v1/auth/login             # Login

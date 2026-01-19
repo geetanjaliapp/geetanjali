@@ -85,7 +85,6 @@ export interface VerseCardProps {
   showCitation?: boolean;
   showTranslation?: boolean;
   showTranslationPreview?: boolean; // For compact mode: truncated translation_en
-  onPrincipleClick?: (principle: string) => void; // Callback when a principle tag is clicked
   linkTo?: string; // For compact mode: stretched link pattern (card navigates here, tags remain clickable)
   isFavorite?: boolean;
   onToggleFavorite?: (verseId: string) => void;
@@ -138,7 +137,6 @@ export const VerseCard = memo(function VerseCard({
   showCitation = true,
   showTranslation = true,
   showTranslationPreview = false,
-  onPrincipleClick,
   linkTo,
   isFavorite = false,
   onToggleFavorite,
@@ -379,23 +377,15 @@ export const VerseCard = memo(function VerseCard({
               className={`mt-2 sm:mt-3 flex flex-wrap justify-center gap-1 ${linkTo ? "relative z-10" : ""}`}
             >
               {verse.consulting_principles.slice(0, 2).map((principle) => (
-                <button
+                <Link
                   key={principle}
-                  onClick={(e) => {
-                    if (onPrincipleClick) {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      onPrincipleClick(principle);
-                    }
-                  }}
-                  className={`px-2 py-0.5 rounded-[var(--radius-badge)] bg-[var(--badge-principle-bg)] text-[var(--badge-principle-text)] text-[10px] sm:text-xs font-medium pointer-events-auto focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)] ${
-                    onPrincipleClick
-                      ? "hover:bg-[var(--badge-warm-hover)] cursor-pointer transition-[var(--transition-color)]"
-                      : ""
-                  }`}
+                  to={`/topics/${principle}`}
+                  onClick={(e) => e.stopPropagation()}
+                  className="px-2 py-0.5 rounded-[var(--radius-badge)] bg-[var(--badge-principle-bg)] text-[var(--badge-principle-text)] text-[10px] sm:text-xs font-medium pointer-events-auto hover:bg-[var(--badge-warm-hover)] transition-[var(--transition-color)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--focus-ring-offset)]"
+                  aria-label={`Learn about ${getPrincipleShortLabel(principle)}`}
                 >
                   {getPrincipleShortLabel(principle)}
-                </button>
+                </Link>
               ))}
               {verse.consulting_principles.length > 2 && (
                 <span className="px-2 py-0.5 rounded-[var(--radius-badge)] bg-[var(--badge-default-bg)] text-[var(--badge-default-text)] text-[10px] sm:text-xs font-medium">

@@ -42,6 +42,7 @@ from api import (
     search,
     sitemap,
     taxonomy,
+    topics,
     tts,
     verses,
 )
@@ -314,6 +315,7 @@ app.include_router(reading.router, tags=["Reading"])
 app.include_router(dhyanam.router, tags=["Dhyanam"])
 app.include_router(search.router, tags=["Search"])
 app.include_router(taxonomy.router, tags=["Taxonomy"])
+app.include_router(topics.router, tags=["Topics"])
 app.include_router(newsletter.router, tags=["Newsletter"])
 app.include_router(preferences.router, tags=["Preferences"])
 app.include_router(tts.router, tags=["TTS"])

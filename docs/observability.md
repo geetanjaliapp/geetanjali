@@ -79,6 +79,17 @@ Metrics are split across separate modules to prevent duplicate registration:
 | `geetanjali_shared_cases_total` | Gauge | `mode` | Shared cases by visibility (public/link) |
 | `geetanjali_case_views_24h` | Gauge | - | Views on shared cases in last 24 hours |
 
+### SEO Metrics (Backend only)
+
+| Metric | Type | Labels | Description |
+|--------|------|--------|-------------|
+| `geetanjali_seo_pages_total` | Gauge | `page_type` | Generated pages by type (verse, chapter, topic) |
+| `geetanjali_seo_generation_pages_generated` | Gauge | - | Pages generated in last run |
+| `geetanjali_seo_generation_pages_skipped` | Gauge | - | Pages skipped (unchanged) |
+| `geetanjali_seo_generation_pages_errors` | Gauge | - | Errors in last run |
+| `geetanjali_seo_generation_last_duration_seconds` | Gauge | - | Last run duration |
+| `geetanjali_seo_generation_last_success_timestamp` | Gauge | - | Last success Unix timestamp |
+
 ### Infrastructure Metrics (Backend only)
 
 | Metric | Type | Description |
@@ -251,6 +262,7 @@ Pre-configured dashboard at `monitoring/grafana/dashboards/geetanjali-overview.j
 - **Business**: Consultations, active users, completion rate, feedback
 - **Queue**: Job depth, worker count, failed jobs
 - **Newsletter**: Subscribers, emails sent
+- **SEO Pages** (collapsed): Total pages, time since generation, errors, pages by type
 
 ### Importing Dashboards
 

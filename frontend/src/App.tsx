@@ -43,6 +43,8 @@ const NewsletterPreferences = lazyWithRetry(
   () => import("./pages/NewsletterPreferences"),
 );
 const VerifyEmail = lazyWithRetry(() => import("./pages/VerifyEmail"));
+const TopicsIndex = lazyWithRetry(() => import("./pages/TopicsIndex"));
+const TopicDetail = lazyWithRetry(() => import("./pages/TopicDetail"));
 
 /**
  * Redirect from old /search to unified /verses page
@@ -145,6 +147,8 @@ function App() {
               <Route path="/verses" element={<Verses />} />
               <Route path="/search" element={<SearchRedirect />} />
               <Route path="/verses/:canonicalId" element={<VerseDetail />} />
+              <Route path="/topics" element={<TopicsIndex />} />
+              <Route path="/topics/:topicId" element={<TopicDetail />} />
               <Route path="/read" element={<ReadingMode />} />
               <Route
                 path="/read/dhyanam/:verseNumber?"
