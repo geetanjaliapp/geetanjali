@@ -2,6 +2,42 @@
 
 All notable changes to Geetanjali are documented here.
 
+## [1.31.0] - 2026-01-19
+
+Topics feature with 16 consulting principles organized by yoga paths.
+
+### Features
+
+- **Topics API** - Browse 16 consulting principles by yoga path
+  - Four groups: Karma Yoga, Jnana Yoga, Bhakti Yoga, Sadachara
+  - Bidirectional verse-topic linking in React SPA
+  - Topic detail pages with related verses and FAQ sections
+  - Goal-based filtering in Verse Explorer
+
+- **SEO Topics Pages** - Static pages for all 16 principles
+  - Hash-based incremental rebuilds (only regenerate changed content)
+  - PostgreSQL advisory locks for concurrent generation protection
+  - Admin API with authentication for manual SEO triggers
+
+- **Observability** - Comprehensive monitoring for SEO generation
+  - Dedicated Grafana dashboard for SEO metrics
+  - Prometheus counters for generation success/failure/skip
+  - Generation duration histograms and page counts
+
+### Technical
+
+- Principles taxonomy in `principle_taxonomy.json` (single source of truth)
+- Database migrations for `principles` and `principle_groups` tables
+- `SeoGeneratorService` with atomic file writes and temp file cleanup
+- Post-deploy SEO generation trigger in deploy script
+- Daily cron for SEO regeneration
+
+### Tests
+
+- 47 SEO tests (admin endpoints, generator service, hash utilities)
+- 21 topics API tests with caching verification
+- Frontend component and hook tests with accessibility coverage
+
 ## [1.30.0] - 2026-01-17
 
 Search engine optimization through bot-served static HTML pages.
