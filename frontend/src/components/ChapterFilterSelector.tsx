@@ -2,7 +2,13 @@
  * ChapterFilterSelector - Chapter picker for Verse Explorer filter bar
  *
  * Design: Portal-based popover matching GoalFilterSelector/TopicSelector.
- * Mobile uses top+bottom positioning due to mobile viewport quirks.
+ *
+ * Mobile Positioning Note (v1.31.0):
+ * Uses `top-[50%] bottom-0` instead of just `bottom-0` for mobile.
+ * Identical `bottom-0` classes work for Goal/Topic selectors but fail here -
+ * likely an iOS Safari quirk with viewport height calculation or intrinsic
+ * sizing of the 6-column grid. The top+bottom constraint creates a definite
+ * container height that reliably shows the bottom sheet.
  *
  * Features:
  * - 18 chapter buttons in 6-column grid
@@ -116,12 +122,15 @@ export function ChapterFilterSelector({
         data-testid="chapter-backdrop"
       />
 
-      {/* Dropdown: Mobile bottom sheet, Desktop centered */}
+      {/* Dropdown: Mobile bottom sheet (top+bottom), Desktop centered */}
       <div
-        className="fixed z-50 bg-[var(--surface-elevated)] shadow-[var(--shadow-dropdown)]
-                   left-0 right-0 top-[50%] bottom-0 rounded-t-2xl overflow-y-auto p-4
-                   sm:bottom-auto sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:top-[160px]
-                   sm:w-[280px] sm:rounded-xl sm:border sm:border-[var(--border-default)]"
+        className="fixed left-0 right-0 top-[50%] bottom-0 overflow-y-auto
+                   sm:top-[160px] sm:bottom-auto sm:left-1/2 sm:-translate-x-1/2 sm:right-auto
+                   z-50 w-full sm:w-[280px] sm:max-h-[70vh]
+                   bg-[var(--surface-sticky-translucent)] backdrop-blur-xs
+                   border-t sm:border border-[var(--border-warm)]
+                   rounded-t-[var(--radius-modal)] sm:rounded-[var(--radius-card)] shadow-[var(--shadow-dropdown)]
+                   p-4 pb-20 sm:pb-4"
         role="dialog"
         aria-modal="true"
         aria-label="Select chapter"
