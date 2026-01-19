@@ -154,8 +154,8 @@ export async function preloadTopic(
     try {
       const response = await topicsApi.getById(principleId, { includeVerses });
       topicCache.set(cacheKey, response);
-    } catch (err) {
-      console.error(`Failed to preload topic ${principleId}:`, err);
+    } catch {
+      // Preload failure is non-critical - data will be fetched when needed
     } finally {
       loadingPromises.delete(cacheKey);
     }

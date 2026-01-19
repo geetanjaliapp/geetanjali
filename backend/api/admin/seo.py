@@ -137,7 +137,7 @@ def trigger_seo_generation_async(
         db_session = SessionLocal()
         try:
             service = SeoGeneratorService(db_session)
-            result = service.generate_all(force=force)
+            result = service.generate_all(force=force, trigger="async")
             logger.info(
                 f"SEO ASYNC: Completed - "
                 f"{result.generated} generated, {result.skipped} skipped"

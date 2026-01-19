@@ -131,8 +131,8 @@ export async function preloadTopics(): Promise<void> {
   loadingPromise = (async () => {
     try {
       cachedData = await topicsApi.getAll();
-    } catch (err) {
-      console.error("Failed to preload topics:", err);
+    } catch {
+      // Preload failure is non-critical - data will be fetched when needed
     } finally {
       loadingPromise = null;
     }
