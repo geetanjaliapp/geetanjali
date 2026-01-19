@@ -1,17 +1,17 @@
 {% extends "seo/base.html" %}
 
-{% block title %}Featured Bhagavad Gita Verses - Essential Wisdom{% endblock %}
+{% block title %}Featured Bhagavad Geeta Verses - Essential Wisdom{% endblock %}
 
-{% block description %}Explore {{ verses|length }} carefully curated verses from the Bhagavad Gita, selected for their universal wisdom, philosophical depth, and practical guidance for ethical living.{% endblock %}
+{% block description %}Explore {{ verses|length }} carefully curated verses from the Bhagavad Geeta, selected for their universal wisdom, philosophical depth, and practical guidance for ethical living.{% endblock %}
 
 {% block canonical %}/featured{% endblock %}
 
 {% block og_type %}website{% endblock %}
-{% block og_title %}Featured Bhagavad Gita Verses | Geetanjali{% endblock %}
-{% block og_description %}{{ verses|length }} essential verses from the Bhagavad Gita selected for leadership, ethics, and spiritual growth.{% endblock %}
+{% block og_title %}Featured Bhagavad Geeta Verses | Geetanjali{% endblock %}
+{% block og_description %}{{ verses|length }} essential verses from the Bhagavad Geeta selected for leadership, ethics, and spiritual growth.{% endblock %}
 {% block og_url %}/featured{% endblock %}
 
-{% block twitter_title %}Featured Bhagavad Gita Verses{% endblock %}
+{% block twitter_title %}Featured Bhagavad Geeta Verses{% endblock %}
 {% block twitter_description %}{{ verses|length }} essential verses selected for their universal wisdom and practical guidance.{% endblock %}
 
 {% block jsonld %}
@@ -19,8 +19,8 @@
 {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    "name": "Featured Bhagavad Gita Verses",
-    "description": "Curated collection of essential Bhagavad Gita verses selected for universal wisdom and practical guidance",
+    "name": "Featured Bhagavad Geeta Verses",
+    "description": "Curated collection of essential Bhagavad Geeta verses selected for universal wisdom and practical guidance",
     "url": "https://geetanjaliapp.com/featured",
     "mainEntity": {
         "@type": "ItemList",
@@ -31,7 +31,7 @@
                 "@type": "ListItem",
                 "position": {{ loop.index }},
                 "url": "https://geetanjaliapp.com/verses/{{ verse.canonical_id }}",
-                "name": "Bhagavad Gita {{ verse.chapter }}.{{ verse.verse }}"
+                "name": "Bhagavad Geeta {{ verse.chapter }}.{{ verse.verse }}"
             }{% if not loop.last %},{% endif %}
             {% endfor %}
         ]
@@ -66,11 +66,11 @@
 
 {% block content %}
 <article>
-    <h1>Featured Bhagavad Gita Verses</h1>
+    <h1>Featured Bhagavad Geeta Verses</h1>
 
     <p class="intro">
         This collection of {{ verses|length }} verses represents the most profound and frequently cited
-        teachings from the Bhagavad Gita. Selected for their universal applicability to leadership,
+        teachings from the Bhagavad Geeta. Selected for their universal applicability to leadership,
         ethical decision-making, and personal growth.
     </p>
 

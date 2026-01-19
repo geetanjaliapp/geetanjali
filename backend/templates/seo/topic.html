@@ -1,6 +1,6 @@
 {% extends "seo/base.html" %}
 
-{% block title %}{{ principle.label }} - {{ principle.sanskrit }} | Bhagavad Gita Wisdom{% endblock %}
+{% block title %}{{ principle.label }} - {{ principle.sanskrit }} | Bhagavad Geeta Wisdom{% endblock %}
 
 {% block description %}{{ principle.description[:160] }}{% endblock %}
 
@@ -11,7 +11,7 @@
 {% block og_description %}{{ principle.description[:200] }}{% endblock %}
 {% block og_url %}/topics/{{ principle.id }}{% endblock %}
 
-{% block twitter_title %}{{ principle.label }} - Bhagavad Gita Wisdom{% endblock %}
+{% block twitter_title %}{{ principle.label }} - Bhagavad Geeta Wisdom{% endblock %}
 {% block twitter_description %}{{ principle.description[:200] }}{% endblock %}
 
 {% block jsonld %}
@@ -32,7 +32,7 @@
     },
     "isPartOf": {
         "@type": "Book",
-        "name": "Bhagavad Gita",
+        "name": "Bhagavad Geeta",
         "author": { "@type": "Person", "name": "Vyasa" }
     },
     "publisher": {

@@ -1,18 +1,18 @@
 {% extends "seo/base.html" %}
 
-{% block title %}Verse of the Day - Daily Bhagavad Gita Wisdom{% endblock %}
+{% block title %}Verse of the Day - Daily Bhagavad Geeta Wisdom{% endblock %}
 
-{% block description %}Start each day with timeless wisdom from the Bhagavad Gita. Today's verse: {{ verse.chapter }}.{{ verse.verse }}{% if preview %} - {{ preview[:100] }}{% endif %}{% endblock %}
+{% block description %}Start each day with timeless wisdom from the Bhagavad Geeta. Today's verse: {{ verse.chapter }}.{{ verse.verse }}{% if preview %} - {{ preview[:100] }}{% endif %}{% endblock %}
 
 {% block canonical %}/daily{% endblock %}
 
 {% block og_type %}article{% endblock %}
 {% block og_title %}Verse of the Day | Geetanjali{% endblock %}
-{% block og_description %}Daily wisdom from the Bhagavad Gita. Verse {{ verse.chapter }}.{{ verse.verse }} selected from our curated collection.{% endblock %}
+{% block og_description %}Daily wisdom from the Bhagavad Geeta. Verse {{ verse.chapter }}.{{ verse.verse }} selected from our curated collection.{% endblock %}
 {% block og_url %}/daily{% endblock %}
 
-{% block twitter_title %}Bhagavad Gita Verse of the Day{% endblock %}
-{% block twitter_description %}Daily wisdom from the Bhagavad Gita. Start your day with timeless guidance.{% endblock %}
+{% block twitter_title %}Bhagavad Geeta Verse of the Day{% endblock %}
+{% block twitter_description %}Daily wisdom from the Bhagavad Geeta. Start your day with timeless guidance.{% endblock %}
 
 {% block jsonld %}
 <script type="application/ld+json">
@@ -20,7 +20,7 @@
     "@context": "https://schema.org",
     "@type": "WebPage",
     "name": "Verse of the Day",
-    "description": "Daily wisdom from the Bhagavad Gita",
+    "description": "Daily wisdom from the Bhagavad Geeta",
     "url": "https://geetanjaliapp.com/daily",
     "mainEntity": {
         "@type": "Quotation",
@@ -28,7 +28,7 @@
         "spokenByCharacter": "Krishna",
         "isPartOf": {
             "@type": "Book",
-            "name": "Bhagavad Gita",
+            "name": "Bhagavad Geeta",
             "author": { "@type": "Person", "name": "Vyasa" }
         }
     },
@@ -65,7 +65,7 @@
     <h1>Verse of the Day</h1>
 
     <p class="intro">
-        Start each day with timeless wisdom from the Bhagavad Gita. Our daily verse
+        Start each day with timeless wisdom from the Bhagavad Geeta. Our daily verse
         is drawn from a curated collection of {{ featured_count }} essential verses,
         ensuring you receive profound guidance for ethical living and leadership.
     </p>

@@ -1,17 +1,17 @@
 {% extends "seo/base.html" %}
 
-{% block title %}{{ content.seo.title | default('Bhagavad Gita Guidance') }}{% endblock %}
+{% block title %}{{ content.seo.title | default('Bhagavad Geeta Guidance') }}{% endblock %}
 
 {% block description %}{{ content.seo.description | default('Ethical guidance grounded in the timeless teachings of the Bhagavad Geeta.') }}{% endblock %}
 
 {% block canonical %}/{% endblock %}
 
 {% block og_type %}website{% endblock %}
-{% block og_title %}{{ meta.seo.defaultTitle | default('Geetanjali - Bhagavad Gita Wisdom') }}{% endblock %}
+{% block og_title %}{{ meta.seo.defaultTitle | default('Geetanjali - Bhagavad Geeta Wisdom') }}{% endblock %}
 {% block og_description %}{{ content.seo.description | default('Ethical guidance grounded in the timeless teachings of the Bhagavad Geeta.') }}{% endblock %}
 {% block og_url %}/{% endblock %}
 
-{% block twitter_title %}{{ meta.seo.defaultTitle | default('Geetanjali - Bhagavad Gita Wisdom') }}{% endblock %}
+{% block twitter_title %}{{ meta.seo.defaultTitle | default('Geetanjali - Bhagavad Geeta Wisdom') }}{% endblock %}
 {% block twitter_description %}{{ content.seo.description | default('Ethical guidance grounded in the timeless teachings of the Bhagavad Geeta.') }}{% endblock %}
 
 {% block jsonld %}
@@ -85,7 +85,7 @@
 
     <!-- Explore Section -->
     <section aria-labelledby="explore">
-        <h2 id="explore">Explore the Bhagavad Gita</h2>
+        <h2 id="explore">Explore the Bhagavad Geeta</h2>
         <ul>
             <li><a href="/verses/">Browse All 700 Verses</a></li>
             {% for chapter in chapters[:6] %}

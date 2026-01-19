@@ -73,7 +73,7 @@ export default function TopicDetail() {
     title: topic
       ? `${topic.label} (${topic.sanskrit}) | Geetanjali`
       : "Topic | Geetanjali",
-    description: topic?.description ?? "Explore this principle from the Bhagavad Gita.",
+    description: topic?.description ?? "Explore this principle from the Bhagavad Geeta.",
     canonical: topicId ? `/topics/${topicId}` : "/topics",
   });
 

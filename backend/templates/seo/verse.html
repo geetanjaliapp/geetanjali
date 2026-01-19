@@ -1,17 +1,17 @@
 {% extends "seo/base.html" %}
 
-{% block title %}Bhagavad Gita {{ verse.chapter }}.{{ verse.verse }}{% endblock %}
+{% block title %}Bhagavad Geeta {{ verse.chapter }}.{{ verse.verse }}{% endblock %}
 
 {% block description %}{{ verse.paraphrase_en[:160] if verse.paraphrase_en else verse.translation_en[:160] }}{% endblock %}
 
 {% block canonical %}/verses/{{ verse.canonical_id }}{% endblock %}
 
 {% block og_type %}article{% endblock %}
-{% block og_title %}Bhagavad Gita {{ verse.chapter }}.{{ verse.verse }} | Geetanjali{% endblock %}
+{% block og_title %}Bhagavad Geeta {{ verse.chapter }}.{{ verse.verse }} | Geetanjali{% endblock %}
 {% block og_description %}{{ verse.paraphrase_en[:200] if verse.paraphrase_en else verse.translation_en[:200] }}{% endblock %}
 {% block og_url %}/verses/{{ verse.canonical_id }}{% endblock %}
 
-{% block twitter_title %}Bhagavad Gita {{ verse.chapter }}.{{ verse.verse }}{% endblock %}
+{% block twitter_title %}Bhagavad Geeta {{ verse.chapter }}.{{ verse.verse }}{% endblock %}
 {% block twitter_description %}{{ verse.paraphrase_en[:200] if verse.paraphrase_en else verse.translation_en[:200] }}{% endblock %}
 
 {% block jsonld %}
@@ -19,14 +19,14 @@
 {
     "@context": "https://schema.org",
     "@type": "Article",
-    "headline": "Bhagavad Gita Chapter {{ verse.chapter }}, Verse {{ verse.verse }}",
+    "headline": "Bhagavad Geeta Chapter {{ verse.chapter }}, Verse {{ verse.verse }}",
     "description": "{{ (verse.paraphrase_en[:200] if verse.paraphrase_en else verse.translation_en[:200]) | e }}",
     "url": "https://geetanjaliapp.com/verses/{{ verse.canonical_id }}",
     "mainEntityOfPage": "https://geetanjaliapp.com/verses/{{ verse.canonical_id }}",
     "inLanguage": ["en", "sa", "hi"],
     "isPartOf": {
         "@type": "Book",
-        "name": "Bhagavad Gita",
+        "name": "Bhagavad Geeta",
         "author": { "@type": "Person", "name": "Vyasa" }
     },
     "publisher": {
@@ -72,8 +72,8 @@
 {
     "@context": "https://schema.org",
     "@type": "AudioObject",
-    "name": "Bhagavad Gita {{ verse.chapter }}.{{ verse.verse }} - Sanskrit Recitation",
-    "description": "Sanskrit recitation of Bhagavad Gita Chapter {{ verse.chapter }}, Verse {{ verse.verse }}",
+    "name": "Bhagavad Geeta {{ verse.chapter }}.{{ verse.verse }} - Sanskrit Recitation",
+    "description": "Sanskrit recitation of Bhagavad Geeta Chapter {{ verse.chapter }}, Verse {{ verse.verse }}",
     "contentUrl": "https://geetanjaliapp.com{{ audio_url }}",
     "encodingFormat": "audio/mpeg",
     "inLanguage": "sa"{% if audio_duration_iso %},
@@ -91,7 +91,7 @@
         Verse {{ verse.verse }}
     </nav>
 
-    <h1>Bhagavad Gita {{ verse.chapter }}.{{ verse.verse }}</h1>
+    <h1>Bhagavad Geeta {{ verse.chapter }}.{{ verse.verse }}</h1>
 
     <section aria-labelledby="sanskrit">
         <h2 id="sanskrit">Sanskrit</h2>
@@ -139,7 +139,7 @@
     {% if principles %}
     <section aria-labelledby="topics">
         <h2 id="topics">Related Topics</h2>
-        <p>This verse relates to the following principles from the Bhagavad Gita:</p>
+        <p>This verse relates to the following principles from the Bhagavad Geeta:</p>
         <ul class="topics-list">
             {% for p in principles %}
             <li>

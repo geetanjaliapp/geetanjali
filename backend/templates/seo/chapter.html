@@ -2,16 +2,16 @@
 
 {% block title %}Chapter {{ chapter.chapter_number }}: {{ chapter.english_title }}{% endblock %}
 
-{% block description %}{{ chapter.summary[:160] if chapter.summary else 'Bhagavad Gita Chapter ' ~ chapter.chapter_number ~ ' - ' ~ chapter.english_title ~ ' with Sanskrit verses, translations, and commentary.' }}{% endblock %}
+{% block description %}{{ chapter.summary[:160] if chapter.summary else 'Bhagavad Geeta Chapter ' ~ chapter.chapter_number ~ ' - ' ~ chapter.english_title ~ ' with Sanskrit verses, translations, and commentary.' }}{% endblock %}
 
 {% block canonical %}/verses/chapter/{{ chapter.chapter_number }}{% endblock %}
 
 {% block og_type %}article{% endblock %}
-{% block og_title %}Bhagavad Gita Chapter {{ chapter.chapter_number }}: {{ chapter.english_title }} | Geetanjali{% endblock %}
+{% block og_title %}Bhagavad Geeta Chapter {{ chapter.chapter_number }}: {{ chapter.english_title }} | Geetanjali{% endblock %}
 {% block og_description %}{{ chapter.summary[:200] if chapter.summary else 'Read all verses from Chapter ' ~ chapter.chapter_number }}{% endblock %}
 {% block og_url %}/verses/chapter/{{ chapter.chapter_number }}{% endblock %}
 
-{% block twitter_title %}Bhagavad Gita Chapter {{ chapter.chapter_number }}: {{ chapter.english_title }}{% endblock %}
+{% block twitter_title %}Bhagavad Geeta Chapter {{ chapter.chapter_number }}: {{ chapter.english_title }}{% endblock %}
 {% block twitter_description %}{{ chapter.summary[:200] if chapter.summary else 'Read all verses from Chapter ' ~ chapter.chapter_number }}{% endblock %}
 
 {% block jsonld %}
@@ -25,7 +25,7 @@
     "url": "https://geetanjaliapp.com/verses/chapter/{{ chapter.chapter_number }}",
     "isPartOf": {
         "@type": "Book",
-        "name": "Bhagavad Gita",
+        "name": "Bhagavad Geeta",
         "author": { "@type": "Person", "name": "Vyasa" }
     },
     "hasPart": [
