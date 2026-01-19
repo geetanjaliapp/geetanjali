@@ -390,6 +390,12 @@ class SeoGeneratorService:
             skipped += daily_stats["skipped"]
             errors += daily_stats["errors"]
 
+            # Generate Geeta Dhyanam page (9 invocation verses)
+            dhyanam_stats = self._generate_dhyanam_page(force)
+            generated += dhyanam_stats["generated"]
+            skipped += dhyanam_stats["skipped"]
+            errors += dhyanam_stats["errors"]
+
             # Commit all changes
             self.db.commit()
 
@@ -724,7 +730,23 @@ class SeoGeneratorService:
 
     def _get_static_page_context(self, page_key: str) -> dict:
         """Get template context for static pages."""
-        from models import ChapterMetadata
+        from datetime import date
+
+        from data.chapter_metadata import BOOK_METADATA
+        from data.featured_verses import FEATURED_VERSES
+        from models import ChapterMetadata, Verse
+
+        # Shared site metadata
+        meta = {
+            "site": {
+                "name": "Geetanjali",
+                "url": "https://geetanjaliapp.com",
+                "tagline": "Ancient Wisdom, Modern Interface",
+            },
+            "seo": {
+                "defaultTitle": "Geetanjali - Bhagavad Geeta Wisdom",
+            },
+        }
 
         if page_key == "home":
             chapters = (
@@ -732,7 +754,117 @@ class SeoGeneratorService:
                 .order_by(ChapterMetadata.chapter_number)
                 .all()
             )
-            return {"chapters": chapters}
+
+            # Get daily verse (same logic as daily page)
+            today = date.today()
+            day_of_year = today.timetuple().tm_yday
+            verse_index = day_of_year % len(FEATURED_VERSES)
+            daily_verse_id = FEATURED_VERSES[verse_index]
+            daily_verse = (
+                self.db.query(Verse)
+                .filter(Verse.canonical_id == daily_verse_id)
+                .first()
+            )
+
+            content = {
+                "seo": {
+                    "title": "Bhagavad Geeta Guidance | Geetanjali",
+                    "description": BOOK_METADATA["intro_text"],
+                },
+                "hero": {
+                    "headline": "Wisdom for Life's",
+                    "headlineAccent": "Difficult Decisions",
+                    "subtitle": BOOK_METADATA["tagline"],
+                    "guestPrompt": "Try it free — no signup required",
+                    "ctaSubtext": "Get personalized guidance in minutes",
+                },
+                "cta": {
+                    "primary": {"href": "/cases/new", "label": "Ask a Question"},
+                    "secondary": {"href": "/verses", "label": "Explore Verses"},
+                },
+                "features": [
+                    {
+                        "title": "AI-Powered Guidance",
+                        "description": "Get personalized insights grounded in ancient wisdom.",
+                    },
+                    {
+                        "title": "700 Verses",
+                        "description": "Explore the complete Bhagavad Geeta with translations.",
+                    },
+                    {
+                        "title": "Audio Recitations",
+                        "description": "Listen to Sanskrit verses with traditional pronunciation.",
+                    },
+                ],
+            }
+            return {
+                "chapters": chapters,
+                "daily_verse": daily_verse,
+                "content": content,
+                "meta": meta,
+            }
+
+        if page_key == "about":
+            content = {
+                "seo": {
+                    "title": "About Geetanjali",
+                    "description": (
+                        "Geetanjali brings ancient wisdom from the Bhagavad Geeta "
+                        "to modern ethical decisions through AI-powered guidance."
+                    ),
+                },
+                "hero": {
+                    "title": "About Geetanjali",
+                    "subtitle": "Ancient wisdom for life's difficult decisions",
+                },
+                "quote": {
+                    "text": (
+                        "You have the right to work, but never to the fruit of work. "
+                        "You should never engage in action for the sake of reward."
+                    ),
+                    "sanskrit": "कर्मण्येवाधिकारस्ते मा फलेषु कदाचन",
+                    "citation": "Bhagavad Geeta 2.47",
+                },
+                "story": [
+                    (
+                        "Geetanjali was born from a simple observation: the timeless "
+                        "teachings of the Bhagavad Geeta remain profoundly relevant to "
+                        "modern challenges in ethics, leadership, and personal growth."
+                    ),
+                    (
+                        "We combine AI technology with 700 verses of ancient wisdom to "
+                        "provide thoughtful guidance for life's difficult decisions."
+                    ),
+                ],
+                "philosophy": {
+                    "heading": "Our Approach",
+                    "items": [
+                        {
+                            "title": "Wisdom, Not Answers",
+                            "description": (
+                                "We offer perspectives rooted in timeless principles, "
+                                "not prescriptive solutions."
+                            ),
+                        },
+                        {
+                            "title": "Accessible Tradition",
+                            "description": (
+                                "Sanskrit originals with clear translations make "
+                                "ancient wisdom approachable."
+                            ),
+                        },
+                    ],
+                },
+                "explore": {
+                    "heading": "Explore",
+                    "links": [
+                        {"href": "/verses", "label": "Browse 700 Verses"},
+                        {"href": "/topics", "label": "Explore by Topic"},
+                        {"href": "/cases/new", "label": "Ask a Question"},
+                    ],
+                },
+            }
+            return {"content": content, "meta": meta}
 
         if page_key == "verse_index":
             chapters = (
@@ -742,7 +874,7 @@ class SeoGeneratorService:
             )
             return {"chapters": chapters}
 
-        # About and 404 don't need special context
+        # 404 doesn't need special context
         return {}
 
     def _generate_topic_pages(self, force: bool) -> dict[str, int]:
@@ -1137,6 +1269,78 @@ class SeoGeneratorService:
         except Exception as e:
             logger.error(
                 f"SEO GENERATION: Error generating daily page: {e}",
+                exc_info=True,
+            )
+            stats["errors"] += 1
+
+        return stats
+
+    def _generate_dhyanam_page(self, force: bool) -> dict[str, int]:
+        """Generate Geeta Dhyanam page (9 invocation verses)."""
+        from data.geeta_dhyanam import GEETA_DHYANAM
+
+        stats = {"generated": 0, "skipped": 0, "errors": 0}
+
+        try:
+            page_key = "dhyanam"
+            page_type = "dhyanam"
+            template_name = "seo/dhyanam.html"
+            template_hash = self._get_template_hash(template_name)
+
+            # Source hash based on dhyanam verse content
+            source_data = {
+                "verse_count": len(GEETA_DHYANAM),
+                "verses": [
+                    {
+                        "verse_number": v["verse_number"],
+                        "theme": v["theme"],
+                        "sanskrit_hash": hash(v["sanskrit"][:50]),
+                    }
+                    for v in GEETA_DHYANAM
+                ],
+            }
+            source_hash = compute_source_hash(source_data)
+
+            if not force and not self._needs_regeneration(
+                page_key, source_hash, template_hash
+            ):
+                stats["skipped"] += 1
+                return stats
+
+            gen_start = time.time()
+            template = self.env.get_template(template_name)
+
+            html = template.render(verses=GEETA_DHYANAM)
+
+            file_path = "dhyanam.html"
+            output_path = self.output_dir / file_path
+            file_size = self._write_atomic(output_path, html)
+
+            gen_ms = int((time.time() - gen_start) * 1000)
+            gen_seconds = gen_ms / 1000.0
+
+            self._record_page(
+                page_key=page_key,
+                page_type=page_type,
+                source_hash=source_hash,
+                template_hash=template_hash,
+                file_path=file_path,
+                file_size=file_size,
+                generation_ms=gen_ms,
+            )
+
+            seo_generation_duration_seconds.labels(page_type="dhyanam").observe(
+                gen_seconds
+            )
+
+            stats["generated"] += 1
+            logger.info(
+                f"SEO GENERATION: Generated dhyanam page ({len(GEETA_DHYANAM)} verses)"
+            )
+
+        except Exception as e:
+            logger.error(
+                f"SEO GENERATION: Error generating dhyanam page: {e}",
                 exc_info=True,
             )
             stats["errors"] += 1

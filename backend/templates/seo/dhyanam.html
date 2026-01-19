@@ -1,0 +1,90 @@
+{% extends "seo/base.html" %}
+
+{% block title %}Geeta Dhyanam - 9 Sacred Invocation Verses | Geetanjali{% endblock %}
+
+{% block description %}The nine sacred invocation verses traditionally recited before studying the Bhagavad Geeta. Sanskrit text with English and Hindi translations.{% endblock %}
+
+{% block canonical %}/read/dhyanam{% endblock %}
+
+{% block og_type %}article{% endblock %}
+{% block og_title %}Geeta Dhyanam - Sacred Invocation Verses{% endblock %}
+{% block og_description %}The nine sacred invocation verses traditionally recited before studying the Bhagavad Geeta.{% endblock %}
+{% block og_url %}/read/dhyanam{% endblock %}
+
+{% block twitter_title %}Geeta Dhyanam - Sacred Invocation Verses{% endblock %}
+{% block twitter_description %}Nine sacred verses traditionally recited before studying the Bhagavad Geeta.{% endblock %}
+
+{% block jsonld %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "name": "Geeta Dhyanam",
+    "headline": "The Nine Sacred Invocation Verses",
+    "description": "Traditional invocation verses recited before studying the Bhagavad Geeta",
+    "url": "https://geetanjaliapp.com/read/dhyanam",
+    "inLanguage": ["en", "sa", "hi"],
+    "isPartOf": {
+        "@type": "WebSite",
+        "name": "Geetanjali",
+        "url": "https://geetanjaliapp.com"
+    },
+    "about": {
+        "@type": "Thing",
+        "name": "Bhagavad Geeta",
+        "description": "Ancient Hindu scripture containing 700 verses"
+    }
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<article>
+    <header class="hero">
+        <h1>गीता ध्यानम्<br><span class="subtitle">Geeta Dhyanam</span></h1>
+        <p class="subtitle">Nine sacred invocation verses traditionally recited before studying the Bhagavad Geeta</p>
+    </header>
+
+    <section aria-labelledby="intro">
+        <h2 id="intro" class="visually-hidden">Introduction</h2>
+        <p>
+            The Geeta Dhyanam consists of nine shlokas from the Geeta Mahatmya (found in the Padma Purana).
+            These verses are traditionally recited as an invocation before beginning study of the Bhagavad Geeta,
+            offering salutations to the scripture, to Sage Vyasa, and to Lord Krishna.
+        </p>
+    </section>
+
+    {% for verse in verses %}
+    <section aria-labelledby="verse-{{ verse.verse_number }}" class="verse-block">
+        <h2 id="verse-{{ verse.verse_number }}">Verse {{ verse.verse_number }}: {{ verse.theme }}</h2>
+
+        <div class="verse-content">
+            <blockquote class="sanskrit" lang="sa">{{ verse.sanskrit }}</blockquote>
+
+            <p class="iast" lang="sa-Latn"><em>{{ verse.iast }}</em></p>
+
+            <h3>English Translation</h3>
+            <p>{{ verse.english }}</p>
+
+            <h3>Hindi Translation</h3>
+            <p lang="hi">{{ verse.hindi }}</p>
+
+            {% if verse.audio_url %}
+            <p class="audio-note">
+                <a href="{{ verse.audio_url }}">Listen to audio recitation</a>
+            </p>
+            {% endif %}
+        </div>
+    </section>
+    {% endfor %}
+
+    <section aria-labelledby="nav">
+        <h2 id="nav">Continue Exploring</h2>
+        <ul>
+            <li><a href="/verses">Browse All 700 Verses</a></li>
+            <li><a href="/topics">Explore by Topic</a></li>
+            <li><a href="/">Return to Home</a></li>
+        </ul>
+    </section>
+</article>
+{% endblock %}
