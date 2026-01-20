@@ -96,6 +96,71 @@ else:
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
+# In-memory cache for tests (since Redis is disabled)
+class InMemoryCache:
+    """Simple in-memory cache implementation for tests."""
+
+    def __init__(self):
+        self._store = {}
+
+    def get(self, key: str):
+        """Get value from cache."""
+        return self._store.get(key)
+
+    def set(self, key: str, value, ttl: int) -> bool:
+        """Set value in cache (ignores ttl for simplicity in tests)."""
+        self._store[key] = value
+        return True
+
+    def delete(self, key: str) -> bool:
+        """Delete key from cache."""
+        if key in self._store:
+            del self._store[key]
+            return True
+        return False
+
+    def invalidate_pattern(self, pattern: str) -> int:
+        """Delete all keys matching pattern."""
+        import fnmatch
+        keys_to_delete = [k for k in self._store.keys() if fnmatch.fnmatch(k, pattern)]
+        for key in keys_to_delete:
+            del self._store[key]
+        return len(keys_to_delete)
+
+    def is_available(self) -> bool:
+        """Cache is always available in tests."""
+        return True
+
+    def setnx(self, key: str, value, ttl: int) -> bool:
+        """Set only if key doesn't exist."""
+        if key not in self._store:
+            self._store[key] = value
+            return True
+        return False
+
+    def incr(self, key: str, ttl: int = 0) -> int:
+        """Increment counter."""
+        current = self._store.get(key, 0)
+        new_value = current + 1
+        self._store[key] = new_value
+        return new_value
+
+    def get_int(self, key: str) -> int:
+        """Get integer value from cache."""
+        value = self._store.get(key)
+        if value is None:
+            return 0
+        return int(value)
+
+    def clear(self):
+        """Clear all cache entries."""
+        self._store.clear()
+
+
+# Global test cache instance
+test_cache = InMemoryCache()
+
+
 @pytest.fixture(scope="function")
 def db_session():
     """Create a fresh database session for each test."""
@@ -111,6 +176,16 @@ def db_session():
         session.close()
         # Drop all tables after test
         Base.metadata.drop_all(bind=engine)
+
+
+@pytest.fixture(scope="function", autouse=True)
+def mock_cache():
+    """Patch the cache service to use in-memory cache during tests."""
+    test_cache.clear()  # Clear cache before each test
+    with patch("services.cache.cache", test_cache):
+        # Also patch it where it might be imported directly
+        with patch("api.follow_up.cache", test_cache):
+            yield test_cache
 
 
 @pytest.fixture(scope="function")

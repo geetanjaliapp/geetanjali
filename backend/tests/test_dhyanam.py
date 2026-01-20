@@ -11,6 +11,18 @@ from models import DhyanamVerse
 pytestmark = pytest.mark.integration
 
 
+@pytest.fixture(autouse=True)
+def cleanup_dhyanam(db_session):
+    """Clean up dhyanam verses before each test to avoid unique constraint violations."""
+    # Delete all existing dhyanam verses before test
+    db_session.query(DhyanamVerse).delete()
+    db_session.commit()
+    yield
+    # Cleanup after test
+    db_session.query(DhyanamVerse).delete()
+    db_session.commit()
+
+
 @pytest.fixture
 def sample_dhyanam_verse(db_session):
     """Create a sample dhyanam verse for testing."""
