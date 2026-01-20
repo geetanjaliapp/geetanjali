@@ -33,7 +33,7 @@ class TestConfigurationSync:
         """Path to .env."""
         return Path(__file__).parent.parent.parent / ".env"
 
-    def _extract_env_value(self, content: str, key: str) -> str:
+    def _extract_env_value(self, content: str, key: str) -> str | None:
         """Extract value from env file content."""
         pattern = rf"^{key}=(.+)$"
         matches = re.findall(pattern, content, re.MULTILINE)
