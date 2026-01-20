@@ -19,6 +19,7 @@ Tables:
 
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy.dialects import postgresql
 
 revision = "001"
 down_revision = None
@@ -247,8 +248,12 @@ def upgrade() -> None:
     # =========================================================================
     # MESSAGES - Conversation threading
     # =========================================================================
-    # Create messagerole enum if it doesn't exist
-    op.execute("CREATE TYPE IF NOT EXISTS messagerole AS ENUM ('user', 'assistant')")
+    # Create messagerole enum using Alembic enum support
+    try:
+        op.execute("DROP TYPE IF EXISTS messagerole CASCADE")
+    except Exception:
+        pass
+    op.execute("CREATE TYPE messagerole AS ENUM ('user', 'assistant')")
 
     op.create_table(
         "messages",
@@ -314,9 +319,13 @@ def upgrade() -> None:
     # =========================================================================
     # CONTACT_MESSAGES - Contact form submissions
     # =========================================================================
-    # Create contacttype enum if it doesn't exist
+    # Create contacttype enum using Alembic enum support
+    try:
+        op.execute("DROP TYPE IF EXISTS contacttype CASCADE")
+    except Exception:
+        pass
     op.execute(
-        "CREATE TYPE IF NOT EXISTS contacttype AS ENUM ('feedback', 'question', 'bug_report', 'feature_request', 'other')"
+        "CREATE TYPE contacttype AS ENUM ('feedback', 'question', 'bug_report', 'feature_request', 'other')"
     )
 
     op.create_table(
