@@ -11,7 +11,12 @@ from typing import Any, TypeVar
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from sqlalchemy.orm import Session
 
-from api.dependencies import get_case_with_access, limiter
+from api.dependencies import (
+    check_daily_limit,
+    get_case_with_access,
+    increment_daily_consult_count,
+    limiter,
+)
 from api.middleware.auth import get_optional_user, get_session_id
 from api.schemas import (
     CaseCreate,
@@ -171,13 +176,14 @@ router = APIRouter(prefix="/api/v1/cases")
 
 
 @router.post("", response_model=CaseResponse, status_code=status.HTTP_201_CREATED)
-@limiter.limit("20/minute")
+@limiter.limit(settings.ANALYZE_RATE_LIMIT)
 async def create_case(
     request: Request,
     case_data: CaseCreate,
     db: Session = Depends(get_db),
     current_user: User | None = Depends(get_optional_user),
     session_id: str | None = Depends(get_session_id),
+    _: None = Depends(check_daily_limit),
 ):
     """
     Create a new ethical dilemma case (supports anonymous users).
@@ -228,6 +234,10 @@ async def create_case(
     message_repo.create_user_message(case_id=case.id, content=case_data.description)
 
     logger.info(f"Case created: {case.id}")
+
+    # Increment daily consumption counter (after successful creation)
+    increment_daily_consult_count(request, session_id)
+
     return case
 
 
