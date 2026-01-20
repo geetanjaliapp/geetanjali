@@ -17,7 +17,13 @@ from fastapi import (
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from api.dependencies import get_case_with_access, get_output_with_access, limiter
+from api.dependencies import (
+    check_daily_limit,
+    get_case_with_access,
+    get_output_with_access,
+    increment_daily_consult_count,
+    limiter,
+)
 from api.middleware.auth import get_optional_user, get_session_id, require_role
 from api.schemas import (
     CaseResponse,
@@ -288,6 +294,7 @@ async def analyze_case_async(
     background_tasks: BackgroundTasks,
     case: Case = Depends(get_case_with_access),
     db: Session = Depends(get_db),
+    _: None = Depends(check_daily_limit),
 ):
     """
     Analyze a case using the RAG pipeline (async).
@@ -314,6 +321,9 @@ async def analyze_case_async(
     case.status = CaseStatus.PENDING.value
     db.commit()
     db.refresh(case)
+
+    # Increment daily consumption counter (after successful status update)
+    increment_daily_consult_count(request, case.session_id)
 
     # Build case data
     case_data = _build_case_data(case)
