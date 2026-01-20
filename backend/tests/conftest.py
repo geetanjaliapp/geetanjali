@@ -21,6 +21,10 @@ from unittest.mock import patch
 os.environ["REDIS_ENABLED"] = "false"
 # Skip vector store tests (require ChromaDB infrastructure)
 os.environ["SKIP_VECTOR_TESTS"] = "true"
+# Disable rate limiting for tests (allow multiple case creation in same test)
+os.environ["ANALYZE_RATE_LIMIT"] = "1000/hour"  # Very generous for tests
+os.environ["FOLLOW_UP_RATE_LIMIT"] = "1000/hour"  # Very generous for tests
+os.environ["DAILY_CONSULT_LIMIT_ENABLED"] = "false"  # Disable daily cap for tests
 
 import pytest
 from fastapi.testclient import TestClient

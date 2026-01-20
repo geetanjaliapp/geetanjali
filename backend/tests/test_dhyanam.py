@@ -14,13 +14,22 @@ pytestmark = pytest.mark.integration
 @pytest.fixture(autouse=True)
 def cleanup_dhyanam(db_session):
     """Clean up dhyanam verses before each test to avoid unique constraint violations."""
+    # Ensure clean state before test
+    try:
+        db_session.rollback()  # Rollback any pending transactions
+    except Exception:
+        pass  # Ignore if no transaction
+
     # Delete all existing dhyanam verses before test
     db_session.query(DhyanamVerse).delete()
     db_session.commit()
     yield
     # Cleanup after test
-    db_session.query(DhyanamVerse).delete()
-    db_session.commit()
+    try:
+        db_session.query(DhyanamVerse).delete()
+        db_session.commit()
+    except Exception:
+        pass  # Ignore cleanup errors
 
 
 @pytest.fixture
