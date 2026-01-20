@@ -198,8 +198,27 @@ async def create_case(
         Created case
 
     Raises:
-        HTTPException 422: If content violates content policy (blocklist)
+        HTTPException 422: If content violates content policy (blocklist) or token limit
     """
+    from utils.token_counter import check_request_tokens
+
+    # Layer 0: Token size validation (early rejection of oversized requests)
+    # Prevents wasting LLM tokens on bloated prompts
+    try:
+        check_request_tokens(case_data.title, case_data.description, max_tokens=2000)
+    except ValueError as e:
+        logger.info(
+            "Request too large",
+            extra={
+                "title_len": len(case_data.title),
+                "description_len": len(case_data.description),
+            },
+        )
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(e),
+        )
+
     # Layer 1: Pre-submission content filter (blocklist check)
     # Rejects obvious violations before database write
     try:
