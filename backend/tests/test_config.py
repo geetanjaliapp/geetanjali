@@ -13,8 +13,14 @@ class TestConfigurationSync:
     """Validate Cost Defense settings are synchronized across files."""
 
     @pytest.fixture
-    def settings(self):
-        """Load settings from environment."""
+    def settings(self, monkeypatch):
+        """Load settings from environment with clean state."""
+        # Clear stale env vars that might override .env or defaults
+        # Ensures we test the actual config.py defaults or .env values
+        monkeypatch.delenv("ANALYZE_RATE_LIMIT", raising=False)
+        monkeypatch.delenv("FOLLOW_UP_RATE_LIMIT", raising=False)
+        monkeypatch.delenv("DAILY_CONSULT_LIMIT", raising=False)
+        monkeypatch.delenv("REQUEST_TOKEN_LIMIT", raising=False)
         return Settings()
 
     @pytest.fixture
