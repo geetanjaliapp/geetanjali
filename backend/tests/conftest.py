@@ -73,17 +73,32 @@ from models.metadata import BookMetadata, ChapterMetadata  # noqa: F401
 from models.multipass import MultiPassConsultation, MultiPassPassResponse  # noqa: F401
 from models.principle import Principle, PrincipleGroup  # noqa: F401
 from models.seo_page import SeoPage  # noqa: F401
+from models.sync_hash import SyncHash  # noqa: F401
 from models.user_preferences import UserPreferences  # noqa: F401
 
 # Use in-memory SQLite with StaticPool for single connection across threads
-TEST_DATABASE_URL = "sqlite:///:memory:"
+# If DATABASE_URL is set (CI environment), use PostgreSQL and run migrations
+DATABASE_URL = os.environ.get("DATABASE_URL")
+if DATABASE_URL:
+    # CI mode: use PostgreSQL
+    TEST_DATABASE_URL = DATABASE_URL
+    # Import Alembic to run migrations
+    from alembic.config import Config
+    from alembic.command import upgrade
 
-# Create test engine with StaticPool to share connection
-engine = create_engine(
-    TEST_DATABASE_URL,
-    connect_args={"check_same_thread": False},
-    poolclass=StaticPool,
-)
+    # Run migrations before test suite
+    alembic_cfg = Config("alembic.ini")
+    upgrade(alembic_cfg, "head")
+
+    engine = create_engine(TEST_DATABASE_URL)
+else:
+    # Local mode: use SQLite in-memory
+    TEST_DATABASE_URL = "sqlite:///:memory:"
+    engine = create_engine(
+        TEST_DATABASE_URL,
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
 
 # Create test session factory
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
