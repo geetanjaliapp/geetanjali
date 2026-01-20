@@ -248,12 +248,8 @@ def upgrade() -> None:
     # =========================================================================
     # MESSAGES - Conversation threading
     # =========================================================================
-    # Create messagerole enum using Alembic enum support
-    try:
-        op.execute("DROP TYPE IF EXISTS messagerole CASCADE")
-    except Exception:
-        pass
-    op.execute("CREATE TYPE messagerole AS ENUM ('user', 'assistant')")
+    # Note: enum type is created by SQLAlchemy during create_table
+    # No manual CREATE TYPE needed
 
     op.create_table(
         "messages",
@@ -319,14 +315,8 @@ def upgrade() -> None:
     # =========================================================================
     # CONTACT_MESSAGES - Contact form submissions
     # =========================================================================
-    # Create contacttype enum using Alembic enum support
-    try:
-        op.execute("DROP TYPE IF EXISTS contacttype CASCADE")
-    except Exception:
-        pass
-    op.execute(
-        "CREATE TYPE contacttype AS ENUM ('feedback', 'question', 'bug_report', 'feature_request', 'other')"
-    )
+    # Note: enum type is created by SQLAlchemy during create_table
+    # No manual CREATE TYPE needed
 
     op.create_table(
         "contact_messages",
