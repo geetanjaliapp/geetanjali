@@ -179,8 +179,18 @@ def db_session():
 
 
 @pytest.fixture(scope="function", autouse=True)
-def mock_cache():
-    """Patch the cache service to use in-memory cache during tests."""
+def mock_cache(request):
+    """Patch the cache service to use in-memory cache during integration tests.
+
+    Skip this fixture for unit tests that mock the cache directly.
+    """
+    # Only apply mock cache for integration tests and API tests that use the cache
+    # Skip for unit tests that patch Redis client directly
+    if "unit" in request.keywords:
+        # Unit tests can mock Redis client directly, don't override cache
+        yield None
+        return
+
     test_cache.clear()  # Clear cache before each test
     with patch("services.cache.cache", test_cache):
         # Also patch it where it might be imported directly
