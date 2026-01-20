@@ -30,6 +30,7 @@ from models.output import Output
 from models.user import User
 from services.cache import cache
 from services.content_filter import ContentPolicyError, validate_submission_content
+from utils.metrics_llm import track_daily_limit_hit
 
 logger = logging.getLogger(__name__)
 
@@ -149,9 +150,14 @@ async def check_daily_limit(
 
     # Check against limit
     if current_count >= settings.DAILY_CONSULT_LIMIT:
+        # Track metric
+        track_daily_limit_hit(tracking_type)
+
+        # Log with context (anomaly detection)
         logger.warning(
             "Daily consultation limit exceeded",
             extra={
+                "event": "daily_limit_exceeded",
                 "tracking_type": tracking_type,
                 "tracking_key": tracking_key,
                 "current_count": current_count,
@@ -159,6 +165,19 @@ async def check_daily_limit(
                 "date": today,
             },
         )
+
+        # If from IP (not session), this might be automated
+        if tracking_type == "ip" and current_count >= settings.DAILY_CONSULT_LIMIT * 1.5:
+            logger.critical(
+                "Potential abuse detected: IP exceeded 150% of daily limit",
+                extra={
+                    "event": "potential_abuse",
+                    "tracking_key": tracking_key,
+                    "current_count": current_count,
+                    "threshold": settings.DAILY_CONSULT_LIMIT * 1.5,
+                },
+            )
+
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
             detail="🙏 Daily reflection pause\n\n"
