@@ -46,6 +46,8 @@ from services.content_filter import (
     ContentPolicyError,
     validate_submission_content,
 )
+from utils.metrics_llm import track_consultation_cost, track_validation_rejection
+from utils.token_counter import estimate_tokens
 
 logger = logging.getLogger(__name__)
 
@@ -207,9 +209,13 @@ async def create_case(
     try:
         check_request_tokens(case_data.title, case_data.description, max_tokens=2000)
     except ValueError as e:
+        track_validation_rejection("token_too_large")
+
         logger.info(
-            "Request too large",
+            "Request rejected: too many tokens",
             extra={
+                "event": "validation_rejected",
+                "reason": "token_too_large",
                 "title_len": len(case_data.title),
                 "description_len": len(case_data.description),
             },
@@ -251,6 +257,11 @@ async def create_case(
     # Create initial user message with the case description
     message_repo = MessageRepository(db)
     message_repo.create_user_message(case_id=case.id, content=case_data.description)
+
+    # Track cost for the consultation request
+    ip = request.client.host if request.client else "unknown"
+    estimated = estimate_tokens(case_data.title) + estimate_tokens(case_data.description)
+    track_consultation_cost(ip, settings.LLM_PROVIDER, estimated)
 
     logger.info(f"Case created: {case.id}")
 
