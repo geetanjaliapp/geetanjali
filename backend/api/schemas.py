@@ -165,7 +165,7 @@ class CaseBase(BaseModel):
     title: SafeTitle = Field(..., description="Short problem title")
     description: SafeText = Field(
         ...,
-        description="Detailed problem statement (max 5,000 characters)",
+        description="Detailed problem statement (max 10,000 characters, validated by token limit)",
     )
     role: str | None = Field(None, max_length=100, description="Requester's role")
     stakeholders: list[SafeMediumText] | None = Field(

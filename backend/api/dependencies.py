@@ -68,7 +68,7 @@ def validate_content(
         title: Title/subject text to validate
         description: Description/body text to validate
         context: Context label for logging (e.g., "submission", "follow-up", "contact")
-        **log_extra: Additional fields to include in log extra dict (e.g., case_id="...")
+        **log_extra: Additional fields for log extra dict (e.g., case_id="...")
 
     Raises:
         HTTPException 422: If content violates content policy
@@ -127,7 +127,8 @@ async def check_daily_limit(
         HTTPException: 429 if daily limit exceeded
 
     Note:
-        Limit resets at UTC midnight. Cache key format: consult:daily:TYPE:KEY:YYYY-MM-DD
+        Limit resets at UTC midnight.
+        Cache key format: consult:daily:TYPE:KEY:YYYY-MM-DD
     """
     if not settings.DAILY_CONSULT_LIMIT_ENABLED:
         return  # Feature flag disabled - skip check
@@ -167,7 +168,8 @@ async def check_daily_limit(
         )
 
         # If from IP (not session), this might be automated
-        if tracking_type == "ip" and current_count >= settings.DAILY_CONSULT_LIMIT * 1.5:
+        abuse_threshold = settings.DAILY_CONSULT_LIMIT * 1.5
+        if tracking_type == "ip" and current_count >= abuse_threshold:
             logger.critical(
                 "Potential abuse detected: IP exceeded 150% of daily limit",
                 extra={

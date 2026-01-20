@@ -207,7 +207,11 @@ async def create_case(
     # Layer 0: Token size validation (early rejection of oversized requests)
     # Prevents wasting LLM tokens on bloated prompts
     try:
-        check_request_tokens(case_data.title, case_data.description, max_tokens=2000)
+        check_request_tokens(
+            case_data.title,
+            case_data.description,
+            max_tokens=settings.REQUEST_TOKEN_LIMIT,
+        )
     except ValueError as e:
         track_validation_rejection("token_too_large")
 
@@ -240,7 +244,8 @@ async def create_case(
         )
 
     logger.info(
-        f"Creating case: {case_data.title} (anonymous={current_user is None}, session_id={session_id})"
+        f"Creating case: {case_data.title} "
+        f"(anonymous={current_user is None}, session_id={session_id})"
     )
 
     case_dict = case_data.model_dump()
@@ -260,7 +265,9 @@ async def create_case(
 
     # Track cost for the consultation request
     ip = request.client.host if request.client else "unknown"
-    estimated = estimate_tokens(case_data.title) + estimate_tokens(case_data.description)
+    title_tokens = estimate_tokens(case_data.title)
+    desc_tokens = estimate_tokens(case_data.description)
+    estimated = title_tokens + desc_tokens
     track_consultation_cost(ip, settings.LLM_PROVIDER, estimated)
 
     logger.info(f"Case created: {case.id}")

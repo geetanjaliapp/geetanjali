@@ -21,7 +21,7 @@ class Settings(BaseSettings):
 
     # Application
     APP_NAME: str = "Geetanjali"
-    APP_VERSION: str = "1.16.0"  # Set via APP_VERSION env var at deploy (from git tag)
+    APP_VERSION: str = "1.32.0"  # Set via APP_VERSION env var at deploy (from git tag)
     APP_ENV: str = "development"
     DEBUG: bool = False  # Safe default: False
     LOG_LEVEL: str = "INFO"
@@ -224,6 +224,9 @@ class Settings(BaseSettings):
     # Daily consumption limit (20/day = ~2.5/hour average)
     DAILY_CONSULT_LIMIT: int = 20  # Max consults per calendar day per IP/session
     DAILY_CONSULT_LIMIT_ENABLED: bool = True  # Feature flag: disable if needed
+
+    # Request token limit (4 chars/token conservative estimation)
+    REQUEST_TOKEN_LIMIT: int = 2000  # Max tokens per request (prevents oversized prompts)
 
     # Authentication / JWT
     # NOTE: Default is for dev only. Production validation (validate_production_config)

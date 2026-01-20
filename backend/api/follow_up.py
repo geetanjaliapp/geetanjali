@@ -174,7 +174,7 @@ def run_follow_up_background(
                 db.commit()
         except Exception as nested_e:
             logger.error(
-                f"[Background] Failed to mark case as FAILED after DB error: {nested_e}",
+                f"[Background] Failed to mark case FAILED after DB error: {nested_e}",
                 extra={"case_id": case_id},
             )
     except Exception as e:

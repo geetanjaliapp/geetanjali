@@ -145,10 +145,11 @@ SafeMediumText = Annotated[
     BeforeValidator(strip_angle_brackets),
 ]
 
-# For long text (descriptions, messages): sanitize dangerous only, max 5000 chars
+# For long text (descriptions, messages): sanitize dangerous only, max 10000 chars
+# Note: Token validation (2000 tokens ≈ 8000 chars) provides stricter limit
 SafeText = Annotated[
     str,
-    StringConstraints(max_length=5000, strip_whitespace=True),
+    StringConstraints(max_length=10000, strip_whitespace=True),
     BeforeValidator(sanitize_dangerous),
 ]
 

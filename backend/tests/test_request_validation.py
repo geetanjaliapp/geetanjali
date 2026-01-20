@@ -98,67 +98,75 @@ class TestDeduplication:
     def test_duplicate_follow_up_rejected(self, client, case_with_output):
         """Identical follow-up should be rejected."""
         case_id = case_with_output.id
+        session_id = case_with_output.session_id
+        headers = {"X-Session-ID": session_id}
 
         # First follow-up
         resp1 = client.post(f"/api/v1/cases/{case_id}/follow-up", json={
             "content": "What should I do?"
-        })
+        }, headers=headers)
         assert resp1.status_code == 202
 
         # Identical follow-up should fail
         resp2 = client.post(f"/api/v1/cases/{case_id}/follow-up", json={
             "content": "What should I do?"
-        })
+        }, headers=headers)
         assert resp2.status_code == 422
         assert "already asked" in resp2.json()["detail"]
 
     def test_different_follow_up_allowed(self, client, case_with_output):
         """Different follow-up should be allowed."""
         case_id = case_with_output.id
+        session_id = case_with_output.session_id
+        headers = {"X-Session-ID": session_id}
 
         # First follow-up
         resp1 = client.post(f"/api/v1/cases/{case_id}/follow-up", json={
             "content": "What should I do?"
-        })
+        }, headers=headers)
         assert resp1.status_code == 202
 
         # Different follow-up should work
         resp2 = client.post(f"/api/v1/cases/{case_id}/follow-up", json={
             "content": "What if I'm wrong?"
-        })
+        }, headers=headers)
         assert resp2.status_code == 202
 
     def test_duplicate_case_insensitive(self, client, case_with_output):
         """Duplicate should be case-insensitive."""
         case_id = case_with_output.id
+        session_id = case_with_output.session_id
+        headers = {"X-Session-ID": session_id}
 
         # First (lowercase)
         resp1 = client.post(f"/api/v1/cases/{case_id}/follow-up", json={
             "content": "what should i do?"
-        })
+        }, headers=headers)
         assert resp1.status_code == 202
 
         # Same question, different case (should be detected as duplicate)
         resp2 = client.post(f"/api/v1/cases/{case_id}/follow-up", json={
             "content": "WHAT SHOULD I DO?"
-        })
+        }, headers=headers)
         assert resp2.status_code == 422
         assert "already asked" in resp2.json()["detail"]
 
     def test_duplicate_with_whitespace_differences(self, client, case_with_output):
         """Duplicate detection should ignore whitespace."""
         case_id = case_with_output.id
+        session_id = case_with_output.session_id
+        headers = {"X-Session-ID": session_id}
 
         # First (normal spacing)
         resp1 = client.post(f"/api/v1/cases/{case_id}/follow-up", json={
             "content": "What should I do?"
-        })
+        }, headers=headers)
         assert resp1.status_code == 202
 
         # Same question with extra spaces (should be detected)
         resp2 = client.post(f"/api/v1/cases/{case_id}/follow-up", json={
             "content": "What   should   I   do?"
-        })
+        }, headers=headers)
         assert resp2.status_code == 422
 
 
