@@ -77,19 +77,11 @@ from models.sync_hash import SyncHash  # noqa: F401
 from models.user_preferences import UserPreferences  # noqa: F401
 
 # Use in-memory SQLite with StaticPool for single connection across threads
-# If DATABASE_URL is set (CI environment), use PostgreSQL and run migrations
+# If DATABASE_URL is set (CI environment), use PostgreSQL
 DATABASE_URL = os.environ.get("DATABASE_URL")
 if DATABASE_URL:
     # CI mode: use PostgreSQL
     TEST_DATABASE_URL = DATABASE_URL
-    # Import Alembic to run migrations
-    from alembic.config import Config
-    from alembic.command import upgrade
-
-    # Run migrations before test suite
-    alembic_cfg = Config("alembic.ini")
-    upgrade(alembic_cfg, "head")
-
     engine = create_engine(TEST_DATABASE_URL)
 else:
     # Local mode: use SQLite in-memory

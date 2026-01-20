@@ -70,6 +70,11 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Run database migrations
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/geetanjali_test
+        run: alembic upgrade head
+
       - name: Run tests (unit + integration)
         env:
           DATABASE_URL: postgresql://test:test@localhost:5432/geetanjali_test
