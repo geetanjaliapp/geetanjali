@@ -39,6 +39,7 @@ from services.content_filter import ContentPolicyError, validate_submission_cont
 from services.follow_up import get_follow_up_pipeline
 from services.tasks import enqueue_task
 from utils.exceptions import LLMError
+from utils.metrics_llm import track_validation_rejection
 
 logger = logging.getLogger(__name__)
 
@@ -260,9 +261,15 @@ async def submit_follow_up(
 
     # Check if this message hash was seen recently
     if cache.get(dedup_key):
+        track_validation_rejection("duplicate_question")
+
         logger.info(
-            "Duplicate follow-up question detected",
-            extra={"case_id": case_id, "message_hash": message_hash},
+            "Request rejected: duplicate question",
+            extra={
+                "event": "validation_rejected",
+                "reason": "duplicate_question",
+                "case_id": case_id,
+            },
         )
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -270,10 +277,6 @@ async def submit_follow_up(
                    "Review your previous answer above and reflect on it.\n"
                    "If you'd like to explore a different angle, ask a new question.",
         )
-
-    # Mark this message as seen (24-hour window)
-    # TTL: 86400 seconds = 24 hours
-    cache.set(dedup_key, True, ttl=86400)
 
     # 4. Apply content filter to follow-up question
     try:
@@ -287,6 +290,11 @@ async def submit_follow_up(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=e.message,
         )
+
+    # Mark this message as seen (24-hour window)
+    # TTL: 86400 seconds = 24 hours
+    # Must be after content filter passes to ensure correct error messages
+    cache.set(dedup_key, True, ttl=86400)
 
     # 5. Create user message immediately
     message_repo = MessageRepository(db)
