@@ -4,7 +4,7 @@ import logging
 import secrets
 from datetime import datetime, timedelta
 
-from fastapi import Depends, Header, HTTPException, status
+from fastapi import Depends, Header, HTTPException, Request, status
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from sqlalchemy.orm import Session
@@ -28,6 +28,7 @@ from db.repositories.case_repository import CaseRepository
 from models.case import Case, CaseStatus
 from models.output import Output
 from models.user import User
+from services.cache import cache
 from services.content_filter import ContentPolicyError, validate_submission_content
 
 logger = logging.getLogger(__name__)
@@ -36,6 +37,8 @@ logger = logging.getLogger(__name__)
 __all__ = [
     "limiter",
     "verify_admin_api_key",
+    "check_daily_limit",
+    "increment_daily_consult_count",
     "get_case_with_access",
     "get_case_with_auth",
     "get_output_with_access",
@@ -100,6 +103,98 @@ def verify_admin_api_key(
     if not x_api_key or not secrets.compare_digest(x_api_key, settings.API_KEY):
         raise HTTPException(status_code=404, detail="Not found")
     return True
+
+
+async def check_daily_limit(
+    request: Request,
+    db: Session = Depends(get_db),
+    session_id: str | None = Depends(get_session_id),
+) -> None:
+    """
+    Check if user/IP has exceeded daily consultation limit.
+
+    Raises HTTPException 429 if limit exceeded.
+    Tracks by session_id (for registered users) or IP (for anonymous).
+    Uses Redis cache with 24-hour TTL for auto-reset.
+
+    Args:
+        request: FastAPI request (for IP extraction)
+        db: Database session (unused but required for dependency pattern)
+        session_id: Session ID from header (for tracking registered users)
+
+    Raises:
+        HTTPException: 429 if daily limit exceeded
+
+    Note:
+        Limit resets at UTC midnight. Cache key format: consult:daily:TYPE:KEY:YYYY-MM-DD
+    """
+    if not settings.DAILY_CONSULT_LIMIT_ENABLED:
+        return  # Feature flag disabled - skip check
+
+    # Get client identifier (prefer session_id, fallback to IP)
+    client_ip = request.client.host if request.client else "unknown"
+    tracking_key = session_id or client_ip
+    tracking_type = "session" if session_id else "ip"
+
+    # Get today's date in UTC (ISO format for consistency)
+    today = datetime.utcnow().date().isoformat()  # YYYY-MM-DD
+    cache_key = f"consult:daily:{tracking_type}:{tracking_key}:{today}"
+
+    # Get current consumption for today
+    current_count = cache.get(cache_key)
+    if current_count is None:
+        current_count = 0
+    else:
+        current_count = int(current_count)
+
+    # Check against limit
+    if current_count >= settings.DAILY_CONSULT_LIMIT:
+        logger.warning(
+            "Daily consultation limit exceeded",
+            extra={
+                "tracking_type": tracking_type,
+                "tracking_key": tracking_key,
+                "current_count": current_count,
+                "limit": settings.DAILY_CONSULT_LIMIT,
+                "date": today,
+            },
+        )
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="🙏 Daily reflection pause\n\n"
+                   "You've engaged in many thoughtful consultations today.\n"
+                   "The Geeta teaches that wisdom comes from reflection, "
+                   "not constant inquiry.\n"
+                   "Return tomorrow to continue your journey.",
+        )
+
+
+def increment_daily_consult_count(
+    request: Request,
+    session_id: str | None = None,
+) -> None:
+    """
+    Increment daily consumption count after successful consultation.
+
+    Called AFTER consultation is successfully queued/created.
+    Tracks by session_id or IP.
+
+    Args:
+        request: FastAPI request (for IP extraction)
+        session_id: Session ID from header (if provided)
+    """
+    if not settings.DAILY_CONSULT_LIMIT_ENABLED:
+        return
+
+    client_ip = request.client.host if request.client else "unknown"
+    tracking_key = session_id or client_ip
+    tracking_type = "session" if session_id else "ip"
+
+    today = datetime.utcnow().date().isoformat()
+    cache_key = f"consult:daily:{tracking_type}:{tracking_key}:{today}"
+
+    # Increment with 24hr TTL (auto-resets next day)
+    cache.incr(cache_key, ttl=86400)  # 86400 = 24 hours
 
 
 class CaseAccessDep:
