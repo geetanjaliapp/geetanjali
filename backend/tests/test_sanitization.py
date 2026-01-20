@@ -254,13 +254,13 @@ class TestSafeTextType:
         assert "World" in m.description
 
     def test_enforces_max_length(self):
-        """Long text exceeding 5000 chars is rejected."""
+        """Long text exceeding 10000 chars is rejected."""
 
         class Model(BaseModel):
             description: SafeText
 
         with pytest.raises(ValidationError):
-            Model(description="x" * 5001)
+            Model(description="x" * 10001)
 
 
 class TestSafeQueryType:

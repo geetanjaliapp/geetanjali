@@ -6,21 +6,28 @@ lightweight conversational responses using the dual-mode pipeline architecture.
 Flow:
 1. Validate case access
 2. Check case has at least one Output (consultation completed)
-3. Apply content filter to follow-up question
-4. Create user message immediately
-5. Set case status to processing
-6. Queue background task for LLM processing
-7. Return 202 Accepted
-8. Background task: run LLM, create assistant message, set case completed
+3. Check for duplicate questions (deduplication)
+4. Apply content filter to follow-up question
+5. Create user message immediately
+6. Set case status to processing
+7. Queue background task for LLM processing
+8. Return 202 Accepted
+9. Background task: run LLM, create assistant message, set case completed
 """
 
+import hashlib
 import logging
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from api.dependencies import get_case_with_access, limiter
+from api.dependencies import (
+    check_daily_limit,
+    get_case_with_access,
+    increment_daily_consult_count,
+    limiter,
+)
 from api.schemas import ChatMessageResponse, FollowUpRequest
 from config import settings
 from db.connection import SessionLocal, get_db
@@ -32,6 +39,7 @@ from services.content_filter import ContentPolicyError, validate_submission_cont
 from services.follow_up import get_follow_up_pipeline
 from services.tasks import enqueue_task
 from utils.exceptions import LLMError
+from utils.metrics_llm import track_validation_rejection
 
 logger = logging.getLogger(__name__)
 
@@ -166,7 +174,7 @@ def run_follow_up_background(
                 db.commit()
         except Exception as nested_e:
             logger.error(
-                f"[Background] Failed to mark case as FAILED after DB error: {nested_e}",
+                f"[Background] Failed to mark case FAILED after DB error: {nested_e}",
                 extra={"case_id": case_id},
             )
     except Exception as e:
@@ -213,6 +221,7 @@ async def submit_follow_up(
     follow_up_data: FollowUpRequest,
     case: Case = Depends(get_case_with_access),
     db: Session = Depends(get_db),
+    _: None = Depends(check_daily_limit),
 ) -> ChatMessageResponse:
     """
     Submit a follow-up question for async processing.
@@ -241,7 +250,35 @@ async def submit_follow_up(
             detail="A follow-up is already being processed. Please wait.",
         )
 
-    # 3. Apply content filter to follow-up question
+    # 3. Check for duplicate questions (deduplication)
+    # Detect if user is asking the exact same question again
+    # Hash the message content for efficient comparison
+    message_hash = hashlib.sha256(
+        follow_up_data.content.strip().lower().encode()
+    ).hexdigest()[:16]  # First 16 chars of hash (sufficient for collision resistance)
+
+    dedup_key = f"dedup:case:{case_id}:msg:{message_hash}"
+
+    # Check if this message hash was seen recently
+    if cache.get(dedup_key):
+        track_validation_rejection("duplicate_question")
+
+        logger.info(
+            "Request rejected: duplicate question",
+            extra={
+                "event": "validation_rejected",
+                "reason": "duplicate_question",
+                "case_id": case_id,
+            },
+        )
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="You've already asked this question in this conversation.\n\n"
+                   "Review your previous answer above and reflect on it.\n"
+                   "If you'd like to explore a different angle, ask a new question.",
+        )
+
+    # 4. Apply content filter to follow-up question
     try:
         validate_submission_content("", follow_up_data.content)
     except ContentPolicyError as e:
@@ -254,22 +291,30 @@ async def submit_follow_up(
             detail=e.message,
         )
 
-    # 4. Create user message immediately
+    # Mark this message as seen (24-hour window)
+    # TTL: 86400 seconds = 24 hours
+    # Must be after content filter passes to ensure correct error messages
+    cache.set(dedup_key, True, ttl=86400)
+
+    # 5. Create user message immediately
     message_repo = MessageRepository(db)
     user_message = message_repo.create_user_message(
         case_id=case_id, content=follow_up_data.content
     )
     logger.info(f"Created user follow-up message: {user_message.id}")
 
-    # 5. Update case status to processing
+    # Increment daily consumption counter (after successful message creation)
+    increment_daily_consult_count(request, case.session_id)
+
+    # 6. Update case status to processing
     case.status = CaseStatus.PROCESSING.value
     db.commit()
     db.refresh(case)
 
-    # 6. Get correlation ID from request state
+    # 7. Get correlation ID from request state
     request_correlation_id = getattr(request.state, "correlation_id", "background")
 
-    # 7. Queue background task (RQ first, fallback to BackgroundTasks)
+    # 8. Queue background task (RQ first, fallback to BackgroundTasks)
     job_id = enqueue_task(
         run_follow_up_background,
         case_id,
@@ -291,7 +336,7 @@ async def submit_follow_up(
         )
         logger.info(f"Follow-up queued via BackgroundTasks for case {case_id}")
 
-    # 8. Return user message
+    # 9. Return user message
     return ChatMessageResponse(
         id=user_message.id,
         case_id=case_id,

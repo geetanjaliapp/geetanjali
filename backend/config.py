@@ -21,7 +21,7 @@ class Settings(BaseSettings):
 
     # Application
     APP_NAME: str = "Geetanjali"
-    APP_VERSION: str = "1.16.0"  # Set via APP_VERSION env var at deploy (from git tag)
+    APP_VERSION: str = "1.32.0"  # Set via APP_VERSION env var at deploy (from git tag)
     APP_ENV: str = "development"
     DEBUG: bool = False  # Safe default: False
     LOG_LEVEL: str = "INFO"
@@ -205,10 +205,28 @@ class Settings(BaseSettings):
     ]
     # NOTE: Default is for dev only. Production validation will FAIL TO START if used.
     API_KEY: str = "dev-api-key-12345"
-    ANALYZE_RATE_LIMIT: str = "10/hour"  # Rate limit for analyze endpoint
-    FOLLOW_UP_RATE_LIMIT: str = (
-        "30/hour"  # Rate limit for follow-up endpoint (3x analyze)
-    )
+
+    # ============================================================
+    # Cost Defense: Rate Limiting & Daily Caps (v1.32.0)
+    # ============================================================
+    # Conservative defaults designed to prevent bulk automation
+    # while allowing legitimate single-user scenarios.
+    #
+    # Rate limits: How many requests per time window
+    # Daily limits: Hard ceiling per calendar day per IP/session
+    #
+    # These are tuneable: adjust based on Week 1 monitoring data.
+
+    # Hourly rate limits (3/hour = 1 consult every 20 min)
+    ANALYZE_RATE_LIMIT: str = "3/hour"  # Case submission rate limit (tightened from 10)
+    FOLLOW_UP_RATE_LIMIT: str = "5/hour"  # Follow-up submission rate limit (tightened from 30)
+
+    # Daily consumption limit (20/day = ~2.5/hour average)
+    DAILY_CONSULT_LIMIT: int = 20  # Max consults per calendar day per IP/session
+    DAILY_CONSULT_LIMIT_ENABLED: bool = True  # Feature flag: disable if needed
+
+    # Request token limit (4 chars/token conservative estimation)
+    REQUEST_TOKEN_LIMIT: int = 2000  # Max tokens per request (prevents oversized prompts)
 
     # Authentication / JWT
     # NOTE: Default is for dev only. Production validation (validate_production_config)

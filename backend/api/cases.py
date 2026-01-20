@@ -11,7 +11,12 @@ from typing import Any, TypeVar
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from sqlalchemy.orm import Session
 
-from api.dependencies import get_case_with_access, limiter
+from api.dependencies import (
+    check_daily_limit,
+    get_case_with_access,
+    increment_daily_consult_count,
+    limiter,
+)
 from api.middleware.auth import get_optional_user, get_session_id
 from api.schemas import (
     CaseCreate,
@@ -41,6 +46,8 @@ from services.content_filter import (
     ContentPolicyError,
     validate_submission_content,
 )
+from utils.metrics_llm import track_consultation_cost, track_validation_rejection
+from utils.token_counter import estimate_tokens
 
 logger = logging.getLogger(__name__)
 
@@ -171,13 +178,14 @@ router = APIRouter(prefix="/api/v1/cases")
 
 
 @router.post("", response_model=CaseResponse, status_code=status.HTTP_201_CREATED)
-@limiter.limit("20/minute")
+@limiter.limit(settings.ANALYZE_RATE_LIMIT)
 async def create_case(
     request: Request,
     case_data: CaseCreate,
     db: Session = Depends(get_db),
     current_user: User | None = Depends(get_optional_user),
     session_id: str | None = Depends(get_session_id),
+    _: None = Depends(check_daily_limit),
 ):
     """
     Create a new ethical dilemma case (supports anonymous users).
@@ -192,8 +200,35 @@ async def create_case(
         Created case
 
     Raises:
-        HTTPException 422: If content violates content policy (blocklist)
+        HTTPException 422: If content violates content policy (blocklist) or token limit
     """
+    from utils.token_counter import check_request_tokens
+
+    # Layer 0: Token size validation (early rejection of oversized requests)
+    # Prevents wasting LLM tokens on bloated prompts
+    try:
+        check_request_tokens(
+            case_data.title,
+            case_data.description,
+            max_tokens=settings.REQUEST_TOKEN_LIMIT,
+        )
+    except ValueError as e:
+        track_validation_rejection("token_too_large")
+
+        logger.info(
+            "Request rejected: too many tokens",
+            extra={
+                "event": "validation_rejected",
+                "reason": "token_too_large",
+                "title_len": len(case_data.title),
+                "description_len": len(case_data.description),
+            },
+        )
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(e),
+        )
+
     # Layer 1: Pre-submission content filter (blocklist check)
     # Rejects obvious violations before database write
     try:
@@ -209,7 +244,8 @@ async def create_case(
         )
 
     logger.info(
-        f"Creating case: {case_data.title} (anonymous={current_user is None}, session_id={session_id})"
+        f"Creating case: {case_data.title} "
+        f"(anonymous={current_user is None}, session_id={session_id})"
     )
 
     case_dict = case_data.model_dump()
@@ -227,7 +263,18 @@ async def create_case(
     message_repo = MessageRepository(db)
     message_repo.create_user_message(case_id=case.id, content=case_data.description)
 
+    # Track cost for the consultation request
+    ip = request.client.host if request.client else "unknown"
+    title_tokens = estimate_tokens(case_data.title)
+    desc_tokens = estimate_tokens(case_data.description)
+    estimated = title_tokens + desc_tokens
+    track_consultation_cost(ip, settings.LLM_PROVIDER, estimated)
+
     logger.info(f"Case created: {case.id}")
+
+    # Increment daily consumption counter (after successful creation)
+    increment_daily_consult_count(request, session_id)
+
     return case
 
 

@@ -1,0 +1,110 @@
+# Cost Defense Alerting Rules
+# Alerts for cost anomalies, rate limit enforcement, and validation rejections
+
+groups:
+  - name: cost_defense
+    interval: 30s
+    rules:
+      # =============================================================================
+      # Cost Spike Alerts
+      # =============================================================================
+
+      - alert: HighCostPerIP
+        expr: geetanjali_consultation_cost_per_ip > 10
+        for: 1h
+        labels:
+          severity: warning
+          component: cost_defense
+        annotations:
+          summary: "High cost from single IP: {{ $labels.ip }}"
+          description: "IP {{ $labels.ip }} ({{ $labels.provider }}) has generated ${{ $value | humanize }} in consultation costs. Review for potential abuse or power user."
+          runbook_url: "https://github.com/geetanjaliapp/geetanjali/blob/main/docs/COST_DEFENSE.md#incident-response"
+
+      - alert: DailyCostSpike
+        expr: rate(geetanjali_consultation_cost_usd_total[1h]) > 10
+        for: 30m
+        labels:
+          severity: critical
+          component: cost_defense
+        annotations:
+          summary: "Daily cost spike detected"
+          description: "Estimated hourly cost is ${{ $value | humanize }}/hour. Check Prometheus dashboard for per-IP breakdown."
+          runbook_url: "https://github.com/geetanjaliapp/geetanjali/blob/main/docs/COST_DEFENSE.md#cost-spike--100day-up-10x"
+
+      # =============================================================================
+      # Daily Limit Enforcement Alerts
+      # =============================================================================
+
+      - alert: HighDailyLimitHitRate
+        expr: rate(geetanjali_daily_limit_exceeded_total[1d]) > 0.05
+        for: 1h
+        labels:
+          severity: warning
+          component: cost_defense
+        annotations:
+          summary: "Daily limit exceeded frequently"
+          description: "Daily limit hit rate is {{ $value | humanizePercentage }}. Limits may be too strict. Review usage patterns in Prometheus."
+          runbook_url: "https://github.com/geetanjaliapp/geetanjali/blob/main/docs/COST_DEFENSE.md#daily-limit-false-positives--20-hit-rate"
+
+      - alert: PotentialAbuseDetected
+        expr: increase(geetanjali_daily_limit_exceeded_total{tracking_type="ip"}[1h]) > 5
+        for: 15m
+        labels:
+          severity: critical
+          component: cost_defense
+        annotations:
+          summary: "Potential abuse pattern detected"
+          description: "{{ $value }} daily limit hits from IPs in past hour. Check logs for event:potential_abuse patterns."
+          runbook_url: "https://github.com/geetanjaliapp/geetanjali/blob/main/docs/COST_DEFENSE.md#incident-response"
+
+      # =============================================================================
+      # Request Validation Alerts
+      # =============================================================================
+
+      - alert: TokenValidationSpike
+        expr: rate(geetanjali_request_validation_rejected_total{reason="token_too_large"}[1d]) > 5
+        for: 30m
+        labels:
+          severity: info
+          component: cost_defense
+        annotations:
+          summary: "Token validation rejections spike"
+          description: "{{ $value | humanize }} token rejections per day. Users hitting 2000-token limit. Consider increasing limit if legitimate."
+          runbook_url: "https://github.com/geetanjaliapp/geetanjali/blob/main/docs/COST_DEFENSE.md#weekly-tuning-every-friday"
+
+      - alert: DuplicateDetectionWorking
+        expr: increase(geetanjali_request_validation_rejected_total{reason="duplicate_question"}[1d]) > 10
+        for: 1h
+        labels:
+          severity: info
+          component: cost_defense
+        annotations:
+          summary: "Duplicate question deduplication working"
+          description: "{{ $value | humanize }} duplicate questions detected and blocked in past day. Deduplication is functioning correctly."
+          runbook_url: "https://github.com/geetanjaliapp/geetanjali/blob/main/docs/COST_DEFENSE.md"
+
+      # =============================================================================
+      # Metrics Health Alerts
+      # =============================================================================
+
+      - alert: CostMetricsNotFlowing
+        expr: rate(geetanjali_consultation_cost_usd_total[5m]) == 0
+        for: 10m
+        labels:
+          severity: warning
+          component: cost_defense
+        annotations:
+          summary: "Cost metrics not being recorded"
+          description: "No cost metrics observed in past 5 minutes. Check if consultations are being processed and metrics pipeline is healthy."
+          runbook_url: "https://github.com/geetanjaliapp/geetanjali/blob/main/docs/COST_DEFENSE.md#metrics-not-flowing"
+
+      - alert: DailyLimitMetricsNotFlowing
+        expr: increase(geetanjali_daily_limit_exceeded_total[1h]) == 0 and hour() == 8
+        for: 30m
+        labels:
+          severity: info
+          component: cost_defense
+        annotations:
+          summary: "No daily limit hits recorded (morning check)"
+          description: "Zero daily limit hits in past hour. This is expected if user load is low or limits are sufficient. Check dashboard to confirm normal operation."
+          runbook_url: "https://github.com/geetanjaliapp/geetanjali/blob/main/docs/COST_DEFENSE.md#daily-checklist-5-minutes"

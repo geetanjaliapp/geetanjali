@@ -12,7 +12,9 @@ Usage:
     pytest -m "unit or integration"     # Run unit and integration
 """
 
+import json
 import os
+import uuid
 from unittest.mock import patch
 
 # Disable Redis caching before importing app (must be before config import)
@@ -203,3 +205,56 @@ def client_with_principles(db_session, seeded_principles):
 
     # Clear overrides
     app.dependency_overrides.clear()
+
+
+@pytest.fixture(scope="function")
+def case_with_output(db_session):
+    """
+    Create a case with a completed consultation output for follow-up tests.
+
+    This fixture creates:
+    - A case with basic details and a fixed session_id
+    - A completed output with LLM response and verses
+    - Allows follow-up endpoint tests to work
+    - Tests should provide X-Session-ID header with the session_id from this fixture
+    """
+    # Use a fixed session ID that tests can use
+    session_id = "test-session-follow-up-123"
+
+    # Create case with session_id (allows anonymous user access)
+    case = Case(
+        id=str(uuid.uuid4()),
+        title="Test case for follow-ups",
+        description="A test dilemma for follow-up testing",
+        status="completed",
+        session_id=session_id,
+    )
+    db_session.add(case)
+    db_session.flush()
+
+    # Create output with valid JSON structure
+    output_data = {
+        "summary": "Test summary",
+        "analysis": "Test analysis",
+        "verses": [
+            {
+                "verse_id": "1.1",
+                "verse_text": "Test verse",
+                "translation": "Test translation",
+                "commentary": "Test commentary",
+            }
+        ],
+        "action_items": ["Item 1"],
+    }
+
+    output = Output(
+        id=str(uuid.uuid4()),
+        case_id=case.id,
+        result_json=json.dumps(output_data),
+    )
+    db_session.add(output)
+    db_session.commit()
+
+    # Return case with session_id for test access
+    case.session_id = session_id
+    return case

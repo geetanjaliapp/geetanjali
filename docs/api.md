@@ -38,13 +38,83 @@ sequenceDiagram
 
 ## Rate Limits
 
-| Endpoint | Limit | Scope |
-|----------|-------|-------|
-| Case analysis | 10/hour | Per user/IP |
-| Follow-up questions | 30/hour | Per user/IP |
-| General API | 100/hour | Per user/IP |
+| Guard | Limit | Scope | Purpose |
+|-------|-------|-------|---------|
+| Case analysis (rate) | 3/hour | Per user/IP | 1 consultation every 20 minutes |
+| Follow-up questions (rate) | 5/hour | Per user/IP | Natural Q&A conversation pace |
+| Daily consultation limit | 20/day | Per user/IP | Cost defense (v1.32.0+) |
+| Request token limit | 2000 tokens | Per request | Early rejection of oversized input |
+| Question deduplication | 24-hour window | Per case | Prevents accidental repeated questions |
 
-Response headers include `X-RateLimit-*` when approaching limits.
+Response codes for rate/limit exceeded:
+- **429 Too Many Requests** - Rate limit or daily limit exceeded
+- **422 Unprocessable Entity** - Token validation failed, duplicate question, or content policy violation
+
+Response headers include `X-RateLimit-*` when approaching rate limits (not daily limits).
+
+### Cost Defense Examples
+
+**Hourly rate limit exceeded (429):**
+```bash
+# After 3 analyses in the last hour
+curl -X POST http://localhost:8000/api/v1/cases/abc123/analyze/async \
+  -H "Authorization: Bearer token"
+
+# Response: 429 Too Many Requests
+{
+  "detail": "Rate limit exceeded. You can analyze 1 more case at 2024-01-20T15:42:00Z."
+}
+```
+
+**Daily limit exceeded (429):**
+```bash
+# After 20 consultations today (UTC)
+curl -X POST http://localhost:8000/api/v1/cases \
+  -H "Content-Type: application/json" \
+  -d '{"title": "Another case", "description": "..."}'
+
+# Response: 429 Too Many Requests
+{
+  "detail": "Daily reflection pause. You've had 20 consultations today. Rest and reflect—resume tomorrow at 2024-01-21T00:00:00Z."
+}
+```
+
+**Request token limit exceeded (422):**
+```bash
+# Description exceeds 2000 tokens (~8000 characters)
+curl -X POST http://localhost:8000/api/v1/cases \
+  -H "Content-Type: application/json" \
+  -d '{"title": "Case", "description": "[very long text >8000 chars]"}'
+
+# Response: 422 Unprocessable Entity
+{
+  "detail": "Your question is too detailed (2847 tokens). Please simplify to under 2000 tokens."
+}
+```
+
+**Duplicate question (422):**
+```bash
+# Asked exact same follow-up within 24 hours
+curl -X POST http://localhost:8000/api/v1/cases/abc123/follow-up \
+  -H "Authorization: Bearer token" \
+  -d '{"content": "What should I do?"}'
+
+# Response: 422 Unprocessable Entity
+{
+  "detail": "You've already asked this question in this conversation. Try rephrasing your question or explore a different angle."
+}
+```
+
+### Session Tracking
+
+When using the API without authentication, rate limits are scoped to IP address. For authenticated requests, limits are scoped to the authenticated user. For anonymous consultations, use the `X-Session-ID` header to maintain per-session limits:
+
+```bash
+curl -X POST http://localhost:8000/api/v1/cases \
+  -H "Content-Type: application/json" \
+  -H "X-Session-ID: my-session-12345" \
+  -d '{"title": "Case", "description": "..."}'
+```
 
 ---
 
