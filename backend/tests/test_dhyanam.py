@@ -4,6 +4,7 @@ import uuid
 
 import pytest
 from fastapi import status
+from sqlalchemy import text
 
 from models import DhyanamVerse
 
@@ -21,15 +22,30 @@ def cleanup_dhyanam(db_session):
         pass  # Ignore if no transaction
 
     # Delete all existing dhyanam verses before test
-    db_session.query(DhyanamVerse).delete()
-    db_session.commit()
+    try:
+        db_session.query(DhyanamVerse).delete()
+        db_session.commit()
+    except Exception:
+        db_session.rollback()
+
+    # Also try to truncate the table for PostgreSQL compatibility
+    try:
+        db_session.execute(text("TRUNCATE TABLE dhyanam_verses CASCADE"))
+        db_session.commit()
+    except Exception:
+        pass  # Ignore if table doesn't exist yet
+
     yield
+
     # Cleanup after test
     try:
         db_session.query(DhyanamVerse).delete()
         db_session.commit()
     except Exception:
-        pass  # Ignore cleanup errors
+        try:
+            db_session.rollback()
+        except Exception:
+            pass
 
 
 @pytest.fixture
