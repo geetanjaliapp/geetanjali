@@ -49,13 +49,8 @@ def cleanup_dhyanam(db_session):
 
 
 @pytest.fixture
-def sample_dhyanam_verse(db_session):
+def sample_dhyanam_verse(db_session, cleanup_dhyanam):
     """Create a sample dhyanam verse for testing."""
-    # Check if verse already exists
-    existing = db_session.query(DhyanamVerse).filter_by(verse_number=1).first()
-    if existing:
-        return existing
-
     verse = DhyanamVerse(
         id=str(uuid.uuid4()),
         verse_number=1,
@@ -74,16 +69,10 @@ def sample_dhyanam_verse(db_session):
 
 
 @pytest.fixture
-def all_dhyanam_verses(db_session):
+def all_dhyanam_verses(db_session, cleanup_dhyanam):
     """Create all 9 dhyanam verses for testing."""
     verses = []
     for i in range(1, 10):
-        # Check if verse already exists
-        existing = db_session.query(DhyanamVerse).filter_by(verse_number=i).first()
-        if existing:
-            verses.append(existing)
-            continue
-
         verse = DhyanamVerse(
             id=str(uuid.uuid4()),
             verse_number=i,
