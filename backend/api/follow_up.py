@@ -20,7 +20,12 @@ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request,
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from api.dependencies import get_case_with_access, limiter
+from api.dependencies import (
+    check_daily_limit,
+    get_case_with_access,
+    increment_daily_consult_count,
+    limiter,
+)
 from api.schemas import ChatMessageResponse, FollowUpRequest
 from config import settings
 from db.connection import SessionLocal, get_db
@@ -213,6 +218,7 @@ async def submit_follow_up(
     follow_up_data: FollowUpRequest,
     case: Case = Depends(get_case_with_access),
     db: Session = Depends(get_db),
+    _: None = Depends(check_daily_limit),
 ) -> ChatMessageResponse:
     """
     Submit a follow-up question for async processing.
@@ -260,6 +266,9 @@ async def submit_follow_up(
         case_id=case_id, content=follow_up_data.content
     )
     logger.info(f"Created user follow-up message: {user_message.id}")
+
+    # Increment daily consumption counter (after successful message creation)
+    increment_daily_consult_count(request, case.session_id)
 
     # 5. Update case status to processing
     case.status = CaseStatus.PROCESSING.value
