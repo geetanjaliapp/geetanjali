@@ -100,8 +100,8 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 class InMemoryCache:
     """Simple in-memory cache implementation for tests."""
 
-    def __init__(self):
-        self._store = {}
+    def __init__(self) -> None:
+        self._store: dict = {}
 
     def get(self, key: str):
         """Get value from cache."""
@@ -140,7 +140,7 @@ class InMemoryCache:
 
     def incr(self, key: str, ttl: int = 0) -> int:
         """Increment counter."""
-        current = self._store.get(key, 0)
+        current: int = self._store.get(key, 0)  # type: ignore[assignment]
         new_value = current + 1
         self._store[key] = new_value
         return new_value
@@ -152,7 +152,7 @@ class InMemoryCache:
             return 0
         return int(value)
 
-    def clear(self):
+    def clear(self) -> None:
         """Clear all cache entries."""
         self._store.clear()
 
