@@ -93,7 +93,17 @@ fi
 
 # Now run any pending migrations
 alembic upgrade head || {
-    echo "⚠️  Warning: Migrations may have failed, but continuing..."
+    echo "⚠️  Warning: Migration upgrade failed"
+
+    # Check if we're already at head (tables exist but version tracking is off)
+    CURRENT=$(alembic current 2>/dev/null | grep -oE '[0-9]+' | head -1)
+    HEAD=$(alembic heads 2>/dev/null | grep -oE '[0-9]+' | head -1)
+
+    if [ -n "$CURRENT" ] && [ -n "$HEAD" ] && [ "$CURRENT" != "$HEAD" ]; then
+        echo "Detected version mismatch (current: $CURRENT, head: $HEAD)"
+        echo "Attempting to stamp to head (tables may already exist from backup/restore)..."
+        alembic stamp head && echo "✓ Stamped to head successfully" || echo "⚠️  Stamp also failed"
+    fi
 }
 echo "✓ Database migrations complete"
 
