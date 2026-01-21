@@ -51,6 +51,10 @@ def cleanup_dhyanam(db_session):
 @pytest.fixture
 def sample_dhyanam_verse(db_session, cleanup_dhyanam):
     """Create a sample dhyanam verse for testing."""
+    # Defensively clear any existing verses to ensure clean state
+    db_session.query(DhyanamVerse).delete()
+    db_session.commit()
+
     verse = DhyanamVerse(
         id=str(uuid.uuid4()),
         verse_number=1,
@@ -71,6 +75,10 @@ def sample_dhyanam_verse(db_session, cleanup_dhyanam):
 @pytest.fixture
 def all_dhyanam_verses(db_session, cleanup_dhyanam):
     """Create all 9 dhyanam verses for testing."""
+    # Defensively clear any existing verses to ensure clean state
+    db_session.query(DhyanamVerse).delete()
+    db_session.commit()
+
     verses = []
     for i in range(1, 10):
         verse = DhyanamVerse(
