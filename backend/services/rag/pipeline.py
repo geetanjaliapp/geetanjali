@@ -24,6 +24,7 @@ from services.prompts import (
 )
 from services.vector_store import get_vector_store
 from utils.circuit_breaker import CircuitBreakerOpen
+from utils.exceptions import LLMError
 from utils.input_normalization import normalize_input
 from utils.json_parsing import extract_json_from_text
 from utils.metrics_events import vector_search_fallback_total
@@ -353,31 +354,83 @@ class RAGPipeline:
             )
             track_json_extraction_failure(provider)
 
-            # Intelligent escalation: if primary provider failed and fallback available,
-            # escalate to fallback provider for reliable response
-            # This ensures users get high-quality output even if primary LLM format is malformed
-            if provider != "mock" and settings.LLM_FALLBACK_ENABLED:
+            # Escalation: Route failed consultation to fallback provider as a fresh attempt
+            #
+            # Provider types:
+            # - External LLMs (Gemini, Anthropic): Full prompt, equal treatment
+            # - Local LLM (Ollama): Simplified prompt due to resource constraints
+            #
+            # CRITICAL: Call the fallback provider DIRECTLY, not through generate()
+            # which would retry the primary provider instead of escalating.
+            fallback_provider_name = settings.LLM_FALLBACK_PROVIDER.lower()
+            if (
+                provider != "mock"
+                and settings.LLM_FALLBACK_ENABLED
+                and fallback_provider_name != provider
+            ):
                 logger.warning(
-                    f"Escalating to fallback provider due to JSON extraction failure from {provider}"
+                    f"Escalating to fallback provider ({fallback_provider_name}) due to JSON extraction failure from {provider}"
                 )
-                # Initialize fallback provider name before try block to prevent NameError in except
-                fallback_provider = settings.LLM_FALLBACK_PROVIDER or "unknown"
+                fallback_provider = fallback_provider_name
                 try:
-                    # Attempt with fallback provider - use similar prompt but marked as escalation
-                    escalation_sys = (
-                        f"{system_prompt}\n\n"
-                        f"NOTE: Primary LLM had format issues. Please ensure strict JSON compliance."
-                        if system_prompt
-                        else "Return only valid JSON with no additional text or markdown."
+                    from services.llm import LLMProvider
+
+                    # Determine if fallback is external (Gemini/Anthropic) or local (Ollama)
+                    is_ollama_fallback = (
+                        fallback_provider_name == LLMProvider.OLLAMA.value
                     )
-                    fallback_result = self.llm_service.generate(
-                        prompt=fallback_prompt or prompt,
-                        system_prompt=escalation_sys,
-                        temperature=temperature,
-                        allow_fallback=False,  # Don't cascade fallback
-                    )
+
+                    # External LLMs: Full prompt and system prompt
+                    # Ollama: Simplified prompt due to resource constraints
+                    if is_ollama_fallback:
+                        escalation_prompt = fallback_prompt or prompt
+                        escalation_sys = OLLAMA_SYSTEM_PROMPT
+                    else:
+                        escalation_prompt = prompt
+                        escalation_sys = (
+                            f"{system_prompt}\n\n"
+                            f"NOTE: Primary LLM had format issues. Please ensure strict JSON compliance."
+                            if system_prompt
+                            else "Return only valid JSON with no additional text or markdown."
+                        )
+
+                    # Call the fallback provider directly
+                    fallback_result = None
+                    if (
+                        fallback_provider_name == LLMProvider.ANTHROPIC.value
+                        and self.llm_service.anthropic_client
+                    ):
+                        fallback_result = self.llm_service._generate_anthropic(
+                            prompt=escalation_prompt,
+                            system_prompt=escalation_sys,
+                            temperature=temperature,
+                        )
+                    elif (
+                        fallback_provider_name == LLMProvider.GEMINI.value
+                        and self.llm_service.gemini_client
+                    ):
+                        fallback_result = self.llm_service._generate_gemini(
+                            prompt=escalation_prompt,
+                            system_prompt=escalation_sys,
+                            temperature=temperature,
+                            json_mode=True,
+                        )
+                    elif is_ollama_fallback and self.llm_service.ollama_enabled:
+                        fallback_result = self.llm_service._generate_ollama(
+                            prompt=escalation_prompt,
+                            system_prompt=escalation_sys,
+                            temperature=temperature,
+                            json_mode=True,
+                        )
+                    else:
+                        raise LLMError(
+                            f"Fallback provider {fallback_provider_name} not available"
+                        )
+
                     fallback_response = fallback_result["response"]
-                    fallback_provider = fallback_result.get("provider", "unknown")
+                    fallback_provider = fallback_result.get(
+                        "provider", fallback_provider_name
+                    )
                     fallback_model = fallback_result.get("model", "unknown")
 
                     parsed_result = extract_json_from_text(
@@ -388,14 +441,18 @@ class RAGPipeline:
                         "model": fallback_model,
                         "escalated_from": provider,
                     }
-                    track_json_extraction_escalation(provider, fallback_provider, "success")
+                    track_json_extraction_escalation(
+                        provider, fallback_provider, "success"
+                    )
                     logger.info(
                         f"Escalation succeeded: {fallback_provider} generated valid JSON "
                         f"after {provider} format failure"
                     )
                     return parsed_result, False
                 except Exception as escalation_error:
-                    track_json_extraction_escalation(provider, fallback_provider, "failed")
+                    track_json_extraction_escalation(
+                        provider, fallback_provider, "failed"
+                    )
                     logger.error(
                         f"Escalation to fallback provider also failed: {escalation_error}"
                     )
