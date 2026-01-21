@@ -10,7 +10,18 @@ Usage:
     pytest -m "unit"                    # Run only unit tests
     pytest -m "not slow"                # Skip slow tests
     pytest -m "unit or integration"     # Run unit and integration
+
+Organization:
+    1. Environment & Configuration (lines ~15-80)
+    2. Database Infrastructure (lines ~85-165)
+    3. Core Fixtures: db_session, client (lines ~170-230)
+    4. Auto-Mock Fixtures: cache, tasks, email (lines ~235-265)
+    5. Domain Fixtures: seeded_principles, case_with_output (lines ~270-385)
 """
+
+# =============================================================================
+# Section 1: Environment & Configuration
+# =============================================================================
 
 import json
 import os
@@ -80,6 +91,10 @@ from models.seo_page import SeoPage  # noqa: F401
 from models.sync_hash import SyncHash  # noqa: F401
 from models.user_preferences import UserPreferences  # noqa: F401
 
+# =============================================================================
+# Section 2: Database Infrastructure
+# =============================================================================
+
 # Use in-memory SQLite with StaticPool for single connection across threads
 # If DATABASE_URL is set (CI environment), use PostgreSQL
 DATABASE_URL = os.environ.get("DATABASE_URL")
@@ -126,6 +141,7 @@ class InMemoryCache:
     def invalidate_pattern(self, pattern: str) -> int:
         """Delete all keys matching pattern."""
         import fnmatch
+
         keys_to_delete = [k for k in self._store.keys() if fnmatch.fnmatch(k, pattern)]
         for key in keys_to_delete:
             del self._store[key]
@@ -163,6 +179,11 @@ class InMemoryCache:
 
 # Global test cache instance
 test_cache = InMemoryCache()
+
+
+# =============================================================================
+# Section 3: Core Fixtures
+# =============================================================================
 
 
 @pytest.fixture(scope="function")
@@ -224,6 +245,11 @@ def client(db_session):
     app.dependency_overrides.clear()
 
 
+# =============================================================================
+# Section 4: Auto-Mock Fixtures
+# =============================================================================
+
+
 @pytest.fixture(autouse=True)
 def mock_background_tasks():
     """
@@ -232,6 +258,7 @@ def mock_background_tasks():
     This prevents both RQ and BackgroundTasks from executing.
     Tests can manually trigger background work if needed.
     """
+
     def mock_enqueue_task(*args, **kwargs):
         """Return None to indicate RQ is not available."""
         return None
@@ -262,6 +289,11 @@ def mock_email_sending():
         patch("api.newsletter.send_newsletter_verification_email", return_value=True),
     ):
         yield
+
+
+# =============================================================================
+# Section 5: Domain Fixtures
+# =============================================================================
 
 
 @pytest.fixture(scope="function")
