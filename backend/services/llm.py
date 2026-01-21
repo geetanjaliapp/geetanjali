@@ -436,9 +436,24 @@ class LLMService:
         before_sleep=before_sleep_log(logger, logging.WARNING),
         reraise=True,
     )
-    def _make_ollama_request(self, payload: dict[str, Any]) -> dict[str, Any]:
-        """Make Ollama request with retry logic using persistent client."""
-        response = self.ollama_client.post("/api/generate", json=payload)
+    def _make_ollama_request(
+        self, payload: dict[str, Any], timeout: float | None = None
+    ) -> dict[str, Any]:
+        """
+        Make Ollama request with retry logic using persistent client.
+
+        Args:
+            payload: Request payload
+            timeout: Optional per-request timeout in seconds (overrides client default)
+
+        Returns:
+            Response JSON as dict
+        """
+        # Use per-request timeout if provided, otherwise use client default
+        request_timeout = timeout if timeout is not None else self.ollama_client.timeout
+        response = self.ollama_client.post(
+            "/api/generate", json=payload, timeout=request_timeout
+        )
         response.raise_for_status()
         return dict(response.json())
 

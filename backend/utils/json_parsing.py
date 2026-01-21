@@ -62,11 +62,21 @@ def extract_json_from_text(response_text: str, provider: str = "unknown") -> dic
                 )
                 continue
 
-    # Strategy 3: Find first { and try to extract complete JSON object
+    # Strategy 3: Find JSON objects by locating { characters (with limit to avoid O(n²))
     # This handles: "analysis: {... proper json ...}" pattern
     # Use json.JSONDecoder.raw_decode() to find the complete object
+    # Limit attempts to first 100 {-positions to avoid O(n²) behavior on large responses
+    brace_count = 0
+    max_brace_attempts = 100
     for start_idx in range(len(response_text)):
         if response_text[start_idx] == "{":
+            if brace_count >= max_brace_attempts:
+                logger.debug(
+                    f"Reached max brace attempts ({max_brace_attempts}) in Strategy 3, "
+                    f"stopping JSON extraction attempts"
+                )
+                break
+            brace_count += 1
             try:
                 decoder = json.JSONDecoder()
                 parsed, _ = decoder.raw_decode(response_text, start_idx)
