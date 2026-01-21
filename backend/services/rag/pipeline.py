@@ -27,6 +27,10 @@ from utils.circuit_breaker import CircuitBreakerOpen
 from utils.input_normalization import normalize_input
 from utils.json_parsing import extract_json_from_text
 from utils.metrics_events import vector_search_fallback_total
+from utils.metrics_llm import (
+    track_json_extraction_escalation,
+    track_json_extraction_failure,
+)
 
 from .validation import (
     _ensure_required_fields,
@@ -316,7 +320,7 @@ class RAGPipeline:
 
         # Parse JSON with robust extraction
         try:
-            parsed_result = extract_json_from_text(response_text)
+            parsed_result = extract_json_from_text(response_text, provider=provider)
             # Add LLM attribution metadata
             parsed_result["llm_attribution"] = {
                 "provider": provider,
@@ -326,8 +330,59 @@ class RAGPipeline:
             return parsed_result, False
 
         except ValueError as extraction_error:
-            logger.error(f"JSON extraction failed: {extraction_error}")
-            logger.debug(f"Response text (first 500 chars): {response_text[:500]}")
+            logger.error(
+                f"JSON extraction failed from {provider}: {extraction_error}. "
+                f"Full response: {response_text}"
+            )
+            track_json_extraction_failure(provider)
+
+            # Intelligent escalation: if primary provider failed and fallback available,
+            # escalate to fallback provider for reliable response
+            # This ensures users get high-quality output even if primary LLM format is malformed
+            if provider != "mock" and settings.LLM_FALLBACK_ENABLED:
+                logger.warning(
+                    f"Escalating to fallback provider due to JSON extraction failure from {provider}"
+                )
+                # Initialize fallback provider name before try block to prevent NameError in except
+                fallback_provider = settings.LLM_FALLBACK_PROVIDER or "unknown"
+                try:
+                    # Attempt with fallback provider - use similar prompt but marked as escalation
+                    escalation_sys = (
+                        f"{system_prompt}\n\n"
+                        f"NOTE: Primary LLM had format issues. Please ensure strict JSON compliance."
+                        if system_prompt
+                        else "Return only valid JSON with no additional text or markdown."
+                    )
+                    fallback_result = self.llm_service.generate(
+                        prompt=fallback_prompt or prompt,
+                        system_prompt=escalation_sys,
+                        temperature=temperature,
+                        allow_fallback=False,  # Don't cascade fallback
+                    )
+                    fallback_response = fallback_result["response"]
+                    fallback_provider = fallback_result.get("provider", "unknown")
+                    fallback_model = fallback_result.get("model", "unknown")
+
+                    parsed_result = extract_json_from_text(
+                        fallback_response, provider=fallback_provider
+                    )
+                    parsed_result["llm_attribution"] = {
+                        "provider": fallback_provider,
+                        "model": fallback_model,
+                        "escalated_from": provider,
+                    }
+                    track_json_extraction_escalation(provider, fallback_provider, "success")
+                    logger.info(
+                        f"Escalation succeeded: {fallback_provider} generated valid JSON "
+                        f"after {provider} format failure"
+                    )
+                    return parsed_result, False
+                except Exception as escalation_error:
+                    track_json_extraction_escalation(provider, fallback_provider, "failed")
+                    logger.error(
+                        f"Escalation to fallback provider also failed: {escalation_error}"
+                    )
+                    # Fall through to post-processing fallback if available
 
             # Apply post-processing fallback for all providers if verses available
             # This is our graceful degradation layer - fill gaps intelligently

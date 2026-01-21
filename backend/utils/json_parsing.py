@@ -12,7 +12,7 @@ from typing import Any
 logger = logging.getLogger(__name__)
 
 
-def extract_json_from_text(response_text: str) -> dict[str, Any]:
+def extract_json_from_text(response_text: str, provider: str = "unknown") -> dict[str, Any]:
     """
     Robustly extract JSON from LLM response text.
 
@@ -24,6 +24,7 @@ def extract_json_from_text(response_text: str) -> dict[str, Any]:
 
     Args:
         response_text: Raw LLM response text
+        provider: LLM provider name (for logging/metrics)
 
     Returns:
         Parsed JSON dict
@@ -75,11 +76,12 @@ def extract_json_from_text(response_text: str) -> dict[str, Any]:
             except json.JSONDecodeError:
                 continue
 
-    # Failed all strategies
+    # Failed all strategies - log full response for debugging
     logger.error(
-        f"Could not extract JSON from response. First 500 chars: {response_text[:500]}"
+        f"Could not extract JSON from {provider} response. First 500 chars: {response_text[:500]}"
     )
-    raise ValueError("No valid JSON found in LLM response")
+    logger.debug(f"Full response for extraction failure analysis: {response_text}")
+    raise ValueError(f"No valid JSON found in {provider} LLM response")
 
 
 def extract_json_from_markdown(response_text: str) -> dict[str, Any] | None:
