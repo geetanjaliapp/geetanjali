@@ -247,15 +247,9 @@ def build_user_prompt(
             "Do NOT reference any other verses.\n\n"
         )
 
-    # Add output format requirements - reinforced for format compliance
-    prompt_parts.append("\n# Output Format Requirements\n")
-    prompt_parts.append(
-        "CRITICAL FORMAT RULES:\n"
-        "1. Output ONLY the raw JSON object - no markdown, no code fences, no ```json blocks\n"
-        "2. Start your response with { and end with } - nothing before or after\n"
-        "3. Ensure the JSON is complete and valid - all braces and brackets must close properly\n"
-        "4. Do not add any explanatory text, comments, or notes outside the JSON\n"
-    )
+    # Brief format reminder (detailed instructions are in SYSTEM_PROMPT)
+    prompt_parts.append("\n# Output Format\n")
+    prompt_parts.append("Output raw JSON only. No markdown, no code fences.\n")
 
     # Add task instruction
     prompt_parts.append("\n# Task\n")
