@@ -377,5 +377,6 @@ def case_with_output(db_session):
     db_session.add(output)
     db_session.commit()
 
-    # Return case and session_id in dictionary for test access
-    return {"case": case, "session_id": session_id}
+    # Return case with session_id for test access
+    case.session_id = session_id
+    return case
