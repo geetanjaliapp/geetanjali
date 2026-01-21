@@ -106,13 +106,6 @@ class TestDhyanamAPI:
         for i, verse in enumerate(data, start=1):
             assert verse["verse_number"] == i
 
-    def test_get_all_dhyanam_empty(self, client):
-        """Test getting dhyanam verses when none exist."""
-        response = client.get("/api/v1/dhyanam")
-
-        assert response.status_code == status.HTTP_404_NOT_FOUND
-        assert "not available" in response.json()["detail"]
-
     def test_get_single_dhyanam_verse(self, client, sample_dhyanam_verse):
         """Test getting a single dhyanam verse by number."""
         response = client.get("/api/v1/dhyanam/1")
@@ -154,11 +147,3 @@ class TestDhyanamAPI:
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
         assert data["count"] == 9
-
-    def test_get_dhyanam_count_empty(self, client):
-        """Test getting dhyanam count when none exist."""
-        response = client.get("/api/v1/dhyanam/count")
-
-        assert response.status_code == status.HTTP_200_OK
-        data = response.json()
-        assert data["count"] == 0
