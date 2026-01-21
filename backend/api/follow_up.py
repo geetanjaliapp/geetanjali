@@ -73,7 +73,7 @@ def run_follow_up_background(
         case = db.query(Case).filter(Case.id == case_id).first()
         if not case:
             logger.error(f"[Background] Case not found: {case_id}")
-            return
+            raise ValueError(f"Case not found: {case_id}")
 
         # Get prior output for context
         output_repo = OutputRepository(db)
@@ -82,7 +82,7 @@ def run_follow_up_background(
             logger.error(f"[Background] No outputs found for case: {case_id}")
             case.status = CaseStatus.FAILED.value
             db.commit()
-            return
+            raise ValueError(f"No outputs found for case: {case_id}")
 
         latest_output = outputs[0]
         prior_output = latest_output.result_json
@@ -114,18 +114,20 @@ def run_follow_up_background(
             logger.error(
                 f"[Background] Follow-up pipeline failed: {e}",
                 extra={"case_id": case_id},
+                exc_info=True,
             )
             case.status = CaseStatus.FAILED.value
             db.commit()
-            return
+            raise
         except Exception as e:
             logger.error(
                 f"[Background] Unexpected error in follow-up: {e}",
                 extra={"case_id": case_id},
+                exc_info=True,
             )
             case.status = CaseStatus.FAILED.value
             db.commit()
-            return
+            raise
 
         # Validate response
         if not result.content or not result.content.strip():
@@ -135,7 +137,7 @@ def run_follow_up_background(
             )
             case.status = CaseStatus.FAILED.value
             db.commit()
-            return
+            raise ValueError("Empty response from follow-up pipeline")
 
         # Create assistant message
         assistant_message = message_repo.create_assistant_message(
@@ -165,7 +167,9 @@ def run_follow_up_background(
 
     except (OperationalError, SQLAlchemyError) as e:
         logger.error(
-            f"[Background] Database error in follow-up: {e}", extra={"case_id": case_id}
+            f"[Background] Database error in follow-up: {e}",
+            extra={"case_id": case_id},
+            exc_info=True,
         )
         try:
             case = db.query(Case).filter(Case.id == case_id).first()
@@ -176,9 +180,14 @@ def run_follow_up_background(
             logger.error(
                 f"[Background] Failed to mark case FAILED after DB error: {nested_e}",
                 extra={"case_id": case_id},
+                exc_info=True,
             )
     except Exception as e:
-        logger.error(f"[Background] Unexpected error: {e}", extra={"case_id": case_id})
+        logger.error(
+            f"[Background] Unexpected error: {e}",
+            extra={"case_id": case_id},
+            exc_info=True,
+        )
         try:
             case = db.query(Case).filter(Case.id == case_id).first()
             if case:
@@ -188,6 +197,7 @@ def run_follow_up_background(
             logger.error(
                 f"[Background] Failed to mark case as FAILED after error: {nested_e}",
                 extra={"case_id": case_id},
+                exc_info=True,
             )
     finally:
         db.close()

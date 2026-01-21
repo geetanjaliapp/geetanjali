@@ -76,17 +76,20 @@ def check_db_connection(timeout: int = 2) -> bool:
             signal.alarm(timeout)
 
             db = SessionLocal()
-            db.execute(text("SELECT 1"))
-            db.close()
-
-            signal.alarm(0)  # Cancel alarm
-            return True
+            try:
+                db.execute(text("SELECT 1"))
+                signal.alarm(0)  # Cancel alarm
+                return True
+            finally:
+                db.close()
         except AttributeError:
             # SIGALRM not available (Windows), do basic check without timeout
             db = SessionLocal()
-            db.execute(text("SELECT 1"))
-            db.close()
-            return True
+            try:
+                db.execute(text("SELECT 1"))
+                return True
+            finally:
+                db.close()
     except TimeoutError:
         return False
     except (OperationalError, SQLAlchemyError):
