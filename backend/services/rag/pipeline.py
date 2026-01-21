@@ -343,6 +343,8 @@ class RAGPipeline:
                 logger.warning(
                     f"Escalating to fallback provider due to JSON extraction failure from {provider}"
                 )
+                # Initialize fallback provider name before try block to prevent NameError in except
+                fallback_provider = settings.LLM_FALLBACK_PROVIDER or "unknown"
                 try:
                     # Attempt with fallback provider - use similar prompt but marked as escalation
                     escalation_sys = (
