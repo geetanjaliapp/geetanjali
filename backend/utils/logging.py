@@ -20,10 +20,14 @@ class CorrelationIDFilter(logging.Filter):
 
 
 def setup_logging():
-    """Configure application logging."""
+    """Configure application logging.
 
-    # Set log level from config
-    log_level = getattr(logging, settings.LOG_LEVEL.upper(), logging.INFO)
+    Sets root logger to WARNING to reduce noise from third-party libraries,
+    while setting our application loggers to the configured LOG_LEVEL (default INFO).
+    """
+
+    # Set log level from config for our application
+    app_log_level = getattr(logging, settings.LOG_LEVEL.upper(), logging.INFO)
 
     # Create filter first - add to root logger before any handlers
     correlation_filter = CorrelationIDFilter()
@@ -35,19 +39,31 @@ def setup_logging():
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 
-    # Configure root logger
+    # Configure root logger at WARNING to reduce third-party noise
     handler = logging.StreamHandler(sys.stdout)
     handler.setFormatter(formatter)
     handler.addFilter(correlation_filter)
 
     logging.basicConfig(
-        level=log_level,
+        level=logging.WARNING,
         handlers=[handler],
     )
 
-    # Reduce noise from some libraries
-    logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
-    logging.getLogger("urllib3").setLevel(logging.WARNING)
+    # Set our application loggers to configured level
+    app_namespaces = [
+        "api",
+        "services",
+        "utils",
+        "db",
+        "jobs",
+        "models",
+        "worker",
+        "worker_api",
+        "main",
+        "__main__",
+    ]
+    for namespace in app_namespaces:
+        logging.getLogger(namespace).setLevel(app_log_level)
 
     logger = logging.getLogger(__name__)
     logger.info(f"Logging configured with level: {settings.LOG_LEVEL}")
