@@ -28,7 +28,7 @@ os.environ["DAILY_CONSULT_LIMIT_ENABLED"] = "false"  # Disable daily cap for tes
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
@@ -168,28 +168,20 @@ test_cache = InMemoryCache()
 @pytest.fixture(scope="function")
 def db_session():
     """Create a fresh database session for each test."""
-    session = TestingSessionLocal()
-
-    # For PostgreSQL: explicitly truncate all tables with CASCADE
-    # This is more reliable than drop_all() for test cleanup
-    if "postgresql" in str(engine.url):
-        try:
-            # Truncate all tables (CASCADE handles foreign keys)
-            session.execute(text("TRUNCATE TABLE public.* CASCADE"))
-            session.commit()
-        except Exception:
-            # If TRUNCATE fails, fall back to drop_all()
-            session.rollback()
-            Base.metadata.drop_all(bind=engine)
+    # Drop all existing tables to ensure clean state before test
+    Base.metadata.drop_all(bind=engine)
 
     # Create all tables fresh
     Base.metadata.create_all(bind=engine)
+
+    # Create session
+    session = TestingSessionLocal()
 
     try:
         yield session
     finally:
         session.close()
-        # Drop all tables after test
+        # Drop all tables after test to avoid affecting subsequent tests
         Base.metadata.drop_all(bind=engine)
 
 
