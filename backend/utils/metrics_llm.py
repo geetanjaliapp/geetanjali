@@ -70,6 +70,19 @@ request_validation_rejected = Counter(
     labelnames=["reason"],
 )
 
+# JSON Extraction Failure Metrics
+json_extraction_failed = Counter(
+    "geetanjali_json_extraction_failed_total",
+    "JSON extraction failures from LLM responses (by provider)",
+    labelnames=["provider"],
+)
+
+json_extraction_escalation = Counter(
+    "geetanjali_json_extraction_escalation_total",
+    "Escalations to fallback provider due to JSON extraction failure",
+    labelnames=["primary_provider", "fallback_provider", "status"],
+)
+
 
 def track_consultation_cost(
     ip: str,
@@ -127,3 +140,31 @@ def track_daily_limit_hit(tracking_type: str) -> None:
         tracking_type: How user was tracked (ip, session)
     """
     daily_limit_hits.labels(tracking_type=tracking_type).inc()
+
+
+def track_json_extraction_failure(provider: str) -> None:
+    """
+    Track JSON extraction failure from LLM response.
+
+    Args:
+        provider: LLM provider that returned unparseable JSON
+    """
+    json_extraction_failed.labels(provider=provider).inc()
+
+
+def track_json_extraction_escalation(
+    primary_provider: str, fallback_provider: str, status: str
+) -> None:
+    """
+    Track escalation to fallback provider due to extraction failure.
+
+    Args:
+        primary_provider: Provider that failed
+        fallback_provider: Provider being escalated to
+        status: Escalation result (success, failed)
+    """
+    json_extraction_escalation.labels(
+        primary_provider=primary_provider,
+        fallback_provider=fallback_provider,
+        status=status,
+    ).inc()
