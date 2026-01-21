@@ -225,6 +225,29 @@ def client(db_session):
 
 
 @pytest.fixture(autouse=True)
+def mock_background_tasks():
+    """
+    Mock background task execution to prevent tasks from running during tests.
+
+    This prevents both RQ and BackgroundTasks from executing.
+    Tests can manually trigger background work if needed.
+    """
+    def mock_enqueue_task(*args, **kwargs):
+        """Return None to indicate RQ is not available."""
+        return None
+
+    def mock_add_task(*args, **kwargs):
+        """Prevent BackgroundTasks from executing."""
+        return None
+
+    with (
+        patch("services.tasks.enqueue_task", side_effect=mock_enqueue_task),
+        patch("fastapi.BackgroundTasks.add_task", side_effect=mock_add_task),
+    ):
+        yield
+
+
+@pytest.fixture(autouse=True)
 def mock_email_sending():
     """
     Globally mock all email sending functions to prevent real emails during tests.
@@ -354,6 +377,5 @@ def case_with_output(db_session):
     db_session.add(output)
     db_session.commit()
 
-    # Return case with session_id for test access
-    case.session_id = session_id
-    return case
+    # Return case and session_id in dictionary for test access
+    return {"case": case, "session_id": session_id}
