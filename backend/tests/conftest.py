@@ -168,14 +168,22 @@ test_cache = InMemoryCache()
 @pytest.fixture(scope="function")
 def db_session():
     """Create a fresh database session for each test."""
-    # Drop all tables first to ensure clean state (important for PostgreSQL CI)
-    Base.metadata.drop_all(bind=engine)
+    session = TestingSessionLocal()
+
+    # For PostgreSQL: explicitly truncate all tables with CASCADE
+    # This is more reliable than drop_all() for test cleanup
+    if "postgresql" in str(engine.url):
+        try:
+            # Truncate all tables (CASCADE handles foreign keys)
+            session.execute(text("TRUNCATE TABLE public.* CASCADE"))
+            session.commit()
+        except Exception:
+            # If TRUNCATE fails, fall back to drop_all()
+            session.rollback()
+            Base.metadata.drop_all(bind=engine)
 
     # Create all tables fresh
     Base.metadata.create_all(bind=engine)
-
-    # Create session
-    session = TestingSessionLocal()
 
     try:
         yield session
