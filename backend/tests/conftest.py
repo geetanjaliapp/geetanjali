@@ -168,7 +168,10 @@ test_cache = InMemoryCache()
 @pytest.fixture(scope="function")
 def db_session():
     """Create a fresh database session for each test."""
-    # Create all tables
+    # Drop all tables first to ensure clean state (important for PostgreSQL CI)
+    Base.metadata.drop_all(bind=engine)
+
+    # Create all tables fresh
     Base.metadata.create_all(bind=engine)
 
     # Create session
