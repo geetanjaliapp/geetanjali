@@ -1,5 +1,6 @@
 """Database connection and session management."""
 
+import logging
 from collections.abc import Generator
 from typing import Any
 
@@ -8,6 +9,8 @@ from sqlalchemy.exc import OperationalError, SQLAlchemyError
 from sqlalchemy.orm import Session, sessionmaker
 
 from config import settings
+
+logger = logging.getLogger(__name__)
 
 is_sqlite = "sqlite" in settings.DATABASE_URL
 
@@ -91,7 +94,9 @@ def check_db_connection(timeout: int = 2) -> bool:
             finally:
                 db.close()
     except TimeoutError:
+        logger.error("Database health check failed: timeout exceeded")
         return False
-    except (OperationalError, SQLAlchemyError):
+    except (OperationalError, SQLAlchemyError) as e:
         # Database connection or query errors
+        logger.error(f"Database health check failed: {type(e).__name__}: {e}", exc_info=True)
         return False

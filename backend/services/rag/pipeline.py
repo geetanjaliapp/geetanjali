@@ -125,15 +125,32 @@ class RAGPipeline:
         Uses PostgreSQL trigram indexes for efficient ILIKE matching.
         Results are less semantically precise but functional when
         ChromaDB is unavailable.
+
+        Raises:
+            Exception: If both ChromaDB and PostgreSQL are unavailable
         """
+        from sqlalchemy.exc import OperationalError, SQLAlchemyError
+
         from db.connection import SessionLocal
         from services.search.config import SearchConfig
         from services.search.strategies.keyword import keyword_search
 
         db = SessionLocal()
         try:
-            config = SearchConfig(limit=top_k)
-            results = keyword_search(db, query, config)
+            try:
+                config = SearchConfig(limit=top_k)
+                results = keyword_search(db, query, config)
+            except (OperationalError, SQLAlchemyError) as e:
+                # PostgreSQL is down/unavailable - escalate with clear error
+                logger.error(
+                    f"SQL fallback failed: database unavailable ({e}). "
+                    f"Both vector and keyword search unavailable.",
+                    exc_info=True,
+                )
+                raise RuntimeError(
+                    "Both vector store (ChromaDB) and database (PostgreSQL) unavailable; "
+                    "cannot retrieve verses"
+                ) from e
 
             # Convert SearchResult objects to verse dicts matching vector format
             verses = []
