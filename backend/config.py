@@ -81,7 +81,7 @@ class Settings(BaseSettings):
     ANTHROPIC_MODEL: str = (
         "claude-haiku-4-5-20251001"  # Haiku 4.5 - fast, cost-effective
     )
-    ANTHROPIC_MAX_TOKENS: int = 2048
+    ANTHROPIC_MAX_TOKENS: int = 4096  # Match Gemini for consistent consultation length
     ANTHROPIC_TIMEOUT: int = 30
 
     # Gemini (Google)
@@ -99,7 +99,7 @@ class Settings(BaseSettings):
     OLLAMA_MAX_RETRIES: int = 2
     OLLAMA_RETRY_MIN_WAIT: int = 1
     OLLAMA_RETRY_MAX_WAIT: int = 10
-    OLLAMA_MAX_TOKENS: int = 1024  # Balanced token limit
+    OLLAMA_MAX_TOKENS: int = 4096  # Match external LLMs for consistent consultation length
     OLLAMA_KEEP_ALIVE: str = "1h"  # How long model stays in memory (5m, 1h, 24h, -1=never)
 
     # --- LLM Circuit Breaker ---

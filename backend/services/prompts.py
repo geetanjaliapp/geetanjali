@@ -161,7 +161,13 @@ Output ONLY valid JSON matching this structure:
 IMPORTANT - Source field structure:
 - In "options": sources are an array of canonical_id strings only (e.g., ["BG_2_47", "BG_3_19"])
 - In root "sources": each source is a full object with canonical_id, paraphrase, and relevance (0.0-1.0 number)
-This two-part structure keeps options concise while maintaining full metadata. Options reference verses by ID, which you then describe fully in the root sources array."""
+This two-part structure keeps options concise while maintaining full metadata. Options reference verses by ID, which you then describe fully in the root sources array.
+
+CRITICAL OUTPUT FORMAT:
+- Output ONLY the raw JSON object, starting with { and ending with }
+- Do NOT wrap in markdown code fences (no ```json or ```)
+- Do NOT add any text before or after the JSON
+- Ensure ALL braces and brackets are properly closed"""
 
 
 def build_user_prompt(
@@ -241,12 +247,14 @@ def build_user_prompt(
             "Do NOT reference any other verses.\n\n"
         )
 
-    # Add output format requirements
+    # Add output format requirements - reinforced for format compliance
     prompt_parts.append("\n# Output Format Requirements\n")
     prompt_parts.append(
-        "Return ONLY valid JSON. Do not include any explanatory text before or after the JSON. "
-        "Do not wrap the JSON in markdown code blocks (```json...``). "
-        "Output the JSON object directly, starting with { and ending with }.\n"
+        "CRITICAL FORMAT RULES:\n"
+        "1. Output ONLY the raw JSON object - no markdown, no code fences, no ```json blocks\n"
+        "2. Start your response with { and end with } - nothing before or after\n"
+        "3. Ensure the JSON is complete and valid - all braces and brackets must close properly\n"
+        "4. Do not add any explanatory text, comments, or notes outside the JSON\n"
     )
 
     # Add task instruction
