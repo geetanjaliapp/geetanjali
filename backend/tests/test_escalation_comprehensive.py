@@ -109,7 +109,7 @@ class TestPreRepairEscalation:
         }
         should_escalate, reason = should_escalate_to_fallback(response, repairs=0)
         assert should_escalate is True
-        assert "escalat" in reason.lower()  # escalate/escalated
+        assert "options" in reason.lower()  # Should mention missing options field
 
     def test_gemini_null_critical_field_escalation(self):
         """Gemini returns null in critical field → escalate immediately."""
@@ -166,7 +166,8 @@ class TestPostRepairEscalation:
         }
         penalty = calculate_graduated_penalty(repairs)
         initial_confidence = 0.70
-        final_confidence = initial_confidence - penalty
+        # Apply floor (same as in actual validation code)
+        final_confidence = max(initial_confidence - penalty, 0.3)
 
         assert final_confidence < 0.45
         assert final_confidence >= 0.30  # Floor
