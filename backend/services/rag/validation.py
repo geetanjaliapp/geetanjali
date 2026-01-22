@@ -91,7 +91,7 @@ def generate_confidence_reason(
             return "Generated with high-quality reasoning, no repairs needed."
         elif repairs_count > 0 and confidence >= 0.75:
             return (
-                "Response required minor repair; core ethical reasoning remains solid."
+                f"Response required minor repair ({repairs_count} field); core ethical reasoning remains solid."
             )
         else:
             return "High confidence in core ethical analysis."

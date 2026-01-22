@@ -47,8 +47,8 @@ class TestEscalationDecisionLogic:
         """Missing critical 'recommended_action' field triggers escalation."""
         response = {
             "executive_summary": "Test",
+            "options": [{"title": "Option 1"}],
             # recommended_action missing
-            "options": [],
             "reflection_prompts": [],
             "sources": [],
         }
@@ -73,7 +73,7 @@ class TestEscalationDecisionLogic:
         """Missing only important field (reflection_prompts) does not escalate."""
         response = {
             "executive_summary": "Test",
-            "options": [],
+            "options": [{"title": "Option 1"}],
             "recommended_action": "Test",
             # reflection_prompts missing
             "sources": [],
