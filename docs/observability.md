@@ -121,6 +121,33 @@ Metrics are split across separate modules to prevent duplicate registration:
 | `geetanjali_llm_tokens_total` | Counter | `provider`, `token_type` | Tokens used (input/output) |
 | `geetanjali_llm_fallback_total` | Counter | `primary`, `fallback`, `reason` | Fallback events |
 | `geetanjali_llm_circuit_breaker_state` | Gauge | `provider` | Circuit breaker state |
+| `geetanjali_escalation_reasons_total` | Counter | `reason`, `provider` | Escalation events by reason |
+| `geetanjali_confidence_post_repair` | Histogram | `provider` | Confidence distribution after repair |
+| `geetanjali_repair_success_total` | Counter | `field`, `status` | Repair attempts by field and outcome |
+| `geetanjali_consultation_cost_usd_total` | Counter | `provider` | Total LLM cost by provider |
+| `geetanjali_consultation_tokens_total` | Counter | `provider` | Total tokens consumed by provider |
+| `geetanjali_daily_limit_exceeded_total` | Counter | `tracking_type` | Daily limit hits (ip/session) |
+| `geetanjali_request_validation_rejected_total` | Counter | `reason` | Rejected requests (token_too_large/duplicate) |
+
+**Escalation Metrics:**
+- `reason` labels: `missing_critical_field_options`, `missing_critical_field_recommended_action`, `missing_critical_field_executive_summary`, `low_confidence_post_repair`
+- `provider` labels: `gemini`, `anthropic`, `ollama`
+- `field` labels: `options`, `recommended_action`, `executive_summary`, `reflection_prompts`, `sources`, `scholar_flag`
+- `status` labels: `success`, `failed`
+
+**Query Examples:**
+```promql
+# Escalation rate (%)
+(increase(geetanjali_escalation_reasons_total[5m]) /
+ increase(geetanjali_consultation_total[5m])) * 100
+
+# Post-escalation confidence (p95)
+histogram_quantile(0.95, sum(rate(geetanjali_confidence_post_repair_bucket{provider="anthropic"}[5m])) by(le))
+
+# Repair success rate
+(increase(geetanjali_repair_success_total{status="success"}[1h]) /
+ increase(geetanjali_repair_success_total[1h])) * 100
+```
 
 **Note:** LLM metrics primarily come from the worker service. In development with RQ disabled, backend may also emit these metrics.
 
@@ -292,6 +319,10 @@ Dashboards are auto-provisioned via Grafana's provisioning. Manual import:
 | High Failed Jobs | `geetanjali_failed_jobs > 5` | Warning |
 | No Recent Activity | `geetanjali_consultations_24h == 0` for 24h | Info |
 | Newsletter Not Sent | `geetanjali_newsletter_emails_sent_24h == 0` for 24h | Warning |
+| Escalation Rate Spike | `(increase(geetanjali_escalation_reasons_total[5m]) / increase(geetanjali_consultation_total[5m])) * 100 > 5` for 5m | Warning |
+| Low Post-Escalation Confidence | `histogram_quantile(0.95, sum(rate(geetanjali_confidence_post_repair_bucket{provider="anthropic"}[5m])) by(le)) < 0.85` for 10m | Warning |
+| High Daily Limit Hits | `increase(geetanjali_daily_limit_exceeded_total[1h]) > 20` | Info |
+| High Cost Spike | `increase(geetanjali_consultation_cost_usd_total[1h]) > 100` | Warning |
 
 ## Troubleshooting
 

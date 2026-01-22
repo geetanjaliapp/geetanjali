@@ -391,6 +391,8 @@ class OutputResponse(BaseModel):
     result_json: OutputResultSchema
     executive_summary: str
     confidence: float
+    # [Phase 5] Transparent explanation of confidence score
+    confidence_reason: str | None = None
     scholar_flag: bool
     created_at: datetime
     user_feedback: UserFeedbackSummary | None = None

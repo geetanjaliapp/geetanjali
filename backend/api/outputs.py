@@ -46,6 +46,7 @@ from services.rag.multipass import (
     run_multipass_consultation,
     should_run_comparison,
 )
+from services.rag.validation import generate_confidence_reason
 from services.tasks import enqueue_task
 from utils.metrics_multipass import multipass_fallback_total
 
@@ -72,12 +73,60 @@ def _create_output_from_result(case_id: str, result: dict, db: Session) -> Outpu
     # Extract raw LLM response if present (only for policy violations)
     raw_llm_response = result.pop("_raw_llm_response", None)
 
+    # [Phase 5] Extract escalation and repair metadata for confidence_reason
+    # With validation to ensure correct types
+    is_escalated = result.get("_escalated", False)
+    if not isinstance(is_escalated, bool):
+        logger.warning(
+            f"Invalid _escalated type: {type(is_escalated).__name__} "
+            f"(expected bool). Defaulting to False."
+        )
+        is_escalated = False
+
+    repairs_count = result.get("_repairs_count", 0)
+    if not isinstance(repairs_count, int):
+        logger.warning(
+            f"Invalid _repairs_count type: {type(repairs_count).__name__} "
+            f"(expected int). Defaulting to 0."
+        )
+        repairs_count = 0
+    elif repairs_count < 0:
+        logger.warning(f"Invalid _repairs_count value: {repairs_count} (negative). Defaulting to 0.")
+        repairs_count = 0
+
+    rag_injected = result.get("_rag_injected", False)
+    if not isinstance(rag_injected, bool):
+        logger.warning(
+            f"Invalid _rag_injected type: {type(rag_injected).__name__} "
+            f"(expected bool). Defaulting to False."
+        )
+        rag_injected = False
+
+    provider = result.get("llm_attribution", {}).get("provider", "unknown")
+    if not isinstance(provider, str):
+        logger.warning(
+            f"Invalid provider type: {type(provider).__name__} (expected str). Defaulting to 'unknown'."
+        )
+        provider = "unknown"
+
+    confidence = result.get("confidence", 0.0)
+
+    # Generate user-facing confidence explanation
+    confidence_reason = generate_confidence_reason(
+        confidence=confidence,
+        is_escalated=is_escalated,
+        repairs_count=repairs_count,
+        rag_injected=rag_injected,
+        provider=provider,
+    )
+
     output = Output(
         id=str(uuid.uuid4()),
         case_id=case_id,
         result_json=result,
         executive_summary=result.get("executive_summary", ""),
-        confidence=result.get("confidence", 0.0),
+        confidence=confidence,
+        confidence_reason=confidence_reason,
         scholar_flag=result.get("scholar_flag", False),
         raw_llm_response=raw_llm_response,
         created_at=datetime.utcnow(),

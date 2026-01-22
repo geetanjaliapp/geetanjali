@@ -37,6 +37,12 @@ export const OutputFeedback = memo(
     const isExpanded = expandedFeedback === output.id;
     const hasExistingComment = feedback === "down" && savedComment[output.id];
 
+    // Validate confidence reason: must be non-empty string with actual content
+    const hasValidConfidenceReason =
+      output.confidence_reason &&
+      typeof output.confidence_reason === "string" &&
+      output.confidence_reason.trim().length > 0;
+
     return (
       <div className="mt-4 pt-3 border-t border-[var(--border-default)]">
         <div className="flex items-center justify-between">
@@ -57,6 +63,38 @@ export const OutputFeedback = memo(
             <span className="font-medium">
               {(output.confidence * 100).toFixed(0)}%
             </span>
+            {/* Subtle info icon for confidence reason tooltip */}
+            {hasValidConfidenceReason && output.confidence_reason && (
+              <div className="group relative">
+                <button
+                  className="text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
+                  title={output.confidence_reason}
+                  aria-label="Confidence explanation"
+                >
+                  <svg
+                    className="w-3.5 h-3.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                </button>
+                {/* CSS-based tooltip with content validation */}
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-10">
+                  <div className="bg-[var(--surface-secondary)] text-[var(--text-primary)] text-xs rounded-[var(--radius-button)] px-3 py-2 max-w-xs shadow-lg border border-[var(--border-subtle)] whitespace-normal break-words">
+                    {output.confidence_reason}
+                  </div>
+                  {/* Tooltip arrow */}
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-[var(--surface-secondary)]" />
+                </div>
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-1">
             <button
@@ -181,6 +219,7 @@ export const OutputFeedback = memo(
     return (
       prev.output.id === next.output.id &&
       prev.output.confidence === next.output.confidence &&
+      prev.output.confidence_reason === next.output.confidence_reason &&
       prev.feedback === next.feedback &&
       prev.feedbackLoading === next.feedbackLoading &&
       prev.expandedFeedback === next.expandedFeedback &&

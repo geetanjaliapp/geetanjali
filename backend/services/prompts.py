@@ -534,6 +534,10 @@ def post_process_ollama_response(
     data.setdefault("confidence", 0.6)  # Lower confidence for fallback
     data.setdefault("scholar_flag", True)  # Flag fallback responses for review
 
+    # Mark this as post-processed to ensure transparency
+    data["_post_processed"] = True
+    data["_repair_reason"] = "Response required post-processing to extract and reconstruct valid JSON"
+
     return dict(data)
 
 

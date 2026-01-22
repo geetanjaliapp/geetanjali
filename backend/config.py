@@ -21,7 +21,7 @@ class Settings(BaseSettings):
 
     # Application
     APP_NAME: str = "Geetanjali"
-    APP_VERSION: str = "1.32.0"  # Set via APP_VERSION env var at deploy (from git tag)
+    APP_VERSION: str = "1.34.0"  # Set via APP_VERSION env var at deploy (from git tag)
     APP_ENV: str = "development"
     DEBUG: bool = False  # Safe default: False
     LOG_LEVEL: str = "INFO"
@@ -75,6 +75,24 @@ class Settings(BaseSettings):
     LLM_FALLBACK_PROVIDER: str = "mock"  # Fallback provider
     LLM_FALLBACK_ENABLED: bool = True  # Enable fallback to secondary provider
     USE_MOCK_LLM: bool = False  # Use mock LLM for testing (overrides provider setting)
+
+    # ========================================
+    # v1.34.0: Intelligent Escalation Config
+    # ========================================
+    # Smart escalation to highest-quality fallback provider when:
+    # - Primary provider (Gemini) returns structurally incomplete responses
+    # - Repairs needed on critical fields trigger confidence penalties
+    # - Post-repair confidence falls below 0.45 threshold
+    #
+    # Enables field-aware escalation with graduated confidence penalties and
+    # transparent user communication about reasoning quality.
+    GEMINI_ESCALATION_ENABLED: bool = False  # Feature flag (OFF by default)
+    ESCALATION_CONFIDENCE_THRESHOLD: float = (
+        0.45  # Escalate if post-repair confidence < this value
+    )
+    ESCALATION_MAX_RATE: float = (
+        0.05  # Alert if escalation rate >5% (triggers investigation)
+    )
 
     # Anthropic (Claude)
     ANTHROPIC_API_KEY: str | None = None  # Required for Anthropic
@@ -493,6 +511,48 @@ class Settings(BaseSettings):
             logger.info("PRODUCTION: Using Ollama as primary LLM provider.")
         if self.LLM_PROVIDER == "mock":
             logger.info("PRODUCTION: Using mock LLM provider (for testing only).")
+
+        # ========================================
+        # v1.34.0: Intelligent Escalation Validation
+        # ========================================
+        # Escalation requires:
+        # 1. Gemini as primary (only Gemini needs escalation)
+        # 2. Fallback provider configured (to escalate TO)
+        # 3. Confidence threshold in valid range (0.3 to 0.85)
+        # 4. Max escalation rate reasonable (<50%)
+        if self.GEMINI_ESCALATION_ENABLED:
+            if self.LLM_PROVIDER != "gemini":
+                logger.warning(
+                    "ESCALATION: GEMINI_ESCALATION_ENABLED but LLM_PROVIDER!='gemini'. "
+                    "Escalation feature designed for Gemini. May not work as expected."
+                )
+
+            if not self.LLM_FALLBACK_ENABLED:
+                errors.append(
+                    "ESCALATION: GEMINI_ESCALATION_ENABLED but LLM_FALLBACK_ENABLED=false. "
+                    "Need fallback provider for escalation."
+                )
+
+            if (
+                self.ESCALATION_CONFIDENCE_THRESHOLD < 0.3
+                or self.ESCALATION_CONFIDENCE_THRESHOLD > 0.85
+            ):
+                errors.append(
+                    f"ESCALATION_CONFIDENCE_THRESHOLD={self.ESCALATION_CONFIDENCE_THRESHOLD} "
+                    f"invalid. Must be 0.30-0.85."
+                )
+
+            if self.ESCALATION_MAX_RATE < 0 or self.ESCALATION_MAX_RATE > 0.5:
+                errors.append(
+                    f"ESCALATION_MAX_RATE={self.ESCALATION_MAX_RATE} invalid. "
+                    f"Must be 0.0-0.5 (0-50%)."
+                )
+
+            logger.info(
+                f"ESCALATION ENABLED: threshold={self.ESCALATION_CONFIDENCE_THRESHOLD}, "
+                f"max_rate={self.ESCALATION_MAX_RATE * 100:.0f}%, "
+                f"fallback={self.LLM_FALLBACK_PROVIDER}"
+            )
 
         # ========================================
         # SECURITY: Cookie and transport settings

@@ -28,6 +28,9 @@ class Output(Base):
     executive_summary: Mapped[str | None] = mapped_column(Text, nullable=True)
     confidence: Mapped[float | None] = mapped_column(Float, nullable=True)
 
+    # [Phase 5] User communication - confidence transparency
+    confidence_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
+
     # Debug - only populated for policy violations
     raw_llm_response: Mapped[str | None] = mapped_column(Text, nullable=True)
 

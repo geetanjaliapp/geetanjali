@@ -187,9 +187,30 @@ Structured guidance with multiple perspectives.
 | Feedback | Thumbs up/down with optional comment |
 
 **Additional Indicators:**
-- Scholar flag: amber warning for low-confidence responses
+- Confidence score: 0-100% percentage with color coding (red for low, amber for medium, green for high)
+- Confidence explanation: Info icon reveals plain-language explanation on hover
+- Scholar flag: amber warning for low-confidence responses (if confidence < 0.45)
 - Role/stakeholder tags: shown on user's question
 - Public sharing toggle: generate shareable link
+
+**Confidence Transparency:**
+
+Every response includes a confidence score (0-100%) that reflects the system's certainty in its guidance. This score is transparent to users:
+
+- **90-100%**: "High-quality reasoning grounded in scripture"
+- **70-90%**: "Solid guidance with minor repairs to structure"
+- **50-70%**: "Guidance provided, but review recommendations carefully"
+- **Below 50%**: "Expert review recommended for critical decisions"
+
+If confidence drops below 45%, the response is flagged for review and users are advised to consult subject matter experts. The confidence explanation (hover tooltip) details what affected the score—whether repairs were needed, how many fields required correction, or whether the system escalated to a higher-quality provider for complex cases.
+
+**Quality Assurance:**
+
+The system includes multiple quality gates:
+1. **Structural validation** — Ensures required fields (options, recommended action, executive summary) are present
+2. **Field repair** — If fields are missing or malformed, the system reconstructs them with graduated confidence penalties
+3. **Escalation** — If confidence remains below 45% after repair, the system escalates to a higher-quality provider
+4. **Transparent communication** — Every response includes the reason for its confidence score, so users understand what they're getting
 
 ## Follow-up Conversations
 
