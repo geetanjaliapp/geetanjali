@@ -1,16 +1,16 @@
 """Unit tests for provider configurations with auto-tuning."""
 
 import pytest
-from unittest.mock import Mock, MagicMock
+from unittest.mock import MagicMock, Mock
 
 from services.provider_configs import (
-    AnthropicConfig,
-    GeminiConfig,
-    OllamaConfig,
-    MockConfig,
-    get_provider_config,
     GEMINI_JSON_SCHEMA,
     OLLAMA_SIMPLIFIED_SYSTEM_PROMPT,
+    AnthropicConfig,
+    GeminiConfig,
+    MockConfig,
+    OllamaConfig,
+    get_provider_config,
 )
 
 
