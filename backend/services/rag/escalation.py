@@ -38,15 +38,15 @@ def should_escalate_to_fallback(
 
     Examples:
         >>> response = {"executive_summary": "...", "options": None}
-        >>> should_escalate(response)
+        >>> should_escalate_to_fallback(response)
         (True, "missing_critical_field_options")
 
         >>> response = {"executive_summary": "...", "options": [...], "reflection_prompts": []}
-        >>> should_escalate(response)
+        >>> should_escalate_to_fallback(response)
         (True, "missing_multiple_important_fields")
 
         >>> response = {"executive_summary": "...", "options": [...], "reflection_prompts": [...]}
-        >>> should_escalate(response)
+        >>> should_escalate_to_fallback(response)
         (False, "all_critical_fields_present")
     """
     # Check for missing CRITICAL fields
