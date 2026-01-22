@@ -5,7 +5,7 @@ can import only LLM metrics without registering all business metrics
 (which would create duplicates with the backend).
 """
 
-from prometheus_client import Counter, Gauge
+from prometheus_client import Counter, Gauge, Histogram
 
 # LLM Request Metrics
 llm_requests_total = Counter(
@@ -81,6 +81,29 @@ json_extraction_escalation = Counter(
     "geetanjali_json_extraction_escalation_total",
     "Escalations to fallback provider due to JSON extraction failure",
     labelnames=["primary_provider", "fallback_provider", "status"],
+)
+
+# ============================================================
+# Intelligent Escalation Metrics (v1.34.0+)
+# ============================================================
+
+escalation_reasons = Counter(
+    "geetanjali_escalation_reasons_total",
+    "Escalation events by reason (structural failures)",
+    labelnames=["reason", "provider"],
+)
+
+repair_success_by_field = Counter(
+    "geetanjali_repair_success_total",
+    "Repair attempts by field and outcome",
+    labelnames=["field", "status"],  # status: success, failed, skipped
+)
+
+confidence_post_repair = Histogram(
+    "geetanjali_confidence_post_repair",
+    "Confidence distribution after repair by provider",
+    labelnames=["provider"],
+    buckets=[0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
 )
 
 
@@ -168,3 +191,46 @@ def track_json_extraction_escalation(
         fallback_provider=fallback_provider,
         status=status,
     ).inc()
+
+
+def track_escalation_reason(reason: str, provider: str) -> None:
+    """
+    Track escalation event by reason and provider.
+
+    Args:
+        reason: Escalation reason code (missing_critical_field_*, missing_multiple_important_fields, etc.)
+        provider: Primary provider that triggered escalation (e.g., 'gemini', 'anthropic')
+
+    Example:
+        >>> track_escalation_reason("missing_critical_field_options", "gemini")
+    """
+    escalation_reasons.labels(reason=reason, provider=provider).inc()
+
+
+def track_repair_success(field: str, status: str) -> None:
+    """
+    Track repair attempt outcome by field.
+
+    Args:
+        field: Field that was repaired (options, recommended_action, executive_summary, etc.)
+        status: Repair outcome (success, failed, skipped)
+
+    Example:
+        >>> track_repair_success("options", "success")
+        >>> track_repair_success("reflection_prompts", "skipped")
+    """
+    repair_success_by_field.labels(field=field, status=status).inc()
+
+
+def track_confidence_post_repair(provider: str, confidence: float) -> None:
+    """
+    Track confidence distribution after repair.
+
+    Args:
+        provider: LLM provider (gemini, anthropic, ollama)
+        confidence: Final confidence value (0.0-1.0)
+
+    Example:
+        >>> track_confidence_post_repair("gemini", 0.72)
+    """
+    confidence_post_repair.labels(provider=provider).observe(confidence)
