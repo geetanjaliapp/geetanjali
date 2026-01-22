@@ -18,7 +18,7 @@ OPTIONAL_FIELDS = ["confidence", "sources", "scholar_flag"]
 
 def should_escalate_to_fallback(
     response: dict[str, Any],
-    repair_count: int = 0,
+    repairs: int = 0,
 ) -> tuple[bool, str]:
     """
     Determine if LLM response should be escalated to fallback provider.
@@ -30,7 +30,7 @@ def should_escalate_to_fallback(
 
     Args:
         response: LLM response dict (after JSON extraction)
-        repair_count: Number of repairs already attempted (for logging context)
+        repairs: Number of repairs already attempted (for logging context)
 
     Returns:
         Tuple of (should_escalate: bool, reason: str)

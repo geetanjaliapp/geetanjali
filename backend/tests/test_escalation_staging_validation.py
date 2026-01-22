@@ -111,7 +111,8 @@ class TestEscalationEndToEnd:
 
         penalty = calculate_graduated_penalty(repairs)
         initial_confidence = response["confidence"]  # 0.70
-        final_confidence = initial_confidence - penalty
+        # Apply floor (same as in actual validation code)
+        final_confidence = max(initial_confidence - penalty, 0.3)
 
         # Verify confidence drops below 0.45
         assert final_confidence < 0.45, (

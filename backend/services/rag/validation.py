@@ -98,7 +98,7 @@ def generate_confidence_reason(
 
     if confidence >= 0.65:
         if repairs_count == 1:
-            return "Response required minor repair; reasoning is generally sound."
+            return "Response required 1 field repair; reasoning is generally sound."
         elif repairs_count > 1:
             return (
                 f"Response required repairs to {repairs_count} fields. "
