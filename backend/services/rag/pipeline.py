@@ -29,10 +29,18 @@ from utils.input_normalization import normalize_input
 from utils.json_parsing import extract_json_from_text
 from utils.metrics_events import vector_search_fallback_total
 from utils.metrics_llm import (
+    track_confidence_post_repair,
+    track_escalation_reason,
     track_json_extraction_escalation,
     track_json_extraction_failure,
+    track_repair_success,
 )
 
+from .escalation import (
+    describe_escalation_reason,
+    get_escalation_threshold,
+    should_escalate_to_fallback,
+)
 from .validation import (
     _ensure_required_fields,
     _filter_source_references,
@@ -475,6 +483,37 @@ class RAGPipeline:
                 "model": model,
             }
             logger.info(f"Successfully parsed JSON response from {provider} ({model})")
+
+            # [NEW] Pre-repair structural health check (v1.34.0)
+            # Escalate before repair cascade if critical fields are missing
+            should_escalate, escalation_reason = should_escalate_to_fallback(
+                parsed_result
+            )
+            if should_escalate:
+                reason_desc = describe_escalation_reason(escalation_reason)
+                logger.warning(
+                    f"Pre-repair escalation triggered: {reason_desc} "
+                    f"(provider={provider})"
+                )
+                track_escalation_reason(escalation_reason, provider)
+
+                # Escalate to fallback provider
+                escalation_result = self._escalate_to_fallback(
+                    primary_provider=provider,
+                    prompt=prompt,
+                    system_prompt=system_prompt,
+                    fallback_prompt=fallback_prompt,
+                    temperature=temperature,
+                )
+                if escalation_result is not None:
+                    logger.info("Pre-repair escalation to fallback succeeded")
+                    return escalation_result, False
+                else:
+                    logger.warning(
+                        "Pre-repair escalation to fallback not possible, proceeding with repair"
+                    )
+                    # Fallback escalation failed/disabled, continue with repair
+
             return parsed_result, False
 
         except ValueError as extraction_error:
@@ -542,14 +581,26 @@ class RAGPipeline:
         """
         logger.debug("Validating output")
 
+        # [NEW] Track repairs for post-repair escalation (v1.34.0)
+        # Capture pre-repair state for comparison
+        pre_repair_options_count = len(output.get("options", []))
+        pre_repair_executive_summary = output.get("executive_summary")
+        pre_repair_reflection_prompts = output.get("reflection_prompts")
+
         # Step 1: Ensure all required fields exist with safe defaults
         _ensure_required_fields(output)
 
         # Step 2: Validate and fix options (must have exactly 3)
         _validate_and_fix_options(output)
+        if len(output.get("options", [])) != pre_repair_options_count:
+            track_repair_success("options", "success")
 
         # Step 3: Validate field types (executive_summary, reflection_prompts, recommended_action)
         _validate_field_types(output)
+        if output.get("executive_summary") != pre_repair_executive_summary:
+            track_repair_success("executive_summary", "success")
+        if output.get("reflection_prompts") != pre_repair_reflection_prompts:
+            track_repair_success("reflection_prompts", "success")
 
         # Step 4: Validate each option structure
         _validate_option_structures(output)
@@ -599,6 +650,11 @@ class RAGPipeline:
             f"Output validation complete: {len(output.get('options', []))} options, "
             f"confidence={output['confidence']:.2f}, scholar_flag={output['scholar_flag']}"
         )
+
+        # [NEW] Track confidence post-repair (v1.34.0)
+        if "llm_attribution" in output:
+            provider = output["llm_attribution"].get("provider", "unknown")
+            track_confidence_post_repair(provider, output["confidence"])
 
         return output
 
@@ -772,6 +828,39 @@ class RAGPipeline:
         # Step 4: Validate and enrich (pass retrieved_verses for injection fallback)
         try:
             validated_output = self.validate_output(output, retrieved_verses)
+
+            # [NEW] Post-repair escalation check (v1.34.0)
+            # If confidence dropped below threshold after repair, escalate to fallback
+            final_confidence = validated_output.get("confidence", 0.5)
+            escalation_threshold = get_escalation_threshold()
+            if final_confidence < escalation_threshold:
+                logger.warning(
+                    f"Post-repair confidence below threshold: "
+                    f"{final_confidence:.2f} < {escalation_threshold}. "
+                    f"Attempting escalation to fallback provider."
+                )
+                provider_name = output.get("llm_attribution", {}).get(
+                    "provider", "unknown"
+                )
+                track_escalation_reason("low_confidence_post_repair", provider_name)
+
+                # Attempt escalation to fallback
+                escalation_result = self._escalate_to_fallback(
+                    primary_provider=provider_name,
+                    prompt=prompt,
+                    system_prompt=SYSTEM_PROMPT,
+                    fallback_prompt=fallback_prompt,
+                    temperature=0.7,
+                )
+                if escalation_result is not None:
+                    logger.info("Post-repair escalation to fallback succeeded")
+                    validated_output = self.validate_output(
+                        escalation_result, retrieved_verses
+                    )
+                else:
+                    logger.warning(
+                        "Post-repair escalation not possible, using repaired output"
+                    )
 
             # Mark as degraded if no verses were retrieved
             if not retrieved_verses:
