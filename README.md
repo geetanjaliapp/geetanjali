@@ -88,11 +88,11 @@ Services:
 | Database | PostgreSQL 15 |
 | Vector DB | ChromaDB |
 | Cache | Redis 7 |
-| LLM | Ollama (local-first), with cloud fallback options |
+| LLM | Ollama (local-first), Gemini, Anthropic with auto-tuned provider configs |
 | Embeddings | sentence-transformers/all-MiniLM-L6-v2 |
 | Audio | Indic Parler-TTS (AI4Bharat), Edge TTS |
 
-The system uses circuit breakers for resilience. Ollama is primary; cloud providers available as fallback. ChromaDB falls back to SQL keyword search. See [Architecture](docs/architecture.md) for details.
+The system uses circuit breakers for resilience. Each LLM provider has auto-tuned defaults: Ollama with simplified prompts, Gemini with explicit JSON schema, Anthropic native structured output. Cloud providers available as fallback. ChromaDB falls back to SQL keyword search. See [Architecture](docs/architecture.md) for details.
 
 ## Configuration
 
