@@ -91,6 +91,7 @@ export interface Output {
     confidence: number;
   };
   confidence: number;
+  confidence_reason?: string | null;
   scholar_flag: boolean;
   created_at: string;
   user_feedback?: UserFeedbackSummary;

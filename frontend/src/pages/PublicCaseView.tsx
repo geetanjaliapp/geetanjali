@@ -411,6 +411,38 @@ export default function PublicCaseView() {
                             <span className="font-medium">
                               {(exchange.output.confidence * 100).toFixed(0)}%
                             </span>
+                            {/* Subtle info icon for confidence reason tooltip */}
+                            {exchange.output.confidence_reason && (
+                              <div className="group relative">
+                                <button
+                                  className="text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
+                                  title={exchange.output.confidence_reason}
+                                  aria-label="Confidence explanation"
+                                >
+                                  <svg
+                                    className="w-3.5 h-3.5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                    />
+                                  </svg>
+                                </button>
+                                {/* CSS-based tooltip */}
+                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-10">
+                                  <div className="bg-[var(--surface-secondary)] text-[var(--text-primary)] text-xs rounded-[var(--radius-button)] px-3 py-2 whitespace-nowrap shadow-lg border border-[var(--border-subtle)]">
+                                    {exchange.output.confidence_reason}
+                                  </div>
+                                  {/* Tooltip arrow */}
+                                  <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-[var(--surface-secondary)]" />
+                                </div>
+                              </div>
+                            )}
                           </div>
                         )}
 
