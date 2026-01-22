@@ -486,9 +486,13 @@ class RAGPipeline:
 
             # [NEW] Pre-repair structural health check (v1.34.0)
             # Escalate before repair cascade if critical fields are missing
-            should_escalate, escalation_reason = should_escalate_to_fallback(
-                parsed_result
-            )
+            # Feature flag: FALLBACK_ESCALATION_ENABLED (Phase 2+ rollout)
+            should_escalate = False
+            escalation_reason = None
+            if settings.FALLBACK_ESCALATION_ENABLED:
+                should_escalate, escalation_reason = should_escalate_to_fallback(
+                    parsed_result
+                )
             if should_escalate:
                 reason_desc = describe_escalation_reason(escalation_reason)
                 logger.warning(
@@ -845,9 +849,10 @@ class RAGPipeline:
 
             # [NEW] Post-repair escalation check (v1.34.0)
             # If confidence dropped below threshold after repair, escalate to fallback
+            # Feature flag: FALLBACK_ESCALATION_ENABLED (Phase 2+ rollout)
             final_confidence = validated_output.get("confidence", 0.5)
             escalation_threshold = get_escalation_threshold()
-            if final_confidence < escalation_threshold:
+            if settings.FALLBACK_ESCALATION_ENABLED and final_confidence < escalation_threshold:
                 logger.warning(
                     f"Post-repair confidence below threshold: "
                     f"{final_confidence:.2f} < {escalation_threshold}. "
