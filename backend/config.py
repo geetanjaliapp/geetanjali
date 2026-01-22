@@ -516,21 +516,15 @@ class Settings(BaseSettings):
         # v1.34.0: Intelligent Escalation Validation
         # ========================================
         # Escalation requires:
-        # 1. Gemini as primary (only Gemini needs escalation)
-        # 2. Fallback provider configured (to escalate TO)
+        # 1. Fallback provider configured (to escalate TO)
+        # 2. Fallback provider enabled (LLM_FALLBACK_ENABLED=true)
         # 3. Confidence threshold in valid range (0.3 to 0.85)
         # 4. Max escalation rate reasonable (<50%)
-        if self.GEMINI_ESCALATION_ENABLED:
-            if self.LLM_PROVIDER != "gemini":
-                logger.warning(
-                    "ESCALATION: GEMINI_ESCALATION_ENABLED but LLM_PROVIDER!='gemini'. "
-                    "Escalation feature designed for Gemini. May not work as expected."
-                )
-
+        if self.FALLBACK_ESCALATION_ENABLED:
             if not self.LLM_FALLBACK_ENABLED:
                 errors.append(
-                    "ESCALATION: GEMINI_ESCALATION_ENABLED but LLM_FALLBACK_ENABLED=false. "
-                    "Need fallback provider for escalation."
+                    "ESCALATION: FALLBACK_ESCALATION_ENABLED but LLM_FALLBACK_ENABLED=false. "
+                    "Need fallback provider configured for escalation."
                 )
 
             if (
