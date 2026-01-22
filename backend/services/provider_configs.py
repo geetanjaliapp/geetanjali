@@ -123,7 +123,6 @@ Use verse IDs like BG_2_47. Output ONLY valid JSON."""
 # ============================================================================
 
 
-@dataclass
 class ProviderConfig(ABC):
     """Base class for provider-specific configurations with auto-tuning.
 
@@ -143,6 +142,14 @@ class ProviderConfig(ABC):
     timeout_seconds: float
     max_tokens: int
     temperature_default: float
+
+    def __init__(self, name: str, model: str, timeout_seconds: float, max_tokens: int, temperature_default: float):
+        """Initialize provider config with settings."""
+        self.name = name
+        self.model = model
+        self.timeout_seconds = timeout_seconds
+        self.max_tokens = max_tokens
+        self.temperature_default = temperature_default
 
     @abstractmethod
     def get_generation_params(self, temperature: float | None) -> dict[str, Any]:
@@ -243,8 +250,19 @@ class GeminiConfig(ProviderConfig):
     Fire-and-forget: Set LLM_PROVIDER=gemini, everything else is automatic.
     """
 
-    name: str = "gemini"
-    temperature_default: float = 0.3  # Lower for determinism with schema
+    model: str
+    timeout_seconds: float
+    max_tokens: int
+
+    def __post_init__(self):
+        """Set provider-specific defaults after dataclass init."""
+        super().__init__(
+            name="gemini",
+            model=self.model,
+            timeout_seconds=self.timeout_seconds,
+            max_tokens=self.max_tokens,
+            temperature_default=0.3,  # Lower for determinism with schema
+        )
 
     def get_generation_params(self, temperature: float | None) -> dict[str, Any]:
         """Build Gemini-specific generation params."""
@@ -330,8 +348,19 @@ class AnthropicConfig(ProviderConfig):
     Fire-and-forget: Set LLM_PROVIDER=anthropic, everything else is automatic.
     """
 
-    name: str = "anthropic"
-    temperature_default: float = 0.7
+    model: str
+    timeout_seconds: float
+    max_tokens: int
+
+    def __post_init__(self):
+        """Set provider-specific defaults after dataclass init."""
+        super().__init__(
+            name="anthropic",
+            model=self.model,
+            timeout_seconds=self.timeout_seconds,
+            max_tokens=self.max_tokens,
+            temperature_default=0.7,  # Balanced for creative + structured
+        )
 
     def get_generation_params(self, temperature: float | None) -> dict[str, Any]:
         """Build Anthropic-specific generation params."""
@@ -396,8 +425,19 @@ class OllamaConfig(ProviderConfig):
     Simplified prompts are auto-applied when Ollama is detected.
     """
 
-    name: str = "ollama"
-    temperature_default: float = 0.3
+    model: str
+    timeout_seconds: float
+    max_tokens: int
+
+    def __post_init__(self):
+        """Set provider-specific defaults after dataclass init."""
+        super().__init__(
+            name="ollama",
+            model=self.model,
+            timeout_seconds=self.timeout_seconds,
+            max_tokens=self.max_tokens,
+            temperature_default=0.3,  # Lower for determinism
+        )
 
     def get_generation_params(self, temperature: float | None) -> dict[str, Any]:
         """Build Ollama-specific generation params."""
@@ -465,8 +505,19 @@ class MockConfig(ProviderConfig):
     Fire-and-forget: Set LLM_PROVIDER=mock for testing.
     """
 
-    name: str = "mock"
-    temperature_default: float = 0.5
+    model: str
+    timeout_seconds: float
+    max_tokens: int
+
+    def __post_init__(self):
+        """Set provider-specific defaults after dataclass init."""
+        super().__init__(
+            name="mock",
+            model=self.model,
+            timeout_seconds=self.timeout_seconds,
+            max_tokens=self.max_tokens,
+            temperature_default=0.5,
+        )
 
     def get_generation_params(self, temperature: float | None) -> dict[str, Any]:
         """Build mock generation params."""
