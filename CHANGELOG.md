@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v1.34.1] - 2026-01-22
+
+### Added
+
+- **Provider-Specific Configuration Framework:** Auto-tuned defaults for each LLM provider without feature flags
+  - ProviderConfig pattern centralizes provider-specific behavior in `services/provider_configs.py`
+  - Automatic provider selection: Gemini uses explicit JSON schema, Ollama uses simplified prompts, Anthropic native
+  - Per-provider temperature defaults: Ollama/Gemini at 0.3 (deterministic), Anthropic at 0.7 (balanced)
+  - Provider extension pattern: Adding new providers requires only ProviderConfig subclass + registration
+
+### Changed
+
+- LLM service: Refactored to use ProviderConfig for generation parameters and response parsing
+- RAG pipeline: Provider-aware prompt customization applied via configs (Ollama gets simplified prompts)
+- Architecture: Centralized provider logic removes ~50 lines of duplicate code across generation methods
+
+### Technical
+
+- New file: `backend/services/provider_configs.py` (450+ lines) with base class and 4 concrete implementations
+- Tests: `backend/tests/test_provider_configs.py` (400+ lines) with 30+ unit tests
+- Backward compatible: All existing tests pass unchanged, zero API signature changes
+
 ## [v1.34.0] - 2026-01-22
 
 ### Added
@@ -158,7 +180,8 @@ See git history for earlier version details.
 
 ---
 
-[Unreleased]: https://github.com/geetanjaliapp/geetanjali/compare/v1.34.0...main
+[Unreleased]: https://github.com/geetanjaliapp/geetanjali/compare/v1.34.1...main
+[v1.34.1]: https://github.com/geetanjaliapp/geetanjali/compare/v1.34.0...v1.34.1
 [v1.34.0]: https://github.com/geetanjaliapp/geetanjali/compare/v1.32.0...v1.34.0
 [v1.32.0]: https://github.com/geetanjaliapp/geetanjali/compare/v1.31.0...v1.32.0
 [v1.31.0]: https://github.com/geetanjaliapp/geetanjali/compare/v1.30.0...v1.31.0

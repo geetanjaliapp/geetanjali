@@ -31,6 +31,7 @@ except ImportError:
 
 from config import settings
 from services.mock_llm import MockLLMService
+from services.provider_configs import get_provider_config
 from utils.circuit_breaker import CircuitBreaker, CircuitBreakerOpen
 from utils.exceptions import LLMError, RetryableLLMError
 from utils.metrics_llm import (
@@ -230,6 +231,9 @@ class LLMService:
         Circuit Breaker: Opens after 3 consecutive failures, 60s recovery.
         Only retries on RetryableLLMError (timeout, connection errors).
         Permanent errors (auth, invalid request) fail immediately.
+
+        Auto-tuning via AnthropicConfig:
+        - Uses provider's temperature default (0.7) for balanced output
         """
         if not self.anthropic_client:
             raise LLMError("Anthropic client not initialized")
@@ -241,48 +245,55 @@ class LLMService:
                 self._anthropic_breaker.recovery_timeout,
             )
 
-        max_tokens = max_tokens or settings.ANTHROPIC_MAX_TOKENS
+        provider_config = get_provider_config("anthropic")
+        max_tokens = max_tokens or provider_config.max_tokens
+        # Use provider's temperature default if not explicitly set to non-default value
+        if temperature == 0.7:  # Default param value
+            temperature = provider_config.temperature_default
 
         try:
-            logger.debug(f"Calling Anthropic Claude with {len(prompt)} char prompt")
+            logger.debug(
+                f"Calling Anthropic Claude with {len(prompt)} char prompt, "
+                f"temperature={temperature}"
+            )
+
+            # Build generation params using provider config
+            gen_params = provider_config.get_generation_params(temperature)
+            gen_params["max_tokens"] = max_tokens
 
             response = self.anthropic_client.messages.create(
-                model=settings.ANTHROPIC_MODEL,
-                max_tokens=max_tokens,
-                temperature=temperature,
+                model=provider_config.model,
+                max_tokens=gen_params["max_tokens"],
+                temperature=gen_params["temperature"],
                 system=system_prompt or "",
                 messages=[{"role": "user", "content": prompt}],
                 timeout=settings.ANTHROPIC_TIMEOUT,
             )
 
-            content_block = response.content[0]
-            response_text = (
-                content_block.text
-                if hasattr(content_block, "text")
-                else str(content_block)
-            )
+            # Parse response using provider config
+            response_text, input_tokens, output_tokens = provider_config.parse_response(response)
 
             logger.info(
                 f"Anthropic response: {len(response_text)} chars, "
-                f"{response.usage.input_tokens} in / {response.usage.output_tokens} out tokens"
+                f"{input_tokens} in / {output_tokens} out tokens"
             )
 
             # Track LLM metrics and record circuit breaker success
             llm_requests_total.labels(provider="anthropic", status="success").inc()
             llm_tokens_total.labels(provider="anthropic", token_type="input").inc(
-                response.usage.input_tokens
+                input_tokens
             )
             llm_tokens_total.labels(provider="anthropic", token_type="output").inc(
-                response.usage.output_tokens
+                output_tokens
             )
             self._anthropic_breaker.record_success()
 
             return {
                 "response": response_text,
-                "model": settings.ANTHROPIC_MODEL,
+                "model": provider_config.model,
                 "provider": "anthropic",
-                "input_tokens": response.usage.input_tokens,
-                "output_tokens": response.usage.output_tokens,
+                "input_tokens": input_tokens,
+                "output_tokens": output_tokens,
             }
 
         except (APITimeoutError, APIConnectionError) as e:
@@ -319,8 +330,8 @@ class LLMService:
         Args:
             prompt: User prompt text
             system_prompt: System instruction (optional)
-            temperature: Sampling temperature 0.0-2.0 (default: 0.7)
-            max_tokens: Maximum tokens to generate (default: settings.GEMINI_MAX_TOKENS)
+            temperature: Sampling temperature 0.0-2.0 (uses provider default if not set)
+            max_tokens: Maximum tokens to generate (uses provider default if not set)
             json_mode: If True, force JSON output format. Set False for prose/markdown.
 
         Returns:
@@ -333,6 +344,10 @@ class LLMService:
 
         Retry: Up to 3 attempts with exponential backoff (2s, 4s, 8s).
         Circuit Breaker: Opens after 3 consecutive failures, 60s recovery.
+
+        Auto-tuning via GeminiConfig:
+        - Uses provider's temperature default (0.3) for determinism if not specified
+        - Auto-applies JSON schema when json_mode=True
         """
         if not self.gemini_client:
             raise LLMError("Gemini client not initialized")
@@ -344,44 +359,42 @@ class LLMService:
                 self._gemini_breaker.recovery_timeout,
             )
 
-        max_tokens = max_tokens or settings.GEMINI_MAX_TOKENS
+        provider_config = get_provider_config("gemini")
+        max_tokens = max_tokens or provider_config.max_tokens
+        # Use provider's temperature default if not explicitly set to non-default value
+        if temperature == 0.7:  # Default param value
+            temperature = provider_config.temperature_default
 
         try:
             logger.debug(
-                f"Calling Gemini ({settings.GEMINI_MODEL}) with {len(prompt)} char prompt"
+                f"Calling Gemini ({provider_config.model}) with {len(prompt)} char prompt, "
+                f"json_mode={json_mode}, temperature={temperature}"
             )
+
+            # Build generation params using provider config
+            gen_params = provider_config.get_generation_params(temperature)
+            gen_params["max_output_tokens"] = max_tokens
+
+            # Auto-apply JSON schema if available (fire-and-forget auto-tuning)
+            json_schema = provider_config.get_json_schema(json_mode)
 
             config = genai_types.GenerateContentConfig(
                 system_instruction=system_prompt if system_prompt else None,
-                max_output_tokens=max_tokens,
-                temperature=temperature,
+                max_output_tokens=gen_params["max_output_tokens"],
+                temperature=gen_params["temperature"],
                 response_mime_type="application/json" if json_mode else None,
+                response_schema=json_schema if json_schema else None,
                 http_options=genai_types.HttpOptions(timeout=settings.GEMINI_TIMEOUT),
             )
 
             response = self.gemini_client.models.generate_content(
-                model=settings.GEMINI_MODEL,
+                model=provider_config.model,
                 contents=prompt,
                 config=config,
             )
 
-            # Guard against malformed response (missing .text or .usage_metadata)
-            try:
-                response_text = response.text
-            except AttributeError:
-                raise LLMError("Gemini returned malformed response (missing text)")
-
-            if not response_text or not response_text.strip():
-                raise LLMError("Gemini returned empty response")
-
-            # Extract token counts with safe defaults
-            try:
-                input_tokens = response.usage_metadata.prompt_token_count or 0
-                output_tokens = response.usage_metadata.candidates_token_count or 0
-            except AttributeError:
-                logger.warning("Gemini response missing usage_metadata, using 0 tokens")
-                input_tokens = 0
-                output_tokens = 0
+            # Parse response using provider config
+            response_text, input_tokens, output_tokens = provider_config.parse_response(response)
 
             logger.info(
                 f"Gemini response: {len(response_text)} chars, "
@@ -400,7 +413,7 @@ class LLMService:
 
             return {
                 "response": response_text,
-                "model": settings.GEMINI_MODEL,
+                "model": provider_config.model,
                 "provider": "gemini",
                 "input_tokens": input_tokens,
                 "output_tokens": output_tokens,
@@ -474,6 +487,10 @@ class LLMService:
             json_mode: If True, force JSON output format. Set False for prose/markdown.
 
         Circuit Breaker: Opens after 3 consecutive failures, 60s recovery.
+
+        Auto-tuning via OllamaConfig:
+        - Auto-applies simplified system prompt (resource efficient)
+        - Uses provider's temperature default (0.3) for determinism
         """
         if not self.ollama_enabled:
             raise LLMError("Ollama not enabled")
@@ -485,21 +502,30 @@ class LLMService:
                 self._ollama_breaker.recovery_timeout,
             )
 
+        provider_config = get_provider_config("ollama")
+        max_tokens = max_tokens or provider_config.max_tokens
+        # Use provider's temperature default if not explicitly set to non-default value
+        if temperature == 0.7:  # Default param value
+            temperature = provider_config.temperature_default
+
+        # Auto-apply simplified system prompt when Ollama is used
+        # This reduces token usage for local inference
+        if system_prompt:
+            system_prompt = provider_config.customize_system_prompt(system_prompt)
+
         logger.debug(
-            f"Calling Ollama ({self.ollama_model}) with {len(prompt)} char prompt, json_mode={json_mode}"
+            f"Calling Ollama ({provider_config.model}) with {len(prompt)} char prompt, "
+            f"json_mode={json_mode}, temperature={temperature}, simplified={simplified}"
         )
 
-        # Use limited tokens for fallback mode
-        if simplified and not max_tokens:
-            max_tokens = settings.OLLAMA_MAX_TOKENS
+        # Build generation params using provider config
+        gen_params = provider_config.get_generation_params(temperature)
 
         payload = {
-            "model": self.ollama_model,
+            "model": provider_config.model,
             "prompt": prompt,
             "stream": False,
-            "options": {
-                "temperature": 0.3 if json_mode else temperature,
-            },
+            "options": gen_params,
         }
 
         # Only force JSON format when JSON output is expected
@@ -515,22 +541,24 @@ class LLMService:
         try:
             result = self._make_ollama_request(payload)
 
-            logger.info(f"Ollama response: {len(result.get('response', ''))} chars")
+            # Parse response using provider config
+            response_text, input_tokens, output_tokens = provider_config.parse_response(result)
+
+            logger.info(f"Ollama response: {len(response_text)} chars")
 
             # Track LLM metrics and record circuit breaker success
-            eval_count = result.get("eval_count", 0)
             llm_requests_total.labels(provider="ollama", status="success").inc()
             llm_tokens_total.labels(provider="ollama", token_type="output").inc(
-                eval_count
+                output_tokens
             )
             self._ollama_breaker.record_success()
 
             return {
-                "response": result.get("response", ""),
-                "model": result.get("model", self.ollama_model),
+                "response": response_text,
+                "model": result.get("model", provider_config.model),
                 "provider": "ollama",
                 "total_duration": result.get("total_duration", 0),
-                "eval_count": eval_count,
+                "eval_count": output_tokens,
             }
 
         except httpx.TimeoutException as e:

@@ -118,6 +118,19 @@ External services are protected by circuit breakers that prevent cascading failu
 | ChromaDB | 3 consecutive | 60s | SQL keyword search |
 | Email (Resend) | 5 consecutive | 60s | Queue for retry |
 
+### Provider Configuration
+
+Each LLM provider has auto-tuned defaults without requiring feature flags:
+
+| Provider | Temperature | Timeout | Prompt Optimization | Structured Output |
+|----------|-------------|---------|---------------------|------------------|
+| Ollama | 0.3 (deterministic) | 30s | Simplified prompts | Multipass refinement |
+| Gemini | 0.3 (deterministic) | 30s (milliseconds) | Standard prompts | Explicit JSON schema |
+| Anthropic | 0.7 (balanced) | 60s | Standard prompts | No schema (reliable native) |
+| Mock | 0.0 | Instant | N/A | Hardcoded JSON |
+
+Auto-tuning means the system automatically applies provider-specific optimizations without configuration. Gemini uses explicit JSON schema for structured output, Ollama uses simplified prompts for efficiency, and temperature is lowered for deterministic responses.
+
 ### Fallback Chains
 
 **LLM Inference** (configurable via `LLM_PROVIDER` and `LLM_FALLBACK_PROVIDER`):

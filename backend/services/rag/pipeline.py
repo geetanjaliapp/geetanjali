@@ -22,6 +22,7 @@ from services.prompts import (
     format_executive_summary,
     post_process_ollama_response,
 )
+from services.provider_configs import get_provider_config
 from services.vector_store import get_vector_store
 from utils.circuit_breaker import CircuitBreakerOpen
 from utils.exceptions import LLMError
@@ -437,16 +438,20 @@ class RAGPipeline:
         """
         logger.info("Generating consulting brief with LLM")
 
-        # Build system prompt (optionally include few-shot example)
-        system_prompt = SYSTEM_PROMPT
+        # Get primary provider config for prompt customization (auto-applied via provider config)
+        primary_config = get_provider_config(settings.LLM_PROVIDER)
+
+        # Build system prompt with provider-specific customization + optional few-shot
+        system_prompt = primary_config.customize_system_prompt(SYSTEM_PROMPT)
         if settings.LLM_USE_FEW_SHOTS:
-            system_prompt = f"{SYSTEM_PROMPT}\n\n{FEW_SHOT_EXAMPLE}"
+            system_prompt = f"{system_prompt}\n\n{FEW_SHOT_EXAMPLE}"
             logger.debug("Few-shot example included in system prompt")
 
-        # Build fallback system prompt (also with few-shot if enabled)
-        fallback_sys = fallback_system
+        # Build fallback system prompt with provider-specific customization
+        fallback_config = get_provider_config(settings.LLM_FALLBACK_PROVIDER)
+        fallback_sys = fallback_config.customize_system_prompt(fallback_system or SYSTEM_PROMPT)
         if settings.LLM_USE_FEW_SHOTS and fallback_system:
-            fallback_sys = f"{fallback_system}\n\n{FEW_SHOT_EXAMPLE}"
+            fallback_sys = f"{fallback_sys}\n\n{FEW_SHOT_EXAMPLE}"
 
         # Generate JSON response with fallback support
         result = self.llm_service.generate(
