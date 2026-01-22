@@ -22,6 +22,13 @@ from .validation import (
     _validate_source_reference,
 )
 
+# Escalation functions
+from .escalation import (
+    should_escalate_to_fallback,
+    get_escalation_threshold,
+    describe_escalation_reason,
+)
+
 __all__ = [
     "RAGPipeline",
     "get_rag_pipeline",
@@ -31,4 +38,8 @@ __all__ = [
     "_validate_option_structure",
     "_validate_source_object_structure",
     "_filter_source_references",
+    # Escalation
+    "should_escalate_to_fallback",
+    "get_escalation_threshold",
+    "describe_escalation_reason",
 ]
