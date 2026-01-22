@@ -37,6 +37,12 @@ export const OutputFeedback = memo(
     const isExpanded = expandedFeedback === output.id;
     const hasExistingComment = feedback === "down" && savedComment[output.id];
 
+    // Validate confidence reason: must be non-empty string with actual content
+    const hasValidConfidenceReason =
+      output.confidence_reason &&
+      typeof output.confidence_reason === "string" &&
+      output.confidence_reason.trim().length > 0;
+
     return (
       <div className="mt-4 pt-3 border-t border-[var(--border-default)]">
         <div className="flex items-center justify-between">
@@ -58,7 +64,7 @@ export const OutputFeedback = memo(
               {(output.confidence * 100).toFixed(0)}%
             </span>
             {/* Subtle info icon for confidence reason tooltip */}
-            {output.confidence_reason && (
+            {hasValidConfidenceReason && output.confidence_reason && (
               <div className="group relative">
                 <button
                   className="text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
@@ -79,9 +85,9 @@ export const OutputFeedback = memo(
                     />
                   </svg>
                 </button>
-                {/* CSS-based tooltip */}
+                {/* CSS-based tooltip with content validation */}
                 <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-10">
-                  <div className="bg-[var(--surface-secondary)] text-[var(--text-primary)] text-xs rounded-[var(--radius-button)] px-3 py-2 whitespace-nowrap shadow-lg border border-[var(--border-subtle)]">
+                  <div className="bg-[var(--surface-secondary)] text-[var(--text-primary)] text-xs rounded-[var(--radius-button)] px-3 py-2 max-w-xs shadow-lg border border-[var(--border-subtle)] whitespace-normal break-words">
                     {output.confidence_reason}
                   </div>
                   {/* Tooltip arrow */}
@@ -213,6 +219,7 @@ export const OutputFeedback = memo(
     return (
       prev.output.id === next.output.id &&
       prev.output.confidence === next.output.confidence &&
+      prev.output.confidence_reason === next.output.confidence_reason &&
       prev.feedback === next.feedback &&
       prev.feedbackLoading === next.feedbackLoading &&
       prev.expandedFeedback === next.expandedFeedback &&

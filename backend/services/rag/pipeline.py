@@ -582,37 +582,49 @@ class RAGPipeline:
         logger.debug("Validating output")
 
         # [NEW] Track repairs for post-repair escalation (v1.34.0)
-        # Capture pre-repair state for comparison
-        pre_repair_options_count = len(output.get("options", []))
-        pre_repair_executive_summary = output.get("executive_summary")
-        pre_repair_reflection_prompts = output.get("reflection_prompts")
+        all_repairs = {}
 
         # Step 1: Ensure all required fields exist with safe defaults
-        _ensure_required_fields(output)
+        field_repairs = _ensure_required_fields(output)
+        all_repairs.update(field_repairs)
 
         # Step 2: Validate and fix options (must have exactly 3)
-        _validate_and_fix_options(output)
-        if len(output.get("options", [])) != pre_repair_options_count:
+        options_repaired = _validate_and_fix_options(output)
+        if options_repaired:
+            all_repairs["options_repaired"] = True
             track_repair_success("options", "success")
 
         # Step 3: Validate field types (executive_summary, reflection_prompts, recommended_action)
-        _validate_field_types(output)
-        if output.get("executive_summary") != pre_repair_executive_summary:
+        field_type_repairs = _validate_field_types(output)
+        all_repairs.update(field_type_repairs)
+        if field_type_repairs.get("executive_summary_repaired"):
             track_repair_success("executive_summary", "success")
-        if output.get("reflection_prompts") != pre_repair_reflection_prompts:
+        if field_type_repairs.get("reflection_prompts_repaired"):
             track_repair_success("reflection_prompts", "success")
+        if field_type_repairs.get("recommended_action_repaired"):
+            track_repair_success("recommended_action", "success")
 
         # Step 4: Validate each option structure
-        _validate_option_structures(output)
+        option_struct_repaired = _validate_option_structures(output)
+        if option_struct_repaired:
+            all_repairs["option_structures_repaired"] = True
 
         # Step 5: Validate sources array
-        _validate_sources_array(output)
+        sources_repaired = _validate_sources_array(output)
+        if sources_repaired:
+            all_repairs["sources_repaired"] = True
 
         # Step 6: Filter invalid source references in options
         _filter_source_references(output)
 
         # Step 7: Inject RAG verses when sources below minimum
-        _inject_rag_verses(output, retrieved_verses)
+        rag_injected = _inject_rag_verses(output, retrieved_verses)
+        if rag_injected:
+            all_repairs["rag_injected"] = True
+
+        # Calculate total repairs_count for confidence_reason generation
+        repairs_count = sum(1 for k, v in all_repairs.items() if v and k != "rag_injected")
+        output["_repairs_count"] = repairs_count
 
         # Step 7.1: Verify minimum sources met
         final_sources_count = len(output.get("sources", []))
@@ -719,6 +731,8 @@ class RAGPipeline:
             "sources": [],
             "confidence": 0.1,
             "scholar_flag": True,
+            "_is_fallback_template": True,  # Flag this as a fallback template response
+            "_repair_reason": f"Consultation failed: {error_message}",  # Transparent reason
             "_internal_error": error_message,  # Keep for logging, not displayed to user
         }
 
@@ -876,10 +890,13 @@ class RAGPipeline:
                 validated_output.get("llm_attribution", {}).get("escalated_from")
             )
             # Track RAG injection (if sources were added beyond LLM response)
+            # Note: _rag_injected is set by validate_output() if RAG verses were injected
             validated_output["_rag_injected"] = bool(
                 validated_output.get("_rag_injected", False)
             )
-            # Note: repairs_count will be calculated by API based on available data
+            # Note: _repairs_count is calculated by validate_output() during repair cascade
+            # (counting fields that required repair: missing fields, field type fixes, option
+            #  fixes, source validation fixes, but NOT RAG injection which is separate)
             validated_output["_repairs_count"] = validated_output.get(
                 "_repairs_count", 0
             )

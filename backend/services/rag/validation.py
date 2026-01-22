@@ -287,11 +287,14 @@ def _validate_source_object_structure(source: dict[str, Any]) -> tuple[bool, str
     return True, ""
 
 
-def _ensure_required_fields(output: dict[str, Any]) -> None:
+def _ensure_required_fields(output: dict[str, Any]) -> dict[str, bool]:
     """
     Ensure all required fields exist in output, setting safe defaults.
 
     Modifies output in place.
+
+    Returns:
+        Dictionary tracking which fields were repaired (e.g., {"options_repaired": True})
     """
     required_fields = [
         "executive_summary",
@@ -302,9 +305,13 @@ def _ensure_required_fields(output: dict[str, Any]) -> None:
         "confidence",
     ]
 
+    repairs = {}
+
     for field in required_fields:
         if field not in output:
             logger.warning(f"Missing required field: {field}")
+            repairs[f"{field}_repaired"] = True
+
             if field == "confidence":
                 output["confidence"] = 0.5
             elif field == "scholar_flag":
@@ -330,6 +337,10 @@ def _ensure_required_fields(output: dict[str, Any]) -> None:
                 ]
             else:
                 output[field] = []
+        else:
+            repairs[f"{field}_repaired"] = False
+
+    return repairs
 
 
 def _extract_canonical_id(verse: Any, fallback: str) -> str:
@@ -417,17 +428,20 @@ def _generate_default_options(base_verses: list[Any]) -> list[dict[str, Any]]:
     ]
 
 
-def _validate_and_fix_options(output: dict[str, Any]) -> None:
+def _validate_and_fix_options(output: dict[str, Any]) -> bool:
     """
     Validate options array has exactly 3 options, filling gaps if needed.
 
     Modifies output in place.
+
+    Returns:
+        True if options required repair, False otherwise
     """
     options = output.get("options", [])
     num_options = len(options)
 
     if num_options == 3:
-        return  # All good
+        return False  # All good, no repair needed
 
     logger.warning(
         f"LLM returned {num_options} options instead of required 3. "
@@ -446,6 +460,9 @@ def _validate_and_fix_options(output: dict[str, Any]) -> None:
         f"Options repair penalty: -{penalty:.2f} "
         f"(confidence: {current_confidence:.2f} → {output['confidence']:.2f})"
     )
+
+    # Mark that options required repair
+    repair_needed = True
 
     base_verses = output.get("sources", [])
 
@@ -505,13 +522,20 @@ def _validate_and_fix_options(output: dict[str, Any]) -> None:
         output["scholar_flag"] = True
         output["confidence"] = 0.4
 
+    return repair_needed
 
-def _validate_field_types(output: dict[str, Any]) -> None:
+
+def _validate_field_types(output: dict[str, Any]) -> dict[str, bool]:
     """
     Validate field types for executive_summary, reflection_prompts, recommended_action.
 
     Modifies output in place.
+
+    Returns:
+        Dictionary tracking which fields were repaired
     """
+    repairs = {}
+
     # Validate executive_summary
     if (
         not isinstance(output.get("executive_summary"), str)
@@ -521,6 +545,9 @@ def _validate_field_types(output: dict[str, Any]) -> None:
         output["executive_summary"] = (
             "Ethical analysis based on Bhagavad Geeta principles."
         )
+        repairs["executive_summary_repaired"] = True
+    else:
+        repairs["executive_summary_repaired"] = False
 
     # Validate reflection_prompts
     if (
@@ -532,6 +559,9 @@ def _validate_field_types(output: dict[str, Any]) -> None:
             "What is my duty in this situation?",
             "How can I act with integrity?",
         ]
+        repairs["reflection_prompts_repaired"] = True
+    else:
+        repairs["reflection_prompts_repaired"] = False
 
     # Validate recommended_action structure
     recommended_action = output.get("recommended_action", {})
@@ -546,7 +576,9 @@ def _validate_field_types(output: dict[str, Any]) -> None:
             ],
             "sources": [],
         }
+        repairs["recommended_action_repaired"] = True
     else:
+        action_repaired = False
         # Validate option field
         if not isinstance(
             recommended_action.get("option"), int
@@ -555,6 +587,7 @@ def _validate_field_types(output: dict[str, Any]) -> None:
                 f"Invalid recommended_action.option: {recommended_action.get('option')}, defaulting to 1"
             )
             recommended_action["option"] = 1
+            action_repaired = True
 
         # Validate steps
         if (
@@ -567,25 +600,35 @@ def _validate_field_types(output: dict[str, Any]) -> None:
                 "Consider all perspectives",
                 "Act with clarity",
             ]
+            action_repaired = True
 
         # Validate sources
         if not isinstance(recommended_action.get("sources"), list):
             logger.warning("Invalid recommended_action.sources, setting to empty list")
             recommended_action["sources"] = []
+            action_repaired = True
+
+        repairs["recommended_action_repaired"] = action_repaired
 
     output["recommended_action"] = recommended_action
+    return repairs
 
 
-def _validate_option_structures(output: dict[str, Any]) -> None:
+def _validate_option_structures(output: dict[str, Any]) -> bool:
     """
     Validate each option has correct structure.
 
     Modifies output in place.
+
+    Returns:
+        True if any option required repair, False otherwise
     """
+    any_repaired = False
     for i, option in enumerate(output.get("options", [])):
         is_valid, error_msg = _validate_option_structure(option)
         if not is_valid:
             logger.warning(f"Option {i} validation failed: {error_msg}")
+            any_repaired = True
             if "title" not in option or not isinstance(option.get("title"), str):
                 option["title"] = f"Option {i + 1}"
             if "description" not in option or not isinstance(
@@ -599,18 +642,23 @@ def _validate_option_structures(output: dict[str, Any]) -> None:
             if "sources" not in option or not isinstance(option.get("sources"), list):
                 option["sources"] = []
 
+    return any_repaired
 
-def _validate_sources_array(output: dict[str, Any]) -> None:
+
+def _validate_sources_array(output: dict[str, Any]) -> bool:
     """
     Validate sources array structure and individual source objects.
 
     Modifies output in place.
+
+    Returns:
+        True if sources required repair, False otherwise
     """
     sources_array = output.get("sources", [])
     if not isinstance(sources_array, list):
         logger.warning("Sources field is not a list, setting to empty")
         output["sources"] = []
-        return
+        return True
 
     valid_sources = []
     for i, source in enumerate(sources_array):
@@ -626,6 +674,9 @@ def _validate_sources_array(output: dict[str, Any]) -> None:
             f"({len(valid_sources)} valid sources remain)"
         )
         output["sources"] = valid_sources
+        return True
+
+    return False
 
 
 def _filter_source_references(output: dict[str, Any]) -> None:
@@ -697,12 +748,15 @@ def _filter_source_references(output: dict[str, Any]) -> None:
 def _inject_rag_verses(
     output: dict[str, Any],
     retrieved_verses: list[dict[str, Any]] | None,
-) -> None:
+) -> bool:
     """
     Inject RAG-retrieved verses when sources drop below minimum threshold.
 
     Applies confidence penalty for each injected verse.
     Modifies output in place.
+
+    Returns:
+        True if RAG verses were injected, False otherwise
     """
     MIN_SOURCES = 3
     INJECTION_CONFIDENCE_PENALTY = 0.03
@@ -711,13 +765,13 @@ def _inject_rag_verses(
     num_existing = len(sources_array)
 
     if num_existing >= MIN_SOURCES:
-        return
+        return False
 
     if not retrieved_verses:
         logger.warning(
             f"Sources below minimum ({num_existing} < {MIN_SOURCES}) but no RAG verses available to inject"
         )
-        return
+        return False
 
     num_to_inject = MIN_SOURCES - num_existing
     existing_ids = {s.get("canonical_id") for s in sources_array}
@@ -759,6 +813,7 @@ def _inject_rag_verses(
 
     if injected_count > 0:
         output["sources"] = sources_array
+        output["_rag_injected"] = True
         current_confidence = output.get("confidence", 0.5)
         penalty = INJECTION_CONFIDENCE_PENALTY * injected_count
         output["confidence"] = max(current_confidence - penalty, 0.3)
@@ -766,3 +821,6 @@ def _inject_rag_verses(
             f"Injected {injected_count} RAG verses (sources now: {len(sources_array)}). "
             f"Confidence penalty: -{penalty:.2f} (now: {output['confidence']:.2f})"
         )
+        return True
+
+    return False

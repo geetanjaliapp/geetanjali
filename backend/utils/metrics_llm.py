@@ -5,7 +5,11 @@ can import only LLM metrics without registering all business metrics
 (which would create duplicates with the backend).
 """
 
+import logging
+
 from prometheus_client import Counter, Gauge, Histogram
+
+logger = logging.getLogger(__name__)
 
 # LLM Request Metrics
 llm_requests_total = Counter(
@@ -135,12 +139,23 @@ def track_consultation_cost(
     """
     cost = (estimated_tokens / 1000) * cost_per_1k_tokens
 
-    # Increment cumulative counters
-    consultation_cost_total.labels(provider=provider).inc(cost)
-    consultation_tokens_total.labels(provider=provider).inc(estimated_tokens)
+    try:
+        # Increment cumulative counters
+        consultation_cost_total.labels(provider=provider).inc(cost)
+        consultation_tokens_total.labels(provider=provider).inc(estimated_tokens)
 
-    # Update per-IP gauge (rough daily estimate)
-    consultation_cost_per_ip_gauge.labels(ip=ip, provider=provider).set(cost)
+        # Update per-IP gauge (rough daily estimate)
+        consultation_cost_per_ip_gauge.labels(ip=ip, provider=provider).set(cost)
+    except Exception as e:
+        logger.error(
+            f"Failed to track consultation cost: {e}",
+            extra={
+                "ip": ip,
+                "provider": provider,
+                "tokens": estimated_tokens,
+                "cost": cost,
+            },
+        )
 
     return cost
 
@@ -152,7 +167,10 @@ def track_validation_rejection(reason: str) -> None:
     Args:
         reason: Why rejected (token_too_large, duplicate, etc.)
     """
-    request_validation_rejected.labels(reason=reason).inc()
+    try:
+        request_validation_rejected.labels(reason=reason).inc()
+    except Exception as e:
+        logger.error(f"Failed to track validation rejection: {e}", extra={"reason": reason})
 
 
 def track_daily_limit_hit(tracking_type: str) -> None:
@@ -162,7 +180,12 @@ def track_daily_limit_hit(tracking_type: str) -> None:
     Args:
         tracking_type: How user was tracked (ip, session)
     """
-    daily_limit_hits.labels(tracking_type=tracking_type).inc()
+    try:
+        daily_limit_hits.labels(tracking_type=tracking_type).inc()
+    except Exception as e:
+        logger.error(
+            f"Failed to track daily limit hit: {e}", extra={"tracking_type": tracking_type}
+        )
 
 
 def track_json_extraction_failure(provider: str) -> None:
@@ -172,7 +195,12 @@ def track_json_extraction_failure(provider: str) -> None:
     Args:
         provider: LLM provider that returned unparseable JSON
     """
-    json_extraction_failed.labels(provider=provider).inc()
+    try:
+        json_extraction_failed.labels(provider=provider).inc()
+    except Exception as e:
+        logger.error(
+            f"Failed to track JSON extraction failure: {e}", extra={"provider": provider}
+        )
 
 
 def track_json_extraction_escalation(
@@ -186,11 +214,21 @@ def track_json_extraction_escalation(
         fallback_provider: Provider being escalated to
         status: Escalation result (success, failed)
     """
-    json_extraction_escalation.labels(
-        primary_provider=primary_provider,
-        fallback_provider=fallback_provider,
-        status=status,
-    ).inc()
+    try:
+        json_extraction_escalation.labels(
+            primary_provider=primary_provider,
+            fallback_provider=fallback_provider,
+            status=status,
+        ).inc()
+    except Exception as e:
+        logger.error(
+            f"Failed to track JSON extraction escalation: {e}",
+            extra={
+                "primary_provider": primary_provider,
+                "fallback_provider": fallback_provider,
+                "status": status,
+            },
+        )
 
 
 def track_escalation_reason(reason: str, provider: str) -> None:
@@ -204,7 +242,13 @@ def track_escalation_reason(reason: str, provider: str) -> None:
     Example:
         >>> track_escalation_reason("missing_critical_field_options", "gemini")
     """
-    escalation_reasons.labels(reason=reason, provider=provider).inc()
+    try:
+        escalation_reasons.labels(reason=reason, provider=provider).inc()
+    except Exception as e:
+        logger.error(
+            f"Failed to track escalation reason: {e}",
+            extra={"reason": reason, "provider": provider},
+        )
 
 
 def track_repair_success(field: str, status: str) -> None:
@@ -219,7 +263,12 @@ def track_repair_success(field: str, status: str) -> None:
         >>> track_repair_success("options", "success")
         >>> track_repair_success("reflection_prompts", "skipped")
     """
-    repair_success_by_field.labels(field=field, status=status).inc()
+    try:
+        repair_success_by_field.labels(field=field, status=status).inc()
+    except Exception as e:
+        logger.error(
+            f"Failed to track repair success: {e}", extra={"field": field, "status": status}
+        )
 
 
 def track_confidence_post_repair(provider: str, confidence: float) -> None:
@@ -233,4 +282,10 @@ def track_confidence_post_repair(provider: str, confidence: float) -> None:
     Example:
         >>> track_confidence_post_repair("gemini", 0.72)
     """
-    confidence_post_repair.labels(provider=provider).observe(confidence)
+    try:
+        confidence_post_repair.labels(provider=provider).observe(confidence)
+    except Exception as e:
+        logger.error(
+            f"Failed to track confidence post-repair: {e}",
+            extra={"provider": provider, "confidence": confidence},
+        )
