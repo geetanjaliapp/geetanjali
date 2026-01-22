@@ -1,8 +1,8 @@
 """Tests for confidence_reason generation (Phase 5)."""
 
 import pytest
-from services.rag.validation import generate_confidence_reason
 
+from services.rag.validation import generate_confidence_reason
 
 pytestmark = pytest.mark.unit
 

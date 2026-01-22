@@ -5,11 +5,10 @@ from prometheus_client import generate_latest
 
 from services.rag.escalation import should_escalate_to_fallback
 from utils.metrics_llm import (
+    track_confidence_post_repair,
     track_escalation_reason,
     track_repair_success,
-    track_confidence_post_repair,
 )
-
 
 # ============================================================================
 # Mock Response Builders

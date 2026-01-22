@@ -1,8 +1,8 @@
 """Tests for graduated confidence penalties (Phase 4)."""
 
 import pytest
-from services.rag.validation import calculate_graduated_penalty
 
+from services.rag.validation import calculate_graduated_penalty
 
 pytestmark = pytest.mark.unit
 

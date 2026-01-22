@@ -32,7 +32,6 @@ from api.schemas import (
     OutputResponse,
     UserFeedbackSummary,
 )
-from services.rag.validation import generate_confidence_reason
 from config import settings
 from db import SessionLocal, get_db
 from db.repositories.message_repository import MessageRepository
@@ -47,6 +46,7 @@ from services.rag.multipass import (
     run_multipass_consultation,
     should_run_comparison,
 )
+from services.rag.validation import generate_confidence_reason
 from services.tasks import enqueue_task
 from utils.metrics_multipass import multipass_fallback_total
 
