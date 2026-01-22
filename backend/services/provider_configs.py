@@ -394,9 +394,9 @@ class AnthropicConfig(ProviderConfig):
     def is_error_retryable(self, error: Exception) -> bool:
         """Determine if Anthropic error is retryable."""
         from anthropic import (
+            AnthropicError,
             APIConnectionError,
             APITimeoutError,
-            AnthropicError,
         )
 
         # Transient errors (connection, timeout)

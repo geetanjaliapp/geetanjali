@@ -4,11 +4,11 @@ import pytest
 from unittest.mock import MagicMock, Mock
 
 from services.provider_configs import (
-    GEMINI_JSON_SCHEMA,
-    OLLAMA_SIMPLIFIED_SYSTEM_PROMPT,
     AnthropicConfig,
+    GEMINI_JSON_SCHEMA,
     GeminiConfig,
     MockConfig,
+    OLLAMA_SIMPLIFIED_SYSTEM_PROMPT,
     OllamaConfig,
     get_provider_config,
 )
