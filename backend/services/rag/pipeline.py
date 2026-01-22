@@ -498,7 +498,7 @@ class RAGPipeline:
                 should_escalate, escalation_reason = should_escalate_to_fallback(
                     parsed_result
                 )
-            if should_escalate:
+            if should_escalate and escalation_reason is not None:
                 reason_desc = describe_escalation_reason(escalation_reason)
                 logger.warning(
                     f"Pre-repair escalation triggered: {reason_desc} "

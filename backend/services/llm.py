@@ -536,7 +536,9 @@ class LLMService:
             payload["system"] = system_prompt
 
         if max_tokens:
-            payload["options"]["num_predict"] = max_tokens
+            options = payload["options"]
+            if isinstance(options, dict):
+                options["num_predict"] = max_tokens
 
         try:
             result = self._make_ollama_request(payload)
