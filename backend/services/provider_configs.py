@@ -11,7 +11,7 @@ No feature flags required. System detects provider and applies tuning automatica
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Any
 
 logger_instance = None  # Will be set by module loader
 
@@ -145,7 +145,7 @@ class ProviderConfig(ABC):
     temperature_default: float
 
     @abstractmethod
-    def get_generation_params(self, temperature: Optional[float]) -> dict[str, Any]:
+    def get_generation_params(self, temperature: float | None) -> dict[str, Any]:
         """Get provider-specific generation parameters for API call.
 
         Args:
@@ -199,7 +199,7 @@ class ProviderConfig(ABC):
         """
         return base_prompt
 
-    def get_json_schema(self, json_mode: bool) -> Optional[dict]:
+    def get_json_schema(self, json_mode: bool) -> dict | None:
         """Get JSON schema for this provider (if supported).
 
         Return schema dict to enforce structure; None if no schema support.
@@ -246,7 +246,7 @@ class GeminiConfig(ProviderConfig):
     name: str = "gemini"
     temperature_default: float = 0.3  # Lower for determinism with schema
 
-    def get_generation_params(self, temperature: Optional[float]) -> dict[str, Any]:
+    def get_generation_params(self, temperature: float | None) -> dict[str, Any]:
         """Build Gemini-specific generation params."""
         temp = temperature if temperature is not None else self.temperature_default
         return {
@@ -277,7 +277,7 @@ class GeminiConfig(ProviderConfig):
 
         return response_text, input_tokens, output_tokens
 
-    def get_json_schema(self, json_mode: bool) -> Optional[dict]:
+    def get_json_schema(self, json_mode: bool) -> dict | None:
         """Auto-apply Gemini JSON schema when json_mode is True.
 
         This schema constrains Gemini's output to valid JSON matching
@@ -333,7 +333,7 @@ class AnthropicConfig(ProviderConfig):
     name: str = "anthropic"
     temperature_default: float = 0.7
 
-    def get_generation_params(self, temperature: Optional[float]) -> dict[str, Any]:
+    def get_generation_params(self, temperature: float | None) -> dict[str, Any]:
         """Build Anthropic-specific generation params."""
         temp = temperature if temperature is not None else self.temperature_default
         return {
@@ -358,7 +358,7 @@ class AnthropicConfig(ProviderConfig):
 
         return response_text, input_tokens, output_tokens
 
-    def get_json_schema(self, json_mode: bool) -> Optional[dict]:
+    def get_json_schema(self, json_mode: bool) -> dict | None:
         """Anthropic doesn't need JSON schema (native structured output)."""
         return None
 
@@ -399,7 +399,7 @@ class OllamaConfig(ProviderConfig):
     name: str = "ollama"
     temperature_default: float = 0.3
 
-    def get_generation_params(self, temperature: Optional[float]) -> dict[str, Any]:
+    def get_generation_params(self, temperature: float | None) -> dict[str, Any]:
         """Build Ollama-specific generation params."""
         temp = temperature if temperature is not None else self.temperature_default
         return {
@@ -431,7 +431,7 @@ class OllamaConfig(ProviderConfig):
         """
         return OLLAMA_SIMPLIFIED_SYSTEM_PROMPT
 
-    def get_json_schema(self, json_mode: bool) -> Optional[dict]:
+    def get_json_schema(self, json_mode: bool) -> dict | None:
         """Ollama doesn't support response_schema (uses format param instead)."""
         return None
 
@@ -468,7 +468,7 @@ class MockConfig(ProviderConfig):
     name: str = "mock"
     temperature_default: float = 0.5
 
-    def get_generation_params(self, temperature: Optional[float]) -> dict[str, Any]:
+    def get_generation_params(self, temperature: float | None) -> dict[str, Any]:
         """Build mock generation params."""
         return {}
 
