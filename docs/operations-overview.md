@@ -57,12 +57,47 @@ User submits dilemma
 
 The multi-pass approach (Draft → Critique → Refine → Structure) ensures the system thinks deeply before responding, catching shallow reasoning and improving verse alignment before final output.
 
+**Quality Assurance Pipeline:**
+
+After LLM generation, responses go through multiple quality gates:
+
+```
+Generated Response
+        │
+        ▼
+┌──────────────────┐
+│ Structural Check │──▶ Missing critical fields?
+│ (field present)  │
+└────────┬─────────┘
+         │ No
+         ▼
+┌──────────────────┐
+│ Validation &     │──▶ Missing 2+ important fields?
+│ Repair           │
+└────────┬─────────┘
+         │ Low repairs
+         ▼
+┌──────────────────┐
+│ Confidence Gate  │──▶ Confidence < 0.45?
+│ (0.45 threshold) │
+└────────┬─────────┘
+         │ Pass
+         ▼
+┌──────────────────┐
+│ Final Output     │
+│ + Explanation    │
+└──────────────────┘
+```
+
+If any gate fails, the system escalates to a higher-quality provider or returns a user-facing explanation.
+
 **Output includes:**
 - Executive summary
 - Multiple options with tradeoffs
 - Recommended action with steps
 - Reflection prompts
 - Verse citations with relevance scores
+- **Confidence score (0-100%) with explanation** — Why this score? Was repair needed? Were critical fields present?
 
 ## Follow-up Conversations
 
@@ -146,16 +181,44 @@ The frontend polls for status changes until processing completes. This architect
 
 Failed consultations can be retried. The system maintains state to prevent duplicate processing.
 
-## Rate Limits
+## Rate Limits & Cost Controls
 
-To ensure fair usage and system stability:
+To ensure fair usage and system stability, Geetanjali implements conservative rate limits and cost guards:
 
-| Operation | Limit |
-|-----------|-------|
-| Initial consultation | 10/hour |
-| Follow-up questions | 30/hour |
+### Per-Hour Rate Limits
 
-Authenticated users share limits across sessions. Anonymous users are tracked by session.
+| Operation | Limit | Rationale |
+|-----------|-------|-----------|
+| Initial consultation (analyze) | 3/hour | ~20 min between consultations; catches scripts |
+| Follow-up questions | 5/hour | Lighter computation; allows natural Q&A |
+
+Limits are tracked per authenticated user or per session for anonymous users.
+
+### Daily Limits
+
+| Metric | Limit | Rationale |
+|--------|-------|-----------|
+| Consultations | 20/day | ~2.5/hour average; prevents bulk; resets UTC midnight |
+| Request size | 2000 tokens max | Prevents wasted LLM tokens; most questions fit |
+| Deduplication | 24-hour window | Prevents accidental repeats; same question tomorrow OK |
+
+### Rate Limit Responses
+
+When a user hits a limit:
+- **429 Too Many Requests** — Rate limit exceeded; retry after N seconds
+- **422 Unprocessable Entity** — Request too large (token limit)
+- **Daily limit message** — Friendly notification, not punitive blocking
+
+Users can retry immediately after the rate limit window passes. The system prioritizes graceful degradation over harsh penalties.
+
+### Cost Tracking
+
+The system tracks consultation costs against LLM API usage:
+- **Gemini cost** — Primary provider, cost-effective (~$0.075 per consultation average)
+- **Escalation to higher-quality provider** — Only for <5% of cases (structural failures)
+- **Per-IP daily cost** — Monitored for anomalies that suggest abuse
+
+Costs are transparent in ops monitoring but not user-facing (see Observability for dashboard).
 
 ## See Also
 
