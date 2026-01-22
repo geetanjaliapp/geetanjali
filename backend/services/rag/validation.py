@@ -8,6 +8,58 @@ from utils.validation import validate_canonical_id
 logger = logging.getLogger(__name__)
 
 
+# ============================================================================
+# Phase 4: Graduated Confidence Penalties (v1.34.0)
+# ============================================================================
+
+
+def calculate_graduated_penalty(repairs: dict[str, Any]) -> float:
+    """
+    Calculate graduated confidence penalty based on repair complexity.
+
+    Field importance affects penalty:
+    - CRITICAL fields: -0.30 if repaired (major issue, likely escalated)
+    - IMPORTANT fields: -0.15 per field (moderate issue)
+    - OPTIONAL fields: -0.05 per field (minor issue)
+
+    Args:
+        repairs: Dict with keys like "options_repaired", "summary_repaired", etc.
+                 Values are True/False indicating if field was repaired
+
+    Returns:
+        Total penalty (negative float, floor at 0.0)
+    """
+    # Field classifications for penalty calculation
+    CRITICAL_FIELDS = {"options", "recommended_action", "executive_summary"}
+    IMPORTANT_FIELDS = {"reflection_prompts"}
+    OPTIONAL_FIELDS = {"sources", "scholar_flag"}
+
+    total_penalty = 0.0
+
+    # Track repairs by importance level
+    critical_repaired = sum(
+        1 for field in CRITICAL_FIELDS if repairs.get(f"{field}_repaired", False)
+    )
+    important_repaired = sum(
+        1 for field in IMPORTANT_FIELDS if repairs.get(f"{field}_repaired", False)
+    )
+    optional_repaired = sum(
+        1 for field in OPTIONAL_FIELDS if repairs.get(f"{field}_repaired", False)
+    )
+
+    # Apply graduated penalties
+    # Critical: -0.30 per field (signals structural failure, should escalate)
+    total_penalty += critical_repaired * 0.30
+
+    # Important: -0.15 per field (moderate repair needed)
+    total_penalty += important_repaired * 0.15
+
+    # Optional: -0.05 per field (minor repair needed)
+    total_penalty += optional_repaired * 0.05
+
+    return total_penalty
+
+
 def _truncate_at_word_boundary(text: str, max_len: int = 200) -> str:
     """
     Truncate text at word boundary, adding ellipsis if needed.
@@ -296,7 +348,16 @@ def _validate_and_fix_options(output: dict[str, Any]) -> None:
 
     # Flag for scholar review since LLM didn't follow constraint
     output["scholar_flag"] = True
-    output["confidence"] = max(output.get("confidence", 0.5) - 0.15, 0.3)
+
+    # [Phase 4] Apply graduated penalty based on options repair complexity
+    # options is a CRITICAL field, so penalty is -0.30 when repaired
+    current_confidence = output.get("confidence", 0.5)
+    penalty = 0.30  # Critical field repair
+    output["confidence"] = max(current_confidence - penalty, 0.3)
+    logger.info(
+        f"Options repair penalty: -{penalty:.2f} "
+        f"(confidence: {current_confidence:.2f} → {output['confidence']:.2f})"
+    )
 
     base_verses = output.get("sources", [])
 
