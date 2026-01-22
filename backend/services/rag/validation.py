@@ -60,6 +60,94 @@ def calculate_graduated_penalty(repairs: dict[str, Any]) -> float:
     return total_penalty
 
 
+def generate_confidence_reason(
+    confidence: float,
+    is_escalated: bool,
+    repairs_count: int,
+    rag_injected: bool,
+    provider: str,
+) -> str:
+    """
+    Generate user-facing explanation of confidence score.
+
+    Args:
+        confidence: Final confidence score (0.0-1.0)
+        is_escalated: Whether response was escalated to fallback
+        repairs_count: Number of fields that required repair
+        rag_injected: Whether RAG verses were injected for sources
+        provider: LLM provider that generated the response
+
+    Returns:
+        Human-readable reason for confidence level
+    """
+    if is_escalated:
+        return (
+            "Generated with highest-quality provider after escalation from primary. "
+            "Core analysis is sound."
+        )
+
+    if confidence >= 0.85:
+        if repairs_count == 0 and not rag_injected:
+            return "Generated with high-quality reasoning, no repairs needed."
+        elif repairs_count > 0 and confidence >= 0.75:
+            return (
+                "Response required minor repair; core ethical reasoning remains solid."
+            )
+        else:
+            return "High confidence in core ethical analysis."
+
+    if confidence >= 0.65:
+        if repairs_count == 1:
+            return "Response required minor repair; reasoning is generally sound."
+        elif repairs_count > 1:
+            return (
+                f"Response required repairs to {repairs_count} fields. "
+                "Core insights remain valid."
+            )
+        elif rag_injected:
+            return "Sources were supplemented to ensure verse coverage."
+        else:
+            return "Moderate confidence in analysis."
+
+    if confidence >= 0.45:
+        if is_escalated:
+            return (
+                "Generated with highest-quality provider after escalation from primary. "
+                "Core analysis is sound."
+            )
+        if repairs_count > 2:
+            return (
+                f"Multiple field repairs ({repairs_count}) were needed. "
+                "Consider scholar review before acting."
+            )
+        elif repairs_count > 0:
+            return (
+                f"Response required {repairs_count} field repair(s). "
+                "Review recommendations carefully before acting."
+            )
+        else:
+            return "Moderate confidence; review recommendations before acting."
+
+    # Below 0.45 - low confidence
+    if confidence >= 0.30:
+        if repairs_count > 0:
+            return (
+                f"Low confidence due to {repairs_count} repairs needed. "
+                "Expert scholar review strongly recommended."
+            )
+        else:
+            return (
+                "Low confidence in analysis. "
+                "Expert scholar review strongly recommended."
+            )
+
+    # Floor at 0.3
+    return (
+        "Response required substantial repair. "
+        "Strongly recommend additional expert consultation."
+    )
+
+
 def _truncate_at_word_boundary(text: str, max_len: int = 200) -> str:
     """
     Truncate text at word boundary, adding ellipsis if needed.

@@ -870,6 +870,20 @@ class RAGPipeline:
                 validated_output["scholar_flag"] = True
                 validated_output["warning"] = "Generated without verse retrieval"
 
+            # [Phase 5] Add metadata for confidence_reason generation
+            # Track if escalation happened
+            validated_output["_escalated"] = bool(
+                validated_output.get("llm_attribution", {}).get("escalated_from")
+            )
+            # Track RAG injection (if sources were added beyond LLM response)
+            validated_output["_rag_injected"] = bool(
+                validated_output.get("_rag_injected", False)
+            )
+            # Note: repairs_count will be calculated by API based on available data
+            validated_output["_repairs_count"] = validated_output.get(
+                "_repairs_count", 0
+            )
+
             # P1.1 FIX: Cache successful results
             cache.set(cache_key, validated_output, settings.CACHE_TTL_RAG_OUTPUT)
             logger.info(
