@@ -80,13 +80,13 @@ class Settings(BaseSettings):
     # v1.34.0: Intelligent Escalation Config
     # ========================================
     # Smart escalation to highest-quality fallback provider when:
-    # - Primary provider (Gemini) returns structurally incomplete responses
+    # - Primary provider returns structurally incomplete responses
     # - Repairs needed on critical fields trigger confidence penalties
     # - Post-repair confidence falls below 0.45 threshold
     #
     # Enables field-aware escalation with graduated confidence penalties and
     # transparent user communication about reasoning quality.
-    GEMINI_ESCALATION_ENABLED: bool = False  # Feature flag (OFF by default)
+    FALLBACK_ESCALATION_ENABLED: bool = False  # Feature flag (OFF by default)
     ESCALATION_CONFIDENCE_THRESHOLD: float = (
         0.45  # Escalate if post-repair confidence < this value
     )
