@@ -430,8 +430,14 @@ class LLMService:
             logger.error(f"Gemini error (permanent): {type(e).__name__}: {e}")
             llm_requests_total.labels(provider="gemini", status="error").inc()
             raise LLMError(f"Gemini request failed: {e}")
+        except ValueError as e:
+            # Response parsing errors (empty/malformed response from parse_response)
+            self._gemini_breaker.record_failure()
+            logger.error(f"Gemini response error: {e}")
+            llm_requests_total.labels(provider="gemini", status="error").inc()
+            raise LLMError(str(e))
         except LLMError:
-            # Re-raise our own errors (empty response, malformed response)
+            # Re-raise our own errors
             raise
         except Exception as e:
             # Catch-all for unexpected errors
