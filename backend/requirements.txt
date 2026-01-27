@@ -3,10 +3,10 @@
 # Web Framework
 fastapi==0.128.0
 uvicorn[standard]==0.40.0
-python-multipart==0.0.21
+python-multipart==0.0.22
 
 # Database
-sqlalchemy==2.0.45
+sqlalchemy==2.0.46
 alembic==1.18.1
 psycopg2-binary==2.9.11  # PostgreSQL driver
 
@@ -19,7 +19,7 @@ email-validator==2.3.0  # Required for pydantic EmailStr validation
 chromadb==1.4.1
 
 # Embeddings
-sentence-transformers==5.2.0
+sentence-transformers==5.2.1
 
 # LLM Clients
 httpx>=0.27.0  # For Ollama API calls (chromadb 1.3.5 requires >=0.27.0)
@@ -32,7 +32,7 @@ pytest-asyncio>=1.0.0  # pytest 9.x requires pytest-asyncio 1.x
 pytest-cov==7.0.0
 
 # Code Quality
-ruff==0.14.13  # Fast linter and formatter (replaces flake8+black)
+ruff==0.14.14  # Fast linter and formatter (replaces flake8+black)
 mypy==1.19.1
 types-requests==2.32.4.20260107  # Type stubs for requests
 types-PyYAML==6.0.12.20250915  # Type stubs for PyYAML
@@ -65,7 +65,7 @@ urllib3>=2.5.0  # CVE-2025-50181, CVE-2025-50182 fix
 resend>=2.5.0  # Transactional email service
 
 # Monitoring
-sentry-sdk[fastapi]==2.49.0  # Error tracking and performance monitoring
+sentry-sdk[fastapi]==2.50.0  # Error tracking and performance monitoring
 prometheus-fastapi-instrumentator==7.1.0  # FastAPI metrics instrumentation
 prometheus-client==0.24.1  # Prometheus client library
 
