@@ -128,7 +128,9 @@ apt-get install -y -qq \
     unattended-upgrades \
     apt-listchanges \
     ca-certificates \
-    gnupg
+    gnupg \
+    ufw \
+    auditd
 
 # Configure unattended-upgrades
 log "Configuring automatic security updates..."
@@ -266,6 +268,95 @@ systemctl enable fail2ban
 systemctl start fail2ban
 
 # =============================================================================
+# SSH Hardening
+# =============================================================================
+
+log "Hardening SSH configuration..."
+# Restrict root login to key-only (prohibit-password allows emergency access)
+sed -i 's/^#*PermitRootLogin.*/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config
+# Ensure password auth is disabled (key-only)
+sed -i 's/^#*PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config
+systemctl restart sshd
+log "SSH hardened: root=prohibit-password, password-auth=disabled"
+
+# =============================================================================
+# UFW Firewall
+# =============================================================================
+
+log "Configuring UFW firewall..."
+ufw default deny incoming
+ufw default allow outgoing
+ufw allow 22/tcp comment 'SSH'
+ufw allow 80/tcp comment 'HTTP'
+ufw allow 443/tcp comment 'HTTPS'
+echo "y" | ufw enable
+log "UFW enabled: only 22, 80, 443 allowed"
+
+# =============================================================================
+# Kernel Security Parameters
+# =============================================================================
+
+log "Configuring kernel security parameters..."
+cat > /etc/sysctl.d/99-security.conf <<EOF
+# Security hardening
+# Enable reverse path filtering (prevent IP spoofing)
+net.ipv4.conf.all.rp_filter = 1
+net.ipv4.conf.default.rp_filter = 1
+
+# Disable ICMP redirects
+net.ipv4.conf.all.accept_redirects = 0
+net.ipv4.conf.default.accept_redirects = 0
+
+# Disable source routing
+net.ipv4.conf.all.accept_source_route = 0
+net.ipv4.conf.default.accept_source_route = 0
+
+# Enable SYN flood protection
+net.ipv4.tcp_syncookies = 1
+
+# Log suspicious packets
+net.ipv4.conf.all.log_martians = 1
+EOF
+sysctl -p /etc/sysctl.d/99-security.conf
+log "Kernel security parameters configured"
+
+# =============================================================================
+# Auditd Configuration
+# =============================================================================
+
+log "Configuring auditd..."
+cat > /etc/audit/rules.d/security.rules <<EOF
+# Log all commands run as root
+-a always,exit -F arch=b64 -F euid=0 -S execve -k root_commands
+
+# Log changes to passwd/shadow
+-w /etc/passwd -p wa -k identity
+-w /etc/shadow -p wa -k identity
+
+# Log SSH config changes
+-w /etc/ssh/sshd_config -p wa -k sshd_config
+
+# Log Docker config changes
+-w /etc/docker/daemon.json -p wa -k docker_config
+
+# Log sudoers changes
+-w /etc/sudoers -p wa -k sudoers
+-w /etc/sudoers.d/ -p wa -k sudoers
+EOF
+systemctl enable auditd
+systemctl restart auditd
+log "Auditd configured with security rules"
+
+# =============================================================================
+# SSL Certificate Group (for Docker container access)
+# =============================================================================
+
+log "Creating SSL certificate group..."
+# Create ssl-docker group with GID 1002 (matches docker-compose.budget.yml group_add)
+groupadd -g 1002 ssl-docker 2>/dev/null || log "ssl-docker group already exists"
+log "ssl-docker group created (GID 1002) for container SSL access"
+
+# =============================================================================
 # Summary
 # =============================================================================
 
@@ -283,6 +374,13 @@ echo "  - SOPS:          $(sops --version 2>&1 | head -1)"
 echo "  - age:           $(age --version)"
 echo "  - fail2ban:      active"
 echo "  - auto-upgrades: enabled"
+echo ""
+echo "Security Hardening:"
+echo "  - SSH:           root=prohibit-password, password-auth=disabled"
+echo "  - UFW:           enabled (22, 80, 443 only)"
+echo "  - Kernel:        rp_filter, syncookies, no redirects"
+echo "  - Auditd:        logging root commands, identity changes"
+echo "  - SSL group:     ssl-docker (GID 1002) for cert access"
 echo ""
 echo "Directories:"
 echo "  - App:     $APP_DIR (owned by $APP_USER)"
