@@ -223,7 +223,8 @@ services:
       - geetanjali-network
     restart: unless-stopped
 
-  # RQ Worker (256MB limit — reduced from 384MB for headroom)
+  # RQ Worker (384MB limit — needed for RAG pipeline + LLM calls)
+  # OOM at 256MB: sentence-transformers + LLM API handling needs headroom
   worker:
     build:
       context: ./backend
@@ -256,10 +257,10 @@ services:
       resources:
         limits:
           cpus: "0.5"
-          memory: 256M
+          memory: 384M
           pids: 128
         reservations:
-          memory: 128M
+          memory: 192M
     ulimits:
       nofile:
         soft: 65535
