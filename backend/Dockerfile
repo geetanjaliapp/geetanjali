@@ -28,7 +28,10 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 COPY . .
 
 # Create non-root user for security and set permissions
+# Pre-create HuggingFace cache directory for sentence-transformers model
 RUN useradd -m -u 1000 appuser && \
+    mkdir -p /home/appuser/.cache/huggingface && \
+    chown -R appuser:appuser /home/appuser/.cache && \
     chmod +x docker-entrypoint.sh && \
     chown -R appuser:appuser /app
 
