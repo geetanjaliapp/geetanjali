@@ -188,15 +188,15 @@ services:
       - ALL
     security_opt:
       - no-new-privileges:true
-    # Resource limits (budget — 80% target)
+    # Resource limits (budget — increased from 384M for embedding model headroom)
     deploy:
       resources:
         limits:
           cpus: "0.75"
-          memory: 384M
+          memory: 512M
           pids: 256
         reservations:
-          memory: 192M
+          memory: 256M
     ulimits:
       nofile:
         soft: 65535
