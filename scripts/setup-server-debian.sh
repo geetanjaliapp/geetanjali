@@ -72,6 +72,15 @@ info "App directory: $APP_DIR"
 echo ""
 
 # =============================================================================
+# Pre-flight Check: SSH Key
+# =============================================================================
+# IMPORTANT: This script copies root's authorized_keys to the app user.
+# Ensure your DEPLOYMENT SSH key is in root's authorized_keys BEFORE running.
+# If using a separate deploy key (e.g., gitam-prod), add it first:
+#   cat ~/.ssh/your-deploy-key.pub | ssh root@server "cat >> ~/.ssh/authorized_keys"
+#
+
+# =============================================================================
 # Create Application User
 # =============================================================================
 
@@ -389,11 +398,16 @@ echo "  - Logs:    $LOG_DIR"
 echo ""
 echo "Next steps:"
 echo "  1. SSH as $APP_USER:    ssh $APP_USER@<server-ip>"
-echo "  2. Copy age key:        (see phase-B-provision.md)"
-echo "  3. Clone repo:          cd $APP_DIR && git clone <repo> ."
+echo "  2. Copy age key:        scp ~/.config/sops/age/keys.txt $APP_USER@server:~/.config/sops/age/"
+echo "  3. Clone repo (as $APP_USER!):"
+echo "     cd $APP_DIR && git clone https://github.com/geetanjaliapp/geetanjali.git . && git lfs pull"
 echo "  4. Configure swap:      sudo ./scripts/setup-swap.sh"
-echo "  5. Decrypt secrets:     sops -d .env.enc > .env"
-echo "  6. Start services:      docker compose -f docker-compose.budget.yml up -d"
+echo "  5. Decrypt secrets:     SOPS_AGE_KEY_FILE=~/.config/sops/age/keys.txt sops -d .env.enc > .env"
+echo "  6. Initialize volumes:  ./scripts/init-deployment.sh"
+echo "  7. Start services:      docker compose -f docker-compose.budget.yml up -d"
+echo "  8. Setup cron jobs:     ./scripts/setup-crons.sh"
+echo "  9. Get SSL certs:       (see docs/deployment.md for certbot instructions)"
 echo ""
-warn "Remember: Use $APP_USER for all operations, root only for emergencies!"
+warn "IMPORTANT: Clone as $APP_USER (not root) to ensure correct file ownership!"
+warn "If cloned as root, fix with: sudo chown -R $APP_USER:$APP_USER $APP_DIR"
 echo ""

@@ -123,7 +123,12 @@ while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
     sleep 2
 done
 
-# Step 8: Trigger SEO page generation via admin API
+# Step 8: Ensure SEO volume ownership (first deploy fix)
+# Docker creates volumes as root; backend runs as appuser (uid 1000)
+log "Ensuring SEO volume permissions..."
+$SSH_CMD "docker exec -u root geetanjali-backend chown -R appuser:appuser /app/seo-output 2>/dev/null" || warn "Could not fix SEO permissions (may already be correct)"
+
+# Step 9: Trigger SEO page generation via admin API
 # Uses hash-based detection - only regenerates changed pages
 # Pages are shared via Docker volume (seo_output) between backend and nginx
 # Auth: Uses API_KEY from container environment (defense in depth)
@@ -133,11 +138,11 @@ if [[ -n "$SEO_RESULT" ]]; then
     info "SEO: $SEO_RESULT"
 fi
 
-# Step 9: Verify deployment
+# Step 10: Verify deployment
 log "Service status:"
 $SSH_CMD "cd ${DEPLOY_DIR} && ${COMPOSE_CMD} ps --format 'table {{.Names}}\t{{.Status}}'"
 
-# Step 10: Health check (via docker exec since port not exposed)
+# Step 11: Health check (via docker exec since port not exposed)
 HEALTH_STATUS=$($SSH_CMD "docker exec geetanjali-backend curl -s -o /dev/null -w '%{http_code}' http://localhost:8000/health 2>/dev/null" || echo "000")
 if [[ "$HEALTH_STATUS" == "200" ]]; then
     echo ""
