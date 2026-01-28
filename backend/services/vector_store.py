@@ -337,17 +337,32 @@ class VectorStore:
 
 
 # Global vector store instance
-_vector_store = None
+_vector_store: VectorStore | None = None
 
 
-def get_vector_store() -> VectorStore:
+def get_vector_store() -> VectorStore | Any:
     """
-    Get or create the global vector store instance.
+    Get vector store instance (local or remote based on config).
+
+    In backend: Returns local VectorStore with embedded model
+    In worker: Returns RemoteVectorSearch that calls backend API
+
+    When USE_REMOTE_VECTOR_SEARCH=true:
+      - Worker delegates vector search to backend via internal API
+      - Saves ~400MB (embedding model not loaded in worker)
 
     Returns:
-        VectorStore instance
+        VectorStore (backend) or RemoteVectorSearch (worker)
     """
     global _vector_store
+
+    # Check if we should use remote search (worker mode)
+    if settings.USE_REMOTE_VECTOR_SEARCH:
+        from services.remote_vector_search import get_remote_vector_search
+
+        return get_remote_vector_search()
+
+    # Local mode (backend) - original behavior
     if _vector_store is None:
         _vector_store = VectorStore()
     return _vector_store
@@ -358,8 +373,19 @@ def cleanup_vector_store() -> None:
     Clean up the global vector store instance.
 
     Should be called during application shutdown.
+    Handles both local VectorStore and RemoteVectorSearch.
     """
     global _vector_store
+
+    # Clean up remote vector search if used
+    if settings.USE_REMOTE_VECTOR_SEARCH:
+        from services.remote_vector_search import cleanup_remote_vector_search
+
+        cleanup_remote_vector_search()
+        logger.info("Remote vector search cleaned up")
+        return
+
+    # Clean up local vector store
     if _vector_store is not None:
         _vector_store.cleanup()
         _vector_store = None

@@ -340,6 +340,21 @@ class Settings(BaseSettings):
     CB_CHROMADB_FAILURE_THRESHOLD: int = 3  # Failures before opening circuit
     CB_CHROMADB_RECOVERY_TIMEOUT: int = 60  # Seconds before testing recovery
 
+    # ============================================================
+    # INTERNAL API (Worker → Backend Communication) v1.37.0
+    # ============================================================
+    # Enables worker to delegate vector search to backend,
+    # eliminating duplicate sentence-transformers model loading.
+    # Memory savings: ~400MB per worker container.
+    #
+    # Setup:
+    #   1. Generate key: openssl rand -hex 32
+    #   2. Set INTERNAL_API_KEY in both backend and worker
+    #   3. Set USE_REMOTE_VECTOR_SEARCH=true in worker only
+    INTERNAL_API_KEY: str | None = None  # Shared secret for internal API auth
+    USE_REMOTE_VECTOR_SEARCH: bool = False  # True in worker, False in backend
+    VECTOR_SEARCH_URL: str = "http://backend:8000/internal/search"
+
     @field_validator(
         # Only apply to truly Optional fields (can be None)
         "ANTHROPIC_API_KEY",
@@ -350,6 +365,7 @@ class Settings(BaseSettings):
         "REDIS_URL",
         "CHROMA_HOST",
         "SENTRY_DSN",
+        "INTERNAL_API_KEY",
         mode="before",
     )
     @classmethod
@@ -370,6 +386,7 @@ class Settings(BaseSettings):
         "MULTIPASS_ENABLED",
         "MULTIPASS_FALLBACK_TO_SINGLE_PASS",
         "MULTIPASS_COMPARISON_MODE",
+        "USE_REMOTE_VECTOR_SEARCH",
         mode="before",
     )
     @classmethod

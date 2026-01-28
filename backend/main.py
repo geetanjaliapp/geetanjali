@@ -320,6 +320,14 @@ app.include_router(newsletter.router, tags=["Newsletter"])
 app.include_router(preferences.router, tags=["Preferences"])
 app.include_router(tts.router, tags=["TTS"])
 
+# Internal API for worker → backend communication (v1.37.0)
+# Only mounted when INTERNAL_API_KEY is configured
+if settings.INTERNAL_API_KEY:
+    from api.internal import router as internal_router
+
+    app.include_router(internal_router)
+    logger.info("Internal API enabled for worker communication")
+
 # Serve audio files (development only - nginx serves these in production)
 from services.audio import get_audio_directory
 
