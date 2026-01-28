@@ -184,6 +184,7 @@ services:
       - backend_chroma:/app/chroma_data
       - ./public/audio:/app/public/audio:ro
       - seo_output:/app/seo-output
+      - hf_cache:/home/appuser/.cache/huggingface
     cap_drop:
       - ALL
     security_opt:
@@ -248,6 +249,7 @@ services:
       OLLAMA_BASE_URL: ""
     volumes:
       - ./public/audio:/app/public/audio:ro
+      - hf_cache:/home/appuser/.cache/huggingface
     cap_drop:
       - ALL
     security_opt:
@@ -350,6 +352,7 @@ volumes:
   chroma_data:
   backend_chroma:
   seo_output:
+  hf_cache:  # HuggingFace model cache (sentence-transformers ~90MB)
 
 networks:
   geetanjali-network:
