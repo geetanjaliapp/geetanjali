@@ -8,8 +8,8 @@
 #   DEPLOY_AGE_KEY  - Path to age private key on remote server
 #
 # Optional:
-#   DEPLOY_COMPOSE_FILES - Compose files to use (default: "docker-compose.yml")
-#                          For budget: "docker-compose.budget.yml -f docker-compose.budget.observability.yml"
+#   DEPLOY_COMPOSE_FILES - Space-separated compose files (default: "docker-compose.yml")
+#                          For budget: "docker-compose.budget.yml docker-compose.budget.observability.yml"
 
 set -e
 
