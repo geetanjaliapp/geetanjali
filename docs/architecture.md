@@ -71,7 +71,9 @@ User Query → Embedding → Vector Search → LLM Generation → Structured Out
 ## RAG Pipeline
 
 ### 1. Embedding
-User query and all verses are embedded using `sentence-transformers/all-MiniLM-L6-v2` (384 dimensions).
+User query and all verses are embedded using `sentence-transformers/all-MiniLM-L6-v2` (384 dimensions). Embeddings are computed **client-side** in backend/worker containers—ChromaDB stores vectors but does not compute them.
+
+> **Note:** ChromaDB collection metadata binds embedding function configuration. Queries must use the same embedding function as collection creation. This requires sentence-transformers installed in backend/worker, not just ChromaDB server.
 
 ### 2. Retrieval
 ChromaDB performs cosine similarity search, returning top-k relevant verses with scores.

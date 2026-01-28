@@ -399,8 +399,8 @@ Container limits target 80% of RAM to leave headroom for kernel and Docker.
 |---------|-------|-------------|-------|
 | PostgreSQL | 192MB | 96MB | `shared_buffers=48MB`, `max_connections=30` |
 | Redis | 48MB | 24MB | `maxmemory 40mb` |
-| ChromaDB | 640MB | 448MB | sentence-transformers ~400MB |
-| Backend | 512MB | 256MB | `UVICORN_WORKERS=1` + embedding model (~400MB) |
+| ChromaDB | 640MB | 448MB | Vector storage + query overhead |
+| Backend | 512MB | 256MB | `UVICORN_WORKERS=1` + sentence-transformers (~400MB) |
 | Worker | 256MB | 128MB | Separate process |
 | Frontend | 48MB | — | nginx static |
 | **Core Total** | **~1.7GB** | **~1.0GB** | Leaves ~300MB for kernel/Docker |

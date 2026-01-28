@@ -1,4 +1,4 @@
-# Custom ChromaDB Dockerfile with built-in embedding support
+# Custom ChromaDB Dockerfile
 # Matches backend chromadb version for compatibility
 FROM python:3.11-slim
 
@@ -9,13 +9,15 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Install ChromaDB 1.3.5 with sentence-transformers for built-in embeddings
-# This moves embedding computation from backend to ChromaDB container
+# Install ChromaDB 1.3.5 with sentence-transformers
+# NOTE: ChromaDB collection metadata binds to client-side embedding function.
+# Embeddings are computed in backend/worker, not ChromaDB server.
+# sentence-transformers here is unused overhead from historical intent (commit 91e59fb).
 RUN pip install --no-cache-dir \
     chromadb==1.3.5 \
     sentence-transformers==3.3.1
 
-# Pre-download the embedding model to avoid first-request latency
+# Pre-download embedding model (unused at runtime - see note above)
 RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
 
 # Create non-root user for security

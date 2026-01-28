@@ -110,8 +110,8 @@ services:
       - geetanjali-network
     restart: unless-stopped
 
-  # ChromaDB Vector Store (640MB limit — reduced from 768MB for headroom)
-  # sentence-transformers model uses ~400MB; limit provides buffer for queries
+  # ChromaDB Vector Store (640MB limit)
+  # NOTE: Embeddings computed client-side (backend/worker), not server-side.
   chromadb:
     build:
       context: ./chromadb
@@ -128,7 +128,7 @@ services:
       - ALL
     security_opt:
       - no-new-privileges:true
-    # Resource limits (budget — 80% target, ChromaDB needs memory for embeddings)
+    # Resource limits (budget — 80% target, headroom for vector queries)
     deploy:
       resources:
         limits:
