@@ -2,11 +2,8 @@
 # Use: docker compose -f docker-compose.budget.yml up -d
 # With observability: docker compose -f docker-compose.budget.yml -f docker-compose.budget.observability.yml up -d
 #
-# Memory budget (limits):
-#   PostgreSQL: 192MB | Redis: 48MB | ChromaDB: 192MB | Backend: 640MB | Worker: 384MB | Frontend: 48MB
-#   Base total: ~1.5GB (75% of 2GB)
-#   With observability (+Prometheus 192MB, +Grafana 192MB): ~1.9GB — requires 1GB swap for spikes
-#
+# Memory budget: ~1.6GB for containers (80% of 2GB), leaving headroom for kernel/Docker
+# With observability: ~2.0GB total — requires 1GB swap for spikes
 # Key difference from base: No Ollama, stricter memory limits, production hardening
 #
 # NOTE: No ./backend:/app volume mount (unlike base compose) — code baked into image.
@@ -113,9 +110,8 @@ services:
       - geetanjali-network
     restart: unless-stopped
 
-  # ChromaDB Vector Store (192MB limit)
-  # Note: sentence-transformers loads client-side in backend/worker, not in ChromaDB server.
-  # ChromaDB server only stores vectors (~32MB actual usage).
+  # ChromaDB Vector Store (640MB limit — reduced from 768MB for headroom)
+  # sentence-transformers model uses ~400MB; limit provides buffer for queries
   chromadb:
     build:
       context: ./chromadb
@@ -132,15 +128,15 @@ services:
       - ALL
     security_opt:
       - no-new-privileges:true
-    # Resource limits (budget — vector storage only, 6x observed usage)
+    # Resource limits (budget — 80% target, ChromaDB needs memory for embeddings)
     deploy:
       resources:
         limits:
-          cpus: "0.5"
-          memory: 192M
+          cpus: "0.75"
+          memory: 640M
           pids: 128
         reservations:
-          memory: 96M
+          memory: 448M
     ulimits:
       nofile:
         soft: 65535
@@ -161,7 +157,7 @@ services:
       - geetanjali-network
     restart: unless-stopped
 
-  # Backend API (640MB limit — sentence-transformers ~400MB + FastAPI/libraries)
+  # Backend API (512MB limit — embedding model needs ~400MB headroom)
   backend:
     build:
       context: ./backend
@@ -193,15 +189,15 @@ services:
       - ALL
     security_opt:
       - no-new-privileges:true
-    # Resource limits (budget — embedding model loads here, not in ChromaDB)
+    # Resource limits (budget — increased from 384M for embedding model headroom)
     deploy:
       resources:
         limits:
           cpus: "0.75"
-          memory: 640M
+          memory: 512M
           pids: 256
         reservations:
-          memory: 384M
+          memory: 256M
     ulimits:
       nofile:
         soft: 65535
