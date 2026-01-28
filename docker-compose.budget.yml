@@ -1,0 +1,355 @@
+# Budget Deployment Configuration (2GB droplet, $12/mo)
+# Use: docker compose -f docker-compose.budget.yml up -d
+# With observability: docker compose -f docker-compose.budget.yml -f docker-compose.budget.observability.yml up -d
+#
+# Memory budget: ~1.6GB for containers (80% of 2GB), leaving headroom for kernel/Docker
+# With observability: ~2.0GB total — requires 1GB swap for spikes
+# Key difference from base: No Ollama, stricter memory limits, production hardening
+#
+# NOTE: No ./backend:/app volume mount (unlike base compose) — code baked into image.
+# For local development with budget config, rebuild images after code changes.
+
+services:
+  # PostgreSQL Database (192MB limit — reduced from 256MB for headroom)
+  postgres:
+    image: postgres:15-alpine
+    container_name: geetanjali-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-geetanjali}
+      POSTGRES_USER: ${POSTGRES_USER:-geetanjali}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-geetanjali_dev_pass}
+    # Low-memory PostgreSQL configuration
+    command:
+      - "postgres"
+      - "-c"
+      - "shared_buffers=48MB"
+      - "-c"
+      - "max_connections=30"
+      - "-c"
+      - "effective_cache_size=96MB"
+      - "-c"
+      - "maintenance_work_mem=24MB"
+      - "-c"
+      - "work_mem=4MB"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    # Security hardening
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETUID
+      - SETGID
+      - FOWNER
+      - DAC_READ_SEARCH
+    security_opt:
+      - no-new-privileges:true
+    # Resource limits (budget — 80% target)
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 192M
+        reservations:
+          memory: 96M
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-geetanjali}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - geetanjali-network
+    restart: always
+
+  # Redis Cache (48MB limit — reduced from 64MB for headroom)
+  redis:
+    image: redis:7.4-alpine
+    container_name: geetanjali-redis
+    user: "999:999"
+    # Budget: 40MB maxmemory (within 48MB container limit)
+    command: redis-server --save "" --appendonly no --maxmemory 40mb --maxmemory-policy allkeys-lru --requirepass ${REDIS_PASSWORD:-redis_dev_pass}
+    environment:
+      REDISCLI_AUTH: ${REDIS_PASSWORD:-redis_dev_pass}
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /data:mode=770,uid=999,gid=999
+    # Resource limits (budget — 80% target)
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 48M
+          pids: 64
+        reservations:
+          memory: 24M
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    # Healthcheck with explicit auth (REDISCLI_AUTH may not propagate to healthcheck process)
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"${REDIS_PASSWORD:-redis_dev_pass}\" ping | grep -q PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - geetanjali-network
+    restart: unless-stopped
+
+  # ChromaDB Vector Store (640MB limit — reduced from 768MB for headroom)
+  # sentence-transformers model uses ~400MB; limit provides buffer for queries
+  chromadb:
+    build:
+      context: ./chromadb
+      dockerfile: Dockerfile
+    image: geetanjali-chromadb:latest
+    container_name: geetanjali-chromadb
+    volumes:
+      - chroma_data:/chroma/chroma
+    environment:
+      IS_PERSISTENT: "TRUE"
+      ANONYMIZED_TELEMETRY: "FALSE"
+      PERSIST_DIRECTORY: "/chroma/chroma"
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    # Resource limits (budget — 80% target, ChromaDB needs memory for embeddings)
+    deploy:
+      resources:
+        limits:
+          cpus: "0.75"
+          memory: 640M
+          pids: 128
+        reservations:
+          memory: 448M
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    # Healthcheck (missing in base compose)
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - geetanjali-network
+    restart: unless-stopped
+
+  # Backend API (384MB limit — reduced from 512MB for headroom)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: geetanjali-backend:latest
+    container_name: geetanjali-backend
+    env_file:
+      - .env
+    environment:
+      # Docker-specific overrides
+      DATABASE_URL: postgresql://${POSTGRES_USER:-geetanjali}:${POSTGRES_PASSWORD:-geetanjali_dev_pass}@postgres:5432/${POSTGRES_DB:-geetanjali}
+      CHROMA_HOST: chromadb
+      CHROMA_PORT: 8000
+      REDIS_URL: redis://:${REDIS_PASSWORD:-redis_dev_pass}@redis:6379/0
+      AUDIO_FILES_PATH: /app/public/audio
+      PGHOST: postgres
+      PGUSER: ${POSTGRES_USER:-geetanjali}
+      # Budget mode: Ollama disabled
+      OLLAMA_ENABLED: "false"
+      OLLAMA_BASE_URL: ""
+      # Single worker for memory efficiency
+      UVICORN_WORKERS: "1"
+    volumes:
+      - backend_chroma:/app/chroma_data
+      - ./public/audio:/app/public/audio:ro
+      - seo_output:/app/seo-output
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    # Resource limits (budget — 80% target)
+    deploy:
+      resources:
+        limits:
+          cpus: "0.75"
+          memory: 384M
+          pids: 256
+        reservations:
+          memory: 192M
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      chromadb:
+        condition: service_healthy
+    networks:
+      - geetanjali-network
+    restart: unless-stopped
+
+  # RQ Worker (256MB limit — reduced from 384MB for headroom)
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: geetanjali-backend:latest
+    container_name: geetanjali-worker
+    command: python worker.py
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-geetanjali}:${POSTGRES_PASSWORD:-geetanjali_dev_pass}@postgres:5432/${POSTGRES_DB:-geetanjali}
+      CHROMA_HOST: chromadb
+      CHROMA_PORT: 8000
+      REDIS_URL: redis://:${REDIS_PASSWORD:-redis_dev_pass}@redis:6379/0
+      SKIP_DB_INIT: "true"
+      PGHOST: postgres
+      PGUSER: ${POSTGRES_USER:-geetanjali}
+      AUDIO_FILES_PATH: /app/public/audio
+      # Budget mode: Ollama disabled
+      OLLAMA_ENABLED: "false"
+      OLLAMA_BASE_URL: ""
+    volumes:
+      - ./public/audio:/app/public/audio:ro
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    # Resource limits (budget — 80% target)
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+          pids: 128
+        reservations:
+          memory: 128M
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health/ready"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      chromadb:
+        condition: service_healthy
+    networks:
+      - geetanjali-network
+    restart: unless-stopped
+
+  # Frontend (48MB limit — reduced from 64MB for headroom)
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+        VITE_API_V1_PREFIX: ${VITE_API_V1_PREFIX:-/api/v1}
+        VITE_SENTRY_DSN: ${VITE_SENTRY_DSN:-}
+        VITE_UMAMI_WEBSITE_ID: ${VITE_UMAMI_WEBSITE_ID:-}
+    image: geetanjali-frontend:latest
+    container_name: geetanjali-frontend
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /etc/letsencrypt/live/geetanjaliapp.com:/etc/letsencrypt/live/geetanjaliapp.com:ro
+      - /etc/letsencrypt/archive/geetanjaliapp.com:/etc/letsencrypt/archive/geetanjaliapp.com:ro
+      - /var/www/certbot:/var/www/certbot:ro
+      - ./public/audio:/app/public/audio:ro
+      - seo_output:/usr/share/nginx/html/seo:ro
+    group_add:
+      - "1002"
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+      - CHOWN
+      - SETUID
+      - SETGID
+    security_opt:
+      - no-new-privileges:true
+    # Resource limits (budget — 80% target)
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 48M
+          pids: 64
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    # Healthcheck (missing in base compose)
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/nginx-health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - geetanjali-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  chroma_data:
+  backend_chroma:
+  seo_output:
+
+networks:
+  geetanjali-network:
+    driver: bridge

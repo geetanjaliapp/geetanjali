@@ -17,6 +17,8 @@ Geetanjali uses a layered Docker Compose configuration for different environment
 | `docker-compose.override.yml` | Local dev overrides | Auto-loaded, exposes ports for debugging |
 | `docker-compose.minimal.yml` | Standalone minimal | Backend + Postgres only (no Ollama) |
 | `docker-compose.test.yml` | CI/CD testing | Ephemeral database, no persistence |
+| `docker-compose.budget.yml` | **Budget deployment** | 2GB droplet, no Ollama ($12/mo) |
+| `docker-compose.budget.observability.yml` | Budget monitoring | 7d retention, memory-constrained |
 
 ## Usage Patterns
 
@@ -371,3 +373,135 @@ ollama:
 ### Windows (WSL2)
 
 Use Docker Desktop with WSL2 backend. Ensure sufficient memory allocation in `.wslconfig`.
+
+---
+
+## Budget Deployment (2GB Droplet)
+
+For cost-conscious deployments, Geetanjali supports running on a 2GB droplet ($12/mo vs $24/mo) by disabling Ollama and using stricter memory limits.
+
+### Cost Comparison
+
+| Configuration | RAM | Monthly Cost | Ollama | LLM Provider |
+|---------------|-----|--------------|--------|--------------|
+| Standard | 4GB | $24/mo | Yes | Local + API fallback |
+| **Budget** | **2GB** | **$12/mo** | **No** | **API only (Gemini/Anthropic)** |
+
+**Savings:** $144/year (50% reduction)
+
+### Memory Budget
+
+Container limits target 80% of RAM to leave headroom for kernel and Docker.
+
+| Service | Limit | Reservation | Notes |
+|---------|-------|-------------|-------|
+| PostgreSQL | 192MB | 96MB | `shared_buffers=48MB`, `max_connections=30` |
+| Redis | 48MB | 24MB | `maxmemory 40mb` |
+| ChromaDB | 640MB | 448MB | sentence-transformers ~400MB |
+| Backend | 384MB | 192MB | `UVICORN_WORKERS=1` |
+| Worker | 256MB | 128MB | Separate process |
+| Frontend | 48MB | — | nginx static |
+| **Core Total** | **~1.6GB** | **~0.9GB** | Leaves ~400MB for kernel/Docker |
+
+**With observability (optional):**
+
+| Service | Limit | Notes |
+|---------|-------|-------|
+| Prometheus | 192MB | 7d retention, 100MB storage cap |
+| Grafana | 192MB | Dashboards |
+| node-exporter | 64MB | Host metrics |
+| **Obs Total** | **~448MB** | |
+| **Full Total** | **~2.0GB** | Requires 1GB swap for spikes |
+
+### Budget Compose Files
+
+| File | Purpose |
+|------|---------|
+| `docker-compose.budget.yml` | Core services (no Ollama) |
+| `docker-compose.budget.observability.yml` | Prometheus + Grafana (7d retention) |
+
+### Quick Start
+
+```bash
+# Start budget deployment
+make budget-up
+
+# With observability
+make budget-obs-up
+
+# Check memory usage
+make budget-stats
+
+# View logs
+make budget-logs
+```
+
+### Required Environment Settings
+
+```bash
+# .env for budget deployment
+LLM_PROVIDER=gemini
+LLM_FALLBACK_PROVIDER=anthropic
+OLLAMA_ENABLED=false
+
+# API keys required (no local fallback)
+GOOGLE_API_KEY=<your-gemini-key>
+ANTHROPIC_API_KEY=<your-anthropic-key>
+```
+
+### Server Setup (Debian 12)
+
+```bash
+# 1. Provision 2GB Debian 12 droplet
+
+# 2. Run setup script (creates gitam user, installs deps)
+curl -fsSL https://raw.githubusercontent.com/geetanjaliapp/geetanjali/main/scripts/setup-server-debian.sh | sudo bash
+
+# 3. Configure swap (as root)
+sudo ./scripts/setup-swap.sh
+
+# 4. Clone repo (as gitam)
+sudo -u gitam bash -c 'cd /opt/geetanjali && git clone https://github.com/geetanjaliapp/geetanjali.git . && git lfs pull'
+
+# 5. Copy age key and decrypt secrets
+# (copy keys.txt to /home/gitam/.config/sops/age/)
+sudo -u gitam bash -c 'cd /opt/geetanjali && SOPS_AGE_KEY_FILE=/home/gitam/.config/sops/age/keys.txt sops -d .env.enc > .env'
+
+# 6. Start services
+sudo -u gitam bash -c 'cd /opt/geetanjali && docker compose -f docker-compose.budget.yml up -d'
+```
+
+### Monitoring
+
+Daily checks for budget deployment:
+
+```bash
+# Memory check
+ssh server "free -h && docker stats --no-stream"
+
+# OOM events
+ssh server "dmesg | grep -i oom | tail -5"
+
+# Service health
+ssh server "cd /opt/geetanjali && docker compose -f docker-compose.budget.yml ps"
+```
+
+### Limitations
+
+- **No local LLM**: Requires internet for all consultations
+- **API costs**: Every consultation uses Gemini/Anthropic API
+- **Less redundancy**: No local fallback if APIs are down
+- **Memory pressure**: May use swap under heavy load
+
+### When to Use Budget Deployment
+
+**Good fit:**
+- Personal projects
+- Low-traffic deployments
+- Cost-sensitive scenarios
+- Development/staging environments
+
+**Not recommended:**
+- High-traffic production
+- Offline requirements
+- Frequent consultations (API costs add up)
