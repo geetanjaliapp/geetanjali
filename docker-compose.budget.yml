@@ -148,7 +148,7 @@ services:
         max-file: "3"
     # Healthcheck (using Python since curl not available in image)
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/heartbeat', timeout=5)"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v2/heartbeat', timeout=5)"]
       interval: 30s
       timeout: 10s
       retries: 3
