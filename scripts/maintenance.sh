@@ -7,14 +7,19 @@
 #   DEPLOY_BACKUP_DIR - Backup directory (default: /opt/backups/geetanjali)
 #
 # Usage:
-#   ./maintenance.sh daily   # Run daily tasks
-#   ./maintenance.sh weekly  # Run weekly tasks
-#   ./maintenance.sh backup  # Run backup only
-#   ./maintenance.sh health  # Run health check only
+#   ./maintenance.sh daily        # Daily tasks: backup, cleanup, health, SSL, disk, security, redis
+#   ./maintenance.sh weekly       # Weekly: VACUUM ANALYZE, bloat check, orphan cleanup, report
+#   ./maintenance.sh monthly      # Monthly: VACUUM FULL on high-write tables, REINDEX
+#   ./maintenance.sh backup       # Run backup only
+#   ./maintenance.sh health       # Run health check only
+#   ./maintenance.sh deep-postgres # Run VACUUM FULL + REINDEX (requires brief downtime)
+#   ./maintenance.sh bloat-check  # Check PostgreSQL table bloat
+#   ./maintenance.sh redis-check  # Check Redis memory usage
 #
 # Crontab (use cron-maintenance.sh wrapper):
-#   0 3 * * * /opt/geetanjali/scripts/cron-maintenance.sh daily >> /var/log/geetanjali-maintenance.log 2>&1
-#   0 4 * * 0 /opt/geetanjali/scripts/cron-maintenance.sh weekly >> /var/log/geetanjali-maintenance.log 2>&1
+#   0 3 * * *   daily   - 3 AM UTC every day
+#   0 4 * * 0   weekly  - 4 AM UTC Sundays
+#   0 5 1 * *   monthly - 5 AM UTC first of month (add manually)
 
 set -e
 
@@ -189,12 +194,29 @@ task_health_check() {
     fi
 
     # Check all containers are running
-    for container in geetanjali-backend geetanjali-frontend geetanjali-postgres geetanjali-redis geetanjali-chromadb geetanjali-ollama; do
+    # Core services (required in all deployments)
+    for container in geetanjali-backend geetanjali-frontend geetanjali-postgres geetanjali-redis geetanjali-chromadb; do
         STATUS=$(docker inspect -f '{{.State.Status}}' "${container}" 2>/dev/null || echo "not_found")
         if [[ "${STATUS}" != "running" ]]; then
             ISSUES="${ISSUES}\n- Container ${container} is ${STATUS}"
         fi
     done
+
+    # Optional services (only check if they exist - not in budget deployment)
+    for container in geetanjali-ollama; do
+        if docker inspect "${container}" &>/dev/null; then
+            STATUS=$(docker inspect -f '{{.State.Status}}' "${container}" 2>/dev/null || echo "not_found")
+            if [[ "${STATUS}" != "running" ]]; then
+                ISSUES="${ISSUES}\n- Container ${container} is ${STATUS}"
+            fi
+        fi
+    done
+
+    # Check worker container (separate from backend)
+    STATUS=$(docker inspect -f '{{.State.Status}}' "geetanjali-worker" 2>/dev/null || echo "not_found")
+    if [[ "${STATUS}" != "running" ]]; then
+        ISSUES="${ISSUES}\n- Container geetanjali-worker is ${STATUS}"
+    fi
 
     # Check for containers that have restarted recently (potential crash loop)
     RESTART_COUNTS=$(docker inspect --format='{{.Name}}: {{.RestartCount}}' $(docker ps -q) 2>/dev/null | grep -v ": 0" || true)
@@ -228,6 +250,33 @@ task_security_check() {
     fi
 }
 
+task_redis_check() {
+    log "Checking Redis memory usage..."
+
+    # Get Redis memory info
+    REDIS_INFO=$(docker exec geetanjali-redis redis-cli -a "${REDIS_PASSWORD:-redis_dev_pass}" INFO memory 2>/dev/null | grep -E "used_memory_human|maxmemory_human" || echo "")
+
+    if [[ -n "${REDIS_INFO}" ]]; then
+        USED_MEMORY=$(echo "${REDIS_INFO}" | grep "used_memory_human" | cut -d: -f2 | tr -d '\r')
+        MAX_MEMORY=$(echo "${REDIS_INFO}" | grep "maxmemory_human" | cut -d: -f2 | tr -d '\r')
+        log "Redis memory: ${USED_MEMORY} / ${MAX_MEMORY}"
+
+        # Extract numeric value (assumes MB or KB suffix)
+        USED_MB=$(docker exec geetanjali-redis redis-cli -a "${REDIS_PASSWORD:-redis_dev_pass}" INFO memory 2>/dev/null | grep "^used_memory:" | cut -d: -f2 | tr -d '\r' || echo "0")
+        MAX_MB=$(docker exec geetanjali-redis redis-cli -a "${REDIS_PASSWORD:-redis_dev_pass}" INFO memory 2>/dev/null | grep "^maxmemory:" | cut -d: -f2 | tr -d '\r' || echo "0")
+
+        # Alert if Redis usage >80% of maxmemory
+        if [[ "${MAX_MB}" -gt 0 ]] && [[ "${USED_MB}" -gt 0 ]]; then
+            USAGE_PCT=$((USED_MB * 100 / MAX_MB))
+            if [[ ${USAGE_PCT} -gt 80 ]]; then
+                send_alert "High Redis Memory" "Redis memory usage at ${USAGE_PCT}%\n\nUsed: ${USED_MEMORY}\nMax: ${MAX_MEMORY}\n\nConsider: FLUSHDB or increase maxmemory"
+            fi
+        fi
+    else
+        log "Could not retrieve Redis memory info"
+    fi
+}
+
 # -----------------------------------------------------------------------------
 # Weekly Tasks
 # -----------------------------------------------------------------------------
@@ -235,10 +284,68 @@ task_security_check() {
 task_postgres_maintenance() {
     log "Running PostgreSQL maintenance..."
 
-    # Vacuum and analyze
+    # Standard VACUUM ANALYZE (marks dead tuples reusable, updates stats)
     docker exec geetanjali-postgres psql -U geetanjali -d geetanjali -c "VACUUM ANALYZE;" 2>/dev/null || true
 
     log "PostgreSQL maintenance complete"
+}
+
+task_postgres_deep_maintenance() {
+    log "Running PostgreSQL deep maintenance (monthly)..."
+
+    # VACUUM FULL on high-write tables to reclaim disk space
+    # Note: VACUUM FULL requires exclusive lock, brief downtime acceptable monthly
+    log "Running VACUUM FULL on high-write tables..."
+    for table in translations verses cases messages; do
+        docker exec geetanjali-postgres psql -U geetanjali -d geetanjali -c "VACUUM FULL ANALYZE ${table};" 2>/dev/null || true
+        log "  VACUUM FULL ${table} complete"
+    done
+
+    # REINDEX for heavily used indexes
+    log "Reindexing database..."
+    docker exec geetanjali-postgres psql -U geetanjali -d geetanjali -c "REINDEX DATABASE geetanjali;" 2>/dev/null || true
+
+    # Report table sizes after maintenance
+    SIZE_REPORT=$(docker exec geetanjali-postgres psql -U geetanjali -d geetanjali -t -c "
+        SELECT string_agg(relname || ': ' || pg_size_pretty(pg_total_relation_size(relid)), E'\n')
+        FROM pg_stat_user_tables
+        ORDER BY pg_total_relation_size(relid) DESC
+        LIMIT 10;
+    " 2>/dev/null || echo "Could not retrieve sizes")
+
+    log "PostgreSQL deep maintenance complete"
+    log "Top tables by size:\n${SIZE_REPORT}"
+}
+
+task_postgres_bloat_check() {
+    log "Checking PostgreSQL table bloat..."
+
+    # Estimate bloat using pg_stat_user_tables
+    # Tables with >20% dead tuples relative to live tuples indicate bloat
+    BLOAT_REPORT=$(docker exec geetanjali-postgres psql -U geetanjali -d geetanjali -t -c "
+        SELECT relname || ': ' || n_dead_tup || ' dead / ' || n_live_tup || ' live (' ||
+               CASE WHEN n_live_tup > 0
+                    THEN round(100.0 * n_dead_tup / n_live_tup)::text || '%'
+                    ELSE '0%' END || ')'
+        FROM pg_stat_user_tables
+        WHERE n_dead_tup > 1000 OR (n_live_tup > 0 AND n_dead_tup::float / n_live_tup > 0.2)
+        ORDER BY n_dead_tup DESC
+        LIMIT 5;
+    " 2>/dev/null | sed '/^$/d' || echo "")
+
+    if [[ -n "${BLOAT_REPORT}" ]]; then
+        log "Tables with significant bloat:\n${BLOAT_REPORT}"
+        # Alert if any table has >50% bloat
+        HIGH_BLOAT=$(docker exec geetanjali-postgres psql -U geetanjali -d geetanjali -t -c "
+            SELECT COUNT(*) FROM pg_stat_user_tables
+            WHERE n_live_tup > 100 AND n_dead_tup::float / n_live_tup > 0.5;
+        " 2>/dev/null | tr -d ' ' || echo "0")
+        if [[ "${HIGH_BLOAT}" -gt 0 ]]; then
+            send_alert "High PostgreSQL Bloat" "Found ${HIGH_BLOAT} tables with >50% bloat. Consider running: ./maintenance.sh deep-postgres\n\n${BLOAT_REPORT}"
+        fi
+    else
+        log "No significant table bloat detected"
+    fi
 }
 
 task_security_updates_check() {
@@ -310,9 +417,34 @@ task_weekly_report() {
     # Container status
     REPORT="${REPORT}Containers:\n$(docker ps --format 'table {{.Names}}\t{{.Status}}')\n\n"
 
+    # Memory usage (important for budget deployment)
+    REPORT="${REPORT}Memory Usage:\n$(free -h)\n\n"
+
+    # Swap usage
+    REPORT="${REPORT}Swap:\n$(swapon --show 2>/dev/null || echo 'No swap configured')\n\n"
+
+    # PostgreSQL database size
+    PG_SIZE=$(docker exec geetanjali-postgres psql -U geetanjali -d geetanjali -t -c "SELECT pg_size_pretty(pg_database_size('geetanjali'));" 2>/dev/null | tr -d ' ' || echo "Unknown")
+    REPORT="${REPORT}PostgreSQL Size: ${PG_SIZE}\n\n"
+
+    # PostgreSQL table bloat summary
+    BLOAT_SUMMARY=$(docker exec geetanjali-postgres psql -U geetanjali -d geetanjali -t -c "
+        SELECT string_agg(relname || ': ' || n_dead_tup || ' dead', ', ')
+        FROM pg_stat_user_tables
+        WHERE n_dead_tup > 100
+        ORDER BY n_dead_tup DESC
+        LIMIT 3;
+    " 2>/dev/null | tr -d '\n' || echo "None")
+    REPORT="${REPORT}Tables with dead tuples: ${BLOAT_SUMMARY:-None}\n\n"
+
+    # Redis memory
+    REDIS_USED=$(docker exec geetanjali-redis redis-cli -a "${REDIS_PASSWORD:-redis_dev_pass}" INFO memory 2>/dev/null | grep "used_memory_human" | cut -d: -f2 | tr -d '\r' || echo "Unknown")
+    REPORT="${REPORT}Redis Memory: ${REDIS_USED}\n\n"
+
     # Backup status
     LATEST_BACKUP=$(ls -t "${BACKUP_DIR}"/geetanjali_*.sql.gz 2>/dev/null | head -1 || echo "None")
-    REPORT="${REPORT}Latest Backup: ${LATEST_BACKUP}\n\n"
+    BACKUP_SIZE=$(ls -lh "${LATEST_BACKUP}" 2>/dev/null | awk '{print $5}' || echo "")
+    REPORT="${REPORT}Latest Backup: ${LATEST_BACKUP} (${BACKUP_SIZE})\n\n"
 
     # Fail2ban stats
     REPORT="${REPORT}Fail2ban Status:\n$(fail2ban-client status sshd 2>/dev/null || echo 'Not available')\n"
@@ -333,15 +465,22 @@ case "${1:-daily}" in
         task_disk_check
         task_health_check
         task_security_check
+        task_redis_check
         log "========== Daily Maintenance Complete =========="
         ;;
     weekly)
         log "========== Starting Weekly Maintenance =========="
         task_postgres_maintenance
+        task_postgres_bloat_check
         task_orphan_cleanup
         task_security_updates_check
         task_weekly_report
         log "========== Weekly Maintenance Complete =========="
+        ;;
+    monthly)
+        log "========== Starting Monthly Maintenance =========="
+        task_postgres_deep_maintenance
+        log "========== Monthly Maintenance Complete =========="
         ;;
     backup)
         task_database_backup
@@ -358,8 +497,17 @@ case "${1:-daily}" in
     orphan)
         task_orphan_cleanup
         ;;
+    deep-postgres)
+        task_postgres_deep_maintenance
+        ;;
+    bloat-check)
+        task_postgres_bloat_check
+        ;;
+    redis-check)
+        task_redis_check
+        ;;
     *)
-        echo "Usage: $0 {daily|weekly|backup|health|cleanup|report|orphan}"
+        echo "Usage: $0 {daily|weekly|monthly|backup|health|cleanup|report|orphan|deep-postgres|bloat-check|redis-check}"
         exit 1
         ;;
 esac

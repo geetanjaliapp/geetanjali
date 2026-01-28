@@ -8,8 +8,9 @@
 #
 # Cron Jobs:
 #   - SEO daily refresh (00:05 UTC) - regenerates daily verse page
-#   - Daily maintenance (3 AM UTC)
-#   - Weekly maintenance (4 AM UTC, Sundays)
+#   - Daily maintenance (3 AM UTC) - backup, cleanup, health checks, redis
+#   - Weekly maintenance (4 AM UTC, Sundays) - VACUUM ANALYZE, bloat check, report
+#   - Monthly maintenance (5 AM UTC, 1st of month) - VACUUM FULL, REINDEX
 #   - Newsletter: Morning (6 AM IST = 00:30 UTC)
 #   - Newsletter: Afternoon (12:30 PM IST = 07:00 UTC)
 #   - Newsletter: Evening (6 PM IST = 12:30 UTC)
@@ -42,11 +43,15 @@ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # Maintenance Jobs
 # =============================================================================
 
-# Daily maintenance: log rotation, cleanup (3 AM UTC)
+# Daily maintenance: backup, cleanup, health checks, redis (3 AM UTC)
 0 3 * * * ${GEETANJALI_DIR}/scripts/cron-maintenance.sh daily >> ${LOG_DIR}/maintenance.log 2>&1
 
-# Weekly maintenance: database vacuum, docker prune (4 AM UTC, Sundays)
+# Weekly maintenance: VACUUM ANALYZE, bloat check, orphan cleanup, report (4 AM UTC, Sundays)
 0 4 * * 0 ${GEETANJALI_DIR}/scripts/cron-maintenance.sh weekly >> ${LOG_DIR}/maintenance.log 2>&1
+
+# Monthly maintenance: VACUUM FULL, REINDEX (5 AM UTC, 1st of month)
+# Note: VACUUM FULL requires brief table locks, run during low-traffic window
+0 5 1 * * ${GEETANJALI_DIR}/scripts/cron-maintenance.sh monthly >> ${LOG_DIR}/maintenance.log 2>&1
 
 # =============================================================================
 # Newsletter Jobs (Daily Wisdom)
