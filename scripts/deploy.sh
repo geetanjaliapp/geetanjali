@@ -6,6 +6,10 @@
 #   DEPLOY_HOST     - SSH host (e.g., user@host or alias from ~/.ssh/config)
 #   DEPLOY_DIR      - Remote app directory
 #   DEPLOY_AGE_KEY  - Path to age private key on remote server
+#
+# Optional:
+#   DEPLOY_COMPOSE_FILES - Compose files to use (default: "docker-compose.yml")
+#                          For budget: "docker-compose.budget.yml -f docker-compose.budget.observability.yml"
 
 set -e
 
@@ -34,6 +38,8 @@ fi
 
 # Configuration
 SSH_CMD="ssh ${DEPLOY_HOST}"
+COMPOSE_FILES="${DEPLOY_COMPOSE_FILES:-docker-compose.yml}"
+COMPOSE_CMD="docker compose -f ${COMPOSE_FILES// / -f }"
 
 # Colors
 RED='\033[0;31m'
@@ -96,7 +102,8 @@ info "Deploying version: ${APP_VERSION}"
 
 # Step 6: Rebuild and restart containers with version
 log "Rebuilding and restarting containers..."
-$SSH_CMD "cd ${DEPLOY_DIR} && APP_VERSION=${APP_VERSION} docker compose build && APP_VERSION=${APP_VERSION} docker compose up -d" || error "Failed to restart containers"
+info "Using compose files: ${COMPOSE_FILES}"
+$SSH_CMD "cd ${DEPLOY_DIR} && APP_VERSION=${APP_VERSION} ${COMPOSE_CMD} build && APP_VERSION=${APP_VERSION} ${COMPOSE_CMD} up -d" || error "Failed to restart containers"
 
 # Step 7: Wait for health checks with polling
 log "Waiting for services to become healthy..."
@@ -128,7 +135,7 @@ fi
 
 # Step 9: Verify deployment
 log "Service status:"
-$SSH_CMD "docker ps --format 'table {{.Names}}\t{{.Status}}'"
+$SSH_CMD "cd ${DEPLOY_DIR} && ${COMPOSE_CMD} ps --format 'table {{.Names}}\t{{.Status}}'"
 
 # Step 10: Health check (via docker exec since port not exposed)
 HEALTH_STATUS=$($SSH_CMD "docker exec geetanjali-backend curl -s -o /dev/null -w '%{http_code}' http://localhost:8000/health 2>/dev/null" || echo "000")
