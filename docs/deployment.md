@@ -399,11 +399,11 @@ Container limits target 80% of RAM to leave headroom for kernel and Docker.
 |---------|-------|-------------|-------|
 | PostgreSQL | 192MB | 96MB | `shared_buffers=48MB`, `max_connections=30` |
 | Redis | 48MB | 24MB | `maxmemory 40mb` |
-| ChromaDB | 640MB | 448MB | Vector storage + query overhead |
-| Backend | 512MB | 256MB | `UVICORN_WORKERS=1` + sentence-transformers (~400MB) |
-| Worker | 256MB | 128MB | Separate process |
+| ChromaDB | 192MB | 96MB | Vector storage only (v1.37.0) |
+| Backend | 640MB | 384MB | `UVICORN_WORKERS=1` + sentence-transformers (~400MB) |
+| Worker | 128MB | 64MB | Remote vector search (no model, v1.37.0) |
 | Frontend | 48MB | — | nginx static |
-| **Core Total** | **~1.7GB** | **~1.0GB** | Leaves ~300MB for kernel/Docker |
+| **Core Total** | **~1.25GB** | **~0.7GB** | Leaves ~750MB for kernel/Docker |
 
 **With observability (optional):**
 
@@ -413,7 +413,7 @@ Container limits target 80% of RAM to leave headroom for kernel and Docker.
 | Grafana | 192MB | Dashboards |
 | node-exporter | 64MB | Host metrics |
 | **Obs Total** | **~448MB** | |
-| **Full Total** | **~2.0GB** | Requires 1GB swap for spikes |
+| **Full Total** | **~1.7GB** | Comfortable on 2GB with swap |
 
 ### Budget Compose Files
 

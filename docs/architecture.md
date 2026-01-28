@@ -71,9 +71,36 @@ User Query → Embedding → Vector Search → LLM Generation → Structured Out
 ## RAG Pipeline
 
 ### 1. Embedding
-User query and all verses are embedded using `sentence-transformers/all-MiniLM-L6-v2` (384 dimensions). Embeddings are computed **client-side** in backend/worker containers—ChromaDB stores vectors but does not compute them.
+User query and all verses are embedded using `sentence-transformers/all-MiniLM-L6-v2` (384 dimensions). Embeddings are computed **client-side** in the backend container—ChromaDB stores vectors but does not compute them.
 
-> **Note:** ChromaDB collection metadata binds embedding function configuration. Queries must use the same embedding function as collection creation. This requires sentence-transformers installed in backend/worker, not just ChromaDB server.
+> **Note:** ChromaDB collection metadata binds embedding function configuration. Queries must use the same embedding function as collection creation. This requires sentence-transformers installed in backend.
+
+#### Internal API (v1.37.0)
+
+For memory efficiency in budget deployments, the worker delegates vector search to the backend via an internal API:
+
+```
+Worker                              Backend
+  │                                    │
+  │  POST /internal/search             │
+  │  {"query": "...", "top_k": 5}      │
+  │ ──────────────────────────────────>│
+  │                                    │ VectorStore.search()
+  │                                    │      │
+  │                                    │      ▼
+  │                                    │   ChromaDB
+  │                                    │
+  │  {"ids": [...], "distances": [...]}│
+  │ <──────────────────────────────────│
+  │                                    │
+```
+
+This allows the backend to own the embedding model (~400MB), while the worker remains lightweight for job processing. Worker memory reduced from 384MB to 128MB.
+
+**Configuration:**
+- `INTERNAL_API_KEY`: Shared secret for authentication
+- `USE_REMOTE_VECTOR_SEARCH`: Enable in worker (`true`), disable in backend
+- `VECTOR_SEARCH_URL`: Backend's internal search endpoint
 
 ### 2. Retrieval
 ChromaDB performs cosine similarity search, returning top-k relevant verses with scores.
