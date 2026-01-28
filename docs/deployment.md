@@ -376,7 +376,9 @@ Use Docker Desktop with WSL2 backend. Ensure sufficient memory allocation in `.w
 
 ---
 
-## Budget Deployment (2GB Droplet)
+## Budget Deployment (2GB Droplet) — Alternative Configuration
+
+> **Note:** This is an alternative deployment option for cost optimization. The standard 4GB deployment with Ollama remains the **recommended configuration** for self-sufficient, local-first operation.
 
 For cost-conscious deployments, Geetanjali supports running on a 2GB droplet ($12/mo vs $24/mo) by disabling Ollama and using stricter memory limits.
 
