@@ -1,0 +1,154 @@
+# Budget Deployment Resource Alerts
+# Alerts specific to 2GB droplet memory management
+# Requires node-exporter for host-level metrics
+
+groups:
+  - name: budget_resources
+    interval: 30s
+    rules:
+      # =============================================================================
+      # Memory Pressure Alerts
+      # =============================================================================
+
+      - alert: HighMemoryUsage
+        expr: |
+          (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes)
+          / node_memory_MemTotal_bytes > 0.85
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "Memory usage above 85%"
+          description: "Host memory usage at {{ $value | humanizePercentage }}. System may start using swap or OOM killer may trigger."
+          runbook: |
+            1. Check container memory: docker stats --no-stream
+            2. Look for memory leaks: docker logs <container> | grep -i memory
+            3. Restart high-memory containers if needed
+            4. Consider scaling down or adding swap
+
+      - alert: CriticalMemoryUsage
+        expr: |
+          (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes)
+          / node_memory_MemTotal_bytes > 0.95
+        for: 2m
+        labels:
+          severity: critical
+          component: system
+        annotations:
+          summary: "Critical memory usage above 95%"
+          description: "Host memory at {{ $value | humanizePercentage }}. OOM killer likely to trigger. Immediate action required."
+
+      # =============================================================================
+      # Swap Usage Alerts
+      # =============================================================================
+
+      - alert: HighSwapUsage
+        expr: |
+          (node_memory_SwapTotal_bytes > 0)
+          and (1 - (node_memory_SwapFree_bytes / node_memory_SwapTotal_bytes)) > 0.5
+        for: 10m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "High swap usage (>50%)"
+          description: "Swap usage at {{ $value | humanizePercentage }}. System under significant memory pressure."
+
+      - alert: CriticalSwapUsage
+        expr: |
+          (node_memory_SwapTotal_bytes > 0)
+          and (1 - (node_memory_SwapFree_bytes / node_memory_SwapTotal_bytes)) > 0.8
+        for: 5m
+        labels:
+          severity: critical
+          component: system
+        annotations:
+          summary: "Critical swap usage (>80%)"
+          description: "Swap nearly exhausted at {{ $value | humanizePercentage }}. System performance severely degraded."
+
+      # =============================================================================
+      # Disk Usage Alerts
+      # =============================================================================
+
+      - alert: HighDiskUsage
+        expr: |
+          (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) < 0.15
+        for: 30m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "Disk space below 15%"
+          description: "Root filesystem has only {{ $value | humanizePercentage }} available. Consider cleanup or expansion."
+
+      # =============================================================================
+      # Service Availability (proxy for container health)
+      # =============================================================================
+      # NOTE: Container restart count requires cAdvisor which is not included.
+      # Use service availability as a proxy for container health.
+
+      - alert: BackendDown
+        expr: up{job="backend"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: backend
+        annotations:
+          summary: "Backend service down"
+          description: "Backend has been unreachable for 2 minutes. Check for OOM: dmesg | grep -i oom"
+
+      - alert: WorkerDown
+        expr: up{job="worker"} == 0
+        for: 5m
+        labels:
+          severity: warning
+          component: worker
+        annotations:
+          summary: "Worker service down"
+          description: "Worker has been unreachable for 5 minutes. Background jobs may be failing."
+
+      # =============================================================================
+      # Budget-Specific Validation
+      # =============================================================================
+
+      - alert: OllamaRunningInBudgetMode
+        expr: |
+          up{job="ollama"} == 1
+        for: 5m
+        labels:
+          severity: info
+          component: config
+        annotations:
+          summary: "Ollama detected in budget deployment"
+          description: "Ollama is running but budget deployment should not include Ollama. Verify using docker-compose.budget.yml."
+
+      # =============================================================================
+      # Service Memory Limits
+      # =============================================================================
+
+      # Alert if ChromaDB is near its memory limit (most memory-hungry service)
+      - alert: ChromaDBHighMemory
+        expr: |
+          container_memory_usage_bytes{name="geetanjali-chromadb"}
+          / container_spec_memory_limit_bytes{name="geetanjali-chromadb"} > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          component: chromadb
+        annotations:
+          summary: "ChromaDB using >90% of memory limit"
+          description: "ChromaDB at {{ $value | humanizePercentage }} of 640MB limit. May need restart or investigation."
+
+      # Alert if Backend is near its memory limit
+      - alert: BackendHighMemory
+        expr: |
+          container_memory_usage_bytes{name="geetanjali-backend"}
+          / container_spec_memory_limit_bytes{name="geetanjali-backend"} > 0.85
+        for: 5m
+        labels:
+          severity: warning
+          component: backend
+        annotations:
+          summary: "Backend using >85% of memory limit"
+          description: "Backend at {{ $value | humanizePercentage }} of 512MB limit. Check for memory leaks or high load."

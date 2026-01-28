@@ -346,6 +346,12 @@ def _collect_postgres_metrics() -> None:
 
 def _collect_ollama_metrics() -> None:
     """Collect Ollama/LLM infrastructure metrics."""
+    # Skip if Ollama is disabled (budget deployment)
+    if not settings.OLLAMA_ENABLED or not settings.OLLAMA_BASE_URL:
+        ollama_up.set(0)
+        ollama_models_loaded.set(0)
+        return
+
     try:
         # Check Ollama health and get loaded models
         response = httpx.get(f"{settings.OLLAMA_BASE_URL}/api/tags", timeout=5.0)

@@ -1,0 +1,178 @@
+# Budget Observability Stack - Prometheus + Grafana + Node Exporter
+# Use with: docker compose -f docker-compose.budget.yml -f docker-compose.budget.observability.yml up -d
+#
+# Memory budget: ~450MB total for observability
+# Key differences from base: 7d retention (vs 15d), memory limits, node-exporter for host metrics
+
+services:
+  # Prometheus (192MB limit, 7d retention)
+  prometheus:
+    image: prom/prometheus:v2.47.0
+    container_name: geetanjali-prometheus
+    user: "65534:65534"
+    volumes:
+      # Use budget-specific config with node-exporter target
+      - ./monitoring/prometheus-budget.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/alerts:/etc/prometheus/alerts:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=7d'
+      - '--storage.tsdb.retention.size=100MB'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    # Resource limits (budget)
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 192M
+          pids: 64
+        reservations:
+          memory: 96M
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - geetanjali-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Grafana (192MB limit)
+  grafana:
+    image: grafana/grafana:10.2.0
+    container_name: geetanjali-grafana
+    user: "472:472"
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    # Resource limits (budget)
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 192M
+          pids: 64
+        reservations:
+          memory: 96M
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-}
+      - GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION=${GRAFANA_DISABLE_ADMIN:-false}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_USERS_ALLOW_ORG_CREATE=false
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+      - GF_SECURITY_COOKIE_SECURE=true
+      - GF_SECURITY_COOKIE_SAMESITE=strict
+      - GF_SECURITY_ALLOW_EMBEDDING=false
+      - GF_ANALYTICS_REPORTING_ENABLED=false
+      - GF_SERVER_ROOT_URL=https://grafana.geetanjaliapp.com
+      - GF_SERVER_ENFORCE_DOMAIN=false
+      - GF_ALERTING_ENABLED=false
+      - GF_UNIFIED_ALERTING_ENABLED=true
+      # SMTP via Resend
+      - GF_SMTP_ENABLED=${GRAFANA_SMTP_ENABLED:-false}
+      - GF_SMTP_HOST=smtp.resend.com:465
+      - GF_SMTP_USER=resend
+      - GF_SMTP_PASSWORD=${RESEND_API_KEY}
+      - GF_SMTP_FROM_ADDRESS=${GRAFANA_SMTP_FROM:-alerts@geetanjaliapp.com}
+      - GF_SMTP_FROM_NAME=Geetanjali Alerts
+      - GF_SMTP_STARTTLS_POLICY=NoStartTLS
+      - GRAFANA_ALERT_EMAIL_TO=${GRAFANA_ALERT_EMAIL_TO:-}
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - geetanjali-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Node Exporter for host-level metrics (memory, swap, disk)
+  # Essential for budget deployment monitoring
+  node-exporter:
+    image: prom/node-exporter:v1.7.0
+    container_name: geetanjali-node-exporter
+    user: "65534:65534"
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/rootfs'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+      - '--no-collector.arp'
+      - '--no-collector.bcache'
+      - '--no-collector.bonding'
+      - '--no-collector.btrfs'
+      - '--no-collector.edac'
+      - '--no-collector.hwmon'
+      - '--no-collector.infiniband'
+      - '--no-collector.ipvs'
+      - '--no-collector.mdadm'
+      - '--no-collector.nfs'
+      - '--no-collector.nfsd'
+      - '--no-collector.powersupplyclass'
+      - '--no-collector.pressure'
+      - '--no-collector.rapl'
+      - '--no-collector.schedstat'
+      - '--no-collector.sockstat'
+      - '--no-collector.softnet'
+      - '--no-collector.tapestats'
+      - '--no-collector.thermal_zone'
+      - '--no-collector.timex'
+      - '--no-collector.xfs'
+      - '--no-collector.zfs'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    # Resource limits (budget - node-exporter is very light)
+    deploy:
+      resources:
+        limits:
+          cpus: "0.1"
+          memory: 64M
+          pids: 32
+        reservations:
+          memory: 32M
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - geetanjali-network
+    restart: unless-stopped
+
+volumes:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  geetanjali-network:

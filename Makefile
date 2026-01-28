@@ -48,6 +48,33 @@ obs-logs: ## Show observability logs
 	$(COMPOSE) -f docker-compose.observability.yml logs -f
 
 # =============================================================================
+# Budget Deployment (2GB droplet, no Ollama)
+# =============================================================================
+
+budget-up: ## Start budget deployment (2GB, no Ollama)
+	$(COMPOSE) -f docker-compose.budget.yml up -d
+	@echo "Budget deployment started (2GB mode, Ollama disabled)"
+
+budget-down: ## Stop budget deployment
+	$(COMPOSE) -f docker-compose.budget.yml down
+
+budget-obs-up: ## Budget deployment with observability
+	$(COMPOSE) -f docker-compose.budget.yml -f docker-compose.budget.observability.yml up -d
+	@echo "Budget deployment with observability started"
+
+budget-obs-down: ## Stop budget with observability
+	$(COMPOSE) -f docker-compose.budget.yml -f docker-compose.budget.observability.yml down
+
+budget-logs: ## Show budget deployment logs
+	$(COMPOSE) -f docker-compose.budget.yml logs -f
+
+budget-stats: ## Show memory usage for budget deployment
+	@docker stats --no-stream --format "table {{.Name}}\t{{.MemUsage}}\t{{.MemPerc}}\t{{.CPUPerc}}"
+
+budget-build: ## Build images for budget deployment
+	$(COMPOSE) -f docker-compose.budget.yml build
+
+# =============================================================================
 # Testing
 # =============================================================================
 
