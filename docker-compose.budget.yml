@@ -110,8 +110,8 @@ services:
       - geetanjali-network
     restart: unless-stopped
 
-  # ChromaDB Vector Store (640MB limit)
-  # NOTE: Embeddings computed client-side (backend/worker), not server-side.
+  # ChromaDB Vector Store (192MB limit — v1.37.0 reduced from 640MB)
+  # NOTE: Embeddings computed client-side in backend only (worker delegates via API)
   chromadb:
     build:
       context: ./chromadb
@@ -128,15 +128,15 @@ services:
       - ALL
     security_opt:
       - no-new-privileges:true
-    # Resource limits (budget — 80% target, headroom for vector queries)
+    # Resource limits (v1.37.0: vector storage only, no embedding computation)
     deploy:
       resources:
         limits:
-          cpus: "0.75"
-          memory: 640M
+          cpus: "0.5"
+          memory: 192M
           pids: 128
         reservations:
-          memory: 448M
+          memory: 96M
     ulimits:
       nofile:
         soft: 65535
@@ -157,7 +157,7 @@ services:
       - geetanjali-network
     restart: unless-stopped
 
-  # Backend API (512MB limit — embedding model needs ~400MB headroom)
+  # Backend API (640MB limit — v1.37.0: owns embedding model ~400MB + FastAPI)
   backend:
     build:
       context: ./backend
@@ -180,6 +180,8 @@ services:
       OLLAMA_BASE_URL: ""
       # Single worker for memory efficiency
       UVICORN_WORKERS: "1"
+      # Internal API for worker communication (v1.37.0)
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-}
     volumes:
       - backend_chroma:/app/chroma_data
       - ./public/audio:/app/public/audio:ro
@@ -189,15 +191,15 @@ services:
       - ALL
     security_opt:
       - no-new-privileges:true
-    # Resource limits (budget — increased from 384M for embedding model headroom)
+    # Resource limits (v1.37.0: owns embedding model ~400MB + FastAPI overhead)
     deploy:
       resources:
         limits:
           cpus: "0.75"
-          memory: 512M
+          memory: 640M
           pids: 256
         reservations:
-          memory: 256M
+          memory: 384M
     ulimits:
       nofile:
         soft: 65535
@@ -224,8 +226,9 @@ services:
       - geetanjali-network
     restart: unless-stopped
 
-  # RQ Worker (384MB limit — needed for RAG pipeline + LLM calls)
-  # OOM at 256MB: sentence-transformers + LLM API handling needs headroom
+  # RQ Worker (128MB limit — v1.37.0: delegates vector search to backend)
+  # No longer loads sentence-transformers model (~400MB savings)
+  # Memory needed: HTTP client + job processing only
   worker:
     build:
       context: ./backend
@@ -247,22 +250,25 @@ services:
       # Budget mode: Ollama disabled
       OLLAMA_ENABLED: "false"
       OLLAMA_BASE_URL: ""
+      # v1.37.0: Worker delegates vector search to backend (saves ~400MB)
+      USE_REMOTE_VECTOR_SEARCH: "true"
+      VECTOR_SEARCH_URL: "http://backend:8000/internal/search"
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-}
     volumes:
       - ./public/audio:/app/public/audio:ro
-      - hf_cache:/home/appuser/.cache/huggingface
     cap_drop:
       - ALL
     security_opt:
       - no-new-privileges:true
-    # Resource limits (budget — 80% target)
+    # Resource limits (v1.37.0: no model, just HTTP client + job processing)
     deploy:
       resources:
         limits:
           cpus: "0.5"
-          memory: 384M
-          pids: 128
+          memory: 128M
+          pids: 64
         reservations:
-          memory: 192M
+          memory: 64M
     ulimits:
       nofile:
         soft: 65535
@@ -283,7 +289,7 @@ services:
         condition: service_healthy
       postgres:
         condition: service_healthy
-      chromadb:
+      backend:
         condition: service_healthy
     networks:
       - geetanjali-network
