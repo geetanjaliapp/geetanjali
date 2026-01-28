@@ -401,9 +401,9 @@ Container limits target 80% of RAM to leave headroom for kernel and Docker.
 | Redis | 48MB | 24MB | `maxmemory 40mb` |
 | ChromaDB | 192MB | 96MB | Vector storage only (v1.37.0) |
 | Backend | 640MB | 384MB | `UVICORN_WORKERS=1` + sentence-transformers (~400MB) |
-| Worker | 128MB | 64MB | Remote vector search (no model, v1.37.0) |
+| Worker | 192MB | 96MB | Remote vector search (no model, v1.37.0) |
 | Frontend | 48MB | — | nginx static |
-| **Core Total** | **~1.25GB** | **~0.7GB** | Leaves ~750MB for kernel/Docker |
+| **Core Total** | **~1.31GB** | **~0.75GB** | Leaves ~700MB for kernel/Docker |
 
 **With observability (optional):**
 
