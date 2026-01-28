@@ -138,7 +138,7 @@ groups:
           component: chromadb
         annotations:
           summary: "ChromaDB using >90% of memory limit"
-          description: "ChromaDB at {{ $value | humanizePercentage }} of 768MB limit. May need restart or investigation."
+          description: "ChromaDB at {{ $value | humanizePercentage }} of 640MB limit. May need restart or investigation."
 
       # Alert if Backend is near its memory limit
       - alert: BackendHighMemory

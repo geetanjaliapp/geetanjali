@@ -157,7 +157,7 @@ services:
       - geetanjali-network
     restart: unless-stopped
 
-  # Backend API (384MB limit — reduced from 512MB for headroom)
+  # Backend API (512MB limit — embedding model needs ~400MB headroom)
   backend:
     build:
       context: ./backend
