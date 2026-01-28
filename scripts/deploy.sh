@@ -129,11 +129,24 @@ log "Ensuring SEO volume permissions..."
 $SSH_CMD "docker exec -u root geetanjali-backend chown -R appuser:appuser /app/seo-output 2>/dev/null" || warn "Could not fix SEO permissions (may already be correct)"
 
 # Step 9: Trigger SEO page generation via admin API
-# Uses hash-based detection - only regenerates changed pages
 # Pages are shared via Docker volume (seo_output) between backend and nginx
 # Auth: Uses API_KEY from container environment (defense in depth)
+#
+# Force regeneration if SEO files are missing (e.g., after migration where
+# seo_pages table was migrated but actual files weren't). Check if verses/
+# directory exists and has files - if not, force regenerate all pages.
+log "Checking SEO files..."
+SEO_FILE_COUNT=$($SSH_CMD "docker exec geetanjali-backend sh -c 'ls /app/seo-output/verses/*.html 2>/dev/null | wc -l'" 2>/dev/null || echo "0")
+if [[ "${SEO_FILE_COUNT}" -lt 100 ]]; then
+    info "SEO files missing or incomplete (${SEO_FILE_COUNT} verses found). Force regenerating..."
+    SEO_FORCE="?force=true"
+else
+    info "SEO files present (${SEO_FILE_COUNT} verses). Using hash-based detection."
+    SEO_FORCE=""
+fi
+
 log "Triggering SEO generation..."
-SEO_RESULT=$($SSH_CMD "docker exec geetanjali-backend sh -c 'curl -s -f -X POST -H \"X-API-Key: \$API_KEY\" http://localhost:8000/api/v1/admin/seo/generate'" 2>&1) || warn "SEO generation failed (non-blocking)"
+SEO_RESULT=$($SSH_CMD "docker exec geetanjali-backend sh -c 'curl -s -f -X POST -H \"X-API-Key: \$API_KEY\" \"http://localhost:8000/api/v1/admin/seo/generate${SEO_FORCE}\"'" 2>&1) || warn "SEO generation failed (non-blocking)"
 if [[ -n "$SEO_RESULT" ]]; then
     info "SEO: $SEO_RESULT"
 fi
