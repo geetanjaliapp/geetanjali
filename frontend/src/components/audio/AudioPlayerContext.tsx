@@ -45,6 +45,7 @@ const RETRY_DELAYS = [1000, 3000]; // 1s, 3s backoff
 const LOAD_TIMEOUT_MS = 20000; // 20 seconds
 
 // Playback speed options
+// eslint-disable-next-line react-refresh/only-export-components -- Constants needed by audio controls
 export const PLAYBACK_SPEEDS = [0.75, 1, 1.25] as const;
 export type PlaybackSpeed = (typeof PLAYBACK_SPEEDS)[number];
 
