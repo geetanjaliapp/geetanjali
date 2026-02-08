@@ -91,8 +91,8 @@ send_alert() {
 task_docker_cleanup() {
     log "Running Docker cleanup..."
 
-    # Clean build cache
-    docker builder prune -f --filter "until=24h" 2>/dev/null || true
+    # Clean build cache older than 7 days (prevents multi-GB accumulation across deploys)
+    docker builder prune -f --filter "until=168h" 2>/dev/null || true
 
     # Remove dangling images
     docker image prune -f 2>/dev/null || true
