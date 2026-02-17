@@ -27,7 +27,7 @@
     "web-vitals": "^5.1.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.2",
+    "@eslint/js": "^10.0.1",
     "@fontsource/cormorant-garamond": "^5.2.11",
     "@fontsource/crimson-pro": "^5.2.8",
     "@fontsource/inter": "^5.2.8",
