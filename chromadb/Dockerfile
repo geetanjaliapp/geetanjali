@@ -9,16 +9,14 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Install ChromaDB 1.3.5 with sentence-transformers
-# NOTE: ChromaDB collection metadata binds to client-side embedding function.
-# Embeddings are computed in backend/worker, not ChromaDB server.
-# sentence-transformers here is unused overhead from historical intent (commit 91e59fb).
+# Install ChromaDB 1.3.5
+# NOTE: This is a pure vector database server.
+# Embedding computation (text → vectors) is performed in backend/services/vector_store.py
+# using sentence-transformers. This Dockerfile does NOT include sentence-transformers
+# to keep image size minimal (saves ~10GB). If chromadb ever needs to compute embeddings,
+# add sentence-transformers back here; otherwise, leave as-is for budget deployment.
 RUN pip install --no-cache-dir \
-    chromadb==1.3.5 \
-    sentence-transformers==3.3.1
-
-# Pre-download embedding model (unused at runtime - see note above)
-RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
+    chromadb==1.3.5
 
 # Create non-root user for security
 RUN useradd -m -u 1000 chromauser && \
