@@ -1,12 +1,12 @@
 # Geetanjali Backend Dependencies
 
 # Web Framework
-fastapi==0.132.0
+fastapi==0.135.1
 uvicorn[standard]==0.41.0
 python-multipart==0.0.22
 
 # Database
-sqlalchemy==2.0.46
+sqlalchemy==2.0.48
 alembic==1.18.4
 psycopg2-binary==2.9.11  # PostgreSQL driver
 
@@ -16,14 +16,14 @@ pydantic-settings==2.13.1
 email-validator==2.3.0  # Required for pydantic EmailStr validation
 
 # Vector Database
-chromadb==1.5.1
+chromadb==1.5.2
 
 # Embeddings
 sentence-transformers==5.2.3
 
 # LLM Clients
 httpx>=0.27.0  # For Ollama API calls (chromadb 1.3.5 requires >=0.27.0)
-anthropic==0.83.0  # Anthropic Claude API
+anthropic==0.84.0  # Anthropic Claude API
 google-genai>=1.0.0  # Google Gemini API
 
 # Testing
@@ -32,7 +32,7 @@ pytest-asyncio>=1.0.0  # pytest 9.x requires pytest-asyncio 1.x
 pytest-cov==7.0.0
 
 # Code Quality
-ruff==0.15.2  # Fast linter and formatter (replaces flake8+black)
+ruff==0.15.4  # Fast linter and formatter (replaces flake8+black)
 mypy==1.19.1
 types-requests==2.32.4.20260107  # Type stubs for requests
 types-PyYAML==6.0.12.20250915  # Type stubs for PyYAML
@@ -44,13 +44,13 @@ passlib[bcrypt]==1.7.4  # Password hashing
 bcrypt==4.3.0  # pinned due to passlib 1.7.4 incompatibility with bcrypt 5.0.0
 
 # Utilities
-python-dotenv==1.2.1
+python-dotenv==1.2.2
 tenacity==9.1.4  # Retry logic for robustness
 slowapi==0.1.9  # Rate limiting
 better-profanity==0.7.0  # Profanity detection with obfuscation handling
 
 # Redis Cache & Task Queue
-redis==7.2.0
+redis==7.2.1
 rq==2.7.0  # Redis Queue for background tasks
 
 # Data Ingestion
@@ -65,7 +65,7 @@ urllib3>=2.5.0  # CVE-2025-50181, CVE-2025-50182 fix
 resend>=2.5.0  # Transactional email service
 
 # Monitoring
-sentry-sdk[fastapi]==2.53.0  # Error tracking and performance monitoring
+sentry-sdk[fastapi]==2.54.0  # Error tracking and performance monitoring
 prometheus-fastapi-instrumentator==7.1.0  # FastAPI metrics instrumentation
 prometheus-client==0.24.1  # Prometheus client library
 
