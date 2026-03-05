@@ -110,7 +110,7 @@ services:
       - geetanjali-network
     restart: unless-stopped
 
-  # ChromaDB Vector Store (192MB limit — v1.37.0 reduced from 640MB)
+  # ChromaDB Vector Store (96MB limit — v1.37.1 reduced, actual usage ~18MB)
   # NOTE: Embeddings computed client-side in backend only (worker delegates via API)
   chromadb:
     build:
@@ -128,12 +128,12 @@ services:
       - ALL
     security_opt:
       - no-new-privileges:true
-    # Resource limits (v1.37.0: vector storage only, no embedding computation)
+    # Resource limits (v1.37.1: vector storage only, actual usage ~18MB)
     deploy:
       resources:
         limits:
           cpus: "0.5"
-          memory: 192M
+          memory: 96M
           pids: 128
         reservations:
           memory: 96M
@@ -226,9 +226,9 @@ services:
       - geetanjali-network
     restart: unless-stopped
 
-  # RQ Worker (128MB limit — v1.37.0: delegates vector search to backend)
+  # RQ Worker (256MB limit — increased from 192MB to prevent OOM during newsletter batches)
   # No longer loads sentence-transformers model (~400MB savings)
-  # Memory needed: HTTP client + job processing only
+  # Memory needed: HTTP client + job processing (~150MB idle, spikes on fork)
   worker:
     build:
       context: ./backend
@@ -260,15 +260,15 @@ services:
       - ALL
     security_opt:
       - no-new-privileges:true
-    # Resource limits (v1.37.0: no model, just HTTP client + job processing)
+    # Resource limits (increased: OOM at 192MB during newsletter batch forks)
     deploy:
       resources:
         limits:
           cpus: "0.5"
-          memory: 192M
+          memory: 256M
           pids: 64
         reservations:
-          memory: 96M
+          memory: 128M
     ulimits:
       nofile:
         soft: 65535
