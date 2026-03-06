@@ -44,14 +44,14 @@ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # =============================================================================
 
 # Daily maintenance: backup, cleanup, health checks, redis (3 AM UTC)
-0 3 * * * ${GEETANJALI_DIR}/scripts/cron-maintenance.sh daily >> ${LOG_DIR}/maintenance.log 2>&1
+0 3 * * * ${GEETANJALI_DIR}/scripts/maintenance.sh daily >> ${LOG_DIR}/maintenance.log 2>&1
 
 # Weekly maintenance: VACUUM ANALYZE, bloat check, orphan cleanup, report (4 AM UTC, Sundays)
-0 4 * * 0 ${GEETANJALI_DIR}/scripts/cron-maintenance.sh weekly >> ${LOG_DIR}/maintenance.log 2>&1
+0 4 * * 0 ${GEETANJALI_DIR}/scripts/maintenance.sh weekly >> ${LOG_DIR}/maintenance.log 2>&1
 
 # Monthly maintenance: VACUUM FULL, REINDEX (5 AM UTC, 1st of month)
 # Note: VACUUM FULL requires brief table locks, run during low-traffic window
-0 5 1 * * ${GEETANJALI_DIR}/scripts/cron-maintenance.sh monthly >> ${LOG_DIR}/maintenance.log 2>&1
+0 5 1 * * ${GEETANJALI_DIR}/scripts/maintenance.sh monthly >> ${LOG_DIR}/maintenance.log 2>&1
 
 # =============================================================================
 # Newsletter Jobs (Daily Wisdom)

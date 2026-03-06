@@ -16,7 +16,7 @@
 #   ./maintenance.sh bloat-check  # Check PostgreSQL table bloat
 #   ./maintenance.sh redis-check  # Check Redis memory usage
 #
-# Crontab (use cron-maintenance.sh wrapper):
+# Crontab (called directly by setup-crons.sh):
 #   0 3 * * *   daily   - 3 AM UTC every day
 #   0 4 * * 0   weekly  - 4 AM UTC Sundays
 #   0 5 1 * *   monthly - 5 AM UTC first of month (add manually)
@@ -35,7 +35,7 @@ ORPHAN_RETENTION_DAYS=30  # Days to keep orphaned anonymous session cases
 
 # Load environment variables for alerts
 if [[ -f "${APP_DIR}/.env" ]]; then
-    export $(grep -E '^(RESEND_API_KEY|CONTACT_EMAIL_TO|API_KEY)=' "${APP_DIR}/.env" | xargs)
+    export $(grep -E '^(RESEND_API_KEY|CONTACT_EMAIL_TO|API_KEY|REDIS_PASSWORD)=' "${APP_DIR}/.env" | xargs)
 fi
 
 # -----------------------------------------------------------------------------
