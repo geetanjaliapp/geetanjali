@@ -16,7 +16,7 @@ pydantic-settings==2.13.1
 email-validator==2.3.0  # Required for pydantic EmailStr validation
 
 # Vector Database
-chromadb==1.5.2
+chromadb==1.5.4
 
 # Embeddings
 sentence-transformers==5.2.3
@@ -32,7 +32,7 @@ pytest-asyncio>=1.0.0  # pytest 9.x requires pytest-asyncio 1.x
 pytest-cov==7.0.0
 
 # Code Quality
-ruff==0.15.4  # Fast linter and formatter (replaces flake8+black)
+ruff==0.15.5  # Fast linter and formatter (replaces flake8+black)
 mypy==1.19.1
 types-requests==2.32.4.20260107  # Type stubs for requests
 types-PyYAML==6.0.12.20250915  # Type stubs for PyYAML
@@ -50,7 +50,7 @@ slowapi==0.1.9  # Rate limiting
 better-profanity==0.7.0  # Profanity detection with obfuscation handling
 
 # Redis Cache & Task Queue
-redis==7.2.1
+redis==7.3.0
 rq==2.7.0  # Redis Queue for background tasks
 
 # Data Ingestion
