@@ -18,9 +18,9 @@ function cleanTextForTTS(text: string | null | undefined): string {
       .replace(/^["'"']|["'"']$/g, "")
       // Replace parenthetical verse refs like (BG 2.47) or (2.47)
       .replace(/\s*\([^)]*\d+\.\d+[^)]*\)\s*/g, " ")
-      // Remove inline verse refs like "BG 2.47" or "Geeta 2.47"
+      // Remove inline verse refs like "BG 2.47" or "Gita 2.47"
       .replace(
-        /\b(?:BG|Geeta|Gita|Bhagavad Gita|Bhagavad Gita)\s*\d+\.\d+\b/gi,
+        /\b(?:BG|Geeta|Gita|Bhagavad Geeta|Bhagavad Gita)\s*\d+\.\d+\b/gi,
         "",
       )
       // Remove standalone verse refs like "2.47" (chapter.verse pattern)
