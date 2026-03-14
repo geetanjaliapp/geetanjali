@@ -57,7 +57,7 @@ export function ChapterSelector({
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent, index: number) => {
       const totalChapters = Object.keys(CHAPTERS).length;
-      let nextIndex: number | null = null;
+      let nextIndex: number | null;
 
       switch (e.key) {
         case "Escape":

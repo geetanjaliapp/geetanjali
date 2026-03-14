@@ -610,7 +610,7 @@ export function AudioPlayerProvider({ children }: AudioPlayerProviderProps) {
     }
 
     const verseRef = formatVerseId(currentlyPlaying);
-    let message = "";
+    let message: string;
 
     switch (state) {
       case "playing":

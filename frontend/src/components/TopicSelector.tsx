@@ -82,7 +82,7 @@ export function TopicSelector({
       const isMobile = window.innerWidth < 640;
       const cols = isMobile ? 2 : 4;
 
-      let nextIndex: number | null = null;
+      let nextIndex: number | null;
 
       switch (e.key) {
         case "Escape":

@@ -56,7 +56,7 @@ export function TimeSelector({ value, onChange, disabled }: TimeSelectorProps) {
     (e: React.KeyboardEvent, currentIndex: number) => {
       if (disabled) return;
 
-      let nextIndex: number | null = null;
+      let nextIndex: number | null;
 
       switch (e.key) {
         case "ArrowRight":
