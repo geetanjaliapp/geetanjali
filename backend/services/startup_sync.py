@@ -337,11 +337,11 @@ class StartupSyncService:
         )
 
     def _sync_dhyanam_verses(self) -> SyncResult | None:
-        """Sync Geeta Dhyanam verses if changed."""
-        from data.geeta_dhyanam import get_geeta_dhyanam
+        """Sync Gita Dhyanam verses if changed."""
+        from data.gita_dhyanam import get_gita_dhyanam
 
         content_type = "dhyanam_verses"
-        source_data = get_geeta_dhyanam()
+        source_data = get_gita_dhyanam()
         current_hash = compute_content_hash(source_data)
 
         if not self._needs_sync(content_type, current_hash):
@@ -352,9 +352,9 @@ class StartupSyncService:
             )
 
         # Sync needed
-        from api.admin import sync_geeta_dhyanam
+        from api.admin import sync_gita_dhyanam
 
-        stats = sync_geeta_dhyanam(self.db)
+        stats = sync_gita_dhyanam(self.db)
         self._update_stored_hash(content_type, current_hash)
 
         return SyncResult(

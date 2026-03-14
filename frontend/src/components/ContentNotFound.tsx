@@ -25,7 +25,7 @@ const CONTENT = {
       </svg>
     ),
     title: "Verse Not Found",
-    message: "The Bhagavad Geeta contains 701 verses across 18 chapters.",
+    message: "The Bhagavad Gita contains 701 verses across 18 chapters.",
     primaryCta: { label: "Browse All Verses", to: "/verses" },
     secondaryCta: { label: "Start with Chapter 1", to: "/verses?chapter=1" },
   },

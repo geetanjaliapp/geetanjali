@@ -209,7 +209,7 @@ export function ShareModal({
 
       await navigator.share({
         files: [file],
-        title: `Bhagavad Geeta ${verse.chapter}.${verse.verse}`,
+        title: `Bhagavad Gita ${verse.chapter}.${verse.verse}`,
       });
     } catch (err) {
       // User cancelled share - not an error

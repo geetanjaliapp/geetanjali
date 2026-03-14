@@ -39,7 +39,7 @@ vi.mock("../../lib/api", () => ({
       translation_en: "You have the right to action alone.",
       paraphrase_en: "Focus on your duties without attachment.",
       consulting_principles: ["Focus on action"],
-      source: "Bhagavad Geeta",
+      source: "Bhagavad Gita",
       license: "Public Domain",
       is_featured: true,
     }),

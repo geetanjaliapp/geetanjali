@@ -39,7 +39,7 @@ export const mockMessages: Message[] = [
     id: "msg-2",
     case_id: "case-123",
     role: "assistant",
-    content: "Based on the Geeta teachings...",
+    content: "Based on the Gita teachings...",
     output_id: "output-1",
     created_at: "2024-01-01T10:01:00Z",
   },
@@ -96,7 +96,7 @@ export const mockVerse: Verse = {
   translation_en: "You have the right to action, but never to its fruits.",
   paraphrase_en: "Focus on your duties without attachment to results.",
   consulting_principles: ["Focus on action", "Let go of attachment"],
-  source: "Bhagavad Geeta",
+  source: "Bhagavad Gita",
   license: "Public Domain",
   created_at: "2024-01-01T00:00:00Z",
 };

@@ -21,7 +21,7 @@
  *   "Seek knowledge through humble inquiry and service.
  *    The wise who have seen the truth will teach you."
  *
- *                              — Bhagavad Geeta 4.34
+ *                              — Bhagavad Gita 4.34
  *
  *   You sought, you found. Welcome, fellow seeker.
  *
@@ -105,7 +105,7 @@ export default function About() {
       "%cYou looked at the source. We respect that.\n\n" +
         "तद्विद्धि प्रणिपातेन परिप्रश्नेन सेवया\n" +
         '"Seek knowledge through humble inquiry."\n' +
-        "— Bhagavad Geeta 4.34\n\n" +
+        "— Bhagavad Gita 4.34\n\n" +
         "Contributions welcome: github.com/geetanjaliapp/geetanjali",
       "font-size: 12px; color: #666; line-height: 1.6;"
     );

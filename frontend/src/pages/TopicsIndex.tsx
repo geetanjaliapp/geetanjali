@@ -4,7 +4,7 @@
  * Route: /topics
  *
  * Features:
- * - Hero section: "What brings you to the Geeta?"
+ * - Hero section: "What brings you to the Gita?"
  * - 8 Learning Goal cards (primary navigation)
  * - Goal filtering: shows 4 mapped principles per goal
  * - 4 yoga path groups as secondary navigation
@@ -173,9 +173,9 @@ export default function TopicsIndex() {
   const [searchQuery, setSearchQuery] = useState("");
 
   useSEO({
-    title: "Teachings of the Bhagavad Geeta | 16 Principles for Ethical Leadership",
+    title: "Teachings of the Bhagavad Gita | 16 Principles for Ethical Leadership",
     description:
-      "Explore 16 timeless principles from the Bhagavad Geeta for ethical leadership and personal growth. Discover teachings on Karma, Jnana, Bhakti, and Sadachara.",
+      "Explore 16 timeless principles from the Bhagavad Gita for ethical leadership and personal growth. Discover teachings on Karma, Jnana, Bhakti, and Sadachara.",
     canonical: "/topics",
   });
 
@@ -268,13 +268,13 @@ export default function TopicsIndex() {
 
         {!error && (
           <>
-            {/* Hero Section: What brings you to the Geeta? */}
+            {/* Hero Section: What brings you to the Gita? */}
             {!hasSelection && (
               <section className="mb-8 sm:mb-10">
                 {/* Hero Header */}
                 <div className="text-center mb-6 sm:mb-8">
                   <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold font-heading text-[var(--text-primary)]">
-                    What brings you to the Geeta?
+                    What brings you to the Gita?
                   </h1>
                   <p className="text-sm sm:text-base text-[var(--text-secondary)] mt-2">
                     Choose your learning focus

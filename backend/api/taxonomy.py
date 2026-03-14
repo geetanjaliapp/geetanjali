@@ -250,7 +250,7 @@ async def list_goals(request: Request) -> dict[str, Any]:
     - **personal_growth**: Building character and better habits
     - **leadership**: Guiding others with wisdom and integrity
     - **resilience**: Overcoming setbacks and adversity
-    - **exploring**: Just curious about the Geeta's wisdom
+    - **exploring**: Just curious about the Gita's wisdom
 
     Each goal maps to 4 principles (except 'exploring' which includes all).
     """

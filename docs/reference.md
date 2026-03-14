@@ -184,9 +184,9 @@ API errors return JSON with `detail` field containing the message.
 
 | Term | Definition |
 |------|------------|
-| **Bhagavad Geeta** | Ancient Sanskrit scripture with 701 verses across 18 chapters |
+| **Bhagavad Gita** | Ancient Sanskrit scripture with 701 verses across 18 chapters |
 | **Verse** | Single shloka with Sanskrit text, transliteration, translations |
-| **Chapter** | One of 18 chapters (adhyaya) of the Geeta |
+| **Chapter** | One of 18 chapters (adhyaya) of the Gita |
 | **Commentary** | Scholar interpretation of a verse |
 | **Paraphrase** | Plain-language summary of verse meaning |
 
@@ -224,7 +224,7 @@ python scripts/init_db.py
 
 ### Data Ingestion
 
-**ingest_data.py** - Load Geeta verses and metadata
+**ingest_data.py** - Load Gita verses and metadata
 ```bash
 # Dry run (preview)
 python scripts/ingest_data.py --dry-run
@@ -252,7 +252,7 @@ Protected endpoints require `X-API-Key` header.
 | `/api/v1/admin/ingest` | POST | Trigger data ingestion |
 | `/api/v1/admin/sync-featured` | POST | Sync featured verses |
 | `/api/v1/admin/sync-metadata` | POST | Sync book/chapter metadata |
-| `/api/v1/admin/sync-dhyanam` | POST | Sync Geeta Dhyanam verses |
+| `/api/v1/admin/sync-dhyanam` | POST | Sync Gita Dhyanam verses |
 | `/api/v1/admin/sync-audio-metadata` | POST | Sync verse audio metadata |
 | `/api/v1/admin/enrich` | POST | Enrich verse metadata |
 

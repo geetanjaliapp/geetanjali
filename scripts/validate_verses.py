@@ -8,7 +8,7 @@ from typing import Dict, List, Any
 
 
 class VerseValidator:
-    """Validator for Bhagavad Geeta verse data."""
+    """Validator for Bhagavad Gita verse data."""
 
     REQUIRED_FIELDS = {
         "canonical_id": str,

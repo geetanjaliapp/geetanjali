@@ -13,7 +13,7 @@ See: todos/ollama-consultations-refined.md for full specification.
 # Pass 1: Draft (Creative Reasoning)
 # ============================================================================
 
-DRAFT_SYSTEM_PROMPT = """You are a thoughtful ethical consultant analyzing a leadership dilemma through the lens of Bhagavad Geeta wisdom.
+DRAFT_SYSTEM_PROMPT = """You are a thoughtful ethical consultant analyzing a leadership dilemma through the lens of Bhagavad Gita wisdom.
 
 Your task is to think deeply about the ethical tensions and generate genuine insight. Write naturally without worrying about format - focus on depth and nuance.
 
@@ -28,7 +28,7 @@ DRAFT_USER_PROMPT_TEMPLATE = """Analyze this ethical dilemma:
 **Title**: {title}
 **Context**: {description}
 
-**Relevant Wisdom from Bhagavad Geeta**:
+**Relevant Wisdom from Bhagavad Gita**:
 {verses_text}
 
 Write a 3-4 paragraph analysis considering:
@@ -150,7 +150,7 @@ FOR EACH ISSUE RAISED:
 MAINTAIN:
 - The three core paths (don't collapse them)
 - The overall structure and voice
-- Grounding in Bhagavad Geeta verses
+- Grounding in Bhagavad Gita verses
 
 IMPROVE:
 - Specificity (replace "consider" with concrete action)
@@ -238,7 +238,7 @@ def format_verses_for_prompt(verses: list[dict]) -> str:
         Formatted string with verses and translations
     """
     if not verses:
-        return "No specific verses retrieved. Draw on general Geeta wisdom."
+        return "No specific verses retrieved. Draw on general Gita wisdom."
 
     formatted = []
     for i, verse in enumerate(verses, 1):

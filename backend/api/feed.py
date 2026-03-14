@@ -1,7 +1,7 @@
 """RSS feed endpoint for daily verses.
 
 Generates an RSS 2.0 feed with the last 30 days of daily verses,
-allowing users to subscribe and receive Bhagavad Geeta wisdom.
+allowing users to subscribe and receive Bhagavad Gita wisdom.
 
 Cached in Redis for performance (1 hour TTL).
 """
@@ -105,7 +105,7 @@ def build_rss_xml(daily_verses: list) -> str:
     SubElement(channel, "title").text = "Geetanjali - Daily Verse"
     SubElement(channel, "link").text = BASE_URL
     SubElement(channel, "description").text = (
-        "Daily wisdom from the Bhagavad Geeta. "
+        "Daily wisdom from the Bhagavad Gita. "
         "Receive timeless guidance for ethical leadership and life decisions."
     )
     SubElement(channel, "language").text = "en-us"
@@ -131,9 +131,9 @@ def build_rss_xml(daily_verses: list) -> str:
 
         item = SubElement(channel, "item")
 
-        # Title: "Bhagavad Geeta 2.47 - Daily Verse"
+        # Title: "Bhagavad Gita 2.47 - Daily Verse"
         chapter_verse = f"{verse.chapter}.{verse.verse}"
-        SubElement(item, "title").text = f"Bhagavad Geeta {chapter_verse}"
+        SubElement(item, "title").text = f"Bhagavad Gita {chapter_verse}"
 
         # Link to verse page
         SubElement(item, "link").text = f"{BASE_URL}/verses/{verse.canonical_id}"
@@ -183,7 +183,7 @@ async def get_rss_feed(request: Request, db: Session = Depends(get_db)):
     Generate RSS 2.0 feed of daily verses.
 
     Returns the last 30 days of daily verses, allowing users to subscribe
-    and receive Bhagavad Geeta wisdom in their RSS reader.
+    and receive Bhagavad Gita wisdom in their RSS reader.
     """
     # Try cache first
     cached_feed = cache.get(FEED_CACHE_KEY)

@@ -11,7 +11,7 @@ import type {
   Message,
   BookMetadata,
   ChapterMetadata,
-  GeetaDhyanamVerse,
+  GitaDhyanamVerse,
   SearchResponse,
   FeaturedCasesResponse,
   UserPreferences,
@@ -351,16 +351,16 @@ export const readingApi = {
   },
 };
 
-// Dhyanam API - Geeta Dhyanam (9 Sacred Invocation Verses)
+// Dhyanam API - Gita Dhyanam (9 Sacred Invocation Verses)
 export const dhyanamApi = {
   /** Get all 9 Dhyanam verses */
-  getAll: async (): Promise<GeetaDhyanamVerse[]> => {
+  getAll: async (): Promise<GitaDhyanamVerse[]> => {
     const response = await api.get(`/dhyanam`);
     return response.data;
   },
 
   /** Get a single Dhyanam verse by number (1-9) */
-  getByNumber: async (verseNumber: number): Promise<GeetaDhyanamVerse> => {
+  getByNumber: async (verseNumber: number): Promise<GitaDhyanamVerse> => {
     const response = await api.get(`/dhyanam/${verseNumber}`);
     return response.data;
   },

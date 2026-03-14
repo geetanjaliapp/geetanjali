@@ -166,7 +166,7 @@ def select_verse_for_subscriber(
 def get_goal_labels(goal_ids: list[str]) -> str:
     """Get human-readable labels for goal IDs."""
     if not goal_ids:
-        return "exploring the Geeta's wisdom"
+        return "exploring the Gita's wisdom"
 
     goals_data = get_goals()
     labels: list[str] = []
@@ -178,7 +178,7 @@ def get_goal_labels(goal_ids: list[str]) -> str:
             labels.append(label)
 
     if not labels:
-        return "exploring the Geeta's wisdom"
+        return "exploring the Gita's wisdom"
 
     if len(labels) == 1:
         return labels[0]

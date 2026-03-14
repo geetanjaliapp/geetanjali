@@ -13,7 +13,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { SpeakButton } from "./SpeakButton";
-import type { GeetaDhyanamVerse, FontSize } from "../types";
+import type { GitaDhyanamVerse, FontSize } from "../types";
 
 // Re-export for potential external usage
 export type { FontSize };
@@ -124,7 +124,7 @@ function CollapsibleSection({
 
 interface DhyanamVerseFocusProps {
   /** The Dhyanam verse to display */
-  verse: GeetaDhyanamVerse;
+  verse: GitaDhyanamVerse;
   /** Font size for Sanskrit text */
   fontSize?: FontSize;
   /** Whether translation is shown (controlled) */

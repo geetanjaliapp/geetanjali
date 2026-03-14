@@ -390,7 +390,7 @@ class SeoGeneratorService:
             skipped += daily_stats["skipped"]
             errors += daily_stats["errors"]
 
-            # Generate Geeta Dhyanam page (9 invocation verses)
+            # Generate Gita Dhyanam page (9 invocation verses)
             dhyanam_stats = self._generate_dhyanam_page(force)
             generated += dhyanam_stats["generated"]
             skipped += dhyanam_stats["skipped"]
@@ -744,7 +744,7 @@ class SeoGeneratorService:
                 "tagline": "Ancient Wisdom, Modern Interface",
             },
             "seo": {
-                "defaultTitle": "Geetanjali - Bhagavad Geeta Wisdom",
+                "defaultTitle": "Geetanjali - Bhagavad Gita Wisdom",
             },
         }
 
@@ -768,7 +768,7 @@ class SeoGeneratorService:
 
             content = {
                 "seo": {
-                    "title": "Bhagavad Geeta Guidance | Geetanjali",
+                    "title": "Bhagavad Gita Guidance | Geetanjali",
                     "description": BOOK_METADATA["intro_text"],
                 },
                 "hero": {
@@ -789,7 +789,7 @@ class SeoGeneratorService:
                     },
                     {
                         "title": "700 Verses",
-                        "description": "Explore the complete Bhagavad Geeta with translations.",
+                        "description": "Explore the complete Bhagavad Gita with translations.",
                     },
                     {
                         "title": "Audio Recitations",
@@ -809,7 +809,7 @@ class SeoGeneratorService:
                 "seo": {
                     "title": "About Geetanjali",
                     "description": (
-                        "Geetanjali brings ancient wisdom from the Bhagavad Geeta "
+                        "Geetanjali brings ancient wisdom from the Bhagavad Gita "
                         "to modern ethical decisions through AI-powered guidance."
                     ),
                 },
@@ -823,12 +823,12 @@ class SeoGeneratorService:
                         "You should never engage in action for the sake of reward."
                     ),
                     "sanskrit": "कर्मण्येवाधिकारस्ते मा फलेषु कदाचन",
-                    "citation": "Bhagavad Geeta 2.47",
+                    "citation": "Bhagavad Gita 2.47",
                 },
                 "story": [
                     (
                         "Geetanjali was born from a simple observation: the timeless "
-                        "teachings of the Bhagavad Geeta remain profoundly relevant to "
+                        "teachings of the Bhagavad Gita remain profoundly relevant to "
                         "modern challenges in ethics, leadership, and personal growth."
                     ),
                     (
@@ -1276,8 +1276,8 @@ class SeoGeneratorService:
         return stats
 
     def _generate_dhyanam_page(self, force: bool) -> dict[str, int]:
-        """Generate Geeta Dhyanam page (9 invocation verses)."""
-        from data.geeta_dhyanam import GEETA_DHYANAM
+        """Generate Gita Dhyanam page (9 invocation verses)."""
+        from data.gita_dhyanam import GITA_DHYANAM
 
         stats = {"generated": 0, "skipped": 0, "errors": 0}
 
@@ -1289,14 +1289,14 @@ class SeoGeneratorService:
 
             # Source hash based on dhyanam verse content
             source_data = {
-                "verse_count": len(GEETA_DHYANAM),
+                "verse_count": len(GITA_DHYANAM),
                 "verses": [
                     {
                         "verse_number": v["verse_number"],
                         "theme": v["theme"],
                         "sanskrit_hash": hash(v["sanskrit"][:50]),
                     }
-                    for v in GEETA_DHYANAM
+                    for v in GITA_DHYANAM
                 ],
             }
             source_hash = compute_source_hash(source_data)
@@ -1310,7 +1310,7 @@ class SeoGeneratorService:
             gen_start = time.time()
             template = self.env.get_template(template_name)
 
-            html = template.render(verses=GEETA_DHYANAM)
+            html = template.render(verses=GITA_DHYANAM)
 
             file_path = "dhyanam.html"
             output_path = self.output_dir / file_path
@@ -1335,7 +1335,7 @@ class SeoGeneratorService:
 
             stats["generated"] += 1
             logger.info(
-                f"SEO GENERATION: Generated dhyanam page ({len(GEETA_DHYANAM)} verses)"
+                f"SEO GENERATION: Generated dhyanam page ({len(GITA_DHYANAM)} verses)"
             )
 
         except Exception as e:

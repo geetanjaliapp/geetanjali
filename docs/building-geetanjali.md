@@ -1,12 +1,12 @@
 ---
 layout: default
 title: Building Geetanjali
-description: Architecture and design of a system that brings Bhagavad Geeta wisdom to modern decision-making through RAG-powered guidance and immersive scripture exploration.
+description: Architecture and design of a system that brings Bhagavad Gita wisdom to modern decision-making through RAG-powered guidance and immersive scripture exploration.
 ---
 
 # Building Geetanjali
 
-Geetanjali is a web app that makes the Bhagavad Geeta useful for modern life. It does two things: helps you think through ethical dilemmas, and lets you explore the scripture at your own pace.
+Geetanjali is a web app that makes the Bhagavad Gita useful for modern life. It does two things: helps you think through ethical dilemmas, and lets you explore the scripture at your own pace.
 
 Built with a **local-first, mobile-first** approach—runs entirely self-hosted, works offline, and feels native on phones.
 
@@ -52,7 +52,7 @@ Both journeys use the same data: 701 verses across 18 chapters, with Sanskrit te
 
 Leaders face ethical dilemmas without easy answers. Layoffs versus gradual restructuring. Whistleblowing versus internal resolution. Stakeholder conflicts where every choice has moral weight.
 
-Regular LLMs can give advice, but without grounding in real wisdom, you get vague feel-good responses. Geetanjali uses RAG (Retrieval-Augmented Generation) to tie every recommendation back to specific verses from the Bhagavad Geeta.
+Regular LLMs can give advice, but without grounding in real wisdom, you get vague feel-good responses. Geetanjali uses RAG (Retrieval-Augmented Generation) to tie every recommendation back to specific verses from the Bhagavad Gita.
 
 ### Why RAG
 
@@ -131,7 +131,7 @@ Each option includes verse citations. Users can click through to read the full v
 **Not a good fit:**
 - Legal or medical decisions (get professional advice)
 - Emergencies needing immediate action
-- Contexts where the Bhagavad Geeta framework doesn't make sense
+- Contexts where the Bhagavad Gita framework doesn't make sense
 
 ---
 

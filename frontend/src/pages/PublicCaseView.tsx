@@ -34,7 +34,7 @@ export default function PublicCaseView() {
       : "Shared Consultation",
     description: caseData?.description
       ? truncateForSEO(caseData.description)
-      : "View this shared ethical consultation with guidance from the Bhagavad Geeta.",
+      : "View this shared ethical consultation with guidance from the Bhagavad Gita.",
     canonical: slug ? `/c/${slug}` : "/",
     ogType: "article",
   });
@@ -309,7 +309,7 @@ export default function PublicCaseView() {
                               : "text-[var(--interactive-ghost-text)]"
                           }`}
                         >
-                          {isFirst ? "Wisdom from the Geeta" : "Guidance"}
+                          {isFirst ? "Wisdom from the Gita" : "Guidance"}
                         </span>
                         <SpeakButton
                           text={exchange.assistant.content}
@@ -864,7 +864,7 @@ export default function PublicCaseView() {
             </h3>
             <p className="text-xs sm:text-sm text-[var(--text-secondary)] mb-3 sm:mb-4">
               Start your own consultation and receive personalized wisdom from
-              the Bhagavad Geeta.
+              the Bhagavad Gita.
             </p>
             <Link
               to="/cases/new"

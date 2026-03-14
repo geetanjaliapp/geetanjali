@@ -23,7 +23,7 @@ interface FloatingNavArrowProps {
   direction: "prev" | "next";
   /** Verse data for the navigation target */
   verse: Verse | null;
-  /** Whether the user is at the start (prev) or end (next) of the Geeta */
+  /** Whether the user is at the start (prev) or end (next) of the Gita */
   isAtBoundary: boolean;
 }
 

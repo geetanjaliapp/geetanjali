@@ -87,17 +87,17 @@ class TestCleanTextForSpeech:
     def test_expands_verse_references_underscore(self):
         """BG_2_47 format should be expanded."""
         result = clean_text_for_speech("See BG_2_47 for guidance")
-        assert "Bhagavad Geeta, chapter 2, verse 47" in result
+        assert "Bhagavad Gita, chapter 2, verse 47" in result
 
     def test_expands_verse_references_dot(self):
         """BG 2.47 format should be expanded."""
         result = clean_text_for_speech("As stated in BG 2.47")
-        assert "Bhagavad Geeta, chapter 2, verse 47" in result
+        assert "Bhagavad Gita, chapter 2, verse 47" in result
 
     def test_expands_verse_references_parentheses(self):
         """(BG 6.26) format should be expanded."""
         result = clean_text_for_speech("Practice restraint (BG 6.26)")
-        assert "Bhagavad Geeta, chapter 6, verse 26" in result
+        assert "Bhagavad Gita, chapter 6, verse 26" in result
 
     def test_normalizes_whitespace(self):
         """Multiple spaces/newlines should become single space."""
@@ -111,7 +111,7 @@ class TestCleanTextForSpeech:
     def test_complex_markdown(self):
         """Real-world markdown should be cleaned properly."""
         text = """
-# Wisdom from the Geeta
+# Wisdom from the Gita
 
 According to **Krishna** in BG_2_47:
 
@@ -134,7 +134,7 @@ See [more verses](/verses) for guidance.
         assert "[" not in result
 
         # Should contain expanded verse reference
-        assert "Bhagavad Geeta, chapter 2, verse 47" in result
+        assert "Bhagavad Gita, chapter 2, verse 47" in result
 
         # Should be readable prose
         assert "Krishna" in result

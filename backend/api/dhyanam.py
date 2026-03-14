@@ -1,6 +1,6 @@
-"""Geeta Dhyanam API endpoints.
+"""Gita Dhyanam API endpoints.
 
-The 9 sacred invocation verses traditionally recited before studying the Bhagavad Geeta.
+The 9 sacred invocation verses traditionally recited before studying the Bhagavad Gita.
 """
 
 import logging
@@ -9,7 +9,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
 from api.dependencies import limiter
-from api.schemas import GeetaDhyanamVerseResponse
+from api.schemas import GitaDhyanamVerseResponse
 from config import settings
 from db import get_db
 from db.repositories import DhyanamRepository
@@ -20,20 +20,20 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1/dhyanam")
 
 
-@router.get("", response_model=list[GeetaDhyanamVerseResponse])
+@router.get("", response_model=list[GitaDhyanamVerseResponse])
 @limiter.limit("60/minute")
 async def get_all_dhyanam_verses(
     request: Request,
     db: Session = Depends(get_db),
 ):
     """
-    Get all 9 Geeta Dhyanam (invocation) verses.
+    Get all 9 Gita Dhyanam (invocation) verses.
 
-    These traditional verses are recited before studying the Bhagavad Geeta.
+    These traditional verses are recited before studying the Bhagavad Gita.
     Returns all 9 verses with Sanskrit, IAST, English, and Hindi translations.
 
     Returns:
-        List of 9 Geeta Dhyanam verses ordered by verse number
+        List of 9 Gita Dhyanam verses ordered by verse number
     """
     # Check cache first
     cache_key = dhyanam_all_key()
@@ -49,12 +49,12 @@ async def get_all_dhyanam_verses(
     if not verses:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Geeta Dhyanam verses not available.",
+            detail="Gita Dhyanam verses not available.",
         )
 
     # Convert to response format
     verses_data = [
-        GeetaDhyanamVerseResponse.model_validate(v).model_dump() for v in verses
+        GitaDhyanamVerseResponse.model_validate(v).model_dump() for v in verses
     ]
 
     # Cache the result
@@ -70,7 +70,7 @@ async def get_dhyanam_count(
     db: Session = Depends(get_db),
 ):
     """
-    Get count of Geeta Dhyanam verses.
+    Get count of Gita Dhyanam verses.
 
     Returns:
         Count of dhyanam verses (should be 9)
@@ -91,7 +91,7 @@ async def get_dhyanam_count(
     return result
 
 
-@router.get("/{verse_number}", response_model=GeetaDhyanamVerseResponse)
+@router.get("/{verse_number}", response_model=GitaDhyanamVerseResponse)
 @limiter.limit("60/minute")
 async def get_dhyanam_verse(
     request: Request,
@@ -99,7 +99,7 @@ async def get_dhyanam_verse(
     db: Session = Depends(get_db),
 ):
     """
-    Get a single Geeta Dhyanam verse by number.
+    Get a single Gita Dhyanam verse by number.
 
     Args:
         verse_number: Verse number (1-9)
@@ -134,7 +134,7 @@ async def get_dhyanam_verse(
         )
 
     # Convert to response and cache
-    verse_data = GeetaDhyanamVerseResponse.model_validate(verse).model_dump()
+    verse_data = GitaDhyanamVerseResponse.model_validate(verse).model_dump()
     cache.set(cache_key, verse_data, settings.CACHE_TTL_METADATA)
 
     return verse_data

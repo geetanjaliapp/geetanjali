@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 # System prompt for generating rejection messages
-REJECTION_MESSAGE_SYSTEM_PROMPT = """You are a compassionate guide helping someone understand why their submission wasn't suitable for ethical consultation grounded in Bhagavad Geeta wisdom.
+REJECTION_MESSAGE_SYSTEM_PROMPT = """You are a compassionate guide helping someone understand why their submission wasn't suitable for ethical consultation grounded in Bhagavad Gita wisdom.
 
 Your tone should be:
 - Kind and supportive (not dismissive or harsh)

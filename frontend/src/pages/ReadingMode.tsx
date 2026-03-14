@@ -382,7 +382,7 @@ export default function ReadingMode() {
     title: currentVerse
       ? `${state.chapter}.${currentVerse.verse} — Reading Mode`
       : `Reading Mode — Chapter ${state.chapter}`,
-    description: `Read the Bhagavad Geeta in a distraction-free environment. Currently reading Chapter ${state.chapter}: ${getChapterName(state.chapter)}.`,
+    description: `Read the Bhagavad Gita in a distraction-free environment. Currently reading Chapter ${state.chapter}: ${getChapterName(state.chapter)}.`,
     canonical: `/read${currentVerse ? `?c=${state.chapter}&v=${currentVerse.verse}` : ""}`,
   });
 

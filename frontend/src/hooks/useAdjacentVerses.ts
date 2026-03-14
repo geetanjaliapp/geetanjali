@@ -14,9 +14,9 @@ import { getChapterInfo, TOTAL_CHAPTERS } from "../constants/chapters";
 import type { Verse } from "../types";
 
 interface AdjacentVerses {
-  /** Previous verse data, null if at start of Geeta or fetch failed */
+  /** Previous verse data, null if at start of Gita or fetch failed */
   prevVerse: Verse | null;
-  /** Next verse data, null if at end of Geeta or fetch failed */
+  /** Next verse data, null if at end of Gita or fetch failed */
   nextVerse: Verse | null;
   /** True while fetching adjacent verses */
   loading: boolean;
@@ -39,7 +39,7 @@ function getPrevCanonicalId(chapter: number, verse: number): string | null {
       return `BG_${chapter - 1}_${prevChapterInfo.verses}`;
     }
   }
-  // At the very beginning of Geeta
+  // At the very beginning of Gita
   return null;
 }
 
@@ -58,7 +58,7 @@ function getNextCanonicalId(chapter: number, verse: number): string | null {
     // First verse of next chapter
     return `BG_${chapter + 1}_1`;
   }
-  // At the very end of Geeta
+  // At the very end of Gita
   return null;
 }
 

@@ -97,7 +97,7 @@ class Enricher:
         self, verse_text: str, temperature: float = 0.1
     ) -> list[str]:
         """
-        Extract consulting principles from verse using LLM with Geeta Expert persona.
+        Extract consulting principles from verse using LLM with Gita Expert persona.
 
         Args:
             verse_text: English translation of the verse
@@ -134,15 +134,15 @@ class Enricher:
 
         principle_text = "\n\n".join(principle_list)
 
-        # Build prompt with Geeta Expert persona
-        prompt = f"""You are a Bhagavad Geeta scholar and expert in Vedantic philosophy, \
+        # Build prompt with Gita Expert persona
+        prompt = f"""You are a Bhagavad Gita scholar and expert in Vedantic philosophy, \
 analyzing verses for their core teachings and applications to modern leadership.
 
 Your task is to identify which principles from the taxonomy best represent this verse's message.
 
 Consider:
 1. The direct teaching of the verse
-2. The broader context within the Geeta's philosophy (Karma, Jnana, Bhakti yoga paths)
+2. The broader context within the Gita's philosophy (Karma, Jnana, Bhakti yoga paths)
 3. Relevance to modern life and leadership application
 4. The verse's emphasis - what is it primarily teaching?
 
@@ -199,7 +199,7 @@ Rules:
         self, verse_text: str, max_words: int = 25, temperature: float = 0.3
     ) -> str:
         """
-        Generate short paraphrase for UI display using Geeta Expert persona.
+        Generate short paraphrase for UI display using Gita Expert persona.
 
         Args:
             verse_text: English translation of the verse
@@ -213,7 +213,7 @@ Rules:
             logger.warning("Empty verse text provided for paraphrasing")
             return ""
 
-        prompt = f"""You are a Bhagavad Geeta scholar presenting timeless wisdom to modern professionals.
+        prompt = f"""You are a Bhagavad Gita scholar presenting timeless wisdom to modern professionals.
 
 Distill this verse translation into a brief, actionable insight (maximum {max_words} words).
 

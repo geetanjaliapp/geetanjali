@@ -472,10 +472,10 @@ class TestFormatExecutiveSummary:
         """Section headers should get paragraph breaks."""
         from services.prompts import format_executive_summary
 
-        raw = "Opening text. **Wisdom from the Geeta** teaches us something."
+        raw = "Opening text. **Wisdom from the Gita** teaches us something."
         result = format_executive_summary(raw)
 
-        assert "\n\n**Wisdom from the Geeta**\n\n" in result
+        assert "\n\n**Wisdom from the Gita**\n\n" in result
         assert "Opening text." in result
         assert "teaches us something." in result
 
@@ -501,7 +501,7 @@ class TestFormatExecutiveSummary:
         """Running twice should produce same result."""
         from services.prompts import format_executive_summary
 
-        raw = "Text. **Wisdom from the Geeta** content. **Closing**: end."
+        raw = "Text. **Wisdom from the Gita** content. **Closing**: end."
         first = format_executive_summary(raw)
         second = format_executive_summary(first)
 
@@ -513,7 +513,7 @@ class TestFormatExecutiveSummary:
 
         well_formatted = """Opening paragraph.
 
-**Wisdom from the Geeta**
+**Wisdom from the Gita**
 
 Verse content here.
 

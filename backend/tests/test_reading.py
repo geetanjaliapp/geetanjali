@@ -19,7 +19,7 @@ class TestBookMetadata:
             book_key="bhagavad_geeta",
             sanskrit_title="श्रीमद्भगवद्गीता",
             transliteration="Śrīmad Bhagavad Gītā",
-            english_title="The Bhagavad Geeta",
+            english_title="The Bhagavad Gita",
             tagline="The Song of the Divine",
             intro_text="An ancient dialogue between Krishna and Arjuna.",
             verse_count=700,

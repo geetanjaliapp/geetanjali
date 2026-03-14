@@ -318,7 +318,7 @@ def _ensure_required_fields(output: dict[str, Any]) -> dict[str, bool]:
                 output["scholar_flag"] = True
             elif field == "executive_summary":
                 output["executive_summary"] = (
-                    "Ethical analysis based on Bhagavad Geeta principles."
+                    "Ethical analysis based on Bhagavad Gita principles."
                 )
             elif field == "recommended_action":
                 output["recommended_action"] = {
@@ -378,7 +378,7 @@ def _generate_default_options(base_verses: list[Any]) -> list[dict[str, Any]]:
             "title": "Option 1: Path of Duty and Dharma",
             "description": (
                 "Follow your rightful duty (svadharma) with focus on principles "
-                "rather than outcomes, aligning with core Geeta teachings"
+                "rather than outcomes, aligning with core Gita teachings"
             ),
             "pros": [
                 "Aligns with dharma and personal duty",
@@ -496,7 +496,7 @@ def _validate_and_fix_options(output: dict[str, Any]) -> bool:
                 "title": f"Option {idx}: Alternative Perspective",
                 "description": (
                     "A balanced approach considering different perspectives "
-                    "and values from Bhagavad Geeta wisdom"
+                    "and values from Bhagavad Gita wisdom"
                 ),
                 "pros": [
                     "Considers multiple viewpoints",
@@ -543,7 +543,7 @@ def _validate_field_types(output: dict[str, Any]) -> dict[str, bool]:
     ):
         logger.warning("Invalid or missing executive_summary, using default")
         output["executive_summary"] = (
-            "Ethical analysis based on Bhagavad Geeta principles."
+            "Ethical analysis based on Bhagavad Gita principles."
         )
         repairs["executive_summary_repaired"] = True
     else:

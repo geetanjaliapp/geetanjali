@@ -1,4 +1,4 @@
-# Geetanjali - Ethical leadership guidance from the Bhagavad Geeta
+# Geetanjali - Ethical leadership guidance from the Bhagavad Gita
 # https://geetanjaliapp.com
 
 User-agent: *

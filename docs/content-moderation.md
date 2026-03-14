@@ -101,7 +101,7 @@ When refusal is detected, the case is marked `policy_violation` and returns an e
   "options": [
     {"title": "Reflect on Your Underlying Concern", "..."},
     {"title": "Rephrase Your Dilemma", "..."},
-    {"title": "Explore the Bhagavad Geeta Directly", "..."}
+    {"title": "Explore the Bhagavad Gita Directly", "..."}
   ],
   "recommended_action": {"option": 2, "steps": ["..."]},
   "reflection_prompts": ["What ethical tension am I truly wrestling with?", "..."],

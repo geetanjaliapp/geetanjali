@@ -588,7 +588,7 @@ def _normalize_structure_output(output: dict) -> dict:
     if "executive_summary" not in normalized or not normalized["executive_summary"]:
         normalized["executive_summary"] = (
             "This situation involves complex ethical considerations. "
-            "The wisdom of the Bhagavad Geeta teaches us to act with "
+            "The wisdom of the Bhagavad Gita teaches us to act with "
             "integrity while remaining detached from outcomes. Consider "
             "the paths outlined below as you reflect on your dharma."
         )

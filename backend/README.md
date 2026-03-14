@@ -1,6 +1,6 @@
 # Geetanjali Backend
 
-FastAPI backend for ethical leadership guidance from the Bhagavad Geeta.
+FastAPI backend for ethical leadership guidance from the Bhagavad Gita.
 
 ## Architecture
 

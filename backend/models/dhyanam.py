@@ -1,7 +1,7 @@
-"""Geeta Dhyanam verse model for Reading Mode.
+"""Gita Dhyanam verse model for Reading Mode.
 
-The 9 invocation verses traditionally recited before studying the Bhagavad Geeta.
-These are synced from data/geeta_dhyanam.py via POST /api/v1/admin/sync-dhyanam.
+The 9 invocation verses traditionally recited before studying the Bhagavad Gita.
+These are synced from data/gita_dhyanam.py via POST /api/v1/admin/sync-dhyanam.
 """
 
 import uuid
@@ -14,7 +14,7 @@ from models.base import Base, TimestampMixin
 
 class DhyanamVerse(Base, TimestampMixin):
     """
-    Geeta Dhyanam verse model.
+    Gita Dhyanam verse model.
 
     Stores the 9 sacred invocation verses with multilingual content
     and audio metadata for the Reading Mode experience.

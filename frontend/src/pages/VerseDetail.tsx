@@ -255,10 +255,10 @@ export default function VerseDetail() {
 
   // Dynamic SEO based on verse data
   useSEO({
-    title: verse ? `Bhagavad Geeta ${verse.chapter}.${verse.verse}` : "Verse",
+    title: verse ? `Bhagavad Gita ${verse.chapter}.${verse.verse}` : "Verse",
     description: verse?.paraphrase_en
       ? truncateForSEO(verse.paraphrase_en)
-      : "Explore this verse from the Bhagavad Geeta with multiple translations and leadership insights.",
+      : "Explore this verse from the Bhagavad Gita with multiple translations and leadership insights.",
     canonical: canonicalUppercase ? `/verses/${canonicalUppercase}` : "/verses",
     ogType: "article",
   });
@@ -436,7 +436,7 @@ export default function VerseDetail() {
     (t) => t.id !== primaryHindi?.id && t.id !== primaryEnglish?.id,
   );
 
-  // Determine if at boundaries of Geeta
+  // Determine if at boundaries of Gita
   const isAtStart = verse.chapter === 1 && verse.verse === 1;
   const isAtEnd = verse.chapter === 18 && verse.verse === 78;
 

@@ -65,7 +65,7 @@ class MockLLMService:
         ):
             return """Let me break this down more simply.
 
-**The core principle** is this: focus on doing what's right, not on what you'll get from it. The Geeta calls this **nishkama karma** - action without attachment to outcomes.
+**The core principle** is this: focus on doing what's right, not on what you'll get from it. The Gita calls this **nishkama karma** - action without attachment to outcomes.
 
 In practical terms:
 - **Step 1**: Identify what you *should* do (your duty)
@@ -82,7 +82,7 @@ Does this help clarify things?"""
         ):
             return """That's a thoughtful question about choosing your path.
 
-Based on the Geeta's wisdom, **the best path is the one aligned with your dharma** - your true nature and responsibilities. Here's how to discern it:
+Based on the Gita's wisdom, **the best path is the one aligned with your dharma** - your true nature and responsibilities. Here's how to discern it:
 
 **Consider Option 1** (Nishkama Karma) if:
 - You have clear responsibilities you've been avoiding
@@ -107,7 +107,7 @@ Which aspects of your situation resonate most with these descriptions?"""
         ):
             return """Happy to elaborate further.
 
-The Bhagavad Geeta presents a nuanced view of ethical action. At its heart is the recognition that **we suffer not from action itself, but from our attachment to outcomes**.
+The Bhagavad Gita presents a nuanced view of ethical action. At its heart is the recognition that **we suffer not from action itself, but from our attachment to outcomes**.
 
 **Key insight from BG_2_48**: "Perform your duty with evenness of mind, abandoning attachment to success or failure. Such equanimity is called yoga."
 
@@ -124,7 +124,7 @@ What specific aspect would you like me to explore further?"""
             # Default follow-up response
             return """Thank you for your follow-up question.
 
-The Geeta's guidance here is both profound and practical. **The essence is balance** - between action and reflection, between effort and surrender, between personal desires and higher duty.
+The Gita's guidance here is both profound and practical. **The essence is balance** - between action and reflection, between effort and surrender, between personal desires and higher duty.
 
 As you navigate this situation, consider these principles:
 
@@ -152,13 +152,13 @@ Is there a specific aspect of this you'd like to explore further?"""
         if is_leadership:
             executive_summary = """Your leadership challenge touches on fundamental questions of duty, influence, and responsibility.
 
-The Geeta teaches that **true leadership emerges from selfless service** (seva), not from the pursuit of power or recognition. As BG_3_21 reminds us: "Whatever action a great person performs, common people follow."
+The Gita teaches that **true leadership emerges from selfless service** (seva), not from the pursuit of power or recognition. As BG_3_21 reminds us: "Whatever action a great person performs, common people follow."
 
 This means your primary task is not to control outcomes, but to **embody the values you wish to see** in your team. Lead through example, maintain your composure under pressure, and make decisions rooted in dharma rather than expedience."""
         else:
             executive_summary = """Your situation involves navigating complex ethical terrain where competing values and responsibilities intersect.
 
-The Bhagavad Geeta offers timeless guidance through the principle of **nishkama karma** - performing your duty with excellence while releasing attachment to specific outcomes. As BG_2_47 teaches: "You have the right to action, but not to the fruits of action."
+The Bhagavad Gita offers timeless guidance through the principle of **nishkama karma** - performing your duty with excellence while releasing attachment to specific outcomes. As BG_2_47 teaches: "You have the right to action, but not to the fruits of action."
 
 Three paths emerge from this wisdom: **acting from duty** rather than desire, **seeking clarity** through reflection and counsel, and **maintaining equanimity** regardless of external circumstances. The choice between them depends on your specific situation and inner readiness."""
 

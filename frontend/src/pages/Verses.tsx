@@ -57,7 +57,7 @@ export default function Verses() {
   useSEO({
     title: "Browse Verses",
     description:
-      "Explore all 701 verses of the Bhagavad Geeta. Search by chapter, browse featured verses, and discover timeless wisdom.",
+      "Explore all 701 verses of the Bhagavad Gita. Search by chapter, browse featured verses, and discover timeless wisdom.",
     canonical: "/verses",
   });
 
@@ -802,7 +802,7 @@ export default function Verses() {
       {/* Page Header - scrolls away, content-first */}
       <div className="py-4 sm:py-6 text-center">
         <h1 className="text-xl sm:text-2xl font-bold font-heading text-[var(--text-primary)]">
-          Explore the Bhagavad Geeta
+          Explore the Bhagavad Gita
         </h1>
         <p className="text-sm sm:text-base text-[var(--text-secondary)] mt-1">
           701 verses of timeless wisdom
@@ -1302,7 +1302,7 @@ export default function Verses() {
                       <p className="text-sm text-[var(--text-secondary)] mb-6 max-w-md mx-auto">
                         Your question sounds like you're seeking personal
                         guidance. Our consultation feature can provide tailored
-                        insights from the Geeta.
+                        insights from the Gita.
                       </p>
                       <Link
                         to={`/cases/new?prefill=${encodeURIComponent(searchData.query)}`}

@@ -1,8 +1,8 @@
 /**
- * Bhagavad Geeta Chapter Constants
+ * Bhagavad Gita Chapter Constants
  *
  * Static mapping of chapter metadata including names (Sanskrit and English),
- * and verse counts. This data is immutable - the Bhagavad Geeta has exactly
+ * and verse counts. This data is immutable - the Bhagavad Gita has exactly
  * 18 chapters with fixed verse counts.
  *
  * Used by VerseDetail, Reading Mode, and related verse navigation components.
@@ -166,7 +166,7 @@ export function isValidVerse(chapter: number, verse: number): boolean {
 export const TOTAL_CHAPTERS = 18;
 
 /**
- * Get the total number of verses in the Bhagavad Geeta (701)
+ * Get the total number of verses in the Bhagavad Gita (701)
  */
 export const TOTAL_VERSES = Object.values(CHAPTERS).reduce(
   (sum, ch) => sum + ch.verses,

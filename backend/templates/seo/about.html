@@ -2,7 +2,7 @@
 
 {% block title %}{{ content.seo.title | default('About') }}{% endblock %}
 
-{% block description %}{{ content.seo.description | default('Learn about Geetanjali - ancient wisdom from the Bhagavad Geeta for modern ethical decisions.') }}{% endblock %}
+{% block description %}{{ content.seo.description | default('Learn about Geetanjali - ancient wisdom from the Bhagavad Gita for modern ethical decisions.') }}{% endblock %}
 
 {% block canonical %}/about{% endblock %}
 
@@ -25,7 +25,7 @@
     "mainEntity": {
         "@type": "Organization",
         "name": "{{ meta.site.name | default('Geetanjali') }}",
-        "description": "{{ content.hero.subtitle | default('Ethical leadership guidance grounded in Bhagavad Geeta wisdom') }}",
+        "description": "{{ content.hero.subtitle | default('Ethical leadership guidance grounded in Bhagavad Gita wisdom') }}",
         "url": "{{ meta.site.url | default('https://geetanjaliapp.com') }}"
     }
 }
@@ -48,7 +48,7 @@
             {% if content.quote.sanskrit %}
             <p class="sanskrit" lang="sa">{{ content.quote.sanskrit }}</p>
             {% endif %}
-            <cite>— {{ content.quote.citation | default('Bhagavad Geeta') }}</cite>
+            <cite>— {{ content.quote.citation | default('Bhagavad Gita') }}</cite>
         </blockquote>
     </section>
     {% endif %}

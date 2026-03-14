@@ -1,4 +1,4 @@
-"""Tests for Geeta Dhyanam endpoints."""
+"""Tests for Gita Dhyanam endpoints."""
 
 import uuid
 

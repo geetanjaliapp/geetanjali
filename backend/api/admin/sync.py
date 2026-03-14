@@ -275,11 +275,11 @@ class SyncDhyanamResponse(BaseModel):
     updated: int
 
 
-def sync_geeta_dhyanam(db: Session) -> dict[str, int]:
+def sync_gita_dhyanam(db: Session) -> dict[str, int]:
     """
-    Sync Geeta Dhyanam verses from static data to database.
+    Sync Gita Dhyanam verses from static data to database.
 
-    This syncs the 9 invocation verses from data/geeta_dhyanam.py
+    This syncs the 9 invocation verses from data/gita_dhyanam.py
     to the dhyanam_verses table.
 
     Args:
@@ -290,10 +290,10 @@ def sync_geeta_dhyanam(db: Session) -> dict[str, int]:
     """
     from datetime import datetime
 
-    from data.geeta_dhyanam import get_geeta_dhyanam
+    from data.gita_dhyanam import get_gita_dhyanam
     from models import DhyanamVerse
 
-    dhyanam_data = get_geeta_dhyanam()
+    dhyanam_data = get_gita_dhyanam()
 
     synced = 0
     created = 0
@@ -337,7 +337,7 @@ def sync_geeta_dhyanam(db: Session) -> dict[str, int]:
     db.commit()
 
     logger.info(
-        f"Synced {synced} Geeta Dhyanam verses (created={created}, updated={updated})"
+        f"Synced {synced} Gita Dhyanam verses (created={created}, updated={updated})"
     )
 
     return {
@@ -353,20 +353,20 @@ def trigger_sync_dhyanam(
     db: Session = Depends(get_db), _: bool = Depends(verify_admin_api_key)
 ):
     """
-    Sync Geeta Dhyanam invocation verses from curated content to database.
+    Sync Gita Dhyanam invocation verses from curated content to database.
 
     This populates/updates the dhyanam_verses table with the 9 sacred
-    verses traditionally recited before studying the Bhagavad Geeta.
+    verses traditionally recited before studying the Bhagavad Gita.
 
     Returns:
         Sync statistics
     """
     try:
-        stats = sync_geeta_dhyanam(db)
+        stats = sync_gita_dhyanam(db)
 
         return SyncDhyanamResponse(
             status="success",
-            message=f"Synced {stats['synced']} Geeta Dhyanam verses ({stats['created']} created, {stats['updated']} updated).",
+            message=f"Synced {stats['synced']} Gita Dhyanam verses ({stats['created']} created, {stats['updated']} updated).",
             total_dhyanam=stats["total_dhyanam"],
             synced=stats["synced"],
             created=stats["created"],

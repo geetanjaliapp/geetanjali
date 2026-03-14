@@ -13,11 +13,11 @@ from data.featured_verses import (
     get_featured_verse_ids,
     is_featured,
 )
-from data.geeta_dhyanam import (
-    GEETA_DHYANAM,
-    GEETA_DHYANAM_COUNT,
-    get_geeta_dhyanam,
-    get_geeta_dhyanam_verse,
+from data.gita_dhyanam import (
+    GITA_DHYANAM,
+    GITA_DHYANAM_COUNT,
+    get_gita_dhyanam,
+    get_gita_dhyanam_verse,
 )
 
 __all__ = [
@@ -32,9 +32,9 @@ __all__ = [
     "get_book_metadata",
     "get_chapter_metadata",
     "get_all_chapter_metadata",
-    # Geeta Dhyanam
-    "GEETA_DHYANAM",
-    "GEETA_DHYANAM_COUNT",
-    "get_geeta_dhyanam",
-    "get_geeta_dhyanam_verse",
+    # Gita Dhyanam
+    "GITA_DHYANAM",
+    "GITA_DHYANAM_COUNT",
+    "get_gita_dhyanam",
+    "get_gita_dhyanam_verse",
 ]

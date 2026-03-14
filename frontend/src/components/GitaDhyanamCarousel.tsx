@@ -1,5 +1,5 @@
 /**
- * GeetaDhyanamCarousel - Horizontal scroll carousel for 9 sacred invocation verses
+ * GitaDhyanamCarousel - Horizontal scroll carousel for 9 sacred invocation verses
  *
  * Design principles (from docs/design.md):
  * - Quiet Library: Collapsed by default, no auto-play, user-initiated
@@ -9,10 +9,10 @@
  */
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import type { GeetaDhyanamVerse } from "../types";
+import type { GitaDhyanamVerse } from "../types";
 
-interface GeetaDhyanamCarouselProps {
-  verses: GeetaDhyanamVerse[];
+interface GitaDhyanamCarouselProps {
+  verses: GitaDhyanamVerse[];
   isLoading?: boolean;
 }
 
@@ -23,7 +23,7 @@ function DhyanamVerseCard({
   verse,
   isActive,
 }: {
-  verse: GeetaDhyanamVerse;
+  verse: GitaDhyanamVerse;
   isActive: boolean;
 }) {
   const [showEnglish, setShowEnglish] = useState(false);
@@ -147,10 +147,10 @@ function DhyanamCardSkeleton() {
 /**
  * Main carousel component
  */
-export function GeetaDhyanamCarousel({
+export function GitaDhyanamCarousel({
   verses,
   isLoading = false,
-}: GeetaDhyanamCarouselProps) {
+}: GitaDhyanamCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -274,4 +274,4 @@ export function GeetaDhyanamCarousel({
   );
 }
 
-export default GeetaDhyanamCarousel;
+export default GitaDhyanamCarousel;

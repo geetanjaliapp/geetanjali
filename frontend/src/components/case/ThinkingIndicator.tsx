@@ -10,7 +10,7 @@ interface ThinkingIndicatorProps {
 
 const COPY = {
   initial: {
-    label: "Consulting the Geeta...",
+    label: "Consulting the Gita...",
     message: "Preparing your consultation",
     footer: "Your guidance is being prepared...",
   },

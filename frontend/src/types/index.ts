@@ -231,8 +231,8 @@ export interface ChapterMetadata {
   hero_verse_id?: string;
 }
 
-/** Geeta Dhyanam verse (invocation verse) */
-export interface GeetaDhyanamVerse {
+/** Gita Dhyanam verse (invocation verse) */
+export interface GitaDhyanamVerse {
   verse_number: number;
   sanskrit: string;
   iast: string;

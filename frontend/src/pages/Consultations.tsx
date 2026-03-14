@@ -62,7 +62,7 @@ export default function Consultations() {
   useSEO({
     title: "My Consultations",
     description:
-      "View and manage your ethical consultations with guidance from the Bhagavad Geeta.",
+      "View and manage your ethical consultations with guidance from the Bhagavad Gita.",
     canonical: "/consultations",
     noIndex: true, // Personal data shouldn't be indexed
   });

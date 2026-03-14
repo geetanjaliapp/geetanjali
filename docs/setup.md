@@ -37,7 +37,7 @@ Services start at:
 First run automatically:
 - Creates database tables
 - Runs migrations
-- Ingests Geeta verse data (701 verses)
+- Ingests Gita verse data (701 verses)
 
 ## Local Setup (Without Docker)
 

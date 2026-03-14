@@ -120,7 +120,7 @@ def get_status(db: Session = Depends(get_db)):
         elif verse_count < 100:
             status = "incomplete"
             message = (
-                f"Only {verse_count} verses found. Full Bhagavad Geeta has 700 verses."
+                f"Only {verse_count} verses found. Full Bhagavad Gita has 700 verses."
             )
         else:
             status = "ready"

@@ -621,7 +621,7 @@ class MultiPassOrchestrator:
             translation = (
                 metadata.get("translation_en") or
                 metadata.get("paraphrase_en") or
-                "Wisdom from the Bhagavad Geeta"
+                "Wisdom from the Bhagavad Gita"
             )
             verse_sources.append({
                 "canonical_id": canonical_id,
@@ -633,7 +633,7 @@ class MultiPassOrchestrator:
             "suggested_title": "Ethical Guidance",
             "executive_summary": (
                 "We encountered a processing issue while analyzing your dilemma in depth. "
-                "The wisdom of the Bhagavad Geeta teaches us that in times of uncertainty, "
+                "The wisdom of the Bhagavad Gita teaches us that in times of uncertainty, "
                 "we should focus on our dharma (duty) and act with detachment from outcomes. "
                 "Please consider the verses provided and reflect on how they apply to your situation."
             ),

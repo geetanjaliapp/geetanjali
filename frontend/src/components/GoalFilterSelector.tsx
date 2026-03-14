@@ -154,7 +154,7 @@ export function GoalFilterSelector({
 
         {/* Header */}
         <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">
-          What brings you to the Geeta?
+          What brings you to the Gita?
         </h3>
 
         {/* Loading skeleton */}

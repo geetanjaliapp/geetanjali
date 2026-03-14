@@ -402,7 +402,7 @@ def _build_sources(verses: list[dict], extracted_refs: list[str]) -> list[dict]:
             paraphrase = (
                 metadata.get("translation_en") or
                 metadata.get("paraphrase_en") or
-                "Wisdom from the Bhagavad Geeta"
+                "Wisdom from the Bhagavad Gita"
             )
             sources.append({
                 "canonical_id": canonical_id,

@@ -3,7 +3,7 @@
   "$comment": "About page content. This is the current representation - update freely as design evolves. Consumed by: About.tsx, SEO about.html template.",
   "seo": {
     "title": "About",
-    "description": "Learn about Geetanjali - ancient wisdom from the Bhagavad Geeta for modern ethical decisions. Open source, private, and free."
+    "description": "Learn about Geetanjali - ancient wisdom from the Bhagavad Gita for modern ethical decisions. Open source, private, and free."
   },
   "hero": {
     "title": "About Geetanjali",
@@ -11,13 +11,13 @@
   },
   "quote": {
     "text": "You have the right to work, but never to the fruit of work. You should never engage in action for the sake of reward, nor should you long for inaction.",
-    "citation": "Bhagavad Geeta 2.47",
+    "citation": "Bhagavad Gita 2.47",
     "sanskrit": "कर्मण्येवाधिकारस्ते मा फलेषु कदाचन"
   },
   "story": [
     "Life presents moments when the right choice isn't obvious—when duty conflicts with desire, when multiple paths seem equally valid, or when the consequences of any decision feel uncertain.",
-    "For over two thousand years, people have turned to the Bhagavad Geeta in such moments. Not for simple answers, but for perspectives that illuminate the question itself. The Geeta is a 700-verse conversation about how to act when the way forward isn't clear, how to balance personal values with responsibility, and how to find equanimity amid life's complexity.",
-    "Geetanjali brings this wisdom into a form you can engage with directly—whether you're facing a career crossroads, navigating relationships, working through ethical questions, or simply seeking clarity. Share a dilemma, and receive thoughtful perspectives grounded in verses from the Geeta, presented accessibly and without sectarian framing.",
+    "For over two thousand years, people have turned to the Bhagavad Gita in such moments. Not for simple answers, but for perspectives that illuminate the question itself. The Gita is a 700-verse conversation about how to act when the way forward isn't clear, how to balance personal values with responsibility, and how to find equanimity amid life's complexity.",
+    "Geetanjali brings this wisdom into a form you can engage with directly—whether you're facing a career crossroads, navigating relationships, working through ethical questions, or simply seeking clarity. Share a dilemma, and receive thoughtful perspectives grounded in verses from the Gita, presented accessibly and without sectarian framing.",
     "This is not meant to replace your judgment or offer definitive answers. Think of Geetanjali as one thoughtful companion among many—a way to encounter timeless philosophy when you need it most."
   ],
   "philosophy": {
@@ -25,21 +25,21 @@
     "items": [
       {
         "id": "why-geeta",
-        "title": "Why the Bhagavad Geeta?",
+        "title": "Why the Bhagavad Gita?",
         "icon": "book",
-        "description": "The Geeta addresses universal questions that transcend time and culture: How do we act rightly when outcomes are uncertain? How do we honor our responsibilities while staying true to ourselves? Its teachings have guided seekers across traditions—practical philosophy that meets you where you are."
+        "description": "The Gita addresses universal questions that transcend time and culture: How do we act rightly when outcomes are uncertain? How do we honor our responsibilities while staying true to ourselves? Its teachings have guided seekers across traditions—practical philosophy that meets you where you are."
       },
       {
         "id": "accessible",
         "title": "Accessible, Not Prescriptive",
         "icon": "compass",
-        "description": "Geetanjali presents the Geeta's teachings accessibly, focusing on practical Vedantic principles—self-knowledge, ethical action, and finding meaning amid complexity. The goal is to offer perspectives that help you think more clearly, not to tell you what to do."
+        "description": "Geetanjali presents the Gita's teachings accessibly, focusing on practical Vedantic principles—self-knowledge, ethical action, and finding meaning amid complexity. The goal is to offer perspectives that help you think more clearly, not to tell you what to do."
       },
       {
         "id": "honoring-source",
         "title": "Honoring the Source",
         "icon": "scroll",
-        "description": "Geetanjali includes all 701 verses of the Bhagavad Geeta plus the 9 verses of Geeta Dhyanam, with Sanskrit text, transliteration, and translations. Audio recitations preserve the sound of the original. The text is treated with the respect it deserves—presented faithfully, not reduced to soundbites."
+        "description": "Geetanjali includes all 701 verses of the Bhagavad Gita plus the 9 verses of Gita Dhyanam, with Sanskrit text, transliteration, and translations. Audio recitations preserve the sound of the original. The text is treated with the respect it deserves—presented faithfully, not reduced to soundbites."
       }
     ]
   },

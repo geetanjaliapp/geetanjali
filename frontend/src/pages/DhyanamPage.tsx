@@ -1,5 +1,5 @@
 /**
- * DhyanamPage - Geeta Dhyanam (9 Sacred Invocation Verses)
+ * DhyanamPage - Gita Dhyanam (9 Sacred Invocation Verses)
  *
  * Features:
  * - VerseFocus-style single verse display
@@ -25,7 +25,7 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { dhyanamApi } from "../lib/api";
-import type { GeetaDhyanamVerse } from "../types";
+import type { GitaDhyanamVerse } from "../types";
 import { Navbar } from "../components";
 import { DhyanamVerseFocus } from "../components/DhyanamVerseFocus";
 import {
@@ -114,7 +114,7 @@ function DhyanamSummary({
         </p>
       </div>
 
-      {/* Inspirational verse - from Geeta 2.47 */}
+      {/* Inspirational verse - from Gita 2.47 */}
       <div className="bg-[var(--surface-warm-subtle)] border border-[var(--border-warm)] rounded-[var(--radius-card)] p-4 sm:p-6 mb-6">
         <p className="font-sanskrit text-base sm:text-lg text-[var(--text-primary)] mb-2 leading-relaxed">
           कर्मण्येवाधिकारस्ते मा फलेषु कदाचन
@@ -123,7 +123,7 @@ function DhyanamSummary({
           "You have the right to work, but never to the fruit of work."
         </p>
         <p className="text-xs text-[var(--text-muted)] mt-2">
-          — Bhagavad Geeta 2.47
+          — Bhagavad Gita 2.47
         </p>
       </div>
 
@@ -251,7 +251,7 @@ export default function DhyanamPage() {
   }, [verseNumber]);
 
   // Core state
-  const [verses, setVerses] = useState<GeetaDhyanamVerse[]>([]);
+  const [verses, setVerses] = useState<GitaDhyanamVerse[]>([]);
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [pageState, setPageState] = useState<DhyanamState>("loading");
   const [error, setError] = useState<string | null>(null);

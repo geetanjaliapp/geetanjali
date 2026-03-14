@@ -7,7 +7,7 @@ from models import DhyanamVerse
 
 
 class DhyanamRepository(BaseRepository[DhyanamVerse]):
-    """Repository for Geeta Dhyanam verse operations."""
+    """Repository for Gita Dhyanam verse operations."""
 
     def __init__(self, db: Session):
         super().__init__(DhyanamVerse, db)

@@ -109,7 +109,7 @@ class TestFollowUpPrompts:
     def test_follow_up_system_prompt_exists(self):
         """Test that system prompt has expected content."""
         assert "Geetanjali" in FOLLOW_UP_SYSTEM_PROMPT
-        assert "Bhagavad Geeta" in FOLLOW_UP_SYSTEM_PROMPT
+        assert "Bhagavad Gita" in FOLLOW_UP_SYSTEM_PROMPT
         assert "BG_X_Y" in FOLLOW_UP_SYSTEM_PROMPT
         assert "new consultation" in FOLLOW_UP_SYSTEM_PROMPT.lower()
 

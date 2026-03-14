@@ -1,7 +1,7 @@
 """
 Maha Vakyas (Great Utterances) - Verses requiring special treatment.
 
-These are the most significant verses in the Bhagavad Geeta, requiring
+These are the most significant verses in the Bhagavad Gita, requiring
 careful audio generation with emphasis, slower pacing, and special
 TTS descriptions.
 
@@ -41,7 +41,7 @@ MAHA_VAKYAS: list[MahaVakyaConfig] = [
         "intensity": "strong",
         "pacing": "slow",
         "context_notes": (
-            "The most quoted verse of the Geeta. Foundation of Karma Yoga. "
+            "The most quoted verse of the Gita. Foundation of Karma Yoga. "
             "Requires slow, emphatic delivery with pauses between phrases."
         ),
         "tts_description_override": (

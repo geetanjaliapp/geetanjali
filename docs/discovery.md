@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Discovery Journey
-description: How users explore Bhagavad Geeta content through the Verse Browser and Reading Mode.
+description: How users explore Bhagavad Gita content through the Verse Browser and Reading Mode.
 ---
 
 # Discovery Journey
