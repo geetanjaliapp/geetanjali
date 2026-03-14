@@ -19,7 +19,7 @@ Workflow:
     3. Run TTS generation in Colab
     4. Download WAV zip and process with process_dhyanam_audio.py
 
-Note: Uses static data from geeta_dhyanam.py - no database access required.
+Note: Uses static data from gita_dhyanam.py - no database access required.
 """
 
 import argparse
@@ -29,7 +29,7 @@ import sys
 # When running inside Docker, /app is the backend directory
 sys.path.insert(0, "/app")
 
-from data.geeta_dhyanam import get_geeta_dhyanam
+from data.gita_dhyanam import get_gita_dhyanam
 from data.verse_audio_metadata.text_normalizer import normalize_for_tts
 from data.verse_audio_metadata.tts_description_builder import (
     build_dhyana_shloka_description,
@@ -108,7 +108,7 @@ def get_tts_description(theme: str) -> str:
 
 def export_dhyanam() -> dict:
     """Export Geeta Dhyanam metadata for TTS generation."""
-    dhyanam_verses = get_geeta_dhyanam()
+    dhyanam_verses = get_gita_dhyanam()
 
     verses_data = {}
     verse_metadata = []
@@ -138,7 +138,7 @@ def export_dhyanam() -> dict:
         "verses": verses_data,
         "metadata": verse_metadata,
         "export_info": {
-            "type": "geeta_dhyanam",
+            "type": "gita_dhyanam",
             "verse_count": len(verse_metadata),
             "description": "9 sacred invocation verses recited before Geeta study",
             "voice": "Aryan (Indic Parler-TTS)",

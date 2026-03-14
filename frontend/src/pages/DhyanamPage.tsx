@@ -25,7 +25,7 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { dhyanamApi } from "../lib/api";
-import type { GeetaDhyanamVerse } from "../types";
+import type { GitaDhyanamVerse } from "../types";
 import { Navbar } from "../components";
 import { DhyanamVerseFocus } from "../components/DhyanamVerseFocus";
 import {
@@ -251,7 +251,7 @@ export default function DhyanamPage() {
   }, [verseNumber]);
 
   // Core state
-  const [verses, setVerses] = useState<GeetaDhyanamVerse[]>([]);
+  const [verses, setVerses] = useState<GitaDhyanamVerse[]>([]);
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [pageState, setPageState] = useState<DhyanamState>("loading");
   const [error, setError] = useState<string | null>(null);

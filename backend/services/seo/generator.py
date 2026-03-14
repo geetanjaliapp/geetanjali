@@ -1276,8 +1276,8 @@ class SeoGeneratorService:
         return stats
 
     def _generate_dhyanam_page(self, force: bool) -> dict[str, int]:
-        """Generate Geeta Dhyanam page (9 invocation verses)."""
-        from data.geeta_dhyanam import GEETA_DHYANAM
+        """Generate Gita Dhyanam page (9 invocation verses)."""
+        from data.gita_dhyanam import GITA_DHYANAM
 
         stats = {"generated": 0, "skipped": 0, "errors": 0}
 
@@ -1289,14 +1289,14 @@ class SeoGeneratorService:
 
             # Source hash based on dhyanam verse content
             source_data = {
-                "verse_count": len(GEETA_DHYANAM),
+                "verse_count": len(GITA_DHYANAM),
                 "verses": [
                     {
                         "verse_number": v["verse_number"],
                         "theme": v["theme"],
                         "sanskrit_hash": hash(v["sanskrit"][:50]),
                     }
-                    for v in GEETA_DHYANAM
+                    for v in GITA_DHYANAM
                 ],
             }
             source_hash = compute_source_hash(source_data)
@@ -1310,7 +1310,7 @@ class SeoGeneratorService:
             gen_start = time.time()
             template = self.env.get_template(template_name)
 
-            html = template.render(verses=GEETA_DHYANAM)
+            html = template.render(verses=GITA_DHYANAM)
 
             file_path = "dhyanam.html"
             output_path = self.output_dir / file_path
@@ -1335,7 +1335,7 @@ class SeoGeneratorService:
 
             stats["generated"] += 1
             logger.info(
-                f"SEO GENERATION: Generated dhyanam page ({len(GEETA_DHYANAM)} verses)"
+                f"SEO GENERATION: Generated dhyanam page ({len(GITA_DHYANAM)} verses)"
             )
 
         except Exception as e:

@@ -22,8 +22,8 @@ Usage: Display on Book Intro page in a horizontal scroll carousel.
 from typing import TypedDict
 
 
-class GeetaDhyanamVerse(TypedDict):
-    """Structure for a single Geeta Dhyanam verse."""
+class GitaDhyanamVerse(TypedDict):
+    """Structure for a single Gita Dhyanam verse."""
 
     verse_number: int
     sanskrit: str
@@ -36,10 +36,10 @@ class GeetaDhyanamVerse(TypedDict):
 
 
 # =============================================================================
-# GEETA DHYANAM - 9 SACRED INVOCATION VERSES
+# GITA DHYANAM - 9 SACRED INVOCATION VERSES
 # =============================================================================
 
-GEETA_DHYANAM: list[GeetaDhyanamVerse] = [
+GITA_DHYANAM: list[GitaDhyanamVerse] = [
     {
         "verse_number": 1,
         "sanskrit": (
@@ -279,20 +279,20 @@ GEETA_DHYANAM: list[GeetaDhyanamVerse] = [
 ]
 
 # Total duration of all 9 verses (for UI display)
-GEETA_DHYANAM_TOTAL_DURATION_MS = sum(v["duration_ms"] for v in GEETA_DHYANAM)
+GITA_DHYANAM_TOTAL_DURATION_MS = sum(v["duration_ms"] for v in GITA_DHYANAM)
 
 # Total count for reference
-GEETA_DHYANAM_COUNT = len(GEETA_DHYANAM)
+GITA_DHYANAM_COUNT = len(GITA_DHYANAM)
 
 
-def get_geeta_dhyanam() -> list[GeetaDhyanamVerse]:
-    """Return all Geeta Dhyanam verses."""
-    return [verse.copy() for verse in GEETA_DHYANAM]
+def get_gita_dhyanam() -> list[GitaDhyanamVerse]:
+    """Return all Gita Dhyanam verses."""
+    return [verse.copy() for verse in GITA_DHYANAM]
 
 
-def get_geeta_dhyanam_verse(verse_number: int) -> GeetaDhyanamVerse | None:
-    """Return a specific Geeta Dhyanam verse by number (1-9)."""
-    for verse in GEETA_DHYANAM:
+def get_gita_dhyanam_verse(verse_number: int) -> GitaDhyanamVerse | None:
+    """Return a specific Gita Dhyanam verse by number (1-9)."""
+    for verse in GITA_DHYANAM:
         if verse["verse_number"] == verse_number:
             return verse.copy()
     return None

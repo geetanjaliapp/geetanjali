@@ -232,7 +232,7 @@ export interface ChapterMetadata {
 }
 
 /** Geeta Dhyanam verse (invocation verse) */
-export interface GeetaDhyanamVerse {
+export interface GitaDhyanamVerse {
   verse_number: number;
   sanskrit: string;
   iast: string;

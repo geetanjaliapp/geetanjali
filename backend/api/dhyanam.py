@@ -9,7 +9,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
 from api.dependencies import limiter
-from api.schemas import GeetaDhyanamVerseResponse
+from api.schemas import GitaDhyanamVerseResponse
 from config import settings
 from db import get_db
 from db.repositories import DhyanamRepository
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1/dhyanam")
 
 
-@router.get("", response_model=list[GeetaDhyanamVerseResponse])
+@router.get("", response_model=list[GitaDhyanamVerseResponse])
 @limiter.limit("60/minute")
 async def get_all_dhyanam_verses(
     request: Request,
@@ -54,7 +54,7 @@ async def get_all_dhyanam_verses(
 
     # Convert to response format
     verses_data = [
-        GeetaDhyanamVerseResponse.model_validate(v).model_dump() for v in verses
+        GitaDhyanamVerseResponse.model_validate(v).model_dump() for v in verses
     ]
 
     # Cache the result
@@ -91,7 +91,7 @@ async def get_dhyanam_count(
     return result
 
 
-@router.get("/{verse_number}", response_model=GeetaDhyanamVerseResponse)
+@router.get("/{verse_number}", response_model=GitaDhyanamVerseResponse)
 @limiter.limit("60/minute")
 async def get_dhyanam_verse(
     request: Request,
@@ -134,7 +134,7 @@ async def get_dhyanam_verse(
         )
 
     # Convert to response and cache
-    verse_data = GeetaDhyanamVerseResponse.model_validate(verse).model_dump()
+    verse_data = GitaDhyanamVerseResponse.model_validate(verse).model_dump()
     cache.set(cache_key, verse_data, settings.CACHE_TTL_METADATA)
 
     return verse_data

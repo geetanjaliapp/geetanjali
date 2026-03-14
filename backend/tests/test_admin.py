@@ -192,13 +192,13 @@ class TestSyncDhyanam:
 
     def test_sync_dhyanam_data_integrity(self, client, db_session, admin_headers):
         """Synced data matches source file."""
-        from data.geeta_dhyanam import get_geeta_dhyanam
+        from data.gita_dhyanam import get_gita_dhyanam
 
         # Sync
         client.post("/api/v1/admin/sync-dhyanam", headers=admin_headers)
 
         # Get source data
-        source = get_geeta_dhyanam()
+        source = get_gita_dhyanam()
 
         # Verify each verse matches source
         for source_verse in source:

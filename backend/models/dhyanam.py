@@ -1,7 +1,7 @@
 """Geeta Dhyanam verse model for Reading Mode.
 
 The 9 invocation verses traditionally recited before studying the Bhagavad Geeta.
-These are synced from data/geeta_dhyanam.py via POST /api/v1/admin/sync-dhyanam.
+These are synced from data/gita_dhyanam.py via POST /api/v1/admin/sync-dhyanam.
 """
 
 import uuid

@@ -22,7 +22,7 @@ from .sync import router as sync_router
 # Re-export sync functions for startup_sync.py
 from .sync import (
     sync_featured_verses,
-    sync_geeta_dhyanam,
+    sync_gita_dhyanam,
     sync_metadata,
     sync_principles,
     sync_verse_audio_metadata,
@@ -39,7 +39,7 @@ __all__ = [
     # Sync functions for startup
     "sync_featured_verses",
     "sync_metadata",
-    "sync_geeta_dhyanam",
+    "sync_gita_dhyanam",
     "sync_verse_audio_metadata",
     "sync_principles",
 ]
