@@ -35,7 +35,7 @@ async def get_book_metadata(
     Get book metadata for the cover page.
 
     Returns cover page content: title, tagline, intro text, and stats.
-    Currently only supports Bhagavad Geeta (book_key='bhagavad_geeta').
+    Currently only supports Bhagavad Gita (book_key='bhagavad_geeta').
 
     Returns:
         Book metadata for the cover page

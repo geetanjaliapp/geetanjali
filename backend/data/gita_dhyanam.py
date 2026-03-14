@@ -1,8 +1,8 @@
 """
-Geeta Dhyanam - Nine invocation verses traditionally recited before studying the Bhagavad Geeta.
+Gita Dhyanam - Nine invocation verses traditionally recited before studying the Bhagavad Gita.
 
 These nine shlokas are a complete set, not chapter-specific. They are traditionally
-recited as a single invocation before beginning study of the Geeta.
+recited as a single invocation before beginning study of the Gita.
 
 Content includes:
 - Sanskrit (Devanagari)
@@ -12,7 +12,7 @@ Content includes:
 - Theme/purpose of each verse
 
 Sources:
-- Geeta Mahatmya (Padma Purana)
+- Gita Mahatmya (Padma Purana)
 - Traditional Vedantic commentaries
 - Sanskrit texts from Gita Press, Gorakhpur
 
@@ -55,7 +55,7 @@ GITA_DHYANAM: list[GitaDhyanamVerse] = [
             "amba tvām anusandadhāmi bhagavadgīte bhavadveṣiṇīm ||1||"
         ),
         "english": (
-            "O Bhagavad Geeta, imparted to Arjuna by Lord Narayana Himself, "
+            "O Bhagavad Gita, imparted to Arjuna by Lord Narayana Himself, "
             "woven into the Mahabharata by sage Vyasa, showering the nectar of "
             "non-dual wisdom across eighteen chapters—O Divine Mother, destroyer "
             "of rebirth, I meditate upon you."
@@ -66,7 +66,7 @@ GITA_DHYANAM: list[GitaDhyanamVerse] = [
             "वाली है, अठारह अध्यायों वाली भगवती है—हे माता भगवद्गीते! मैं तुम्हारा ध्यान "
             "करता हूँ, जो संसार के बंधन को नष्ट करने वाली हो।"
         ),
-        "theme": "Invocation to Geeta as divine mother",
+        "theme": "Invocation to Gita as divine mother",
         "duration_ms": 18773,
         "audio_url": "/audio/mp3/dhyanam/DHYANAM_01.mp3",
     },
@@ -110,7 +110,7 @@ GITA_DHYANAM: list[GitaDhyanamVerse] = [
         "english": (
             "Salutations to Krishna, the wish-fulfilling tree for those who "
             "surrender to Him, who holds the cowherd's staff, displays the "
-            "gesture of wisdom, and milks the nectar of the Geeta."
+            "gesture of wisdom, and milks the nectar of the Gita."
         ),
         "hindi": (
             "शरणागतों के लिए पारिजात वृक्ष के समान, एक हाथ में गोपालक की छड़ी "
@@ -134,14 +134,14 @@ GITA_DHYANAM: list[GitaDhyanamVerse] = [
         "english": (
             "All the Upanishads are the cows; the milker is Krishna, the cowherd's "
             "son; Arjuna is the calf; the wise are the drinkers; and the milk is "
-            "the supreme nectar of the Geeta."
+            "the supreme nectar of the Gita."
         ),
         "hindi": (
             "समस्त उपनिषद गौएँ हैं, गोपालनन्दन श्रीकृष्ण दूध दोहने वाले हैं, अर्जुन "
             "बछड़ा है, बुद्धिमान साधक इस दूध के भोक्ता हैं, और यह महान गीतामृत ही "
             "वह दुग्ध है।"
         ),
-        "theme": "Geeta as milk of Upanishads (famous metaphor)",
+        "theme": "Gita as milk of Upanishads (famous metaphor)",
         "duration_ms": 8731,
         "audio_url": "/audio/mp3/dhyanam/DHYANAM_04.mp3",
     },
@@ -211,7 +211,7 @@ GITA_DHYANAM: list[GitaDhyanamVerse] = [
         ),
         "english": (
             "May the lotus of the Mahabharata, born from Vyasa's words, pure and "
-            "fragrant with the Geeta's essence, bloomed through discourses on Lord "
+            "fragrant with the Gita's essence, bloomed through discourses on Lord "
             "Hari, drunk daily by virtuous souls like bees—may it destroy the "
             "impurities of Kali Yuga."
         ),

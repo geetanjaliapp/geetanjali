@@ -10,7 +10,7 @@ System design and technical decisions for Geetanjali.
 
 ## Overview
 
-Geetanjali uses retrieval-augmented generation (RAG) to ground ethical guidance in Bhagavad Geeta scripture. Users submit ethical dilemmas, the system retrieves relevant verses, and an LLM generates structured recommendations with citations.
+Geetanjali uses retrieval-augmented generation (RAG) to ground ethical guidance in Bhagavad Gita scripture. Users submit ethical dilemmas, the system retrieves relevant verses, and an LLM generates structured recommendations with citations.
 
 ```
 User Query → Embedding → Vector Search → LLM Generation → Structured Output

@@ -72,7 +72,7 @@ This ethical dilemma involves balancing personal integrity with professional obl
 3. **Path of Balance**: Seek a middle ground that honors both duty and
    compassion. This requires wisdom and patience.
 
-The Bhagavad Geeta verse BG_2_47 teaches us about action without attachment.
+The Bhagavad Gita verse BG_2_47 teaches us about action without attachment.
 Consider also BG_3_35 regarding one's own dharma.
 
 What values are most important to you in this situation?
@@ -407,7 +407,7 @@ Both values are important, but in this case they point in different directions.
    Pro: Integrates multiple values.
    Con: May require difficult compromises.
 
-## Wisdom from the Geeta
+## Wisdom from the Gita
 
 The verse BG_2_47 reminds us to focus on action without attachment to outcomes.
 Similarly, BG_3_35 emphasizes following one's own dharma rather than another's.

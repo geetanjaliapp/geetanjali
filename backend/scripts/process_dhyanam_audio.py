@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Process Geeta Dhyanam audio files from Colab export.
+Process Gita Dhyanam audio files from Colab export.
 
 Extracts WAV files from zip, converts to MP3 (128kbps stereo),
 organizes files, and runs automated QA.
@@ -219,7 +219,7 @@ def process_zip(zip_path: Path, output_dir: Path, dry_run: bool = False):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Process Geeta Dhyanam audio files from Colab export"
+        description="Process Gita Dhyanam audio files from Colab export"
     )
     parser.add_argument(
         "zip_file",

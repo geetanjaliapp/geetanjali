@@ -228,7 +228,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
 app = FastAPI(
     title=settings.APP_NAME,
-    description="Ethical leadership guidance from the Bhagavad Geeta",
+    description="Ethical leadership guidance from the Bhagavad Gita",
     version=settings.APP_VERSION,
     debug=settings.DEBUG,
     lifespan=lifespan,

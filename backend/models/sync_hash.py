@@ -24,7 +24,7 @@ class SyncHash(Base):
         content_type: Unique identifier for the content type
             - "book_metadata": Book cover metadata
             - "chapter_metadata": Chapter intro metadata
-            - "dhyanam_verses": Geeta Dhyanam invocation verses
+            - "dhyanam_verses": Gita Dhyanam invocation verses
             - "featured_verses": Featured verse IDs list
             - "audio_metadata": Verse audio/TTS metadata
         content_hash: SHA256 hash of the source data (JSON serialized)

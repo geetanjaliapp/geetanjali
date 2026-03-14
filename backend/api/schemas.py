@@ -596,7 +596,7 @@ class ChapterMetadataResponse(BaseModel):
 
 
 class GitaDhyanamVerseResponse(BaseModel):
-    """Schema for a single Geeta Dhyanam (invocation) verse."""
+    """Schema for a single Gita Dhyanam (invocation) verse."""
 
     model_config = ConfigDict(from_attributes=True)
 

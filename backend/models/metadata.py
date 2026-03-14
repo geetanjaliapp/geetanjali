@@ -11,10 +11,10 @@ from models.base import Base, TimestampMixin
 
 class BookMetadata(Base, TimestampMixin):
     """
-    Book-level metadata for the Bhagavad Geeta.
+    Book-level metadata for the Bhagavad Gita.
 
     Stores the cover page content: title, tagline, intro text.
-    This table should have exactly one row for the Geeta.
+    This table should have exactly one row for the Gita.
     """
 
     __tablename__ = "book_metadata"

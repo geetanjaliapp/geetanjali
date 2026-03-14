@@ -1010,10 +1010,10 @@ POLICY_VIOLATION_RESPONSE = {
             "sources": [],
         },
         {
-            "title": "Explore the Bhagavad Geeta Directly",
+            "title": "Explore the Bhagavad Gita Directly",
             "description": (
                 "Browse our verse collection to find wisdom that resonates with "
-                "your situation. The Geeta addresses duty, action, detachment, "
+                "your situation. The Gita addresses duty, action, detachment, "
                 "and ethical living."
             ),
             "pros": ["Direct access to timeless wisdom", "Self-directed exploration"],
@@ -1104,7 +1104,7 @@ class ContentPolicyError(Exception):
             "• The ethical tension you're experiencing\n"
             "• The stakeholders affected by your decision\n"
             "• The values or principles in conflict\n\n"
-            "The Bhagavad Geeta's wisdom is most helpful when we approach it "
+            "The Bhagavad Gita's wisdom is most helpful when we approach it "
             "with sincere questions about how to live and act with integrity."
         )
 

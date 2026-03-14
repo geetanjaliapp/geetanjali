@@ -1,12 +1,12 @@
 ---
 layout: default
 title: Data Sources
-description: Bhagavad Geeta content sources, licensing, and data ingestion for Geetanjali.
+description: Bhagavad Gita content sources, licensing, and data ingestion for Geetanjali.
 ---
 
 # Data
 
-Bhagavad Geeta content sources, licensing, and ingestion.
+Bhagavad Gita content sources, licensing, and ingestion.
 
 ## Sources
 
@@ -23,7 +23,7 @@ Bhagavad Geeta content sources, licensing, and ingestion.
 - Used for: Enriching verse data with multiple perspectives
 
 ### Sanskrit Text
-The original Bhagavad Geeta verses are ancient texts (~5th century BCE to 2nd century CE), freely usable worldwide without copyright restrictions.
+The original Bhagavad Gita verses are ancient texts (~5th century BCE to 2nd century CE), freely usable worldwide without copyright restrictions.
 
 ## Data Structure
 

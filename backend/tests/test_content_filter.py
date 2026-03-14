@@ -115,7 +115,7 @@ class TestLLMRefusalDetection:
         """Helpful guidance should not be flagged."""
         response = """
         I'm happy to help you think through this ethical dilemma.
-        Consider the following perspectives from the Bhagavad Geeta...
+        Consider the following perspectives from the Bhagavad Gita...
         """
         is_refusal, match = detect_llm_refusal(response)
         assert is_refusal is False
@@ -194,7 +194,7 @@ class TestContentPolicyError:
 
         # Should contain guidance on proper use
         assert "ethical dilemma" in error.message.lower()
-        assert "Bhagavad Geeta" in error.message or "values" in error.message.lower()
+        assert "Bhagavad Gita" in error.message or "values" in error.message.lower()
 
     def test_error_preserves_violation_type(self):
         """Error should preserve the violation type."""
@@ -379,7 +379,7 @@ class TestDifferentiatedErrorMessages:
         assert "offensive" in error.message.lower()
 
     def test_explicit_content_has_geeta_guidance(self):
-        """Explicit content error should mention Bhagavad Geeta."""
+        """Explicit content error should mention Bhagavad Gita."""
         error = ContentPolicyError(ViolationType.EXPLICIT_SEXUAL)
         assert (
             "bhagavad geeta" in error.message.lower()

@@ -587,7 +587,7 @@ export default function Settings() {
             </h2>
           </div>
           <p className="text-sm text-[var(--text-tertiary)] mb-3">
-            What brings you to the Geeta?
+            What brings you to the Gita?
           </p>
           <GoalSelector />
 

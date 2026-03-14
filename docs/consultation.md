@@ -6,7 +6,7 @@ description: How users receive ethical guidance through the case analysis and fo
 
 # Consultation Journey
 
-How users receive personalized ethical guidance from the Bhagavad Geeta.
+How users receive personalized ethical guidance from the Bhagavad Gita.
 
 ## Overview
 

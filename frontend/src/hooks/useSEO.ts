@@ -13,9 +13,9 @@ interface SEOProps {
   noIndex?: boolean;
 }
 
-const DEFAULT_TITLE = "Geetanjali - Ethical Guidance from the Bhagavad Geeta";
+const DEFAULT_TITLE = "Geetanjali - Ethical Guidance from the Bhagavad Gita";
 const DEFAULT_DESCRIPTION =
-  "Ethical leadership guidance and wisdom from the Bhagavad Geeta for life's difficult decisions. Free consultations with timeless wisdom.";
+  "Ethical leadership guidance and wisdom from the Bhagavad Gita for life's difficult decisions. Free consultations with timeless wisdom.";
 const DEFAULT_IMAGE = `${SITE_URL}/og-image.png`;
 
 /**

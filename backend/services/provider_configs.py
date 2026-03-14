@@ -96,7 +96,7 @@ GEMINI_JSON_SCHEMA = {
 # Simplified versions for Ollama's resource constraints.
 # Auto-applied when LLM_PROVIDER=ollama (no config flag needed).
 
-OLLAMA_SIMPLIFIED_SYSTEM_PROMPT = """You are an ethical leadership consultant using Bhagavad Geeta wisdom.
+OLLAMA_SIMPLIFIED_SYSTEM_PROMPT = """You are an ethical leadership consultant using Bhagavad Gita wisdom.
 
 QUALITY RULES (apply before responding):
 - Be SPECIFIC to their situation, not generic advice

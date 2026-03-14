@@ -353,7 +353,7 @@ Click this link to set a new password:
 This link will expire in 1 hour. If you didn't request this, you can safely ignore this email.
 
 ---
-Geetanjali - Ethical Guidance from the Bhagavad Geeta
+Geetanjali - Ethical Guidance from the Bhagavad Gita
     """.strip()
 
     try:
@@ -412,7 +412,7 @@ def send_newsletter_verification_email(
         email_greeting("Hello", safe_name if safe_name else "there")
         + email_paragraph(
             "Thank you for subscribing to <strong>Daily Wisdom</strong> from Geetanjali! "
-            "Please confirm your email address to start receiving daily verses from the Bhagavad Geeta."
+            "Please confirm your email address to start receiving daily verses from the Bhagavad Gita."
         )
         + email_button("Confirm Subscription", verify_url)
         + email_paragraph(
@@ -432,7 +432,7 @@ def send_newsletter_verification_email(
 {greeting_text},
 
 Thank you for subscribing to Daily Wisdom from Geetanjali!
-Please confirm your email address to start receiving daily verses from the Bhagavad Geeta.
+Please confirm your email address to start receiving daily verses from the Bhagavad Gita.
 
 Click this link to confirm your subscription:
 {verify_url}
@@ -440,7 +440,7 @@ Click this link to confirm your subscription:
 This link will expire in 24 hours. If you didn't request this, you can safely ignore this email.
 
 ---
-Geetanjali - Ethical Guidance from the Bhagavad Geeta
+Geetanjali - Ethical Guidance from the Bhagavad Gita
     """.strip()
 
     try:
@@ -500,7 +500,7 @@ def send_newsletter_welcome_email(
     # Build "What to expect" section
     expectations_html = """
         <ul style="color: #57534e; line-height: 1.8; margin: 0; padding-left: 24px;">
-            <li>A carefully selected verse from the Geeta</li>
+            <li>A carefully selected verse from the Gita</li>
             <li>Sanskrit text with English translation</li>
             <li>Practical wisdom for modern life</li>
         </ul>
@@ -510,7 +510,7 @@ def send_newsletter_welcome_email(
     body_content = (
         email_greeting("Hello", safe_name if safe_name else "there")
         + email_paragraph(
-            "Your subscription is now confirmed! You'll receive a daily verse from the Bhagavad Geeta "
+            "Your subscription is now confirmed! You'll receive a daily verse from the Bhagavad Gita "
             "at your preferred time, personalized based on your learning goals."
         )
         + email_section("What to Expect", expectations_html)
@@ -531,11 +531,11 @@ def send_newsletter_welcome_email(
     text_body = f"""
 {greeting_text},
 
-Your subscription is now confirmed! You'll receive a daily verse from the Bhagavad Geeta
+Your subscription is now confirmed! You'll receive a daily verse from the Bhagavad Gita
 at your preferred time, personalized based on your learning goals.
 
 What to expect:
-- A carefully selected verse from the Geeta
+- A carefully selected verse from the Gita
 - Sanskrit text with English translation
 - Practical wisdom for modern life
 
@@ -545,7 +545,7 @@ Visit Geetanjali: {app_url}
 Manage Preferences: {preferences_url}
 Unsubscribe: {unsubscribe_url}
 
-Geetanjali - Ethical Guidance from the Bhagavad Geeta
+Geetanjali - Ethical Guidance from the Bhagavad Gita
     """.strip()
 
     try:
@@ -998,7 +998,7 @@ def send_account_deleted_email(email: str, name: str) -> bool:
         )
         + email_paragraph(
             "If you ever wish to return, you're always welcome to create a new account. "
-            "The wisdom of the Bhagavad Geeta will be here waiting for you.",
+            "The wisdom of the Bhagavad Gita will be here waiting for you.",
             muted=True,
         )
         + email_button("Return to Geetanjali", EMAIL_APP_URL)
@@ -1016,7 +1016,7 @@ Your Geetanjali account has been successfully deleted. We're sorry to see you go
 
 All your personal data has been removed from our systems. If you subscribed to our newsletter, that subscription remains separate and can be managed independently.
 
-If you ever wish to return, you're always welcome to create a new account. The wisdom of the Bhagavad Geeta will be here waiting for you.
+If you ever wish to return, you're always welcome to create a new account. The wisdom of the Bhagavad Gita will be here waiting for you.
 
 Visit Geetanjali: {EMAIL_APP_URL}
 

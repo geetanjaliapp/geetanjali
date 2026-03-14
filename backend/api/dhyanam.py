@@ -1,6 +1,6 @@
-"""Geeta Dhyanam API endpoints.
+"""Gita Dhyanam API endpoints.
 
-The 9 sacred invocation verses traditionally recited before studying the Bhagavad Geeta.
+The 9 sacred invocation verses traditionally recited before studying the Bhagavad Gita.
 """
 
 import logging
@@ -27,13 +27,13 @@ async def get_all_dhyanam_verses(
     db: Session = Depends(get_db),
 ):
     """
-    Get all 9 Geeta Dhyanam (invocation) verses.
+    Get all 9 Gita Dhyanam (invocation) verses.
 
-    These traditional verses are recited before studying the Bhagavad Geeta.
+    These traditional verses are recited before studying the Bhagavad Gita.
     Returns all 9 verses with Sanskrit, IAST, English, and Hindi translations.
 
     Returns:
-        List of 9 Geeta Dhyanam verses ordered by verse number
+        List of 9 Gita Dhyanam verses ordered by verse number
     """
     # Check cache first
     cache_key = dhyanam_all_key()
@@ -49,7 +49,7 @@ async def get_all_dhyanam_verses(
     if not verses:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Geeta Dhyanam verses not available.",
+            detail="Gita Dhyanam verses not available.",
         )
 
     # Convert to response format
@@ -70,7 +70,7 @@ async def get_dhyanam_count(
     db: Session = Depends(get_db),
 ):
     """
-    Get count of Geeta Dhyanam verses.
+    Get count of Gita Dhyanam verses.
 
     Returns:
         Count of dhyanam verses (should be 9)
@@ -99,7 +99,7 @@ async def get_dhyanam_verse(
     db: Session = Depends(get_db),
 ):
     """
-    Get a single Geeta Dhyanam verse by number.
+    Get a single Gita Dhyanam verse by number.
 
     Args:
         verse_number: Verse number (1-9)

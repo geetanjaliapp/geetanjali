@@ -34,7 +34,7 @@ interface UseShareReturn {
  *
  * const handleShare = async () => {
  *   const success = await share({
- *     title: 'Bhagavad Geeta 2.47',
+ *     title: 'Bhagavad Gita 2.47',
  *     text: 'You have the right to work, but never to the fruit of work.',
  *     url: window.location.href
  *   })

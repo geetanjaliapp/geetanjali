@@ -4,7 +4,7 @@ Default verse audio metadata values.
 Defaults are applied when a verse does not have explicit metadata.
 Hierarchy: Explicit > Chapter defaults > Speaker defaults > Global defaults
 
-This file establishes the baseline for TTS generation across the Geeta.
+This file establishes the baseline for TTS generation across the Gita.
 """
 
 from typing import TypedDict

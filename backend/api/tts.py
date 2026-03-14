@@ -94,11 +94,11 @@ def clean_text_for_speech(text: str) -> str:
     # HTML tags: <tag> or </tag> or <tag attr="val">
     text = re.sub(r"<[^>]+>", "", text)
 
-    # Verse references: BG_2_47, BG 2.47, (BG 6.26) → "Bhagavad Geeta, chapter 2, verse 47"
+    # Verse references: BG_2_47, BG 2.47, (BG 6.26) → "Bhagavad Gita, chapter 2, verse 47"
     # Handles: underscore, space, period separators; optional parentheses
     text = re.sub(
         r"\(?BG[_\s.]?(\d+)[_\s.](\d+)\)?",
-        r"Bhagavad Geeta, chapter \1, verse \2",
+        r"Bhagavad Gita, chapter \1, verse \2",
         text,
     )
 

@@ -46,11 +46,11 @@ try:
 except ImportError:
     USING_BACKEND = False
     # Inline fallback definitions
-    SYSTEM_PROMPT = """You are an AI consulting aide using Bhagavad Geeta principles for ethical leadership guidance.
+    SYSTEM_PROMPT = """You are an AI consulting aide using Bhagavad Gita principles for ethical leadership guidance.
 Output valid JSON with: executive_summary, options (3), recommended_action, reflection_prompts, sources, confidence, scholar_flag."""
 
     # OPTIMIZED: Reduced from 650 to ~350 chars for faster inference
-    OLLAMA_SYSTEM_PROMPT = """You are an ethical leadership consultant using Bhagavad Geeta wisdom.
+    OLLAMA_SYSTEM_PROMPT = """You are an ethical leadership consultant using Bhagavad Gita wisdom.
 
 Output JSON with these fields:
 - executive_summary: 1-2 sentence summary
@@ -68,12 +68,12 @@ Use verse IDs like BG_2_47. Output ONLY valid JSON."""
             f"# Case\nTitle: {case_data.get('title', 'N/A')}\n",
             f"Role: {case_data.get('role', 'N/A')}\n",
             f"Description: {case_data.get('description', 'N/A')}\n",
-            "\n# Geeta Verses\n"
+            "\n# Gita Verses\n"
         ]
         for i, v in enumerate(retrieved_verses, 1):
             m = v.get('metadata', {})
             parts.append(f"{i}. {m.get('canonical_id', '?')}: {m.get('paraphrase', 'N/A')}\n")
-        parts.append("\n# Task\nProvide JSON consulting brief using Geeta principles.\n")
+        parts.append("\n# Task\nProvide JSON consulting brief using Gita principles.\n")
         return "".join(parts)
 
     build_ollama_prompt = build_user_prompt

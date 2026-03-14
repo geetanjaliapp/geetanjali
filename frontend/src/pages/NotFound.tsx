@@ -6,7 +6,7 @@ import { Navbar } from "../components";
 import { LogoIcon } from "../components/icons";
 import { useSEO } from "../hooks";
 
-// Top 5 most famous Geeta verses - embedded statically to avoid API calls
+// Top 5 most famous Gita verses - embedded statically to avoid API calls
 // Source: Correlated from multiple sources (shlokam.org, templepurohit.com, holy-bhagavad-gita.org)
 const FAMOUS_VERSES = [
   {

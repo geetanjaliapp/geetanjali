@@ -24,7 +24,7 @@ from models.base import Base, TimestampMixin
 
 
 class VerseAudioMetadata(Base, TimestampMixin):
-    """Audio generation metadata for a Bhagavad Geeta verse."""
+    """Audio generation metadata for a Bhagavad Gita verse."""
 
     __tablename__ = "verse_audio_metadata"
 

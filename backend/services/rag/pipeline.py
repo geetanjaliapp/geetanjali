@@ -716,7 +716,7 @@ class RAGPipeline:
                 },
                 {
                     "title": "Study the Verses Directly",
-                    "description": "Explore the Bhagavad Geeta verses related to your situation for timeless wisdom.",
+                    "description": "Explore the Bhagavad Gita verses related to your situation for timeless wisdom.",
                     "pros": ["Direct access to wisdom", "Personal interpretation"],
                     "cons": ["Requires contemplation", "May need guidance"],
                     "sources": [],

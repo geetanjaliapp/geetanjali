@@ -205,7 +205,7 @@ export default function NewsletterPreferences() {
                 {/* Goals */}
                 <div>
                   <label className="block text-sm font-medium text-[var(--text-secondary)] mb-3">
-                    What brings you to the Geeta?
+                    What brings you to the Gita?
                   </label>
                   <GoalSelector />
                 </div>

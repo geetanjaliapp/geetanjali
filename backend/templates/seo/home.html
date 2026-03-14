@@ -1,18 +1,18 @@
 {% extends "seo/base.html" %}
 
-{% block title %}{{ content.seo.title | default('Bhagavad Geeta Guidance') }}{% endblock %}
+{% block title %}{{ content.seo.title | default('Bhagavad Gita Guidance') }}{% endblock %}
 
-{% block description %}{{ content.seo.description | default('Ethical guidance grounded in the timeless teachings of the Bhagavad Geeta.') }}{% endblock %}
+{% block description %}{{ content.seo.description | default('Ethical guidance grounded in the timeless teachings of the Bhagavad Gita.') }}{% endblock %}
 
 {% block canonical %}/{% endblock %}
 
 {% block og_type %}website{% endblock %}
-{% block og_title %}{{ meta.seo.defaultTitle | default('Geetanjali - Bhagavad Geeta Wisdom') }}{% endblock %}
-{% block og_description %}{{ content.seo.description | default('Ethical guidance grounded in the timeless teachings of the Bhagavad Geeta.') }}{% endblock %}
+{% block og_title %}{{ meta.seo.defaultTitle | default('Geetanjali - Bhagavad Gita Wisdom') }}{% endblock %}
+{% block og_description %}{{ content.seo.description | default('Ethical guidance grounded in the timeless teachings of the Bhagavad Gita.') }}{% endblock %}
 {% block og_url %}/{% endblock %}
 
-{% block twitter_title %}{{ meta.seo.defaultTitle | default('Geetanjali - Bhagavad Geeta Wisdom') }}{% endblock %}
-{% block twitter_description %}{{ content.seo.description | default('Ethical guidance grounded in the timeless teachings of the Bhagavad Geeta.') }}{% endblock %}
+{% block twitter_title %}{{ meta.seo.defaultTitle | default('Geetanjali - Bhagavad Gita Wisdom') }}{% endblock %}
+{% block twitter_description %}{{ content.seo.description | default('Ethical guidance grounded in the timeless teachings of the Bhagavad Gita.') }}{% endblock %}
 
 {% block jsonld %}
 <script type="application/ld+json">
@@ -20,7 +20,7 @@
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "{{ meta.site.name | default('Geetanjali') }}",
-    "description": "{{ content.seo.description | default('Ethical guidance grounded in Bhagavad Geeta wisdom') }}",
+    "description": "{{ content.seo.description | default('Ethical guidance grounded in Bhagavad Gita wisdom') }}",
     "url": "{{ meta.site.url | default('https://geetanjaliapp.com') }}",
     "potentialAction": {
         "@type": "SearchAction",
@@ -41,7 +41,7 @@
     <!-- Hero Section -->
     <header class="hero">
         <h1>{{ content.hero.headline | default('Wisdom for Life\'s') }} <span class="accent">{{ content.hero.headlineAccent | default('Difficult Decisions') }}</span></h1>
-        <p class="subtitle">{{ content.hero.subtitle | default('Ethical guidance grounded in the timeless teachings of the Bhagavad Geeta') }}</p>
+        <p class="subtitle">{{ content.hero.subtitle | default('Ethical guidance grounded in the timeless teachings of the Bhagavad Gita') }}</p>
         <p class="guest-prompt">{{ content.hero.guestPrompt | default('Try it free — no signup required') }}</p>
     </header>
 
@@ -85,7 +85,7 @@
 
     <!-- Explore Section -->
     <section aria-labelledby="explore">
-        <h2 id="explore">Explore the Bhagavad Geeta</h2>
+        <h2 id="explore">Explore the Bhagavad Gita</h2>
         <ul>
             <li><a href="/verses/">Browse All 700 Verses</a></li>
             {% for chapter in chapters[:6] %}

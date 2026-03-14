@@ -175,9 +175,9 @@ export function AudioPlayerProvider({ children }: AudioPlayerProviderProps) {
     const verse = parseInt(parts[2], 10);
 
     navigator.mediaSession.metadata = new MediaMetadata({
-      title: `Bhagavad Geeta ${chapter}.${verse}`,
+      title: `Bhagavad Gita ${chapter}.${verse}`,
       artist: "Geetanjali",
-      album: "Bhagavad Geeta - Sanskrit Recitation",
+      album: "Bhagavad Gita - Sanskrit Recitation",
       artwork: [
         { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
         { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },

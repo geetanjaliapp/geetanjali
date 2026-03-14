@@ -184,7 +184,7 @@ async def check_daily_limit(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
             detail="🙏 Daily reflection pause\n\n"
                    "You've engaged in many thoughtful consultations today.\n"
-                   "The Geeta teaches that wisdom comes from reflection, "
+                   "The Gita teaches that wisdom comes from reflection, "
                    "not constant inquiry.\n"
                    "Return tomorrow to continue your journey.",
         )

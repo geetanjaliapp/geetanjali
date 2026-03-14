@@ -1,4 +1,4 @@
-"""Verse, Commentary, and Translation models for Bhagavad Geeta scripture."""
+"""Verse, Commentary, and Translation models for Bhagavad Gita scripture."""
 
 import uuid
 from typing import Any
@@ -10,7 +10,7 @@ from models.base import Base, TimestampMixin
 
 
 class Verse(Base, TimestampMixin):
-    """Bhagavad Geeta verse model."""
+    """Bhagavad Gita verse model."""
 
     __tablename__ = "verses"
 

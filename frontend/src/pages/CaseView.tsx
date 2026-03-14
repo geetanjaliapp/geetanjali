@@ -57,7 +57,7 @@ export default function CaseView() {
   useSEO({
     title: caseData?.title ? caseData.title.slice(0, 50) : "Consultation",
     description:
-      "Your private ethical consultation with guidance from the Bhagavad Geeta.",
+      "Your private ethical consultation with guidance from the Bhagavad Gita.",
     canonical: id ? `/cases/${id}` : "/consultations",
     noIndex: true, // Private consultations shouldn't be indexed
   });
@@ -376,7 +376,7 @@ export default function CaseView() {
     // Add policy violation notice if applicable
     if (isPolicyViolation) {
       markdown += `
-> **Note:** This consultation could not be processed as submitted. The response below contains suggestions for rephrasing your question to receive guidance from the Bhagavad Geeta.
+> **Note:** This consultation could not be processed as submitted. The response below contains suggestions for rephrasing your question to receive guidance from the Bhagavad Gita.
 
 `;
     }
@@ -789,7 +789,7 @@ ${messages
                               <p className="text-sm text-[var(--status-warning-text)] mb-3">
                                 <span className="font-medium">Draft</span> —
                                 Your question is saved. Click below to receive
-                                wisdom from the Bhagavad Geeta.
+                                wisdom from the Bhagavad Gita.
                               </p>
                               <button
                                 onClick={handleRetry}
@@ -873,7 +873,7 @@ ${messages
                                 : "text-[var(--interactive-ghost-text)]"
                             }`}
                           >
-                            {isFirst ? "Wisdom from the Geeta" : "Guidance"}
+                            {isFirst ? "Wisdom from the Gita" : "Guidance"}
                           </span>
                           <SpeakButton
                             text={exchange.assistant.content}

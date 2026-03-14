@@ -93,7 +93,7 @@ class VectorStore:
         # Get or create collection with embedding function
         self.collection = self.client.get_or_create_collection(
             name=settings.CHROMA_COLLECTION_NAME,
-            metadata={"description": "Bhagavad Geeta verses for RAG retrieval"},
+            metadata={"description": "Bhagavad Gita verses for RAG retrieval"},
             embedding_function=self.embedding_function,
         )
 
@@ -307,7 +307,7 @@ class VectorStore:
         self.client.delete_collection(settings.CHROMA_COLLECTION_NAME)
         self.collection = self.client.get_or_create_collection(
             name=settings.CHROMA_COLLECTION_NAME,
-            metadata={"description": "Bhagavad Geeta verses for RAG retrieval"},
+            metadata={"description": "Bhagavad Gita verses for RAG retrieval"},
             embedding_function=self.embedding_function,
         )
         logger.warning("Vector store reset - all verses deleted")

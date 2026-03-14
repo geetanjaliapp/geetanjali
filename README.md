@@ -5,7 +5,7 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![Node 20+](https://img.shields.io/badge/node-20+-green.svg)](https://nodejs.org/)
 
-Ethical leadership guidance grounded in Bhagavad Geeta wisdom.
+Ethical leadership guidance grounded in Bhagavad Gita wisdom.
 
 **[Try it live](https://geetanjaliapp.com)** | **[Documentation](https://docs.geetanjaliapp.com)**
 
@@ -15,7 +15,7 @@ Ethical leadership guidance grounded in Bhagavad Geeta wisdom.
 
 Leaders face ethical dilemmas without clear answers. Do you lay off staff to save the company? Confront a colleague's misconduct? Balance profit with purpose?
 
-The Bhagavad Geeta has guided ethical decision-making for millennia. Geetanjali makes this wisdom accessible through AI-powered consultation:
+The Bhagavad Gita has guided ethical decision-making for millennia. Geetanjali makes this wisdom accessible through AI-powered consultation:
 
 - **Structured analysis** of your ethical dilemma
 - **Multiple options** with honest tradeoffs
@@ -169,7 +169,7 @@ Full API documentation at `/docs` when running.
 - [Security](docs/security.md) - Container hardening, secrets management
 - [Design](docs/design.md) - Frontend design language
 - [Content Moderation](docs/content-moderation.md) - Abuse detection
-- [Data Sources](docs/data.md) - Geeta content and licensing
+- [Data Sources](docs/data.md) - Gita content and licensing
 
 ## License
 
@@ -177,4 +177,4 @@ MIT
 
 ## Acknowledgments
 
-Built with reverence for the Bhagavad Geeta. The Sanskrit texts and translations used are in the public domain. This project aims to make ancient wisdom accessible while respecting its sacred nature.
+Built with reverence for the Bhagavad Gita. The Sanskrit texts and translations used are in the public domain. This project aims to make ancient wisdom accessible while respecting its sacred nature.

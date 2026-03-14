@@ -18,9 +18,9 @@ import { prefetchVerse } from "../lib/versePrefetch";
 import type { Verse } from "../types";
 
 interface StickyBottomNavProps {
-  /** Previous verse data, null if at start of Geeta */
+  /** Previous verse data, null if at start of Gita */
   prevVerse: Verse | null;
-  /** Next verse data, null if at end of Geeta */
+  /** Next verse data, null if at end of Gita */
   nextVerse: Verse | null;
   /** Current chapter number (for display when no adjacent verse) */
   currentChapter: number;

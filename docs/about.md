@@ -10,7 +10,7 @@ Why we built this and how we think about it.
 
 ## Vision
 
-Leaders face ethical dilemmas with no clear answers. Traditional advice is generic or disconnected from enduring wisdom. Geetanjali bridges this gap by grounding AI-powered guidance in the Bhagavad Geeta.
+Leaders face ethical dilemmas with no clear answers. Traditional advice is generic or disconnected from enduring wisdom. Geetanjali bridges this gap by grounding AI-powered guidance in the Bhagavad Gita.
 
 **What we aim to be:**
 - A trusted resource for ethical decision-making
@@ -39,7 +39,7 @@ Leaders face ethical dilemmas with no clear answers. Traditional advice is gener
 ### General
 
 **Who is this for?**
-Anyone facing ethical decisions—managers, founders, professionals, students. You don't need prior knowledge of the Bhagavad Geeta.
+Anyone facing ethical decisions—managers, founders, professionals, students. You don't need prior knowledge of the Bhagavad Gita.
 
 **Is this religious instruction?**
 No. We treat the Geeta as philosophical literature offering ethical frameworks. The focus is practical wisdom, not doctrine.

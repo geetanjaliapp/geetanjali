@@ -1,5 +1,5 @@
 """
-Book and Chapter metadata for the Bhagavad Geeta.
+Book and Chapter metadata for the Bhagavad Gita.
 
 This file contains curated content for the Reading Mode experience:
 - Book intro (cover page)
@@ -56,7 +56,7 @@ class ChapterMetadata(TypedDict):
     dhyana_shloka_sanskrit: NotRequired[str]  # Devanagari text
     dhyana_shloka_iast: NotRequired[str]  # IAST transliteration
     dhyana_shloka_meaning: NotRequired[str]  # English meaning
-    dhyana_shloka_source: NotRequired[str]  # "Geeta Dhyanam" / "Traditional"
+    dhyana_shloka_source: NotRequired[str]  # "Gita Dhyanam" / "Traditional"
 
     # Optional: Audio generation tracking
     audio_intro_path: NotRequired[str | None]  # Path to generated intro audio
@@ -121,7 +121,7 @@ CHAPTER_METADATA: list[ChapterMetadata] = cast(
             "summary": (
                 "Krishna begins his teaching by distinguishing the eternal Self from the "
                 "perishable body. He introduces the foundational concept of acting without "
-                "attachment to results—the heart of the Geeta's practical philosophy. "
+                "attachment to results—the heart of the Gita's practical philosophy. "
                 "This chapter contains many of the most celebrated verses."
             ),
             "verse_count": 72,

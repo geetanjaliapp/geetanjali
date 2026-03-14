@@ -353,10 +353,10 @@ def trigger_sync_dhyanam(
     db: Session = Depends(get_db), _: bool = Depends(verify_admin_api_key)
 ):
     """
-    Sync Geeta Dhyanam invocation verses from curated content to database.
+    Sync Gita Dhyanam invocation verses from curated content to database.
 
     This populates/updates the dhyanam_verses table with the 9 sacred
-    verses traditionally recited before studying the Bhagavad Geeta.
+    verses traditionally recited before studying the Bhagavad Gita.
 
     Returns:
         Sync statistics

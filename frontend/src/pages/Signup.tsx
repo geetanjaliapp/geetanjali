@@ -9,7 +9,7 @@ export default function Signup() {
   useSEO({
     title: "Sign Up",
     description:
-      "Create a Geetanjali account to save your ethical consultations and access wisdom from the Bhagavad Geeta.",
+      "Create a Geetanjali account to save your ethical consultations and access wisdom from the Bhagavad Gita.",
     canonical: "/signup",
     noIndex: true, // Auth pages shouldn't be indexed
   });

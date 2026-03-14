@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Export Geeta Dhyanam metadata to JSON for TTS generation in Colab.
+Export Gita Dhyanam metadata to JSON for TTS generation in Colab.
 
 Usage (run from project root via Docker):
     # Export to stdout
@@ -10,7 +10,7 @@ Usage (run from project root via Docker):
     docker compose exec backend python /app/scripts/export_dhyanam_metadata.py --pretty > dhyanam_metadata.json
 
 Output includes:
-    - verses: 9 Geeta Dhyanam verses with Sanskrit text and TTS descriptions
+    - verses: 9 Gita Dhyanam verses with Sanskrit text and TTS descriptions
     - export_info: Verse count and metadata for Colab
 
 Workflow:
@@ -40,8 +40,8 @@ from data.verse_audio_metadata.tts_description_builder import (
 # =============================================================================
 
 THEME_DESCRIPTIONS = {
-    # Verse 1: Invocation to Geeta as divine mother
-    "Invocation to Geeta as divine mother": (
+    # Verse 1: Invocation to Gita as divine mother
+    "Invocation to Gita as divine mother": (
         "Aryan speaks in a slow, deeply reverential tone with measured pauses. "
         "Low pitch, meditative pacing with devotional warmth. "
         "Very clear audio with no background noise."
@@ -58,8 +58,8 @@ THEME_DESCRIPTIONS = {
         "Slow, tender pacing with reverent undertone. "
         "Very clear audio with no background noise."
     ),
-    # Verse 4: Geeta as milk of Upanishads (famous metaphor)
-    "Geeta as milk of Upanishads (famous metaphor)": (
+    # Verse 4: Gita as milk of Upanishads (famous metaphor)
+    "Gita as milk of Upanishads (famous metaphor)": (
         "Aryan speaks with contemplative, teaching tone at measured pace. "
         "Clear, deliberate delivery with poetic resonance. "
         "Very clear audio with no background noise."
@@ -107,7 +107,7 @@ def get_tts_description(theme: str) -> str:
 
 
 def export_dhyanam() -> dict:
-    """Export Geeta Dhyanam metadata for TTS generation."""
+    """Export Gita Dhyanam metadata for TTS generation."""
     dhyanam_verses = get_gita_dhyanam()
 
     verses_data = {}
@@ -140,7 +140,7 @@ def export_dhyanam() -> dict:
         "export_info": {
             "type": "gita_dhyanam",
             "verse_count": len(verse_metadata),
-            "description": "9 sacred invocation verses recited before Geeta study",
+            "description": "9 sacred invocation verses recited before Gita study",
             "voice": "Aryan (Indic Parler-TTS)",
             "output_dir": "audio/dhyanam",
         },
@@ -149,7 +149,7 @@ def export_dhyanam() -> dict:
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Export Geeta Dhyanam metadata for TTS generation"
+        description="Export Gita Dhyanam metadata for TTS generation"
     )
     parser.add_argument("--pretty", action="store_true", help="Pretty-print JSON")
     args = parser.parse_args()

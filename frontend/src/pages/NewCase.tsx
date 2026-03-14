@@ -84,7 +84,7 @@ export default function NewCase() {
   useSEO({
     title: "Ask a Question",
     description:
-      "Seek ethical guidance grounded in the Bhagavad Geeta. Describe your situation and receive wisdom for difficult decisions.",
+      "Seek ethical guidance grounded in the Bhagavad Gita. Describe your situation and receive wisdom for difficult decisions.",
     canonical: "/cases/new",
   });
   const navigate = useNavigate();
@@ -294,7 +294,7 @@ export default function NewCase() {
               Seek Guidance
             </h1>
             <p className="text-base sm:text-lg text-[var(--text-tertiary)] mb-4">
-              Describe your situation and receive wisdom from the Bhagavad Geeta
+              Describe your situation and receive wisdom from the Bhagavad Gita
             </p>
             <InspirationVerse />
           </div>
@@ -494,7 +494,7 @@ export default function NewCase() {
 
           {/* Helper Text */}
           <p className="text-center text-xs sm:text-sm text-[var(--text-muted)] mt-4 sm:mt-6">
-            Your question will be analyzed using wisdom from the Bhagavad Geeta.
+            Your question will be analyzed using wisdom from the Bhagavad Gita.
             <br className="hidden sm:inline" />
             <span className="text-[var(--text-muted)]">
               {" "}

@@ -1,7 +1,7 @@
 """Pass 0: Acceptance validation for multi-pass consultation pipeline.
 
 This module implements intelligent dilemma assessment to determine if a case
-is suitable for meaningful Bhagavad Geeta-grounded consultation.
+is suitable for meaningful Bhagavad Gita-grounded consultation.
 
 Two-stage approach:
 - Stage 1: Quick heuristic checks (sub-100ms)
@@ -289,7 +289,7 @@ def run_stage1_heuristics(text: str) -> AcceptanceResult:
 # Stage 2: LLM Meta-Assessment
 # ============================================================================
 
-STAGE2_SYSTEM_PROMPT = """You are an ethical consultant assessing if a case involves ethical dimensions that could benefit from Bhagavad Geeta wisdom.
+STAGE2_SYSTEM_PROMPT = """You are an ethical consultant assessing if a case involves ethical dimensions that could benefit from Bhagavad Gita wisdom.
 
 IMPORTANT: Format and content filters have already run. Your ONLY job is ethical assessment.
 
@@ -341,7 +341,7 @@ async def run_stage2_llm_assessment(
     """Run Stage 2 LLM meta-assessment.
 
     Invokes LLM to assess if the case is a genuine ethical dilemma
-    suitable for Geeta-grounded consultation.
+    suitable for Gita-grounded consultation.
 
     Args:
         text: Input text to assess

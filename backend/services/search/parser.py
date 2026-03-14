@@ -89,7 +89,7 @@ class QueryParser:
             if match:
                 chapter = int(match.group(1))
                 verse = int(match.group(2))
-                # Validate chapter is in valid Geeta range (1-18)
+                # Validate chapter is in valid Gita range (1-18)
                 if 1 <= chapter <= 18:
                     return (chapter, verse)
 

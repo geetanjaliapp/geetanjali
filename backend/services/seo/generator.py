@@ -390,7 +390,7 @@ class SeoGeneratorService:
             skipped += daily_stats["skipped"]
             errors += daily_stats["errors"]
 
-            # Generate Geeta Dhyanam page (9 invocation verses)
+            # Generate Gita Dhyanam page (9 invocation verses)
             dhyanam_stats = self._generate_dhyanam_page(force)
             generated += dhyanam_stats["generated"]
             skipped += dhyanam_stats["skipped"]
@@ -744,7 +744,7 @@ class SeoGeneratorService:
                 "tagline": "Ancient Wisdom, Modern Interface",
             },
             "seo": {
-                "defaultTitle": "Geetanjali - Bhagavad Geeta Wisdom",
+                "defaultTitle": "Geetanjali - Bhagavad Gita Wisdom",
             },
         }
 
@@ -768,7 +768,7 @@ class SeoGeneratorService:
 
             content = {
                 "seo": {
-                    "title": "Bhagavad Geeta Guidance | Geetanjali",
+                    "title": "Bhagavad Gita Guidance | Geetanjali",
                     "description": BOOK_METADATA["intro_text"],
                 },
                 "hero": {
@@ -789,7 +789,7 @@ class SeoGeneratorService:
                     },
                     {
                         "title": "700 Verses",
-                        "description": "Explore the complete Bhagavad Geeta with translations.",
+                        "description": "Explore the complete Bhagavad Gita with translations.",
                     },
                     {
                         "title": "Audio Recitations",
@@ -809,7 +809,7 @@ class SeoGeneratorService:
                 "seo": {
                     "title": "About Geetanjali",
                     "description": (
-                        "Geetanjali brings ancient wisdom from the Bhagavad Geeta "
+                        "Geetanjali brings ancient wisdom from the Bhagavad Gita "
                         "to modern ethical decisions through AI-powered guidance."
                     ),
                 },
@@ -823,12 +823,12 @@ class SeoGeneratorService:
                         "You should never engage in action for the sake of reward."
                     ),
                     "sanskrit": "कर्मण्येवाधिकारस्ते मा फलेषु कदाचन",
-                    "citation": "Bhagavad Geeta 2.47",
+                    "citation": "Bhagavad Gita 2.47",
                 },
                 "story": [
                     (
                         "Geetanjali was born from a simple observation: the timeless "
-                        "teachings of the Bhagavad Geeta remain profoundly relevant to "
+                        "teachings of the Bhagavad Gita remain profoundly relevant to "
                         "modern challenges in ethics, leadership, and personal growth."
                     ),
                     (

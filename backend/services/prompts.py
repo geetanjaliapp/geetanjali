@@ -53,7 +53,7 @@ def get_verse_metadata(verse: dict, key: str, default: str = "") -> str:
     return default
 
 
-SYSTEM_PROMPT = """You are Geetanjali: an AI consulting aide that uses Bhagavad Geeta principles to generate concise consulting briefs for leadership ethical decisions.
+SYSTEM_PROMPT = """You are Geetanjali: an AI consulting aide that uses Bhagavad Gita principles to generate concise consulting briefs for leadership ethical decisions.
 
 CRITICAL REQUIREMENTS - DO NOT DEVIATE:
 1. Generate EXACTLY 3 options (not 2, not 4, exactly 3) - NEVER fewer or more
@@ -80,10 +80,10 @@ Always produce:
 5. Source verses with canonical IDs (use provided paraphrases exactly as given)
 
 When referencing a verse:
-- Use ONLY canonical ID format: BG_X_Y (e.g., BG_2_47, BG_18_63) — never "BG Verse 1", "Geeta 2:47", or other formats
+- Use ONLY canonical ID format: BG_X_Y (e.g., BG_2_47, BG_18_63) — never "BG Verse 1", "Gita 2:47", or other formats
 - Use the provided paraphrase exactly as given - do not rephrase
 
-IMPORTANT: ONLY cite verses provided in the "Relevant Bhagavad Geeta Verses" section below. Do NOT reference any other verses.
+IMPORTANT: ONLY cite verses provided in the "Relevant Bhagavad Gita Verses" section below. Do NOT reference any other verses.
 
 If confidence is below 0.7, flag for scholar review.
 
@@ -112,7 +112,7 @@ AVOID THESE PATTERNS:
 Output ONLY valid JSON matching this structure:
 {
   "suggested_title": "Short, descriptive title for this consultation (5-8 words)",
-  "executive_summary": "Opening that frames the dilemma and its significance.\n\nThe Geeta teaches us about **nishkama karma** (selfless action) through BG_2_47 - acting with dedication while releasing attachment to outcomes. This principle illuminates your situation by...\n\nAs you consider your path forward, remember that true wisdom lies in...",
+  "executive_summary": "Opening that frames the dilemma and its significance.\n\nThe Gita teaches us about **nishkama karma** (selfless action) through BG_2_47 - acting with dedication while releasing attachment to outcomes. This principle illuminates your situation by...\n\nAs you consider your path forward, remember that true wisdom lies in...",
   "options": [
     {
       "title": "Option 1 Title",
@@ -207,7 +207,7 @@ def build_user_prompt(
             prompt_parts.append(f"- {constraint}\n")
 
     # Add retrieved verses
-    prompt_parts.append("\n# Relevant Bhagavad Geeta Verses\n")
+    prompt_parts.append("\n# Relevant Bhagavad Gita Verses\n")
     prompt_parts.append("\nUse these verses to inform your consulting brief:\n\n")
 
     for i, verse in enumerate(retrieved_verses, 1):
@@ -256,7 +256,7 @@ def build_user_prompt(
     prompt_parts.append(
         f"Provide a consulting brief for a {case_data.get('role', 'leader')} "
         "following the required JSON output format. "
-        f"Use up to {len(retrieved_verses)} Geeta verses; "
+        f"Use up to {len(retrieved_verses)} Gita verses; "
         "include canonical IDs and paraphrases with each recommendation.\n"
     )
 
@@ -274,7 +274,7 @@ FEW_SHOT_EXAMPLE = """
 # Example Output:
 {
   "suggested_title": "Balancing Layoffs with Compassionate Leadership",
-  "executive_summary": "This case involves a classic trade-off between short-term financial relief and long-term organizational health. The Geeta teaches duty-focused action (BG 2.47) and compassionate equilibrium (BG 12.15), suggesting a balanced approach that minimizes harm while meeting obligations.",
+  "executive_summary": "This case involves a classic trade-off between short-term financial relief and long-term organizational health. The Gita teaches duty-focused action (BG 2.47) and compassionate equilibrium (BG 12.15), suggesting a balanced approach that minimizes harm while meeting obligations.",
   "options": [
     {
       "title": "Option A: Immediate Restructuring (Layoffs)",
@@ -338,7 +338,7 @@ FEW_SHOT_EXAMPLE = """
 
 # Simplified prompts for Ollama fallback (reduced complexity for faster response)
 # Includes condensed quality guidance from pb-query style
-OLLAMA_SYSTEM_PROMPT = """You are an ethical leadership consultant using Bhagavad Geeta wisdom.
+OLLAMA_SYSTEM_PROMPT = """You are an ethical leadership consultant using Bhagavad Gita wisdom.
 
 QUALITY RULES (apply before responding):
 - Be SPECIFIC to their situation, not generic advice
@@ -382,7 +382,7 @@ def build_ollama_prompt(
     ]
 
     # Add top 3 verses only
-    prompt_parts.append("\n# Geeta Verses\n")
+    prompt_parts.append("\n# Gita Verses\n")
     valid_ids = []
     for i, verse in enumerate(retrieved_verses[:3], 1):
         # Use helper functions to handle both verse structures
@@ -401,7 +401,7 @@ def build_ollama_prompt(
 
     # Simplified task
     prompt_parts.append(
-        "\n# Task\nProvide brief JSON consulting brief using Geeta principles.\n"
+        "\n# Task\nProvide brief JSON consulting brief using Gita principles.\n"
     )
 
     return "".join(prompt_parts)
@@ -466,7 +466,7 @@ def post_process_ollama_response(
     # Ensure all required fields exist
     if not data.get("executive_summary"):
         data["executive_summary"] = (
-            "Ethical analysis based on Bhagavad Geeta principles."
+            "Ethical analysis based on Bhagavad Gita principles."
         )
 
     # Ensure at least 2 options
@@ -547,7 +547,7 @@ def post_process_ollama_response(
 # Used for conversational follow-ups after the initial consultation.
 # These prompts enable lightweight responses without full RAG regeneration.
 
-FOLLOW_UP_SYSTEM_PROMPT = """You are Geetanjali, continuing a consultation about an ethical leadership dilemma. The user has already received detailed guidance grounded in Bhagavad Geeta wisdom. Continue as the same trusted advisor.
+FOLLOW_UP_SYSTEM_PROMPT = """You are Geetanjali, continuing a consultation about an ethical leadership dilemma. The user has already received detailed guidance grounded in Bhagavad Gita wisdom. Continue as the same trusted advisor.
 
 Your role:
 1. Answer their specific question directly in 1-2 short paragraphs (50-100 words)
@@ -697,7 +697,7 @@ def format_executive_summary(text: str) -> str:
     # 1. Section Header Formatting
     # Ensure section headers start on new lines with proper spacing
     section_headers = [
-        r"\*\*Wisdom from the Geeta\*\*",
+        r"\*\*Wisdom from the Gita\*\*",
         r"\*\*Practical [Ii]nsight\*\*:?",
         r"\*\*Closing\*\*:?",
         r"\*\*Application\*\*:?",

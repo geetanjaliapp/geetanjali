@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Search
-description: How search works in Geetanjali - multi-strategy hybrid search across 701 Bhagavad Geeta verses.
+description: How search works in Geetanjali - multi-strategy hybrid search across 701 Bhagavad Gita verses.
 ---
 
 # Search
@@ -225,7 +225,7 @@ Detection patterns:
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│  Search the Bhagavad Geeta                                   │
+│  Search the Bhagavad Gita                                   │
 │  Find verses by reference, Sanskrit, or meaning              │
 ├──────────────────────────────────────────────────────────────┤
 │                                                              │

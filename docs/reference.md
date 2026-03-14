@@ -184,7 +184,7 @@ API errors return JSON with `detail` field containing the message.
 
 | Term | Definition |
 |------|------------|
-| **Bhagavad Geeta** | Ancient Sanskrit scripture with 701 verses across 18 chapters |
+| **Bhagavad Gita** | Ancient Sanskrit scripture with 701 verses across 18 chapters |
 | **Verse** | Single shloka with Sanskrit text, transliteration, translations |
 | **Chapter** | One of 18 chapters (adhyaya) of the Geeta |
 | **Commentary** | Scholar interpretation of a verse |

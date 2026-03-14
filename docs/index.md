@@ -1,14 +1,14 @@
 ---
 layout: default
 title: Geetanjali Docs
-description: Documentation for Geetanjali - ethical leadership guidance grounded in the Bhagavad Geeta.
+description: Documentation for Geetanjali - ethical leadership guidance grounded in the Bhagavad Gita.
 ---
 
 # Geetanjali
 
-Ethical leadership guidance from the Bhagavad Geeta.
+Ethical leadership guidance from the Bhagavad Gita.
 
-Geetanjali helps you think through tough decisions by connecting your dilemmas to wisdom from 701 verses of the Bhagavad Geeta. It also lets you explore the scripture at your own pace — browse, search, or read cover to cover.
+Geetanjali helps you think through tough decisions by connecting your dilemmas to wisdom from 701 verses of the Bhagavad Gita. It also lets you explore the scripture at your own pace — browse, search, or read cover to cover.
 
 Free. Open source. Private by default.
 
@@ -120,7 +120,7 @@ For operators and contributors:
 
 - **[API Reference](api.md)** — REST API endpoints, authentication, rate limits, examples
 - **[Reference](reference.md)** — Environment variables, error codes, glossary, scripts
-- **[Data Sources](data.md)** — Bhagavad Geeta content, licensing, ingestion pipeline
+- **[Data Sources](data.md)** — Bhagavad Gita content, licensing, ingestion pipeline
 - **[SEO](seo.md)** — Bot-served static HTML for search engine visibility
 
 ---

@@ -465,12 +465,12 @@ def featured_cases_key() -> str:
 
 
 def dhyanam_all_key() -> str:
-    """Build cache key for all Geeta Dhyanam verses."""
+    """Build cache key for all Gita Dhyanam verses."""
     return "dhyanam:all"
 
 
 def dhyanam_verse_key(verse_number: int) -> str:
-    """Build cache key for a single Geeta Dhyanam verse."""
+    """Build cache key for a single Gita Dhyanam verse."""
     return f"dhyanam:verse:{verse_number}"
 
 
