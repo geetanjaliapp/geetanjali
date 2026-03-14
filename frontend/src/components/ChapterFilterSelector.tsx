@@ -53,7 +53,7 @@ export function ChapterFilterSelector({
   // Keyboard navigation (WCAG grid pattern)
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent, index: number) => {
-      let nextIndex: number | null = null;
+      let nextIndex: number | null;
 
       switch (e.key) {
         case "Escape":
