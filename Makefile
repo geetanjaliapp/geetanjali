@@ -226,7 +226,7 @@ rollback: ## Rollback to previous deployment (uses .env.local or env vars)
 # =============================================================================
 
 secrets-edit: ## Edit encrypted secrets (.env.enc)
-	@EDITOR=vim sops .env.enc
+	@EDITOR=vim sops --input-type dotenv --output-type dotenv .env.enc
 
 secrets-view: ## View decrypted secrets (for debugging)
 	@sops --decrypt --input-type dotenv --output-type dotenv .env.enc
