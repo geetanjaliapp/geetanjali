@@ -15,7 +15,7 @@ Geetanjali uses retrieval-augmented generation (RAG) to ground ethical guidance 
 ```
 User Query → Embedding → Vector Search → LLM Generation → Structured Output
                               ↓
-                        Geeta Verses
+                        Gita Verses
                         (701 verses)
 ```
 
@@ -242,7 +242,7 @@ Full OpenAPI docs at `/docs` when running.
 
 ## Audio Subsystem
 
-Geetanjali includes AI-generated Sanskrit recitations for all 701 verses plus Geeta Dhyanam invocations.
+Geetanjali includes AI-generated Sanskrit recitations for all 701 verses plus Gita Dhyanam invocations.
 
 ### Audio Delivery
 

@@ -134,9 +134,9 @@ Structured guidance with multiple perspectives.
 │  │                                    [Manager] [Team]  │    │
 │  └──────────────────────────────────────────────────────┘    │
 │                                                              │
-│  ┌─ Wisdom from the Geeta ──────────────────────────────┐    │
+│  ┌─ Wisdom from the Gita ──────────────────────────────┐    │
 │  │                                                      │    │
-│  │  The Geeta emphasizes dharma (righteous duty)        │    │
+│  │  The Gita emphasizes dharma (righteous duty)        │    │
 │  │  while also recognizing the complexity...            │    │
 │  │                                                      │    │
 │  │  [▼ 3 verse references]                              │    │
@@ -179,7 +179,7 @@ Structured guidance with multiple perspectives.
 
 | Section | Purpose |
 |---------|---------|
-| Guidance | Markdown-formatted wisdom from the Geeta |
+| Guidance | Markdown-formatted wisdom from the Gita |
 | Verse References | Expandable list of supporting citations with paraphrases |
 | Paths Before You | 2-3 options with benefits/considerations (scrollable cards) |
 | Recommended Steps | Numbered actionable next steps |
@@ -252,7 +252,7 @@ sequenceDiagram
 │   ┌─ Geetanjali ─────────────────────────────────────────┐   │
 │   │                                                      │   │
 │   │  If direct conversation doesn't resolve the          │   │
-│   │  situation, the Geeta's teaching on nishkama         │   │
+│   │  situation, the Gita's teaching on nishkama         │   │
 │   │  karma (desireless action) suggests focusing on      │   │
 │   │  your dharma rather than the outcome. You've         │   │
 │   │  fulfilled your duty by giving them the              │   │

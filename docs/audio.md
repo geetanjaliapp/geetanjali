@@ -14,7 +14,7 @@ Each verse can be played aloud with a natural Sanskrit recitation. The voice is 
 
 **Technology**: [Indic Parler-TTS](https://huggingface.co/ai4bharat/indic-parler-tts) by AI4Bharat
 
-**Current coverage**: All 700 verses + 9 Geeta Dhyanam invocations
+**Current coverage**: All 700 verses + 9 Gita Dhyanam invocations
 
 ---
 
@@ -192,7 +192,7 @@ public/audio/mp3/
 ├── 02/           # Chapter 2 (72 files)
 ├── ...
 ├── 18/           # Chapter 18 (78 files)
-└── dhyanam/      # Geeta Dhyanam (9 files)
+└── dhyanam/      # Gita Dhyanam (9 files)
 ```
 
 Files follow the canonical ID pattern: `BG_{chapter}_{verse}.mp3`

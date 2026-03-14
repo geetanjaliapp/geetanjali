@@ -15,7 +15,7 @@ Geetanjali uses a **code-first approach** where content metadata is authored in 
 | **Verses** | External APIs | 700 | `ingest_data.py` |
 | **Featured Verses** | `featured_verses.py` | 180 | Automatic startup sync |
 | **Chapter Metadata** | `chapter_metadata.py` | 18 + 1 book | Automatic startup sync |
-| **Geeta Dhyanam** | `geeta_dhyanam.py` | 9 | Automatic startup sync |
+| **Gita Dhyanam** | `gita_dhyanam.py` | 9 | Automatic startup sync |
 | **Audio Metadata** | `verse_audio_metadata/` | 700 | Automatic startup sync |
 | **Audio Durations** | MP3 files (ffprobe) | 700 | Automatic startup sync |
 | **Audio Files** | Colab TTS pipeline | 709 MP3s | Manual |
@@ -104,7 +104,7 @@ Located in `backend/data/`:
 |------|---------|
 | `featured_verses.py` | 180 curated verse IDs |
 | `chapter_metadata.py` | Book + 18 chapter intros |
-| `geeta_dhyanam.py` | 9 invocation verses |
+| `gita_dhyanam.py` | 9 invocation verses |
 | `verse_audio_metadata/` | TTS generation configs |
 
 ### Audio Metadata Hierarchy

@@ -49,7 +49,7 @@ Free. Open source. Private by default.
 
 **Consultation** — You have a tough decision. Layoffs? Whistleblowing? Conflicting loyalties? Describe it, get three options with tradeoffs, each grounded in specific verses. Continue the conversation until you're clear.
 
-**Discovery** — You want to understand the Geeta. Browse by chapter, search by concept, or read cover to cover in Reading Mode. Sanskrit text with transliteration, multiple translations, and plain-language insights.
+**Discovery** — You want to understand the Gita. Browse by chapter, search by concept, or read cover to cover in Reading Mode. Sanskrit text with transliteration, multiple translations, and plain-language insights.
 
 Both paths. Same 701 verses. Your pace, your privacy.
 
