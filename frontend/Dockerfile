@@ -44,6 +44,7 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 
 # Copy nginx configuration (context is repo root)
 COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
+COPY frontend/nginx-security-headers.inc /etc/nginx/conf.d/security-headers.inc
 
 # Create nginx user writable directories and fix permissions
 # nginx:alpine has nginx user (UID 101, GID 101)
