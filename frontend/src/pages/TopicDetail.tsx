@@ -71,8 +71,8 @@ export default function TopicDetail() {
 
   useSEO({
     title: topic
-      ? `${topic.label} (${topic.sanskrit}) | Geetanjali`
-      : "Topic | Geetanjali",
+      ? `${topic.label} (${topic.sanskrit})`
+      : "Topic",
     description: topic?.description ?? "Explore this principle from the Bhagavad Gita.",
     canonical: topicId ? `/topics/${topicId}` : "/topics",
   });
