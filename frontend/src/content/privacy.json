@@ -15,8 +15,8 @@
     {
       "heading": "How Your Data Is Processed",
       "content": [
-        "When you submit a question, it is sent to an AI language model to generate guidance. Geetanjali currently uses Anthropic (Claude) as the primary AI provider, with Google (Gemini) as a fallback. Your question text is sent to these services to generate a response.",
-        "These AI providers have their own data handling policies. We send only the question text and relevant context — never your name, email, or account details.",
+        "When you submit a question, it is sent to a third-party AI language model to generate guidance. Your question text is sent to the provider to generate a response — never your name, email, or account details.",
+        "These providers have their own data handling policies, which we encourage you to review.",
         "Email notifications (newsletter, account verification) are sent through Resend. Error monitoring uses Sentry, which may receive anonymized technical data."
       ]
     },
