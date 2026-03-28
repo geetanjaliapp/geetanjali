@@ -247,7 +247,7 @@ def send_contact_email(
                 <td style="padding: 8px 0; color: #78716c; vertical-align: top;">Type:</td>
                 <td style="padding: 8px 0; color: #374151;">{safe_type}</td>
             </tr>
-            {f'<tr><td style="padding: 8px 0; color: #78716c; vertical-align: top;">Subject:</td><td style="padding: 8px 0; color: #374151;">{safe_subject}</td></tr>' if safe_subject else ''}
+            {f'<tr><td style="padding: 8px 0; color: #78716c; vertical-align: top;">Subject:</td><td style="padding: 8px 0; color: #374151;">{safe_subject}</td></tr>' if safe_subject else ""}
         </table>
     """
 
@@ -269,8 +269,8 @@ New Contact Message from Geetanjali
 
 From: {name}
 Email: {email}
-Type: {message_type.replace('_', ' ').title()}
-{f'Subject: {subject}' if subject else ''}
+Type: {message_type.replace("_", " ").title()}
+{f"Subject: {subject}" if subject else ""}
 
 Message:
 {message}
@@ -837,7 +837,7 @@ def send_account_verification_email(email: str, name: str, verify_url: str) -> b
 
     # Plain text version
     text_body = f"""
-Hello{f', {name}' if name else ''},
+Hello{f", {name}" if name else ""},
 
 Welcome to Geetanjali! Please verify your email address to complete your account setup.
 
@@ -925,7 +925,7 @@ def send_password_changed_email(email: str, name: str) -> bool:
 
     # Plain text version
     text_body = f"""
-Hello{f', {name}' if name else ''},
+Hello{f", {name}" if name else ""},
 
 Your Geetanjali account password was successfully changed on {current_time}.
 
@@ -1010,7 +1010,7 @@ def send_account_deleted_email(email: str, name: str) -> bool:
 
     # Plain text version
     text_body = f"""
-Hello{f', {name}' if name else ''},
+Hello{f", {name}" if name else ""},
 
 Your Geetanjali account has been successfully deleted. We're sorry to see you go.
 

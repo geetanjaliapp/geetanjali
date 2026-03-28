@@ -62,7 +62,7 @@ def email_footer(links: list[tuple[str, str]]) -> str:
                 <p style="color: #78716c; font-size: 12px; margin: 0 0 16px 0;">
                     Wisdom for modern life
                 </p>
-                {f'<p style="margin: 0;">{link_html}</p>' if link_html else ''}
+                {f'<p style="margin: 0;">{link_html}</p>' if link_html else ""}
             </div>
     """
 
@@ -169,7 +169,7 @@ def email_greeting(greeting: str, name: str, show_date: bool = False) -> str:
         date_html = f'<p style="color: #a8a29e; font-size: 13px; margin: 0 0 24px 0;">{current_date}</p>'
 
     return f"""
-                <p style="color: #57534e; font-size: 16px; margin: 0 0 {'4px' if show_date else '16px'} 0;">
+                <p style="color: #57534e; font-size: 16px; margin: 0 0 {"4px" if show_date else "16px"} 0;">
                     {html.escape(greeting)}, {html.escape(name)}
                 </p>
                 {date_html}

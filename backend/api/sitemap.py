@@ -73,9 +73,9 @@ def build_sitemap_xml(
     if chapters:
         for chapter in chapters:
             url = SubElement(urlset, "url")
-            SubElement(url, "loc").text = (
-                f"{BASE_URL}/verses/chapter/{chapter.chapter_number}"
-            )
+            SubElement(
+                url, "loc"
+            ).text = f"{BASE_URL}/verses/chapter/{chapter.chapter_number}"
             SubElement(url, "changefreq").text = "monthly"
             SubElement(url, "priority").text = "0.8"
 
@@ -140,11 +140,7 @@ async def get_sitemap(request: Request, db: Session = Depends(get_db)):
     )
 
     # Get principles for topic pages
-    principles = (
-        db.query(Principle.id)
-        .order_by(Principle.display_order)
-        .all()
-    )
+    principles = db.query(Principle.id).order_by(Principle.display_order).all()
 
     # Build XML
     sitemap_xml = build_sitemap_xml(verses, chapters, principles)

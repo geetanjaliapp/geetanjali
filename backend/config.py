@@ -105,8 +105,12 @@ class Settings(BaseSettings):
     # Gemini (Google)
     # Get API key: https://aistudio.google.com/apikey
     GOOGLE_API_KEY: str | None = None  # Required for Gemini
-    GEMINI_MODEL: str = "gemini-2.5-flash"  # Fast, cost-effective (85% cheaper than Claude)
-    GEMINI_MAX_TOKENS: int = 4096  # Higher than Anthropic - Gemini needs more for consultations
+    GEMINI_MODEL: str = (
+        "gemini-2.5-flash"  # Fast, cost-effective (85% cheaper than Claude)
+    )
+    GEMINI_MAX_TOKENS: int = (
+        4096  # Higher than Anthropic - Gemini needs more for consultations
+    )
     GEMINI_TIMEOUT: int = 30000  # Milliseconds (SDK uses ms, not seconds)
 
     # Ollama (Local fallback)
@@ -117,8 +121,12 @@ class Settings(BaseSettings):
     OLLAMA_MAX_RETRIES: int = 2
     OLLAMA_RETRY_MIN_WAIT: int = 1
     OLLAMA_RETRY_MAX_WAIT: int = 10
-    OLLAMA_MAX_TOKENS: int = 4096  # Match external LLMs for consistent consultation length
-    OLLAMA_KEEP_ALIVE: str = "1h"  # How long model stays in memory (5m, 1h, 24h, -1=never)
+    OLLAMA_MAX_TOKENS: int = (
+        4096  # Match external LLMs for consistent consultation length
+    )
+    OLLAMA_KEEP_ALIVE: str = (
+        "1h"  # How long model stays in memory (5m, 1h, 24h, -1=never)
+    )
 
     # --- LLM Circuit Breaker ---
     # Shared for all LLM providers (Anthropic, Gemini, Ollama)
@@ -237,14 +245,18 @@ class Settings(BaseSettings):
 
     # Hourly rate limits (3/hour = 1 consult every 20 min)
     ANALYZE_RATE_LIMIT: str = "3/hour"  # Case submission rate limit (tightened from 10)
-    FOLLOW_UP_RATE_LIMIT: str = "5/hour"  # Follow-up submission rate limit (tightened from 30)
+    FOLLOW_UP_RATE_LIMIT: str = (
+        "5/hour"  # Follow-up submission rate limit (tightened from 30)
+    )
 
     # Daily consumption limit (20/day = ~2.5/hour average)
     DAILY_CONSULT_LIMIT: int = 20  # Max consults per calendar day per IP/session
     DAILY_CONSULT_LIMIT_ENABLED: bool = True  # Feature flag: disable if needed
 
     # Request token limit (4 chars/token conservative estimation)
-    REQUEST_TOKEN_LIMIT: int = 2000  # Max tokens per request (prevents oversized prompts)
+    REQUEST_TOKEN_LIMIT: int = (
+        2000  # Max tokens per request (prevents oversized prompts)
+    )
 
     # Authentication / JWT
     # NOTE: Default is for dev only. Production validation (validate_production_config)
@@ -299,9 +311,7 @@ class Settings(BaseSettings):
     RQ_RETRY_DELAYS: str = "30,120"  # Retry after 30s, then 2min (comma-separated)
     RQ_RESULT_TTL: int = 86400  # 24 hours - cleanup successful job results
     RQ_FAILURE_TTL: int = 86400  # 24 hours - cleanup failed job results
-    STALE_PROCESSING_TIMEOUT: int = (
-        600  # 10 minutes - auto-fail cases stuck in PROCESSING (multipass can take 5-7min)
-    )
+    STALE_PROCESSING_TIMEOUT: int = 600  # 10 minutes - auto-fail cases stuck in PROCESSING (multipass can take 5-7min)
 
     # Frontend
     FRONTEND_URL: str = "http://localhost:5173"
@@ -517,11 +527,7 @@ class Settings(BaseSettings):
 
         # Warn if Gemini is fallback but key is missing (degraded fallback)
         is_gemini_fallback = self.LLM_FALLBACK_PROVIDER == "gemini"
-        if (
-            is_gemini_fallback
-            and self.LLM_FALLBACK_ENABLED
-            and not self.GOOGLE_API_KEY
-        ):
+        if is_gemini_fallback and self.LLM_FALLBACK_ENABLED and not self.GOOGLE_API_KEY:
             logger.warning(
                 "PRODUCTION: LLM_FALLBACK_PROVIDER=gemini but GOOGLE_API_KEY not set. "
                 "Fallback to Gemini will not work."
@@ -585,8 +591,7 @@ class Settings(BaseSettings):
         # ========================================
         if self.DEBUG:
             errors.append(
-                "DEBUG=True in production. "
-                "Set DEBUG=False for production deployments."
+                "DEBUG=True in production. Set DEBUG=False for production deployments."
             )
 
         # ========================================
@@ -681,7 +686,9 @@ class Settings(BaseSettings):
             int: Maximum expected duration in seconds.
         """
         # Multipass is designed for Ollama; use its timeout as the base
-        provider_timeout = self.OLLAMA_TIMEOUT if self.OLLAMA_ENABLED else self.ANTHROPIC_TIMEOUT
+        provider_timeout = (
+            self.OLLAMA_TIMEOUT if self.OLLAMA_ENABLED else self.ANTHROPIC_TIMEOUT
+        )
         return self.MULTIPASS_PASS_COUNT * provider_timeout
 
     @model_validator(mode="after")
