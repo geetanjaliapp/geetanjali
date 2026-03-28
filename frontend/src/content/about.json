@@ -40,6 +40,12 @@
         "title": "Honoring the Source",
         "icon": "scroll",
         "description": "Geetanjali includes all 701 verses of the Bhagavad Gita plus the 9 verses of Gita Dhyanam, with Sanskrit text, transliteration, and translations. Audio recitations preserve the sound of the original. The text is treated with the respect it deserves—presented faithfully, not reduced to soundbites."
+      },
+      {
+        "id": "how-it-works",
+        "title": "How It Works",
+        "icon": "sparkles",
+        "description": "When you ask a question, Geetanjali uses AI (large language models) to analyze your situation and find relevant verses through semantic search. The AI generates guidance grounded in those verses, citing its sources so you can read the original text yourself. Responses may contain inaccuracies or miss nuances that a human scholar would catch. This is not a substitute for professional counseling, legal, medical, or psychological advice—it is one perspective among many, offered in good faith."
       }
     ]
   },

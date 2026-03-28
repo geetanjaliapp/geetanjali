@@ -36,6 +36,7 @@ import {
   LogoIcon,
   BookOpenIcon,
   CompassIcon,
+  SparklesIcon,
 } from "../components/icons";
 import { api } from "../lib/api";
 import { validateContent } from "../lib/contentFilter";
@@ -285,6 +286,16 @@ export default function About() {
               </h3>
               <p className="leading-relaxed">
                 {aboutContent.philosophy.items[2].description}
+              </p>
+            </article>
+
+            <article data-teaching="technology">
+              <h3 className="font-semibold text-[var(--text-primary)] mb-2 flex items-center gap-2">
+                <SparklesIcon className="w-4 h-4 text-[var(--text-link)]" aria-hidden="true" />
+                {aboutContent.philosophy.items[3].title}
+              </h3>
+              <p className="leading-relaxed">
+                {aboutContent.philosophy.items[3].description}
               </p>
             </article>
           </div>

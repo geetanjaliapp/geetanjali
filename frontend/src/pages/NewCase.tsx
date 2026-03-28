@@ -494,11 +494,12 @@ export default function NewCase() {
 
           {/* Helper Text */}
           <p className="text-center text-xs sm:text-sm text-[var(--text-muted)] mt-4 sm:mt-6">
-            Your question will be analyzed using wisdom from the Bhagavad Gita.
+            Your question is analyzed by AI using wisdom from the Bhagavad
+            Gita.
             <br className="hidden sm:inline" />
             <span className="text-[var(--text-muted)]">
               {" "}
-              You'll receive guidance in under a minute.
+              Not a substitute for professional advice.
             </span>
           </p>
         </div>

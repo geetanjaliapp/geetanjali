@@ -1013,7 +1013,8 @@ ${messages
                           {isFirst && (
                             <div className="mt-4 pt-3 border-t border-[var(--border-default)] flex items-center justify-between gap-4">
                               <p className="text-[10px] sm:text-xs text-[var(--text-muted)] italic">
-                                Guidance reflects practical Vedantic principles.{" "}
+                                AI-generated guidance based on Bhagavad Gita
+                                verses.{" "}
                                 <Link
                                   to="/about#our-approach"
                                   className="underline hover:text-[var(--text-secondary)]"
