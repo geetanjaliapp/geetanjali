@@ -329,6 +329,8 @@ export default function NewCase() {
                 value={formData.question}
                 onChange={handleChange}
                 rows={4}
+                aria-invalid={errors.question ? "true" : undefined}
+                aria-describedby={errors.question ? "question-error" : undefined}
                 className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base sm:text-lg border rounded-[var(--radius-button)] sm:rounded-[var(--radius-card)] focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent bg-[var(--input-bg)] text-[var(--text-primary)] placeholder-[var(--text-muted)] ${
                   errors.question
                     ? "border-[var(--status-error-border)]"
@@ -338,7 +340,7 @@ export default function NewCase() {
               />
               <div className="flex justify-between items-center mt-1.5 sm:mt-2">
                 {errors.question ? (
-                  <p className="text-xs sm:text-sm text-[var(--status-error-text)]">
+                  <p id="question-error" role="alert" className="text-xs sm:text-sm text-[var(--status-error-text)]">
                     {errors.question}
                   </p>
                 ) : draftRestored ? (
