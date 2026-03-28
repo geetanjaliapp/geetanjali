@@ -1,0 +1,70 @@
+{
+  "title": "Privacy Policy",
+  "lastUpdated": "2026-03-28",
+  "sections": [
+    {
+      "heading": "What We Collect",
+      "content": [
+        "Geetanjali collects only what is needed to provide the service:",
+        "**Account information** (optional): Name, email address, and password if you create an account. You can use Geetanjali without an account.",
+        "**Consultation content**: The questions you ask and the guidance generated in response. For guests, this is stored only in your browser. For registered users, it is stored on our server.",
+        "**Preferences**: Learning goals, reading progress, favorites, theme settings, and newsletter preferences. Stored locally for guests, synced to your account if registered.",
+        "**Usage data**: Basic server logs (IP address, request timestamps) for security and reliability. We do not use analytics trackers or advertising pixels."
+      ]
+    },
+    {
+      "heading": "How Your Data Is Processed",
+      "content": [
+        "When you submit a question, it is sent to an AI language model to generate guidance. Geetanjali currently uses Anthropic (Claude) as the primary AI provider, with Google (Gemini) as a fallback. Your question text is sent to these services to generate a response.",
+        "These AI providers have their own data handling policies. We send only the question text and relevant context — never your name, email, or account details.",
+        "Email notifications (newsletter, account verification) are sent through Resend. Error monitoring uses Sentry, which may receive anonymized technical data."
+      ]
+    },
+    {
+      "heading": "What We Don't Do",
+      "content": [
+        "We do not sell, rent, or share your personal data with third parties for marketing or advertising purposes.",
+        "We do not use your consultation content to train AI models.",
+        "We do not track you across websites. There are no advertising cookies, tracking pixels, or fingerprinting scripts.",
+        "We do not require an account to use the core service."
+      ]
+    },
+    {
+      "heading": "Data Storage & Security",
+      "content": [
+        "Data is stored on servers hosted by DigitalOcean. Connections are encrypted via HTTPS. Passwords are hashed using bcrypt.",
+        "Guest data (consultations, preferences, favorites) is stored only in your browser's local storage. Clearing your browser data removes it permanently.",
+        "Registered user data is stored in a PostgreSQL database on our server, protected by standard security practices."
+      ]
+    },
+    {
+      "heading": "Your Rights",
+      "content": [
+        "**Export**: You can export your data (favorites, reading progress, preferences) from the Settings page.",
+        "**Delete**: You can delete your local data from Settings. Registered users can request full account deletion by contacting us.",
+        "**Access**: You can view all your consultations, favorites, and preferences at any time through the app.",
+        "If you are in the EU, UK, or another jurisdiction with data protection laws, you have additional rights including the right to access, rectify, and erase your personal data. Contact us to exercise these rights."
+      ]
+    },
+    {
+      "heading": "Cookies & Local Storage",
+      "content": [
+        "Geetanjali uses browser local storage to save your preferences, reading progress, and guest consultation data. These are not cookies and are not sent to our server.",
+        "If you create an account, we use a secure HTTP-only cookie for authentication (session token). This is essential for the service and cannot be disabled while logged in.",
+        "We use a CSRF token cookie for security. No third-party cookies are set."
+      ]
+    },
+    {
+      "heading": "Changes to This Policy",
+      "content": [
+        "We may update this policy as the service evolves. Significant changes will be noted on this page with an updated date. Continued use of Geetanjali after changes constitutes acceptance."
+      ]
+    },
+    {
+      "heading": "Contact",
+      "content": [
+        "Questions about this policy? Reach us through the contact form on the About page or via the project's GitHub repository."
+      ]
+    }
+  ]
+}

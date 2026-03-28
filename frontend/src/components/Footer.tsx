@@ -32,6 +32,12 @@ export function Footer() {
             >
               Contact
             </Link>
+            <Link
+              to="/privacy"
+              className="hover:text-[var(--text-accent)] transition-[var(--transition-color)]"
+            >
+              Privacy
+            </Link>
             <a
               href="https://github.com/geetanjaliapp/geetanjali"
               target="_blank"
@@ -83,6 +89,12 @@ export function Footer() {
               className="hover:text-[var(--text-accent)] transition-[var(--transition-color)]"
             >
               Contact
+            </Link>
+            <Link
+              to="/privacy"
+              className="hover:text-[var(--text-accent)] transition-[var(--transition-color)]"
+            >
+              Privacy
             </Link>
             <a
               href="https://github.com/geetanjaliapp/geetanjali"

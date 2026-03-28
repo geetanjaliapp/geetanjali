@@ -29,6 +29,7 @@ const Signup = lazyWithRetry(() => import("./pages/Signup"));
 const ForgotPassword = lazyWithRetry(() => import("./pages/ForgotPassword"));
 const ResetPassword = lazyWithRetry(() => import("./pages/ResetPassword"));
 const About = lazyWithRetry(() => import("./pages/About"));
+const Privacy = lazyWithRetry(() => import("./pages/Privacy"));
 const PublicCaseView = lazyWithRetry(() => import("./pages/PublicCaseView"));
 const ReadingMode = lazyWithRetry(() => import("./pages/ReadingMode"));
 const DhyanamPage = lazyWithRetry(() => import("./pages/DhyanamPage"));
@@ -164,6 +165,7 @@ function App() {
                 element={<ReadingModePathRedirect />}
               />
               <Route path="/about" element={<About />} />
+              <Route path="/privacy" element={<Privacy />} />
               <Route path="/settings" element={<Settings />} />
 
               {/* Public shared consultation view */}
