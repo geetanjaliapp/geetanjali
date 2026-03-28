@@ -400,6 +400,12 @@ class Settings(BaseSettings):
             return v.lower() in ("true", "1", "yes")
         return bool(v)
 
+    @field_validator("FRONTEND_URL", mode="before")
+    @classmethod
+    def strip_frontend_url_trailing_slash(cls, v: str) -> str:
+        """Ensure FRONTEND_URL never ends with / to prevent double-slash URLs."""
+        return v.rstrip("/") if isinstance(v, str) else v
+
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
     def parse_cors_origins(cls, v: str | list[str]) -> list[str]:
@@ -598,9 +604,10 @@ class Settings(BaseSettings):
         # ========================================
         # SECURITY: FRONTEND_URL validation
         # ========================================
-        if self.FRONTEND_URL.startswith("http://localhost"):
+        if not self.FRONTEND_URL.startswith("https://"):
             errors.append(
-                "FRONTEND_URL is using localhost default. "
+                f"FRONTEND_URL must start with https:// in production, "
+                f"got: {self.FRONTEND_URL!r}. "
                 "Set FRONTEND_URL to your production domain "
                 "(e.g., https://geetanjaliapp.com)."
             )

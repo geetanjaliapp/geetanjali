@@ -289,15 +289,17 @@ export default function About() {
               </p>
             </article>
 
-            <article data-teaching="technology">
-              <h3 className="font-semibold text-[var(--text-primary)] mb-2 flex items-center gap-2">
-                <SparklesIcon className="w-4 h-4 text-[var(--text-link)]" aria-hidden="true" />
-                {aboutContent.philosophy.items[3].title}
-              </h3>
-              <p className="leading-relaxed">
-                {aboutContent.philosophy.items[3].description}
-              </p>
-            </article>
+            {aboutContent.philosophy.items[3] && (
+              <article data-teaching="technology">
+                <h3 className="font-semibold text-[var(--text-primary)] mb-2 flex items-center gap-2">
+                  <SparklesIcon className="w-4 h-4 text-[var(--text-link)]" aria-hidden="true" />
+                  {aboutContent.philosophy.items[3].title}
+                </h3>
+                <p className="leading-relaxed">
+                  {aboutContent.philosophy.items[3].description}
+                </p>
+              </article>
+            )}
           </div>
         </section>
 
