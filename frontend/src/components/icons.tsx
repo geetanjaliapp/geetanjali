@@ -16,6 +16,7 @@ export function CloseIcon({ className = "w-3 h-3" }: IconProps) {
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <path
         strokeLinecap="round"
@@ -34,6 +35,7 @@ export function ChevronDownIcon({ className = "w-4 h-4" }: IconProps) {
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <path
         strokeLinecap="round"
@@ -52,6 +54,7 @@ export function ChevronLeftIcon({ className = "w-4 h-4" }: IconProps) {
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <path
         strokeLinecap="round"
@@ -65,7 +68,7 @@ export function ChevronLeftIcon({ className = "w-4 h-4" }: IconProps) {
 
 export function StarIcon({ className = "w-3 h-3" }: IconProps) {
   return (
-    <svg className={className} fill="currentColor" viewBox="0 0 20 20">
+    <svg className={className} fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
     </svg>
   );
@@ -78,6 +81,7 @@ export function ArrowUpIcon({ className = "w-5 h-5" }: IconProps) {
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <path
         strokeLinecap="round"
@@ -95,6 +99,7 @@ export function SpinnerIcon({ className = "w-4 h-4" }: IconProps) {
       className={`animate-spin ${className}`}
       fill="none"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <circle
         className="opacity-25"
@@ -120,6 +125,7 @@ export function SearchIcon({ className = "w-5 h-5" }: IconProps) {
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <path
         strokeLinecap="round"
@@ -141,7 +147,7 @@ export function HeartIcon({
 }: HeartIconProps) {
   if (filled) {
     return (
-      <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+      <svg className={className} fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
         <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
       </svg>
     );
@@ -152,6 +158,7 @@ export function HeartIcon({
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <path
         strokeLinecap="round"
@@ -170,6 +177,7 @@ export function ShareIcon({ className = "w-5 h-5" }: IconProps) {
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <path
         strokeLinecap="round"
@@ -188,6 +196,7 @@ export function CheckIcon({ className = "w-5 h-5" }: IconProps) {
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <path
         strokeLinecap="round"
@@ -209,6 +218,7 @@ export function CheckCircleIcon({ className = "w-6 h-6" }: IconProps) {
       strokeLinecap="round"
       strokeLinejoin="round"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <circle cx="12" cy="12" r="10" />
       <path d="m9 12 2 2 4-4" />
@@ -226,6 +236,7 @@ export function XCircleIcon({ className = "w-6 h-6" }: IconProps) {
       strokeLinecap="round"
       strokeLinejoin="round"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <circle cx="12" cy="12" r="10" />
       <path d="m15 9-6 6" />
@@ -245,6 +256,7 @@ export function SunIcon({ className = "w-6 h-6" }: IconProps) {
       strokeLinecap="round"
       strokeLinejoin="round"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <circle cx="12" cy="12" r="5" />
       <line x1="12" y1="1" x2="12" y2="3" />
@@ -269,6 +281,7 @@ export function FlameIcon({ className = "w-6 h-6" }: IconProps) {
       strokeLinecap="round"
       strokeLinejoin="round"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <path d="M12 22c4.97 0 9-4.03 9-9 0-3.87-3.13-7-3.13-7s-1.74 2-4.87 2c-3 0-5-2-5-2S4 9.13 4 13c0 4.97 4.03 9 8 9z" />
       <path d="M12 22c-2.21 0-4-1.79-4-4 0-2.21 2-4 4-4s4 1.79 4 4c0 2.21-1.79 4-4 4z" />
@@ -283,6 +296,7 @@ export function BriefcaseIcon({ className = "w-6 h-6" }: IconProps) {
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <rect x="2" y="7" width="20" height="14" rx="2" strokeWidth={2} />
       <path
@@ -302,6 +316,7 @@ export function CompassIcon({ className = "w-6 h-6" }: IconProps) {
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <circle cx="12" cy="12" r="10" strokeWidth={2} />
       <polygon
@@ -320,6 +335,7 @@ export function SproutIcon({ className = "w-6 h-6" }: IconProps) {
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <path
         strokeLinecap="round"
@@ -341,6 +357,7 @@ export function UsersIcon({ className = "w-6 h-6" }: IconProps) {
       strokeLinecap="round"
       strokeLinejoin="round"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
       <circle cx="9" cy="7" r="4" />
@@ -356,6 +373,7 @@ export function MountainIcon({ className = "w-6 h-6" }: IconProps) {
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <path
         strokeLinecap="round"
@@ -377,6 +395,7 @@ export function BookOpenIcon({ className = "w-6 h-6" }: IconProps) {
       strokeLinecap="round"
       strokeLinejoin="round"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
       <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
@@ -395,6 +414,7 @@ export function StudyModeIcon({ className = "w-6 h-6" }: IconProps) {
       strokeLinecap="round"
       strokeLinejoin="round"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       {/* Open book - same as BookOpenIcon */}
       <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
@@ -413,6 +433,7 @@ export function MailIcon({ className = "w-6 h-6" }: IconProps) {
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <rect x="2" y="4" width="20" height="16" rx="2" strokeWidth={2} />
       <path strokeLinecap="round" strokeWidth={2} d="M22 6l-10 7L2 6" />
@@ -427,6 +448,7 @@ export function SettingsIcon({ className = "w-6 h-6" }: IconProps) {
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <circle cx="12" cy="12" r="3" strokeWidth={2} />
       <path
@@ -450,6 +472,7 @@ export function SunriseIcon({ className = "w-6 h-6" }: IconProps) {
       strokeLinecap="round"
       strokeLinejoin="round"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <path d="M12 2v4M4.93 10.93l2.83 2.83M2 18h4M20 18h2M19.07 10.93l-2.83 2.83M12 18a6 6 0 0 0 0-12" />
       <line x1="2" y1="22" x2="22" y2="22" />
@@ -467,6 +490,7 @@ export function SunMediumIcon({ className = "w-6 h-6" }: IconProps) {
       strokeLinecap="round"
       strokeLinejoin="round"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <circle cx="12" cy="12" r="4" />
       <path d="M12 3v1M12 20v1M5.6 5.6l.7.7M17.7 17.7l.7.7M3 12h1M20 12h1M5.6 18.4l.7-.7M17.7 6.3l.7-.7" />
@@ -484,6 +508,7 @@ export function SunsetIcon({ className = "w-6 h-6" }: IconProps) {
       strokeLinecap="round"
       strokeLinejoin="round"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <path d="M12 10V2M4.93 13.93l2.83-2.83M2 18h4M20 18h2M19.07 13.93l-2.83-2.83M12 18a6 6 0 0 0 0-12" />
       <line x1="2" y1="22" x2="22" y2="22" />
@@ -498,6 +523,7 @@ export function ImageIcon({ className = "w-5 h-5" }: IconProps) {
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <path
         strokeLinecap="round"
@@ -516,6 +542,7 @@ export function SparklesIcon({ className = "w-5 h-5" }: IconProps) {
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <path
         strokeLinecap="round"
@@ -534,6 +561,7 @@ export function TextSizeIcon({ className = "w-5 h-5" }: IconProps) {
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <text
         x="4"
@@ -566,6 +594,7 @@ export function GridIcon({ className = "w-5 h-5" }: IconProps) {
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <rect x="3" y="3" width="7" height="7" rx="1" strokeWidth={2} />
       <rect x="14" y="3" width="7" height="7" rx="1" strokeWidth={2} />
@@ -578,7 +607,7 @@ export function GridIcon({ className = "w-5 h-5" }: IconProps) {
 // Audio player icons
 export function PlayIcon({ className = "w-5 h-5" }: IconProps) {
   return (
-    <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+    <svg className={className} fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
       <path d="M8 5v14l11-7z" />
     </svg>
   );
@@ -586,7 +615,7 @@ export function PlayIcon({ className = "w-5 h-5" }: IconProps) {
 
 export function PauseIcon({ className = "w-5 h-5" }: IconProps) {
   return (
-    <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+    <svg className={className} fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
       <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
     </svg>
   );
@@ -602,6 +631,7 @@ export function VolumeIcon({ className = "w-5 h-5" }: IconProps) {
       strokeLinecap="round"
       strokeLinejoin="round"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
       <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
@@ -620,6 +650,7 @@ export function VolumeMuteIcon({ className = "w-5 h-5" }: IconProps) {
       strokeLinecap="round"
       strokeLinejoin="round"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
       <line x1="23" y1="9" x2="17" y2="15" />
@@ -638,6 +669,7 @@ export function RepeatIcon({ className = "w-5 h-5" }: IconProps) {
       strokeLinecap="round"
       strokeLinejoin="round"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <polyline points="17 1 21 5 17 9" />
       <path d="M3 11V9a4 4 0 0 1 4-4h14" />
@@ -657,6 +689,7 @@ export function AlertCircleIcon({ className = "w-5 h-5" }: IconProps) {
       strokeLinecap="round"
       strokeLinejoin="round"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <circle cx="12" cy="12" r="10" />
       <line x1="12" y1="8" x2="12" y2="12" />
@@ -667,7 +700,7 @@ export function AlertCircleIcon({ className = "w-5 h-5" }: IconProps) {
 
 export function StopIcon({ className = "w-5 h-5" }: IconProps) {
   return (
-    <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+    <svg className={className} fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
       <rect x="6" y="6" width="12" height="12" rx="1" />
     </svg>
   );
@@ -683,6 +716,7 @@ export function SkipForwardIcon({ className = "w-5 h-5" }: IconProps) {
       strokeLinecap="round"
       strokeLinejoin="round"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <polygon points="5 4 15 12 5 20 5 4" fill="currentColor" stroke="none" />
       <line x1="19" y1="5" x2="19" y2="19" />
@@ -700,6 +734,7 @@ export function CloudDownloadIcon({ className = "w-4 h-4" }: IconProps) {
       strokeLinecap="round"
       strokeLinejoin="round"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <path d="M12 13v8" />
       <path d="m8 17 4 4 4-4" />
@@ -718,6 +753,7 @@ export function TagIcon({ className = "w-4 h-4" }: IconProps) {
       strokeLinecap="round"
       strokeLinejoin="round"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" />
       <circle cx="7.5" cy="7.5" r="1.5" fill="currentColor" />
