@@ -63,7 +63,7 @@ const HTTP_STATUS_MESSAGES: Record<
   404: {
     login: "Account not found. Please check your email or sign up.",
     case_load: "Consultation not found.",
-    case_analyze: "Case not found.",
+    case_analyze: "Consultation not found.",
     verse_load: "Verse not found.",
     search: "No results found.",
     general: "The requested item was not found.",
@@ -118,7 +118,7 @@ const DEFAULT_ERROR_MESSAGES: Record<ErrorContext, string> = {
   refresh: "Session error. Please sign in again.",
   case_create: "Unable to submit your question. Please try again.",
   case_load: "Unable to load consultation. Please try again.",
-  case_analyze: "Unable to analyze case. Please try again.",
+  case_analyze: "Unable to analyze consultation. Please try again.",
   follow_up: "Unable to respond to your follow-up. Please try again.",
   verse_load: "Unable to load verse. Please try again.",
   search: "Search failed. Please try again.",

@@ -143,7 +143,7 @@ export class ErrorBoundary extends Component<Props, State> {
             <div className="max-w-md mx-auto px-4 text-center">
               <div className="mb-6 p-6 bg-[var(--status-error-bg)] border border-[var(--status-error-border)] rounded-[var(--radius-button)]">
                 <h1 className="text-2xl font-bold text-[var(--status-error-text)] mb-2">
-                  Oops, something went wrong
+                  Something unexpected happened
                 </h1>
                 <p className="text-[var(--status-error-text)] mb-4">
                   We encountered an unexpected error. Please try again.

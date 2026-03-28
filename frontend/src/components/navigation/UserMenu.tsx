@@ -156,7 +156,7 @@ export function UserMenu({
   // Reading link - dynamic based on position
   const hasReadingPosition = position?.chapter && position?.verse;
   const readingLabel = hasReadingPosition
-    ? `Resume BG ${position.chapter}.${position.verse}`
+    ? `Resume ${position.chapter}.${position.verse}`
     : "Start reading";
   const readingPath = hasReadingPosition
     ? `/read?c=${position.chapter}&v=${position.verse}`
