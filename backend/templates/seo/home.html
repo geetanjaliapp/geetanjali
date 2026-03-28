@@ -21,16 +21,16 @@
     "@type": "WebSite",
     "name": "{{ meta.site.name | default('Geetanjali') }}",
     "description": "{{ content.seo.description | default('Ethical guidance grounded in Bhagavad Gita wisdom') }}",
-    "url": "{{ meta.site.url | default('https://geetanjaliapp.com') }}",
+    "url": "{{ meta.site.url }}",
     "potentialAction": {
         "@type": "SearchAction",
-        "target": "{{ meta.site.url | default('https://geetanjaliapp.com') }}/search?q={search_term_string}",
+        "target": "{{ meta.site.url }}/search?q={search_term_string}",
         "query-input": "required name=search_term_string"
     },
     "publisher": {
         "@type": "Organization",
         "name": "{{ meta.site.name | default('Geetanjali') }}",
-        "url": "{{ meta.site.url | default('https://geetanjaliapp.com') }}"
+        "url": "{{ meta.site.url }}"
     }
 }
 </script>

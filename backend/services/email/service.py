@@ -720,6 +720,7 @@ def send_newsletter_digest_email(
     html_body = email_html_wrapper(body_content, header, footer)
 
     # Plain text version
+    app_url = EMAIL_APP_URL
     text_body = f"""
 {greeting}, {safe_name}
 
@@ -750,7 +751,7 @@ Based on your journey toward {goal_labels}.
 
 Geetanjali — Wisdom for modern life
 
-Visit App: https://geetanjaliapp.com
+Visit App: {app_url}
 Preferences: {preferences_url}
 Unsubscribe: {unsubscribe_url}
     """.strip()

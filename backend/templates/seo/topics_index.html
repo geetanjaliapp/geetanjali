@@ -26,7 +26,7 @@
     "@type": "CollectionPage",
     "name": "Bhagavad Gita Principles",
     "description": "16 consulting principles from the Bhagavad Gita organized by yoga paths",
-    "url": "https://geetanjaliapp.com/topics/",
+    "url": "{{ meta.site.url }}/topics/",
     "mainEntity": {
         "@type": "ItemList",
         "itemListElement": [
@@ -37,7 +37,7 @@
             {
                 "@type": "ListItem",
                 "position": {{ ns.pos }},
-                "url": "https://geetanjaliapp.com/topics/{{ principle.id }}",
+                "url": "{{ meta.site.url }}/topics/{{ principle.id }}",
                 "name": "{{ principle.label | e }}"
             }{% if ns.pos < ns.total %},{% endif %}
             {%- endfor -%}
@@ -47,7 +47,7 @@
     "publisher": {
         "@type": "Organization",
         "name": "Geetanjali",
-        "url": "https://geetanjaliapp.com"
+        "url": "{{ meta.site.url }}"
     }
 }
 </script>
@@ -60,7 +60,7 @@
             "@type": "ListItem",
             "position": 1,
             "name": "Home",
-            "item": "https://geetanjaliapp.com/"
+            "item": "{{ meta.site.url }}/"
         },
         {
             "@type": "ListItem",

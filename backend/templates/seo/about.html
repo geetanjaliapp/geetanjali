@@ -21,12 +21,12 @@
     "@type": "AboutPage",
     "name": "{{ content.hero.title | default('About Geetanjali') }}",
     "description": "{{ content.seo.description | default('Learn about Geetanjali - ancient wisdom for modern ethical decisions') }}",
-    "url": "{{ meta.site.url | default('https://geetanjaliapp.com') }}/about",
+    "url": "{{ meta.site.url }}/about",
     "mainEntity": {
         "@type": "Organization",
         "name": "{{ meta.site.name | default('Geetanjali') }}",
         "description": "{{ content.hero.subtitle | default('Ethical leadership guidance grounded in Bhagavad Gita wisdom') }}",
-        "url": "{{ meta.site.url | default('https://geetanjaliapp.com') }}"
+        "url": "{{ meta.site.url }}"
     }
 }
 </script>

@@ -21,7 +21,7 @@
     "@type": "CollectionPage",
     "name": "Featured Bhagavad Gita Verses",
     "description": "Curated collection of essential Bhagavad Gita verses selected for universal wisdom and practical guidance",
-    "url": "https://geetanjaliapp.com/featured",
+    "url": "{{ meta.site.url }}/featured",
     "mainEntity": {
         "@type": "ItemList",
         "numberOfItems": {{ verses|length }},
@@ -30,7 +30,7 @@
             {
                 "@type": "ListItem",
                 "position": {{ loop.index }},
-                "url": "https://geetanjaliapp.com/verses/{{ verse.canonical_id }}",
+                "url": "{{ meta.site.url }}/verses/{{ verse.canonical_id }}",
                 "name": "Bhagavad Gita {{ verse.chapter }}.{{ verse.verse }}"
             }{% if not loop.last %},{% endif %}
             {% endfor %}
@@ -39,7 +39,7 @@
     "publisher": {
         "@type": "Organization",
         "name": "Geetanjali",
-        "url": "https://geetanjaliapp.com"
+        "url": "{{ meta.site.url }}"
     }
 }
 </script>
@@ -52,7 +52,7 @@
             "@type": "ListItem",
             "position": 1,
             "name": "Home",
-            "item": "https://geetanjaliapp.com/"
+            "item": "{{ meta.site.url }}/"
         },
         {
             "@type": "ListItem",

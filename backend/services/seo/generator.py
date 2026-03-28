@@ -29,6 +29,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
+from config import settings
 from models import SeoPage
 from utils.metrics_seo import (
     seo_generation_duration_seconds,
@@ -134,6 +135,17 @@ class SeoGeneratorService:
                 loader=FileSystemLoader(self.templates_dir),
                 autoescape=select_autoescape(["html", "htm", "xml"]),
             )
+            # Site metadata available to all templates (sitemap, OG tags, JSON-LD)
+            self._env.globals["meta"] = {
+                "site": {
+                    "name": "Geetanjali",
+                    "url": settings.FRONTEND_URL,
+                    "tagline": "Ancient Wisdom, Modern Interface",
+                },
+                "seo": {
+                    "defaultTitle": "Geetanjali - Bhagavad Gita Wisdom",
+                },
+            }
         return self._env
 
     def _acquire_lock(self) -> bool:
@@ -736,18 +748,6 @@ class SeoGeneratorService:
         from data.featured_verses import FEATURED_VERSES
         from models import ChapterMetadata, Verse
 
-        # Shared site metadata
-        meta = {
-            "site": {
-                "name": "Geetanjali",
-                "url": "https://geetanjaliapp.com",
-                "tagline": "Ancient Wisdom, Modern Interface",
-            },
-            "seo": {
-                "defaultTitle": "Geetanjali - Bhagavad Gita Wisdom",
-            },
-        }
-
         if page_key == "home":
             chapters = (
                 self.db.query(ChapterMetadata)
@@ -801,7 +801,6 @@ class SeoGeneratorService:
                 "chapters": chapters,
                 "daily_verse": daily_verse,
                 "content": content,
-                "meta": meta,
             }
 
         if page_key == "about":
@@ -864,7 +863,7 @@ class SeoGeneratorService:
                     ],
                 },
             }
-            return {"content": content, "meta": meta}
+            return {"content": content}
 
         if page_key == "verse_index":
             chapters = (

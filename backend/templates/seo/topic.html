@@ -21,8 +21,8 @@
     "@type": "Article",
     "headline": "{{ principle.label }} ({{ principle.transliteration }})",
     "description": "{{ principle.description | e }}",
-    "url": "https://geetanjaliapp.com/topics/{{ principle.id }}",
-    "mainEntityOfPage": "https://geetanjaliapp.com/topics/{{ principle.id }}",
+    "url": "{{ meta.site.url }}/topics/{{ principle.id }}",
+    "mainEntityOfPage": "{{ meta.site.url }}/topics/{{ principle.id }}",
     "inLanguage": ["en", "sa"],
     "about": {
         "@type": "Thing",
@@ -38,7 +38,7 @@
     "publisher": {
         "@type": "Organization",
         "name": "Geetanjali",
-        "url": "https://geetanjaliapp.com"
+        "url": "{{ meta.site.url }}"
     }
 }
 </script>
@@ -67,13 +67,13 @@
             "@type": "ListItem",
             "position": 1,
             "name": "Home",
-            "item": "https://geetanjaliapp.com/"
+            "item": "{{ meta.site.url }}/"
         },
         {
             "@type": "ListItem",
             "position": 2,
             "name": "Topics",
-            "item": "https://geetanjaliapp.com/topics"
+            "item": "{{ meta.site.url }}/topics"
         },
         {
             "@type": "ListItem",

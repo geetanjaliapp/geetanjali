@@ -2,9 +2,11 @@
 
 import html
 
+from config import settings
+
 # Design tokens
-EMAIL_LOGO_URL = "https://geetanjaliapp.com/logo-email.png"
-EMAIL_APP_URL = "https://geetanjaliapp.com"
+EMAIL_LOGO_URL = f"{settings.FRONTEND_URL}/logo-email.png"
+EMAIL_APP_URL = settings.FRONTEND_URL
 
 
 def email_header(subtitle: str) -> str:

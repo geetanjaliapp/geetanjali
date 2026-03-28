@@ -21,7 +21,7 @@
     "@type": "WebPage",
     "name": "Verse of the Day",
     "description": "Daily wisdom from the Bhagavad Gita",
-    "url": "https://geetanjaliapp.com/daily",
+    "url": "{{ meta.site.url }}/daily",
     "mainEntity": {
         "@type": "Quotation",
         "text": "{{ verse.translation_en | e if verse.translation_en else verse.paraphrase_en | e }}",
@@ -35,7 +35,7 @@
     "publisher": {
         "@type": "Organization",
         "name": "Geetanjali",
-        "url": "https://geetanjaliapp.com"
+        "url": "{{ meta.site.url }}"
     }
 }
 </script>
@@ -48,7 +48,7 @@
             "@type": "ListItem",
             "position": 1,
             "name": "Home",
-            "item": "https://geetanjaliapp.com/"
+            "item": "{{ meta.site.url }}/"
         },
         {
             "@type": "ListItem",

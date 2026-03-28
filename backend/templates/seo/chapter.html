@@ -22,7 +22,7 @@
     "name": "{{ chapter.english_title | e }}",
     "position": {{ chapter.chapter_number }},
     "description": "{{ chapter.summary | e if chapter.summary else '' }}",
-    "url": "https://geetanjaliapp.com/verses/chapter/{{ chapter.chapter_number }}",
+    "url": "{{ meta.site.url }}/verses/chapter/{{ chapter.chapter_number }}",
     "isPartOf": {
         "@type": "Book",
         "name": "Bhagavad Gita",
@@ -34,7 +34,7 @@
             "@type": "Article",
             "name": "Verse {{ verse.chapter }}.{{ verse.verse }}",
             "position": {{ verse.verse }},
-            "url": "https://geetanjaliapp.com/verses/{{ verse.canonical_id }}"
+            "url": "{{ meta.site.url }}/verses/{{ verse.canonical_id }}"
         }{% if not loop.last %},{% endif %}
         {% endfor %}
     ]
@@ -49,13 +49,13 @@
             "@type": "ListItem",
             "position": 1,
             "name": "Home",
-            "item": "https://geetanjaliapp.com/"
+            "item": "{{ meta.site.url }}/"
         },
         {
             "@type": "ListItem",
             "position": 2,
             "name": "Verses",
-            "item": "https://geetanjaliapp.com/verses"
+            "item": "{{ meta.site.url }}/verses"
         },
         {
             "@type": "ListItem",

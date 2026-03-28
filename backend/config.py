@@ -596,6 +596,16 @@ class Settings(BaseSettings):
             )
 
         # ========================================
+        # SECURITY: FRONTEND_URL validation
+        # ========================================
+        if self.FRONTEND_URL.startswith("http://localhost"):
+            errors.append(
+                "FRONTEND_URL is using localhost default. "
+                "Set FRONTEND_URL to your production domain "
+                "(e.g., https://geetanjaliapp.com)."
+            )
+
+        # ========================================
         # OPTIONAL: Recommended services
         # ========================================
         if not self.REDIS_URL:

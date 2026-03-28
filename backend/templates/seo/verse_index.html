@@ -21,7 +21,7 @@
     "@type": "CollectionPage",
     "name": "Bhagavad Gita Verses",
     "description": "Complete collection of 701 Bhagavad Gita verses across 18 chapters",
-    "url": "https://geetanjaliapp.com/verses",
+    "url": "{{ meta.site.url }}/verses",
     "mainEntity": {
         "@type": "Book",
         "name": "Bhagavad Gita",
@@ -35,7 +35,7 @@
             "@type": "Chapter",
             "name": "Chapter {{ chapter.chapter_number }}: {{ chapter.english_title | e }}",
             "position": {{ chapter.chapter_number }},
-            "url": "https://geetanjaliapp.com/verses/chapter/{{ chapter.chapter_number }}"
+            "url": "{{ meta.site.url }}/verses/chapter/{{ chapter.chapter_number }}"
         }{% if not loop.last %},{% endif %}
         {% endfor %}
     ]
@@ -50,7 +50,7 @@
             "@type": "ListItem",
             "position": 1,
             "name": "Home",
-            "item": "https://geetanjaliapp.com/"
+            "item": "{{ meta.site.url }}/"
         },
         {
             "@type": "ListItem",

@@ -26,7 +26,7 @@ router = APIRouter()
 FEED_CACHE_KEY = "feed:rss"
 
 # Feed settings
-BASE_URL = "https://geetanjaliapp.com"
+BASE_URL = settings.FRONTEND_URL
 FEED_DAYS = 30  # Number of past days to include
 
 

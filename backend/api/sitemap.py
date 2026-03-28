@@ -26,8 +26,8 @@ router = APIRouter()
 # Cache settings
 SITEMAP_CACHE_KEY = "sitemap:xml"
 
-# Base URL for sitemap (production URL)
-BASE_URL = "https://geetanjaliapp.com"
+# Base URL for sitemap (from config, defaults to localhost in dev)
+BASE_URL = settings.FRONTEND_URL
 
 # Static pages with their priorities and change frequencies
 STATIC_PAGES = [
