@@ -45,7 +45,7 @@
       "content": [
         "The Bhagavad Gita verses and translations are sourced from public domain texts. Full attribution is available on our GitHub repository.",
         "The Geetanjali application code is open source and available under the license specified in the repository.",
-        "Audio recitations are original recordings. You may listen to them through the app but may not redistribute them without permission."
+        "Audio recitations are AI-generated using AI4Bharat's Indic Parler-TTS model. You may listen to them through the app but may not redistribute them without permission."
       ]
     },
     {

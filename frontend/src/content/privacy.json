@@ -9,7 +9,7 @@
         "**Account information** (optional): Name, email address, and password if you create an account. You can use Geetanjali without an account.",
         "**Consultation content**: The questions you ask and the guidance generated in response. For guests, this is stored only in your browser. For registered users, it is stored on our server.",
         "**Preferences**: Learning goals, reading progress, favorites, theme settings, and newsletter preferences. Stored locally for guests, synced to your account if registered.",
-        "**Usage data**: Basic server logs (IP address, request timestamps) for security and reliability. We do not use analytics trackers or advertising pixels."
+        "**Usage data**: Basic server logs (IP address, request timestamps) for security and reliability. We use Umami, a privacy-aware analytics tool, to collect anonymous page visit and event data. No personal data is collected, no cookies are set, and no cross-site tracking occurs. We do not use advertising pixels."
       ]
     },
     {
