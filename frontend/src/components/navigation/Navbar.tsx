@@ -90,7 +90,7 @@ export function Navbar({
               {!showBack && (
                 <button
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="md:hidden p-2 -ml-2 rounded-[var(--radius-button)] text-[var(--text-secondary)] hover:text-[var(--text-accent)] hover:bg-[var(--interactive-ghost-hover-bg)] transition-[var(--transition-color)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
+                  className="md:hidden p-2.5 -ml-2.5 rounded-[var(--radius-button)] text-[var(--text-secondary)] hover:text-[var(--text-accent)] hover:bg-[var(--interactive-ghost-hover-bg)] transition-[var(--transition-color)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
                   aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
                   aria-expanded={isMobileMenuOpen}
                   aria-controls="mobile-nav-drawer"

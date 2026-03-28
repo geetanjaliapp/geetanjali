@@ -68,7 +68,7 @@ export function FloatingActionButton({
   }, [isHomepage]);
 
   // Hide FAB on certain pages where it's not appropriate
-  const hiddenPaths = ["/cases/new", "/login", "/signup"];
+  const hiddenPaths = ["/cases/new", "/login", "/signup", "/verses"];
   const shouldHide = hiddenPaths.some((path) => location.pathname === path);
 
   // Show on /read (users may have questions from scripture)

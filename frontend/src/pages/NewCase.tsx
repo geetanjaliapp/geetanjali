@@ -356,7 +356,7 @@ export default function NewCase() {
                   }`}
                 >
                   {formData.question.length < 10
-                    ? `${formData.question.length}/10 min`
+                    ? `${formData.question.length}/10 chars`
                     : "✓"}
                 </span>
               </div>

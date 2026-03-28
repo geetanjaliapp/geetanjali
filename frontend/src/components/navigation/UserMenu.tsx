@@ -327,13 +327,13 @@ export function UserMenu({
                 </Link>
 
                 {/* Secondary - Sign in link */}
-                <div className="flex items-center justify-center gap-1.5 py-1">
+                <div className="flex items-center justify-center gap-1.5 py-2">
                   <span className="text-xs text-[var(--text-muted)]">or</span>
                   <Link
                     role="menuitem"
                     to="/login"
                     onClick={handleLinkClick}
-                    className="text-sm font-medium text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] hover:underline transition-[var(--transition-color)] focus:outline-hidden focus-visible:underline"
+                    className="text-sm font-medium py-1 text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] hover:underline transition-[var(--transition-color)] focus:outline-hidden focus-visible:underline"
                   >
                     Sign in →
                   </Link>
