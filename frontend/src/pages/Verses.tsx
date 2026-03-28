@@ -1545,13 +1545,13 @@ export default function Verses() {
         </div>
       </div>
 
+      </main>
+
       {/* Bottom padding for FAB on mobile */}
       <div className="h-16 sm:hidden" />
 
       {/* Footer */}
       <Footer />
-
-      </main>
 
       {/* Floating Audio Bar - shows when audio is playing */}
       <FloatingAudioBar />
