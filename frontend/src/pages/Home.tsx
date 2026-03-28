@@ -94,7 +94,7 @@ export default function Home() {
     <div className="min-h-screen w-full max-w-full bg-linear-to-br from-[var(--gradient-page-from)] to-[var(--gradient-page-to)] flex flex-col">
       <Navbar />
 
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 lg:py-12">
+      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 lg:py-12">
         <div className="text-center">
           {/* Hero Section */}
           <div className="mb-6 sm:mb-8">
@@ -331,7 +331,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </div>
+      </main>
 
       {/* Footer */}
       <Footer />

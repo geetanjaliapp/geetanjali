@@ -311,7 +311,7 @@ export default function Consultations() {
   return (
     <div className="min-h-screen bg-linear-to-br from-[var(--gradient-page-from)] to-[var(--gradient-page-to)] flex flex-col">
       <Navbar />
-      <div className="flex-1 py-6 sm:py-8">
+      <main className="flex-1 py-6 sm:py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header - sticky below navbar, 2-line layout */}
           <div className="sticky top-14 sm:top-16 z-10 bg-linear-to-br from-[var(--gradient-page-from)] to-[var(--gradient-page-to)] -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-4 sm:py-5 mb-4 sm:mb-6">
@@ -799,7 +799,7 @@ export default function Consultations() {
             </>
           )}
         </div>
-      </div>
+      </main>
 
       {/* Bottom padding for FAB on mobile */}
       <div className="h-16 sm:hidden" />

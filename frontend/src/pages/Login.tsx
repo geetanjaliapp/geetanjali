@@ -34,7 +34,7 @@ export default function Login() {
   return (
     <div className="min-h-screen flex flex-col bg-[var(--surface-page)]">
       <Navbar />
-      <div className="flex-1 flex items-center justify-center px-4 py-8 sm:py-12">
+      <main className="flex-1 flex items-center justify-center px-4 py-8 sm:py-12">
         <div className="max-w-md w-full space-y-6 sm:space-y-8">
           <div className="text-center">
             <Link
@@ -143,7 +143,7 @@ export default function Login() {
             <p>Ethical guidance rooted in timeless wisdom</p>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

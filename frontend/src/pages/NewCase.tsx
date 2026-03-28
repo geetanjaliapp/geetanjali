@@ -286,7 +286,7 @@ export default function NewCase() {
   return (
     <div className="min-h-screen bg-linear-to-br from-[var(--gradient-page-from)] to-[var(--gradient-page-to)] flex flex-col">
       <Navbar />
-      <div className="flex-1 py-6 sm:py-8">
+      <main className="flex-1 py-6 sm:py-8">
         <div className="max-w-3xl mx-auto px-4">
           {/* Header */}
           <div className="mb-6 sm:mb-8 text-center">
@@ -503,7 +503,7 @@ export default function NewCase() {
             </span>
           </p>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

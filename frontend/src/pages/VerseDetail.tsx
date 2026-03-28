@@ -460,7 +460,7 @@ export default function VerseDetail() {
         </>
       )}
 
-      <div className="flex-1 py-4 sm:py-6 lg:py-8">
+      <main className="flex-1 py-4 sm:py-6 lg:py-8">
         <div className="max-w-5xl mx-auto px-3 sm:px-4 lg:px-6">
           {/* Chapter Context Bar with font controls */}
           <ChapterContextBar
@@ -958,7 +958,7 @@ export default function VerseDetail() {
             </div>
           )}
         </div>
-      </div>
+      </main>
 
       {/* Footer */}
       <Footer />

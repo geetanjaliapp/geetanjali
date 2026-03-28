@@ -57,7 +57,7 @@ export default function Signup() {
   return (
     <div className="min-h-screen flex flex-col bg-[var(--surface-page)]">
       <Navbar />
-      <div className="flex-1 flex items-center justify-center px-4 py-6 sm:py-8">
+      <main className="flex-1 flex items-center justify-center px-4 py-6 sm:py-8">
         <div className="max-w-md w-full space-y-5 sm:space-y-6">
           <div className="text-center">
             <Link
@@ -201,7 +201,7 @@ export default function Signup() {
             <p>Ethical guidance rooted in timeless wisdom</p>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

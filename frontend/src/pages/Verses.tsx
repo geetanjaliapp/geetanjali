@@ -799,6 +799,7 @@ export default function Verses() {
 
       <Navbar />
 
+      <main className="flex-1 flex flex-col">
       {/* Page Header - scrolls away, content-first */}
       <div className="py-4 sm:py-6 text-center">
         <h1 className="text-xl sm:text-2xl font-bold font-heading text-[var(--text-primary)]">
@@ -1549,6 +1550,8 @@ export default function Verses() {
 
       {/* Footer */}
       <Footer />
+
+      </main>
 
       {/* Floating Audio Bar - shows when audio is playing */}
       <FloatingAudioBar />

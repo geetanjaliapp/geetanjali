@@ -609,7 +609,7 @@ ${messages
         onCopyShareLink={copyShareLink}
       />
 
-      <div className="flex-1 py-4 sm:py-6">
+      <main className="flex-1 py-4 sm:py-6">
         <div className="max-w-2xl mx-auto px-3 sm:px-4">
           {/* Analysis Complete Banner */}
           {showCompletionBanner && (
@@ -1172,7 +1172,7 @@ ${messages
               </div>
             )}
         </div>
-      </div>
+      </main>
 
       {/* Delete Confirmation Modal */}
       <ConfirmModal
