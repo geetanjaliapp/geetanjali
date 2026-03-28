@@ -66,7 +66,7 @@ export function CompletionBanner({
             }
           >
             {isPolicyViolation
-              ? "Unable to Provide Guidance"
+              ? "We Couldn't Help With This"
               : "Analysis Complete"}
           </p>
           <p

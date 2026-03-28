@@ -295,7 +295,7 @@ export default function Settings() {
       // Clear success message after 3 seconds
       setTimeout(() => setUpdateSuccess(false), 3000);
     } catch (err: unknown) {
-      setUpdateError(getApiErrorDetail(err, "Failed to update preferences."));
+      setUpdateError(getApiErrorDetail(err, "We couldn't save your preferences. Please try again."));
     } finally {
       setIsUpdatingPrefs(false);
     }
@@ -379,10 +379,10 @@ export default function Settings() {
         if (response?.status === 401) {
           setDeleteAccountError("Incorrect password. Please try again.");
         } else {
-          setDeleteAccountError("Failed to delete account. Please try again.");
+          setDeleteAccountError("We couldn't delete your account. Please try again.");
         }
       } else {
-        setDeleteAccountError("Failed to delete account. Please try again.");
+        setDeleteAccountError("We couldn't delete your account. Please try again.");
       }
       setIsDeletingAccount(false);
     }

@@ -507,7 +507,7 @@ ${messages
         setTimeout(() => setCopySuccess(false), 2000);
       }
     } catch {
-      setError("Failed to share consultation");
+      setError("We couldn't share this consultation. Please try again.");
     } finally {
       setShareLoading(false);
     }
@@ -521,7 +521,7 @@ ${messages
       const updated = await casesApi.toggleShare(id, true, mode);
       setCaseData(updated);
     } catch {
-      setError("Failed to update share mode");
+      setError("We couldn't update sharing settings. Please try again.");
     } finally {
       setShareLoading(false);
     }
@@ -535,7 +535,7 @@ ${messages
       const updated = await casesApi.toggleShare(id, false);
       setCaseData(updated);
     } catch {
-      setError("Failed to stop sharing");
+      setError("We couldn't stop sharing. Please try again.");
     } finally {
       setShareLoading(false);
     }

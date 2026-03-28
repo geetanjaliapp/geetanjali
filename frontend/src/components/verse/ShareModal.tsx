@@ -216,7 +216,7 @@ export function ShareModal({
       if (err instanceof Error && err.name === "AbortError") {
         // Silently ignore user cancellation
       } else {
-        setError("Failed to share. Try downloading instead.");
+        setError("Sharing didn't work. Try downloading instead.");
       }
     } finally {
       setSharing(false);
