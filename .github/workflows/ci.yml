@@ -162,4 +162,9 @@ jobs:
           echo "✓ Bundle size check passed"
 
       - name: Security audit
+        # Advisory only: npm audit reads a live advisory DB, so newly-disclosed
+        # CVEs would otherwise turn this red on unrelated PRs with no code change.
+        # Surfaces high-severity advisories without blocking merge. Real fixes
+        # land via the regular `npm audit fix` / dependabot flow.
+        continue-on-error: true
         run: npm audit --audit-level=high
