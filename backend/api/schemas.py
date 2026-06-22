@@ -182,7 +182,10 @@ class CaseBase(BaseModel):
     locale: str = Field("en", description="Language/locale preference")
     session_id: str | None = Field(None, description="Session ID for anonymous users")
     anchor_verse_id: str | None = Field(
-        None, max_length=30, description="Anchor verse canonical ID (e.g., BG_2_47)"
+        None,
+        max_length=30,
+        pattern=r"^BG_\d{1,2}_\d{1,3}$",  # matches existing validate_canonical_id()
+        description="Anchor verse canonical ID (e.g., BG_2_47)",
     )
 
 
