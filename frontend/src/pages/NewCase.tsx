@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
+import { useNavigate, useLocation, useSearchParams, Link } from "react-router-dom";
 import { casesApi } from "../lib/api";
 import type { Case } from "../types";
 import { Navbar } from "../components";
@@ -96,6 +96,13 @@ export default function NewCase() {
     searchParams.get("prefill") ||
     (location.state as LocationState)?.prefill ||
     "";
+
+  // v1.39.0: anchor verse from verse detail page
+  const anchorVerseId = searchParams.get("verse") || null;
+  const reflectText =
+    ((location.state as Record<string, unknown>)?.reflect as string)?.trim() ||
+    null;
+  const [showAnchorBanner, setShowAnchorBanner] = useState(true);
 
   const { loading, error, execute } = useAsyncAction<string>();
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -212,6 +219,12 @@ export default function NewCase() {
         description += "\n\n" + formData.context.trim();
       }
 
+      // v1.39.0: Prepend anchor verse reflection to description
+      if (anchorVerseId && showAnchorBanner && reflectText) {
+        description =
+          `Regarding verse ${anchorVerseId}: ${reflectText}\n\n${description}`;
+      }
+
       const generateSimpleTitle = (text: string): string => {
         const firstSentence = text.split(/[.!?]/)[0].trim();
         if (firstSentence.length > 0 && firstSentence.length <= 100) {
@@ -232,6 +245,7 @@ export default function NewCase() {
         stakeholders: Array.from(selectedStakeholders),
         constraints: [],
         horizon: "medium", // Default: medium-term perspective
+        ...(anchorVerseId && showAnchorBanner ? { anchor_verse_id: anchorVerseId } : {}),
       };
 
       const createdCase = await casesApi.create(caseData);
@@ -298,6 +312,41 @@ export default function NewCase() {
             </p>
             <InspirationVerse />
           </div>
+
+          {/* v1.39.0: Anchor verse banner — when navigating from a verse page */}
+          {anchorVerseId && showAnchorBanner && (
+            <div className="mb-4 flex items-center justify-between bg-[var(--surface-elevated-translucent-subtle)] backdrop-blur-xs border border-[var(--border-warm-subtle)] rounded-[var(--radius-chip)] px-4 py-2.5">
+              <Link
+                to={`/verses/${anchorVerseId}`}
+                className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-[var(--transition-color)]"
+              >
+                Guidance anchored to{" "}
+                <span className="font-medium text-[var(--text-primary)]">
+                  {anchorVerseId.replace(/_/g, " ")}
+                </span>
+              </Link>
+              <button
+                type="button"
+                onClick={() => setShowAnchorBanner(false)}
+                className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-[var(--transition-color)] p-1"
+                aria-label={`Remove anchor verse ${anchorVerseId}`}
+              >
+                ×
+              </button>
+            </div>
+          )}
+
+          {/* v1.39.0: Reflection preview card — read-only, not editable */}
+          {anchorVerseId && showAnchorBanner && reflectText && (
+            <div className="mb-4 bg-[var(--surface-elevated-translucent-subtle)] backdrop-blur-xs border border-[var(--border-warm-subtle)] rounded-[var(--radius-card)] px-4 py-3">
+              <p className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-widest mb-1.5">
+                Your reflection on {anchorVerseId.replace(/_/g, " ")}
+              </p>
+              <p className="text-sm text-[var(--text-secondary)] italic">
+                "{reflectText}"
+              </p>
+            </div>
+          )}
 
           {/* Error Alert */}
           {error && (
