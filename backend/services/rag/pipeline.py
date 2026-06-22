@@ -261,6 +261,68 @@ class RAGPipeline:
         finally:
             db.close()
 
+    def _fetch_anchor_verse(
+        self, canonical_id: str
+    ) -> dict[str, Any] | None:
+        """
+        Fetch a verse by canonical_id and build a fully-enriched dict.
+
+        The dict matches the post-enrichment format that downstream consumers
+        (construct_context, _inject_rag_verses) expect — with translation_en,
+        paraphrase_en, and is_anchor: True flag distinguishing it from
+        retrieved verses.
+
+        Args:
+            canonical_id: Verse canonical ID (e.g., "BG_2_47")
+
+        Returns:
+            Fully-enriched verse dict, or None if verse not found
+        """
+        db = SessionLocal()
+        try:
+            verse_repo = VerseRepository(db)
+            verse = verse_repo.get_by_canonical_id(canonical_id)
+            if verse is None:
+                return None
+
+            # Build fully-enriched dict matching post-enrichment format.
+            # This is NOT the raw vector format — it has translations
+            # already populated so the anchor doesn't need enrichment.
+            translations = []
+            if hasattr(verse, 'translations') and verse.translations:
+                translations = [
+                    {
+                        "text": t.text,
+                        "translator": t.translator,
+                        "school": t.school,
+                    }
+                    for t in verse.translations
+                    if t.translator != "Swami Gambirananda"
+                ][:3]
+
+            return {
+                "canonical_id": verse.canonical_id,
+                "document": verse.paraphrase_en or verse.translation_en or "",
+                "distance": None,           # not a vector match
+                "relevance": 1.0,           # user-chosen, highest relevance
+                "is_anchor": True,          # distinguishes from retrieved verses
+                "metadata": {
+                    "translation_en": verse.translation_en or "",
+                    "paraphrase_en": verse.paraphrase_en or "",
+                    "chapter": verse.chapter,
+                    "verse": verse.verse,
+                    "sanskrit_iast": verse.sanskrit_iast or "",
+                    "translations": translations,
+                },
+            }
+        except Exception as e:
+            logger.warning(
+                f"Failed to fetch anchor verse {canonical_id}: {e}"
+            )
+            return None
+        finally:
+            db.close()
+
     def construct_context(
         self, case_data: dict[str, Any], retrieved_verses: list[dict[str, Any]]
     ) -> str:
@@ -746,7 +808,8 @@ class RAGPipeline:
         }
 
     def run(
-        self, case_data: dict[str, Any], top_k: int | None = None
+        self, case_data: dict[str, Any], top_k: int | None = None,
+        anchor_verse_id: str | None = None,
     ) -> tuple[dict[str, Any], bool]:
         """
         Run complete RAG pipeline with graceful degradation.
@@ -754,6 +817,13 @@ class RAGPipeline:
         Args:
             case_data: Case information
             top_k: Number of verses to retrieve (optional)
+            anchor_verse_id: Optional canonical verse ID to anchor at position 0.
+                The verse is fetched from DB, built as a fully-enriched dict,
+                and prepended to retrieved verses after enrichment. If the
+                anchor verse is also found in retrieval results, the duplicate
+                (lower-relevance copy) is removed. If the verse ID is invalid
+                or not found, a warning is logged and the pipeline proceeds
+                without anchor.
 
         Returns:
             Tuple of (consulting brief dict, is_policy_violation bool)
@@ -765,6 +835,11 @@ class RAGPipeline:
             - Always returns a valid response structure
         """
         logger.info(f"Running RAG pipeline for case: {case_data.get('title', 'N/A')}")
+
+        # Extract anchor_verse_id from case_data if not explicitly provided.
+        # _build_case_data() already includes it in the dict — both paths work.
+        if anchor_verse_id is None:
+            anchor_verse_id = case_data.get("anchor_verse_id")
 
         # Step 0: Normalize input to handle duplicates, control chars, etc.
         raw_description = case_data.get("description", "")
@@ -817,6 +892,36 @@ class RAGPipeline:
         except Exception as e:
             logger.error(f"Verse retrieval failed: {e} - continuing without verses")
             # Continue pipeline without verses (degraded mode)
+
+        # Step 1.5: Inject anchor verse if provided (after enrichment, before context)
+        # Insert AFTER enrichment to prevent duplicate in LLM prompt:
+        # if anchor is inserted before enrichment, both anchor + any retrieved
+        # duplicate get enriched and both flow into build_user_prompt().
+        if anchor_verse_id:
+            try:
+                anchor_verse = self._fetch_anchor_verse(anchor_verse_id)
+                if anchor_verse:
+                    # Dedup: remove any retrieved verse matching the anchor
+                    retrieved_verses = [
+                        v for v in retrieved_verses
+                        if v.get("canonical_id") != anchor_verse_id
+                    ]
+                    # Prepend anchor at position 0
+                    retrieved_verses.insert(0, anchor_verse)
+                    logger.info(
+                        f"Anchored consultation to verse {anchor_verse_id} "
+                        f"(position 0, relevance 1.0)"
+                    )
+                else:
+                    logger.warning(
+                        f"Anchor verse not found: {anchor_verse_id} — "
+                        f"proceeding without anchor"
+                    )
+            except Exception as e:
+                logger.warning(
+                    f"Failed to inject anchor verse {anchor_verse_id}: {e} — "
+                    f"proceeding without anchor"
+                )
 
         # Step 2: Construct context
         try:
@@ -910,6 +1015,16 @@ class RAGPipeline:
             validated_output["_repairs_count"] = validated_output.get(
                 "_repairs_count", 0
             )
+
+            # Flag anchor verse in sources (v1.39.0 bridge).
+            # LLM-produced sources won't have is_anchor set — the LLM doesn't
+            # know which verse was user-selected. _inject_rag_verses preserves
+            # is_anchor from retrieved_verses, but LLM output sources don't.
+            # Post-process: set is_anchor on any source matching anchor_verse_id.
+            if anchor_verse_id:
+                for source in validated_output.get("sources", []):
+                    if source.get("canonical_id") == anchor_verse_id:
+                        source["is_anchor"] = True
 
             # P1.1 FIX: Cache successful results
             cache.set(cache_key, validated_output, settings.CACHE_TTL_RAG_OUTPUT)

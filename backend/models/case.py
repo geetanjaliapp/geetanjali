@@ -41,9 +41,15 @@ class Case(Base, TimestampMixin):
         String(255), index=True, nullable=True
     )
 
+    # NOTE: If adding a column needed by the RAG pipeline, also update
+    # _build_case_data() in api/outputs.py to include it in the pipeline dict.
+
     # Content
     title: Mapped[str] = mapped_column(String(500), nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=False)
+    anchor_verse_id: Mapped[str | None] = mapped_column(
+        String(30), nullable=True, default=None, index=True
+    )
     role: Mapped[str | None] = mapped_column(String(100), nullable=True)
     stakeholders: Mapped[Any | None] = mapped_column(JSON, nullable=True)
     constraints: Mapped[Any | None] = mapped_column(JSON, nullable=True)

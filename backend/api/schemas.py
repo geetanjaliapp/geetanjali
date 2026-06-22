@@ -181,6 +181,9 @@ class CaseBase(BaseModel):
     )
     locale: str = Field("en", description="Language/locale preference")
     session_id: str | None = Field(None, description="Session ID for anonymous users")
+    anchor_verse_id: str | None = Field(
+        None, max_length=30, description="Anchor verse canonical ID (e.g., BG_2_47)"
+    )
 
 
 class CaseCreate(CaseBase):
@@ -346,6 +349,7 @@ class SourceSchema(BaseModel):
     canonical_id: str
     paraphrase: str = ""  # May be empty for legacy data
     relevance: float = Field(default=0.8, ge=0.0, le=1.0)
+    is_anchor: bool = False  # True if this verse was user-selected (not retrieved)
 
 
 class OutputResultSchema(BaseModel):

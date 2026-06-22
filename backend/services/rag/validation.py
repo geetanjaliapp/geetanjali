@@ -801,6 +801,7 @@ def _inject_rag_verses(
             "canonical_id": verse_id,
             "paraphrase": paraphrase,
             "relevance": verse.get("relevance", 0.7),
+            "is_anchor": verse.get("is_anchor", False),
         }
 
         sources_array.append(injected_source)
