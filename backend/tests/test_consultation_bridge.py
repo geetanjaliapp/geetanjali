@@ -99,17 +99,26 @@ class TestConsultationAnchorVerse:
 
     def test_list_cases_includes_anchor_verse_id(self, client):
         """GET /api/v1/cases returns anchor_verse_id when set."""
-        # Create a case with anchor
-        create_resp = client.post("/api/v1/cases", json={
-            "title": "Test case with anchor",
-            "description": "Test description.",
-            "role": "Individual",
-            "anchor_verse_id": "BG_3_15",
-        })
+        import uuid
+
+        session_id = str(uuid.uuid4())
+        headers = {"X-Session-ID": session_id}
+
+        # Create a case with anchor (same session)
+        create_resp = client.post(
+            "/api/v1/cases",
+            json={
+                "title": "Test case with anchor",
+                "description": "Test description.",
+                "role": "Individual",
+                "anchor_verse_id": "BG_3_15",
+            },
+            headers=headers,
+        )
         assert create_resp.status_code == status.HTTP_201_CREATED
 
-        # List cases
-        list_resp = client.get("/api/v1/cases")
+        # List cases (same session — should see the created case)
+        list_resp = client.get("/api/v1/cases", headers=headers)
         assert list_resp.status_code == status.HTTP_200_OK
         cases = list_resp.json()["cases"]
 
