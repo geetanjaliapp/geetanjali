@@ -1,4 +1,5 @@
 // Verse-specific components
+export { default as ReflectPrompt } from "./ReflectPrompt";
 export { ShareModal } from "./ShareModal";
 export {
   generateVerseImage,

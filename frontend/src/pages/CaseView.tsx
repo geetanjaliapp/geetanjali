@@ -971,13 +971,18 @@ ${messages
                                           key={source.canonical_id}
                                           className="bg-linear-to-r from-[var(--gradient-warm-from)] to-[var(--gradient-warm-to)] rounded-[var(--radius-button)] p-3 border border-[var(--border-warm-subtle)]"
                                         >
-                                          <div className="flex items-center justify-between">
+                                          <div className="flex items-center gap-2">
                                             <Link
                                               to={`/verses/${source.canonical_id}`}
                                               className="font-mono text-[var(--interactive-ghost-text)] font-semibold text-sm hover:underline"
                                             >
                                               {formatVerseRef(source.canonical_id)}
                                             </Link>
+                                            {source.is_anchor && (
+                                              <span className="px-1.5 py-0.5 text-xs font-medium text-[var(--text-accent)] bg-[var(--badge-warm-bg)] rounded-[var(--radius-skeleton)]">
+                                                Anchor verse
+                                              </span>
+                                            )}
                                           </div>
                                           <p className="mt-1.5 text-[var(--text-secondary)] italic text-sm">
                                             "{source.paraphrase}"

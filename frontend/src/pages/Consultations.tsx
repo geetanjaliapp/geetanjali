@@ -573,6 +573,14 @@ export default function Consultations() {
                                   {case_.title}
                                 </h2>
                                 <StatusBadge status={case_.status} />
+                                {case_.anchor_verse_id && (
+                                  <Link
+                                    to={`/verses/${case_.anchor_verse_id}`}
+                                    className="px-1.5 py-0.5 text-xs text-[var(--text-muted)] bg-[var(--surface-muted)] hover:bg-[var(--badge-warm-bg)] rounded-[var(--radius-skeleton)] transition-[var(--transition-color)]"
+                                  >
+                                    {case_.anchor_verse_id.replace(/_/g, " ")}
+                                  </Link>
+                                )}
                               </div>
                               <p className="text-xs sm:text-sm text-[var(--text-tertiary)]">
                                 {new Date(

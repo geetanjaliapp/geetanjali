@@ -36,7 +36,7 @@ import {
   CheckIcon,
   AlertCircleIcon,
 } from "../components/icons";
-import { ShareModal } from "../components/verse";
+import { ReflectPrompt, ShareModal } from "../components/verse";
 import {
   useAudioPlayer,
   AudioProgress,
@@ -778,6 +778,13 @@ export default function VerseDetail() {
                   </div>
                 </div>
               )}
+
+            {/* Reflect prompt — v1.39.0 verse-consultation bridge */}
+            <ReflectPrompt
+              canonicalId={verse.canonical_id}
+              verseParaphrase={verse.paraphrase_en}
+              verseTranslation={verse.translation_en}
+            />
 
             {/* Divider */}
             <div className="my-4 sm:my-6 h-px bg-linear-to-r from-transparent via-[var(--border-warm)] to-transparent" />

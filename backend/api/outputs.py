@@ -56,7 +56,11 @@ router = APIRouter(prefix="/api/v1")
 
 
 def _build_case_data(case: Case) -> dict:
-    """Build case data dict for RAG pipeline."""
+    """Build case data dict for RAG pipeline.
+
+    NOTE: If adding a column to Case that the RAG pipeline needs, add it here.
+    This is a manual field-copy — see Case model for the companion warning.
+    """
     return {
         "title": case.title,
         "description": case.description,
@@ -65,6 +69,7 @@ def _build_case_data(case: Case) -> dict:
         "constraints": case.constraints,
         "horizon": case.horizon,
         "sensitivity": case.sensitivity,
+        "anchor_verse_id": case.anchor_verse_id,
     }
 
 
