@@ -35,6 +35,7 @@ export interface Case {
   view_count?: number;
   is_deleted?: boolean;
   created_at?: string;
+  anchor_verse_id?: string;
 }
 
 export interface Verse {
@@ -87,6 +88,7 @@ export interface Output {
       canonical_id: string;
       paraphrase: string;
       school?: string;
+      is_anchor?: boolean;
     }[];
     confidence: number;
   };
