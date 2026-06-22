@@ -7,6 +7,71 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v1.38.0] - 2026-06-22
+
+### Changed
+
+- **Security:** python-multipart 0.0.22→0.0.32 (high DoS), requests 2.32.5→2.34.2 (moderate temp file)
+- Frontend audit gate: `npm audit` restored as advisory check (--audit-level=high), breaking dependency gate removed
+- **Deps:** 40+ bumps across python-minor (20), npm-minor (18), audit fixes (4)
+- anthropic 0.86→0.109, uvicorn 0.42→0.49, sqlalchemy 2.0.48→2.0.51, chromadb 1.5.5→1.5.9, sentry-sdk 2.55→2.62, react-router 7.8→7.17, react-hooks 7.1 warn override
+- FastAPI held at 0.135.2 — `prometheus-fastapi-instrumentator` incompatible with 0.137+
+
+## [v1.37.2] - 2026-03-28
+
+### Added
+
+- **Privacy & Terms pages:** JSON-driven legal content (/privacy, /terms)
+- **AI disclosure:** Audio recitations labeled AI-generated (AI4Bharat Indic Parler-TTS)
+- **Umami analytics:** Privacy-aware page visit tracking, disclosed in privacy policy
+
+### Changed
+
+- **Security:** nginx security headers centralized via shared .inc file
+- **a11y:** aria-hidden on decorative SVGs, HCM focus indicators, main landmarks on all pages, ARIA form validation
+- **UX:** FAB overlap fix, tap target sizing, counter label clarity, SEO duplicate title fix
+- **Copy scrub:** System error messages → user-facing tone, factual corrections (verse count, terminology, AI provider names)
+- FRONTEND_URL centralized via Jinja2 globals for SEO templates
+- Anthropic primary, Gemini fallback (swapped from Gemini-primary)
+
+### Fixed
+
+- Worker OOM: memory increased to 256MB, ChromaDB capped at 96MB
+- Redis health check fixed, cron-maintenance.sh symlink drift resolved
+
+## [v1.37.1] - 2026-03-14
+
+### Changed
+
+- eslint 10 migration with react-hooks peer dep override
+- "Geeta"→"Gita" normalization (`book_key="bhagavad_geeta"` preserved as internal DB key)
+- ttsPreprocess keeps both spellings for input tolerance
+
+### Fixed
+
+- Docker build cache pruned (17GB freed), cache filter extended to 168h
+- Worker OOM resolved (idle ~155MB, RQ fork spike mitigation)
+
+## [v1.37.0] - 2026-01-29
+
+### Changed
+
+- **Centralized embeddings:** Worker delegates vector search to backend (~400MB savings)
+- Backend 640MB, Worker 256MB, ChromaDB 96MB budget deployment
+
+### Added
+
+- Internal vector search API for worker communication
+- HuggingFace model cache persisted across Docker restarts
+- Comprehensive DB maintenance script (scripts/maintenance.sh)
+
+## [v1.35.0] - 2026-01-23
+
+### Changed
+
+- Budget deployment infrastructure: DEPLOY_COMPOSE_FILES support
+- Debian setup hardened (security-first provisioning)
+
 ## [v1.34.1] - 2026-01-22
 
 ### Added
@@ -180,7 +245,12 @@ See git history for earlier version details.
 
 ---
 
-[Unreleased]: https://github.com/geetanjaliapp/geetanjali/compare/v1.34.1...main
+[Unreleased]: https://github.com/geetanjaliapp/geetanjali/compare/v1.38.0...main
+[v1.38.0]: https://github.com/geetanjaliapp/geetanjali/compare/v1.37.2...v1.38.0
+[v1.37.2]: https://github.com/geetanjaliapp/geetanjali/compare/v1.37.1...v1.37.2
+[v1.37.1]: https://github.com/geetanjaliapp/geetanjali/compare/v1.37.0...v1.37.1
+[v1.37.0]: https://github.com/geetanjaliapp/geetanjali/compare/v1.35.0...v1.37.0
+[v1.35.0]: https://github.com/geetanjaliapp/geetanjali/compare/v1.34.1...v1.35.0
 [v1.34.1]: https://github.com/geetanjaliapp/geetanjali/compare/v1.34.0...v1.34.1
 [v1.34.0]: https://github.com/geetanjaliapp/geetanjali/compare/v1.32.0...v1.34.0
 [v1.32.0]: https://github.com/geetanjaliapp/geetanjali/compare/v1.31.0...v1.32.0
