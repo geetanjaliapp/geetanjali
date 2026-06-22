@@ -20,10 +20,12 @@ interface ReflectPromptProps {
  * [reflection]"). No API call. No server storage. Pure frontend state.
  * Tradeoff: location.state lost on browser reload — acceptable (reflect is ephemeral).
  */
+// verseTranslation accepted for future use (e.g., multi-translation context)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function ReflectPrompt({
   canonicalId,
   verseParaphrase,
-  verseTranslation,
+  verseTranslation: _verseTranslation,
 }: ReflectPromptProps) {
   const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);

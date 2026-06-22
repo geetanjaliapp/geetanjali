@@ -36,12 +36,6 @@ def upgrade() -> None:
                 index=True,
             ),
         )
-        # Index via op for cross-database compatibility
-        op.create_index(
-            "ix_cases_anchor_verse_id",
-            "cases",
-            ["anchor_verse_id"],
-        )
 
 
 def downgrade() -> None:
@@ -50,5 +44,4 @@ def downgrade() -> None:
     columns = [col["name"] for col in inspector.get_columns("cases")]
 
     if "anchor_verse_id" in columns:
-        op.drop_index("ix_cases_anchor_verse_id", table_name="cases")
         op.drop_column("cases", "anchor_verse_id")
