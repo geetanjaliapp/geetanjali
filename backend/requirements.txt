@@ -12,10 +12,29 @@ psycopg2-binary==2.9.12  # PostgreSQL driver
 
 # Pydantic (included with FastAPI but pinned for clarity)
 pydantic==2.13.4
-pydantic-settings==2.14.1
+pydantic-settings==2.14.2
 email-validator==2.3.0  # Required for pydantic EmailStr validation
 
 # Vector Database
+#
+# ACCEPTED RISK -- GHSA-f4j7-r4q5-qw2c (critical, pre-auth code injection).
+# Vulnerable range is >= 1.0.0, <= 1.5.9 and 1.5.9 is the latest release on PyPI,
+# so every published version is affected and there is no upgrade path. Dependabot
+# will keep raising this; the pin is deliberate, not neglect.
+#
+# Why it is accepted: the Chroma server is not reachable from outside the compose
+# network. docker-compose.yml declares no `ports:` for the chromadb service, and the
+# 8000:8000 publish in override/test/minimal belongs to `backend`, not chroma. The
+# container also runs non-root with cap_drop: ALL and no-new-privileges. Reaching the
+# vulnerable HTTP API therefore requires already being inside geetanjali-network --
+# post-compromise lateral movement, not an internet-facing RCE.
+#
+# Open mitigation (not yet applied): the vulnerability is *pre-authentication*, so
+# enabling Chroma token auth removes its precondition. Needs CHROMA_SERVER_AUTHN_PROVIDER
+# + CHROMA_SERVER_AUTHN_CREDENTIALS on the server and chroma_client_auth_provider on the
+# client, plus a managed secret -- a functional change requiring a full-stack test.
+#
+# Re-check for a patched release before assuming this is still the best available state.
 chromadb==1.5.9
 
 # Embeddings
