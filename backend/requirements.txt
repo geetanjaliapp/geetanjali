@@ -81,7 +81,7 @@ requests==2.34.2  # HTTP client for fetching
 urllib3>=2.7.0  # CVE-2025-50181, CVE-2025-50182 fix
 
 # Email
-resend>=2.5.0  # Transactional email service
+resend>=2.35.0  # Transactional email service
 
 # Monitoring
 sentry-sdk[fastapi]==2.62.0  # Error tracking and performance monitoring
