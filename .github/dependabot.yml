@@ -39,6 +39,12 @@ updates:
       interval: "weekly"
       day: "monday"
     open-pull-requests-limit: 5
+    ignore:
+      # typescript-eslint peers "typescript: >=4.8.4 <6.1.0" as of 8.66.0, so TS 7 fails
+      # `npm ci` with ERESOLVE before any test runs. We are on TS 6, which that range allows.
+      # Lift when typescript-eslint widens its peer range.
+      - dependency-name: "typescript"
+        versions: [">=7"]
     groups:
       npm-minor:
         patterns:
