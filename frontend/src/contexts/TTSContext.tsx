@@ -20,6 +20,7 @@ import {
 } from "react";
 import { useLocation } from "react-router-dom";
 import { API_BASE_URL, API_V1_PREFIX } from "../lib/config";
+import { reportDegradation } from "../lib/degradation";
 import { useAudioPlayer } from "../components/audio";
 
 type TTSLanguage = "en" | "hi";
@@ -41,6 +42,8 @@ interface TTSContextValue {
   loadingText: string | null;
   /** Whether Web Speech API fallback is available */
   hasFallback: boolean;
+  /** Whether the audio currently playing is the degraded browser voice, not our narration */
+  usingFallback: boolean;
   /** Last error message */
   lastError: string | null;
 }
@@ -63,6 +66,7 @@ export function TTSProvider({ children }: { children: ReactNode }) {
   const [currentText, setCurrentText] = useState<string | null>(null);
   const [loadingText, setLoadingText] = useState<string | null>(null);
   const [lastError, setLastError] = useState<string | null>(null);
+  const [usingFallback, setUsingFallback] = useState(false);
   // Aria-live announcement for screen readers
   const [announcement, setAnnouncement] = useState<string>("");
 
@@ -115,7 +119,10 @@ export function TTSProvider({ children }: { children: ReactNode }) {
         const voice = findBestVoice(lang);
         if (voice) utterance.voice = voice;
 
-        utterance.onstart = () => setCurrentText(text);
+        utterance.onstart = () => {
+          setCurrentText(text);
+          setUsingFallback(true);
+        };
         utterance.onend = () => {
           setCurrentText(null);
           resolve();
@@ -130,10 +137,6 @@ export function TTSProvider({ children }: { children: ReactNode }) {
         };
 
         window.speechSynthesis.speak(utterance);
-
-        if (window.umami) {
-          window.umami.track("tts_fallback", { lang });
-        }
       });
     },
     [hasFallback, findBestVoice],
@@ -206,6 +209,7 @@ export function TTSProvider({ children }: { children: ReactNode }) {
 
     setCurrentText(null);
     setLoadingText(null);
+    setUsingFallback(false);
   }, [hasFallback]);
 
   // Stop TTS on in-app navigation (user is engaging with new content)
@@ -239,13 +243,17 @@ export function TTSProvider({ children }: { children: ReactNode }) {
     if (loadingText) {
       setAnnouncement("Loading speech...");
     } else if (currentText) {
-      setAnnouncement("Playing speech");
+      setAnnouncement(
+        usingFallback
+          ? "Playing speech using your browser's basic voice"
+          : "Playing speech",
+      );
     } else if (lastError) {
       setAnnouncement(`Speech error: ${lastError}`);
     } else {
       setAnnouncement("");
     }
-  }, [currentText, loadingText, lastError]);
+  }, [currentText, loadingText, lastError, usingFallback]);
 
   const speak = useCallback(
     async (text: string, options: TTSOptions = {}): Promise<void> => {
@@ -259,6 +267,7 @@ export function TTSProvider({ children }: { children: ReactNode }) {
 
       setLastError(null);
       setLoadingText(text);
+      setUsingFallback(false);
 
       try {
         await speakWithEdgeTTS(text, options);
@@ -271,14 +280,28 @@ export function TTSProvider({ children }: { children: ReactNode }) {
         console.warn("[TTS] Edge TTS failed, trying fallback:", error);
 
         if (hasFallback) {
+          // Report at the point of degradation, not after playback completes: the promise
+          // from speakWithFallback resolves on utterance end, and a user who navigates away
+          // mid-sentence is exactly the case worth counting.
+          reportDegradation(
+            "tts_fallback",
+            error instanceof Error ? error.message : String(error),
+          );
           try {
             await speakWithFallback(text, lang);
           } catch (fallbackError) {
             setLastError("Unable to play speech. Please try again.");
             console.error("[TTS] Fallback also failed:", fallbackError);
+            reportDegradation(
+              "tts_unavailable",
+              fallbackError instanceof Error
+                ? fallbackError.message
+                : String(fallbackError),
+            );
           }
         } else {
           setLastError("Text-to-speech not available");
+          reportDegradation("tts_unavailable", "no speechSynthesis support");
         }
       } finally {
         setLoadingText(null);
@@ -295,7 +318,15 @@ export function TTSProvider({ children }: { children: ReactNode }) {
 
   return (
     <TTSContext.Provider
-      value={{ speak, stop, currentText, loadingText, hasFallback, lastError }}
+      value={{
+        speak,
+        stop,
+        currentText,
+        loadingText,
+        hasFallback,
+        usingFallback,
+        lastError,
+      }}
     >
       {children}
       {/* Screen reader announcements for TTS state changes */}

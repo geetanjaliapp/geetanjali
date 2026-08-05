@@ -12,6 +12,8 @@
  * - Graceful fallback if SW unavailable
  */
 
+import { reportDegradation } from "./degradation";
+
 // Track URLs that have been preloaded or are in progress
 const preloadedUrls = new Set<string>();
 const preloadingUrls = new Set<string>();
@@ -120,9 +122,7 @@ export function preloadAudio(url: string): void {
       })
       .catch(() => {
         preloadingUrls.delete(url);
-        if (window.umami) {
-          window.umami.track("audio_preload_error", { url });
-        }
+        reportDegradation("audio_preload_failed", url);
       });
   }
 }

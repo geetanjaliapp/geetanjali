@@ -108,12 +108,17 @@ export function SpeakButton({
   className,
   ...props
 }: SpeakButtonProps) {
-  const { speak, stop, currentText, loadingText } = useTTSContext();
+  const { speak, stop, currentText, loadingText, usingFallback } =
+    useTTSContext();
 
   // This button is "speaking" if global TTS is playing this exact text
   const isSpeaking = currentText === text;
   // This button is "loading" if global TTS is loading this exact text
   const isLoading = loadingText === text;
+  // Narration fell back to the browser's built-in voice. Surfacing this is what turns a
+  // user who notices a robotic voice into someone who can report it, instead of assuming
+  // that is simply how the app sounds.
+  const isDegraded = isSpeaking && usingFallback;
 
   const handleClick = useCallback(() => {
     if (isSpeaking || isLoading) {
@@ -130,9 +135,11 @@ export function SpeakButton({
   // Determine current state for accessibility
   const stateLabel = isLoading
     ? "Loading audio..."
-    : isSpeaking
-      ? "Stop speaking"
-      : ariaLabel || "Listen to text";
+    : isDegraded
+      ? "Stop speaking — using your browser's basic voice"
+      : isSpeaking
+        ? "Stop speaking"
+        : ariaLabel || "Listen to text";
 
   // Mobile touch target fix: expand clickable area on mobile while keeping visual size small
   // Pattern: p-2.5 (10px) on mobile expands 32px button to 52px touch target
@@ -142,6 +149,7 @@ export function SpeakButton({
   return (
     <IconButton
       aria-label={stateLabel}
+      title={isDegraded ? "Using your browser's basic voice" : undefined}
       onClick={handleClick}
       size={size}
       variant={variant}
@@ -152,7 +160,9 @@ export function SpeakButton({
       {isLoading ? (
         <LoadingSpinner className={iconSize} />
       ) : isSpeaking ? (
-        <StopIcon className={iconSize} />
+        // Colour is a secondary cue only -- the accessible name and the TTSProvider's
+        // aria-live announcement both carry the degraded state in text.
+        <StopIcon className={`${iconSize} ${isDegraded ? "text-amber-600" : ""}`} />
       ) : (
         <SpeakerIcon className={iconSize} />
       )}
