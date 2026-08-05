@@ -16,10 +16,11 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
-    /* Path aliases for cleaner imports */
-    "baseUrl": ".",
+    /* Path aliases for cleaner imports.
+       No baseUrl: it is deprecated (TS5101 under TypeScript 6, removed in 7) and unnecessary --
+       paths resolve relative to this file's directory. */
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]
     },
 
     /* Linting */
