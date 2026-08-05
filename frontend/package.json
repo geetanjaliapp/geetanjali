@@ -57,7 +57,7 @@
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.6.0",
     "happy-dom": "^20.10.3",
-    "jsdom": "^28.1.0",
+    "jsdom": "^30.0.1",
     "postcss": "^8.5.8",
     "rollup-plugin-visualizer": "^7.0.1",
     "sharp": "^0.35.1",
