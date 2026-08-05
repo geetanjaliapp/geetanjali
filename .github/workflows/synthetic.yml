@@ -1,0 +1,51 @@
+name: Synthetic Check
+
+# Asserts production behaviour that no other signal can see. CI stops at the bundle, Prometheus
+# stops at the HTTP response, uptime stops at 200 -- the CSP regression in d8c34a5 lived past all
+# three for four months. This runs a real browser against the live site.
+#
+# Runs off-box on purpose: it must keep working when the droplet does not.
+
+on:
+  schedule:
+    - cron: '17 6 * * 1'  # Mondays 06:17 UTC. Off the hour to avoid runner contention.
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: 'Base URL to check'
+        required: false
+        default: 'https://geetanjaliapp.com'
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic:
+    name: Production browser check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: scripts/synthetic
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install --no-package-lock
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run synthetic check
+        # Passed through env rather than interpolated into the command: a workflow_dispatch
+        # input is attacker-controlled the moment any write-access account is compromised.
+        env:
+          SYNTHETIC_BASE_URL: ${{ inputs.base_url || 'https://geetanjaliapp.com' }}
+        run: node check.mjs
