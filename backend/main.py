@@ -42,6 +42,7 @@ from api import (
     search,
     sitemap,
     taxonomy,
+    telemetry,
     topics,
     tts,
     verses,
@@ -319,6 +320,7 @@ app.include_router(topics.router, tags=["Topics"])
 app.include_router(newsletter.router, tags=["Newsletter"])
 app.include_router(preferences.router, tags=["Preferences"])
 app.include_router(tts.router, tags=["TTS"])
+app.include_router(telemetry.router, tags=["Telemetry"])
 
 # Internal API for worker → backend communication (v1.37.0)
 # Only mounted when INTERNAL_API_KEY is configured

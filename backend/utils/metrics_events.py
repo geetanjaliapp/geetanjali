@@ -78,3 +78,18 @@ tts_request_duration_seconds = Histogram(
     ["lang"],
     buckets=[0.5, 1.0, 2.0, 3.0, 5.0, 10.0, 15.0, 30.0],
 )
+
+# Client-Side Degradation Metrics
+#
+# Reported by the browser to a same-origin endpoint rather than to third-party analytics.
+# The CSP added in d8c34a5 blocked Umami, which is where TTS fallbacks were being reported --
+# so the signal that would have revealed the outage shared a failure domain with the outage.
+# A same-origin counter cannot be blocked by a policy that leaves the app itself working.
+#
+# `path` is a closed set (see api/telemetry.py); anything unrecognised is bucketed as "other"
+# so a stale client cannot inflate label cardinality.
+client_degradation_total = Counter(
+    "geetanjali_client_degradation_total",
+    "Client-side graceful-degradation events reported by the browser",
+    ["path"],
+)
