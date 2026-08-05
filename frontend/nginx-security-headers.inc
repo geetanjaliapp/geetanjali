@@ -12,4 +12,6 @@ add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
 #   img-src blob:    - ShareModal renders its card preview from a canvas blob. Permanent.
 #   sha256-...       - inline theme script in index.html. src/test/csp.test.ts recomputes this
 #                      from index.html and fails CI if the two drift.
-add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'sha256-jEoj6xfYPkmGqX9AnKnD18sSjSkQwqtDc560JE82h3M=' https://cloud.umami.is; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self'; media-src 'self' blob:; connect-src 'self' https://geetanjaliapp.com https://cloud.umami.is https://*.ingest.sentry.io; frame-ancestors 'self'; base-uri 'self'; form-action 'self';" always;
+#   umami hosts      - script loads from cloud.umami.is but events POST to gateway.umami.is.
+#                      Allowing only the first lets the script load and silently drop every event.
+add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'sha256-jEoj6xfYPkmGqX9AnKnD18sSjSkQwqtDc560JE82h3M=' https://cloud.umami.is; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self'; media-src 'self' blob:; connect-src 'self' https://geetanjaliapp.com https://cloud.umami.is https://gateway.umami.is https://*.ingest.sentry.io; frame-ancestors 'self'; base-uri 'self'; form-action 'self';" always;

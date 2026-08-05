@@ -80,7 +80,10 @@ describe("Content-Security-Policy contract", () => {
     ["media-src", "blob:", "TTS blob URLs (TTSContext.tsx)"],
     ["img-src", "blob:", "ShareModal card preview"],
     ["script-src", "https://cloud.umami.is", "Umami analytics + Web Vitals"],
-    ["connect-src", "https://cloud.umami.is", "Umami event delivery"],
+    // Two distinct hosts: the script comes from cloud, the events go to gateway. Allowing
+    // only the script host loads Umami and then silently drops everything it sends.
+    ["connect-src", "https://cloud.umami.is", "Umami script host"],
+    ["connect-src", "https://gateway.umami.is", "Umami event delivery"],
     ["connect-src", "https://*.ingest.sentry.io", "Sentry error ingest"],
     ["connect-src", "'self'", "same-origin API and degradation telemetry"],
   ])("%s allows %s (protects: %s)", (directive, source) => {
