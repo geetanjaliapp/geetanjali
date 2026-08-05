@@ -511,6 +511,52 @@ async function rebuildAudioMetadata() {
 // ============================================================================
 
 /**
+ * Synthetic response for a request that could not be served from network or cache.
+ *
+ * Never reject a promise passed to event.respondWith(): the browser turns that into a dead
+ * FetchEvent plus an uncaught rejection, and the caller gets an opaque failure with no status.
+ * A 503 is something the app can actually branch on.
+ */
+function offlineResponse(request) {
+  const wantsHtml = request.headers.get('accept')?.includes('text/html');
+  return new Response(wantsHtml ? OFFLINE_HTML : 'Offline', {
+    status: 503,
+    statusText: 'Offline',
+    headers: {
+      'Content-Type': wantsHtml
+        ? 'text/html; charset=utf-8'
+        : 'text/plain; charset=utf-8',
+    },
+  });
+}
+
+const OFFLINE_HTML =
+  '<!doctype html><meta charset="utf-8"><title>Offline</title>' +
+  '<h1>Offline</h1><p>This page is not available offline.</p>';
+
+/**
+ * Cached app shell, or a 503 if it was never cached.
+ *
+ * caches.match() returns a Promise, and a Promise is always truthy -- `caches.match('/') || x`
+ * therefore never reaches x, and resolves to undefined when '/' is not cached. It must be awaited.
+ */
+async function appShellOrOffline(request) {
+  const shell = await caches.match('/');
+  return shell || offlineResponse(request);
+}
+
+/**
+ * Cache key for an audio URL.
+ *
+ * audioPreload.ts posts relative paths, so a base is required -- new URL('/audio/x.mp3') alone
+ * throws "Failed to construct 'URL': Invalid URL".
+ */
+function audioCacheKey(audioUrl) {
+  const url = new URL(audioUrl, self.location.origin);
+  return url.origin + url.pathname;
+}
+
+/**
  * Cache-first strategy
  * Returns cached response if available, otherwise fetches and caches
  */
@@ -528,14 +574,13 @@ async function cacheFirst(request, cacheName) {
       cache.put(request, response.clone());
     }
     return response;
-  } catch (error) {
-    // Only return offline page for HTML requests, not JS/CSS/images
+  } catch {
+    // Only return the app shell for HTML requests, not JS/CSS/images
     const url = new URL(request.url);
     if (request.headers.get('accept')?.includes('text/html') || url.pathname === '/') {
-      return caches.match('/') || new Response('Offline', { status: 503 });
+      return appShellOrOffline(request);
     }
-    // For other assets, let the error propagate (browser will show network error)
-    throw error;
+    return offlineResponse(request);
   }
 }
 
@@ -552,16 +597,16 @@ async function networkFirstWithCache(request, cacheName, maxAge = 3600) {
       cache.put(request, response.clone());
     }
     return response;
-  } catch (error) {
+  } catch {
     const cached = await caches.match(request);
     if (cached) {
       return cached;
     }
     // Return offline fallback for HTML requests
     if (request.headers.get('accept')?.includes('text/html')) {
-      return caches.match('/') || new Response('Offline', { status: 503 });
+      return appShellOrOffline(request);
     }
-    throw error;
+    return offlineResponse(request);
   }
 }
 
@@ -637,8 +682,7 @@ self.addEventListener('message', (event) => {
       (async () => {
         try {
           const cache = await caches.open(AUDIO_CACHE);
-          const url = new URL(audioUrl);
-          const cacheKey = url.origin + url.pathname;
+          const cacheKey = audioCacheKey(audioUrl);
 
           // Check if already cached
           const existing = await cache.match(cacheKey);
@@ -750,8 +794,7 @@ self.addEventListener('message', (event) => {
       (async () => {
         try {
           const cache = await caches.open(AUDIO_CACHE);
-          const url = new URL(audioUrl);
-          const cacheKey = url.origin + url.pathname;
+          const cacheKey = audioCacheKey(audioUrl);
           const cached = await cache.match(cacheKey);
 
           if (event.source) {
