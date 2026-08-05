@@ -7,6 +7,23 @@ updates:
       interval: "weekly"
       day: "monday"
     open-pull-requests-limit: 5
+    # Three pins in requirements.txt are deliberate, and the python-minor group globs "*" --
+    # without these, every weekly PR re-bumps them and fails CI, which trains us to ignore the
+    # group entirely. Each entry mirrors a documented pin; remove it when the pin is lifted.
+    ignore:
+      # FastAPI > 0.135.2 breaks prometheus-fastapi-instrumentator 7.1.0:
+      # AttributeError: '_IncludedRouter' object has no attribute 'path'
+      # (prometheus_fastapi_instrumentator/routing.py:55). Held since 854d742.
+      # Lift when the instrumentator supports FastAPI's newer router internals.
+      - dependency-name: "fastapi"
+        versions: [">=0.136"]
+      # chromadb: every published version is affected by GHSA-f4j7-r4q5-qw2c and there is no
+      # upgrade path. Accepted risk, documented at requirements.txt:19-37. Re-check for a
+      # patched release rather than letting Dependabot re-raise it weekly.
+      - dependency-name: "chromadb"
+      # bcrypt 5.0.0 is incompatible with passlib 1.7.4 (requirements.txt:63).
+      - dependency-name: "bcrypt"
+        update-types: ["version-update:semver-major"]
     groups:
       python-minor:
         patterns:
