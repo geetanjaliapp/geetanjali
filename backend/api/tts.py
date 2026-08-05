@@ -15,13 +15,13 @@ import time
 from io import BytesIO
 from typing import Literal
 
-import edge_tts
 from fastapi import APIRouter, HTTPException, Request, status
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
 from api.dependencies import limiter
 from services.cache import tts_cache_get, tts_cache_key, tts_cache_set
+from services.tts import TTSEmptyResultError, TTSTimeoutError, get_provider
 from utils.metrics_events import tts_request_duration_seconds, tts_requests_total
 
 logger = logging.getLogger(__name__)
@@ -120,8 +120,8 @@ VOICES = {
 DEFAULT_RATE = "-5%"  # Slightly slower for clarity
 DEFAULT_PITCH = "+0Hz"  # Natural pitch
 
-# Timeout for Edge TTS streaming (seconds)
-TTS_TIMEOUT_SECONDS = 30
+# Generation timeout lives with the provider (services/tts/edge.py) -- it is a property of the
+# transport, not of this endpoint.
 
 
 class TTSRequest(BaseModel):
@@ -187,44 +187,17 @@ async def generate_speech(request: Request, body: TTSRequest):
     start_time = time.time()
 
     try:
-        # Create TTS communicator
-        communicate = edge_tts.Communicate(
+        audio_bytes = await get_provider().synthesize(
             text=clean_text,
             voice=voice,
             rate=body.rate,
             pitch=body.pitch,
         )
 
-        # Collect all audio bytes for caching with timeout protection
-        audio_chunks: list[bytes] = []
-        first_chunk = True
+        tts_request_duration_seconds.labels(lang=body.lang).observe(
+            time.time() - start_time
+        )
 
-        async def stream_with_timeout():
-            nonlocal first_chunk
-            async for chunk in communicate.stream():
-                if chunk["type"] == "audio":
-                    if first_chunk:
-                        duration = time.time() - start_time
-                        tts_request_duration_seconds.labels(lang=body.lang).observe(
-                            duration
-                        )
-                        first_chunk = False
-                    audio_chunks.append(chunk["data"])
-
-        # Apply timeout to prevent hanging on Edge TTS failures
-        await asyncio.wait_for(stream_with_timeout(), timeout=TTS_TIMEOUT_SECONDS)
-
-        # Validate we got audio data
-        if not audio_chunks:
-            logger.warning("TTS returned no audio data")
-            tts_requests_total.labels(lang=body.lang, result="empty").inc()
-            raise HTTPException(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Text-to-speech service returned no audio",
-            )
-
-        # Combine chunks and cache
-        audio_bytes = b"".join(audio_chunks)
         tts_cache_set(cache_key, audio_bytes)
 
         tts_requests_total.labels(lang=body.lang, result="success").inc()
@@ -239,12 +212,20 @@ async def generate_speech(request: Request, body: TTSRequest):
             },
         )
 
-    except asyncio.TimeoutError:
-        logger.error(f"TTS generation timed out after {TTS_TIMEOUT_SECONDS}s")
+    except TTSTimeoutError as e:
+        logger.error(f"TTS generation timed out: {e}")
         tts_requests_total.labels(lang=body.lang, result="timeout").inc()
         raise HTTPException(
             status_code=status.HTTP_504_GATEWAY_TIMEOUT,
             detail="Text-to-speech service timed out",
+        )
+
+    except TTSEmptyResultError:
+        logger.warning("TTS returned no audio data")
+        tts_requests_total.labels(lang=body.lang, result="empty").inc()
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Text-to-speech service returned no audio",
         )
 
     except asyncio.CancelledError:
@@ -261,6 +242,7 @@ async def generate_speech(request: Request, body: TTSRequest):
         raise
 
     except Exception as e:
+        # Includes TTSError; provider-specific failures are already normalised by the seam.
         logger.error(f"TTS generation failed: {e}")
         tts_requests_total.labels(lang=body.lang, result="error").inc()
         raise HTTPException(
