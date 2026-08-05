@@ -78,7 +78,7 @@ lxml==6.1.1  # XML/HTML parser
 pyyaml==6.0.3  # YAML config loading
 indic-transliteration==2.3.82  # Sanskrit IAST transliteration
 requests==2.34.2  # HTTP client for fetching
-urllib3>=2.5.0  # CVE-2025-50181, CVE-2025-50182 fix
+urllib3>=2.7.0  # CVE-2025-50181, CVE-2025-50182 fix
 
 # Email
 resend>=2.5.0  # Transactional email service
