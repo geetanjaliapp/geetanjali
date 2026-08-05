@@ -99,4 +99,4 @@ edge-tts==7.2.8  # Microsoft Edge TTS for English narration
 
 
 # Type stubs
-typing_extensions>=4.0.0
+typing_extensions>=4.16.0
