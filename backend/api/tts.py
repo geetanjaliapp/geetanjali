@@ -216,7 +216,16 @@ async def generate_speech(request: Request, body: TTSRequest):
             time.time() - start_time
         )
 
-        store.put(key, audio_bytes)
+        try:
+            store.put(key, audio_bytes)
+        except OSError as exc:
+            # Most likely cause is the volume not being writable by appuser. Log the path
+            # explicitly -- "TTS generation failed" would point at the provider, which is
+            # innocent here, and send anyone debugging this in the wrong direction.
+            logger.error("TTS store write failed at %s: %s", store.root, exc)
+            if wants_url:
+                raise
+            # Streaming callers already have their audio; a broken disk need not deny it.
 
         tts_requests_total.labels(lang=body.lang, result="success").inc()
 

@@ -29,10 +29,16 @@ COPY . .
 
 # Create non-root user for security and set permissions
 # Pre-create HuggingFace cache directory for sentence-transformers model
+#
+# /app/tts-audio must exist here, owned by appuser, before the named volume mounts over it:
+# Docker initialises an empty named volume from the image path it covers, ownership included.
+# Without this the volume arrives owned by root, the app cannot write to it, and TTS silently
+# degrades to the browser voice -- the exact failure this release exists to remove.
 RUN useradd -m -u 1000 appuser && \
     mkdir -p /home/appuser/.cache/huggingface && \
     chown -R appuser:appuser /home/appuser/.cache && \
     chmod +x docker-entrypoint.sh && \
+    mkdir -p /app/tts-audio && \
     chown -R appuser:appuser /app
 
 USER appuser

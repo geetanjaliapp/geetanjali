@@ -6,6 +6,8 @@ able to fill the disk.
 """
 
 import os
+from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
@@ -81,6 +83,42 @@ class TestRoundTrip:
         store.put(KEY_A, b"x" * 100)
         leftovers = list(store.root.glob("*.tmp"))
         assert leftovers == []
+
+    def test_concurrent_writers_of_one_key_do_not_share_a_temp_file(self, store):
+        """A shared temp path lets one writer truncate what another is renaming into place.
+
+        Entries are content-addressed and served `immutable`, so a partial clip stored once is
+        served forever. The temp name must therefore be unique per writer, not per key.
+        """
+        seen: list[str] = []
+        real_write = type(store.path_for(KEY_A)).write_bytes
+
+        def record(self_path, data):  # noqa: ANN001 - patched method
+            seen.append(self_path.name)
+            return real_write(self_path, data)
+
+        with patch.object(Path, "write_bytes", record):
+            store.put(KEY_A, b"a" * 50)
+            store.put(KEY_A, b"a" * 50)
+
+        assert len(seen) == 2
+        assert seen[0] != seen[1], f"temp name reused across writers: {seen[0]}"
+
+    def test_temp_files_are_not_counted_as_entries(self, store):
+        """A .tmp left by a crashed writer must not be served or evicted as a real clip."""
+        store.ensure_root()
+        (store.root / f"{KEY_B}.deadbeef{AUDIO_SUFFIX}.tmp").write_bytes(b"partial")
+        store.put(KEY_A, b"x" * 10)
+
+        assert [entry.key for entry in store.entries()] == [KEY_A]
+        assert store.get(KEY_B) is None
+
+    def test_failed_write_leaves_no_temp_file_behind(self, store):
+        with patch.object(Path, "replace", side_effect=OSError("disk full")):
+            with pytest.raises(OSError):
+                store.put(KEY_A, b"x" * 10)
+
+        assert list(store.root.glob("*.tmp")) == []
 
     def test_put_overwrites_cleanly(self, store):
         store.put(KEY_A, b"first")

@@ -22,6 +22,7 @@ import re
 import shutil
 from dataclasses import dataclass
 from pathlib import Path
+from uuid import uuid4
 
 logger = logging.getLogger(__name__)
 
@@ -93,15 +94,22 @@ class TTSAudioStore:
     def put(self, key: str, audio: bytes) -> Path:
         """Write audio for `key` and enforce the size cap.
 
-        The write is atomic: a partially written file would otherwise be served as valid audio on
-        the next request, and being content-addressed it would never be corrected.
+        The temp file name is unique per writer, not per key. Two requests for the same text
+        arrive concurrently often (the same narration on two devices), and a shared temp path
+        lets one writer truncate the file while the other is renaming it into place -- storing a
+        partial clip. Content-addressed entries are never rewritten and are served `immutable`,
+        so that truncation would be permanent.
         """
         path = self.path_for(key)
         self.ensure_root()
 
-        tmp = path.with_suffix(f"{AUDIO_SUFFIX}.tmp")
-        tmp.write_bytes(audio)
-        tmp.replace(path)
+        tmp = path.with_name(f"{key}.{uuid4().hex}{AUDIO_SUFFIX}.tmp")
+        try:
+            tmp.write_bytes(audio)
+            tmp.replace(path)  # atomic within a filesystem
+        except OSError:
+            tmp.unlink(missing_ok=True)
+            raise
 
         self.evict_to_fit()
         return path
