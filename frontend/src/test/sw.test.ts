@@ -52,6 +52,7 @@ function makeCaches(seed: Record<string, Response> = {}) {
 }
 
 interface SwExports {
+  isAudioFile: (pathname: string) => boolean;
   audioCacheKey: (url: string) => string;
   offlineResponse: (request: Request) => Response;
   appShellOrOffline: (request: Request) => Promise<Response>;
@@ -96,7 +97,7 @@ function loadSw(opts: {
   // reachable; runInContext returns its value.
   return runInContext(
     `${src}
-;({ audioCacheKey, offlineResponse, appShellOrOffline, cacheFirst, networkFirstWithCache })`,
+;({ isAudioFile, audioCacheKey, offlineResponse, appShellOrOffline, cacheFirst, networkFirstWithCache })`,
     context,
   ) as SwExports;
 }
@@ -131,6 +132,29 @@ describe("audioCacheKey", () => {
     expect(sw.audioCacheKey("/audio/bg_2_47.mp3?v=2")).toBe(
       `${ORIGIN}/audio/bg_2_47.mp3`,
     );
+  });
+});
+
+describe("generated TTS audio is treated as audio, not as an API call", () => {
+  // sw.js checks isAudioFile() *before* the /api/ branch, which is the only reason
+  // /api/v1/tts/audio/<key>.mp3 gets cache-first handling with Range support instead of
+  // falling into "other API - network only". That ordering is invisible from the backend,
+  // so a URL shape change there would silently disable offline narration and seeking.
+  const ttsUrl = `/api/v1/tts/audio/${"a".repeat(64)}.mp3`;
+
+  it("matches the service worker's audio predicate", () => {
+    const sw = loadSw({});
+    expect(sw.isAudioFile(ttsUrl)).toBe(true);
+  });
+
+  it("still resolves to a stable cache key", () => {
+    const sw = loadSw({});
+    expect(sw.audioCacheKey(ttsUrl)).toBe(`${ORIGIN}${ttsUrl}`);
+  });
+
+  it("does not match a URL without the .mp3 suffix", () => {
+    const sw = loadSw({});
+    expect(sw.isAudioFile(`/api/v1/tts/audio/${"a".repeat(64)}`)).toBe(false);
   });
 });
 
