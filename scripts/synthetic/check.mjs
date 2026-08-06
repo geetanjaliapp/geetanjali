@@ -136,6 +136,47 @@ async function main() {
     );
   }
 
+  // --- Share card ----------------------------------------------------------
+  // ShareModal renders its preview from a canvas blob, so it depends on `blob:` in img-src.
+  // It was one of the six things d8c34a5 broke and the only one with no coverage here until
+  // now -- a detection layer that misses one of the failures it was built for is the shape of
+  // problem this whole exercise is about.
+  const shareButton = page.getByRole("button", { name: /share/i }).first();
+  if (await shareButton.count().then((c) => c > 0)) {
+    await shareButton.click();
+    const preview = page.locator("img[src^='blob:']").first();
+    const present = await preview
+      .waitFor({ state: "visible", timeout: 15_000 })
+      .then(() => true)
+      .catch(() => false);
+
+    // naturalWidth, not visibility: a blocked <img> still counts as visible, so asserting on
+    // presence alone passes even when CSP has blocked the image. Only a decoded image has
+    // non-zero natural dimensions.
+    const decoded = present
+      ? await preview.evaluate((img) => img.naturalWidth > 0).catch(() => false)
+      : false;
+
+    record(
+      "share card preview renders",
+      decoded,
+      decoded
+        ? ""
+        : present
+          ? "img element present but image never decoded (check img-src blob:)"
+          : "no blob preview element appeared",
+    );
+
+    const afterShareViolations = await page.evaluate(() => window.__violations);
+    record(
+      "no CSP violations after opening share",
+      afterShareViolations.length === 0,
+      JSON.stringify(afterShareViolations),
+    );
+  } else {
+    record("share control present", false, "no share button found on the verse page");
+  }
+
   record("no fatal console errors", consoleErrors.length === 0, consoleErrors.join(" | "));
 
   await browser.close();

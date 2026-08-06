@@ -72,8 +72,11 @@ async def report_degradation(request: Request, body: DegradationReport) -> Respo
     client_degradation_total.labels(path=path).inc()
 
     # Metric for alerting, log for diagnosis -- keeps `detail` out of label cardinality.
+    #
+    # `detail` is unauthenticated caller input, so it is logged with %r rather than %s: a raw
+    # newline would otherwise forge a log entry, in the one place we go to diagnose incidents.
     logger.info(
-        "Client degradation: path=%s detail=%s",
+        "Client degradation: path=%s detail=%r",
         path,
         body.detail or "-",
     )
