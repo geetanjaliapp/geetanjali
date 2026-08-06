@@ -7,8 +7,11 @@ add_header X-XSS-Protection "1; mode=block" always;
 add_header Referrer-Policy "strict-origin-when-cross-origin" always;
 add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
 # CSP notes (see todos/releases/v1.40.0/phase-1-csp-restoration.md):
-#   media-src blob:  - TTS plays generated audio via createObjectURL (TTSContext.tsx).
-#                      Narrows to 'self' once TTS moves to same-origin URLs (Phase 4).
+#   media-src blob:  - No longer used: TTS now plays a same-origin /api/v1/tts/audio/<key>.mp3
+#                      URL. Kept for one release so a client still running JS cached from before
+#                      that change keeps working across the deploy. Drop the blob: source once
+#                      this build has been live long enough for those to age out, and update
+#                      src/test/csp.test.ts to assert its absence.
 #   img-src blob:    - ShareModal renders its card preview from a canvas blob. Permanent.
 #   sha256-...       - inline theme script in index.html. src/test/csp.test.ts recomputes this
 #                      from index.html and fails CI if the two drift.

@@ -319,6 +319,17 @@ class Settings(BaseSettings):
     # Audio Files
     AUDIO_FILES_PATH: str = "../public/audio"  # Relative to backend/ or absolute
 
+    # Generated TTS audio (content-addressed, written at request time).
+    #
+    # Separate from AUDIO_FILES_PATH: that holds the curated Sanskrit recitations and is mounted
+    # read-only, whereas this is written by the app and needs its own writable volume.
+    #
+    # The cache key is a content hash, so an entry can never go stale -- only the size cap
+    # decides what survives. Verse narration is a bounded corpus; consultation guidance is not,
+    # which is why there is a cap at all.
+    TTS_AUDIO_PATH: str = "./tts-audio"
+    TTS_AUDIO_MAX_BYTES: int = 512 * 1024 * 1024  # 512MB of a 50GB disk
+
     # Email (Resend)
     RESEND_API_KEY: str | None = None  # Set in .env to enable email
     CONTACT_EMAIL_TO: str | None = None  # Recipient for contact form - MUST set in .env

@@ -169,6 +169,8 @@ services:
       REDIS_URL: redis://:${REDIS_PASSWORD:-redis_dev_pass}@redis:6379/0
       OLLAMA_BASE_URL: http://ollama:11434
       AUDIO_FILES_PATH: /app/public/audio
+      # Generated TTS audio: writable, unlike AUDIO_FILES_PATH which is mounted read-only
+      TTS_AUDIO_PATH: /app/tts-audio
       # PostgreSQL connection info for pg_isready health check
       PGHOST: postgres
       PGUSER: ${POSTGRES_USER:-geetanjali}
@@ -178,6 +180,7 @@ services:
       - backend_chroma:/app/chroma_data
       - ./public/audio:/app/public/audio  # Audio files (rw for processing, serving)
       - seo_output:/app/seo-output  # SEO pages (backend writes, nginx serves)
+      - tts_audio:/app/tts-audio  # Generated TTS clips (content-addressed, backend serves)
     # Security hardening
     cap_drop:
       - ALL
@@ -314,6 +317,7 @@ volumes:
   chroma_data:
   backend_chroma:
   seo_output:  # Shared SEO pages (backend writes, nginx serves)
+  tts_audio:  # Generated TTS audio; content-addressed, so it survives deploys deliberately
 
 networks:
   geetanjali-network:

@@ -148,32 +148,37 @@ export function TTSProvider({ children }: { children: ReactNode }) {
 
       abortControllerRef.current = new AbortController();
 
+      // Accept: application/json asks the API for a same-origin URL instead of the bytes.
+      // Playing a real URL rather than a blob: is what keeps this working under CSP -- 'self'
+      // does not match the blob: scheme, which is how d8c34a5 silently broke narration. It also
+      // gets HTTP caching, service-worker caching and Range-based seeking for free.
       const response = await fetch(`${API_BASE_URL}${API_V1_PREFIX}/tts`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
         body: JSON.stringify({ text, lang, rate, pitch }),
         signal: abortControllerRef.current.signal,
       });
 
       if (!response.ok) throw new Error(`TTS API error: ${response.status}`);
 
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
+      const { url } = (await response.json()) as { url: string };
+      if (!url) throw new Error("TTS API returned no audio URL");
 
       return new Promise((resolve, reject) => {
-        const audio = new Audio(url);
+        const audio = new Audio(`${API_BASE_URL}${url}`);
         audioRef.current = audio;
 
         audio.onplay = () => setCurrentText(text);
         audio.onended = () => {
           setCurrentText(null);
-          URL.revokeObjectURL(url);
           audioRef.current = null;
           resolve();
         };
         audio.onerror = () => {
           setCurrentText(null);
-          URL.revokeObjectURL(url);
           audioRef.current = null;
           reject(new Error("Audio playback failed"));
         };

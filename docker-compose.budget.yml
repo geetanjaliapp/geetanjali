@@ -173,6 +173,8 @@ services:
       CHROMA_PORT: 8000
       REDIS_URL: redis://:${REDIS_PASSWORD:-redis_dev_pass}@redis:6379/0
       AUDIO_FILES_PATH: /app/public/audio
+      # Generated TTS audio: writable, unlike AUDIO_FILES_PATH which is mounted read-only
+      TTS_AUDIO_PATH: /app/tts-audio
       PGHOST: postgres
       PGUSER: ${POSTGRES_USER:-geetanjali}
       # Budget mode: Ollama disabled
@@ -186,6 +188,7 @@ services:
       - backend_chroma:/app/chroma_data
       - ./public/audio:/app/public/audio:ro
       - seo_output:/app/seo-output
+      - tts_audio:/app/tts-audio  # Generated TTS clips (content-addressed)
       - hf_cache:/home/appuser/.cache/huggingface
     cap_drop:
       - ALL
@@ -358,6 +361,7 @@ volumes:
   chroma_data:
   backend_chroma:
   seo_output:
+  tts_audio:  # Generated TTS audio; content-addressed, so it survives deploys deliberately
   hf_cache:  # HuggingFace model cache (sentence-transformers ~90MB)
 
 networks:

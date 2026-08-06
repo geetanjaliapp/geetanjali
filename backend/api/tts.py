@@ -16,12 +16,19 @@ from io import BytesIO
 from typing import Literal
 
 from fastapi import APIRouter, HTTPException, Request, status
-from fastapi.responses import StreamingResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel, Field
 
 from api.dependencies import limiter
-from services.cache import tts_cache_get, tts_cache_key, tts_cache_set
-from services.tts import TTSEmptyResultError, TTSTimeoutError, get_provider
+from services.tts import (
+    AUDIO_SUFFIX,
+    InvalidStoreKey,
+    TTSEmptyResultError,
+    TTSTimeoutError,
+    get_provider,
+    get_store,
+    store_key,
+)
 from utils.metrics_events import tts_request_duration_seconds, tts_requests_total
 
 logger = logging.getLogger(__name__)
@@ -141,23 +148,35 @@ class TTSRequest(BaseModel):
     )
 
 
+def _audio_url(key: str) -> str:
+    """Same-origin URL for a stored clip."""
+    return f"/api/v1/tts/audio/{key}{AUDIO_SUFFIX}"
+
+
 @router.post("")
 @limiter.limit("30/minute")
 async def generate_speech(request: Request, body: TTSRequest):
     """
-    Generate speech audio from text using Microsoft Edge TTS.
+    Generate speech audio from text.
 
-    Returns MP3 audio stream. Use lang='en' for English content,
-    lang='hi' for Hindi content.
+    Two response shapes, chosen by the Accept header:
+
+    - `application/json` -> `{"url": "/api/v1/tts/<key>.mp3"}`. Preferred: the client plays a
+      same-origin URL, so no `blob:` is involved (which is what CSP blocked), and the browser,
+      the service worker and Range requests all work on it for free.
+    - anything else -> the MP3 bytes, as before. Kept so a client running cached JS from before
+      this change keeps working across the deploy.
+
+    Audio is stored content-addressed on disk. The key is a hash of the text and voice settings,
+    so a given clip is generated once and then reused indefinitely rather than regenerated.
 
     Rate limits: 30 requests/minute per IP.
-    Responses are cached in Redis for 24 hours.
 
     Args:
         body: TTS request with text and optional voice settings
 
     Returns:
-        StreamingResponse with audio/mpeg content
+        JSON `{"url": ...}` or a StreamingResponse of audio/mpeg.
 
     Raises:
         HTTPException: If TTS generation fails
@@ -167,23 +186,22 @@ async def generate_speech(request: Request, body: TTSRequest):
     # Clean markdown formatting from text
     clean_text = clean_text_for_speech(body.text)
 
-    # Check Redis cache first
-    cache_key = tts_cache_key(clean_text, body.lang, body.rate, body.pitch)
-    cached_audio = tts_cache_get(cache_key)
+    wants_url = "application/json" in (request.headers.get("accept") or "")
+    store = get_store()
+    key = store_key(clean_text, body.lang, body.rate, body.pitch)
 
-    if cached_audio:
+    existing = store.get(key)
+    if existing is not None:
         tts_requests_total.labels(lang=body.lang, result="cache_hit").inc()
-        return StreamingResponse(
-            BytesIO(cached_audio),
+        if wants_url:
+            return {"url": _audio_url(key)}
+        return FileResponse(
+            existing,
             media_type="audio/mpeg",
-            headers={
-                "Content-Disposition": "inline",
-                "Cache-Control": "public, max-age=3600",
-                "X-Cache": "HIT",
-            },
+            headers={"Content-Disposition": "inline", "X-Cache": "HIT"},
         )
 
-    # Cache miss - generate audio from Edge TTS
+    # Miss - generate
     start_time = time.time()
 
     try:
@@ -198,9 +216,12 @@ async def generate_speech(request: Request, body: TTSRequest):
             time.time() - start_time
         )
 
-        tts_cache_set(cache_key, audio_bytes)
+        store.put(key, audio_bytes)
 
         tts_requests_total.labels(lang=body.lang, result="success").inc()
+
+        if wants_url:
+            return {"url": _audio_url(key)}
 
         return StreamingResponse(
             BytesIO(audio_bytes),
@@ -249,6 +270,57 @@ async def generate_speech(request: Request, body: TTSRequest):
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Text-to-speech service temporarily unavailable",
         )
+
+
+@router.get("/audio/{filename}")
+@limiter.limit("120/minute")
+async def get_audio(request: Request, filename: str):
+    """
+    Serve a previously generated clip.
+
+    Declared under `/audio/` rather than as a bare `/{filename}` so it cannot shadow `/voices` --
+    FastAPI matches routes in declaration order and a catch-all here would swallow every sibling.
+
+    Same-origin and a real file, which is the point: `<audio src>` on this URL needs no `blob:`
+    exception in the CSP, the service worker's `isAudioFile()` already matches `.mp3` so offline
+    caching comes for free, and FileResponse answers Range requests, so seeking works.
+
+    Rate limit is higher than generation because these are cheap and a single narration session
+    fetches many of them.
+
+    Args:
+        filename: `<hex key>.mp3`
+
+    Returns:
+        FileResponse with audio/mpeg content.
+
+    Raises:
+        HTTPException: 404 if the key is malformed or not stored.
+    """
+    if not filename.endswith(AUDIO_SUFFIX):
+        raise HTTPException(status_code=404, detail="Not found")
+
+    key = filename[: -len(AUDIO_SUFFIX)]
+
+    try:
+        path = get_store().get(key)
+    except InvalidStoreKey:
+        # Malformed key is indistinguishable from a miss to the caller on purpose -- it tells a
+        # prober nothing about what the store holds.
+        raise HTTPException(status_code=404, detail="Not found")
+
+    if path is None:
+        raise HTTPException(status_code=404, detail="Not found")
+
+    return FileResponse(
+        path,
+        media_type="audio/mpeg",
+        headers={
+            "Content-Disposition": "inline",
+            # Content-addressed: this URL's bytes can never change.
+            "Cache-Control": "public, max-age=31536000, immutable",
+        },
+    )
 
 
 @router.get("/voices")
