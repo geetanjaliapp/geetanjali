@@ -56,6 +56,16 @@ async function main() {
       });
     });
 
+    // Record what TTS actually plays. A blob: source means the app has regressed to the
+    // pre-v1.40 delivery path -- which still works only because CSP currently permits blob:.
+    // Dropping that permission is safe exactly when this stays same-origin.
+    window.__audioSources = [];
+    const OriginalAudio = window.Audio;
+    window.Audio = function (src) {
+      window.__audioSources.push(src || "");
+      return new OriginalAudio(src);
+    };
+
     // A call here means TTS fell back to the browser voice. This is the signal the
     // production bug produced, and it is precisely what nothing was watching.
     window.__spokeViaFallback = false;
@@ -126,6 +136,19 @@ async function main() {
       "TTS played generated audio, not the browser voice",
       fellBack === false,
       fellBack ? "speechSynthesis.speak was called — TTS is degraded" : "",
+    );
+
+    const sources = await page.evaluate(() => window.__audioSources || []);
+    const usesBlob = sources.some((s) => s.startsWith("blob:"));
+    const usesSameOrigin = sources.some((s) => s.includes("/api/v1/tts/audio/"));
+    record(
+      "TTS plays a same-origin URL, not a blob",
+      usesSameOrigin && !usesBlob,
+      usesBlob
+        ? "regressed to blob: delivery — CSP media-src blob: cannot be dropped"
+        : usesSameOrigin
+          ? ""
+          : `no TTS audio source observed: ${JSON.stringify(sources)}`,
     );
 
     const afterClickViolations = await page.evaluate(() => window.__violations);
