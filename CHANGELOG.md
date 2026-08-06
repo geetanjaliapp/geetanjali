@@ -7,6 +7,78 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v1.40.0] - 2026-08-06
+
+Restore what silently broke, then make silence structurally impossible.
+
+### Fixed
+
+- **Six client-side capabilities restored.** `d8c34a5` (2026-03-28) shipped a CSP that disabled TTS
+  playback, the share-card preview, Umami analytics, Web Vitals reporting, Sentry ingest and the
+  inline theme script. Every one degraded gracefully, so the site stayed at HTTP 200 and server
+  metrics stayed green for four months. `media-src` was absent entirely and fell back to
+  `default-src 'self'`, which does not match `blob:`
+- **Umami event host:** events POST to `gateway.umami.is`, not the `cloud.umami.is` the script loads
+  from. Allowing only the script host loads analytics and silently drops every event
+- **Service worker:** `caches.match('/') || fallback` never reached the fallback — a Promise is
+  always truthy — so the offline shell resolved to `undefined`; rethrowing on cache miss produced
+  dead FetchEvents with no status for callers; audio preload built URLs from relative paths with no
+  base, so every preload threw
+- **TTS store:** concurrent requests for the same text shared one temp path, allowing a partial clip
+  to be renamed into place and then served forever as content-addressed and immutable
+- **Telemetry:** unauthenticated `detail` was logged unescaped, permitting log injection
+
+### Added
+
+- **Out-of-band degradation telemetry:** `POST /api/v1/telemetry/degraded` →
+  `client_degradation_total{path}`. Replaces `umami.track`, which reported TTS fallbacks through the
+  channel the same CSP header had blocked — signal and failure shared a failure domain. Closed enum
+  with unknown values bucketed, so an unauthenticated endpoint cannot mint Prometheus labels
+- **User-visible degradation indicator:** the speak control names the degraded browser voice in its
+  accessible label and aria-live announcement, so a robotic voice reads as a fault rather than as
+  the product
+- **Weekly synthetic browser check** (`scripts/synthetic/`, GitHub Actions): asserts zero CSP
+  violations, that Umami loaded, that TTS played generated audio rather than calling
+  `speechSynthesis`, and that the share card actually decodes. Runs off-box so it survives the
+  droplet being down
+- **CI CSP contract test:** asserts required directives and recomputes the inline-script hash from
+  `index.html`, so drift fails review rather than production
+
+### Changed
+
+- **TTS delivery is same-origin.** Generated audio is stored content-addressed on disk and served
+  from `/api/v1/tts/audio/<key>.mp3` instead of a `blob:` URL. Brings HTTP caching, service-worker
+  caching and Range-based seeking, and removes the CSP exception rather than permitting it
+- **TTS audio is generated once, not daily.** The cache key was already a content hash but lived
+  under a 24h Redis TTL, regenerating byte-identical audio for narration text that is identical
+  across every user. LRU size cap bounds consultation audio, which is unbounded
+- **TTS generation sits behind a provider seam** — `edge_tts` is confined to one module, enforced by
+  test, so changing provider is a module plus config rather than a rewrite
+- **Redis no longer stores audio,** freeing memory on a 1.9GB host
+- **FastAPI hold lifted:** 0.135.2 → 0.141.1 with `prometheus-fastapi-instrumentator` 7.1.0 → 8.1.0.
+  These must move together — 7.1.0 breaks on FastAPI ≥ 0.136, and 8.1.0 needs `starlette>=1.0.0`,
+  which only newer FastAPI provides. Held since 854d742
+- **Deps:** Dependabot queue 10 → 2. TypeScript 5.9 → 6.0.3 (7 blocked upstream by
+  `typescript-eslint`, which peers `<6.1.0`), node 20 → 25-alpine, web-vitals 6, three `actions/*`
+  v7, npm-minor (23) and python-minor (11) groups
+- **Dependabot `ignore` rules** for chromadb, bcrypt majors and typescript ≥7 — the `python-minor`
+  group globbed `*` and re-bumped deliberate pins weekly, training us to ignore the group
+
+### Removed
+
+- Unused `jsdom` devDependency — the test environment is `happy-dom` with no per-file overrides
+- Deprecated `baseUrl` from `tsconfig.app.json` (`TS5101` under TS 6, non-functional in TS 7)
+
+## [v1.39.0] - 2026-06-23
+
+### Added
+
+- **Verse-consultation bridge:** ReflectPrompt on VerseDetail (collapsible, 500 characters), anchor
+  verse injection into the RAG pipeline at position 0 with dedup, `?verse=BG_X_Y` banner and
+  read-only reflection preview on NewCase, verse pill on anchored consultations, and an "Anchor
+  verse" label on the source card in CaseView
+- 13 tests across pipeline, unit, integration and frontend
+
 ## [v1.38.0] - 2026-06-22
 
 ### Changed
@@ -245,7 +317,9 @@ See git history for earlier version details.
 
 ---
 
-[Unreleased]: https://github.com/geetanjaliapp/geetanjali/compare/v1.38.0...main
+[Unreleased]: https://github.com/geetanjaliapp/geetanjali/compare/v1.40.0...main
+[v1.40.0]: https://github.com/geetanjaliapp/geetanjali/compare/v1.39.0...v1.40.0
+[v1.39.0]: https://github.com/geetanjaliapp/geetanjali/compare/v1.38.0...v1.39.0
 [v1.38.0]: https://github.com/geetanjaliapp/geetanjali/compare/v1.37.2...v1.38.0
 [v1.37.2]: https://github.com/geetanjaliapp/geetanjali/compare/v1.37.1...v1.37.2
 [v1.37.1]: https://github.com/geetanjaliapp/geetanjali/compare/v1.37.0...v1.37.1
