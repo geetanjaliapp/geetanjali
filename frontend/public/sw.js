@@ -89,11 +89,11 @@ self.addEventListener('fetch', (event) => {
   if (url.pathname.startsWith('/api/')) {
     // Verse endpoints - cache for offline access
     if (url.pathname.includes('/verses/')) {
-      event.respondWith(networkFirstWithCache(request, VERSE_CACHE, 86400)); // 24h
+      event.respondWith(networkFirstWithCache(request, VERSE_CACHE));
     }
     // Taxonomy endpoints - cache for offline access (rarely changes)
     else if (url.pathname.includes('/taxonomy/')) {
-      event.respondWith(networkFirstWithCache(request, STATIC_CACHE, 86400)); // 24h
+      event.respondWith(networkFirstWithCache(request, STATIC_CACHE));
     } else {
       // Other API - network only (don't cache user data)
       event.respondWith(fetch(request));
@@ -109,12 +109,12 @@ self.addEventListener('fetch', (event) => {
 
   // HTML pages - network first for fresh content
   if (request.headers.get('accept')?.includes('text/html')) {
-    event.respondWith(networkFirstWithCache(request, DYNAMIC_CACHE, 3600)); // 1h
+    event.respondWith(networkFirstWithCache(request, DYNAMIC_CACHE));
     return;
   }
 
   // Default - network with cache fallback
-  event.respondWith(networkFirstWithCache(request, DYNAMIC_CACHE, 3600));
+  event.respondWith(networkFirstWithCache(request, DYNAMIC_CACHE));
 });
 
 // ============================================================================
@@ -587,8 +587,12 @@ async function cacheFirst(request, cacheName) {
 /**
  * Network-first strategy with cache fallback
  * Tries network first, falls back to cache, updates cache on success
+ *
+ * Entries have no expiry: the cache is an offline fallback, not a freshness tier. Callers used to
+ * pass a maxAge that nothing read, which made these look like TTLs. Adding real expiry means
+ * storing a timestamp per entry and checking it here -- not a parameter.
  */
-async function networkFirstWithCache(request, cacheName, maxAge = 3600) {
+async function networkFirstWithCache(request, cacheName) {
   try {
     const response = await fetch(request);
     // Only cache full responses (200), not partial (206) which can't be cached
