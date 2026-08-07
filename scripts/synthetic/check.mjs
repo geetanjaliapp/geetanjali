@@ -170,8 +170,16 @@ async function main() {
     JSON.stringify(versePageViolations),
   );
 
+  // Wait for the control rather than trusting `networkidle`. The translations section renders
+  // after the verse fetch settles, so on a cold cache -- exactly the first run after a deploy,
+  // which is when this check is most worth running -- networkidle fires before the button
+  // exists and `count()` returns 0 against a perfectly healthy page. That reads as an outage
+  // and is how a check earns the muting its own header warns about.
   const speakButton = page.getByRole("button", { name: /listen to english translation/i }).first();
-  const hasSpeakButton = await speakButton.count().then((c) => c > 0);
+  const hasSpeakButton = await speakButton
+    .waitFor({ state: "visible", timeout: 15_000 })
+    .then(() => true)
+    .catch(() => false);
   record("speak control present", hasSpeakButton);
 
   if (hasSpeakButton) {
@@ -226,8 +234,13 @@ async function main() {
   // It was one of the six things d8c34a5 broke and the only one with no coverage here until
   // now -- a detection layer that misses one of the failures it was built for is the shape of
   // problem this whole exercise is about.
+  // Same cold-cache race as the speak control above.
   const shareButton = page.getByRole("button", { name: /share/i }).first();
-  if (await shareButton.count().then((c) => c > 0)) {
+  const hasShareButton = await shareButton
+    .waitFor({ state: "visible", timeout: 15_000 })
+    .then(() => true)
+    .catch(() => false);
+  if (hasShareButton) {
     await shareButton.click();
     const preview = page.locator("img[src^='blob:']").first();
     const present = await preview
