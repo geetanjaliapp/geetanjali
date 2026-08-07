@@ -43,14 +43,14 @@ def build_llms_index() -> str:
 > a real dilemma with verse-grounded reasoning, and a discovery flow over all 701 verses with
 > Sanskrit, English translation, and audio.
 
-Verse text carries its source and licence per verse. Audio recitations are AI-generated. Guidance
-responses are produced by a large language model grounded in retrieved verses, and are not advice
-from a person.
+Verse text carries its source and licence per verse. Audio recitations are synthesised rather than
+recorded. Guidance responses are generated from retrieved verses and are not advice from a person.
 
 ## Content
 
 - [All verses]({BASE_URL}/llms-full.txt): the complete text of all 701 verses -- Devanagari, IAST
-  transliteration, English translation and paraphrase. Start here for the corpus.
+  transliteration and English translation, plus labelled generated commentary. Start here for
+  the corpus.
 - [Verse browser]({BASE_URL}/verses): search and browse verses by chapter, topic, or text.
 - [Topics]({BASE_URL}/topics/): verses grouped by the ethical principle they speak to.
 - [Sitemap]({BASE_URL}/sitemap.xml): every indexable URL, including one per verse.
@@ -74,9 +74,9 @@ def build_llms_full(verses: list) -> str:
         "All 701 verses. Each entry gives the canonical id, Devanagari, IAST transliteration,",
         "and the English translation from the cited source.",
         "",
-        "Entries may also carry a 'Leadership insight (AI-generated)' line. That text is produced",
-        "by a language model, not drawn from the source text or any translation of it. It is",
-        "labelled on every entry so it is not ingested as scripture.",
+        "Entries may also carry a 'Leadership insight' line. That text is generated commentary --",
+        "not drawn from the source text or any translation of it. It is labelled on every entry",
+        "so it is not ingested as scripture.",
         "",
         f"Source: {BASE_URL} -- see {BASE_URL}/llms.txt for the index.",
         "",
@@ -100,7 +100,7 @@ def build_llms_full(verses: list) -> str:
         # Labelled inline, not just in the header: a consumer that chunks this file will split
         # entries apart from the preamble, and an unlabelled chunk reads as source text.
         if v.paraphrase_en:
-            lines.append(f"Leadership insight (AI-generated): {v.paraphrase_en}")
+            lines.append(f"Leadership insight (generated commentary): {v.paraphrase_en}")
         lines.append("")
         lines.append(f"Link: {BASE_URL}/verses/{v.canonical_id}")
         lines.append("")

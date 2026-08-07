@@ -74,13 +74,13 @@ class TestLlmsIndex:
             f"index grew to {len(content)} chars — corpus content belongs in llms-full.txt"
         )
 
-    def test_index_discloses_ai_generation(self):
-        """Audio and guidance are AI-generated; an LLM reading this should be told.
+    def test_index_discloses_how_audio_and_guidance_are_produced(self):
+        """Neither audio nor guidance is human-authored; an LLM reading this should be told.
 
         Normalised because the prose is hard-wrapped -- the disclosure spans a line break.
         """
         content = " ".join(build_llms_index().split())
-        assert "AI-generated" in content
+        assert "synthesised rather than recorded" in content
         assert "not advice from a person" in content
 
     def test_endpoint_serves_plain_text(self, client):
@@ -105,16 +105,16 @@ class TestLlmsFull:
         assert content.count("## Chapter 2") == 1
         assert content.count("## Chapter 3") == 1
 
-    def test_labels_the_ai_generated_paraphrase_on_every_entry(self, verses):
-        """paraphrase_en is model output, not scripture, and must not read as source text.
+    def test_labels_the_generated_commentary_on_every_entry(self, verses):
+        """paraphrase_en is generated commentary, not scripture, and must not read as source text.
 
         Labelled per entry rather than only in the header: consumers chunk this file, and a
-        chunk split away from the preamble would otherwise present model output as the Gita.
+        chunk split away from the preamble would otherwise present commentary as the Gita.
         """
         content = build_llms_full(verses)
 
         for v in verses:
-            assert f"Leadership insight (AI-generated): {v.paraphrase_en}" in content
+            assert f"Leadership insight (generated commentary): {v.paraphrase_en}" in content
 
         # The bare label must never appear -- that was the original defect.
         assert "Paraphrase:" not in content
