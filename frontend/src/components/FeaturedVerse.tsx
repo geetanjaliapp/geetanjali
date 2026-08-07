@@ -2,7 +2,6 @@ import { useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { formatSanskritLines } from "../lib/sanskritFormatter";
 import { formatChapterVerse } from "../lib/verseLinker";
-import { prefetchVerse } from "../lib/versePrefetch";
 import { preloadAudio } from "../lib/audioPreload";
 import { useAudioPlayer } from "./audio";
 import {
@@ -126,8 +125,6 @@ export function FeaturedVerse({
     <Link
       to={`/verses/${verse.canonical_id}`}
       className="block max-w-4xl mx-auto"
-      onMouseEnter={() => prefetchVerse(verse.canonical_id)}
-      onFocus={() => prefetchVerse(verse.canonical_id)}
     >
       {/* Main Featured Verse Container - Clickable */}
       <div className="relative bg-[var(--surface-card)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] p-6 sm:p-8 lg:p-12 border border-[var(--border-warm)] shadow-[var(--shadow-modal)] hover:shadow-[var(--shadow-modal)] hover:border-[var(--border-warm-hover)] transition-[var(--transition-card)] cursor-pointer">
