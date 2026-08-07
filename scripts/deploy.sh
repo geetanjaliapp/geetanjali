@@ -70,8 +70,12 @@ log "Pushing to origin..."
 git push origin main || error "Failed to push to origin"
 
 # Step 3: Pull on remote (including LFS files like audio)
+# --tags is load-bearing: remote.origin.fetch is refs/heads/* only, and `git pull origin main`
+# with an explicit refspec does not reliably auto-follow tags. Without it the server's newest tag
+# stayed at v1.39.0 through the v1.40.0 and v1.41.0 deploys, so Step 5b below described a stale
+# tag and the container reported a version it was not running.
 log "Pulling changes on server..."
-$SSH_CMD "cd ${DEPLOY_DIR} && git pull origin main && git lfs pull" || error "Failed to pull on server"
+$SSH_CMD "cd ${DEPLOY_DIR} && git pull --tags origin main && git lfs pull" || error "Failed to pull on server"
 
 # Step 4: Decrypt .env file using SOPS + age
 log "Decrypting .env file..."
