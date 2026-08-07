@@ -21,7 +21,10 @@ class Settings(BaseSettings):
 
     # Application
     APP_NAME: str = "Geetanjali"
-    APP_VERSION: str = "1.34.0"  # Set via APP_VERSION env var at deploy (from git tag)
+    # Set from the git tag via APP_VERSION at deploy. The default must stay un-versioned: a
+    # plausible semver here is indistinguishable from a real one, which is how production
+    # reported 1.34.0 for five releases while the env var went unplumbed.
+    APP_VERSION: str = "dev"
     APP_ENV: str = "development"
     DEBUG: bool = False  # Safe default: False
     LOG_LEVEL: str = "INFO"
@@ -635,6 +638,15 @@ class Settings(BaseSettings):
             logger.warning(
                 "PRODUCTION: REDIS_URL not set. Caching will be disabled. "
                 "Redis is recommended for production performance."
+            )
+
+        # Warn rather than fail: a wrong version string misreports the API root, OpenAPI docs
+        # and Sentry releases, but it is not a reason to refuse traffic.
+        if self.APP_VERSION == "dev":
+            logger.warning(
+                "PRODUCTION: APP_VERSION is unset, reporting 'dev'. "
+                "deploy.sh exports it from the git tag; check the compose service "
+                "references ${APP_VERSION}."
             )
 
         if not self.RESEND_API_KEY:

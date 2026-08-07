@@ -119,9 +119,28 @@ class TestConfigurationSync:
         if settings.APP_ENV == "production":
             assert settings.DAILY_CONSULT_LIMIT_ENABLED is True
 
+    def test_version_default_is_not_release_shaped(self):
+        """The APP_VERSION default must not look like a release number.
+
+        config.py carried "1.34.0" for five releases while no compose service referenced
+        ${APP_VERSION}, so the API root, OpenAPI docs and Sentry releases all reported a
+        version production was not running. A default that cannot be mistaken for a real
+        version is what makes the unplumbed case visible.
+        """
+        default = Settings.model_fields["APP_VERSION"].default
+        assert not re.match(r"^\d+\.\d+", default), (
+            f"APP_VERSION default {default!r} is indistinguishable from a real release"
+        )
+
     def test_version_matches_release(self, settings):
-        """APP_VERSION must match expected release version."""
-        # v1.32.0 or later
+        """A configured release version must be v1.32.0 or later.
+
+        The un-plumbed default is skipped here: production warns about it at startup
+        (config.py validate_production_config), which tests cannot reach.
+        """
+        if settings.APP_VERSION == "dev":
+            return
+
         version_parts = settings.APP_VERSION.split(".")
         assert len(version_parts) >= 2, f"Invalid version format: {settings.APP_VERSION}"
         major = int(version_parts[0])

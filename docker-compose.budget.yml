@@ -184,6 +184,9 @@ services:
       UVICORN_WORKERS: "1"
       # Internal API for worker communication (v1.37.0)
       INTERNAL_API_KEY: ${INTERNAL_API_KEY:-}
+      # deploy.sh exports this from the git tag. Without this line the container never sees it
+      # and silently reports config.py's default instead.
+      APP_VERSION: ${APP_VERSION:-dev}
     volumes:
       - backend_chroma:/app/chroma_data
       - ./public/audio:/app/public/audio:ro
@@ -257,6 +260,8 @@ services:
       USE_REMOTE_VECTOR_SEARCH: "true"
       VECTOR_SEARCH_URL: "http://backend:8000/internal/search"
       INTERNAL_API_KEY: ${INTERNAL_API_KEY:-}
+      # Tags the Sentry release for this service (utils/sentry.py)
+      APP_VERSION: ${APP_VERSION:-dev}
     volumes:
       - ./public/audio:/app/public/audio:ro
     cap_drop:
