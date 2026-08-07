@@ -77,7 +77,6 @@ describe("Content-Security-Policy contract", () => {
   it.each([
     // directive,      required source,                 what breaks without it
     ["media-src", "'self'", "TTS audio playback"],
-    ["media-src", "blob:", "TTS blob URLs (TTSContext.tsx)"],
     ["img-src", "blob:", "ShareModal card preview"],
     ["script-src", "https://cloud.umami.is", "Umami analytics + Web Vitals"],
     // Two distinct hosts: the script comes from cloud, the events go to gateway. Allowing
@@ -94,6 +93,13 @@ describe("Content-Security-Policy contract", () => {
     // The original bug: media-src was absent, so it fell back to default-src 'self',
     // which does not match blob:. An explicit directive makes the intent reviewable.
     expect(csp.has("media-src")).toBe(true);
+  });
+
+  it("does not allow blob: media, which would mask a TTS delivery regression", () => {
+    // TTS serves same-origin /api/v1/tts/audio/<key>.mp3. blob: was carried through v1.40.0
+    // only for clients running JS cached from before that change. Restoring it would let a
+    // regression to blob delivery play fine in the browser and go unnoticed again.
+    expect(sourceOf("media-src")).not.toContain("blob:");
   });
 
   it("keeps the baseline lockdown directives", () => {

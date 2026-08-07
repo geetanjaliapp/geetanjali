@@ -145,7 +145,7 @@ async function main() {
       "TTS plays a same-origin URL, not a blob",
       usesSameOrigin && !usesBlob,
       usesBlob
-        ? "regressed to blob: delivery — CSP media-src blob: cannot be dropped"
+        ? "regressed to blob: delivery — media-src no longer allows blob:, so this is now silently unplayable"
         : usesSameOrigin
           ? ""
           : `no TTS audio source observed: ${JSON.stringify(sources)}`,
