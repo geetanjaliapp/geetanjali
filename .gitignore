@@ -57,6 +57,10 @@ dmypy.json
 # Dependencies
 node_modules/
 
+# The synthetic check installs with --no-package-lock (.github/workflows/synthetic.yml) so it
+# runs against a current browser. Committing a lockfile nothing reads would only mislead.
+scripts/synthetic/package-lock.json
+
 # Build outputs
 dist/
 build/

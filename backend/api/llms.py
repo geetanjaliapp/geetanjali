@@ -72,7 +72,11 @@ def build_llms_full(verses: list) -> str:
         "# Geetanjali -- Bhagavad Gita, complete text",
         "",
         "All 701 verses. Each entry gives the canonical id, Devanagari, IAST transliteration,",
-        "English translation, and a plain-language paraphrase.",
+        "and the English translation from the cited source.",
+        "",
+        "Entries may also carry a 'Leadership insight (AI-generated)' line. That text is produced",
+        "by a language model, not drawn from the source text or any translation of it. It is",
+        "labelled on every entry so it is not ingested as scripture.",
         "",
         f"Source: {BASE_URL} -- see {BASE_URL}/llms.txt for the index.",
         "",
@@ -93,8 +97,10 @@ def build_llms_full(verses: list) -> str:
             lines.append(f"IAST: {v.sanskrit_iast}")
         if v.translation_en:
             lines.append(f"Translation: {v.translation_en}")
+        # Labelled inline, not just in the header: a consumer that chunks this file will split
+        # entries apart from the preamble, and an unlabelled chunk reads as source text.
         if v.paraphrase_en:
-            lines.append(f"Paraphrase: {v.paraphrase_en}")
+            lines.append(f"Leadership insight (AI-generated): {v.paraphrase_en}")
         lines.append("")
         lines.append(f"Link: {BASE_URL}/verses/{v.canonical_id}")
         lines.append("")

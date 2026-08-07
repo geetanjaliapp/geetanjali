@@ -105,6 +105,20 @@ class TestLlmsFull:
         assert content.count("## Chapter 2") == 1
         assert content.count("## Chapter 3") == 1
 
+    def test_labels_the_ai_generated_paraphrase_on_every_entry(self, verses):
+        """paraphrase_en is model output, not scripture, and must not read as source text.
+
+        Labelled per entry rather than only in the header: consumers chunk this file, and a
+        chunk split away from the preamble would otherwise present model output as the Gita.
+        """
+        content = build_llms_full(verses)
+
+        for v in verses:
+            assert f"Leadership insight (AI-generated): {v.paraphrase_en}" in content
+
+        # The bare label must never appear -- that was the original defect.
+        assert "Paraphrase:" not in content
+
     def test_omits_missing_fields_rather_than_printing_none(self, verses):
         """A verse with no paraphrase must not render the literal string None."""
         verses[0].paraphrase_en = None
