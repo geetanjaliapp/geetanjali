@@ -34,6 +34,7 @@ from api import (
     feed,
     follow_up,
     health,
+    llms,
     messages,
     newsletter,
     outputs,
@@ -311,6 +312,7 @@ app.include_router(admin.router, tags=["Admin"])
 app.include_router(contact.router, tags=["Contact"])
 app.include_router(sitemap.router, tags=["SEO"])
 app.include_router(feed.router, tags=["SEO"])
+app.include_router(llms.router, tags=["SEO"])
 app.include_router(experiments.router, tags=["Experiments"])
 app.include_router(reading.router, tags=["Reading"])
 app.include_router(dhyanam.router, tags=["Dhyanam"])
