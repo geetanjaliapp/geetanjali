@@ -88,9 +88,13 @@ export function FeaturedVerse({
     return (
       <div className="max-w-4xl mx-auto">
         <div className="bg-[var(--surface-card)] rounded-[var(--radius-card)] sm:rounded-[var(--radius-modal)] p-6 sm:p-8 lg:p-12 border border-[var(--border-warm)] shadow-[var(--shadow-modal)]">
+          {/* Bars mirror the loaded card: ॐ, Devanagari block, transliteration, translation.
+              This card is above the fold, so under-reserving here shows up directly as CLS. */}
           <div className="text-center space-y-4">
             <div className="h-6 sm:h-8 bg-[var(--surface-muted)] rounded-[var(--radius-skeleton)] animate-pulse w-20 sm:w-24 mx-auto" />
             <div className="h-24 sm:h-32 bg-[var(--surface-muted)] rounded-[var(--radius-skeleton)] animate-pulse" />
+            <div className="h-4 sm:h-5 bg-[var(--surface-muted)] rounded-[var(--radius-skeleton)] animate-pulse w-3/4 mx-auto" />
+            <div className="h-5 sm:h-6 bg-[var(--surface-muted)] rounded-[var(--radius-skeleton)] animate-pulse w-5/6 mx-auto" />
           </div>
         </div>
       </div>
@@ -184,6 +188,25 @@ export function FeaturedVerse({
                 </p>
               ))}
             </div>
+            {/* Transliteration and translation.
+                Without these the largest element above the fold is legible only to Devanagari
+                readers. Both are already on the verse; this is a render change, not a fetch. */}
+            {verse.sanskrit_iast && (
+              <p
+                lang="sa-Latn"
+                className="text-sm sm:text-base italic text-[var(--text-muted)] leading-relaxed mb-2 sm:mb-3 max-w-2xl mx-auto"
+              >
+                {verse.sanskrit_iast}
+              </p>
+            )}
+            {verse.translation_en && (
+              <p
+                lang="en"
+                className="text-base sm:text-lg text-[var(--text-secondary)] leading-relaxed mb-3 sm:mb-4 lg:mb-6 max-w-2xl mx-auto"
+              >
+                {verse.translation_en}
+              </p>
+            )}
             <span className="text-[var(--badge-warm-text)]/70 font-serif text-lg">
               ॥ {verseRef} ॥
             </span>
