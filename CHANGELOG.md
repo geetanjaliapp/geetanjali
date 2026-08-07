@@ -7,6 +7,58 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v1.41.0] - 2026-08-07
+
+Delete what only looked like it worked; make the app legible to readers and to machines.
+
+### Fixed
+
+- **`APP_VERSION` never reached the container.** `deploy.sh` set it for the `docker compose`
+  invocation but no service referenced `${APP_VERSION}`, so the backend fell back to a hardcoded
+  default and production reported `1.34.0` through v1.35, 1.37, 1.38, 1.39 and 1.40 — in the API
+  root, the OpenAPI docs and every Sentry release tag. The default is now un-versioned (`dev`), so
+  an unplumbed value is visible instead of plausible, and production warns at startup when it sees
+  it. **Deploy order changed as a result: the tag must be pushed before `make deploy`,** because
+  `deploy.sh` derives the version from `git describe` on the server after pull. Tagging afterwards
+  reintroduces the bug this fixes
+- **Hover prefetch could never produce a cache hit.** `versePrefetch` (v1.21.0) issued two requests
+  per verse card hover. Verse endpoints send no `Cache-Control`, `ETag` or `Last-Modified`; the
+  service worker routes `/api/v1/verses/` network-first; and the prefetch link was uncredentialed
+  while axios sends `withCredentials`. Any one of the three defeats reuse — all three were present.
+  Removed rather than repaired
+- **Sitemap advertised robots-disallowed paths.** `/consultations` and `/cases/new` were listed in
+  the sitemap and `Disallow`ed in `robots.txt`, spending crawl budget on pages never fetched
+- **`llms.txt` and `humans.txt` returned the SPA shell** — both answered HTTP 200 with
+  `Content-Type: text/html`, so they read as present while being absent
+
+### Added
+
+- **LLM discovery documents.** `/llms.txt` is a conforming [llmstxt.org](https://llmstxt.org) index
+  — background plus links, small enough to parse. `/llms-full.txt` carries all 701 verses as
+  markdown (~520KB, Redis-cached). The split is the convention's contract: consumers regex the
+  index, so serving the corpus there would break every tool built against it. Generated commentary
+  is labelled on every entry, not only in the preamble, because consumers chunk the file and a
+  chunk split from its header would otherwise read as source text
+- **`humans.txt`**, and rate limiting on both discovery endpoints, matching the `/api/` blocks
+- **Transliteration and translation on the featured verse.** The homepage card is the largest
+  element above the fold and rendered Devanagari alone, legible to a minority of visitors. The
+  loading skeleton gained matching bars so the taller card costs no layout shift
+- **Core Web Vitals in the weekly synthetic check.** The only prior performance data was a
+  Lighthouse run from 2026-01-04, four releases stale. LCP, CLS and TTFB are recorded every run;
+  a single gate sits far above normal variance, because a check that flaps gets muted
+
+### Changed
+
+- **`media-src` no longer permits `blob:`.** TTS has served same-origin audio since v1.40.0; the
+  exception was carried one release for clients on cached JS. `csp.test.ts` now asserts its absence,
+  so a regression to blob delivery fails review instead of silently depending on a loosened policy
+
+### Removed
+
+- **`sw.js` `maxAge` parameter.** Four call sites passed `3600` or `86400` believing they set cache
+  TTLs. Nothing read it. Real expiry needs a per-entry timestamp, which is a design decision rather
+  than a parameter
+
 ## [v1.40.0] - 2026-08-06
 
 Restore what silently broke, then make silence structurally impossible.
@@ -317,7 +369,8 @@ See git history for earlier version details.
 
 ---
 
-[Unreleased]: https://github.com/geetanjaliapp/geetanjali/compare/v1.40.0...main
+[Unreleased]: https://github.com/geetanjaliapp/geetanjali/compare/v1.41.0...main
+[v1.41.0]: https://github.com/geetanjaliapp/geetanjali/compare/v1.40.0...v1.41.0
 [v1.40.0]: https://github.com/geetanjaliapp/geetanjali/compare/v1.39.0...v1.40.0
 [v1.39.0]: https://github.com/geetanjaliapp/geetanjali/compare/v1.38.0...v1.39.0
 [v1.38.0]: https://github.com/geetanjaliapp/geetanjali/compare/v1.37.2...v1.38.0
