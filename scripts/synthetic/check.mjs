@@ -7,9 +7,14 @@
  *
  * This runs a real browser and asserts on things only a browser can see.
  *
- * Deliberately deterministic: every assertion is an event (a CSP violation fired, speechSynthesis
- * was invoked, a response arrived), never a duration. A synthetic check that flakes gets muted, and
- * a muted check is worse than none.
+ * Deliberately deterministic: every *gating* assertion is an event (a CSP violation fired,
+ * speechSynthesis was invoked, a response arrived), never a duration. A synthetic check that flakes
+ * gets muted, and a muted check is worse than none.
+ *
+ * Web Vitals are the one exception, and they are handled so the rule still holds: they are
+ * `measure()`d -- printed every run so the trend is visible -- and gated only by a ceiling set far
+ * above normal variance, to catch a collapse rather than a regression. Tightening those ceilings
+ * toward real thresholds is how this check starts flaking. Read the recorded numbers instead.
  *
  * Usage: node check.mjs [baseUrl]
  */
@@ -27,10 +32,23 @@ const FATAL_CONSOLE = [
   /Uncaught \(in promise\)/i,
 ];
 
+/**
+ * Ceilings for the vitals gate. Set to catch a collapse, not a regression: measured TTFB on
+ * 2026-08-07 was 207-309ms against production, so 1000ms is loose on purpose. These exist so a
+ * page that stops rendering fails loudly; the numbers `measure()` prints are the real signal.
+ */
+const VITALS_CEILING = { lcp: 4000, cls: 0.1, ttfb: 1000 };
+
 const results = [];
 const record = (name, ok, detail = "") => {
   results.push({ name, ok, detail });
   console.log(`${ok ? "PASS" : "FAIL"}  ${name}${detail ? ` — ${detail}` : ""}`);
+};
+
+/** Report a number without gating on it. Trend data, not a pass/fail signal. */
+const measure = (name, value, unit = "") => {
+  const shown = value === null ? "not measured" : `${value}${unit}`;
+  console.log(`INFO  ${name} — ${shown}`);
 };
 
 async function main() {
@@ -66,6 +84,26 @@ async function main() {
       return new OriginalAudio(src);
     };
 
+    // Web Vitals. Must be installed before page scripts so `buffered: true` can replay entries
+    // that fired during the initial paint. Wrapped because an unsupported entry type throws and
+    // would take the whole check down over a number that never gates anything.
+    window.__vitals = { lcp: null, cls: 0 };
+    try {
+      new PerformanceObserver((list) => {
+        const entries = list.getEntries();
+        window.__vitals.lcp = entries[entries.length - 1].startTime;
+      }).observe({ type: "largest-contentful-paint", buffered: true });
+
+      new PerformanceObserver((list) => {
+        for (const entry of list.getEntries()) {
+          // Shifts following a user interaction are expected and excluded from CLS.
+          if (!entry.hadRecentInput) window.__vitals.cls += entry.value;
+        }
+      }).observe({ type: "layout-shift", buffered: true });
+    } catch {
+      // Leave the nulls; the check reports "not measured" rather than failing.
+    }
+
     // A call here means TTS fell back to the browser voice. This is the signal the
     // production bug produced, and it is precisely what nothing was watching.
     window.__spokeViaFallback = false;
@@ -97,6 +135,30 @@ async function main() {
     () => typeof window.umami !== "undefined",
   );
   record("umami analytics loaded", umamiLoaded, umamiLoaded ? "" : "window.umami is undefined");
+
+  // --- Web Vitals ----------------------------------------------------------
+  // The only performance data before this was a Lighthouse run from 2026-01-04 that predated
+  // four releases. Server-side timing stays green through a client-side collapse, which is the
+  // same blind spot the CSP regression exploited -- so this is measured in the browser.
+  const vitals = await page.evaluate(() => {
+    const nav = performance.getEntriesByType("navigation")[0];
+    return {
+      lcp: window.__vitals.lcp === null ? null : Math.round(window.__vitals.lcp),
+      cls: Math.round(window.__vitals.cls * 1000) / 1000,
+      ttfb: nav ? Math.round(nav.responseStart - nav.requestStart) : null,
+    };
+  });
+
+  measure("home LCP", vitals.lcp, "ms");
+  measure("home CLS", vitals.cls);
+  measure("home TTFB", vitals.ttfb, "ms");
+
+  // One gate for all three, at collapse thresholds. A null means the browser did not report the
+  // metric, which is not a failure of the site.
+  const breached = Object.entries(VITALS_CEILING)
+    .filter(([k, ceiling]) => vitals[k] !== null && vitals[k] > ceiling)
+    .map(([k, ceiling]) => `${k}=${vitals[k]} exceeds ${ceiling}`);
+  record("home vitals within collapse ceiling", breached.length === 0, breached.join(", "));
 
   // --- Verse page and TTS --------------------------------------------------
   await page.goto(`${BASE}${VERSE_PATH}`, { waitUntil: "networkidle" });
