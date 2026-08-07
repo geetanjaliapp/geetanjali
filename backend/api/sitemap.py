@@ -29,7 +29,9 @@ SITEMAP_CACHE_KEY = "sitemap:xml"
 # Base URL for sitemap (from config, defaults to localhost in dev)
 BASE_URL = settings.FRONTEND_URL
 
-# Static pages with their priorities and change frequencies
+# Static pages with their priorities and change frequencies.
+# Every path here must be crawlable: frontend/public/robots.txt Disallows /consultations and
+# /cases/new, and advertising a disallowed URL spends crawl budget on a page that is never fetched.
 STATIC_PAGES = [
     {"path": "/", "priority": "1.0", "changefreq": "weekly"},
     {"path": "/about", "priority": "0.8", "changefreq": "monthly"},
@@ -37,8 +39,6 @@ STATIC_PAGES = [
     {"path": "/topics/", "priority": "0.9", "changefreq": "weekly"},
     {"path": "/featured", "priority": "0.8", "changefreq": "monthly"},
     {"path": "/daily", "priority": "0.7", "changefreq": "daily"},
-    {"path": "/consultations", "priority": "0.8", "changefreq": "daily"},
-    {"path": "/cases/new", "priority": "0.7", "changefreq": "monthly"},
 ]
 
 
