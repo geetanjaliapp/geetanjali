@@ -47,7 +47,7 @@ google-genai>=1.0.0  # Google Gemini API
 
 # Testing
 pytest==9.1.1
-pytest-asyncio>=1.0.0  # pytest 9.x requires pytest-asyncio 1.x
+pytest-asyncio>=1.4.0  # pytest 9.x requires pytest-asyncio 1.x
 pytest-cov==7.1.0
 
 # Code Quality
