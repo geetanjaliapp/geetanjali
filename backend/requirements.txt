@@ -69,7 +69,7 @@ slowapi==0.1.10  # Rate limiting
 better-profanity==0.7.0  # Profanity detection with obfuscation handling
 
 # Redis Cache & Task Queue
-redis==7.3.0
+redis==8.1.0
 rq==2.10.0  # Redis Queue for background tasks
 
 # Data Ingestion
