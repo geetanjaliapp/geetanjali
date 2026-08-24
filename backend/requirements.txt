@@ -2,17 +2,17 @@
 
 # Web Framework
 fastapi==0.141.1
-uvicorn[standard]==0.52.1
+uvicorn[standard]==0.52.4
 python-multipart==0.0.32
 
 # Database
-sqlalchemy==2.0.51
-alembic==1.18.5
+sqlalchemy==2.0.52
+alembic==1.19.1
 psycopg2-binary==2.9.12  # PostgreSQL driver
 
 # Pydantic (included with FastAPI but pinned for clarity)
 pydantic==2.13.4
-pydantic-settings==2.14.2
+pydantic-settings==2.15.0
 email-validator==2.3.0  # Required for pydantic EmailStr validation
 
 # Vector Database
@@ -51,7 +51,7 @@ pytest-asyncio>=1.0.0  # pytest 9.x requires pytest-asyncio 1.x
 pytest-cov==7.1.0
 
 # Code Quality
-ruff==0.16.1  # Fast linter and formatter (replaces flake8+black)
+ruff==0.16.4  # Fast linter and formatter (replaces flake8+black)
 mypy==1.19.1
 types-requests==2.33.0.20260518  # Type stubs for requests
 types-PyYAML==6.0.12.20250915  # Type stubs for PyYAML
@@ -63,18 +63,18 @@ passlib[bcrypt]==1.7.4  # Password hashing
 bcrypt==4.3.0  # pinned due to passlib 1.7.4 incompatibility with bcrypt 5.0.0
 
 # Utilities
-python-dotenv==1.2.2
+python-dotenv==1.2.3
 tenacity==9.1.4  # Retry logic for robustness
 slowapi==0.1.10  # Rate limiting
 better-profanity==0.7.0  # Profanity detection with obfuscation handling
 
 # Redis Cache & Task Queue
 redis==7.3.0
-rq==2.10.0  # Redis Queue for background tasks
+rq==2.11.0  # Redis Queue for background tasks
 
 # Data Ingestion
 beautifulsoup4==4.15.0  # HTML parsing
-lxml==6.1.1  # XML/HTML parser
+lxml==6.1.2  # XML/HTML parser
 pyyaml==6.0.3  # YAML config loading
 indic-transliteration==2.3.82  # Sanskrit IAST transliteration
 requests==2.34.2  # HTTP client for fetching
@@ -84,7 +84,7 @@ urllib3>=2.7.0  # CVE-2025-50181, CVE-2025-50182 fix
 resend>=2.35.0  # Transactional email service
 
 # Monitoring
-sentry-sdk[fastapi]==2.66.1  # Error tracking and performance monitoring
+sentry-sdk[fastapi]==2.68.0  # Error tracking and performance monitoring
 # 8.x is required for FastAPI >= 0.136: 7.1.0 reads `.path` off the router, which
 # FastAPI now represents as _IncludedRouter. These two move together, in both directions.
 prometheus-fastapi-instrumentator==8.1.0  # FastAPI metrics instrumentation
