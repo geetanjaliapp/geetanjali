@@ -7,7 +7,7 @@
 # ==========================================
 # Stage 1: Frontend Build
 # ==========================================
-FROM node:25-alpine AS builder
+FROM node:26-alpine AS builder
 
 # Build args for Vite environment variables (baked into bundle)
 ARG VITE_API_URL=http://localhost:8000
