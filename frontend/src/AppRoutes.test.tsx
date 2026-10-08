@@ -1,8 +1,19 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter, useLocation } from "react-router-dom";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { AppRoutes } from "./AppRoutes";
-import sitemap from "../../scripts/synthetic/sitemap-shapes.json";
+
+// Read at runtime, not imported: tsconfig.app.json type-checks tests during `npm run build`,
+// and the image build context holds only frontend/, so a static import breaks the build.
+// Relative to cwd: vitest runs from frontend/, and import.meta.url is not a file: URL here.
+const sitemap: { shapes: { sample: string }[] } = JSON.parse(
+  readFileSync(
+    resolve(process.cwd(), "../scripts/synthetic/sitemap-shapes.json"),
+    "utf-8",
+  ),
+);
 
 // Every page is a stub: this tests the route table, not the pages behind it.
 vi.mock("./lib/lazyWithRetry", () => ({
