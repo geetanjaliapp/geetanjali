@@ -41,6 +41,7 @@ const NewsletterPreferences = lazyWithRetry(
 const VerifyEmail = lazyWithRetry(() => import("./pages/VerifyEmail"));
 const TopicsIndex = lazyWithRetry(() => import("./pages/TopicsIndex"));
 const TopicDetail = lazyWithRetry(() => import("./pages/TopicDetail"));
+const DailyVerse = lazyWithRetry(() => import("./pages/DailyVerse"));
 
 /**
  * Redirect from old /search to unified /verses page
@@ -98,6 +99,7 @@ export function AppRoutes() {
       <Route path="/cases/:id" element={<CaseView />} />
       <Route path="/consultations" element={<Consultations />} />
       <Route path="/verses" element={<Verses />} />
+      <Route path="/daily" element={<DailyVerse />} />
       <Route path="/search" element={<SearchRedirect />} />
       <Route path="/verses/:canonicalId" element={<VerseDetail />} />
       <Route path="/topics" element={<TopicsIndex />} />
