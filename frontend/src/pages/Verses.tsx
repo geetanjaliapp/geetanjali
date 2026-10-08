@@ -180,6 +180,9 @@ export default function Verses() {
   const getInitialFilter = (): FilterMode => {
     const chapter = searchParams.get("chapter");
     if (chapter) return parseInt(chapter);
+    // Read-only: /featured redirects here. Featured is the no-param state, so changing the
+    // filter drops it from the URL.
+    if (searchParams.get("featured") === "true") return "featured";
     const showAll = searchParams.get("all");
     if (showAll === "true") return "all";
     const showFavs = searchParams.get("favorites");

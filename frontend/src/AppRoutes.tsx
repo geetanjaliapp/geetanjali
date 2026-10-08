@@ -113,7 +113,10 @@ export function AppRoutes() {
       <Route path="/verses" element={<Verses />} />
       {/* Indexed URLs whose crawler pages live in nginx; humans land on the SPA equivalent */}
       <Route path="/verses/chapter/:chapter" element={<ChapterRedirect />} />
-      <Route path="/featured" element={<Navigate to="/verses" replace />} />
+      <Route
+        path="/featured"
+        element={<Navigate to="/verses?featured=true" replace />}
+      />
       <Route path="/daily" element={<DailyVerse />} />
       <Route path="/search" element={<SearchRedirect />} />
       <Route path="/verses/:canonicalId" element={<VerseDetail />} />

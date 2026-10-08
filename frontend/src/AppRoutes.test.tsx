@@ -77,6 +77,8 @@ describe("AppRoutes", () => {
 
   it("sends /featured to the verse browser", () => {
     renderAt("/featured");
-    expect(screen.getByTestId("location")).toHaveTextContent(/^\/verses$/);
+    expect(screen.getByTestId("location")).toHaveTextContent(
+      /^\/verses\?featured=true$/,
+    );
   });
 });

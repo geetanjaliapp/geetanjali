@@ -3,6 +3,7 @@ import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { render } from "../../test/utils";
 import Verses from "../Verses";
+import { versesApi } from "../../lib/api";
 
 /**
  * Verses Page Tests
@@ -125,6 +126,33 @@ describe("Verses Page", () => {
       await user.type(searchInput, "karma");
 
       expect(searchInput).toHaveValue("karma");
+    });
+  });
+
+  describe("initial filter", () => {
+    const featuredArg = () =>
+      vi.mocked(versesApi.list).mock.calls.map((c) => c[3]);
+
+    it("honours ?featured=true over a stored default of all", async () => {
+      localStorage.setItem(
+        "geetanjali:defaultVersesTab",
+        JSON.stringify("all"),
+      );
+      window.history.pushState({}, "", "/verses?featured=true");
+      render(<Verses />);
+      await waitFor(() => expect(versesApi.list).toHaveBeenCalled());
+      expect(featuredArg()).toContain(true);
+    });
+
+    it("uses the stored default without the param", async () => {
+      localStorage.setItem(
+        "geetanjali:defaultVersesTab",
+        JSON.stringify("all"),
+      );
+      window.history.pushState({}, "", "/verses");
+      render(<Verses />);
+      await waitFor(() => expect(versesApi.list).toHaveBeenCalled());
+      expect(featuredArg()).not.toContain(true);
     });
   });
 });
