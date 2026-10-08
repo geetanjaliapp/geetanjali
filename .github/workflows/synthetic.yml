@@ -38,7 +38,9 @@ jobs:
           node-version: '24'
 
       - name: Install dependencies
-        run: npm install --no-package-lock
+        # Locked: a floating Playwright let a breaking release arrive as a failed check that
+        # looks like an outage. Dependabot proposes updates monthly.
+        run: npm ci
 
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
