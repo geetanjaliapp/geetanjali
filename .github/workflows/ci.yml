@@ -79,6 +79,7 @@ jobs:
         # fetching the auditor so its own deps stay out; pip freeze omits pip and setuptools.
         # Each ignore is an accepted risk explained where the package is pinned. Removing one
         # must turn this step red -- that is the test that the list is still load-bearing.
+        # Entries with a review date expire then: fix, re-justify, or the step stays amber for good.
         # Advisory, like npm audit below: advisories publish independently of our code, so a
         # gate would turn unrelated PRs red. The step still fails visibly and annotates the run.
         continue-on-error: true
@@ -87,10 +88,10 @@ jobs:
           # silently skips the package. The CPU build carries the upstream version's advisories.
           pip freeze | sed -E 's/^([A-Za-z0-9_.-]+==[^+]+)\+.*$/\1/' > "$RUNNER_TEMP/installed.txt"
           ignores=(
-            GHSA-f4j7-r4q5-qw2c GHSA-36p7-vc44-83pf  # chromadb, accepted: requirements.txt
+            GHSA-f4j7-r4q5-qw2c GHSA-36p7-vc44-83pf  # chromadb, accepted until v1.43.0 isolation (review 2026-10-22)
             GHSA-2wm9-hf6c-p5cr GHSA-xph7-9rjv-w5fr  # chromadb, N/A without auth: requirements.txt
             GHSA-3qf3-8w2g-rqmx GHSA-wj6h-64fc-37mp  # python-jose / ecdsa, HS256 only: requirements.txt
-            GHSA-63cw-57p8-fm3p GHSA-rrmf-rvhw-rf47 GHSA-qfhq-4f3w-5fph PYSEC-2026-139  # torch: Dockerfile
+            GHSA-63cw-57p8-fm3p GHSA-rrmf-rvhw-rf47 GHSA-qfhq-4f3w-5fph PYSEC-2026-139  # torch, until its bump (review 2026-10-22)
           )
           args=()
           for id in "${ignores[@]}"; do args+=(--ignore-vuln "$id"); done
