@@ -217,7 +217,8 @@ rollback: ## Rollback to the images tagged before the last deploy (uses .env.loc
 	COMPOSE_CMD="docker compose -f $$(echo $${DEPLOY_COMPOSE_FILES:-docker-compose.yml} | sed 's/ / -f /g')"; \
 	echo "Rolling back to previous images ($$COMPOSE_CMD)..."; \
 	ssh $$DEPLOY_HOST "cd $$DEPLOY_DIR && \
-		for svc in backend frontend chromadb; do docker tag geetanjali-\$$svc:rollback geetanjali-\$$svc:latest || exit 1; done && \
+		for svc in backend frontend chromadb; do docker image inspect geetanjali-\$$svc:rollback >/dev/null || exit 1; done && \
+		for svc in backend frontend chromadb; do docker tag geetanjali-\$$svc:rollback geetanjali-\$$svc:latest; done && \
 		APP_VERSION=\$$(cat .rollback-version 2>/dev/null || echo dev) $$COMPOSE_CMD up -d --no-build chromadb backend worker frontend" && \
 	echo "Rollback complete."
 
