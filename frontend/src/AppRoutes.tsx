@@ -95,7 +95,8 @@ function ChapterRedirect() {
 }
 
 /**
- * The application's route table.
+ * The application's route table. Every URL in the sitemap must resolve here to something
+ * other than NotFound -- AppRoutes.test.tsx checks that against the shared fixture.
  */
 export function AppRoutes() {
   return (

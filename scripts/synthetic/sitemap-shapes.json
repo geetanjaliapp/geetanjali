@@ -1,0 +1,14 @@
+{
+  "_comment": "One entry per URL shape in /sitemap.xml. Shared by backend/tests/test_sitemap.py (every generated URL matches a shape), frontend/src/AppRoutes.test.tsx (every sample renders something other than NotFound) and scripts/synthetic/check.mjs (every sample renders in a real browser). A new sitemap shape fails the backend test until it is added here, which makes the other two check it.",
+  "shapes": [
+    { "pattern": "^/$", "sample": "/" },
+    { "pattern": "^/about$", "sample": "/about" },
+    { "pattern": "^/verses$", "sample": "/verses" },
+    { "pattern": "^/topics/$", "sample": "/topics/" },
+    { "pattern": "^/featured$", "sample": "/featured" },
+    { "pattern": "^/daily$", "sample": "/daily" },
+    { "pattern": "^/verses/chapter/\\d+$", "sample": "/verses/chapter/2" },
+    { "pattern": "^/topics/[a-z_]+$", "sample": "/topics/dharma" },
+    { "pattern": "^/verses/BG_\\d+_\\d+$", "sample": "/verses/BG_2_47" }
+  ]
+}
