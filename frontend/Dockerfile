@@ -7,7 +7,7 @@
 # ==========================================
 # Stage 1: Frontend Build
 # ==========================================
-FROM node:25-alpine AS builder
+FROM node:24-alpine AS builder
 
 # Build args for Vite environment variables (baked into bundle)
 ARG VITE_API_URL=http://localhost:8000
@@ -37,7 +37,7 @@ ENV VITE_UMAMI_WEBSITE_ID=$VITE_UMAMI_WEBSITE_ID
 RUN npm run build
 
 # Production stage - using nginx:alpine with non-root configuration
-FROM nginx:alpine
+FROM nginx:1.31-alpine
 
 # Copy built files from builder
 COPY --from=builder /app/dist /usr/share/nginx/html
