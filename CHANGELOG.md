@@ -7,6 +7,68 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v1.42.0] - 2026-10-08
+
+Give every URL we advertise a page a person can open, and make the checks that said things were
+fine actually look.
+
+### Fixed
+
+- **`/daily`, `/featured` and `/verses/chapter/N` showed people NotFound for nine months.** v1.31
+  added crawler pages for them in nginx and listed them in the sitemap, but the app had no routes.
+  Search engines indexed and ranked pages that nobody who clicked could see, and daily-verse queries
+  are two thirds of the site's search impressions and nearly all its clicks. `/daily` is now a Verse
+  of the Day page; `/featured` and `/verses/chapter/N` open the verse browser on the matching filter
+- **The daily SEO refresh never ran.** Its crontab line contained `%{http_code}`, which cron turns
+  into a newline, so the command was truncated every night from January and logged nothing. Crawlers
+  saw the verse from the last deploy under "Today's Verse". It now runs through `maintenance.sh` and
+  alerts on failure, including the endpoint's 200-with-errors response
+- **Every 404 was answered as 200.** `error_page 404 = @handle_404` takes the named location's
+  status, so missing scripts, audio and invalid verse ids returned `200 text/html`. Crawler 404 pages
+  are also `noindex` now. `/seo/*.html` was publicly readable because a regex location outranked the
+  `internal` prefix
+- **CI's dependency scan never scanned our dependencies.** Safety was installed alone and audited the
+  runner, which is why it flagged setuptools and never chromadb. pip-audit now audits the installed
+  backend environment, transitive packages and the Dockerfile's torch included. It is advisory, like
+  `npm audit`; each ignore is an accepted risk documented where the package is pinned
+- **`make rollback` used the dev compose file** and left the worker on the new image. It now uses the
+  deploy compose files, restores worker and chromadb, refuses to start if any rollback image is
+  missing, and restores the version the old images reported
+- **Tests ran on Node 20 while the image built on Node 25,** both end-of-life. Both now use Node 24
+
+### Added
+
+- **One list of sitemap URL shapes, checked three ways.** The backend fails if the sitemap emits a
+  shape not on the list, the frontend renders each sample through the real route table, and the
+  weekly browser check opens each one, with a NotFound control and a comparison of the crawler
+  `/daily` against the API
+- **`deploy.sh` checks before and after.** `nginx -t` runs in the new image before the frontend is
+  replaced, and the deploy fails unless the public site serves `/daily`, a current crawler page and
+  real 404s
+
+### Changed
+
+- **Crawler `/daily` title and description no longer name a verse,** since search engines cache
+  snippets for days. The crawler homepage drops its own "Verse of the Day", which was hashed on the
+  template alone and so never refreshed
+- **The synthetic check locks Playwright** and installs with `npm ci`; Dependabot proposes updates
+  monthly
+- nginx pinned to `1.31-alpine`
+- Dependency floors: `google-genai>=2.28` (Gemini conformance passed on 2.29.0), `pytest-asyncio>=1.4`.
+  Majors held for their own releases: anthropic 1.x, Vite 8, vitest 5, @sentry/react 11, redis-py 8
+
+### Security
+
+- **Accepted risks rewritten from the first real audit.** chromadb (4 advisories, no fixed release):
+  two need auth we do not enable; the reasoning that the server is unreachable was wrong, because
+  Grafana shares its network and is internet-facing. Isolating it is planned for v1.43.0.
+  python-jose and ecdsa: not reachable with symmetric HS256 and pinned algorithms. torch 2.9.1:
+  only our pinned model is loaded; the bump gets its own release. A test now asserts every Chroma
+  collection call passes our own embedding function, which keeps a compromised Chroma server from
+  configuring `trust_remote_code` in the backend
+- axios 1.20.0 (via Dependabot): the advisories target Node adapters and are not reachable from the
+  browser client; patched as hygiene
+
 ## [v1.41.0] - 2026-08-07
 
 Delete what only looked like it worked; make the app legible to readers and to machines.
