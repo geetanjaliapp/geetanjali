@@ -322,6 +322,20 @@ async function main() {
     );
   }
 
+  // Home links every featured consultation. From 2026-03 to 2026-10 they had all passed the
+  // share-link expiry, so each card opened "unavailable" while the list endpoint stayed 200.
+  const featured = (await (await context.request.get(`${BASE}/api/v1/cases/featured`)).json()).cases || [];
+  const unopenable = [];
+  for (const { slug } of featured) {
+    const r = await context.request.get(`${BASE}/api/v1/cases/public/${slug}`);
+    if (r.status() !== 200) unopenable.push(`${slug}=${r.status()}`);
+  }
+  record(
+    "every featured consultation on home opens",
+    featured.length > 0 && unopenable.length === 0,
+    featured.length === 0 ? "no featured consultations listed" : unopenable.join(", "),
+  );
+
   // Negative control: if this stops seeing NotFound, the loop above can no longer fail.
   await visit("/synthetic-check-nonexistent");
   const controlSeen = await page
