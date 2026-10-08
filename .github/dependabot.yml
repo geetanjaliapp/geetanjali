@@ -27,6 +27,13 @@ updates:
           - "minor"
           - "patch"
 
+  # Synthetic check (Playwright). Locked so the browser changes when we choose, not mid-run.
+  - package-ecosystem: "npm"
+    directory: "/scripts/synthetic"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 1
+
   # npm dependencies
   - package-ecosystem: "npm"
     directory: "/frontend"

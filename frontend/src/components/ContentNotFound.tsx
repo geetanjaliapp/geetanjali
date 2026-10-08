@@ -94,7 +94,7 @@ export function ContentNotFound({
       : content.secondaryCta;
 
   return (
-    <div className="text-center max-w-md mx-auto px-4">
+    <div data-not-found className="text-center max-w-md mx-auto px-4">
       {/* Icon */}
       <div className="w-16 h-16 mx-auto mb-6 rounded-[var(--radius-avatar)] bg-[var(--surface-warm)] flex items-center justify-center">
         {content.icon}

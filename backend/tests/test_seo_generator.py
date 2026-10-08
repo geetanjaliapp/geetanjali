@@ -396,3 +396,60 @@ class TestGetStatus:
         status = service.get_status()
 
         assert status["last_generated_at"] == "2025-06-15T12:00:00"
+
+
+class TestRenderedCrawlerPages:
+    """What crawlers are served. Humans never see these pages, so nothing else checks them."""
+
+    def _render(self, db_session, template, **context):
+        service = SeoGeneratorService(db_session, output_dir=Path(tempfile.mkdtemp()))
+        return service.env.get_template(template).render(**context)
+
+    def test_home_title_names_the_site_once(self, db_session):
+        service = SeoGeneratorService(db_session, output_dir=Path(tempfile.mkdtemp()))
+        html = service.env.get_template("seo/home.html").render(
+            **service._get_static_page_context("home")
+        )
+        assert "<title>Bhagavad Gita Guidance | Geetanjali</title>" in html
+
+    def test_home_has_no_verse_of_the_day(self, db_session):
+        # Its source hash is the template alone, so a dated verse there never refreshes.
+        service = SeoGeneratorService(db_session, output_dir=Path(tempfile.mkdtemp()))
+        html = service.env.get_template("seo/home.html").render(
+            **service._get_static_page_context("home")
+        )
+        assert "Verse of the Day" not in html
+
+    def test_404_is_noindex(self, db_session):
+        html = self._render(db_session, "seo/404.html")
+        assert '<meta name="robots" content="noindex">' in html
+
+    def test_other_pages_are_not_noindex(self, db_session):
+        verse = MagicMock(chapter=2, verse=47, canonical_id="BG_2_47")
+        html = self._render(db_session, "seo/daily.html", verse=verse, preview="x")
+        assert "noindex" not in html
+
+    def test_daily_snippet_is_evergreen(self, db_session):
+        # Search engines cache snippets for days; a verse number in them is wrong by tomorrow.
+        verse = MagicMock(chapter=2, verse=47, canonical_id="BG_2_47")
+        html = self._render(db_session, "seo/daily.html", verse=verse, preview="x")
+        head = html.split("</head>")[0]
+        meta = [
+            line
+            for line in head.splitlines()
+            if "<title>" in line or "description" in line
+        ]
+        assert meta and not any("2.47" in line for line in meta), meta
+
+
+class TestDailyVerseAgreement:
+    def test_featured_verses_are_in_chapter_verse_order(self):
+        # The crawler /daily page indexes this list; GET /verses/daily indexes the DB's
+        # featured set ORDER BY chapter, verse. They pick the same verse only while this holds.
+        from data.featured_verses import FEATURED_VERSES
+
+        def key(cid):
+            return tuple(int(p) for p in cid.split("_")[1:])
+
+        assert FEATURED_VERSES == sorted(FEATURED_VERSES, key=key)
+        assert len(set(FEATURED_VERSES)) == len(FEATURED_VERSES)

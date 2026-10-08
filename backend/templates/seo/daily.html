@@ -1,14 +1,14 @@
 {% extends "seo/base.html" %}
 
-{% block title %}Verse of the Day - Daily Bhagavad Gita Wisdom{% endblock %}
+{% block title %}Bhagavad Gita Verse of the Day – Daily Quote{% endblock %}
 
-{% block description %}Start each day with timeless wisdom from the Bhagavad Gita. Today's verse: {{ verse.chapter }}.{{ verse.verse }}{% if preview %} - {{ preview[:100] }}{% endif %}{% endblock %}
+{% block description %}A new verse from the Bhagavad Gita every day: Sanskrit, transliteration and a plain-English meaning. Read today's verse, or get it daily by email or RSS.{% endblock %}
 
 {% block canonical %}/daily{% endblock %}
 
 {% block og_type %}article{% endblock %}
-{% block og_title %}Verse of the Day | Geetanjali{% endblock %}
-{% block og_description %}Daily wisdom from the Bhagavad Gita. Verse {{ verse.chapter }}.{{ verse.verse }} selected from our curated collection.{% endblock %}
+{% block og_title %}Bhagavad Gita Verse of the Day{% endblock %}
+{% block og_description %}A new verse from the Bhagavad Gita every day: Sanskrit, transliteration and a plain-English meaning. Read today's verse, or get it daily by email or RSS.{% endblock %}
 {% block og_url %}/daily{% endblock %}
 
 {% block twitter_title %}Bhagavad Gita Verse of the Day{% endblock %}

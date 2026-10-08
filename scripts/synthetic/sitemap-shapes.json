@@ -1,0 +1,51 @@
+{
+  "_comment": "One entry per URL shape in /sitemap.xml. Shared by backend/tests/test_sitemap.py (every generated URL matches a shape), frontend/src/AppRoutes.test.tsx (every sample renders something other than NotFound) and scripts/synthetic/check.mjs (every sample renders in a real browser). A new sitemap shape fails the backend test until it is added here, which makes the other two check it. `title` is what a person's tab shows once the page has loaded; the synthetic check waits for it. `ready` is an element to wait for where the title alone cannot tell the app from the static shell.",
+  "shapes": [
+    {
+      "pattern": "^/$",
+      "sample": "/",
+      "title": "^Geetanjali",
+      "ready": "[data-cta-primary]"
+    },
+    {
+      "pattern": "^/about$",
+      "sample": "/about",
+      "title": "^About"
+    },
+    {
+      "pattern": "^/verses$",
+      "sample": "/verses",
+      "title": "^Browse Verses"
+    },
+    {
+      "pattern": "^/topics/$",
+      "sample": "/topics/",
+      "title": "^Teachings of the Bhagavad Gita"
+    },
+    {
+      "pattern": "^/featured$",
+      "sample": "/featured",
+      "title": "^Browse Verses"
+    },
+    {
+      "pattern": "^/daily$",
+      "sample": "/daily",
+      "title": "^Bhagavad Gita Verse of the Day"
+    },
+    {
+      "pattern": "^/verses/chapter/\\d+$",
+      "sample": "/verses/chapter/2",
+      "title": "^Browse Verses"
+    },
+    {
+      "pattern": "^/topics/[a-z_]+$",
+      "sample": "/topics/dharma",
+      "title": "\\(.+\\) \\| Geetanjali$"
+    },
+    {
+      "pattern": "^/verses/BG_\\d+_\\d+$",
+      "sample": "/verses/BG_2_47",
+      "title": "^Bhagavad Gita 2\\.47 "
+    }
+  ]
+}

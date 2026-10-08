@@ -45,21 +45,6 @@
         <p class="guest-prompt">{{ content.hero.guestPrompt | default('Try it free — no signup required') }}</p>
     </header>
 
-    <!-- Verse of the Day -->
-    {% if daily_verse %}
-    <section aria-labelledby="daily">
-        <h2 id="daily">Verse of the Day</h2>
-        <blockquote class="sanskrit" lang="sa">{{ daily_verse.sanskrit_devanagari }}</blockquote>
-        {% if daily_verse.sanskrit_iast %}
-        <p class="iast" lang="sa-Latn">{{ daily_verse.sanskrit_iast }}</p>
-        {% endif %}
-        {% if daily_verse.paraphrase_en %}
-        <p>{{ daily_verse.paraphrase_en }}</p>
-        {% endif %}
-        <p><a href="/verses/{{ daily_verse.canonical_id }}">Read full verse &rarr;</a></p>
-    </section>
-    {% endif %}
-
     <!-- CTA Section -->
     <section aria-labelledby="cta">
         <h2 id="cta" class="visually-hidden">Get Started</h2>

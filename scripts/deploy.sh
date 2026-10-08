@@ -166,6 +166,24 @@ if [[ -n "$SEO_RESULT" ]]; then
     info "SEO: $SEO_RESULT"
 fi
 
+# Step 9b: Verify what people and crawlers actually get. The backend health poll above says
+# nothing about nginx: a bad route, a 404 rewritten to 200, or a stale crawler page all pass it.
+log "Checking the public site..."
+SITE_URL="${SITE_URL:-https://geetanjaliapp.com}"
+GOOGLEBOT="Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
+curl -sf "${SITE_URL}/daily" | grep -q 'id="root"' \
+    || error "/daily did not serve the app to a browser. Roll back with: make rollback"
+# `|| true`: under set -e a grep that matches nothing would end the script here, silently,
+# before the explicit error below can say what failed.
+API_DAILY=$(curl -sf "${SITE_URL}/api/v1/verses/daily" | grep -oE '"canonical_id": *"BG_[0-9]+_[0-9]+"' | grep -oE 'BG_[0-9]+_[0-9]+' || true)
+BOT_DAILY=$(curl -sf -A "${GOOGLEBOT}" "${SITE_URL}/daily" | grep -oE '/verses/BG_[0-9]+_[0-9]+' | head -1 | sed 's#/verses/##' || true)
+[[ -n "$API_DAILY" && "$BOT_DAILY" == "$API_DAILY" ]] \
+    || error "Crawler /daily shows ${BOT_DAILY:-nothing}, API says ${API_DAILY:-nothing}. Check SEO generation above"
+MISSING_STATUS=$(curl -s -o /dev/null -w '%{http_code}' "${SITE_URL}/assets/deploy-check-missing.js")
+[[ "$MISSING_STATUS" == "404" ]] \
+    || error "Missing asset returned ${MISSING_STATUS}, not 404. Check error_page in nginx.conf"
+info "Public site: app on /daily, crawler /daily = ${API_DAILY}, missing asset 404"
+
 # Step 10: Verify deployment
 log "Service status:"
 $SSH_CMD "cd ${DEPLOY_DIR} && ${COMPOSE_CMD} ps --format 'table {{.Names}}\t{{.Status}}'"

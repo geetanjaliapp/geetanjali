@@ -742,11 +742,9 @@ class SeoGeneratorService:
 
     def _get_static_page_context(self, page_key: str) -> dict:
         """Get template context for static pages."""
-        from datetime import date
 
         from data.chapter_metadata import BOOK_METADATA
-        from data.featured_verses import FEATURED_VERSES
-        from models import ChapterMetadata, Verse
+        from models import ChapterMetadata
 
         if page_key == "home":
             chapters = (
@@ -755,20 +753,9 @@ class SeoGeneratorService:
                 .all()
             )
 
-            # Get daily verse (same logic as daily page)
-            today = date.today()
-            day_of_year = today.timetuple().tm_yday
-            verse_index = day_of_year % len(FEATURED_VERSES)
-            daily_verse_id = FEATURED_VERSES[verse_index]
-            daily_verse = (
-                self.db.query(Verse)
-                .filter(Verse.canonical_id == daily_verse_id)
-                .first()
-            )
-
             content = {
                 "seo": {
-                    "title": "Bhagavad Gita Guidance | Geetanjali",
+                    "title": "Bhagavad Gita Guidance",
                     "description": BOOK_METADATA["intro_text"],
                 },
                 "hero": {
@@ -799,7 +786,6 @@ class SeoGeneratorService:
             }
             return {
                 "chapters": chapters,
-                "daily_verse": daily_verse,
                 "content": content,
             }
 
