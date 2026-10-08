@@ -162,8 +162,10 @@ SITE_URL="${SITE_URL:-https://geetanjaliapp.com}"
 GOOGLEBOT="Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
 curl -sf "${SITE_URL}/daily" | grep -q 'id="root"' \
     || error "/daily did not serve the app to a browser. Roll back with: make rollback"
-API_DAILY=$(curl -sf "${SITE_URL}/api/v1/verses/daily" | grep -oE '"canonical_id": *"BG_[0-9]+_[0-9]+"' | grep -oE 'BG_[0-9]+_[0-9]+')
-BOT_DAILY=$(curl -sf -A "${GOOGLEBOT}" "${SITE_URL}/daily" | grep -oE '/verses/BG_[0-9]+_[0-9]+' | head -1 | sed 's#/verses/##')
+# `|| true`: under set -e a grep that matches nothing would end the script here, silently,
+# before the explicit error below can say what failed.
+API_DAILY=$(curl -sf "${SITE_URL}/api/v1/verses/daily" | grep -oE '"canonical_id": *"BG_[0-9]+_[0-9]+"' | grep -oE 'BG_[0-9]+_[0-9]+' || true)
+BOT_DAILY=$(curl -sf -A "${GOOGLEBOT}" "${SITE_URL}/daily" | grep -oE '/verses/BG_[0-9]+_[0-9]+' | head -1 | sed 's#/verses/##' || true)
 [[ -n "$API_DAILY" && "$BOT_DAILY" == "$API_DAILY" ]] \
     || error "Crawler /daily shows ${BOT_DAILY:-nothing}, API says ${API_DAILY:-nothing}. Check SEO generation above"
 MISSING_STATUS=$(curl -s -o /dev/null -w '%{http_code}' "${SITE_URL}/assets/deploy-check-missing.js")
