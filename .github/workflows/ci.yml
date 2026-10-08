@@ -79,6 +79,9 @@ jobs:
         # fetching the auditor so its own deps stay out; pip freeze omits pip and setuptools.
         # Each ignore is an accepted risk explained where the package is pinned. Removing one
         # must turn this step red -- that is the test that the list is still load-bearing.
+        # Advisory, like npm audit below: advisories publish independently of our code, so a
+        # gate would turn unrelated PRs red. The step still fails visibly and annotates the run.
+        continue-on-error: true
         run: |
           pip freeze > "$RUNNER_TEMP/installed.txt"
           ignores=(
@@ -89,8 +92,11 @@ jobs:
           )
           args=()
           for id in "${ignores[@]}"; do args+=(--ignore-vuln "$id"); done
-          pipx run pip-audit==2.10.1 -r "$RUNNER_TEMP/installed.txt" --no-deps --disable-pip \
-            --progress-spinner off "${args[@]}"
+          if ! pipx run pip-audit==2.10.1 -r "$RUNNER_TEMP/installed.txt" --no-deps --disable-pip \
+            --progress-spinner off "${args[@]}"; then
+            echo "::warning title=pip-audit::Unaccepted advisory in backend dependencies. Fix the pin or document the risk and add an ignore."
+            exit 1
+          fi
 
       - name: Run database migrations
         env:
