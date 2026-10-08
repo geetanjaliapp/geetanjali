@@ -83,7 +83,9 @@ jobs:
         # gate would turn unrelated PRs red. The step still fails visibly and annotates the run.
         continue-on-error: true
         run: |
-          pip freeze > "$RUNNER_TEMP/installed.txt"
+          # Strip local version labels (torch==2.9.1+cpu): pip-audit cannot find them on PyPI and
+          # silently skips the package. The CPU build carries the upstream version's advisories.
+          pip freeze | sed -E 's/^([A-Za-z0-9_.-]+==[^+]+)\+.*$/\1/' > "$RUNNER_TEMP/installed.txt"
           ignores=(
             GHSA-f4j7-r4q5-qw2c GHSA-36p7-vc44-83pf  # chromadb, accepted: requirements.txt
             GHSA-2wm9-hf6c-p5cr GHSA-xph7-9rjv-w5fr  # chromadb, N/A without auth: requirements.txt

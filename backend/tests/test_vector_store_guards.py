@@ -14,7 +14,7 @@ import pytest
 pytestmark = pytest.mark.unit
 
 BACKEND_ROOT = Path(__file__).resolve().parent.parent
-SKIP_DIRS = {"venv", ".venv-test", "htmlcov", "alembic", "tests"}
+SKIP_DIRS = {"venv", ".venv", ".venv-test", "htmlcov", "alembic", "tests"}
 COLLECTION_CALLS = {"get_collection", "create_collection", "get_or_create_collection"}
 
 
