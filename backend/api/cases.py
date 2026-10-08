@@ -99,6 +99,17 @@ def generate_unique_public_slug(db: Session, max_candidates: int = 10) -> str:
     return str(uuid.uuid4()).replace("-", "")[:12]
 
 
+def _is_actively_featured(case_id: str, db: Session) -> bool:
+    from models import FeaturedCase
+
+    return (
+        db.query(FeaturedCase.id)
+        .filter(FeaturedCase.case_id == case_id, FeaturedCase.is_active == True)  # noqa: E712
+        .first()
+        is not None
+    )
+
+
 def get_public_case_or_404(slug: str, db: Session) -> Case:
     """
     Fetch a public case by slug or raise 404.
@@ -122,8 +133,13 @@ def get_public_case_or_404(slug: str, db: Session) -> Case:
             detail="Case not found or not publicly accessible",
         )
 
-    # Check if public link has expired
-    if settings.PUBLIC_CASE_EXPIRY_DAYS > 0 and case.shared_at:
+    # Share links expire; cases the homepage features do not. Those are system-curated
+    # (jobs/curate_featured.py, no owner), and expiring them left Home linking to a 410.
+    if (
+        settings.PUBLIC_CASE_EXPIRY_DAYS > 0
+        and case.shared_at
+        and not _is_actively_featured(case.id, db)
+    ):
         expiry_date = case.shared_at + timedelta(days=settings.PUBLIC_CASE_EXPIRY_DAYS)
         if datetime.utcnow() > expiry_date:
             raise HTTPException(
