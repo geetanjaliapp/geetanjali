@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v1.42.1] - 2026-10-08
+
+### Fixed
+
+- **Featured consultations on Home opened as "unavailable".** Share links expire after 90 days, and
+  the curated consultations Home features were shared once, in December and January. From
+  2026-03-22 they began answering 410, and by 2026-04-28 all of them did, while the list that
+  feeds Home kept returning them. Actively featured cases no longer expire; user and guest shares
+  still do
+
+### Added
+
+- **The weekly synthetic check opens every featured consultation on Home.** The list endpoint stayed
+  200 for six months while every link in it was dead
+
 ## [v1.42.0] - 2026-10-08
 
 Give every URL we advertise a page a person can open, and make the checks that said things were
