@@ -15,8 +15,10 @@
 #   ./maintenance.sh deep-postgres # Run VACUUM FULL + REINDEX (requires brief downtime)
 #   ./maintenance.sh bloat-check  # Check PostgreSQL table bloat
 #   ./maintenance.sh redis-check  # Check Redis memory usage
+#   ./maintenance.sh seo          # Regenerate SEO pages (hash-checked; /daily changes daily)
 #
 # Crontab (called directly by setup-crons.sh):
+#   5 0 * * *   seo     - 00:05 UTC, just after the daily verse rolls over
 #   0 3 * * *   daily   - 3 AM UTC every day
 #   0 4 * * 0   weekly  - 4 AM UTC Sundays
 #   0 5 1 * *   monthly - 5 AM UTC first of month (add manually)
@@ -281,6 +283,19 @@ task_redis_check() {
 # Weekly Tasks
 # -----------------------------------------------------------------------------
 
+task_seo_refresh() {
+    log "Regenerating SEO pages..."
+    local result
+    # Single quotes: $API_KEY must expand inside the container, not here.
+    if result=$(docker exec geetanjali-backend sh -c 'curl -sf -X POST -H "X-API-Key: $API_KEY" http://localhost:8000/api/v1/admin/seo/generate' 2>&1); then
+        log "SEO: ${result}"
+    else
+        log "SEO generation failed: ${result}"
+        send_alert "SEO Refresh Failed" "Daily SEO regeneration failed. Crawlers will see a stale verse at /daily until it succeeds. See /var/log/geetanjali/seo.log"
+        return 1
+    fi
+}
+
 task_postgres_maintenance() {
     log "Running PostgreSQL maintenance..."
 
@@ -506,8 +521,11 @@ case "${1:-daily}" in
     redis-check)
         task_redis_check
         ;;
+    seo)
+        task_seo_refresh
+        ;;
     *)
-        echo "Usage: $0 {daily|weekly|monthly|backup|health|cleanup|report|orphan|deep-postgres|bloat-check|redis-check}"
+        echo "Usage: $0 {daily|weekly|monthly|backup|health|cleanup|report|orphan|deep-postgres|bloat-check|redis-check|seo}"
         exit 1
         ;;
 esac
