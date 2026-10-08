@@ -11,9 +11,10 @@ updates:
     # without these, every weekly PR re-bumps them and fails CI, which trains us to ignore the
     # group entirely. Each entry mirrors a documented pin; remove it when the pin is lifted.
     ignore:
-      # chromadb: every published version is affected by GHSA-f4j7-r4q5-qw2c and there is no
-      # upgrade path. Accepted risk, documented at requirements.txt:19-37. Re-check for a
-      # patched release rather than letting Dependabot re-raise it weekly.
+      # chromadb: every published version is affected (GHSA-f4j7-r4q5-qw2c, -36p7-vc44-83pf,
+      # -2wm9-hf6c-p5cr, -xph7-9rjv-w5fr) and there is no upgrade path. Accepted risk, documented
+      # above the chromadb pin in requirements.txt. Re-check for a patched release rather than
+      # letting Dependabot re-raise it weekly.
       - dependency-name: "chromadb"
       # bcrypt 5.0.0 is incompatible with passlib 1.7.4 (requirements.txt:63).
       - dependency-name: "bcrypt"

@@ -68,7 +68,29 @@ jobs:
           cache-dependency-path: backend/requirements.txt
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        # torch first, from the same line the image uses, so tests and the audit see the
+        # CPU build that ships rather than whatever sentence-transformers resolves on PyPI.
+        run: |
+          pip install "$(grep -oE 'torch==[0-9.]+' Dockerfile)" --index-url https://download.pytorch.org/whl/cpu
+          pip install -r requirements.txt
+
+      - name: Audit installed dependencies (pip-audit)
+        # Audits exactly what the tests run against, transitive deps included. Freeze before
+        # fetching the auditor so its own deps stay out; pip freeze omits pip and setuptools.
+        # Each ignore is an accepted risk explained where the package is pinned. Removing one
+        # must turn this step red -- that is the test that the list is still load-bearing.
+        run: |
+          pip freeze > "$RUNNER_TEMP/installed.txt"
+          ignores=(
+            GHSA-f4j7-r4q5-qw2c GHSA-36p7-vc44-83pf  # chromadb, accepted: requirements.txt
+            GHSA-2wm9-hf6c-p5cr GHSA-xph7-9rjv-w5fr  # chromadb, N/A without auth: requirements.txt
+            GHSA-3qf3-8w2g-rqmx GHSA-wj6h-64fc-37mp  # python-jose / ecdsa, HS256 only: requirements.txt
+            GHSA-63cw-57p8-fm3p GHSA-rrmf-rvhw-rf47 GHSA-qfhq-4f3w-5fph PYSEC-2026-139  # torch: Dockerfile
+          )
+          args=()
+          for id in "${ignores[@]}"; do args+=(--ignore-vuln "$id"); done
+          pipx run pip-audit==2.10.1 -r "$RUNNER_TEMP/installed.txt" --no-deps --disable-pip \
+            --progress-spinner off "${args[@]}"
 
       - name: Run database migrations
         env:
@@ -84,7 +106,7 @@ jobs:
           APP_ENV: test
         run: pytest -m "unit or integration" --cov=. --cov-report=xml -v
 
-  # Security scan - runs in parallel, non-blocking
+  # Static analysis. Dependency CVEs are audited in the backend job against the installed env.
   security:
     name: Security Scan
     runs-on: ubuntu-latest
@@ -99,17 +121,12 @@ jobs:
         uses: actions/setup-python@v7
         with:
           python-version: '3.11'
-          cache: 'pip'
-          cache-dependency-path: backend/requirements.txt
 
-      - name: Install security tools
-        run: pip install bandit safety
+      - name: Install bandit
+        run: pip install bandit
 
       - name: Security scan (bandit)
         run: bandit -r . -x ./tests,./alembic --severity-level medium -f txt
-
-      - name: Dependency vulnerability check (safety)
-        run: safety check --full-report
 
   frontend:
     name: Frontend Tests & Build

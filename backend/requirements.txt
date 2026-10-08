@@ -17,24 +17,27 @@ email-validator==2.3.0  # Required for pydantic EmailStr validation
 
 # Vector Database
 #
-# ACCEPTED RISK -- GHSA-f4j7-r4q5-qw2c (critical, pre-auth code injection).
-# Vulnerable range is >= 1.0.0, <= 1.5.9 and 1.5.9 is the latest release on PyPI,
-# so every published version is affected and there is no upgrade path. Dependabot
-# will keep raising this; the pin is deliberate, not neglect.
+# ACCEPTED RISK -- every published chromadb is affected; 1.5.9 is the latest on PyPI, so
+# there is no upgrade path. The pin is deliberate. Each ID below is also an --ignore-vuln in
+# .github/workflows/ci.yml (pip-audit step); keep the two lists identical.
 #
-# Why it is accepted: the Chroma server is not reachable from outside the compose
-# network. docker-compose.yml declares no `ports:` for the chromadb service, and the
-# 8000:8000 publish in override/test/minimal belongs to `backend`, not chroma. The
-# container also runs non-root with cap_drop: ALL and no-new-privileges. Reaching the
-# vulnerable HTTP API therefore requires already being inside geetanjali-network --
-# post-compromise lateral movement, not an internet-facing RCE.
+#   GHSA-2wm9-hf6c-p5cr, GHSA-xph7-9rjv-w5fr -- cross-tenant authorization bypasses. Not
+#     applicable: no Chroma auth is configured and there is one tenant.
+#   GHSA-f4j7-r4q5-qw2c (critical, pre-auth code injection) and GHSA-36p7-vc44-83pf (RCE via
+#     trust_remote_code on collection modify) -- accepted. With no auth, any caller that can
+#     reach chroma:8000 can attempt these.
 #
-# Open mitigation (not yet applied): the vulnerability is *pre-authentication*, so
-# enabling Chroma token auth removes its precondition. Needs CHROMA_SERVER_AUTHN_PROVIDER
-# + CHROMA_SERVER_AUTHN_CREDENTIALS on the server and chroma_client_auth_provider on the
-# client, plus a managed secret -- a functional change requiring a full-stack test.
+# Who can reach it: chroma publishes no port, but it shares geetanjali-network with nginx,
+# backend, worker, Prometheus and Grafana -- and Grafana is internet-facing behind login. That
+# is one SSRF hop from the internet, not "post-compromise only". Mitigation planned for
+# v1.43.0: chroma on its own internal network with only the services that query it. The
+# container already runs non-root, cap_drop: ALL, no-new-privileges.
 #
-# Re-check for a patched release before assuming this is still the best available state.
+# Client-side tripwire: the client will build a SentenceTransformer embedding function from
+# server-returned config (trust_remote_code included) unless we pass our own. Every
+# get_or_create_collection call in services/vector_store.py must pass embedding_function.
+#
+# Re-check PyPI for a patched release; do not assume this is still the best available state.
 chromadb==1.5.9
 
 # Embeddings
@@ -58,6 +61,10 @@ types-PyYAML==6.0.12.20250915  # Type stubs for PyYAML
 types-redis==4.6.0.20241004  # Type stubs for redis
 
 # Authentication
+# ACCEPTED RISK -- GHSA-3qf3-8w2g-rqmx (python-jose, no fix) and GHSA-wj6h-64fc-37mp (ecdsa, its
+# dependency, no fix). Not reachable: utils/jwt.py signs and verifies HS256 with a symmetric secret
+# and pins algorithms=[JWT_ALGORITHM]; the jose bypass needs a public key and ecdsa is only used for
+# ES* algorithms. Mirrored as --ignore-vuln in ci.yml. Replacing python-jose with PyJWT removes both.
 python-jose[cryptography]==3.5.0  # JWT tokens
 passlib[bcrypt]==1.7.4  # Password hashing
 bcrypt==4.3.0  # pinned due to passlib 1.7.4 incompatibility with bcrypt 5.0.0

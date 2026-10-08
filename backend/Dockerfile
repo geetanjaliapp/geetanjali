@@ -19,6 +19,11 @@ RUN pip install --no-cache-dir --upgrade pip
 
 # LAYER 1: Dependencies (cached and only rebuilt when requirements.txt changes)
 # Using CPU-only PyTorch from PyPI (avoids 1.5GB NVIDIA CUDA downloads)
+# ACCEPTED RISK on torch 2.9.1 -- GHSA-63cw-57p8-fm3p (RCE via untrusted checkpoint, fixed 2.10),
+# GHSA-rrmf-rvhw-rf47 + GHSA-qfhq-4f3w-5fph (memory corruption in torch.jit.script / lstm_cell),
+# PYSEC-2026-139 (no fix). We load only the pinned sentence-transformers model and never call jit
+# or lstm on user input. Mirrored as --ignore-vuln in ci.yml, which installs torch from this line.
+# Bump in its own release: a torch change rebuilds the heaviest layer on the 1.9GB droplet.
 COPY requirements.txt .
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install torch==2.9.1 --index-url https://download.pytorch.org/whl/cpu && \
