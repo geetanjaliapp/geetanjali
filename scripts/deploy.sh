@@ -109,7 +109,16 @@ info "Deploying version: ${APP_VERSION}"
 # Step 6: Rebuild and restart containers with version
 log "Rebuilding and restarting containers..."
 info "Using compose files: ${COMPOSE_FILES}"
-$SSH_CMD "cd ${DEPLOY_DIR} && APP_VERSION=${APP_VERSION} ${COMPOSE_CMD} build && APP_VERSION=${APP_VERSION} ${COMPOSE_CMD} up -d" || error "Failed to restart containers"
+$SSH_CMD "cd ${DEPLOY_DIR} && APP_VERSION=${APP_VERSION} ${COMPOSE_CMD} build" || error "Build failed; containers still running the previous release"
+
+# Step 6b: Test the new nginx config before replacing the running frontend. `run` mounts the
+# same certificates and joins the same network, so upstream names resolve as they will live.
+# A config that fails here would otherwise crash-loop 80/443 while this script reports success.
+log "Testing nginx config in the new frontend image..."
+$SSH_CMD "cd ${DEPLOY_DIR} && ${COMPOSE_CMD} run --rm --no-deps --entrypoint nginx frontend -t" \
+    || error "nginx -t failed; containers still running the previous release. Fix nginx.conf and redeploy"
+
+$SSH_CMD "cd ${DEPLOY_DIR} && APP_VERSION=${APP_VERSION} ${COMPOSE_CMD} up -d" || error "Failed to restart containers"
 
 # Step 7: Wait for health checks with polling
 log "Waiting for services to become healthy..."
