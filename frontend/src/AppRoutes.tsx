@@ -84,6 +84,17 @@ function ReadingModePathRedirect() {
 }
 
 /**
+ * /verses/chapter/N is what the sitemap advertises and crawlers are served by nginx.
+ * The SPA's chapter view is a filter on /verses, so send people there.
+ */
+function ChapterRedirect() {
+  const { chapter } = useParams<{ chapter: string }>();
+  const n = Number(chapter);
+  if (!Number.isInteger(n) || n < 1 || n > 18) return <NotFound />;
+  return <Navigate to={`/verses?chapter=${n}`} replace />;
+}
+
+/**
  * The application's route table.
  */
 export function AppRoutes() {
@@ -99,6 +110,9 @@ export function AppRoutes() {
       <Route path="/cases/:id" element={<CaseView />} />
       <Route path="/consultations" element={<Consultations />} />
       <Route path="/verses" element={<Verses />} />
+      {/* Indexed URLs whose crawler pages live in nginx; humans land on the SPA equivalent */}
+      <Route path="/verses/chapter/:chapter" element={<ChapterRedirect />} />
+      <Route path="/featured" element={<Navigate to="/verses" replace />} />
       <Route path="/daily" element={<DailyVerse />} />
       <Route path="/search" element={<SearchRedirect />} />
       <Route path="/verses/:canonicalId" element={<VerseDetail />} />
