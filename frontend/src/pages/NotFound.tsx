@@ -69,7 +69,10 @@ export default function NotFound() {
   );
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-[var(--gradient-page-from)] to-[var(--gradient-page-to)]">
+    <div
+      data-not-found
+      className="min-h-screen bg-linear-to-br from-[var(--gradient-page-from)] to-[var(--gradient-page-to)]"
+    >
       <Navbar />
       <div
         className="flex items-center justify-center"
