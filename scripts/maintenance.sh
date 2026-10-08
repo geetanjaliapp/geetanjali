@@ -287,7 +287,9 @@ task_seo_refresh() {
     log "Regenerating SEO pages..."
     local result
     # Single quotes: $API_KEY must expand inside the container, not here.
-    if result=$(docker exec geetanjali-backend sh -c 'curl -sf -X POST -H "X-API-Key: $API_KEY" http://localhost:8000/api/v1/admin/seo/generate' 2>&1); then
+    # The endpoint answers 200 even when pages failed, so success also requires "errors":0.
+    if result=$(docker exec geetanjali-backend sh -c 'curl -sf -X POST -H "X-API-Key: $API_KEY" http://localhost:8000/api/v1/admin/seo/generate' 2>&1) \
+        && echo "$result" | grep -qE '"errors": *0[,}]'; then
         log "SEO: ${result}"
     else
         log "SEO generation failed: ${result}"
