@@ -208,17 +208,17 @@ seo-generate: ## Trigger SEO page generation via admin API
 seo-status: ## Check SEO generation status
 	@docker exec geetanjali-backend sh -c 'curl -s -H "X-API-Key: $$API_KEY" http://localhost:8000/api/v1/admin/seo/status' | python3 -m json.tool
 
-rollback: ## Rollback to previous deployment (uses .env.local or env vars)
-	@if [ -f .env.local ]; then . .env.local; fi; \
+rollback: ## Rollback to the images tagged before the last deploy (uses .env.local or env vars)
+	@if [ -f .env.local ]; then . ./.env.local; fi; \
 	if [ -z "$$DEPLOY_HOST" ] || [ -z "$$DEPLOY_DIR" ]; then \
 		echo "Error: DEPLOY_HOST and DEPLOY_DIR must be set (in .env.local or environment)"; \
 		exit 1; \
 	fi; \
-	echo "Rolling back to previous images..."; \
+	COMPOSE_CMD="docker compose -f $$(echo $${DEPLOY_COMPOSE_FILES:-docker-compose.yml} | sed 's/ / -f /g')"; \
+	echo "Rolling back to previous images ($$COMPOSE_CMD)..."; \
 	ssh $$DEPLOY_HOST "cd $$DEPLOY_DIR && \
-		docker tag geetanjali-backend:rollback geetanjali-backend:latest && \
-		docker tag geetanjali-frontend:rollback geetanjali-frontend:latest && \
-		docker compose up -d backend frontend"; \
+		for svc in backend frontend chromadb; do docker tag geetanjali-\$$svc:rollback geetanjali-\$$svc:latest || exit 1; done && \
+		APP_VERSION=\$$(cat .rollback-version 2>/dev/null || echo dev) $$COMPOSE_CMD up -d --no-build chromadb backend worker frontend" && \
 	echo "Rollback complete."
 
 # =============================================================================

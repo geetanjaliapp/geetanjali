@@ -97,7 +97,9 @@ log "Tagging current images for rollback..."
 $SSH_CMD "cd ${DEPLOY_DIR} && \
     docker tag geetanjali-backend:latest geetanjali-backend:rollback 2>/dev/null || true && \
     docker tag geetanjali-frontend:latest geetanjali-frontend:rollback 2>/dev/null || true && \
-    docker tag geetanjali-chromadb:latest geetanjali-chromadb:rollback 2>/dev/null || true"
+    docker tag geetanjali-chromadb:latest geetanjali-chromadb:rollback 2>/dev/null || true && \
+    docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' geetanjali-backend 2>/dev/null \
+        | sed -n 's/^APP_VERSION=//p' > .rollback-version || true"
 
 # Step 5b: Get version from git tag (single source of truth)
 log "Determining app version from git tag..."
