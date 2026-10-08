@@ -1,10 +1,11 @@
 {
-  "_comment": "One entry per URL shape in /sitemap.xml. Shared by backend/tests/test_sitemap.py (every generated URL matches a shape), frontend/src/AppRoutes.test.tsx (every sample renders something other than NotFound) and scripts/synthetic/check.mjs (every sample renders in a real browser). A new sitemap shape fails the backend test until it is added here, which makes the other two check it. `title` is what a person's tab shows once the page has loaded; the synthetic check waits for it.",
+  "_comment": "One entry per URL shape in /sitemap.xml. Shared by backend/tests/test_sitemap.py (every generated URL matches a shape), frontend/src/AppRoutes.test.tsx (every sample renders something other than NotFound) and scripts/synthetic/check.mjs (every sample renders in a real browser). A new sitemap shape fails the backend test until it is added here, which makes the other two check it. `title` is what a person's tab shows once the page has loaded; the synthetic check waits for it. `ready` is an element to wait for where the title alone cannot tell the app from the static shell.",
   "shapes": [
     {
       "pattern": "^/$",
       "sample": "/",
-      "title": "^Geetanjali"
+      "title": "^Geetanjali",
+      "ready": "[data-cta-primary]"
     },
     {
       "pattern": "^/about$",

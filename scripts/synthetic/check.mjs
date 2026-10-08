@@ -300,14 +300,16 @@ async function main() {
     return isSpa;
   };
 
-  for (const { sample, title } of SHAPES) {
+  for (const { sample, title, ready } of SHAPES) {
     const isSpa = await visit(sample);
-    // Wait on an event: the page's own title, or a not-found marker, whichever comes first.
+    // Wait on an event: the page's own title (and its `ready` element, where the static shell's
+    // title would already match), or a not-found marker, whichever comes first.
     const outcome = await page
       .waitForFunction(
-        (re) => document.querySelector("[data-not-found]") ? "not-found"
-          : new RegExp(re).test(document.title) ? "ok" : false,
-        title,
+        ([re, sel]) => document.querySelector("[data-not-found]") ? "not-found"
+          : new RegExp(re).test(document.title) && (!sel || document.querySelector(sel)) ? "ok"
+          : false,
+        [title, ready || null],
         { timeout: 15_000 },
       )
       .then((h) => h.jsonValue())
