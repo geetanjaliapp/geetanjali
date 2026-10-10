@@ -15,7 +15,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@sentry/react": "^10.69.0",
+    "@sentry/react": "^11.4.0",
     "@tanstack/react-virtual": "^3.14.13",
     "axios": "^1.20.0",
     "class-variance-authority": "^0.7.1",
