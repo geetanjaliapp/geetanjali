@@ -372,15 +372,16 @@ class AnthropicConfig(ProviderConfig):
 
     def parse_response(self, raw_response: Any) -> tuple[str, int, int]:
         """Extract text and tokens from Anthropic response."""
+        # Thinking blocks may precede or interleave text; join the text blocks.
         try:
-            content_block = raw_response.content[0]
-            response_text = (
-                content_block.text
-                if hasattr(content_block, "text")
-                else str(content_block)
-            )
-        except (IndexError, AttributeError):
+            text_blocks = [
+                b.text for b in raw_response.content if hasattr(b, "text")
+            ]
+        except (TypeError, AttributeError):
             raise ValueError("Anthropic returned malformed response")
+        if not text_blocks:
+            raise ValueError("Anthropic returned malformed response")
+        response_text = "".join(text_blocks)
 
         input_tokens = getattr(raw_response.usage, "input_tokens", 0) or 0
         output_tokens = getattr(raw_response.usage, "output_tokens", 0) or 0

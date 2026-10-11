@@ -245,3 +245,88 @@ class TestAnchorVerseInjection:
         assert not any(v.get("is_anchor") for v in captured_verses)
         # Verse repo was never called (no anchor to fetch)
         mock_verse_repo_cls.assert_not_called()
+
+
+@pytest.mark.unit
+class TestUnusableOutputRetry:
+    """Structurally empty output: re-ask once, then fail instead of repairing."""
+
+    GOOD = {
+        "executive_summary": "s",
+        "options": [{"title": "a"}],
+        "recommended_action": {"option": 1},
+        "reflection_prompts": ["q"],
+    }
+    BAD = {"sources": ["BG_2_47"]}
+
+    def _pipeline(self, outputs):
+        pipeline = RAGPipeline.__new__(RAGPipeline)  # skip embedder init
+        pipeline.retrieve_verses = MagicMock(return_value=[])
+        pipeline.enrich_verses_with_translations = MagicMock(return_value=[])
+        pipeline.construct_context = MagicMock(return_value="prompt")
+        pipeline.generate_brief = MagicMock(
+            side_effect=[(o, False) for o in outputs]
+        )
+        pipeline.validate_output = MagicMock(
+            side_effect=lambda o, v=None: {**o, "confidence": 0.8, "scholar_flag": False}
+        )
+        return pipeline
+
+    CASE = {"title": "t", "description": "d", "role": "Individual"}
+
+    @pytest.fixture(autouse=True)
+    def _sole_provider(self):
+        with patch("services.rag.pipeline.settings.LLM_FALLBACK_ENABLED", False):
+            yield
+
+    def test_retry_succeeds(self):
+        pipeline = self._pipeline([self.BAD, dict(self.GOOD)])
+        result, violation = pipeline.run(self.CASE)
+        assert pipeline.generate_brief.call_count == 2
+        assert result["executive_summary"] == "s"
+        assert not violation
+
+    def test_second_failure_raises(self):
+        from services.rag.pipeline import UnusableLLMOutput
+
+        pipeline = self._pipeline([self.BAD, self.BAD])
+        with pytest.raises(UnusableLLMOutput):
+            pipeline.run(self.CASE)
+        assert pipeline.generate_brief.call_count == 2
+        pipeline.validate_output.assert_not_called()
+
+    def test_fallback_enabled_does_not_retry_here(self):
+        pipeline = self._pipeline([self.BAD])
+        with patch("services.rag.pipeline.settings.LLM_FALLBACK_ENABLED", True):
+            pipeline.run(self.CASE)
+        assert pipeline.generate_brief.call_count == 1
+
+    def test_good_output_not_retried(self):
+        pipeline = self._pipeline([dict(self.GOOD)])
+        pipeline.run(self.CASE)
+        assert pipeline.generate_brief.call_count == 1
+
+
+@pytest.mark.unit
+class TestLowConfidenceNotCached:
+    def _run(self, confidence):
+        pipeline = RAGPipeline.__new__(RAGPipeline)  # skip embedder init
+        pipeline.retrieve_verses = MagicMock(return_value=[])
+        pipeline.enrich_verses_with_translations = MagicMock(return_value=[])
+        pipeline.construct_context = MagicMock(return_value="prompt")
+        pipeline.generate_brief = MagicMock(
+            return_value=(dict(TestUnusableOutputRetry.GOOD), False)
+        )
+        pipeline.validate_output = MagicMock(
+            return_value={"confidence": confidence, "scholar_flag": False, "sources": []}
+        )
+        with patch("services.rag.pipeline.cache") as cache:
+            cache.get.return_value = None
+            pipeline.run(TestUnusableOutputRetry.CASE)
+        return cache
+
+    def test_low_confidence_skips_cache(self):
+        assert not self._run(0.31).set.called
+
+    def test_normal_confidence_cached(self):
+        assert self._run(0.82).set.called

@@ -1,6 +1,7 @@
 """Hybrid LLM service with configurable primary/fallback providers."""
 
 import logging
+import re
 from enum import Enum
 from typing import Any
 
@@ -42,6 +43,14 @@ from utils.metrics_llm import (
 )
 
 logger = logging.getLogger(__name__)
+
+_ANTHROPIC_5X_MODEL = re.compile(r"claude-(haiku|sonnet|opus|fable)-5")
+# Thinking-off setting per model, each verified against the live API:
+# Sonnet 5.5 rejects "disabled"; Haiku 5.5 rejects "between_tools".
+_ANTHROPIC_THINKING_OFF = {
+    "claude-sonnet-5-5": {"type": "between_tools"},
+    "claude-haiku-5-5": {"type": "disabled"},
+}
 
 
 class LLMProvider(str, Enum):
@@ -261,14 +270,22 @@ class LLMService:
             gen_params = provider_config.get_generation_params(temperature)
             gen_params["max_tokens"] = max_tokens
 
-            response = self.anthropic_client.messages.create(
-                model=provider_config.model,
-                max_tokens=gen_params["max_tokens"],
-                temperature=gen_params["temperature"],
-                system=system_prompt or "",
-                messages=[{"role": "user", "content": prompt}],
-                timeout=settings.ANTHROPIC_TIMEOUT,
-            )
+            create_kwargs: dict[str, Any] = {
+                "model": provider_config.model,
+                "max_tokens": gen_params["max_tokens"],
+                "system": system_prompt or "",
+                "messages": [{"role": "user", "content": prompt}],
+                "timeout": settings.ANTHROPIC_TIMEOUT,
+            }
+            if _ANTHROPIC_5X_MODEL.match(provider_config.model):
+                # 5.x models 400 on non-default sampling and think by default;
+                # thinking tokens would eat max_tokens and the request timeout.
+                thinking_off = _ANTHROPIC_THINKING_OFF.get(provider_config.model)
+                if thinking_off:
+                    create_kwargs["extra_body"] = {"thinking": thinking_off}
+            else:
+                create_kwargs["temperature"] = gen_params["temperature"]
+            response = self.anthropic_client.messages.create(**create_kwargs)
 
             # Parse response using provider config
             response_text, input_tokens, output_tokens = provider_config.parse_response(response)
@@ -294,6 +311,7 @@ class LLMService:
                 "provider": "anthropic",
                 "input_tokens": input_tokens,
                 "output_tokens": output_tokens,
+                "stop_reason": getattr(response, "stop_reason", None),
             }
 
         except (APITimeoutError, APIConnectionError) as e:

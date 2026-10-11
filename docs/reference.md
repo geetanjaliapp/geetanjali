@@ -48,9 +48,9 @@ flowchart LR
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `ANTHROPIC_API_KEY` | - | Required when using Anthropic |
-| `ANTHROPIC_MODEL` | claude-haiku-4-5-20251001 | Model ID |
+| `ANTHROPIC_MODEL` | claude-sonnet-5-5 | Model ID |
 | `ANTHROPIC_MAX_TOKENS` | 2048 | Max response tokens |
-| `ANTHROPIC_TIMEOUT` | 30 | Request timeout (seconds) |
+| `ANTHROPIC_TIMEOUT` | 45 | Request timeout (seconds) |
 
 **Ollama:**
 

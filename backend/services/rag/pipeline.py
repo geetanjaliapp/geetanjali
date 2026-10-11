@@ -1,6 +1,7 @@
 """RAG (Retrieval-Augmented Generation) pipeline service."""
 
 import hashlib
+import json
 import logging
 from typing import Any
 
@@ -38,6 +39,7 @@ from utils.metrics_llm import (
 )
 
 from .escalation import (
+    CRITICAL_FIELDS,
     describe_escalation_reason,
     get_escalation_threshold,
     should_escalate_to_fallback,
@@ -53,6 +55,15 @@ from .validation import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+class UnusableLLMOutput(Exception):
+    """Primary provider returned structurally unusable output twice."""
+
+
+def _is_unusable(output: dict[str, Any]) -> bool:
+    """True if a critical field is missing or empty (no logging, unlike escalation)."""
+    return any(not output.get(f) for f in CRITICAL_FIELDS)
 
 
 class RAGPipeline:
@@ -550,6 +561,20 @@ class RAGPipeline:
                 "model": model,
             }
             logger.info(f"Successfully parsed JSON response from {provider} ({model})")
+            if _is_unusable(parsed_result):
+                try:
+                    json.loads(response_text)
+                    parse_error = "valid JSON, wrong shape"
+                except json.JSONDecodeError as e:
+                    parse_error = f"{e.msg} at {e.pos}/{len(response_text)}"
+                # Counts and allow-listed names only: keys and values are model text.
+                logger.warning(
+                    f"Structurally unusable response from {provider} ({model}), "
+                    f"stop_reason={result.get('stop_reason')}, "
+                    f"chars={len(response_text)}, json={parse_error}, "
+                    f"keys={len(parsed_result)}, "
+                    f"missing={[f for f in CRITICAL_FIELDS if not parsed_result.get(f)]}"
+                )
 
             # [NEW] Pre-repair structural health check (v1.34.0)
             # Escalate before repair cascade if critical fields are missing
@@ -949,6 +974,25 @@ class RAGPipeline:
                 logger.info("RAG pipeline completed with policy violation response")
                 return output, True
 
+            # Sole provider: re-ask once, then fail the case rather than
+            # repairing an empty response into filler guidance.
+            if not settings.LLM_FALLBACK_ENABLED and _is_unusable(output):
+                logger.warning("Unusable LLM output, retrying primary provider once")
+                output, is_policy_violation = self.generate_brief(
+                    prompt,
+                    fallback_prompt=fallback_prompt,
+                    fallback_system=OLLAMA_SYSTEM_PROMPT,
+                    retrieved_verses=retrieved_verses,
+                )
+                if is_policy_violation:
+                    return output, True
+                if _is_unusable(output):
+                    raise UnusableLLMOutput(
+                        "LLM output missing required fields after retry"
+                    )
+
+        except UnusableLLMOutput:
+            raise
         except Exception as e:
             logger.error(f"LLM generation failed: {e}")
             return self._create_fallback_response(case_data, "LLM unavailable"), False
@@ -1026,11 +1070,18 @@ class RAGPipeline:
                     if source.get("canonical_id") == anchor_verse_id:
                         source["is_anchor"] = True
 
-            # P1.1 FIX: Cache successful results
-            cache.set(cache_key, validated_output, settings.CACHE_TTL_RAG_OUTPUT)
-            logger.info(
-                f"RAG pipeline completed successfully, cached as {cache_key[:24]}"
-            )
+            # P1.1 FIX: Cache successful results; a repaired low-confidence
+            # result would otherwise be replayed to every identical retry.
+            cached_confidence = validated_output.get("confidence", 0.5)
+            if cached_confidence >= escalation_threshold:
+                cache.set(cache_key, validated_output, settings.CACHE_TTL_RAG_OUTPUT)
+                logger.info(
+                    f"RAG pipeline completed successfully, cached as {cache_key[:24]}"
+                )
+            else:
+                logger.warning(
+                    f"Low-confidence result ({cached_confidence:.2f}) not cached"
+                )
             return validated_output, False
 
         except Exception as e:

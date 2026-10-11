@@ -421,3 +421,52 @@ class TestOllamaSimplifiedPrompt:
         """Ollama prompt should specify JSON output."""
         assert "JSON" in OLLAMA_SIMPLIFIED_SYSTEM_PROMPT
         assert "Output ONLY valid JSON" in OLLAMA_SIMPLIFIED_SYSTEM_PROMPT
+
+
+class TestAnthropicParseResponseThinkingBlocks:
+    """Thinking blocks may precede the text block on 5.x models."""
+
+    def test_skips_thinking_block_before_text(self):
+        from types import SimpleNamespace
+
+        from services.provider_configs import get_provider_config
+
+        response = SimpleNamespace(
+            content=[
+                SimpleNamespace(type="thinking", thinking=""),
+                SimpleNamespace(type="text", text='{"ok": true}'),
+            ],
+            usage=SimpleNamespace(input_tokens=3, output_tokens=4),
+        )
+        text, tin, tout = get_provider_config("anthropic").parse_response(response)
+        assert (text, tin, tout) == ('{"ok": true}', 3, 4)
+
+    def test_no_text_block_raises(self):
+        from types import SimpleNamespace
+
+        import pytest
+
+        from services.provider_configs import get_provider_config
+
+        response = SimpleNamespace(
+            content=[SimpleNamespace(type="thinking", thinking="")],
+            usage=SimpleNamespace(input_tokens=1, output_tokens=1),
+        )
+        with pytest.raises(ValueError):
+            get_provider_config("anthropic").parse_response(response)
+
+    def test_joins_multiple_text_blocks(self):
+        from types import SimpleNamespace
+
+        from services.provider_configs import get_provider_config
+
+        response = SimpleNamespace(
+            content=[
+                SimpleNamespace(type="text", text='{"a": '),
+                SimpleNamespace(type="thinking", thinking=""),
+                SimpleNamespace(type="text", text="1}"),
+            ],
+            usage=SimpleNamespace(input_tokens=1, output_tokens=1),
+        )
+        text, _, _ = get_provider_config("anthropic").parse_response(response)
+        assert text == '{"a": 1}'

@@ -100,10 +100,10 @@ class Settings(BaseSettings):
     # Anthropic (Claude)
     ANTHROPIC_API_KEY: str | None = None  # Required for Anthropic
     ANTHROPIC_MODEL: str = (
-        "claude-haiku-4-5-20251001"  # Haiku 4.5 - fast, cost-effective
+        "claude-sonnet-5-5"  # Sonnet 5.5; 5.x models reject temperature, see llm.py
     )
     ANTHROPIC_MAX_TOKENS: int = 4096  # Match Gemini for consistent consultation length
-    ANTHROPIC_TIMEOUT: int = 30
+    ANTHROPIC_TIMEOUT: int = 45  # Sonnet 5.5 ~16s typical, ~34s at 4096 tokens
 
     # Gemini (Google)
     # Get API key: https://aistudio.google.com/apikey

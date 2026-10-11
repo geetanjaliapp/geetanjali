@@ -129,7 +129,7 @@ Ollama is the recommended provider for self-hosted deployments. Cloud providers 
 | `GEMINI_MODEL` | gemini-2.5-flash | Gemini model |
 | `GEMINI_TIMEOUT` | 30 | Timeout in seconds |
 | `ANTHROPIC_API_KEY` | - | Required if using Anthropic (cloud fallback) |
-| `ANTHROPIC_MODEL` | claude-haiku-4-5-20251001 | Claude model |
+| `ANTHROPIC_MODEL` | claude-sonnet-5-5 | Claude model |
 
 ### Database & Cache
 

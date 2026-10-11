@@ -834,3 +834,61 @@ class TestGeminiProvider:
 
             with pytest.raises(LLMError, match="malformed response"):
                 service._generate_gemini("Test prompt")
+
+
+class TestAnthropicRequestShape:
+    """5.x models reject non-default sampling and think by default."""
+
+    @pytest.mark.parametrize(
+        "model,expects_temperature",
+        [
+            ("claude-haiku-4-5-20251001", True),
+            ("claude-sonnet-5-5", False),
+            ("claude-haiku-5-5", False),
+        ],
+    )
+    def test_temperature_and_thinking_by_model(self, model, expects_temperature):
+        """5.x: no temperature, per-model thinking-off setting."""
+        from services.llm import LLMService
+
+        with patch("services.llm.settings") as mock_settings:
+            mock_settings.USE_MOCK_LLM = False
+            mock_settings.LLM_PROVIDER = "anthropic"
+            mock_settings.LLM_FALLBACK_PROVIDER = "mock"
+            mock_settings.LLM_FALLBACK_ENABLED = False
+            mock_settings.ANTHROPIC_API_KEY = "test-key"
+            mock_settings.ANTHROPIC_MODEL = model
+            mock_settings.ANTHROPIC_MAX_TOKENS = 1024
+            mock_settings.ANTHROPIC_TIMEOUT = 60
+            mock_settings.OLLAMA_ENABLED = False
+            mock_settings.OLLAMA_BASE_URL = "http://localhost:11434"
+            mock_settings.OLLAMA_MODEL = "qwen2.5:3b"
+            mock_settings.OLLAMA_TIMEOUT = 300
+
+            mock_client = MagicMock()
+            mock_response = MagicMock()
+            mock_response.content = [MagicMock(text='{"k": 1}')]
+            mock_response.usage = MagicMock(input_tokens=1, output_tokens=1)
+            mock_response.stop_reason = "end_turn"
+            mock_client.messages.create.return_value = mock_response
+
+            from services.provider_configs import get_provider_config
+
+            config = get_provider_config("anthropic")
+            config.model = model
+
+            with (
+                patch("services.llm.Anthropic", return_value=mock_client),
+                patch("services.llm.get_provider_config", return_value=config),
+            ):
+                service = LLMService()
+                result = service._generate_anthropic(prompt="p", system_prompt="s")
+
+            kwargs = mock_client.messages.create.call_args.kwargs
+            assert ("temperature" in kwargs) is expects_temperature
+            expected = {
+                "claude-sonnet-5-5": {"thinking": {"type": "between_tools"}},
+                "claude-haiku-5-5": {"thinking": {"type": "disabled"}},
+            }.get(model)
+            assert kwargs.get("extra_body") == expected
+            assert result["stop_reason"] == "end_turn"
