@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v1.42.2] - 2026-10-11
+
+### Changed
+
+- Anthropic is the sole LLM provider: Gemini fallback and escalation disabled (account unfunded); primary model Haiku 4.5 → Sonnet 5.5, timeout 45s.
+
+### Fixed
+
+- A structurally empty model reply is re-asked once, then the case fails instead of saving repaired filler guidance at 0.31 confidence.
+- Low-confidence results are no longer cached for 24h.
+- 5.x request shape: no `temperature`, per-model thinking-off, text blocks joined.
+
 ## [v1.42.1] - 2026-10-08
 
 ### Fixed
