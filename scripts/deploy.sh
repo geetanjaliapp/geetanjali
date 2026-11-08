@@ -118,9 +118,9 @@ info "Deploying version: ${APP_VERSION}"
 # - worker shares the backend image tag and is never built on its own
 # - a service with a build section must be in BUILD_ORDER or SHARES_IMAGE (checked below):
 #   `up -d --no-build` would run it on a stale image
-# - for a heavy build, worker and observability stop; `up -d` or any exit before it starts them
-#   again, unless a build or the stop is still running there (an interrupt or a dropped ssh
-#   leaves it running)
+# - for a heavy build, worker and observability stop; `up -d` or a failed step starts them again.
+#   After an interrupt or a dropped ssh the remote step may still be running, so nothing is
+#   started: the script prints the start command
 log "Rebuilding containers one image at a time..."
 info "Using compose files: ${COMPOSE_FILES}"
 BUILD_ORDER="chromadb backend frontend"
@@ -162,27 +162,35 @@ else
     info "Light build (${LIGHT_WHY}): worker and observability keep running"
 fi
 START_PAUSED="cd ${DEPLOY_DIR} && ${COMPOSE_CMD} start${PAUSED}"
+UNSETTLED=""
+# ssh exits 255 when the connection drops; the remote command may still be running
+remote() {
+    local rc=0
+    $SSH_CMD "$1" || rc=$?
+    (( rc == 255 )) && UNSETTLED=1
+    return $rc
+}
 restart_paused() {
     if [[ -z "$PAUSED" ]]; then
         return 0
-    elif $SSH_CMD "$BUILD_RUNNING" > /dev/null; then
-        warn "A build or stop is still running on the server. Once it exits, run there: ${START_PAUSED}"
+    elif [[ -n "$UNSETTLED" ]]; then
+        warn "A step may still be running on the server. Once it exits, run there: ${START_PAUSED}"
     else
-        $SSH_CMD "$START_PAUSED" || warn "Could not restart${PAUSED}. Once no build or stop is running on the server, run there: ${START_PAUSED}"
+        $SSH_CMD "$START_PAUSED" || warn "Could not restart${PAUSED}. Run there: ${START_PAUSED}"
     fi
 }
 trap restart_paused EXIT
-trap 'exit 130' INT TERM HUP
+trap 'UNSETTLED=1; exit 130' INT TERM HUP
 if [[ -n "$PAUSED" ]]; then
     log "Stopping${PAUSED} for the build..."
     # 120s: the worker finishes its current job on SIGTERM (an LLM call plus one re-ask, 45s each);
     # docker's default 10s cuts it off
-    $SSH_CMD "cd ${DEPLOY_DIR} && ${COMPOSE_CMD} stop --timeout 120${PAUSED}" || error "Could not stop${PAUSED}"
+    remote "cd ${DEPLOY_DIR} && ${COMPOSE_CMD} stop --timeout 120${PAUSED}" || error "Could not stop${PAUSED}"
 fi
 for s in $BUILD_ORDER; do
     grep -qx "$s" <<< "$SERVICES" || continue
     log "Building ${s}..."
-    $SSH_CMD "cd ${DEPLOY_DIR} && APP_VERSION=${APP_VERSION} ${COMPOSE_CMD} build ${s}" \
+    remote "cd ${DEPLOY_DIR} && APP_VERSION=${APP_VERSION} ${COMPOSE_CMD} build ${s}" \
         || error "Build of ${s} failed; containers still running the previous release"
 done
 
@@ -190,10 +198,10 @@ done
 # same certificates and joins the same network, so upstream names resolve as they will live.
 # A config that fails here would otherwise crash-loop 80/443 while this script reports success.
 log "Testing nginx config in the new frontend image..."
-$SSH_CMD "cd ${DEPLOY_DIR} && ${COMPOSE_CMD} run --rm --no-deps --entrypoint nginx frontend -t" \
+remote "cd ${DEPLOY_DIR} && ${COMPOSE_CMD} run --rm --no-deps --entrypoint nginx frontend -t" \
     || error "nginx -t failed; containers still running the previous release. Fix nginx.conf and redeploy"
 
-$SSH_CMD "cd ${DEPLOY_DIR} && APP_VERSION=${APP_VERSION} ${COMPOSE_CMD} up -d --no-build" || error "Failed to restart containers"
+remote "cd ${DEPLOY_DIR} && APP_VERSION=${APP_VERSION} ${COMPOSE_CMD} up -d --no-build" || error "Failed to restart containers"
 trap - EXIT INT TERM HUP
 
 # Step 7: Wait for health checks with polling
