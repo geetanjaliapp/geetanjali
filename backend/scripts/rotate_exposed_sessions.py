@@ -1,4 +1,4 @@
-"""Give a fresh session id to every anonymous session that ever shared a case.
+"""Give a fresh session id to every session still on a case that was ever shared.
 
 Before v1.42.3 a shared case's public response carried its owner's session id. Run once
 after upgrading, from backend/:
