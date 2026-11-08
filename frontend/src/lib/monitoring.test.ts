@@ -30,12 +30,22 @@ describe("Sentry scrubbing", () => {
         category: "fetch",
         data: { url, method: "GET" },
       }),
-      sentryBeforeBreadcrumb({ category: "console", message: `GET ${url}` }),
     ];
 
     expect(JSON.stringify([event, crumbs])).not.toContain(SECRET);
     expect(event?.request?.url).toBe(SITE + path.replace("{}", "[Filtered]"));
     expect(event?.user).toEqual({});
+  });
+
+  it("drops console breadcrumbs", () => {
+    const url = `${SITE}/n/unsubscribe/${SECRET}`;
+    const crumb = sentryBeforeBreadcrumb({
+      category: "console",
+      message: `GET ${url}`,
+      data: { arguments: ["GET", { config: { url } }], logger: "console" },
+    });
+
+    expect(crumb).toBeNull();
   });
 
   it("keeps ordinary URLs", () => {

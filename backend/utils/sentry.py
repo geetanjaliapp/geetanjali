@@ -41,7 +41,7 @@ def init_sentry(service_name: str = "backend") -> bool:
     try:
         import sentry_sdk
         from sentry_sdk.integrations.fastapi import FastApiIntegration
-        from sentry_sdk.integrations.logging import LoggingIntegration
+        from sentry_sdk.integrations.logging import LoggingIntegration, ignore_logger
         from sentry_sdk.integrations.rq import RqIntegration
         from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 
@@ -78,6 +78,8 @@ def init_sentry(service_name: str = "backend") -> bool:
             # See: https://github.com/getsentry/sentry-python/issues/1198
             keep_alive=True,
         )
+        # Access lines carry request paths, emailed-link tokens included
+        ignore_logger("uvicorn.access")
 
         _sentry_initialized = True
         logger.info(
@@ -111,7 +113,7 @@ CREDENTIAL_KEYS = ("session_id", "session-id", "tracking_key")
 
 
 # Emailed links carry a bearer token in the path or in ?token=.
-_PATH_TOKEN = re.compile(r"(/(?:verify-email|verify|unsubscribe|preferences)/)[^/?#]+")
+_PATH_TOKEN = re.compile(r'(/(?:verify-email|verify|unsubscribe|preferences)/)[^/?#\s"]+')
 _QUERY_TOKEN = re.compile(r"([?&]token=)[^&#]+")
 
 
@@ -153,6 +155,8 @@ def _filter_event(event: Any, _hint: dict[str, Any]) -> Any:
             request["cookies"] = "[Filtered]"
         if isinstance(request.get("url"), str):
             request["url"] = _scrub_url(request["url"])
+        # The SDK keeps the query out of url: ?token= and search text would skip the URL scrub
+        request.pop("query_string", None)
         if "headers" in request:
             headers = request["headers"]
             if isinstance(headers, dict):
@@ -198,6 +202,7 @@ def _filter_event(event: Any, _hint: dict[str, Any]) -> Any:
     if isinstance(breadcrumbs, dict):
         for crumb in breadcrumbs.get("values", []):
             _scrub_credential_keys(crumb.get("data"))
+            # Log lines carry request paths too (csrf.py logs a failed check's path)
             if isinstance(crumb.get("message"), str):
                 crumb["message"] = _scrub_url(crumb["message"])
 

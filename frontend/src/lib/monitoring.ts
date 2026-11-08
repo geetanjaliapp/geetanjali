@@ -43,8 +43,9 @@ export function sentryBeforeSend(event: ErrorEvent): ErrorEvent {
   return event;
 }
 
-export function sentryBeforeBreadcrumb(crumb: Breadcrumb): Breadcrumb {
-  crumb.message = scrubUrl(crumb.message);
+// Console crumbs carry raw console arguments, which no URL scrub can vet.
+export function sentryBeforeBreadcrumb(crumb: Breadcrumb): Breadcrumb | null {
+  if (crumb.category === "console") return null;
   const data = crumb.data;
   if (data) {
     for (const key of ["url", "from", "to"]) {

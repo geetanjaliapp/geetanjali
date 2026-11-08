@@ -233,14 +233,24 @@ def test_failed_job_log_does_not_reach_sentry(sent):
     assert DILEMMA not in _send(sent)
 
 
-def test_access_log_breadcrumb_tokens_are_filtered(sent, caplog):
+def test_access_log_lines_do_not_reach_sentry(sent, caplog):
     caplog.set_level(logging.INFO, logger="uvicorn.access")
     path = f"/api/v1/newsletter/unsubscribe/{SECRET}"
     logging.getLogger("uvicorn.access").info('%s "%s %s" %d', "203.0.113.9", "POST", path, 200)
     sentry_sdk.capture_message("marker")
 
+    assert SECRET not in _send(sent)
+
+
+def test_log_line_breadcrumb_tokens_are_filtered(sent):
+    path = f"/api/v1/auth/verify-email/{SECRET}"
+    logging.getLogger("api.middleware.csrf").warning(
+        f"CSRF validation failed for POST {path}: token mismatch"
+    )
+    sentry_sdk.capture_message("marker")
+
     payload = _send(sent)
-    assert "unsubscribe/[Filtered]" in payload
+    assert "verify-email/[Filtered]: token mismatch" in payload
     assert SECRET not in payload
 
 
@@ -259,6 +269,7 @@ def test_url_tokens_are_filtered(api, page):
     event = {
         "request": {
             "url": site + api.format(SECRET),
+            "query_string": f"token={SECRET}",
             "headers": {"Referer": site + page.format(SECRET)},
         }
     }
