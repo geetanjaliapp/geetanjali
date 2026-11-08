@@ -48,6 +48,18 @@ log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"
 }
 
+# Callers pass literal \n escapes and raw multi-line command output; JSON takes neither as-is.
+# No ${s//...} escaping: bash 5.2 patsub_replacement changes how its replacement is read.
+json_string() {
+    local line out="" sep=""
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        out+="${sep}${line}"
+        sep='\n'
+    done < <(printf '%b' "$1" | tr -d '\000-\010\013-\037' \
+        | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e "s/$(printf '\t')/\\\\t/g")
+    printf '"%s"' "$out"
+}
+
 send_alert() {
     local subject="$1"
     local message="$2"
@@ -60,8 +72,8 @@ send_alert() {
             -d "{
                 \"from\": \"Geetanjali Alerts <noreply@geetanjaliapp.com>\",
                 \"to\": \"${CONTACT_EMAIL_TO}\",
-                \"subject\": \"[Geetanjali] ${subject}\",
-                \"text\": \"${message}\"
+                \"subject\": $(json_string "[Geetanjali] ${subject}"),
+                \"text\": $(json_string "${message}")
             }" 2>/dev/null; then
             alert_sent=true
         fi

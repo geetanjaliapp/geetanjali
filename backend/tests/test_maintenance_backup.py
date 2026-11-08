@@ -1,5 +1,6 @@
 """maintenance.sh backup: a bad dump fails loudly and never rotates out a good backup."""
 
+import json
 import os
 import subprocess
 from pathlib import Path
@@ -34,7 +35,13 @@ exit 0
 
 CURL = """#!/bin/bash
 printf '%s\\0' "$*" >> "$CURL_LOG"
+while [[ $# -gt 0 ]]; do [[ $1 == -d ]] && printf '%s\\0' "$2" >> "$CURL_LOG.body"; shift; done
 exit 0
+"""
+
+# Multi-line output with a tab, quotes and a backslash, as `free -h` and `docker ps` give
+FREE = """#!/bin/bash
+printf '        total\\tused\\n"Mem:"  1.9Gi\\t1.2Gi \\\\ x\\n'
 """
 
 
@@ -46,6 +53,7 @@ def env(tmp_path):
         "docker": DOCKER,
         "curl": CURL,
         "openssl": "#!/bin/bash\nexit 1\n",
+        "free": FREE,
     }.items():
         (stubs / name).write_text(body)
         (stubs / name).chmod(0o755)
@@ -79,6 +87,11 @@ def _seed(env, n):
         f.write_bytes(b"old")
         os.utime(f, (day * 86400, day * 86400))
     return sorted(p.name for p in backups.iterdir())
+
+
+def _alert_bodies(env):
+    log = Path(env["CURL_LOG"] + ".body")
+    return [json.loads(b) for b in log.read_text().split("\0")[:-1]] if log.exists() else []
 
 
 def _curl_calls(env):
@@ -131,3 +144,12 @@ def test_concurrent_runs_dump_is_left_alone(env):
 
     assert _run(env, "backup", "ok").returncode == 0
     assert running.exists()
+
+
+def test_multi_line_alert_is_valid_json(env):
+    result = _run(env, "report", "ok")
+
+    assert "ALERT SENT: Weekly Server Report" in result.stdout, result.stdout + result.stderr
+    (body,) = _alert_bodies(env)
+    assert body["subject"] == "[Geetanjali] Weekly Server Report"
+    assert '"Mem:"  1.9Gi\t1.2Gi \\ x\n' in body["text"]
