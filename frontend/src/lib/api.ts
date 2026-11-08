@@ -628,7 +628,7 @@ export const topicsApi = {
   /** Get detailed topic by ID */
   getById: async (
     principleId: string,
-    options?: { includeVerses?: boolean }
+    options?: { includeVerses?: boolean },
   ): Promise<TopicDetailResponse> => {
     const params = new URLSearchParams();
     if (options?.includeVerses === false) {

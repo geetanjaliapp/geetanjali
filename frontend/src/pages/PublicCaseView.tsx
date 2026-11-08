@@ -122,12 +122,12 @@ export default function PublicCaseView() {
   }, []);
 
   // Check if summary section will be shown (for jump link visibility)
-  const hasSummary = firstOutput && (
-    firstOutput.result_json.options?.length > 0 ||
-    (typeof firstOutput.result_json.recommended_action === "object" &&
-      (firstOutput.result_json.recommended_action.steps?.length ?? 0) > 0) ||
-    firstOutput.result_json.reflection_prompts?.length > 0
-  );
+  const hasSummary =
+    firstOutput &&
+    (firstOutput.result_json.options?.length > 0 ||
+      (typeof firstOutput.result_json.recommended_action === "object" &&
+        (firstOutput.result_json.recommended_action.steps?.length ?? 0) > 0) ||
+      firstOutput.result_json.reflection_prompts?.length > 0);
 
   if (loading) {
     return (
@@ -248,7 +248,9 @@ export default function PublicCaseView() {
                         <time
                           dateTime={exchange.user.created_at}
                           className="text-[10px] text-[var(--text-muted)]"
-                          title={new Date(exchange.user.created_at).toLocaleString()}
+                          title={new Date(
+                            exchange.user.created_at,
+                          ).toLocaleString()}
                         >
                           {formatRelativeTime(exchange.user.created_at)}
                         </time>
@@ -376,7 +378,9 @@ export default function PublicCaseView() {
                                             to={`/verses/${source.canonical_id}`}
                                             className="font-mono text-[var(--interactive-ghost-text)] font-semibold text-xs sm:text-sm hover:underline"
                                           >
-                                            {formatVerseRef(source.canonical_id)}
+                                            {formatVerseRef(
+                                              source.canonical_id,
+                                            )}
                                           </Link>
                                         </div>
                                         <p className="mt-1 sm:mt-1.5 text-[var(--text-primary)] italic text-xs sm:text-sm">
@@ -465,8 +469,18 @@ export default function PublicCaseView() {
                                 className="flex items-center gap-1 text-[10px] sm:text-xs text-[var(--text-accent)] hover:text-[var(--text-accent-hover)] font-medium whitespace-nowrap transition-[var(--transition-color)]"
                               >
                                 <span>Summary</span>
-                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                <svg
+                                  className="w-3 h-3"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M19 9l-7 7-7-7"
+                                  />
                                 </svg>
                               </button>
                             )}
