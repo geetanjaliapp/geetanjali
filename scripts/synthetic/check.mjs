@@ -145,6 +145,61 @@ async function main() {
   );
   record("umami analytics loaded", umamiLoaded, umamiLoaded ? "" : "window.umami is undefined");
 
+  // Error reporting reachable. A CSP violation fires only when an error is sent, and this journey
+  // raises none, so the page posts to the bundle DSN's envelope URL and the browser judges it
+  // against the live policy. CSP is applied before Playwright routing: a refused request never
+  // reaches the route, and an allowed one is answered there without reaching Sentry. A page of its
+  // own keeps the probe's refusals out of this page's console and violation checks.
+  const origin = new URL(page.url()).origin;
+  const scriptUrls = await page.evaluate(() =>
+    [...document.querySelectorAll("script[src]")].map((s) => s.src),
+  );
+  let dsn = null;
+  let fetchProblem = null;
+  for (const url of scriptUrls.filter((u) => new URL(u).origin === origin)) {
+    try {
+      const res = await context.request.get(url);
+      if (!res.ok()) {
+        fetchProblem = `${url} returned ${res.status()}`;
+        continue;
+      }
+      dsn = (await res.text()).match(/https:\/\/[a-z0-9]+@([a-z0-9.-]+)\/(\d+)/);
+    } catch (err) {
+      fetchProblem = `${url}: ${err.message}`;
+    }
+    if (dsn) break;
+  }
+  if (dsn) {
+    // Control: a host no policy here allows must be refused, or the probe cannot see the CSP.
+    const envelope = `https://${dsn[1]}/api/${dsn[2]}/envelope/`;
+    const control = "https://csp-control.invalid/";
+    const probePage = await context.newPage();
+    await probePage.goto(origin, { waitUntil: "domcontentloaded" });
+    const probe = async (url) => {
+      await probePage.route(url, (route) => route.fulfill({ status: 200 }));
+      const refused = await probePage.evaluate(async (u) => {
+        try {
+          await fetch(u, { method: "POST", mode: "no-cors", body: "" });
+          return null;
+        } catch (err) {
+          return String(err);
+        }
+      }, url);
+      await probePage.unroute(url);
+      return refused;
+    };
+    const refused = await probe(envelope);
+    const controlRefused = (await probe(control)) !== null;
+    await probePage.close();
+    record(
+      "CSP allows the Sentry ingest host",
+      controlRefused && refused === null,
+      controlRefused ? `${dsn[1]}${refused ? `: ${refused}` : ""}` : "control host was not refused",
+    );
+  } else {
+    record("CSP allows the Sentry ingest host", false, fetchProblem ?? "no Sentry DSN in the entry scripts");
+  }
+
   // --- Web Vitals ----------------------------------------------------------
   // The only performance data before this was a Lighthouse run from 2026-01-04 that predated
   // four releases. Server-side timing stays green through a client-side collapse, which is the
