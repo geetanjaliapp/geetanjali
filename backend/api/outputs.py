@@ -349,6 +349,7 @@ async def analyze_case_async(
     case: Case = Depends(get_case_with_access),
     db: Session = Depends(get_db),
     _: None = Depends(check_daily_limit),
+    session_id: str | None = Depends(get_session_id),
 ):
     """
     Analyze a case using the RAG pipeline (async).
@@ -377,7 +378,7 @@ async def analyze_case_async(
     db.refresh(case)
 
     # Increment daily consumption counter (after successful status update)
-    increment_daily_consult_count(request, case.session_id)
+    increment_daily_consult_count(request, session_id)
 
     # Build case data
     case_data = _build_case_data(case)

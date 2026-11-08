@@ -116,3 +116,60 @@ def test_logged_in_create_stores_no_session_id(client, db_session):
 
     assert created.status_code == 201
     assert _stored_session(db_session, created.json()["id"]) is None
+
+
+class _CountingCache:
+    def __init__(self):
+        self.incremented = []
+
+    def get(self, key):
+        return 0
+
+    def incr(self, key, ttl=None):
+        self.incremented.append(key)
+
+
+def test_signed_in_consultations_count_against_the_request_session(
+    client, db_session, monkeypatch
+):
+    from api import dependencies
+    from models import Output
+    from models.case import CaseStatus
+
+    counter = _CountingCache()
+    monkeypatch.setattr(dependencies, "cache", counter)
+    monkeypatch.setattr(dependencies.settings, "DAILY_CONSULT_LIMIT_ENABLED", True)
+    signup = client.post(
+        "/api/v1/auth/signup",
+        json={"email": "cap@example.com", "name": "C", "password": "SecurePass123!"},
+    )
+    header = str(uuid.uuid4())
+    headers = {
+        "Authorization": f"Bearer {signup.json()['access_token']}",
+        "X-Session-ID": header,
+    }
+
+    case_id = client.post("/api/v1/cases", json=CASE_BODY, headers=headers).json()["id"]
+    analyzed = client.post(f"/api/v1/cases/{case_id}/analyze/async", headers=headers)
+    case = db_session.get(Case, case_id)
+    case.status = CaseStatus.COMPLETED.value
+    db_session.add(
+        Output(
+            id=str(uuid.uuid4()),
+            case_id=case_id,
+            result_json={"executive_summary": "s"},
+            executive_summary="s",
+            confidence=0.5,
+            scholar_flag=False,
+        )
+    )
+    db_session.commit()
+    followed = client.post(
+        f"/api/v1/cases/{case_id}/follow-up",
+        json={"content": "What if I stay instead?"},
+        headers=headers,
+    )
+
+    assert analyzed.status_code == 202 and followed.status_code == 202
+    assert len(counter.incremented) == 3
+    assert all(f":session:{header}:" in key for key in counter.incremented)

@@ -25,6 +25,7 @@ from sqlalchemy.orm import Session
 from api.dependencies import (
     check_daily_limit,
     get_case_with_access,
+    get_session_id,
     increment_daily_consult_count,
     limiter,
 )
@@ -232,6 +233,7 @@ async def submit_follow_up(
     case: Case = Depends(get_case_with_access),
     db: Session = Depends(get_db),
     _: None = Depends(check_daily_limit),
+    session_id: str | None = Depends(get_session_id),
 ) -> ChatMessageResponse:
     """
     Submit a follow-up question for async processing.
@@ -314,7 +316,7 @@ async def submit_follow_up(
     logger.info(f"Created user follow-up message: {user_message.id}")
 
     # Increment daily consumption counter (after successful message creation)
-    increment_daily_consult_count(request, case.session_id)
+    increment_daily_consult_count(request, session_id)
 
     # 6. Update case status to processing
     case.status = CaseStatus.PROCESSING.value
