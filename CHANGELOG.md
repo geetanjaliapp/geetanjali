@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v1.42.5] - 2026-11-08
+
+### Fixed
+
+- Browser error reports reach Sentry again: the CSP allowed the wrong regional ingest host.
+
+### Added
+
+- The synthetic check fails when the live CSP refuses the Sentry ingest host.
+
 ## [v1.42.4] - 2026-11-08
 
 ### Security
@@ -487,7 +497,8 @@ See git history for earlier version details.
 
 ---
 
-[Unreleased]: https://github.com/geetanjaliapp/geetanjali/compare/v1.42.4...main
+[Unreleased]: https://github.com/geetanjaliapp/geetanjali/compare/v1.42.5...main
+[v1.42.5]: https://github.com/geetanjaliapp/geetanjali/compare/v1.42.4...v1.42.5
 [v1.42.4]: https://github.com/geetanjaliapp/geetanjali/compare/v1.42.3...v1.42.4
 [v1.42.3]: https://github.com/geetanjaliapp/geetanjali/compare/v1.42.2...v1.42.3
 [v1.42.2]: https://github.com/geetanjaliapp/geetanjali/compare/v1.42.1...v1.42.2
