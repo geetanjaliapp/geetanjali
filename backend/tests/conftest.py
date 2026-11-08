@@ -269,6 +269,8 @@ def mock_background_tasks():
 
     with (
         patch("services.tasks.enqueue_task", side_effect=mock_enqueue_task),
+        patch("api.outputs.enqueue_task", side_effect=mock_enqueue_task),
+        patch("api.follow_up.enqueue_task", side_effect=mock_enqueue_task),
         patch("fastapi.BackgroundTasks.add_task", side_effect=mock_add_task),
     ):
         yield
