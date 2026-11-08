@@ -11,13 +11,14 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from redis import Redis
 from rq import Queue
+from rq.worker.base import logger as rq_worker_logger
 from sentry_sdk.integrations.rq import _make_event_processor
 from sentry_sdk.transport import Transport
 
 from api.follow_up import run_follow_up_background
 from services import tasks
 from utils import sentry as sentry_module
-from utils.sentry import _filter_event
+from utils.sentry import _filter_event, _scrub_url
 
 # Bound at import: conftest patches tasks.enqueue_task for every test.
 real_enqueue_task = tasks.enqueue_task
@@ -224,6 +225,14 @@ def test_worker_event_carries_no_job_arguments(sent):
     assert DILEMMA not in payload
 
 
+def test_failed_job_log_does_not_reach_sentry(sent):
+    # Worker.handle_exception logs the job args as record extras; RqIntegration ignores its logger
+    rq_worker_logger.error("job failed", extra={"arguments": (DILEMMA,)})
+    sentry_sdk.capture_message("marker")
+
+    assert DILEMMA not in _send(sent)
+
+
 def test_access_log_breadcrumb_tokens_are_filtered(sent, caplog):
     caplog.set_level(logging.INFO, logger="uvicorn.access")
     path = f"/api/v1/newsletter/unsubscribe/{SECRET}"
@@ -259,6 +268,15 @@ def test_url_tokens_are_filtered(api, page):
     assert SECRET not in str(filtered)
     assert filtered["request"]["url"] == site + api.format("[Filtered]")
     assert filtered["request"]["headers"]["Referer"] == site + page.format("[Filtered]")
+
+
+def test_every_token_route_is_filtered():
+    from main import app
+
+    paths = [p for p in app.openapi()["paths"] if "{token}" in p]
+    assert paths
+    for path in paths:
+        assert SECRET not in _scrub_url(path.replace("{token}", SECRET)), path
 
 
 def test_url_without_a_token_survives():
