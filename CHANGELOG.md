@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v1.42.4] - 2026-11-08
+
+### Security
+
+- Error reports and worker logs no longer carry consultation text, emailed-link tokens or database query values.
+
+### Added
+
+- Off-box readiness check every 15 minutes.
+
+### Changed
+
+- Privacy policy, terms and FAQ: consultations are stored on the server, for guests too.
+- Base images pinned by digest.
+
+### Fixed
+
+- A short or headerless backup dump fails with an alert and keeps the existing backups.
+- Alerts go through Resend only, multi-line ones included.
+- Deploy builds one image at a time and pauses the worker and observability only for heavy builds.
+- The startup warm-up caches the same daily verse as the endpoint.
+- The worker gets 120s to finish its job on stop.
+
 ## [v1.42.3] - 2026-11-08
 
 ### Security
@@ -464,7 +487,12 @@ See git history for earlier version details.
 
 ---
 
-[Unreleased]: https://github.com/geetanjaliapp/geetanjali/compare/v1.41.0...main
+[Unreleased]: https://github.com/geetanjaliapp/geetanjali/compare/v1.42.4...main
+[v1.42.4]: https://github.com/geetanjaliapp/geetanjali/compare/v1.42.3...v1.42.4
+[v1.42.3]: https://github.com/geetanjaliapp/geetanjali/compare/v1.42.2...v1.42.3
+[v1.42.2]: https://github.com/geetanjaliapp/geetanjali/compare/v1.42.1...v1.42.2
+[v1.42.1]: https://github.com/geetanjaliapp/geetanjali/compare/v1.42.0...v1.42.1
+[v1.42.0]: https://github.com/geetanjaliapp/geetanjali/compare/v1.41.0...v1.42.0
 [v1.41.0]: https://github.com/geetanjaliapp/geetanjali/compare/v1.40.0...v1.41.0
 [v1.40.0]: https://github.com/geetanjaliapp/geetanjali/compare/v1.39.0...v1.40.0
 [v1.39.0]: https://github.com/geetanjaliapp/geetanjali/compare/v1.38.0...v1.39.0
