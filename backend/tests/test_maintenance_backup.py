@@ -39,9 +39,9 @@ while [[ $# -gt 0 ]]; do [[ $1 == -d ]] && printf '%s\\0' "$2" >> "$CURL_LOG.bod
 exit 0
 """
 
-# Multi-line output with a tab, quotes and a backslash, as `free -h` and `docker ps` give
+# Multi-line output with a tab, quotes and backslashes, as `free -h` and `docker ps` give
 FREE = """#!/bin/bash
-printf '        total\\tused\\n"Mem:"  1.9Gi\\t1.2Gi \\\\ x\\n'
+printf '        total\\tused\\n"Mem:"  1.9Gi\\t1.2Gi \\\\ x \\\\cache\\n'
 """
 
 
@@ -152,4 +152,4 @@ def test_multi_line_alert_is_valid_json(env):
     assert "ALERT SENT: Weekly Server Report" in result.stdout, result.stdout + result.stderr
     (body,) = _alert_bodies(env)
     assert body["subject"] == "[Geetanjali] Weekly Server Report"
-    assert '"Mem:"  1.9Gi\t1.2Gi \\ x\n' in body["text"]
+    assert '"Mem:"  1.9Gi\t1.2Gi \\ x \\cache\n' in body["text"]

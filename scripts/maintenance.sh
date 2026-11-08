@@ -48,33 +48,26 @@ log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"
 }
 
-# Callers pass literal \n escapes and raw multi-line command output; JSON takes neither as-is.
-# No ${s//...} escaping: bash 5.2 patsub_replacement changes how its replacement is read.
-json_string() {
-    local line out="" sep=""
-    while IFS= read -r line || [[ -n "$line" ]]; do
-        out+="${sep}${line}"
-        sep='\n'
-    done < <(printf '%b' "$1" | tr -d '\000-\010\013-\037' \
-        | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e "s/$(printf '\t')/\\\\t/g")
-    printf '"%s"' "$out"
-}
-
 send_alert() {
     local subject="$1"
     local message="$2"
-    local alert_sent=false
+    local alert_sent=false body
 
-    if [[ -n "$RESEND_API_KEY" && -n "$CONTACT_EMAIL_TO" ]]; then
+    # Callers write line breaks as a literal \n; the rest of the message is raw command output
+    if [[ -n "$RESEND_API_KEY" && -n "$CONTACT_EMAIL_TO" ]] \
+        && body=$(python3 -c '
+import json, sys
+to, subject, text = sys.argv[1:]
+print(json.dumps({
+    "from": "Geetanjali Alerts <noreply@geetanjaliapp.com>",
+    "to": to,
+    "subject": "[Geetanjali] " + subject,
+    "text": text.replace("\\n", "\n"),
+}))' "$CONTACT_EMAIL_TO" "$subject" "$message"); then
         if curl -sf --max-time 20 -X POST "https://api.resend.com/emails" \
             -H "Authorization: Bearer ${RESEND_API_KEY}" \
             -H "Content-Type: application/json" \
-            -d "{
-                \"from\": \"Geetanjali Alerts <noreply@geetanjaliapp.com>\",
-                \"to\": \"${CONTACT_EMAIL_TO}\",
-                \"subject\": $(json_string "[Geetanjali] ${subject}"),
-                \"text\": $(json_string "${message}")
-            }" 2>/dev/null; then
+            -d "$body" 2>/dev/null; then
             alert_sent=true
         fi
     fi
