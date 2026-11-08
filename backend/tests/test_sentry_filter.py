@@ -140,3 +140,43 @@ def test_sampled_transaction_carries_no_session_header_or_body(sent):
     payload = _send(sent)
     assert '"type":"transaction"' in payload
     assert SECRET not in payload and DILEMMA not in payload
+
+
+@pytest.mark.parametrize("redis_down", [False, True])
+def test_daily_limit_redis_traffic_carries_no_session_id(sent, monkeypatch, redis_down):
+    import asyncio
+
+    import redis
+    from starlette.requests import Request
+
+    from api import dependencies
+    from services import cache as cache_module
+
+    store = {}
+
+    def fake_redis(self, *args, **options):
+        command = str(args[0]).upper()
+        if command == "GET" and redis_down:
+            raise redis.ConnectionError("timeout")
+        if command == "INCRBY":
+            store[args[1]] = store.get(args[1], 0) + 1
+            return store[args[1]]
+        return store.get(args[1]) if command == "GET" else True
+
+    monkeypatch.setattr(redis.Redis, "_execute_command", fake_redis)
+    monkeypatch.setattr(cache_module.settings, "REDIS_ENABLED", True)
+    monkeypatch.setattr(cache_module.settings, "REDIS_URL", "redis://test:6379/0")
+    monkeypatch.setattr(cache_module, "_redis_client", None)
+    monkeypatch.setattr(cache_module, "_redis_available", None)
+    monkeypatch.setattr(dependencies, "cache", cache_module.CacheService())
+    monkeypatch.setattr(dependencies.settings, "DAILY_CONSULT_LIMIT_ENABLED", True)
+    scope = {"type": "http", "client": ("203.0.113.9", 1), "headers": []}
+
+    with sentry_sdk.start_transaction(name="/api/v1/cases/{case_id}/analyze/async"):
+        asyncio.run(dependencies.check_daily_limit(Request(scope), None, SECRET))
+        dependencies.increment_daily_consult_count(Request(scope), SECRET)
+    sentry_sdk.capture_message("after the daily-limit path")
+
+    payload = _send(sent)
+    assert "consult:daily:session:" in payload
+    assert SECRET not in payload

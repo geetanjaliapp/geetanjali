@@ -1,5 +1,6 @@
 """FastAPI dependencies for common patterns across endpoints."""
 
+import hashlib
 import logging
 import secrets
 from datetime import datetime, timedelta
@@ -106,6 +107,17 @@ def verify_admin_api_key(
     return True
 
 
+def _daily_count_key(request: Request, session_id: str | None, today: str) -> str:
+    """Cache key for today's consultation count: by session if sent, else by IP."""
+    # Never put the session id in the key: cache keys reach logs (services/cache.py
+    # error paths) and Sentry's Redis breadcrumbs and spans.
+    if session_id:
+        digest = hashlib.sha256(session_id.encode()).hexdigest()[:32]
+        return f"consult:daily:session:{digest}:{today}"
+    client_ip = request.client.host if request.client else "unknown"
+    return f"consult:daily:ip:{client_ip}:{today}"
+
+
 async def check_daily_limit(
     request: Request,
     db: Session = Depends(get_db),
@@ -128,19 +140,15 @@ async def check_daily_limit(
 
     Note:
         Limit resets at UTC midnight.
-        Cache key format: consult:daily:TYPE:KEY:YYYY-MM-DD
+        Cache key format: consult:daily:TYPE:KEY:YYYY-MM-DD (see _daily_count_key)
     """
     if not settings.DAILY_CONSULT_LIMIT_ENABLED:
         return  # Feature flag disabled - skip check
 
-    # Get client identifier (prefer session_id, fallback to IP)
     client_ip = request.client.host if request.client else "unknown"
-    tracking_key = session_id or client_ip
     tracking_type = "session" if session_id else "ip"
-
-    # Get today's date in UTC (ISO format for consistency)
     today = datetime.utcnow().date().isoformat()  # YYYY-MM-DD
-    cache_key = f"consult:daily:{tracking_type}:{tracking_key}:{today}"
+    cache_key = _daily_count_key(request, session_id, today)
 
     # Get current consumption for today
     current_count = cache.get(cache_key)
@@ -163,7 +171,7 @@ async def check_daily_limit(
             "date": today,
         }
         if tracking_type == "ip":
-            limit_context["tracking_key"] = tracking_key
+            limit_context["tracking_key"] = client_ip
         logger.warning("Daily consultation limit exceeded", extra=limit_context)
 
         # If from IP (not session), this might be automated
@@ -173,7 +181,7 @@ async def check_daily_limit(
                 "Potential abuse detected: IP exceeded 150% of daily limit",
                 extra={
                     "event": "potential_abuse",
-                    "tracking_key": tracking_key,
+                    "tracking_key": client_ip,
                     "current_count": current_count,
                     "threshold": settings.DAILY_CONSULT_LIMIT * 1.5,
                 },
@@ -206,12 +214,8 @@ def increment_daily_consult_count(
     if not settings.DAILY_CONSULT_LIMIT_ENABLED:
         return
 
-    client_ip = request.client.host if request.client else "unknown"
-    tracking_key = session_id or client_ip
-    tracking_type = "session" if session_id else "ip"
-
     today = datetime.utcnow().date().isoformat()
-    cache_key = f"consult:daily:{tracking_type}:{tracking_key}:{today}"
+    cache_key = _daily_count_key(request, session_id, today)
 
     # Increment with 24hr TTL (auto-resets next day)
     cache.incr(cache_key, ttl=86400)  # 86400 = 24 hours

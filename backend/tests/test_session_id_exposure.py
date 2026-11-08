@@ -120,9 +120,11 @@ def test_logged_in_create_stores_no_session_id(client, db_session):
 
 class _CountingCache:
     def __init__(self):
+        self.read = []
         self.incremented = []
 
     def get(self, key):
+        self.read.append(key)
         return 0
 
     def incr(self, key, ttl=None):
@@ -172,4 +174,5 @@ def test_signed_in_consultations_count_against_the_request_session(
 
     assert analyzed.status_code == 202 and followed.status_code == 202
     assert len(counter.incremented) == 3
-    assert all(f":session:{header}:" in key for key in counter.incremented)
+    (key,) = set(counter.read) | set(counter.incremented)
+    assert ":session:" in key and header not in key
