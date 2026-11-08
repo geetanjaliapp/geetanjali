@@ -241,6 +241,8 @@ services:
       dockerfile: Dockerfile
     image: geetanjali-backend:latest
     container_name: geetanjali-worker
+    # RQ warm shutdown: SIGTERM lets the current job finish (LLM call plus one re-ask, 45s each)
+    stop_grace_period: 120s
     command: python worker.py
     env_file:
       - .env
