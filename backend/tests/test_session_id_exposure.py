@@ -94,7 +94,8 @@ def test_create_ignores_session_id_in_body(client, db_session):
     assert _stored_session(db_session, without_header.json()["id"]) is None
     listed = client.get("/api/v1/cases", headers={"X-Session-ID": header})
     assert listed.status_code == 200
-    assert all("session_id" not in case for case in listed.json())
+    cases = listed.json()["cases"]
+    assert cases and all("session_id" not in case for case in cases)
 
 
 def test_logged_in_create_stores_no_session_id(client, db_session):
