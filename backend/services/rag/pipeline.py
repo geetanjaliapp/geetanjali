@@ -859,7 +859,7 @@ class RAGPipeline:
             - If LLM refuses (policy violation), returns educational response
             - Always returns a valid response structure
         """
-        logger.info(f"Running RAG pipeline for case: {case_data.get('title', 'N/A')}")
+        logger.info("Running RAG pipeline")
 
         # Extract anchor_verse_id from case_data if not explicitly provided.
         # _build_case_data() already includes it in the dict — both paths work.

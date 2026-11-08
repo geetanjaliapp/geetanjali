@@ -154,18 +154,17 @@ async def check_daily_limit(
         # Track metric
         track_daily_limit_hit(tracking_type)
 
-        # Log with context (anomaly detection)
-        logger.warning(
-            "Daily consultation limit exceeded",
-            extra={
-                "event": "daily_limit_exceeded",
-                "tracking_type": tracking_type,
-                "tracking_key": tracking_key,
-                "current_count": current_count,
-                "limit": settings.DAILY_CONSULT_LIMIT,
-                "date": today,
-            },
-        )
+        # Log with context (anomaly detection). A session key is a credential.
+        limit_context = {
+            "event": "daily_limit_exceeded",
+            "tracking_type": tracking_type,
+            "current_count": current_count,
+            "limit": settings.DAILY_CONSULT_LIMIT,
+            "date": today,
+        }
+        if tracking_type == "ip":
+            limit_context["tracking_key"] = tracking_key
+        logger.warning("Daily consultation limit exceeded", extra=limit_context)
 
         # If from IP (not session), this might be automated
         abuse_threshold = settings.DAILY_CONSULT_LIMIT * 1.5

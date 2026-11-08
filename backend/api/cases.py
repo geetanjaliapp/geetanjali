@@ -260,11 +260,6 @@ async def create_case(
             detail=e.message,
         )
 
-    logger.info(
-        f"Creating case: {case_data.title} "
-        f"(anonymous={current_user is None}, session_id={session_id})"
-    )
-
     case_dict = case_data.model_dump()
     case_dict["id"] = str(uuid.uuid4())
     case_dict["user_id"] = current_user.id if current_user else None
@@ -284,7 +279,7 @@ async def create_case(
     estimated = title_tokens + desc_tokens
     track_consultation_cost(ip, settings.LLM_PROVIDER, estimated)
 
-    logger.info(f"Case created: {case.id}")
+    logger.info(f"Case created: {case.id} (anonymous={current_user is None})")
 
     # Increment daily consumption counter (after successful creation)
     increment_daily_consult_count(request, session_id)
