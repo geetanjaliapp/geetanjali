@@ -268,10 +268,7 @@ async def create_case(
     case_dict = case_data.model_dump()
     case_dict["id"] = str(uuid.uuid4())
     case_dict["user_id"] = current_user.id if current_user else None
-
-    # Use session_id from header if provided, otherwise use from request body
-    if not case_dict.get("session_id") and session_id:
-        case_dict["session_id"] = session_id
+    case_dict["session_id"] = session_id if current_user is None else None
 
     repo = CaseRepository(db)
     case = repo.create(case_dict)

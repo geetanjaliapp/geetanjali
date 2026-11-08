@@ -180,7 +180,6 @@ class CaseBase(BaseModel):
         None, description="Optional supporting docs"
     )
     locale: str = Field("en", description="Language/locale preference")
-    session_id: str | None = Field(None, description="Session ID for anonymous users")
     anchor_verse_id: str | None = Field(
         None,
         max_length=30,
@@ -200,7 +199,6 @@ class CaseResponse(CaseBase):
 
     id: str
     user_id: str | None
-    session_id: str | None
     status: str = Field(
         "draft",
         description="Processing status: draft/pending/processing/completed/failed",
