@@ -32,6 +32,7 @@ ALERT_ENDPOINT="http://localhost:8000/api/v1/admin/alert"
 
 # Thresholds
 DISK_THRESHOLD=80
+BACKUP_MIN_BYTES=3000000  # uncompressed; the 2026-11-08 dump was 6467202
 SSL_WARN_DAYS=14
 ORPHAN_RETENTION_DAYS=30  # Days to keep orphaned anonymous session cases
 
@@ -105,25 +106,47 @@ task_docker_cleanup() {
     log "Docker cleanup complete"
 }
 
+backup_failed() {
+    rm -f "$2" "$3"
+    send_alert "Backup Failed" "$1"
+}
+
+# Returns 1 on failure without exiting, so `daily` can run its other tasks first.
+# A failed dump must not reach the keep-7 cleanup: it would rotate out a good backup.
 task_database_backup() {
     log "Running database backup..."
 
     mkdir -p "${BACKUP_DIR}"
 
-    BACKUP_FILE="${BACKUP_DIR}/geetanjali_$(date +%Y%m%d_%H%M%S).sql.gz"
+    local stamp dump size
+    stamp=$(date +%Y%m%d_%H%M%S)
+    dump="${BACKUP_DIR}/.geetanjali_${stamp}.sql"
+    BACKUP_FILE="${BACKUP_DIR}/geetanjali_${stamp}.sql.gz"
 
-    # Backup PostgreSQL
-    docker exec geetanjali-postgres pg_dump -U geetanjali geetanjali | gzip > "${BACKUP_FILE}"
-
-    if [[ -f "${BACKUP_FILE}" ]]; then
-        log "Backup created: ${BACKUP_FILE}"
-
-        # Keep only last 7 daily backups
-        ls -t "${BACKUP_DIR}"/geetanjali_*.sql.gz 2>/dev/null | tail -n +8 | xargs -r rm
-        log "Old backups cleaned (keeping last 7)"
-    else
-        send_alert "Backup Failed" "Database backup failed to create file"
+    if ! docker exec geetanjali-postgres pg_dump -U geetanjali geetanjali > "${dump}"; then
+        backup_failed "pg_dump exited non-zero" "${dump}"
+        return 1
     fi
+
+    size=$(wc -c < "${dump}")
+    if (( size < BACKUP_MIN_BYTES )); then
+        backup_failed "Dump is ${size} bytes, below the ${BACKUP_MIN_BYTES}-byte floor" "${dump}"
+        return 1
+    fi
+    if ! head -c 200 "${dump}" | grep -q -- "-- PostgreSQL database dump"; then
+        backup_failed "Dump has no pg_dump header" "${dump}"
+        return 1
+    fi
+    if ! gzip -c "${dump}" > "${BACKUP_FILE}"; then
+        backup_failed "gzip failed" "${dump}" "${BACKUP_FILE}"
+        return 1
+    fi
+    rm -f "${dump}"
+    log "Backup created: ${BACKUP_FILE} (${size} bytes uncompressed)"
+
+    # Keep only last 7 daily backups
+    ls -t "${BACKUP_DIR}"/geetanjali_*.sql.gz 2>/dev/null | tail -n +8 | xargs -r rm
+    log "Old backups cleaned (keeping last 7)"
 }
 
 task_ssl_check() {
@@ -477,13 +500,18 @@ case "${1:-daily}" in
     daily)
         log "========== Starting Daily Maintenance =========="
         task_docker_cleanup
-        task_database_backup
+        backup_status=0
+        task_database_backup || backup_status=1
         task_ssl_check
         task_disk_check
         task_health_check
         task_security_check
         task_redis_check
         log "========== Daily Maintenance Complete =========="
+        if (( backup_status )); then
+            log "Backup failed; exiting non-zero"
+            exit 1
+        fi
         ;;
     weekly)
         log "========== Starting Weekly Maintenance =========="
