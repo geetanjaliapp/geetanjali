@@ -65,6 +65,11 @@ if [[ -n $(git status -s) ]]; then
     error "Uncommitted changes detected. Please commit or stash before deploying."
 fi
 
+# Step 1b: Refuse while a build runs on the server (an interrupted deploy leaves its build running,
+# and a hand-run build counts too): a second build beside it exhausts the droplet.
+BUILD_RUNNING="pgrep -af '[c]ompose .*build|[b]uildx'"
+$SSH_CMD "$BUILD_RUNNING" && error "A build is already running on the server (above). Redeploy once it exits"
+
 # Step 2: Push local changes
 log "Pushing to origin..."
 git push origin main || error "Failed to push to origin"
@@ -92,12 +97,13 @@ $SSH_CMD "cd ${DEPLOY_DIR} && \
         sed -i \"s/PLACEHOLDER_ALERT_EMAIL/\$ALERT_EMAIL/g\" monitoring/grafana/provisioning/alerting/contactpoints.yml; \
     fi" || warn "Grafana alert config not processed (optional)"
 
-# Step 5: Tag current images for rollback (before rebuild)
+# Step 5: Tag the images the containers run for rollback (before rebuild). Not :latest: a deploy
+# whose build failed partway has already moved some of those tags.
 log "Tagging current images for rollback..."
 $SSH_CMD "cd ${DEPLOY_DIR} && \
-    docker tag geetanjali-backend:latest geetanjali-backend:rollback 2>/dev/null || true && \
-    docker tag geetanjali-frontend:latest geetanjali-frontend:rollback 2>/dev/null || true && \
-    docker tag geetanjali-chromadb:latest geetanjali-chromadb:rollback 2>/dev/null || true && \
+    docker tag \$(docker inspect -f '{{.Image}}' geetanjali-backend 2>/dev/null) geetanjali-backend:rollback 2>/dev/null || true && \
+    docker tag \$(docker inspect -f '{{.Image}}' geetanjali-frontend 2>/dev/null) geetanjali-frontend:rollback 2>/dev/null || true && \
+    docker tag \$(docker inspect -f '{{.Image}}' geetanjali-chromadb 2>/dev/null) geetanjali-chromadb:rollback 2>/dev/null || true && \
     docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' geetanjali-backend 2>/dev/null \
         | sed -n 's/^APP_VERSION=//p' > .rollback-version || true"
 
@@ -106,19 +112,88 @@ log "Determining app version from git tag..."
 APP_VERSION=$($SSH_CMD "cd ${DEPLOY_DIR} && git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//' || echo '1.5.0'")
 info "Deploying version: ${APP_VERSION}"
 
-# Step 6: Rebuild and restart containers with version
-log "Rebuilding and restarting containers..."
+# Step 6: Build one image at a time, then restart. The droplet cannot build images in parallel:
+# a base-image change rebuilds apt and torch, and side by side they exhaust RAM and swap and take
+# the live site down. So:
+# - worker shares the backend image tag and is never built on its own
+# - BUILD_ORDER follows depends_on: a compose that builds dependencies with a service hits cache
+# - a service with a build section must be in BUILD_ORDER or SHARES_IMAGE (checked below):
+#   `up -d --no-build` would run it on a stale image
+# - for a heavy build, worker and observability stop; `up -d` or a failure starts them again,
+#   unless a build is still running there (an interrupt or a dropped ssh leaves it running)
+log "Rebuilding containers one image at a time..."
 info "Using compose files: ${COMPOSE_FILES}"
-$SSH_CMD "cd ${DEPLOY_DIR} && APP_VERSION=${APP_VERSION} ${COMPOSE_CMD} build" || error "Build failed; containers still running the previous release"
+BUILD_ORDER="chromadb backend frontend"
+SHARES_IMAGE="worker"
+PAUSE_FOR_BUILD="worker grafana prometheus node-exporter"
+CONFIG=$($SSH_CMD "cd ${DEPLOY_DIR} && ${COMPOSE_CMD} config --no-interpolate") || error "Could not read the compose config"
+for s in $(awk '/^  [^ ]+:$/ {s = substr($1, 1, length($1) - 1)} /^    build:$/ {print s}' <<< "$CONFIG"); do
+    [[ " ${BUILD_ORDER} ${SHARES_IMAGE} " == *" ${s} "* ]] || error "${s} has a build section but is not in BUILD_ORDER"
+done
+SERVICES=$($SSH_CMD "cd ${DEPLOY_DIR} && ${COMPOSE_CMD} config --services") || error "Could not list compose services"
+# Pause only for a heavy build: a change since the deployed release to a file that sets an
+# expensive layer. Base images are pinned by digest, so a new base is a Dockerfile change too.
+# Heavy too: an unknown deployed release, a failed check, or a release over 6 days old (the daily
+# `docker builder prune --filter until=168h` drops build cache unused for 7 days).
+# DEPLOY_PAUSE=always|never overrides.
+LIGHT_WHY="no heavy input changed"
+HEAVY_INPUTS="backend/Dockerfile backend/requirements.txt chromadb frontend/Dockerfile frontend/package.json frontend/package-lock.json .env.enc"
+case "${DEPLOY_PAUSE:-auto}" in
+    always) HEAVY="DEPLOY_PAUSE=always" ;;
+    never) HEAVY="" LIGHT_WHY="DEPLOY_PAUSE=never" ;;
+    auto)
+        HEAVY=$($SSH_CMD "cd ${DEPLOY_DIR} || exit 1; prev=\$(cat .rollback-version 2>/dev/null); \
+            if [ -z \"\$prev\" ] || ! git rev-parse -q --verify \"v\$prev^{commit}\" > /dev/null; then \
+                echo 'deployed release unknown'; \
+            elif [ \$(( \$(date +%s) - \$(git log -1 --format=%ct \"v\$prev\") )) -ge 518400 ]; then \
+                echo \"v\$prev is over 6 days old, past the 7-day build cache prune\"; \
+            else \
+                git diff --name-only \"v\$prev\" HEAD -- ${HEAVY_INPUTS} || echo 'git diff failed'; \
+            fi") \
+            || HEAVY="could not compare with the deployed release"
+        ;;
+    *) error "DEPLOY_PAUSE must be auto, always or never" ;;
+esac
+PAUSED=""
+if [[ -n "$HEAVY" ]]; then
+    info "Heavy build: ${HEAVY//$'\n'/ }"
+    for s in $PAUSE_FOR_BUILD; do grep -qx "$s" <<< "$SERVICES" && PAUSED="${PAUSED} ${s}"; done
+else
+    info "Light build (${LIGHT_WHY}): worker and observability keep running"
+fi
+START_PAUSED="cd ${DEPLOY_DIR} && ${COMPOSE_CMD} start${PAUSED}"
+restart_paused() {
+    if [[ -z "$PAUSED" ]]; then
+        return 0
+    elif $SSH_CMD "$BUILD_RUNNING" > /dev/null; then
+        warn "A build is still running on the server. Once it exits, run there: ${START_PAUSED}"
+    else
+        $SSH_CMD "$START_PAUSED" || warn "Could not restart${PAUSED}. Once no build is running on the server, run there: ${START_PAUSED}"
+    fi
+}
+if [[ -n "$PAUSED" ]]; then
+    log "Stopping${PAUSED} for the build..."
+    # 120s: the worker finishes its current job on SIGTERM (an LLM call plus one re-ask, 45s each);
+    # docker's default 10s cuts it off
+    $SSH_CMD "cd ${DEPLOY_DIR} && ${COMPOSE_CMD} stop --timeout 120${PAUSED}" || { restart_paused; error "Could not stop${PAUSED}"; }
+fi
+trap 'restart_paused; exit 130' INT TERM
+for s in $BUILD_ORDER; do
+    grep -qx "$s" <<< "$SERVICES" || continue
+    log "Building ${s}..."
+    $SSH_CMD "cd ${DEPLOY_DIR} && APP_VERSION=${APP_VERSION} ${COMPOSE_CMD} build ${s}" \
+        || { restart_paused; error "Build of ${s} failed; containers still running the previous release"; }
+done
 
 # Step 6b: Test the new nginx config before replacing the running frontend. `run` mounts the
 # same certificates and joins the same network, so upstream names resolve as they will live.
 # A config that fails here would otherwise crash-loop 80/443 while this script reports success.
 log "Testing nginx config in the new frontend image..."
 $SSH_CMD "cd ${DEPLOY_DIR} && ${COMPOSE_CMD} run --rm --no-deps --entrypoint nginx frontend -t" \
-    || error "nginx -t failed; containers still running the previous release. Fix nginx.conf and redeploy"
+    || { restart_paused; error "nginx -t failed; containers still running the previous release. Fix nginx.conf and redeploy"; }
+trap - INT TERM
 
-$SSH_CMD "cd ${DEPLOY_DIR} && APP_VERSION=${APP_VERSION} ${COMPOSE_CMD} up -d" || error "Failed to restart containers"
+$SSH_CMD "cd ${DEPLOY_DIR} && APP_VERSION=${APP_VERSION} ${COMPOSE_CMD} up -d --no-build" || error "Failed to restart containers"
 
 # Step 7: Wait for health checks with polling
 log "Waiting for services to become healthy..."
