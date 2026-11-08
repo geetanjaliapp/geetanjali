@@ -17,6 +17,8 @@ is_sqlite = "sqlite" in settings.DATABASE_URL
 engine_kwargs: dict[str, Any] = {
     # SQL echo is very verbose - only enable explicitly, not with general DEBUG
     "echo": settings.DB_ECHO,
+    # Bound values (tokens, emails, consultation text) stay out of error messages, logs and Sentry
+    "hide_parameters": True,
 }
 
 if is_sqlite:

@@ -269,6 +269,19 @@ def test_log_line_breadcrumb_tokens_are_filtered(sent):
     )
 
 
+def test_database_errors_carry_no_bound_values():
+    from sqlalchemy import create_engine, text
+    from sqlalchemy.exc import OperationalError
+
+    from db.connection import engine
+
+    probe = create_engine("sqlite://", hide_parameters=engine.hide_parameters)
+    with pytest.raises(OperationalError) as err, probe.connect() as conn:
+        conn.execute(text("SELECT * FROM missing WHERE token = :t"), {"t": TOKEN})
+
+    assert TOKEN not in str(err.value)
+
+
 def test_capture_context_is_filtered(sent):
     url = f"https://geetanjaliapp.com/api/v1/newsletter/unsubscribe/{TOKEN}?token={TOKEN}"
     sentry_module.capture_exception(RuntimeError("boom"), path=url)
