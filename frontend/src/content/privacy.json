@@ -1,69 +1,52 @@
 {
   "title": "Privacy Policy",
-  "lastUpdated": "2026-03-28",
+  "lastUpdated": "2026-11-08",
   "sections": [
     {
       "heading": "What We Collect",
       "content": [
-        "Geetanjali collects only what is needed to provide the service:",
         "**Account information** (optional): Name, email address, and password if you create an account. You can use Geetanjali without an account.",
-        "**Consultation content**: The questions you ask and the guidance generated in response. For guests, this is stored only in your browser. For registered users, it is stored on our server.",
-        "**Preferences**: Learning goals, reading progress, favorites, theme settings, and newsletter preferences. Stored locally for guests, synced to your account if registered.",
-        "**Usage data**: Basic server logs (IP address, request timestamps) for security and reliability. We use Umami, a privacy-aware analytics tool, to collect anonymous page visit and event data. No personal data is collected, no cookies are set, and no cross-site tracking occurs. We do not use advertising pixels."
+        "**Consultation content**: The questions you ask and the guidance generated in response, stored on our server with or without an account. Only the account or browser tab that created a consultation can open it; a guest loses access when that tab is closed. If you share a consultation, anyone with the link can read it.",
+        "**Preferences**: Learning goals, reading progress, favorites, and theme settings. Stored in your browser for guests, and synced to your account if registered.",
+        "**Newsletter**: If you subscribe, your email address and subscription details are stored on our server.",
+        "**Usage data**: Basic server logs (IP address, request timestamps) for security and reliability, and anonymous page-visit and event counts from a third-party analytics service that sets no cookies."
       ]
     },
     {
       "heading": "How Your Data Is Processed",
       "content": [
-        "When you submit a question, it is sent to a third-party AI language model to generate guidance. Your question text is sent to the provider to generate a response — never your name, email, or account details.",
-        "These providers have their own data handling policies, which we encourage you to review.",
-        "Email notifications (newsletter, account verification) are sent through Resend. Error monitoring uses Sentry, which may receive anonymized technical data."
+        "Your questions are sent to a third-party AI service to generate guidance. Your name, email, and account details are not sent with them.",
+        "Emails such as the newsletter and account verification are sent through a third-party email service. Error reports go to a third-party error-monitoring service."
       ]
     },
     {
       "heading": "What We Don't Do",
       "content": [
-        "We do not sell, rent, or share your personal data with third parties for marketing or advertising purposes.",
-        "We do not use your consultation content to train AI models.",
-        "We do not track you across websites. There are no advertising cookies, tracking pixels, or fingerprinting scripts.",
-        "We do not require an account to use the core service."
+        "We do not sell or rent your personal data, or share it for marketing or advertising.",
+        "We do not use your consultations to train AI models.",
+        "We do not track you across websites. We use no advertising cookies, tracking pixels, or fingerprinting."
       ]
     },
     {
-      "heading": "Data Storage & Security",
+      "heading": "Storage & Cookies",
       "content": [
-        "Data is stored on servers hosted by DigitalOcean. Connections are encrypted via HTTPS. Passwords are hashed using bcrypt.",
-        "Guest data (consultations, preferences, favorites) is stored only in your browser's local storage. Clearing your browser data removes it permanently.",
-        "Registered user data is stored in a PostgreSQL database on our server, protected by standard security practices."
+        "Data is stored on our server at a cloud hosting provider. Connections are encrypted with HTTPS, and passwords are hashed with bcrypt.",
+        "Your browser stores your preferences, reading progress, any unsent consultation draft, and a session identifier. These are not cookies. The identifier is sent with each request so our server can tell which consultations are yours. Clearing your browser data removes them, but not consultations stored on our server.",
+        "If you sign in, we set two cookies: an HTTP-only authentication cookie and a CSRF security token. Both are required while you are signed in. No third-party cookies are set."
       ]
     },
     {
       "heading": "Your Rights",
       "content": [
-        "**Export**: You can export your data (favorites, reading progress, preferences) from the Settings page.",
-        "**Delete**: You can delete your local data from Settings. Registered users can request full account deletion by contacting us.",
-        "**Access**: You can view all your consultations, favorites, and preferences at any time through the app.",
+        "**Export**: Settings exports the data kept in your browser (favorites, reading progress, preferences). Consultations are not included.",
+        "**Delete**: In Settings you can delete the data kept in your browser and, if registered, your account. Deleting your account removes your consultations and preferences.",
         "If you are in the EU, UK, or another jurisdiction with data protection laws, you have additional rights including the right to access, rectify, and erase your personal data. Contact us to exercise these rights."
-      ]
-    },
-    {
-      "heading": "Cookies & Local Storage",
-      "content": [
-        "Geetanjali uses browser local storage to save your preferences, reading progress, and guest consultation data. These are not cookies and are not sent to our server.",
-        "If you create an account, we use a secure HTTP-only cookie for authentication (session token). This is essential for the service and cannot be disabled while logged in.",
-        "We use a CSRF token cookie for security. No third-party cookies are set."
       ]
     },
     {
       "heading": "Changes to This Policy",
       "content": [
-        "We may update this policy as the service evolves. Significant changes will be noted on this page with an updated date. Continued use of Geetanjali after changes constitutes acceptance."
-      ]
-    },
-    {
-      "heading": "Contact",
-      "content": [
-        "Questions about this policy? Reach us through the contact form on the About page or via the project's GitHub repository."
+        "We may update this policy. The date at the top of this page shows when it last changed."
       ]
     }
   ]

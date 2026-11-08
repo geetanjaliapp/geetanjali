@@ -50,16 +50,16 @@ Geetanjali is specialized. Instead of general knowledge, it retrieves specific v
 ### Privacy
 
 **What data do you collect?**
-- **Anonymous users**: Cases stored locally in browser, no server-side tracking
-- **Registered users**: Email, cases, and preferences synced to server
-- **No third-party analytics or advertising trackers**
+- **Guests**: Consultations, stored on our server. Only the browser tab that created one can open it, and anyone you send a share link to can read it
+- **Registered users**: Email, consultations, and preferences, stored on our server
+- **Analytics**: Anonymous page-visit counts from a third-party service; no advertising trackers
 
 **Can I delete my data?**
-Yes. Account deletion removes all associated cases, outputs, and preferences. For anonymous usage, clear browser storage.
+Registered users can delete their account in Settings, which removes their consultations and preferences. Clearing browser storage removes guest preferences, not consultations stored on our server.
 
 **Where does processing happen?**
-- **Self-hosted**: Everything runs on your machine
-- **Cloud**: LLM calls go to Ollama (local) or Anthropic (API); case data stays in your PostgreSQL instance
+- **Self-hosted**: Everything can run on your own machine, including the AI model
+- **geetanjaliapp.com**: Consultations are stored on our server and sent to a third-party AI service to generate guidance
 
 ### Usage
 
