@@ -272,6 +272,32 @@ async def get_random_verse(
     return verse
 
 
+def select_daily_verse(db: Session, today: date) -> Verse | None:
+    """The verse of the day: featured verses (all verses if none are featured) in
+    chapter/verse order, indexed by day of year."""
+    # The crawler /daily page indexes FEATURED_VERSES, which is in chapter/verse order;
+    # both pick the same verse only while every query here keeps that ORDER BY.
+    day_of_year = today.timetuple().tm_yday
+    featured_count = cache.get(featured_count_key())
+    if featured_count is None:
+        featured_count = (
+            db.query(func.count(Verse.id)).filter(Verse.is_featured.is_(True)).scalar()
+        )
+        cache.set(featured_count_key(), featured_count, settings.CACHE_TTL_FEATURED_COUNT)
+
+    query = db.query(Verse)
+    if featured_count:
+        query = query.filter(Verse.is_featured.is_(True))
+        total = featured_count
+    else:
+        total = db.query(func.count(Verse.id)).scalar()
+        if not total:
+            return None
+    return (
+        query.order_by(Verse.chapter, Verse.verse).offset(day_of_year % total).first()
+    )
+
+
 @router.get("/daily", response_model=VerseResponse)
 @limiter.limit("60/minute")
 async def get_verse_of_the_day(request: Request, db: Session = Depends(get_db)):
@@ -299,50 +325,12 @@ async def get_verse_of_the_day(request: Request, db: Session = Depends(get_db)):
         return cached
 
     today = date.today()
-    day_of_year = today.timetuple().tm_yday
-
-    # Get featured verses count (cached since it rarely changes)
-    count_cache_key = featured_count_key()
-    featured_count = cache.get(count_cache_key)
-    if featured_count is None:
-        featured_count = (
-            db.query(func.count(Verse.id)).filter(Verse.is_featured.is_(True)).scalar()
-        )
-        cache.set(count_cache_key, featured_count, settings.CACHE_TTL_FEATURED_COUNT)
-
-    if featured_count and featured_count > 0:
-        # Use featured verses only
-        # ORDER BY chapter, verse ensures deterministic selection matching FEATURED_VERSES order
-        verse_index = day_of_year % featured_count
-        verse = (
-            db.query(Verse)
-            .filter(Verse.is_featured.is_(True))
-            .order_by(Verse.chapter, Verse.verse)
-            .offset(verse_index)
-            .first()
-        )
-    else:
-        # Fallback to all verses if no featured ones
-        total_verses = db.query(func.count(Verse.id)).scalar()
-
-        if not total_verses or total_verses == 0:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=ERR_NO_VERSES_IN_DB,
-            )
-
-        # ORDER BY ensures deterministic selection
-        verse_index = day_of_year % total_verses
-        verse = (
-            db.query(Verse)
-            .order_by(Verse.chapter, Verse.verse)
-            .offset(verse_index)
-            .first()
-        )
-
+    verse = select_daily_verse(db, today)
     if not verse:
+        no_verses = not db.query(func.count(Verse.id)).scalar()
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=ERR_VERSE_NOT_FOUND
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=ERR_NO_VERSES_IN_DB if no_verses else ERR_VERSE_NOT_FOUND,
         )
 
     # Cache until approximately midnight UTC (with jitter to prevent stampede)

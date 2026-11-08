@@ -101,16 +101,14 @@ def _warm_daily_verse_cache() -> None:
     try:
         from datetime import date
 
-        from sqlalchemy import func
-
         from api.schemas import VerseResponse
+        from api.verses import select_daily_verse
         from db import SessionLocal
         from models.verse import Verse
         from services.cache import (
             cache,
             calculate_midnight_ttl,
             daily_verse_key,
-            featured_count_key,
             featured_verse_ids_key,
         )
 
@@ -128,17 +126,6 @@ def _warm_daily_verse_cache() -> None:
         logger.info("Warming daily verse cache...")
 
         with SessionLocal() as db:
-            # Warm featured verse count
-            count_key = featured_count_key()
-            featured_count = cache.get(count_key)
-            if featured_count is None:
-                featured_count = (
-                    db.query(func.count(Verse.id))
-                    .filter(Verse.is_featured.is_(True))
-                    .scalar()
-                )
-                cache.set(count_key, featured_count, settings.CACHE_TTL_FEATURED_COUNT)
-
             # Warm featured verse IDs (used by random verse)
             ids_key = featured_verse_ids_key()
             if not cache.get(ids_key):
@@ -151,24 +138,13 @@ def _warm_daily_verse_cache() -> None:
                 if verse_ids:
                     cache.set(ids_key, verse_ids, 3600)  # 1 hour TTL
 
-            # Calculate and cache daily verse
-            if featured_count and featured_count > 0:
-                today = date.today()
-                day_of_year = today.timetuple().tm_yday
-                verse_index = day_of_year % featured_count
-                verse = (
-                    db.query(Verse)
-                    .filter(Verse.is_featured.is_(True))
-                    .offset(verse_index)
-                    .first()
-                )
-                if verse:
-                    verse_data = VerseResponse.model_validate(verse).model_dump()
-                    ttl = calculate_midnight_ttl()
-                    cache.set(cache_key, verse_data, ttl)
-                    logger.info(
-                        f"Daily verse cached: {verse.canonical_id} (TTL: {ttl}s)"
-                    )
+            # Same selection as GET /verses/daily (also warms the featured count)
+            verse = select_daily_verse(db, date.today())
+            if verse:
+                verse_data = VerseResponse.model_validate(verse).model_dump()
+                ttl = calculate_midnight_ttl()
+                cache.set(cache_key, verse_data, ttl)
+                logger.info(f"Daily verse cached: {verse.canonical_id} (TTL: {ttl}s)")
 
     except Exception as e:
         logger.warning(f"Failed to warm daily verse cache: {e}")
