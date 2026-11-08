@@ -86,6 +86,32 @@ def init_sentry(service_name: str = "backend") -> bool:
         return False
 
 
+# Request headers sent to Sentry; everything else is filtered (matched case-insensitively).
+SAFE_HEADERS = frozenset(
+    {
+        "accept",
+        "accept-encoding",
+        "accept-language",
+        "content-length",
+        "content-type",
+        "host",
+        "referer",
+        "user-agent",
+        "x-request-id",
+    }
+)
+
+# The anonymous session id is a bearer credential, under any of these names.
+CREDENTIAL_KEYS = ("session_id", "session-id", "tracking_key")
+
+
+def _scrub_credential_keys(data: Any) -> None:
+    if isinstance(data, dict):
+        for key in list(data.keys()):
+            if any(k in str(key).lower() for k in CREDENTIAL_KEYS):
+                data[key] = "[Filtered]"
+
+
 def _filter_event(event: Any, _hint: dict[str, Any]) -> Any:
     """Filter sensitive data from Sentry events before sending.
 
@@ -111,15 +137,14 @@ def _filter_event(event: Any, _hint: dict[str, Any]) -> Any:
         # Remove cookies (contain auth tokens)
         if "cookies" in request:
             request["cookies"] = "[Filtered]"
-        # Remove authorization header
         if "headers" in request:
             headers = request["headers"]
-            if "Authorization" in headers:
-                headers["Authorization"] = "[Filtered]"
-            if "Cookie" in headers:
-                headers["Cookie"] = "[Filtered]"
-            if "X-CSRF-Token" in headers:
-                headers["X-CSRF-Token"] = "[Filtered]"
+            if isinstance(headers, dict):
+                for name in list(headers.keys()):
+                    if str(name).lower() not in SAFE_HEADERS:
+                        headers[name] = "[Filtered]"
+            else:
+                request["headers"] = "[Filtered]"
         # Scrub sensitive fields from request body (PII protection)
         if "data" in request and isinstance(request["data"], dict):
             body = request["data"]
@@ -140,6 +165,7 @@ def _filter_event(event: Any, _hint: dict[str, Any]) -> Any:
             for key in list(body.keys()):
                 if any(s in key.lower() for s in sensitive_body_keys):
                     body[key] = "[Filtered]"
+            _scrub_credential_keys(body)
 
     # Scrub sensitive data from extra context
     if "extra" in event:
@@ -148,6 +174,12 @@ def _filter_event(event: Any, _hint: dict[str, Any]) -> Any:
         for key in list(extra.keys()):
             if any(s in key.lower() for s in sensitive_keys):
                 extra[key] = "[Filtered]"
+        _scrub_credential_keys(extra)
+
+    breadcrumbs = event.get("breadcrumbs")
+    if isinstance(breadcrumbs, dict):
+        for crumb in breadcrumbs.get("values", []):
+            _scrub_credential_keys(crumb.get("data"))
 
     return event
 
