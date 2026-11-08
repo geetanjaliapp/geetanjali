@@ -3,13 +3,15 @@
 Before v1.42.3 a shared case's public response carried its owner's session id. Run once
 after upgrading, from backend/:
 
-    python scripts/rotate_exposed_sessions.py                          # dry run, counts only
+    python scripts/rotate_exposed_sessions.py            # dry run, counts only
     python scripts/rotate_exposed_sessions.py --apply --expect-sessions N
 
-Each exposed session gets one new id across all its cases (shared or not, deleted or not)
-and its feedback. The new ids sit on the same shared cases, so a later dry run reports the
-same counts; the apply itself checks that no row keeps an old id before it commits. Owners lose access from the browser that held the old id. Nothing is
-written to disk, and ids are never printed: once rotated, the old ids must not survive.
+Each exposed session gets one new id across all its cases (shared or not, deleted or
+not) and its feedback: the rows a session id grants access to. experiment_events keeps
+the old ids; nothing reads them for access. The new ids sit on the same shared cases, so
+a later dry run reports the same counts; the apply checks that no case or feedback row
+keeps an old id before it commits. Owners lose access from the browser that held the
+old id. Nothing is written to disk and no id is printed.
 Take a database dump before --apply; it is the only undo.
 """
 
