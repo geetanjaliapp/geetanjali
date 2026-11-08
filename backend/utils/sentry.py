@@ -198,6 +198,8 @@ def _filter_event(event: Any, _hint: dict[str, Any]) -> Any:
     if isinstance(breadcrumbs, dict):
         for crumb in breadcrumbs.get("values", []):
             _scrub_credential_keys(crumb.get("data"))
+            if isinstance(crumb.get("message"), str):
+                crumb["message"] = _scrub_url(crumb["message"])
 
     return event
 

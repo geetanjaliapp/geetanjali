@@ -224,6 +224,17 @@ def test_worker_event_carries_no_job_arguments(sent):
     assert DILEMMA not in payload
 
 
+def test_access_log_breadcrumb_tokens_are_filtered(sent, caplog):
+    caplog.set_level(logging.INFO, logger="uvicorn.access")
+    path = f"/api/v1/newsletter/unsubscribe/{SECRET}"
+    logging.getLogger("uvicorn.access").info('%s "%s %s" %d', "203.0.113.9", "POST", path, 200)
+    sentry_sdk.capture_message("marker")
+
+    payload = _send(sent)
+    assert "unsubscribe/[Filtered]" in payload
+    assert SECRET not in payload
+
+
 @pytest.mark.parametrize(
     "api, page",
     [

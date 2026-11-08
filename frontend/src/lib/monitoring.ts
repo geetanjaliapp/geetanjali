@@ -44,6 +44,7 @@ export function sentryBeforeSend(event: ErrorEvent): ErrorEvent {
 }
 
 export function sentryBeforeBreadcrumb(crumb: Breadcrumb): Breadcrumb {
+  crumb.message = scrubUrl(crumb.message);
   const data = crumb.data;
   if (data) {
     for (const key of ["url", "from", "to"]) {

@@ -30,6 +30,7 @@ describe("Sentry scrubbing", () => {
         category: "fetch",
         data: { url, method: "GET" },
       }),
+      sentryBeforeBreadcrumb({ category: "console", message: `GET ${url}` }),
     ];
 
     expect(JSON.stringify([event, crumbs])).not.toContain(SECRET);
