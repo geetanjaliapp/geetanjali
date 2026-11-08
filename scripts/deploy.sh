@@ -67,7 +67,7 @@ fi
 
 # Step 1b: Refuse while a build runs on the server (an interrupted deploy leaves its build running,
 # and a hand-run build counts too): a second build beside it exhausts the droplet.
-BUILD_RUNNING="pgrep -af '[c]ompose .*build|[b]uildx'"
+BUILD_RUNNING="pgrep -af '[c]ompose( .*)? (--)?build( |$)|[b]uildx'"
 $SSH_CMD "$BUILD_RUNNING" && error "A build is already running on the server (above). Redeploy once it exits"
 
 # Step 2: Push local changes
@@ -116,7 +116,6 @@ info "Deploying version: ${APP_VERSION}"
 # a base-image change rebuilds apt and torch, and side by side they exhaust RAM and swap and take
 # the live site down. So:
 # - worker shares the backend image tag and is never built on its own
-# - BUILD_ORDER follows depends_on: a compose that builds dependencies with a service hits cache
 # - a service with a build section must be in BUILD_ORDER or SHARES_IMAGE (checked below):
 #   `up -d --no-build` would run it on a stale image
 # - for a heavy build, worker and observability stop; `up -d` or a failure starts them again,
@@ -171,13 +170,13 @@ restart_paused() {
         $SSH_CMD "$START_PAUSED" || warn "Could not restart${PAUSED}. Once no build is running on the server, run there: ${START_PAUSED}"
     fi
 }
+trap 'restart_paused; exit 130' INT TERM
 if [[ -n "$PAUSED" ]]; then
     log "Stopping${PAUSED} for the build..."
     # 120s: the worker finishes its current job on SIGTERM (an LLM call plus one re-ask, 45s each);
     # docker's default 10s cuts it off
     $SSH_CMD "cd ${DEPLOY_DIR} && ${COMPOSE_CMD} stop --timeout 120${PAUSED}" || { restart_paused; error "Could not stop${PAUSED}"; }
 fi
-trap 'restart_paused; exit 130' INT TERM
 for s in $BUILD_ORDER; do
     grep -qx "$s" <<< "$SERVICES" || continue
     log "Building ${s}..."
@@ -193,7 +192,7 @@ $SSH_CMD "cd ${DEPLOY_DIR} && ${COMPOSE_CMD} run --rm --no-deps --entrypoint ngi
     || { restart_paused; error "nginx -t failed; containers still running the previous release. Fix nginx.conf and redeploy"; }
 trap - INT TERM
 
-$SSH_CMD "cd ${DEPLOY_DIR} && APP_VERSION=${APP_VERSION} ${COMPOSE_CMD} up -d --no-build" || error "Failed to restart containers"
+$SSH_CMD "cd ${DEPLOY_DIR} && APP_VERSION=${APP_VERSION} ${COMPOSE_CMD} up -d --no-build" || { restart_paused; error "Failed to restart containers"; }
 
 # Step 7: Wait for health checks with polling
 log "Waiting for services to become healthy..."
