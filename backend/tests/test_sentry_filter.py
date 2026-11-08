@@ -2,15 +2,25 @@
 
 import logging
 import uuid
+import weakref
+from unittest.mock import patch
 
 import pytest
 import sentry_sdk
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
+from redis import Redis
+from rq import Queue
+from sentry_sdk.integrations.rq import _make_event_processor
 from sentry_sdk.transport import Transport
 
+from api.follow_up import run_follow_up_background
+from services import tasks
 from utils import sentry as sentry_module
 from utils.sentry import _filter_event
+
+# Bound at import: conftest patches tasks.enqueue_task for every test.
+real_enqueue_task = tasks.enqueue_task
 
 pytestmark = pytest.mark.unit
 
@@ -180,3 +190,67 @@ def test_daily_limit_redis_traffic_carries_no_session_id(sent, monkeypatch, redi
     payload = _send(sent)
     assert "consult:daily:session:" in payload
     assert SECRET not in payload
+
+
+def _queued_job():
+    queue = Queue("default", connection=Redis(host="127.0.0.1", port=1))
+    with (
+        patch.object(tasks, "get_queue", return_value=queue),
+        patch.object(Queue, "enqueue_job", side_effect=lambda job, **_: job) as push,
+    ):
+        assert real_enqueue_task(
+            run_follow_up_background, "case-1", "msg-1", DILEMMA, "corr-1"
+        )
+    return push.call_args.args[0]
+
+
+def test_queued_job_description_carries_no_job_arguments():
+    # The worker logs job.description at INFO on dequeue and on success.
+    job = _queued_job()
+
+    assert DILEMMA not in job.description
+    assert job.args[2] == DILEMMA
+
+
+def test_worker_event_carries_no_job_arguments(sent):
+    job = _queued_job()
+
+    with sentry_sdk.new_scope() as scope:
+        scope.add_event_processor(_make_event_processor(weakref.ref(job)))
+        sentry_sdk.capture_message("follow-up failed")
+
+    payload = _send(sent)
+    assert '"rq-job"' in payload
+    assert DILEMMA not in payload
+
+
+@pytest.mark.parametrize(
+    "api, page",
+    [
+        ("/api/v1/auth/verify-email/{}", "/verify-email/{}"),
+        ("/api/v1/newsletter/verify/{}", "/n/verify/{}"),
+        ("/api/v1/newsletter/unsubscribe/{}", "/n/unsubscribe/{}"),
+        ("/api/v1/newsletter/preferences/{}", "/n/preferences/{}"),
+    ],
+)
+def test_url_path_tokens_are_filtered(api, page):
+    site = "https://geetanjaliapp.com"
+    event = {
+        "request": {
+            "url": site + api.format(SECRET),
+            "headers": {"Referer": site + page.format(SECRET)},
+        }
+    }
+
+    filtered = _filter_event(event, {})
+
+    assert SECRET not in str(filtered)
+    assert filtered["request"]["url"] == site + api.format("[Filtered]")
+    assert filtered["request"]["headers"]["Referer"] == site + page.format("[Filtered]")
+
+
+def test_url_without_a_token_survives():
+    url = "https://geetanjaliapp.com/api/v1/cases/public/abc123"
+    event = {"request": {"url": url}}
+
+    assert _filter_event(event, {})["request"]["url"] == url

@@ -8,6 +8,7 @@ Sentry is only initialized when SENTRY_DSN is configured.
 """
 
 import logging
+import re
 from typing import Any
 
 from config import settings
@@ -109,6 +110,10 @@ SAFE_HEADERS = frozenset(
 CREDENTIAL_KEYS = ("session_id", "session-id", "tracking_key")
 
 
+# Routes that carry an emailed token as the last path segment.
+_PATH_TOKEN = re.compile(r"(/(?:verify-email|verify|unsubscribe|preferences)/)[^/?#]+")
+
+
 def _scrub_credential_keys(data: Any) -> None:
     if isinstance(data, dict):
         for key in list(data.keys()):
@@ -141,12 +146,18 @@ def _filter_event(event: Any, _hint: dict[str, Any]) -> Any:
         # Remove cookies (contain auth tokens)
         if "cookies" in request:
             request["cookies"] = "[Filtered]"
+        if isinstance(request.get("url"), str):
+            request["url"] = _PATH_TOKEN.sub(r"\1[Filtered]", request["url"])
         if "headers" in request:
             headers = request["headers"]
             if isinstance(headers, dict):
                 for name in list(headers.keys()):
                     if str(name).lower() not in SAFE_HEADERS:
                         headers[name] = "[Filtered]"
+                    elif str(name).lower() == "referer":
+                        headers[name] = _PATH_TOKEN.sub(
+                            r"\1[Filtered]", str(headers[name])
+                        )
             else:
                 request["headers"] = "[Filtered]"
         # Scrub sensitive fields from request body (PII protection)

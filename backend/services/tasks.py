@@ -102,9 +102,12 @@ def enqueue_task(
         delays = retry_delays or _parse_retry_delays()
         retry = Retry(max=len(delays), interval=delays) if delays else None
 
+        # RQ's default description embeds the job args (consultation text); the
+        # worker logs it and Sentry attaches it to every worker event.
         job = queue.enqueue(
             func,
             *args,
+            description=func.__name__,
             retry=retry,
             result_ttl=settings.RQ_RESULT_TTL,
             failure_ttl=settings.RQ_FAILURE_TTL,
