@@ -28,7 +28,6 @@ set -e
 # Configuration with defaults (can be overridden by environment)
 APP_DIR="${DEPLOY_DIR:-/opt/geetanjali}"
 BACKUP_DIR="${DEPLOY_BACKUP_DIR:-/opt/backups/geetanjali}"
-ALERT_ENDPOINT="http://localhost:8000/api/v1/admin/alert"
 
 # Thresholds
 DISK_THRESHOLD=80
@@ -38,7 +37,7 @@ ORPHAN_RETENTION_DAYS=30  # Days to keep orphaned anonymous session cases
 
 # Load environment variables for alerts
 if [[ -f "${APP_DIR}/.env" ]]; then
-    export $(grep -E '^(RESEND_API_KEY|CONTACT_EMAIL_TO|API_KEY|REDIS_PASSWORD)=' "${APP_DIR}/.env" | xargs)
+    export $(grep -E '^(RESEND_API_KEY|CONTACT_EMAIL_TO|REDIS_PASSWORD)=' "${APP_DIR}/.env" | xargs)
 fi
 
 # -----------------------------------------------------------------------------
@@ -54,19 +53,7 @@ send_alert() {
     local message="$2"
     local alert_sent=false
 
-    # Try backend alert endpoint first (requires API_KEY)
-    if [[ -n "$API_KEY" ]]; then
-        if curl -sf -X POST "${ALERT_ENDPOINT}" \
-            -H "Content-Type: application/json" \
-            -H "X-API-Key: ${API_KEY}" \
-            -d "{\"subject\": \"${subject}\", \"message\": \"${message}\"}" \
-            2>/dev/null; then
-            alert_sent=true
-        fi
-    fi
-
-    # Fallback: use Resend API directly if configured
-    if [[ "$alert_sent" != "true" ]] && [[ -n "$RESEND_API_KEY" && -n "$CONTACT_EMAIL_TO" ]]; then
+    if [[ -n "$RESEND_API_KEY" && -n "$CONTACT_EMAIL_TO" ]]; then
         if curl -sf -X POST "https://api.resend.com/emails" \
             -H "Authorization: Bearer ${RESEND_API_KEY}" \
             -H "Content-Type: application/json" \
@@ -83,7 +70,7 @@ send_alert() {
     if [[ "$alert_sent" == "true" ]]; then
         log "ALERT SENT: ${subject}"
     else
-        log "ALERT FAILED (no delivery method available): ${subject}"
+        log "ALERT FAILED (Resend not configured or request failed): ${subject}"
     fi
 }
 

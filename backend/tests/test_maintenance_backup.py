@@ -33,7 +33,7 @@ exit 0
 """
 
 CURL = """#!/bin/bash
-echo "$*" >> "$CURL_LOG"
+printf '%s\\0' "$*" >> "$CURL_LOG"
 exit 0
 """
 
@@ -59,7 +59,7 @@ def env(tmp_path):
         "CURL_LOG": str(tmp_path / "curl.log"),
         "RESEND_API_KEY": "test",
         "CONTACT_EMAIL_TO": "ops@example.invalid",
-        "API_KEY": "test",
+        "API_KEY": "test",  # set on the server too
     }
 
 
@@ -84,7 +84,7 @@ def _seed(env, n):
 
 def _curl_calls(env):
     log = Path(env["CURL_LOG"])
-    return log.read_text().splitlines() if log.exists() else []
+    return log.read_text().split("\0")[:-1] if log.exists() else []
 
 
 @pytest.mark.parametrize("dump", ["fail", "small", "noheader"])
@@ -95,7 +95,10 @@ def test_bad_dump_fails_and_keeps_existing_backups(env, dump):
 
     assert result.returncode != 0, result.stdout
     assert sorted(p.name for p in Path(env["DEPLOY_BACKUP_DIR"]).iterdir()) == before
-    assert any("Backup Failed" in call for call in _curl_calls(env)), result.stdout
+    calls = _curl_calls(env)
+    assert len(calls) == 1, calls
+    assert "https://api.resend.com/emails" in calls[0]
+    assert "Backup Failed" in calls[0]
 
 
 def test_good_dump_is_kept_and_old_backups_rotate(env):
