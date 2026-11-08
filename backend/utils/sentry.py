@@ -110,8 +110,13 @@ SAFE_HEADERS = frozenset(
 CREDENTIAL_KEYS = ("session_id", "session-id", "tracking_key")
 
 
-# Routes that carry an emailed token as the last path segment.
+# Emailed links carry a bearer token in the path or in ?token=.
 _PATH_TOKEN = re.compile(r"(/(?:verify-email|verify|unsubscribe|preferences)/)[^/?#]+")
+_QUERY_TOKEN = re.compile(r"([?&]token=)[^&#]+")
+
+
+def _scrub_url(url: str) -> str:
+    return _QUERY_TOKEN.sub(r"\1[Filtered]", _PATH_TOKEN.sub(r"\1[Filtered]", url))
 
 
 def _scrub_credential_keys(data: Any) -> None:
@@ -147,7 +152,7 @@ def _filter_event(event: Any, _hint: dict[str, Any]) -> Any:
         if "cookies" in request:
             request["cookies"] = "[Filtered]"
         if isinstance(request.get("url"), str):
-            request["url"] = _PATH_TOKEN.sub(r"\1[Filtered]", request["url"])
+            request["url"] = _scrub_url(request["url"])
         if "headers" in request:
             headers = request["headers"]
             if isinstance(headers, dict):
@@ -155,9 +160,7 @@ def _filter_event(event: Any, _hint: dict[str, Any]) -> Any:
                     if str(name).lower() not in SAFE_HEADERS:
                         headers[name] = "[Filtered]"
                     elif str(name).lower() == "referer":
-                        headers[name] = _PATH_TOKEN.sub(
-                            r"\1[Filtered]", str(headers[name])
-                        )
+                        headers[name] = _scrub_url(str(headers[name]))
             else:
                 request["headers"] = "[Filtered]"
         # Scrub sensitive fields from request body (PII protection)

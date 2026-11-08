@@ -10,9 +10,48 @@
  * All monitoring is production-only and gracefully handles missing config.
  */
 
+import type { Breadcrumb, ErrorEvent } from "@sentry/react";
+
 // =============================================================================
 // Sentry Error Tracking
 // =============================================================================
+
+// Emailed links carry a bearer token in the path or in ?token=.
+const TOKEN_PATH =
+  /(\/(?:verify-email|verify|unsubscribe|preferences)\/)[^/?#]+/g;
+const TOKEN_QUERY = /([?&]token=)[^&#]+/g;
+
+function scrubUrl<T>(value: T): T {
+  if (typeof value !== "string") return value;
+  return value
+    .replace(TOKEN_PATH, "$1[Filtered]")
+    .replace(TOKEN_QUERY, "$1[Filtered]") as T;
+}
+
+export function sentryBeforeSend(event: ErrorEvent): ErrorEvent {
+  if (event.user) {
+    delete event.user.email;
+    delete event.user.ip_address;
+  }
+  const request = event.request;
+  if (request) {
+    request.url = scrubUrl(request.url);
+    if (request.headers?.Referer) {
+      request.headers.Referer = scrubUrl(request.headers.Referer);
+    }
+  }
+  return event;
+}
+
+export function sentryBeforeBreadcrumb(crumb: Breadcrumb): Breadcrumb {
+  const data = crumb.data;
+  if (data) {
+    for (const key of ["url", "from", "to"]) {
+      if (key in data) data[key] = scrubUrl(data[key]);
+    }
+  }
+  return crumb;
+}
 
 /**
  * Initialize Sentry for error tracking (production only).
@@ -35,14 +74,8 @@ export function initSentry(): void {
         enabled: true,
         // Sample rate for performance monitoring (0.1 = 10%)
         tracesSampleRate: 0.1,
-        // Don't send PII
-        beforeSend(event) {
-          if (event.user) {
-            delete event.user.email;
-            delete event.user.ip_address;
-          }
-          return event;
-        },
+        beforeSend: sentryBeforeSend,
+        beforeBreadcrumb: sentryBeforeBreadcrumb,
       });
     })
     .catch(() => {

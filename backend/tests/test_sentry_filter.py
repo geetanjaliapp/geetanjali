@@ -231,9 +231,10 @@ def test_worker_event_carries_no_job_arguments(sent):
         ("/api/v1/newsletter/verify/{}", "/n/verify/{}"),
         ("/api/v1/newsletter/unsubscribe/{}", "/n/unsubscribe/{}"),
         ("/api/v1/newsletter/preferences/{}", "/n/preferences/{}"),
+        ("/api/v1/auth/reset-password", "/reset-password?token={}"),
     ],
 )
-def test_url_path_tokens_are_filtered(api, page):
+def test_url_tokens_are_filtered(api, page):
     site = "https://geetanjaliapp.com"
     event = {
         "request": {
