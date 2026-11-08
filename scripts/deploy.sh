@@ -65,10 +65,10 @@ if [[ -n $(git status -s) ]]; then
     error "Uncommitted changes detected. Please commit or stash before deploying."
 fi
 
-# Step 1b: Refuse while a build runs on the server (an interrupted deploy leaves its build running,
+# Step 1b: Refuse while a build or stop runs on the server (an interrupted deploy leaves it running,
 # and a hand-run build counts too): a second build beside it exhausts the droplet.
-BUILD_RUNNING="pgrep -af '[c]ompose( .*)? (--)?build( |$)|[b]uildx'"
-$SSH_CMD "$BUILD_RUNNING" && error "A build is already running on the server (above). Redeploy once it exits"
+BUILD_RUNNING="pgrep -af '[c]ompose( .*)? ((--)?build|stop)( |$)|[b]uildx'"
+$SSH_CMD "$BUILD_RUNNING" && error "A build or stop is already running on the server (above). Redeploy once it exits"
 
 # Step 2: Push local changes
 log "Pushing to origin..."
@@ -118,8 +118,9 @@ info "Deploying version: ${APP_VERSION}"
 # - worker shares the backend image tag and is never built on its own
 # - a service with a build section must be in BUILD_ORDER or SHARES_IMAGE (checked below):
 #   `up -d --no-build` would run it on a stale image
-# - for a heavy build, worker and observability stop; `up -d` or a failure starts them again,
-#   unless a build is still running there (an interrupt or a dropped ssh leaves it running)
+# - for a heavy build, worker and observability stop; `up -d` or any exit before it starts them
+#   again, unless a build or the stop is still running there (an interrupt or a dropped ssh
+#   leaves it running)
 log "Rebuilding containers one image at a time..."
 info "Using compose files: ${COMPOSE_FILES}"
 BUILD_ORDER="chromadb backend frontend"
@@ -165,23 +166,24 @@ restart_paused() {
     if [[ -z "$PAUSED" ]]; then
         return 0
     elif $SSH_CMD "$BUILD_RUNNING" > /dev/null; then
-        warn "A build is still running on the server. Once it exits, run there: ${START_PAUSED}"
+        warn "A build or stop is still running on the server. Once it exits, run there: ${START_PAUSED}"
     else
-        $SSH_CMD "$START_PAUSED" || warn "Could not restart${PAUSED}. Once no build is running on the server, run there: ${START_PAUSED}"
+        $SSH_CMD "$START_PAUSED" || warn "Could not restart${PAUSED}. Once no build or stop is running on the server, run there: ${START_PAUSED}"
     fi
 }
-trap 'restart_paused; exit 130' INT TERM
+trap restart_paused EXIT
+trap 'exit 130' INT TERM HUP
 if [[ -n "$PAUSED" ]]; then
     log "Stopping${PAUSED} for the build..."
     # 120s: the worker finishes its current job on SIGTERM (an LLM call plus one re-ask, 45s each);
     # docker's default 10s cuts it off
-    $SSH_CMD "cd ${DEPLOY_DIR} && ${COMPOSE_CMD} stop --timeout 120${PAUSED}" || { restart_paused; error "Could not stop${PAUSED}"; }
+    $SSH_CMD "cd ${DEPLOY_DIR} && ${COMPOSE_CMD} stop --timeout 120${PAUSED}" || error "Could not stop${PAUSED}"
 fi
 for s in $BUILD_ORDER; do
     grep -qx "$s" <<< "$SERVICES" || continue
     log "Building ${s}..."
     $SSH_CMD "cd ${DEPLOY_DIR} && APP_VERSION=${APP_VERSION} ${COMPOSE_CMD} build ${s}" \
-        || { restart_paused; error "Build of ${s} failed; containers still running the previous release"; }
+        || error "Build of ${s} failed; containers still running the previous release"
 done
 
 # Step 6b: Test the new nginx config before replacing the running frontend. `run` mounts the
@@ -189,10 +191,10 @@ done
 # A config that fails here would otherwise crash-loop 80/443 while this script reports success.
 log "Testing nginx config in the new frontend image..."
 $SSH_CMD "cd ${DEPLOY_DIR} && ${COMPOSE_CMD} run --rm --no-deps --entrypoint nginx frontend -t" \
-    || { restart_paused; error "nginx -t failed; containers still running the previous release. Fix nginx.conf and redeploy"; }
-trap - INT TERM
+    || error "nginx -t failed; containers still running the previous release. Fix nginx.conf and redeploy"
 
-$SSH_CMD "cd ${DEPLOY_DIR} && APP_VERSION=${APP_VERSION} ${COMPOSE_CMD} up -d --no-build" || { restart_paused; error "Failed to restart containers"; }
+$SSH_CMD "cd ${DEPLOY_DIR} && APP_VERSION=${APP_VERSION} ${COMPOSE_CMD} up -d --no-build" || error "Failed to restart containers"
+trap - EXIT INT TERM HUP
 
 # Step 7: Wait for health checks with polling
 log "Waiting for services to become healthy..."
