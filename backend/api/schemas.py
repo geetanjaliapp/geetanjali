@@ -224,10 +224,6 @@ class PublicCaseResponse(BaseModel):
 
     title: str
     description: str
-    status: str
-    share_mode: str | None = None
-    public_slug: str | None = None
-    created_at: datetime
 
     class Config:
         from_attributes = True

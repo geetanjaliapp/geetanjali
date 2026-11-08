@@ -16,14 +16,7 @@ from services.cache import public_case_key
 
 pytestmark = pytest.mark.integration
 
-PUBLIC_CASE_KEYS = {
-    "title",
-    "description",
-    "status",
-    "share_mode",
-    "public_slug",
-    "created_at",
-}
+PUBLIC_CASE_KEYS = {"title", "description"}
 
 
 @pytest.fixture(autouse=True)

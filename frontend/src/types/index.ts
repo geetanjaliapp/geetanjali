@@ -39,15 +39,7 @@ export interface Case {
 }
 
 /** A shared case as the public link returns it: no owner fields. */
-export type PublicCase = Pick<
-  Case,
-  | "title"
-  | "description"
-  | "status"
-  | "share_mode"
-  | "public_slug"
-  | "created_at"
->;
+export type PublicCase = Pick<Case, "title" | "description">;
 
 export interface Verse {
   id: string;
