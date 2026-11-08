@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v1.42.3] - 2026-11-08
+
+### Security
+
+- Shared consultations no longer expose owner identifiers; advisory to follow.
+
 ## [v1.42.2] - 2026-10-11
 
 ### Changed
