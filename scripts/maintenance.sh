@@ -54,7 +54,7 @@ send_alert() {
     local alert_sent=false
 
     if [[ -n "$RESEND_API_KEY" && -n "$CONTACT_EMAIL_TO" ]]; then
-        if curl -sf -X POST "https://api.resend.com/emails" \
+        if curl -sf --max-time 20 -X POST "https://api.resend.com/emails" \
             -H "Authorization: Bearer ${RESEND_API_KEY}" \
             -H "Content-Type: application/json" \
             -d "{
@@ -104,6 +104,7 @@ task_database_backup() {
     log "Running database backup..."
 
     mkdir -p "${BACKUP_DIR}"
+    rm -f "${BACKUP_DIR}"/.geetanjali_*.sql  # left by a run killed mid-dump
 
     local stamp dump size
     stamp=$(date +%Y%m%d_%H%M%S)

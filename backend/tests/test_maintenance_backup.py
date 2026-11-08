@@ -59,7 +59,6 @@ def env(tmp_path):
         "CURL_LOG": str(tmp_path / "curl.log"),
         "RESEND_API_KEY": "test",
         "CONTACT_EMAIL_TO": "ops@example.invalid",
-        "API_KEY": "test",  # set on the server too
     }
 
 
@@ -103,6 +102,7 @@ def test_bad_dump_fails_and_keeps_existing_backups(env, dump):
 
 def test_good_dump_is_kept_and_old_backups_rotate(env):
     _seed(env, 7)
+    (Path(env["DEPLOY_BACKUP_DIR"]) / ".geetanjali_20260101_030000.sql").write_text("partial")
 
     result = _run(env, "backup", "ok")
 
