@@ -59,14 +59,18 @@ def init_sentry(service_name: str = "backend") -> bool:
                 ),
                 RqIntegration(),
             ],
-            # PII filtering
+            # PII filtering; transactions skip before_send, so they need their own hook
             before_send=_filter_event,
+            before_send_transaction=_filter_event,
             # Performance: don't send transactions for health checks
             traces_sampler=_traces_sampler,
             # Don't send PII by default
             send_default_pii=False,
             # Attach stack traces to log messages
             attach_stacktrace=True,
+            # Frame locals and request bodies carry consultation text and credentials
+            include_local_variables=False,
+            max_request_body_size="never",
             # Server name for distinguishing instances
             server_name=f"geetanjali-{service_name}",
             # Keep HTTP connections alive to prevent SSL errors on stale connections
@@ -86,7 +90,7 @@ def init_sentry(service_name: str = "backend") -> bool:
         return False
 
 
-# Request headers sent to Sentry; everything else is filtered (matched case-insensitively).
+# Request headers sent to Sentry, matched case-insensitively; all others are filtered.
 SAFE_HEADERS = frozenset(
     {
         "accept",
