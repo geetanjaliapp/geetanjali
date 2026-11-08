@@ -1260,7 +1260,7 @@ export default function Settings() {
 
           <p className="text-xs text-[var(--text-muted)] mb-3">
             {isAuthenticated
-              ? "Synced securely in the cloud"
+              ? "Synced to your account"
               : "Stored locally on this device"}
           </p>
 
@@ -1360,7 +1360,7 @@ export default function Settings() {
           </div>
           <p className="text-xs text-[var(--text-muted)] mt-2">
             {isAuthenticated
-              ? "Delete local data clears this device only. Delete account removes all data from the cloud permanently."
+              ? "Delete local data clears this device only. Delete account removes your consultations and preferences from our server."
               : "Deleting local data will clear favorites, reading progress, and preferences from this device."}
           </p>
         </section>
