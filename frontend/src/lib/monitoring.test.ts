@@ -20,19 +20,16 @@ describe("Sentry scrubbing", () => {
       type: undefined,
       request: { url, headers: { Referer: url } },
       user: { email: "a@example.com", ip_address: "203.0.113.9" },
+      exception: { values: [{ type: "Error", value: `Failed: ${url}` }] },
+      extra: { context: { href: url } },
+      breadcrumbs: [
+        { category: "navigation", data: { from: url, to: url } },
+        { category: "fetch", data: { url, method: "GET" } },
+        { category: "sentry.event", message: `Error: ${url}` },
+      ],
     });
-    const crumbs = [
-      sentryBeforeBreadcrumb({
-        category: "navigation",
-        data: { from: url, to: url },
-      }),
-      sentryBeforeBreadcrumb({
-        category: "fetch",
-        data: { url, method: "GET" },
-      }),
-    ];
 
-    expect(JSON.stringify([event, crumbs])).not.toContain(SECRET);
+    expect(JSON.stringify(event)).not.toContain(SECRET);
     expect(event?.request?.url).toBe(SITE + path.replace("{}", "[Filtered]"));
     expect(event?.user).toEqual({});
   });
@@ -48,13 +45,19 @@ describe("Sentry scrubbing", () => {
     expect(crumb).toBeNull();
   });
 
-  it("keeps ordinary URLs", () => {
+  it("keeps ordinary URLs and the text around a token", () => {
     const url = `${SITE}/c/abc123?ref=home`;
-    const crumb = sentryBeforeBreadcrumb({
-      category: "navigation",
-      data: { to: url },
+    const event = sentryBeforeSend({
+      type: undefined,
+      request: { url },
+      exception: {
+        values: [{ value: `GET ${SITE}/n/verify/${SECRET}: 404 (Not Found)` }],
+      },
     });
 
-    expect(crumb?.data?.to).toBe(url);
+    expect(event.request?.url).toBe(url);
+    expect(event.exception?.values?.[0].value).toBe(
+      `GET ${SITE}/n/verify/[Filtered]: 404 (Not Found)`,
+    );
   });
 });

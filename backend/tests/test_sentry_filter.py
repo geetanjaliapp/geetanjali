@@ -1,7 +1,9 @@
 """Sentry events must not carry credentials, whatever their header case or location."""
 
+import json
 import logging
 import re
+import secrets
 import uuid
 import weakref
 from unittest.mock import patch
@@ -27,6 +29,7 @@ real_enqueue_task = tasks.enqueue_task
 pytestmark = pytest.mark.unit
 
 SECRET = str(uuid.uuid4())
+TOKEN = secrets.token_urlsafe(32)
 DILEMMA = "Sentinel dilemma 9c41"
 
 
@@ -110,6 +113,13 @@ def _send(envelopes):
     sentry_sdk.flush()
     assert envelopes, "nothing reached the transport"
     return "".join(envelopes)
+
+
+def _events(envelopes):
+    """Error and message events, parsed (an envelope is one JSON document per line)."""
+    sentry_sdk.flush()
+    docs = [json.loads(line) for env in envelopes for line in env.splitlines() if line]
+    return [d for d in docs if "platform" in d and d.get("type") != "transaction"]
 
 
 def test_exception_event_carries_no_frame_locals(sent):
@@ -236,23 +246,63 @@ def test_failed_job_log_does_not_reach_sentry(sent):
 
 def test_access_log_lines_do_not_reach_sentry(sent, caplog):
     caplog.set_level(logging.INFO, logger="uvicorn.access")
-    path = f"/api/v1/newsletter/unsubscribe/{SECRET}"
-    logging.getLogger("uvicorn.access").info('%s "%s %s" %d', "203.0.113.9", "POST", path, 200)
+    logging.getLogger("uvicorn.access").info("POST /api/v1/cases 200")
+    logging.getLogger("test.sentry").info("kept")
     sentry_sdk.capture_message("marker")
 
-    assert SECRET not in _send(sent)
+    (event,) = _events(sent)
+    crumbs = [c.get("category") for c in event["breadcrumbs"]["values"]]
+    assert "test.sentry" in crumbs and "uvicorn.access" not in crumbs
 
 
 def test_log_line_breadcrumb_tokens_are_filtered(sent):
-    path = f"/api/v1/auth/verify-email/{SECRET}"
     logging.getLogger("api.middleware.csrf").warning(
-        f"CSRF validation failed for POST {path}: token mismatch"
+        "CSRF validation failed for POST /api/v1/auth/verify-email/%s: token mismatch", TOKEN
     )
     sentry_sdk.capture_message("marker")
 
-    payload = _send(sent)
-    assert "verify-email/[Filtered]: token mismatch" in payload
-    assert SECRET not in payload
+    (event,) = _events(sent)
+    messages = [c.get("message") for c in event["breadcrumbs"]["values"]]
+    assert (
+        "CSRF validation failed for POST /api/v1/auth/verify-email/[Filtered]: token mismatch"
+        in messages
+    )
+
+
+def test_capture_context_is_filtered(sent):
+    url = f"https://geetanjaliapp.com/api/v1/newsletter/unsubscribe/{TOKEN}?token={TOKEN}"
+    sentry_module.capture_exception(RuntimeError("boom"), path=url)
+
+    (event,) = _events(sent)
+    assert event["extra"]["path"].count("[Filtered]") == 2
+    assert TOKEN not in json.dumps(event)
+
+
+def test_server_error_on_a_token_route_leaks_no_token(sent):
+    from db.connection import get_db
+    from main import app
+
+    def db_down():
+        raise RuntimeError("db down")
+
+    routes = [
+        (method, path.replace("{token}", TOKEN) + f"?token={TOKEN}")
+        for path, ops in app.openapi()["paths"].items()
+        if "{token}" in path
+        for method in ops
+    ]
+    client = TestClient(app, raise_server_exceptions=False)  # no lifespan: no startup sync
+    app.dependency_overrides[get_db] = db_down
+    try:
+        for method, url in routes:
+            assert client.request(method, url, json={}).status_code == 500, url
+    finally:
+        app.dependency_overrides.pop(get_db)
+
+    events = _events(sent)
+    errors = [e for e in events if "db down" in json.dumps(e.get("exception"))]
+    assert len(errors) >= len(routes)
+    assert TOKEN not in json.dumps(events)
 
 
 @pytest.mark.parametrize(

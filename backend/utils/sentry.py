@@ -112,13 +112,27 @@ SAFE_HEADERS = frozenset(
 CREDENTIAL_KEYS = ("session_id", "session-id", "tracking_key")
 
 
-# Emailed links carry a bearer token in the path or in ?token=.
-_PATH_TOKEN = re.compile(r'(/(?:verify-email|verify|unsubscribe|preferences)/)[^/?#\s"]+')
-_QUERY_TOKEN = re.compile(r"([?&]token=)[^&#]+")
+# Emailed links carry a bearer token (secrets.token_urlsafe) in the path or in ?token=.
+_PATH_TOKEN = re.compile(r"(/(?:verify-email|verify|unsubscribe|preferences)/)[A-Za-z0-9_-]+")
+_QUERY_TOKEN = re.compile(r"([?&]token=)[A-Za-z0-9_-]+")
 
 
 def _scrub_url(url: str) -> str:
     return _QUERY_TOKEN.sub(r"\1[Filtered]", _PATH_TOKEN.sub(r"\1[Filtered]", url))
+
+
+def _scrub_strings(node: Any) -> Any:
+    """Filter emailed-link tokens from every string in the event, whichever field holds it."""
+    if isinstance(node, str):
+        return _scrub_url(node)
+    if isinstance(node, dict):
+        for key, value in node.items():
+            node[key] = _scrub_strings(value)
+    elif isinstance(node, list):
+        node[:] = [_scrub_strings(value) for value in node]
+    elif isinstance(node, tuple):
+        return tuple(_scrub_strings(value) for value in node)
+    return node
 
 
 def _scrub_credential_keys(data: Any) -> None:
@@ -153,8 +167,6 @@ def _filter_event(event: Any, _hint: dict[str, Any]) -> Any:
         # Remove cookies (contain auth tokens)
         if "cookies" in request:
             request["cookies"] = "[Filtered]"
-        if isinstance(request.get("url"), str):
-            request["url"] = _scrub_url(request["url"])
         # The SDK keeps the query out of url: ?token= and search text would skip the URL scrub
         request.pop("query_string", None)
         if "headers" in request:
@@ -163,8 +175,6 @@ def _filter_event(event: Any, _hint: dict[str, Any]) -> Any:
                 for name in list(headers.keys()):
                     if str(name).lower() not in SAFE_HEADERS:
                         headers[name] = "[Filtered]"
-                    elif str(name).lower() == "referer":
-                        headers[name] = _scrub_url(str(headers[name]))
             else:
                 request["headers"] = "[Filtered]"
         # Scrub sensitive fields from request body (PII protection)
@@ -202,11 +212,8 @@ def _filter_event(event: Any, _hint: dict[str, Any]) -> Any:
     if isinstance(breadcrumbs, dict):
         for crumb in breadcrumbs.get("values", []):
             _scrub_credential_keys(crumb.get("data"))
-            # Log lines carry request paths too (csrf.py logs a failed check's path)
-            if isinstance(crumb.get("message"), str):
-                crumb["message"] = _scrub_url(crumb["message"])
 
-    return event
+    return _scrub_strings(event)
 
 
 def _traces_sampler(sampling_context: dict[str, Any]) -> float:

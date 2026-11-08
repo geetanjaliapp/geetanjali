@@ -16,16 +16,26 @@ import type { Breadcrumb, ErrorEvent } from "@sentry/react";
 // Sentry Error Tracking
 // =============================================================================
 
-// Emailed links carry a bearer token in the path or in ?token=.
+// Emailed links carry a bearer token (URL-safe base64) in the path or in ?token=.
 const TOKEN_PATH =
-  /(\/(?:verify-email|verify|unsubscribe|preferences)\/)[^/?#]+/g;
-const TOKEN_QUERY = /([?&]token=)[^&#]+/g;
+  /(\/(?:verify-email|verify|unsubscribe|preferences)\/)[A-Za-z0-9_-]+/g;
+const TOKEN_QUERY = /([?&]token=)[A-Za-z0-9_-]+/g;
 
-function scrubUrl<T>(value: T): T {
-  if (typeof value !== "string") return value;
-  return value
-    .replace(TOKEN_PATH, "$1[Filtered]")
-    .replace(TOKEN_QUERY, "$1[Filtered]") as T;
+// Every string in the event, whichever field holds it (breadcrumbs included).
+function scrubStrings(node: unknown): unknown {
+  if (typeof node === "string") {
+    return node
+      .replace(TOKEN_PATH, "$1[Filtered]")
+      .replace(TOKEN_QUERY, "$1[Filtered]");
+  }
+  if (Array.isArray(node)) return node.map(scrubStrings);
+  if (node && typeof node === "object") {
+    const record = node as Record<string, unknown>;
+    for (const key of Object.keys(record)) {
+      record[key] = scrubStrings(record[key]);
+    }
+  }
+  return node;
 }
 
 export function sentryBeforeSend(event: ErrorEvent): ErrorEvent {
@@ -33,26 +43,12 @@ export function sentryBeforeSend(event: ErrorEvent): ErrorEvent {
     delete event.user.email;
     delete event.user.ip_address;
   }
-  const request = event.request;
-  if (request) {
-    request.url = scrubUrl(request.url);
-    if (request.headers?.Referer) {
-      request.headers.Referer = scrubUrl(request.headers.Referer);
-    }
-  }
-  return event;
+  return scrubStrings(event) as ErrorEvent;
 }
 
-// Console crumbs carry raw console arguments, which no URL scrub can vet.
+// Console crumbs carry raw console arguments, which no string scrub can vet.
 export function sentryBeforeBreadcrumb(crumb: Breadcrumb): Breadcrumb | null {
-  if (crumb.category === "console") return null;
-  const data = crumb.data;
-  if (data) {
-    for (const key of ["url", "from", "to"]) {
-      if (key in data) data[key] = scrubUrl(data[key]);
-    }
-  }
-  return crumb;
+  return crumb.category === "console" ? null : crumb;
 }
 
 /**
