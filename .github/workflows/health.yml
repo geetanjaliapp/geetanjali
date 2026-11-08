@@ -1,0 +1,36 @@
+name: Health Check
+
+# Off-box so it still fires when the droplet is down; a failed run emails whoever last edited the
+# cron line. /health/ready answers 200 with "not_ready", so the body is checked, not the status.
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+    inputs:
+      url:
+        description: 'Readiness URL'
+        required: false
+        default: 'https://geetanjaliapp.com/health/ready'
+        type: string
+
+permissions: {}
+
+jobs:
+  ready:
+    name: Production readiness
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Check /health/ready (one retry after 60s)
+        env:
+          URL: ${{ inputs.url || 'https://geetanjaliapp.com/health/ready' }}
+        run: |
+          check() {
+            body=$(curl -fsS --max-time 20 "$URL") && echo "$body" &&
+              jq -e '.status == "ready"' <<<"$body" >/dev/null
+          }
+          check && exit 0
+          echo "Not ready; retrying in 60s"
+          sleep 60
+          check
