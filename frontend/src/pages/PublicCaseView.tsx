@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { casesApi } from "../lib/api";
-import type { Case, Message, Output } from "../types";
+import type { Message, Output, PublicCase } from "../types";
 import {
   Navbar,
   ContentNotFound,
@@ -21,7 +21,7 @@ import { useSEO } from "../hooks";
  */
 export default function PublicCaseView() {
   const { slug } = useParams<{ slug: string }>();
-  const [caseData, setCaseData] = useState<Case | null>(null);
+  const [caseData, setCaseData] = useState<PublicCase | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [outputs, setOutputs] = useState<Output[]>([]);
   const [loading, setLoading] = useState(true);

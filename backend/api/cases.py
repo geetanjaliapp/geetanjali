@@ -24,6 +24,7 @@ from api.schemas import (
     CaseShareToggle,
     ChatMessageResponse,
     OutputResponse,
+    PublicCaseResponse,
     VerseRefResponse,
 )
 from config import settings
@@ -722,7 +723,7 @@ async def toggle_case_sharing(
 # ============================================================================
 
 
-@router.get("/public/{slug}", response_model=CaseResponse)
+@router.get("/public/{slug}", response_model=PublicCaseResponse)
 @limiter.limit("60/minute")
 async def get_public_case(
     request: Request,
@@ -739,7 +740,9 @@ async def get_public_case(
         cache_key=public_case_key(slug),
         response=response,
         fetch_fn=lambda: get_public_case_or_404(slug, db),
-        serialize_fn=lambda c: CaseResponse.model_validate(c).model_dump(mode="json"),
+        serialize_fn=lambda c: PublicCaseResponse.model_validate(c).model_dump(
+            mode="json"
+        ),
     )
 
 

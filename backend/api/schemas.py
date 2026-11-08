@@ -221,6 +221,20 @@ class CaseResponse(CaseBase):
         from_attributes = True
 
 
+class PublicCaseResponse(BaseModel):
+    """A shared case as anyone holding the link sees it. Never add owner fields here."""
+
+    title: str
+    description: str
+    status: str
+    share_mode: str | None = None
+    public_slug: str | None = None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
 class CaseShareToggle(BaseModel):
     """Schema for toggling case public visibility."""
 

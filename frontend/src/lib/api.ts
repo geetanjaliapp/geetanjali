@@ -1,6 +1,7 @@
 import axios from "axios";
 import type {
   Case,
+  PublicCase,
   Output,
   Verse,
   Translation,
@@ -184,7 +185,7 @@ export const casesApi = {
   },
 
   // Get public case by slug (no auth required)
-  getPublic: async (slug: string): Promise<Case> => {
+  getPublic: async (slug: string): Promise<PublicCase> => {
     const response = await api.get(`/cases/public/${slug}`);
     return response.data;
   },
