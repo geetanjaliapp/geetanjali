@@ -64,12 +64,20 @@ updates:
     open-pull-requests-limit: 3
 
   # Docker
+  # Base images are pinned by digest: each bump is a reviewed PR and a heavy deploy, so one
+  # grouped PR a month. Tag lines are deliberate: python 3.11 (torch wheels, chromadb store),
+  # one Node major everywhere, nginx on a minor.
   - package-ecosystem: "docker"
-    directory: "/backend"
+    directories: ["/backend", "/chromadb", "/frontend"]
     schedule:
       interval: "monthly"
-
-  - package-ecosystem: "docker"
-    directory: "/frontend"
-    schedule:
-      interval: "monthly"
+    ignore:
+      - dependency-name: "python"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "node"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "nginx"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+    groups:
+      base-images:
+        patterns: ["*"]

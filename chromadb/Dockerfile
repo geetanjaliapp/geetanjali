@@ -6,7 +6,7 @@
 # not change the security position -- see the accepted-risk note in requirements.txt.
 # Aligning them is a deliberate migration: this is a persistent vector store, so a
 # two-minor server bump needs a data-format check before it ships.
-FROM python:3.11-slim
+FROM python:3.11-slim@sha256:07d4824036af339fa1b6ef769cc99d9c10a141769538b52b3b597c84f7a7b535
 
 WORKDIR /chroma
 
