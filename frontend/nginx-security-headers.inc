@@ -17,4 +17,7 @@ add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
 #                      from index.html and fails CI if the two drift.
 #   umami hosts      - script loads from cloud.umami.is but events POST to gateway.umami.is.
 #                      Allowing only the first lets the script load and silently drop every event.
-add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'sha256-jEoj6xfYPkmGqX9AnKnD18sSjSkQwqtDc560JE82h3M=' https://cloud.umami.is; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self'; media-src 'self'; connect-src 'self' https://geetanjaliapp.com https://cloud.umami.is https://gateway.umami.is https://*.ingest.sentry.io; frame-ancestors 'self'; base-uri 'self'; form-action 'self';" always;
+#   sentry host      - the DSN's ingest host carries the org's data region, fixed when the org was
+#                      created: *.ingest.sentry.io does not match o….ingest.us.sentry.io. A DSN from
+#                      another region needs this source changed; the synthetic check fails until it is.
+add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'sha256-jEoj6xfYPkmGqX9AnKnD18sSjSkQwqtDc560JE82h3M=' https://cloud.umami.is; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self'; media-src 'self'; connect-src 'self' https://geetanjaliapp.com https://cloud.umami.is https://gateway.umami.is https://*.ingest.us.sentry.io; frame-ancestors 'self'; base-uri 'self'; form-action 'self';" always;

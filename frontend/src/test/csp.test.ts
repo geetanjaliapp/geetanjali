@@ -83,7 +83,7 @@ describe("Content-Security-Policy contract", () => {
     // only the script host loads Umami and then silently drops everything it sends.
     ["connect-src", "https://cloud.umami.is", "Umami script host"],
     ["connect-src", "https://gateway.umami.is", "Umami event delivery"],
-    ["connect-src", "https://*.ingest.sentry.io", "Sentry error ingest"],
+    ["connect-src", "https://*.ingest.us.sentry.io", "Sentry error ingest (the DSN's region)"],
     ["connect-src", "'self'", "same-origin API and degradation telemetry"],
   ])("%s allows %s (protects: %s)", (directive, source) => {
     expect(sourceOf(directive)).toContain(source);
