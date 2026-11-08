@@ -104,7 +104,8 @@ task_database_backup() {
     log "Running database backup..."
 
     mkdir -p "${BACKUP_DIR}"
-    rm -f "${BACKUP_DIR}"/.geetanjali_*.sql  # left by a run killed mid-dump
+    # Left by a run killed mid-dump; a fresh one belongs to a run still writing it
+    find "${BACKUP_DIR}" -maxdepth 1 -name '.geetanjali_*.sql' -mmin +60 -delete
 
     local stamp dump size
     stamp=$(date +%Y%m%d_%H%M%S)

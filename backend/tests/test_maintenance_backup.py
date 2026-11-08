@@ -102,7 +102,9 @@ def test_bad_dump_fails_and_keeps_existing_backups(env, dump):
 
 def test_good_dump_is_kept_and_old_backups_rotate(env):
     _seed(env, 7)
-    (Path(env["DEPLOY_BACKUP_DIR"]) / ".geetanjali_20260101_030000.sql").write_text("partial")
+    stale = Path(env["DEPLOY_BACKUP_DIR"]) / ".geetanjali_20260101_030000.sql"
+    stale.write_text("partial")
+    os.utime(stale, (86400, 86400))
 
     result = _run(env, "backup", "ok")
 
@@ -121,3 +123,11 @@ def test_daily_runs_the_remaining_tasks_after_a_failed_backup(env):
     assert result.returncode != 0
     assert "Checking Redis memory usage" in result.stdout
     assert "Daily Maintenance Complete" in result.stdout
+
+
+def test_concurrent_runs_dump_is_left_alone(env):
+    running = Path(env["DEPLOY_BACKUP_DIR"]) / ".geetanjali_20260101_030000.sql"
+    running.write_text("being written")
+
+    assert _run(env, "backup", "ok").returncode == 0
+    assert running.exists()
