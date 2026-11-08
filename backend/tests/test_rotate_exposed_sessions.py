@@ -162,6 +162,16 @@ def test_failure_on_feedback_leaves_cases_untouched(db_session, monkeypatch):
     assert _sessions(db_session) == before
 
 
+def test_rows_left_on_an_old_id_roll_the_apply_back(db_session, monkeypatch):
+    _seed(db_session)
+    before = _sessions(db_session)
+    monkeypatch.setattr(rotate, "_rotate_feedback", lambda _db, _mapping: None)
+
+    with pytest.raises(RuntimeError, match="still hold an old session id"):
+        rotate.run(db_session, apply=True, expect_sessions=1)
+    assert _sessions(db_session) == before
+
+
 def test_old_id_opens_nothing_after_rotation(client, db_session):
     rows = _seed(db_session)
     old = {"X-Session-ID": EXPOSED}
