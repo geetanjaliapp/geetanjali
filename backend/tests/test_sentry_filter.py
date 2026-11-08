@@ -1,6 +1,7 @@
 """Sentry events must not carry credentials, whatever their header case or location."""
 
 import logging
+import re
 import uuid
 import weakref
 from unittest.mock import patch
@@ -281,13 +282,34 @@ def test_url_tokens_are_filtered(api, page):
     assert filtered["request"]["headers"]["Referer"] == site + page.format("[Filtered]")
 
 
+# Path parameters that carry no secret. A new name fails the test below until it is
+# classified here or, if it is a secret, filtered in _scrub_url.
+NON_SECRET_PATH_PARAMS = {
+    "canonical_id",
+    "case_id",
+    "chapter_number",
+    "experiment_name",
+    "filename",
+    "goal_id",
+    "output_id",
+    "principle_id",
+    "slug",
+    "verse_number",
+}
+
+
 def test_every_token_route_is_filtered():
     from main import app
 
-    paths = [p for p in app.openapi()["paths"] if "{token}" in p]
-    assert paths
-    for path in paths:
-        assert SECRET not in _scrub_url(path.replace("{token}", SECRET)), path
+    routes = [
+        (name, path)
+        for path in app.openapi()["paths"]
+        for name in re.findall(r"\{(\w+)\}", path)
+    ]
+    assert {name for name, _ in routes} - NON_SECRET_PATH_PARAMS == {"token"}
+    for name, path in routes:
+        if name == "token":
+            assert SECRET not in _scrub_url(path.replace("{token}", SECRET)), path
 
 
 def test_url_without_a_token_survives():
