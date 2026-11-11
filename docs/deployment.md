@@ -179,8 +179,6 @@ For automated testing:
 │                           │                                  │
 │                           ├────────▶ redis :6379             │
 │                           │                                  │
-│                           ├────────▶ chromadb :8000          │
-│                           │                                  │
 │                           └────────▶ ollama :11434           │
 │                                                              │
 │   ┌──────────────────────────────────────────────────────┐   │
@@ -196,6 +194,8 @@ For automated testing:
                              ▼
                  External: ports 80, 443 only
 ```
+
+ChromaDB is not on this network; see [Network Security](security.md#internal-docker-network).
 
 ## Audio Files (Git LFS)
 

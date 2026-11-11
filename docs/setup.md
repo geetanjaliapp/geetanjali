@@ -70,10 +70,10 @@ npm run dev
 
 ### Dependencies
 
-Start PostgreSQL, Redis, ChromaDB, and Ollama locally, or use Docker:
+Start PostgreSQL, Redis and Ollama locally, or use Docker (the backend keeps its own local ChromaDB store when `CHROMA_HOST` is unset):
 
 ```bash
-docker compose up -d postgres redis chromadb ollama
+docker compose up -d postgres redis ollama
 
 # Pull LLM model
 docker exec geetanjali-ollama ollama pull qwen2.5:3b

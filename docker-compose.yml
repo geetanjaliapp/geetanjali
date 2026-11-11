@@ -129,7 +129,7 @@ services:
       dockerfile: Dockerfile
     image: geetanjali-chromadb:latest
     container_name: geetanjali-chromadb
-    # No external port - only accessible within Docker network
+    # No published port; on chroma-internal only
     volumes:
       - chroma_data:/chroma/chroma
     environment:
@@ -150,7 +150,7 @@ services:
         reservations:
           memory: 512M
     networks:
-      - geetanjali-network
+      - chroma-internal
     restart: unless-stopped
 
   # Backend API (Python/FastAPI)
@@ -209,6 +209,7 @@ services:
         condition: service_healthy
     networks:
       - geetanjali-network
+      - chroma-internal
     restart: unless-stopped
 
   # RQ Worker (optional - processes background analysis jobs)
@@ -270,6 +271,7 @@ services:
         condition: service_healthy
     networks:
       - geetanjali-network
+      - chroma-internal
     restart: unless-stopped
 
   # Frontend (React/Vite)
@@ -331,3 +333,7 @@ volumes:
 networks:
   geetanjali-network:
     driver: bridge
+  # Only chroma and the services that query it; chroma has no auth (requirements.txt, chromadb note)
+  chroma-internal:
+    driver: bridge
+    internal: true

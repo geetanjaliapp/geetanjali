@@ -166,7 +166,9 @@ Docker is configured to prevent log files from consuming disk space:
 
 ### Internal Docker Network
 
-All services communicate via an internal Docker bridge network (`geetanjali-network`). External ports are exposed only for:
+Services communicate over a Docker bridge network (`geetanjali-network`). ChromaDB runs without authentication, so it sits on a second network, `chroma-internal` (`internal: true`). The backend joins it in `docker-compose.yml` and `docker-compose.budget.yml`; the worker joins it in `docker-compose.yml` only. In the budget deployment the worker searches through the backend's `/internal/search`. ChromaDB is not on `geetanjali-network`, so nginx, Prometheus and Grafana cannot resolve it.
+
+External ports are exposed only for:
 - Port 80/443 (frontend nginx)
 
 **No external port exposure for:**

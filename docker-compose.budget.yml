@@ -154,7 +154,7 @@ services:
       retries: 3
       start_period: 60s
     networks:
-      - geetanjali-network
+      - chroma-internal
     restart: unless-stopped
 
   # Backend API (640MB limit — v1.37.0: owns embedding model ~400MB + FastAPI)
@@ -230,6 +230,7 @@ services:
         condition: service_healthy
     networks:
       - geetanjali-network
+      - chroma-internal
     restart: unless-stopped
 
   # RQ Worker (256MB limit — increased from 192MB to prevent OOM during newsletter batches)
@@ -248,8 +249,6 @@ services:
       - .env
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-geetanjali}:${POSTGRES_PASSWORD:-geetanjali_dev_pass}@postgres:5432/${POSTGRES_DB:-geetanjali}
-      CHROMA_HOST: chromadb
-      CHROMA_PORT: 8000
       REDIS_URL: redis://:${REDIS_PASSWORD:-redis_dev_pass}@redis:6379/0
       SKIP_DB_INIT: "true"
       PGHOST: postgres
@@ -374,3 +373,7 @@ volumes:
 networks:
   geetanjali-network:
     driver: bridge
+  # Only chroma and the backend; chroma has no auth (requirements.txt, chromadb note)
+  chroma-internal:
+    driver: bridge
+    internal: true

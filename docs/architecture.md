@@ -55,6 +55,8 @@ User Query → Embedding → Vector Search → LLM Generation → Structured Out
 └──────────────────────────────────────────────────────────────┘
 ```
 
+ChromaDB sits on its own internal network; see [Network Security](security.md#internal-docker-network).
+
 | Component | Purpose |
 |-----------|---------|
 | Frontend | React SPA for users; static HTML pages served to search engine bots |
