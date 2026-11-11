@@ -58,6 +58,26 @@ def shutdown_api_server() -> None:
         _api_server = None
 
 
+def vector_source_error() -> str | None:
+    """Why this worker has no vector search source configured, or None.
+
+    Never builds VectorStore(): it loads the embedding model, which the 256M prod worker cannot
+    hold. Without CHROMA_HOST the local chroma client is ephemeral and empty, so searches return
+    nothing instead of failing.
+    """
+    if settings.USE_REMOTE_VECTOR_SEARCH:
+        from services.remote_vector_search import get_remote_vector_search
+
+        try:
+            get_remote_vector_search()
+        except ValueError as e:
+            return str(e)
+        return None
+    if not settings.CHROMA_HOST:
+        return "USE_REMOTE_VECTOR_SEARCH is false and CHROMA_HOST is unset"
+    return None
+
+
 def run_worker():
     """Run the RQ worker."""
     if not settings.REDIS_URL:
@@ -66,6 +86,11 @@ def run_worker():
 
     if not settings.RQ_ENABLED:
         logger.error("RQ_ENABLED is False, worker not needed")
+        sys.exit(1)
+
+    reason = vector_source_error()
+    if reason:
+        logger.error(f"Worker has no vector source: {reason}")
         sys.exit(1)
 
     # Start the FastAPI server for health checks and metrics
