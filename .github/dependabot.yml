@@ -19,6 +19,16 @@ updates:
       # bcrypt 5.0.0 is incompatible with passlib 1.7.4 (requirements.txt:63).
       - dependency-name: "bcrypt"
         update-types: ["version-update:semver-major"]
+      # google-genai pins tenacity<9.2, which makes the python-minor group unresolvable.
+      # Lift when google-genai goes.
+      - dependency-name: "tenacity"
+        versions: [">=9.2.0"]
+      # Majors ship alone, one per release. These ignores also block security PRs, so each is
+      # dated and none covers a package whose open alert needs a major. Review 2027-01-15.
+      - dependency-name: "redis"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "anthropic"
+        update-types: ["version-update:semver-major"]
     groups:
       python-minor:
         patterns:
@@ -47,6 +57,19 @@ updates:
       # Lift when typescript-eslint widens its peer range.
       - dependency-name: "typescript"
         versions: [">=7"]
+      # Majors ship alone, one per release; vite + plugin-react and vitest + coverage-v8 move as
+      # pairs. These ignores also block security PRs: none covers a package whose open alert needs
+      # a major (happy-dom is left out for that reason). Review 2027-01-15.
+      - dependency-name: "vite"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@vitejs/plugin-react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "vitest"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@vitest/coverage-v8"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@sentry/react"
+        update-types: ["version-update:semver-major"]
     groups:
       npm-minor:
         patterns:
