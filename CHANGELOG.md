@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- Frontend dev-dependency advisories fixed within range (follow-redirects, vite, vitest, esbuild).
+
+### Removed
+
+- The unused manual Docker build workflow.
+
 ## [v1.42.5] - 2026-11-08
 
 ### Fixed
