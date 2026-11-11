@@ -7,9 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v1.42.6] - 2026-11-12
+
 ### Security
 
+- Chroma on its own internal network, reachable only from the services that query it.
 - Frontend dev-dependency advisories fixed within range (follow-redirects, vite, vitest, esbuild).
+
+### Added
+
+- The worker refuses to start when no vector search source is configured.
+
+### Changed
+
+- Dev: drop the chromadb `ports` entry from your `docker-compose.override.yml`; `docker compose up -d` applies the network.
 
 ### Removed
 
@@ -505,7 +516,8 @@ See git history for earlier version details.
 
 ---
 
-[Unreleased]: https://github.com/geetanjaliapp/geetanjali/compare/v1.42.5...main
+[Unreleased]: https://github.com/geetanjaliapp/geetanjali/compare/v1.42.6...main
+[v1.42.6]: https://github.com/geetanjaliapp/geetanjali/compare/v1.42.5...v1.42.6
 [v1.42.5]: https://github.com/geetanjaliapp/geetanjali/compare/v1.42.4...v1.42.5
 [v1.42.4]: https://github.com/geetanjaliapp/geetanjali/compare/v1.42.3...v1.42.4
 [v1.42.3]: https://github.com/geetanjaliapp/geetanjali/compare/v1.42.2...v1.42.3
