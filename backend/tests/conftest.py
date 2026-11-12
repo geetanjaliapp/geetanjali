@@ -31,7 +31,7 @@ os.environ["DAILY_CONSULT_LIMIT_ENABLED"] = "false"  # Disable daily cap for tes
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, make_url
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
@@ -74,6 +74,15 @@ from models.user_preferences import UserPreferences  # noqa: F401
 # If DATABASE_URL is set (CI environment), use PostgreSQL
 DATABASE_URL = os.environ.get("DATABASE_URL")
 if DATABASE_URL:
+    # db_session drops every table, so a non-test database is refused
+    _db_name = make_url(DATABASE_URL).database or ""
+    if not _db_name.endswith("_test"):
+        pytest.exit(
+            f"DATABASE_URL names database '{_db_name}'; tests drop every table, so they run "
+            "only on a database named *_test (CI and docker-compose.test.yml use "
+            "geetanjali_test). Unset DATABASE_URL for in-memory SQLite.",
+            returncode=4,
+        )
     # CI mode: use PostgreSQL
     TEST_DATABASE_URL = DATABASE_URL
     engine = create_engine(TEST_DATABASE_URL)
