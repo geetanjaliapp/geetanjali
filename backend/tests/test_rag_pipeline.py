@@ -222,7 +222,7 @@ class TestAnchorVerseInjection:
             captured_verses.extend(verses)
             return "mock prompt"
 
-        pipeline.construct_context.side_effect = capture_verses
+        pipeline.construct_context = MagicMock(side_effect=capture_verses)
         pipeline.generate_brief = MagicMock(return_value=(
             {"sources": [], "confidence": 0.8}, False,
         ))
