@@ -62,10 +62,9 @@ def pytest_configure(config):
     )
 
 
-# Skip marker for PostgreSQL-only tests (JSONB, etc.)
 requires_postgresql = pytest.mark.skipif(
-    True,  # Always skip in test suite using SQLite
-    reason="Test requires PostgreSQL JSONB features (SQLite used in CI)",
+    not os.environ.get("DATABASE_URL", "").startswith("postgresql"),
+    reason="needs PostgreSQL (set DATABASE_URL; CI does)",
 )
 
 
