@@ -1,22 +1,14 @@
 """Pytest configuration and fixtures.
 
-Test markers:
-- @pytest.mark.unit: Fast isolated tests, no DB/external services
-- @pytest.mark.integration: Tests requiring DB or service mocks
-- @pytest.mark.slow: Long-running tests (skipped in quick CI)
-- @pytest.mark.e2e: End-to-end tests (skipped in CI by default)
-
-Usage:
-    pytest -m "unit"                    # Run only unit tests
-    pytest -m "not slow"                # Skip slow tests
-    pytest -m "unit or integration"     # Run unit and integration
+CI runs every test not marked slow or e2e. Markers are registered in pyproject.toml
+(--strict-markers): unit and integration select nothing in CI, but `unit` turns off mock_cache.
 
 Organization:
-    1. Environment & Configuration (lines ~15-80)
-    2. Database Infrastructure (lines ~85-165)
-    3. Core Fixtures: db_session, client (lines ~170-230)
-    4. Auto-Mock Fixtures: cache, tasks, email (lines ~235-265)
-    5. Domain Fixtures: seeded_principles, case_with_output (lines ~270-385)
+    1. Environment & Configuration
+    2. Database Infrastructure
+    3. Core Fixtures: db_session, mock_cache, client
+    4. Auto-Mock Fixtures: startup sync, tasks, email
+    5. Domain Fixtures: seeded_principles, case_with_output
 """
 
 # =============================================================================
@@ -39,33 +31,16 @@ os.environ["DAILY_CONSULT_LIMIT_ENABLED"] = "false"  # Disable daily cap for tes
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, make_url
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from db import get_db
 from main import app
 
-
-def pytest_configure(config):
-    """Register custom markers."""
-    config.addinivalue_line("markers", "unit: Fast isolated tests, no DB required")
-    config.addinivalue_line(
-        "markers", "integration: Tests requiring DB or external services"
-    )
-    config.addinivalue_line("markers", "slow: Long-running tests (skipped in quick CI)")
-    config.addinivalue_line(
-        "markers", "e2e: End-to-end tests (skipped in CI by default)"
-    )
-    config.addinivalue_line(
-        "markers", "postgresql: Tests requiring PostgreSQL features (skipped on SQLite)"
-    )
-
-
-# Skip marker for PostgreSQL-only tests (JSONB, etc.)
 requires_postgresql = pytest.mark.skipif(
-    True,  # Always skip in test suite using SQLite
-    reason="Test requires PostgreSQL JSONB features (SQLite used in CI)",
+    not os.environ.get("DATABASE_URL", "").startswith("postgresql"),
+    reason="needs PostgreSQL (set DATABASE_URL; CI does)",
 )
 
 
@@ -99,6 +74,15 @@ from models.user_preferences import UserPreferences  # noqa: F401
 # If DATABASE_URL is set (CI environment), use PostgreSQL
 DATABASE_URL = os.environ.get("DATABASE_URL")
 if DATABASE_URL:
+    # db_session drops every table, so a non-test database is refused
+    _db_name = make_url(DATABASE_URL).database or ""
+    if not _db_name.endswith("_test"):
+        pytest.exit(
+            f"DATABASE_URL names database '{_db_name}'; tests drop every table, so they run "
+            "only on a database named *_test (CI and docker-compose.test.yml use "
+            "geetanjali_test). Unset DATABASE_URL for in-memory SQLite.",
+            returncode=4,
+        )
     # CI mode: use PostgreSQL
     TEST_DATABASE_URL = DATABASE_URL
     engine = create_engine(TEST_DATABASE_URL)
@@ -248,6 +232,14 @@ def client(db_session):
 # =============================================================================
 # Section 4: Auto-Mock Fixtures
 # =============================================================================
+
+
+@pytest.fixture(autouse=True)
+def no_startup_sync():
+    """The lifespan's content sync writes through the app's own session, which on Postgres is
+    the test database: its seeded rows collide with each test's own."""
+    with patch("main._sync_curated_content"):
+        yield
 
 
 @pytest.fixture(autouse=True)

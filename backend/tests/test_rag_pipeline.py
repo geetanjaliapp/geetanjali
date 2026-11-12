@@ -6,6 +6,14 @@ import pytest
 
 from services.rag.pipeline import RAGPipeline
 
+# Every critical field set: with fallback off, run() re-asks and then raises on an empty one
+USABLE_BRIEF = {
+    "executive_summary": "s",
+    "options": [{"title": "a"}],
+    "recommended_action": {"option": 1},
+    "sources": [],
+    "confidence": 0.8,
+}
 
 @pytest.fixture
 def mock_repo():
@@ -70,6 +78,8 @@ def mock_retrieved_verses():
     ]
 
 
+# Fallback off as in prod; the config default (on) skips run()'s unusable-output check
+@patch("services.rag.pipeline.settings.LLM_FALLBACK_ENABLED", False)
 class TestAnchorVerseInjection:
     """Anchor verse prepended at position 0 after enrichment."""
 
@@ -83,17 +93,21 @@ class TestAnchorVerseInjection:
         mock_session_local.return_value.__enter__.return_value = MagicMock()
         mock_session_local.return_value.__exit__.return_value = None
 
-        pipeline = RAGPipeline()
+        pipeline = RAGPipeline.__new__(RAGPipeline)  # skip embedder init
         pipeline.retrieve_verses = MagicMock(return_value=[
             v for v in mock_retrieved_verses if v["canonical_id"] != "BG_2_47"
         ])
         pipeline.enrich_verses_with_translations = MagicMock(
             return_value=[v for v in mock_retrieved_verses if v["canonical_id"] != "BG_2_47"]
         )
-        pipeline.construct_context = MagicMock(return_value="mock prompt")
-        pipeline.generate_brief = MagicMock(return_value=(
-            {"sources": [], "confidence": 0.8}, False,
-        ))
+        captured_verses = []
+
+        def capture_verses(case_data, verses):
+            captured_verses.extend(verses)
+            return "mock prompt"
+
+        pipeline.construct_context = MagicMock(side_effect=capture_verses)
+        pipeline.generate_brief = MagicMock(return_value=(dict(USABLE_BRIEF), False))
         pipeline.validate_output = MagicMock(return_value={
             "sources": [],
             "confidence": 0.8,
@@ -110,8 +124,11 @@ class TestAnchorVerseInjection:
         result, is_policy_violation = pipeline.run(case_data)
 
         assert not is_policy_violation
-        # Anchor verse was fetched and injected
         mock_repo.get_by_canonical_id.assert_called_once_with("BG_2_47")
+        anchor = captured_verses[0]
+        assert anchor["canonical_id"] == "BG_2_47"
+        assert anchor["relevance"] == 1.0
+        assert anchor["is_anchor"] is True
 
     @patch("services.rag.pipeline.SessionLocal")
     @patch("services.rag.pipeline.VerseRepository")
@@ -123,7 +140,7 @@ class TestAnchorVerseInjection:
         mock_session_local.return_value.__enter__.return_value = MagicMock()
         mock_session_local.return_value.__exit__.return_value = None
 
-        pipeline = RAGPipeline()
+        pipeline = RAGPipeline.__new__(RAGPipeline)  # skip embedder init
 
         # retrieve_verses returns all 4 including BG_2_47 (duplicate)
         pipeline.retrieve_verses = MagicMock(return_value=mock_retrieved_verses)
@@ -140,9 +157,7 @@ class TestAnchorVerseInjection:
             return "mock prompt"
 
         pipeline.construct_context.side_effect = capture_verses
-        pipeline.generate_brief = MagicMock(return_value=(
-            {"sources": [], "confidence": 0.8}, False,
-        ))
+        pipeline.generate_brief = MagicMock(return_value=(dict(USABLE_BRIEF), False))
         pipeline.validate_output = MagicMock(return_value={
             "sources": [],
             "confidence": 0.8,
@@ -174,15 +189,13 @@ class TestAnchorVerseInjection:
         mock_session_local.return_value.__enter__.return_value = MagicMock()
         mock_session_local.return_value.__exit__.return_value = None
 
-        pipeline = RAGPipeline()
+        pipeline = RAGPipeline.__new__(RAGPipeline)  # skip embedder init
         pipeline.retrieve_verses = MagicMock(return_value=mock_retrieved_verses[:3])
         pipeline.enrich_verses_with_translations = MagicMock(
             return_value=mock_retrieved_verses[:3]
         )
         pipeline.construct_context = MagicMock(return_value="mock prompt")
-        pipeline.generate_brief = MagicMock(return_value=(
-            {"sources": [], "confidence": 0.8}, False,
-        ))
+        pipeline.generate_brief = MagicMock(return_value=(dict(USABLE_BRIEF), False))
         pipeline.validate_output = MagicMock(return_value={
             "sources": [],
             "confidence": 0.8,
@@ -210,7 +223,7 @@ class TestAnchorVerseInjection:
         mock_session_local.return_value.__enter__.return_value = MagicMock()
         mock_session_local.return_value.__exit__.return_value = None
 
-        pipeline = RAGPipeline()
+        pipeline = RAGPipeline.__new__(RAGPipeline)  # skip embedder init
         pipeline.retrieve_verses = MagicMock(return_value=mock_retrieved_verses)
         pipeline.enrich_verses_with_translations = MagicMock(
             return_value=mock_retrieved_verses
@@ -222,10 +235,8 @@ class TestAnchorVerseInjection:
             captured_verses.extend(verses)
             return "mock prompt"
 
-        pipeline.construct_context.side_effect = capture_verses
-        pipeline.generate_brief = MagicMock(return_value=(
-            {"sources": [], "confidence": 0.8}, False,
-        ))
+        pipeline.construct_context = MagicMock(side_effect=capture_verses)
+        pipeline.generate_brief = MagicMock(return_value=(dict(USABLE_BRIEF), False))
         pipeline.validate_output = MagicMock(return_value={
             "sources": [],
             "confidence": 0.8,

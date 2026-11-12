@@ -10,6 +10,7 @@ from unittest.mock import patch
 
 import pytest
 
+from config import settings
 from models import DhyanamVerse, Verse
 
 
@@ -150,7 +151,7 @@ class TestSyncDhyanam:
     @pytest.fixture
     def admin_headers(self):
         """Headers with valid admin API key."""
-        return {"X-API-Key": "dev-api-key-12345"}
+        return {"X-API-Key": settings.API_KEY}
 
     def test_sync_dhyanam_creates_verses(self, client, db_session, admin_headers):
         """Sync creates all 9 dhyanam verses from source."""

@@ -513,8 +513,8 @@ class TestCascadeDelete:
         db_session.add(consultation)
         db_session.commit()
 
-        # Delete case
-        db_session.delete(case)
+        # SQL DELETE, as the app does: the ORM would null case_id before the DB cascade runs
+        db_session.query(Case).filter(Case.id == case_id).delete()
         db_session.commit()
 
         # Verify consultation is deleted

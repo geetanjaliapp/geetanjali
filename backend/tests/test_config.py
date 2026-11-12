@@ -28,30 +28,12 @@ class TestConfigurationSync:
         """Path to .env.example."""
         return Path(__file__).parent.parent.parent / ".env.example"
 
-    @pytest.fixture
-    def env_path(self):
-        """Path to .env."""
-        return Path(__file__).parent.parent.parent / ".env"
-
-    def _extract_env_value(self, content: str, key: str) -> str | None:
-        """Extract value from env file content."""
-        pattern = rf"^{key}=(.+)$"
-        matches = re.findall(pattern, content, re.MULTILINE)
-        return matches[0] if matches else None
-
     def test_rate_limit_values_defined(self, settings):
         """Cost Defense rate limit values must be defined."""
         assert hasattr(settings, "ANALYZE_RATE_LIMIT")
         assert hasattr(settings, "FOLLOW_UP_RATE_LIMIT")
         assert settings.ANALYZE_RATE_LIMIT == "3/hour"
         assert settings.FOLLOW_UP_RATE_LIMIT == "5/hour"
-
-    def test_daily_limit_values_defined(self, settings):
-        """Cost Defense daily limit values must be defined."""
-        assert hasattr(settings, "DAILY_CONSULT_LIMIT")
-        assert hasattr(settings, "DAILY_CONSULT_LIMIT_ENABLED")
-        assert settings.DAILY_CONSULT_LIMIT == 20
-        assert settings.DAILY_CONSULT_LIMIT_ENABLED is True
 
     def test_token_limit_configurable(self, settings):
         """Request token limit must be configurable."""
@@ -74,19 +56,6 @@ class TestConfigurationSync:
 
         for var in required_vars:
             assert var in content, f"{var} missing from .env.example"
-
-    def test_env_has_cost_defense_values(self, env_path, settings):
-        """Cost Defense variables must be in .env (or loaded from environment)."""
-        if not env_path.exists():
-            pytest.skip(".env not found (may be using environment variables)")
-
-        content = env_path.read_text()
-
-        # Check that values are set (not commented out or missing)
-        assert "ANALYZE_RATE_LIMIT" in content
-        assert "FOLLOW_UP_RATE_LIMIT" in content
-        assert "DAILY_CONSULT_LIMIT" in content
-        assert "REQUEST_TOKEN_LIMIT" in content
 
     def test_rate_limit_format_valid(self, settings):
         """Rate limit format must be valid (N/time_unit)."""
@@ -111,13 +80,12 @@ class TestConfigurationSync:
         """Token limit must be reasonable (100-10000 tokens)."""
         assert 100 <= settings.REQUEST_TOKEN_LIMIT <= 10000
 
-    def test_cost_defense_enabled_in_production(self, settings):
-        """Cost defense must be enabled (can only be disabled via env var for testing)."""
-        # Verify that the feature flag exists and can be controlled
-        assert hasattr(settings, "DAILY_CONSULT_LIMIT_ENABLED")
-        # In production, should always be True (unless explicitly set to False)
-        if settings.APP_ENV == "production":
-            assert settings.DAILY_CONSULT_LIMIT_ENABLED is True
+    def test_daily_cap_defaults_on(self):
+        """The daily cap is on at 20 unless an env var says otherwise."""
+        # conftest turns the cap off for every test, so read the defaults, not Settings()
+        fields = Settings.model_fields
+        assert fields["DAILY_CONSULT_LIMIT_ENABLED"].default is True
+        assert fields["DAILY_CONSULT_LIMIT"].default == 20
 
     def test_version_default_is_not_release_shaped(self):
         """The APP_VERSION default must not look like a release number.

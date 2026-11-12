@@ -3,12 +3,14 @@
 Critical paths:
 - Contact form submission (success case)
 - Content validation (rejection of spam/gibberish)
-- CRLF injection prevention
+- Line breaks folded out of email-header fields
 """
 
 from unittest.mock import patch
 
 import pytest
+
+from api.contact import ContactRequest
 
 
 @pytest.fixture(autouse=True)
@@ -125,48 +127,22 @@ class TestContactContentValidation:
 
 
 class TestContactCRLFPrevention:
-    """Test CRLF injection prevention in email headers.
+    """`name` and `subject` go into the email subject line. SafeName/SafeTitle fold every
+    whitespace run, line breaks included, into one space: that fold is the only guard."""
 
-    CRLF injection is prevented via Pydantic's strip_whitespace=True which
-    normalizes newlines to spaces. This sanitization approach is valid because:
-    1. The malicious payload is neutralized (newlines removed)
-    2. The request succeeds with clean data
-    3. No email header injection is possible
-    """
-
-    def test_newline_in_name_sanitized(self, client, db_session):
-        """Name field newlines are sanitized to spaces."""
-        with patch("api.contact.send_contact_email") as mock_send:
-            mock_send.return_value = True
-            response = client.post(
-                "/api/v1/contact",
-                json={
-                    "name": "User\nBcc: attacker@evil.com",
-                    "email": "user@example.com",
-                    "message": "This is a valid message content for the form.",
-                },
-            )
-        # Request succeeds but newlines are sanitized
-        assert response.status_code == 200
-        # Verify the call was made (with sanitized name)
-        assert mock_send.called
-
-    def test_carriage_return_in_subject_sanitized(self, client, db_session):
-        """Subject field carriage returns are sanitized to spaces."""
-        with patch("api.contact.send_contact_email") as mock_send:
-            mock_send.return_value = True
-            response = client.post(
-                "/api/v1/contact",
-                json={
-                    "name": "User",
-                    "email": "user@example.com",
-                    "subject": "Subject\r\nBcc: attacker@evil.com",
-                    "message": "This is a valid message content for the form.",
-                },
-            )
-        # Request succeeds but newlines are sanitized
-        assert response.status_code == 200
-        assert mock_send.called
+    @pytest.mark.parametrize("field", ["name", "subject"])
+    @pytest.mark.parametrize(
+        "brk",
+        ["\n", "\r", "\r\n", "\x0b", "\x0c", "\x1c", "\x1d", "\x1e", "\x85", "\u2028", "\u2029"],
+    )
+    def test_line_breaks_fold_to_a_space(self, field, brk):
+        data = {
+            "name": "User",
+            "email": "user@example.com",
+            "message": "This is a valid message content for the form.",
+            field: f"User{brk}Bcc: attacker@evil.com",
+        }
+        assert getattr(ContactRequest(**data), field) == "User Bcc: attacker@evil.com"
 
 
 class TestContactMessageTypes:

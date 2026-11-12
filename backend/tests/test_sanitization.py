@@ -4,7 +4,7 @@ These tests verify XSS prevention through input sanitization.
 """
 
 import pytest
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel, ValidationError, create_model
 
 from utils.sanitization import (
     SafeMediumText,
@@ -146,6 +146,15 @@ class TestSanitizeDangerous:
         """Unclosed dangerous tags are removed."""
         result = sanitize_dangerous("<script>safe")
         assert "script" not in result.lower()
+
+
+@pytest.mark.parametrize("safe_type", [SafeName, SafeText])
+@pytest.mark.parametrize("raw", [b"<script>x</script>", bytearray(b"<script>x</script>")])
+def test_bytes_are_refused_not_passed_through(safe_type, raw):
+    """Lax mode would decode bytes into the str field after the helper ran, unsanitised."""
+    model = create_model("Model", value=(safe_type, ...))
+    with pytest.raises((TypeError, ValidationError)):
+        model(value=raw)
 
 
 class TestSafeNameType:
