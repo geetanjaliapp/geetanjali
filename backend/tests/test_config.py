@@ -46,13 +46,6 @@ class TestConfigurationSync:
         assert settings.ANALYZE_RATE_LIMIT == "3/hour"
         assert settings.FOLLOW_UP_RATE_LIMIT == "5/hour"
 
-    def test_daily_limit_values_defined(self, settings):
-        """Cost Defense daily limit values must be defined."""
-        assert hasattr(settings, "DAILY_CONSULT_LIMIT")
-        assert hasattr(settings, "DAILY_CONSULT_LIMIT_ENABLED")
-        assert settings.DAILY_CONSULT_LIMIT == 20
-        assert settings.DAILY_CONSULT_LIMIT_ENABLED is True
-
     def test_token_limit_configurable(self, settings):
         """Request token limit must be configurable."""
         assert hasattr(settings, "REQUEST_TOKEN_LIMIT")

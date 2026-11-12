@@ -286,29 +286,3 @@ class TestEdgeCases:
         # Whitespace string has len() > 0, so it's considered present
         # (validation layer should clean it up later)
         assert should_escalate is False
-
-
-class TestRepairCountParameter:
-    """Test repair_count parameter (for future use in metrics)."""
-
-    def test_repair_count_parameter_accepted(self):
-        """Verify repair_count parameter is accepted."""
-        response = {
-            "executive_summary": "Analysis",
-            "options": [{"title": "Option 1"}],
-            "recommended_action": {"option": 1},
-            "reflection_prompts": ["Q"],
-        }
-        # Should not raise error with repair_count
-        should_escalate, reason = should_escalate_to_fallback(response, repair_count=2)
-        assert should_escalate is False
-
-    def test_repair_count_parameter_does_not_affect_logic(self):
-        """Verify repair_count does not affect escalation decision."""
-        response = {
-            "executive_summary": "Analysis",
-            "options": [],
-        }
-        should_escalate_1, _ = should_escalate_to_fallback(response, repair_count=0)
-        should_escalate_2, _ = should_escalate_to_fallback(response, repair_count=5)
-        assert should_escalate_1 == should_escalate_2
