@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v1.42.7] - 2026-11-12
+
+### Added
+
+- A helpline note under the consultation and follow-up inputs.
+
+### Changed
+
+- The consultation form says questions are stored as well as analyzed.
+
 ## [v1.42.6] - 2026-11-12
 
 ### Security
@@ -516,7 +526,8 @@ See git history for earlier version details.
 
 ---
 
-[Unreleased]: https://github.com/geetanjaliapp/geetanjali/compare/v1.42.6...main
+[Unreleased]: https://github.com/geetanjaliapp/geetanjali/compare/v1.42.7...main
+[v1.42.7]: https://github.com/geetanjaliapp/geetanjali/compare/v1.42.6...v1.42.7
 [v1.42.6]: https://github.com/geetanjaliapp/geetanjali/compare/v1.42.5...v1.42.6
 [v1.42.5]: https://github.com/geetanjaliapp/geetanjali/compare/v1.42.4...v1.42.5
 [v1.42.4]: https://github.com/geetanjaliapp/geetanjali/compare/v1.42.3...v1.42.4
