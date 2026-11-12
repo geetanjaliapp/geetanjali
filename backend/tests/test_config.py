@@ -104,13 +104,12 @@ class TestConfigurationSync:
         """Token limit must be reasonable (100-10000 tokens)."""
         assert 100 <= settings.REQUEST_TOKEN_LIMIT <= 10000
 
-    def test_cost_defense_enabled_in_production(self, settings):
-        """Cost defense must be enabled (can only be disabled via env var for testing)."""
-        # Verify that the feature flag exists and can be controlled
-        assert hasattr(settings, "DAILY_CONSULT_LIMIT_ENABLED")
-        # In production, should always be True (unless explicitly set to False)
-        if settings.APP_ENV == "production":
-            assert settings.DAILY_CONSULT_LIMIT_ENABLED is True
+    def test_daily_cap_defaults_on(self):
+        """The daily cap is on at 20 unless an env var says otherwise."""
+        # conftest turns the cap off for every test, so read the defaults, not Settings()
+        fields = Settings.model_fields
+        assert fields["DAILY_CONSULT_LIMIT_ENABLED"].default is True
+        assert fields["DAILY_CONSULT_LIMIT"].default == 20
 
     def test_version_default_is_not_release_shaped(self):
         """The APP_VERSION default must not look like a release number.
