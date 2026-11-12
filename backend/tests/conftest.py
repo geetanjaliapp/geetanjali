@@ -181,6 +181,14 @@ def db_session():
         Base.metadata.drop_all(bind=engine)
 
 
+@pytest.fixture(autouse=True)
+def no_startup_sync():
+    """The lifespan's content sync writes through the app's own session, which on Postgres is
+    the test database: its seeded rows collide with each test's own."""
+    with patch("main._sync_curated_content"):
+        yield
+
+
 @pytest.fixture(scope="function", autouse=True)
 def mock_cache(request):
     """Patch the cache service to use in-memory cache during integration tests.
