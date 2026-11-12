@@ -1,15 +1,7 @@
 """Pytest configuration and fixtures.
 
-Test markers:
-- @pytest.mark.unit: Fast isolated tests, no DB/external services
-- @pytest.mark.integration: Tests requiring DB or service mocks
-- @pytest.mark.slow: Long-running tests (skipped in quick CI)
-- @pytest.mark.e2e: End-to-end tests (skipped in CI by default)
-
-Usage:
-    pytest -m "unit"                    # Run only unit tests
-    pytest -m "not slow"                # Skip slow tests
-    pytest -m "unit or integration"     # Run unit and integration
+CI runs every test not marked slow or e2e. Markers are registered in pyproject.toml
+(--strict-markers): unit and integration are labels and select nothing in CI.
 
 Organization:
     1. Environment & Configuration (lines ~15-80)
@@ -45,22 +37,6 @@ from sqlalchemy.pool import StaticPool
 
 from db import get_db
 from main import app
-
-
-def pytest_configure(config):
-    """Register custom markers."""
-    config.addinivalue_line("markers", "unit: Fast isolated tests, no DB required")
-    config.addinivalue_line(
-        "markers", "integration: Tests requiring DB or external services"
-    )
-    config.addinivalue_line("markers", "slow: Long-running tests (skipped in quick CI)")
-    config.addinivalue_line(
-        "markers", "e2e: End-to-end tests (skipped in CI by default)"
-    )
-    config.addinivalue_line(
-        "markers", "postgresql: Tests requiring PostgreSQL features (skipped on SQLite)"
-    )
-
 
 requires_postgresql = pytest.mark.skipif(
     not os.environ.get("DATABASE_URL", "").startswith("postgresql"),

@@ -106,14 +106,14 @@ jobs:
           DATABASE_URL: postgresql://test:test@localhost:5432/geetanjali_test
         run: alembic upgrade head
 
-      - name: Run tests (unit + integration)
+      - name: Run tests (all but slow and e2e)
         env:
           DATABASE_URL: postgresql://test:test@localhost:5432/geetanjali_test
           JWT_SECRET: test-secret-key-for-ci
           API_KEY: test-api-key-for-ci
           DEBUG: "true"
           APP_ENV: test
-        run: pytest -m "unit or integration" --cov=. --cov-report=xml -v
+        run: pytest -m "not slow and not e2e" --cov=. --cov-report=xml -v
 
   # Static analysis. Dependency CVEs are audited in the backend job against the installed env.
   security:

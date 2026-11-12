@@ -44,7 +44,7 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
-addopts = "-v --cov=. --cov-report=term-missing --cov-report=html"
+addopts = "-v --strict-markers --cov=. --cov-report=term-missing --cov-report=html"
 asyncio_mode = "strict"
 markers = [
     "unit: Fast isolated tests, no DB required",
