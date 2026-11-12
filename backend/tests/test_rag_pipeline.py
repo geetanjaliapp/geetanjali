@@ -78,6 +78,8 @@ def mock_retrieved_verses():
     ]
 
 
+# Fallback off as in prod; the config default (on) skips run()'s unusable-output check
+@patch("services.rag.pipeline.settings.LLM_FALLBACK_ENABLED", False)
 class TestAnchorVerseInjection:
     """Anchor verse prepended at position 0 after enrichment."""
 
