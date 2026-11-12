@@ -83,7 +83,7 @@ class TestAnchorVerseInjection:
         mock_session_local.return_value.__enter__.return_value = MagicMock()
         mock_session_local.return_value.__exit__.return_value = None
 
-        pipeline = RAGPipeline()
+        pipeline = RAGPipeline.__new__(RAGPipeline)  # skip embedder init
         pipeline.retrieve_verses = MagicMock(return_value=[
             v for v in mock_retrieved_verses if v["canonical_id"] != "BG_2_47"
         ])
@@ -123,7 +123,7 @@ class TestAnchorVerseInjection:
         mock_session_local.return_value.__enter__.return_value = MagicMock()
         mock_session_local.return_value.__exit__.return_value = None
 
-        pipeline = RAGPipeline()
+        pipeline = RAGPipeline.__new__(RAGPipeline)  # skip embedder init
 
         # retrieve_verses returns all 4 including BG_2_47 (duplicate)
         pipeline.retrieve_verses = MagicMock(return_value=mock_retrieved_verses)
@@ -174,7 +174,7 @@ class TestAnchorVerseInjection:
         mock_session_local.return_value.__enter__.return_value = MagicMock()
         mock_session_local.return_value.__exit__.return_value = None
 
-        pipeline = RAGPipeline()
+        pipeline = RAGPipeline.__new__(RAGPipeline)  # skip embedder init
         pipeline.retrieve_verses = MagicMock(return_value=mock_retrieved_verses[:3])
         pipeline.enrich_verses_with_translations = MagicMock(
             return_value=mock_retrieved_verses[:3]
@@ -210,7 +210,7 @@ class TestAnchorVerseInjection:
         mock_session_local.return_value.__enter__.return_value = MagicMock()
         mock_session_local.return_value.__exit__.return_value = None
 
-        pipeline = RAGPipeline()
+        pipeline = RAGPipeline.__new__(RAGPipeline)  # skip embedder init
         pipeline.retrieve_verses = MagicMock(return_value=mock_retrieved_verses)
         pipeline.enrich_verses_with_translations = MagicMock(
             return_value=mock_retrieved_verses
