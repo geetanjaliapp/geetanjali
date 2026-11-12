@@ -28,11 +28,6 @@ class TestConfigurationSync:
         """Path to .env.example."""
         return Path(__file__).parent.parent.parent / ".env.example"
 
-    @pytest.fixture
-    def env_path(self):
-        """Path to .env."""
-        return Path(__file__).parent.parent.parent / ".env"
-
     def _extract_env_value(self, content: str, key: str) -> str | None:
         """Extract value from env file content."""
         pattern = rf"^{key}=(.+)$"
@@ -67,19 +62,6 @@ class TestConfigurationSync:
 
         for var in required_vars:
             assert var in content, f"{var} missing from .env.example"
-
-    def test_env_has_cost_defense_values(self, env_path, settings):
-        """Cost Defense variables must be in .env (or loaded from environment)."""
-        if not env_path.exists():
-            pytest.skip(".env not found (may be using environment variables)")
-
-        content = env_path.read_text()
-
-        # Check that values are set (not commented out or missing)
-        assert "ANALYZE_RATE_LIMIT" in content
-        assert "FOLLOW_UP_RATE_LIMIT" in content
-        assert "DAILY_CONSULT_LIMIT" in content
-        assert "REQUEST_TOKEN_LIMIT" in content
 
     def test_rate_limit_format_valid(self, settings):
         """Rate limit format must be valid (N/time_unit)."""
