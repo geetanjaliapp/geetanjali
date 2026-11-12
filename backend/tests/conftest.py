@@ -1,14 +1,14 @@
 """Pytest configuration and fixtures.
 
 CI runs every test not marked slow or e2e. Markers are registered in pyproject.toml
-(--strict-markers): unit and integration are labels and select nothing in CI.
+(--strict-markers): unit and integration select nothing in CI, but `unit` turns off mock_cache.
 
 Organization:
-    1. Environment & Configuration (lines ~15-80)
-    2. Database Infrastructure (lines ~85-165)
-    3. Core Fixtures: db_session, client (lines ~170-230)
-    4. Auto-Mock Fixtures: cache, tasks, email (lines ~235-265)
-    5. Domain Fixtures: seeded_principles, case_with_output (lines ~270-385)
+    1. Environment & Configuration
+    2. Database Infrastructure
+    3. Core Fixtures: db_session, mock_cache, client
+    4. Auto-Mock Fixtures: startup sync, tasks, email
+    5. Domain Fixtures: seeded_principles, case_with_output
 """
 
 # =============================================================================
@@ -190,14 +190,6 @@ def db_session():
         Base.metadata.drop_all(bind=engine)
 
 
-@pytest.fixture(autouse=True)
-def no_startup_sync():
-    """The lifespan's content sync writes through the app's own session, which on Postgres is
-    the test database: its seeded rows collide with each test's own."""
-    with patch("main._sync_curated_content"):
-        yield
-
-
 @pytest.fixture(scope="function", autouse=True)
 def mock_cache(request):
     """Patch the cache service to use in-memory cache during integration tests.
@@ -240,6 +232,14 @@ def client(db_session):
 # =============================================================================
 # Section 4: Auto-Mock Fixtures
 # =============================================================================
+
+
+@pytest.fixture(autouse=True)
+def no_startup_sync():
+    """The lifespan's content sync writes through the app's own session, which on Postgres is
+    the test database: its seeded rows collide with each test's own."""
+    with patch("main._sync_curated_content"):
+        yield
 
 
 @pytest.fixture(autouse=True)
