@@ -131,7 +131,9 @@ class TestContactCRLFPrevention:
     whitespace run, line breaks included, into one space: that fold is the only guard."""
 
     @pytest.mark.parametrize("field", ["name", "subject"])
-    @pytest.mark.parametrize("brk", ["\n", "\r", "\r\n", "\u2028"])
+    @pytest.mark.parametrize(
+        "brk", ["\n", "\r", "\r\n", "\x0b", "\x0c", "\x85", "\u2028", "\u2029"]
+    )
     def test_line_breaks_fold_to_a_space(self, field, brk):
         data = {
             "name": "User",
