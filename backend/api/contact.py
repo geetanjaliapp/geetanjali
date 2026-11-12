@@ -4,7 +4,7 @@ import logging
 from enum import Enum
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy.orm import Session
 
 from api.dependencies import limiter
@@ -39,16 +39,6 @@ class ContactRequest(BaseModel):
     )
     subject: SafeTitle | None = Field(None, description="Optional subject line")
     message: SafeText = Field(..., min_length=10, description="Message content")
-
-    @field_validator("name", "subject")
-    @classmethod
-    def reject_crlf(cls, v: str | None) -> str | None:
-        """Reject CRLF characters to prevent email header injection."""
-        if v is None:
-            return v
-        if "\r" in v or "\n" in v:
-            raise ValueError("Field cannot contain newline characters")
-        return v
 
 
 class ContactResponse(BaseModel):
