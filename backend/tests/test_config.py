@@ -28,12 +28,6 @@ class TestConfigurationSync:
         """Path to .env.example."""
         return Path(__file__).parent.parent.parent / ".env.example"
 
-    def _extract_env_value(self, content: str, key: str) -> str | None:
-        """Extract value from env file content."""
-        pattern = rf"^{key}=(.+)$"
-        matches = re.findall(pattern, content, re.MULTILINE)
-        return matches[0] if matches else None
-
     def test_rate_limit_values_defined(self, settings):
         """Cost Defense rate limit values must be defined."""
         assert hasattr(settings, "ANALYZE_RATE_LIMIT")
