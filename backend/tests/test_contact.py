@@ -132,7 +132,8 @@ class TestContactCRLFPrevention:
 
     @pytest.mark.parametrize("field", ["name", "subject"])
     @pytest.mark.parametrize(
-        "brk", ["\n", "\r", "\r\n", "\x0b", "\x0c", "\x85", "\u2028", "\u2029"]
+        "brk",
+        ["\n", "\r", "\r\n", "\x0b", "\x0c", "\x1c", "\x1d", "\x1e", "\x85", "\u2028", "\u2029"],
     )
     def test_line_breaks_fold_to_a_space(self, field, brk):
         data = {
