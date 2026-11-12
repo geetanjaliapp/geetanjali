@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
-// Mock dependencies to keep the test focused on the anchor verse UI
+// Mock dependencies to keep the test focused on the form UI
 vi.mock("../lib/api", () => ({
   casesApi: {
     create: vi.fn().mockResolvedValue({ id: "test-case-id" }),
@@ -65,6 +65,46 @@ vi.mock("../components/InspirationVerse", () => ({
 }));
 
 import NewCase from "./NewCase";
+import crisisNotice from "../content/crisis-notice.json";
+
+function renderNewCase() {
+  return render(
+    <MemoryRouter initialEntries={["/cases/new"]}>
+      <NewCase />
+    </MemoryRouter>,
+  );
+}
+
+describe("NewCase crisis notice", () => {
+  it("describes the question box with the notice", () => {
+    renderNewCase();
+    const question = screen.getByLabelText("What dilemma are you facing?");
+    expect(question).toHaveAccessibleDescription(crisisNotice.text);
+    expect(document.getElementById("crisis-notice")).toHaveTextContent(
+      crisisNotice.text,
+    );
+  });
+
+  it("describes the question box with the notice and the error", () => {
+    renderNewCase();
+    const question = screen.getByLabelText("What dilemma are you facing?");
+    fireEvent.submit(question.closest("form")!);
+    expect(question).toHaveAccessibleDescription(
+      `Please describe your situation ${crisisNotice.text}`,
+    );
+    expect(document.getElementById("question-error")).not.toBeNull();
+  });
+
+  it("states that questions are stored and keeps the advice span", () => {
+    renderNewCase();
+    expect(
+      screen.getByText(/Your question is stored and analyzed by AI/),
+    ).toBeInTheDocument();
+    expect(
+      screen.getAllByText(/Not a substitute for professional advice\./),
+    ).toHaveLength(1);
+  });
+});
 
 describe("NewCase with anchor verse", () => {
   it("shows anchor banner when ?verse= is present", () => {

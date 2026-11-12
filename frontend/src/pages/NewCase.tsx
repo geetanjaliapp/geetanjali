@@ -5,6 +5,7 @@ import type { Case } from "../types";
 import { Navbar } from "../components";
 import { ExampleQuestions } from "../components/ExampleQuestions";
 import { InspirationVerse } from "../components/InspirationVerse";
+import { CrisisNotice } from "../components/case/CrisisNotice";
 import { errorMessages } from "../lib/errorMessages";
 import { validateContent } from "../lib/contentFilter";
 import { useSEO, useAsyncAction } from "../hooks";
@@ -379,7 +380,11 @@ export default function NewCase() {
                 onChange={handleChange}
                 rows={4}
                 aria-invalid={errors.question ? "true" : undefined}
-                aria-describedby={errors.question ? "question-error" : undefined}
+                aria-describedby={
+                  errors.question
+                    ? "question-error crisis-notice"
+                    : "crisis-notice"
+                }
                 className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base sm:text-lg border rounded-[var(--radius-button)] sm:rounded-[var(--radius-card)] focus:ring-2 focus:ring-[var(--border-focus)] focus:border-transparent bg-[var(--input-bg)] text-[var(--text-primary)] placeholder-[var(--text-muted)] ${
                   errors.question
                     ? "border-[var(--status-error-border)]"
@@ -411,6 +416,8 @@ export default function NewCase() {
                     : "✓"}
                 </span>
               </div>
+
+              <CrisisNotice id="crisis-notice" className="mt-2" />
 
               {/* Example Questions - smooth transition when hiding */}
               <div
@@ -545,8 +552,8 @@ export default function NewCase() {
 
           {/* Helper Text */}
           <p className="text-center text-xs sm:text-sm text-[var(--text-muted)] mt-4 sm:mt-6">
-            Your question is analyzed by AI using wisdom from the Bhagavad
-            Gita.
+            Your question is stored and analyzed by AI using wisdom from the
+            Bhagavad Gita.
             <br className="hidden sm:inline" />
             <span className="text-[var(--text-muted)]">
               {" "}

@@ -29,6 +29,9 @@ const GOOGLEBOT = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.co
 /** One sample URL per sitemap shape, shared with the backend and frontend route tests. */
 const SHAPES = JSON.parse(readFileSync(new URL("./sitemap-shapes.json", import.meta.url))).shapes;
 
+/** The notice copy the app renders; read inside its gate so a missing file fails only that gate. */
+const CRISIS_NOTICE_FILE = new URL("../../frontend/src/content/crisis-notice.json", import.meta.url);
+
 /** Console messages that are never acceptable. */
 const FATAL_CONSOLE = [
   /Content Security Policy/i,
@@ -339,6 +342,45 @@ async function main() {
     record("share control present", false, "no share button found on the verse page");
   }
 
+  const visit = async (path) => {
+    await page.goto(`${BASE}${path}`, { waitUntil: "domcontentloaded" });
+    // We must be looking at the app, not the crawler page; a UA rule matching headless Chrome
+    // would quietly turn these checks into checks of the bot pages.
+    const isSpa = await page.locator("#root").count().then((n) => n > 0);
+    return isSpa;
+  };
+
+  // --- Consultation form carries the crisis notice ---------------------------
+  // Covers the new consultation form only: the follow-up input needs an owned case, so unit tests
+  // cover that one.
+  let crisisNoticeText;
+  try {
+    crisisNoticeText = JSON.parse(readFileSync(CRISIS_NOTICE_FILE, "utf-8")).text;
+  } catch {
+    // reported by the gate below
+  }
+  if (!crisisNoticeText) {
+    record("consultation form shows the crisis notice", false, `no text in ${CRISIS_NOTICE_FILE.pathname}`);
+  } else {
+    const onSpa = await visit("/cases/new");
+    const crisisNotice =
+      onSpa &&
+      (await page
+        .getByText(crisisNoticeText, { exact: true })
+        .waitFor({ state: "visible", timeout: 15_000 })
+        .then(() => true)
+        .catch(() => false));
+    record(
+      "consultation form shows the crisis notice",
+      crisisNotice,
+      !onSpa
+        ? "served the crawler page, not the app"
+        : crisisNotice
+          ? ""
+          : `notice not visible; title "${await page.title()}"`,
+    );
+  }
+
   // --- Every advertised URL opens for a person ------------------------------
   // nginx serves crawlers static pages by User-Agent. From 2026-01 to 2026-10 three sitemap
   // shapes (/daily, /featured, /verses/chapter/N) had a crawler page and no SPA route: indexed,
@@ -350,14 +392,6 @@ async function main() {
   record("sitemap lists URLs", livePaths.length > 700, `${livePaths.length} URLs`);
   const unknown = livePaths.filter((p) => !SHAPES.some((s) => new RegExp(s.pattern).test(p)));
   record("every sitemap URL has a known shape", unknown.length === 0, unknown.slice(0, 5).join(", "));
-
-  const visit = async (path) => {
-    await page.goto(`${BASE}${path}`, { waitUntil: "domcontentloaded" });
-    // We must be looking at the app, not the crawler page; a UA rule matching headless Chrome
-    // would quietly turn this whole section into a check of the bot pages.
-    const isSpa = await page.locator("#root").count().then((n) => n > 0);
-    return isSpa;
-  };
 
   for (const { sample, title, ready } of SHAPES) {
     const isSpa = await visit(sample);
